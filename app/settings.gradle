@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+//        flatDir {
+//            dirs "${System.env.HOME}/bringyour/bringyour/client/build/android"
+//        }
+    }
+}
+rootProject.name = "BringYour"
+include ':app'

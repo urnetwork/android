@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BringYour</string>
+    <string name="title_connect">Connect</string>
+    <string name="title_provide">Provide</string>
+    <string name="title_devices">Devices</string>
+    <string name="title_account">Account</string>
+</resources>

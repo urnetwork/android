@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_connect">
+
+    <fragment
+        android:id="@+id/navigation_connect"
+        android:name="com.bringyour.network.ui.home.HomeFragment"
+        android:label="@string/title_connect"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_provide"
+        android:name="com.bringyour.network.ui.dashboard.DashboardFragment"
+        android:label="@string/title_provide"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/navigation_devices"
+        android:name="com.bringyour.network.ui.notifications.NotificationsFragment"
+        android:label="@string/title_devices"
+        tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_account"
+        android:name="com.bringyour.network.ui.notifications.NotificationsFragment"
+        android:label="@string/title_account"
+        tools:layout="@layout/fragment_notifications" />
+</navigation>
