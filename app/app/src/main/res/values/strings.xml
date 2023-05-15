@@ -4,4 +4,6 @@
     <string name="title_provide">Provide</string>
     <string name="title_devices">Devices</string>
     <string name="title_account">Account</string>
+
+    <string name="free_free_badge">You are on the free plan</string>
 </resources>

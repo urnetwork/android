@@ -1,19 +1,19 @@
 package com.bringyour.network
 
+import android.graphics.Color
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.util.TypedValue
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bringyour.network.databinding.ActivityMainBinding
-import com.bringyour.network.goclient.client.BringYourClient
 import com.bringyour.network.goclient.client.Client
 import com.bringyour.network.goclient.endpoint.Endpoint
-import com.bringyour.network.goclient.endpoint.Endpoints
 import com.bringyour.network.goclient.support.GLSurfaceViewBinder
-import com.bringyour.network.goclient.vc.StatusViewController
 import com.bringyour.network.goclient.vc.Vc
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -61,6 +61,17 @@ class MainActivity : AppCompatActivity() {
         val client = Client.newBringYourClient()
         val endpoints = Endpoint.newEndpoints(client)
         val statusVc = Vc.newStatusViewController()
+
+
+        // match the action bar background
+        val colorPrimaryTypedValue = TypedValue()
+        theme.resolveAttribute(R.attr.colorPrimary, colorPrimaryTypedValue, true)
+        @ColorInt val colorPrimary = colorPrimaryTypedValue.data
+        statusVc.setBackgroundColor(
+            Color.red(colorPrimary) / 255f,
+            Color.green(colorPrimary) / 255f,
+            Color.blue(colorPrimary) / 255f
+        )
 
 
         supportActionBar?.setCustomView(R.layout.view_status)

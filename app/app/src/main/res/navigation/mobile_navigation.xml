@@ -3,29 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_connect">
+    app:startDestination="@id/navigation_connect">
 
     <fragment
         android:id="@+id/navigation_connect"
-        android:name="com.bringyour.network.ui.home.HomeFragment"
+        android:name="com.bringyour.network.ui.connect.ConnectFragment"
         android:label="@string/title_connect"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_connect" />
 
     <fragment
         android:id="@+id/navigation_provide"
-        android:name="com.bringyour.network.ui.dashboard.DashboardFragment"
+        android:name="com.bringyour.network.ui.provide.ProvideFragment"
         android:label="@string/title_provide"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_provide" />
 
     <fragment
         android:id="@+id/navigation_devices"
-        android:name="com.bringyour.network.ui.notifications.NotificationsFragment"
+        android:name="com.bringyour.network.ui.devices.DevicesFragment"
         android:label="@string/title_devices"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_devices" />
 
     <fragment
         android:id="@+id/navigation_account"
-        android:name="com.bringyour.network.ui.notifications.NotificationsFragment"
+        android:name="com.bringyour.network.ui.account.AccountFragment"
         android:label="@string/title_account"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_account" />
 </navigation>

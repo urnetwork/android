@@ -1,0 +1,9 @@
+<resources>
+    <declare-styleable name="Theme.BringYour">
+
+        <attr name="colorPrimary" format="color" />
+<!--        <attr name="colorBackground" format="color" />-->
+
+
+    </declare-styleable>
+</resources>

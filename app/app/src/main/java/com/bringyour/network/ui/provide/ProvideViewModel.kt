@@ -1,13 +1,13 @@
-package com.bringyour.network.ui.notifications
+package com.bringyour.network.ui.provide
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class NotificationsViewModel : ViewModel() {
+class ProvideViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is notifications Fragment"
+        value = "Provide"
     }
     val text: LiveData<String> = _text
 }

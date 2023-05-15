@@ -1,4 +1,4 @@
-package com.bringyour.network.ui.notifications
+package com.bringyour.network.ui.account
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.bringyour.network.databinding.FragmentNotificationsBinding
+import com.bringyour.network.databinding.FragmentAccountBinding
 
-class NotificationsFragment : Fragment() {
+class AccountFragment : Fragment() {
 
-    private var _binding: FragmentNotificationsBinding? = null
+    private var _binding: FragmentAccountBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,14 +22,14 @@ class NotificationsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val notificationsViewModel =
-            ViewModelProvider(this).get(NotificationsViewModel::class.java)
+        val accountViewModel =
+            ViewModelProvider(this).get(AccountViewModel::class.java)
 
-        _binding = FragmentNotificationsBinding.inflate(inflater, container, false)
+        _binding = FragmentAccountBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textNotifications
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
+        val textView: TextView = binding.textAccount
+        accountViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root
