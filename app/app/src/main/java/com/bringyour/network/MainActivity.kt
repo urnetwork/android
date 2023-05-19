@@ -78,6 +78,8 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowCustomEnabled(true)
 //
         val view = supportActionBar?.customView?.findViewById(R.id.status_surface) as GLSurfaceView
+        // overlapping gl surfaces will draw on each other. The status should always be on top
+        view.setZOrderOnTop(true)
         GLSurfaceViewBinder.bind("status_surface", view, statusVc, endpoints)
     }
 }

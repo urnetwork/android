@@ -18,6 +18,10 @@
 
         <item name="android:actionBarStyle">@style/MyActionBar</item>
 
+        <item name="colorUpgradeBackground">@color/by_highlight</item>
+        <item name="colorUpgradeButton">@color/by_highlight_gray</item>
+        <item name="colorOnUpgradeButton">@color/white</item>
+
     </style>
 
 
