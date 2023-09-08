@@ -52,7 +52,7 @@ class ConnectFragment : Fragment() {
         val connectVc = Vc.newConnectViewController()
 
         val view = root.findViewById(R.id.connect_surface) as GLSurfaceView
-        GLSurfaceViewBinder.bind("connect_surface", view, connectVc, endpoints)
+        GLSurfaceViewBinder.bind("connect_surface", view, connectVc)
 
 
         /*

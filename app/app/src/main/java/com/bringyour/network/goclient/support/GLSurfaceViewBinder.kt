@@ -7,26 +7,24 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import com.bringyour.network.goclient.endpoint.Endpoints
 import com.bringyour.network.goclient.vc.GLViewCallback
 import com.bringyour.network.goclient.vc.GLViewController
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class GLSurfaceViewBinder (name: String, view: GLSurfaceView, glVc: GLViewController, endpoints: Endpoints) :
+class GLSurfaceViewBinder (name: String, view: GLSurfaceView, glVc: GLViewController) :
     GLViewCallback, GLSurfaceView.Renderer, View.OnAttachStateChangeListener {
 
     val name = name
     val view = view
     val glVc = glVc
-    val endpoints = endpoints
 
 //    val mainHandler = Handler(Looper.getMainLooper());
 
 
     companion object {
-        fun bind(name: String, view: GLSurfaceView, glVc: GLViewController, endpoints: Endpoints) {
-            val glBinder = GLSurfaceViewBinder(name, view, glVc, endpoints)
+        fun bind(name: String, view: GLSurfaceView, glVc: GLViewController) {
+            val glBinder = GLSurfaceViewBinder(name, view, glVc)
             // GLES20
 
             view.setEGLContextClientVersion(2)
@@ -50,7 +48,7 @@ class GLSurfaceViewBinder (name: String, view: GLSurfaceView, glVc: GLViewContro
 
     override fun update() {
         val isMain = Looper.myLooper() == Looper.getMainLooper()
-        Log.d(name, String.format("update (main=%b)", isMain))
+//        Log.d(name, String.format("update (main=%b)", isMain))
         view.requestRender()
     }
 
@@ -66,9 +64,9 @@ class GLSurfaceViewBinder (name: String, view: GLSurfaceView, glVc: GLViewContro
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        Log.d(name, "draw enter")
+//        Log.d(name, "draw enter")
         glVc.drawFrame()
-        Log.d(name, "draw exit")
+//        Log.d(name, "draw exit")
     }
 
 
@@ -76,7 +74,7 @@ class GLSurfaceViewBinder (name: String, view: GLSurfaceView, glVc: GLViewContro
 
     override fun onViewAttachedToWindow(v: View) {
         Log.d(name, "attach enter")
-        glVc.start(endpoints, this)
+        glVc.start(this)
         Log.d(name, "attach exit")
     }
 

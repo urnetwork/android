@@ -15,6 +15,7 @@ import com.bringyour.network.goclient.client.Client
 import com.bringyour.network.goclient.endpoint.Endpoint
 import com.bringyour.network.goclient.endpoint.Endpoints
 import com.bringyour.network.goclient.support.GLSurfaceViewBinder
+import com.bringyour.network.goclient.vc.ProvideViewController
 import com.bringyour.network.goclient.vc.Vc
 
 class ProvideFragment : Fragment() {
@@ -24,6 +25,8 @@ class ProvideFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private var provideVc : ProvideViewController? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,12 +46,10 @@ class ProvideFragment : Fragment() {
         }
 
         // fixme move client and endpoints into the application
-        val client: BringYourClient = Client.newBringYourClient()
-        val endpoints: Endpoints = Endpoint.newEndpoints(client)
-        val provideVc = Vc.newProvideViewController()
+        provideVc = Vc.newProvideViewController()
 
         val view = root.findViewById(R.id.provide_surface) as GLSurfaceView
-        GLSurfaceViewBinder.bind("provide_surface", view, provideVc, endpoints)
+        GLSurfaceViewBinder.bind("provide_surface", view, provideVc!!)
 
         return root
     }
@@ -56,5 +57,7 @@ class ProvideFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
+        provideVc?.close()
     }
 }

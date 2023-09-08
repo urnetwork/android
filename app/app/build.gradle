@@ -47,7 +47,7 @@ android {
 dependencies {
     // see https://developer.android.com/build/dependencies#groovy
 //    implementation name: 'client', ext: 'aar'
-//    compileOnly fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*-sources.jar'])
+    compileOnly fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*-sources.jar'])
     implementation fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*.aar', '*.jar'])
 
     implementation 'androidx.core:core-ktx:1.8.0'
