@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <uses-sdk android:minSdkVersion="24"/>
+<!--    <uses-sdk android:minSdkVersion="24"/>-->
 
 <!--    android:logo="@drawable/logo_by"-->
     <application
@@ -25,15 +25,27 @@
         android:theme="@style/Theme.BringYour"
         tools:targetApi="31">
 
+        <!-- FIXME LoginActivity is the launcher. On create, check for client token, and if present finish and launch mainactivity -->
+
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true"
-            android:label="@string/app_name">
+            android:theme="@style/Theme.BringYour.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".LoginWithPasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BringYour.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false">
         </activity>
 
         <service

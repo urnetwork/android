@@ -2,8 +2,8 @@ package com.bringyour.network
 
 import android.os.ParcelFileDescriptor
 import android.util.Log
-import com.bringyour.network.goclient.client.BringYourClient
-import com.bringyour.network.goclient.client.SendPacket
+import com.bringyour.client.BringYourDevice
+import com.bringyour.client.ReceivePacket
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -11,16 +11,18 @@ import java.util.concurrent.LinkedTransferQueue
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
-class Router(byClient: BringYourClient) {
+class Router(byDevice : BringYourDevice) {
     // takes a parcel file descriptor
 
     // RemoteUserNat
 
-    val byClient = byClient
+//    val byClient = byClient
+//    val byDevice = byDevice
+
 
     val clientIpv4: String? = "10.10.11.11"
     val clientIpv4PrefixLength = 24
-    val dnsIpv4s = listOf("8.8.8.8", "1.1.1.1", "9.9.9.9")
+    val dnsIpv4s = listOf("1.1.1.1", "8.8.8.8", "9.9.9.9")
 
     val clientIpv6: String? = null
     val clientIpv6PrefixLength = 64
@@ -69,7 +71,8 @@ class Router(byClient: BringYourClient) {
             }
 
             try {
-                val sendPacket = SendPacket {
+                // FIXME ReceivePacket
+                val receivePacket = ReceivePacket {
                     writeLock.lock()
                     try {
                         while (active) {
@@ -94,7 +97,7 @@ class Router(byClient: BringYourClient) {
                 }
 
                 Log.i("Router", "init")
-                val localSendPacketSub = byClient.addLocalSendPacket(sendPacket)
+                val localSendPacketSub = byDevice.addReceivePacket(receivePacket)
                 try {
                     var buffer = ByteArray(2048)
                     while (active) {
@@ -129,7 +132,7 @@ class Router(byClient: BringYourClient) {
                                 val n = fis!!.read(buffer)
 //                                Log.d("Router", String.format("read(%d)", n))
                                 // localReceive makes a copy
-                                byClient.localReceive(buffer, n)
+                                byDevice.sendPacket(buffer, n)
                             } catch (_: IOException) {
                                 closeIn()
                                 break

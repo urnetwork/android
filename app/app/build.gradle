@@ -50,6 +50,10 @@ dependencies {
     compileOnly fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*-sources.jar'])
     implementation fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*.aar', '*.jar'])
 
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation "circle.programmablewallet:sdk:1.+"
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'

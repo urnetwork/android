@@ -20,9 +20,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bringyour.network.databinding.ActivityMainBinding
-import com.bringyour.network.goclient.support.GLSurfaceViewBinder
-import com.bringyour.network.goclient.vc.StatusViewController
-import com.bringyour.network.goclient.vc.Vc
+import com.bringyour.client.support.GLSurfaceViewBinder
+import com.bringyour.client.StatusViewController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
@@ -68,7 +67,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 
 //        com.bringyour.network.goclient.client.
 
-        statusVc = Vc.newStatusViewController()
+        val app = application as MainApplication
+
+        statusVc = app.byDevice?.openStatusViewController()
 
 
         // match the action bar background
@@ -148,12 +149,15 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
     override fun onDestroy() {
         super.onDestroy()
 
-        statusVc?.close()
+        val app = application as MainApplication
+        app.byDevice?.closeViewController(statusVc)
+        statusVc = null
+//        statusVc?.close()
     }
 
     override fun onActivityResult(result: ActivityResult) {
         Log.i("Main","ACTIVITY RESULT")
-        if (result.resultCode === RESULT_OK) {
+        if (result.resultCode == RESULT_OK) {
             val intent = Intent(this, MainService::class.java)
             if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
                 startForegroundService(intent)

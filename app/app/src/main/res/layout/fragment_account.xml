@@ -7,16 +7,412 @@
     tools:context=".ui.devices.AccountFragment">
 
     <TextView
-        android:id="@+id/text_account"
+        android:id="@+id/account_network_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:text="heyimagonnagothere"
+
+
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif"
+        android:textSize="12pt"
+        />
+
+    <TextView
+        android:id="@+id/account_network_label_domain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toBottomOf="@id/account_network_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:text=".bringyour.network"
+
+
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="12pt"
+        />
+
+    <TextView
+        android:id="@+id/account_balance_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintWidth_min="192dp"
+        app:layout_constraintWidth_max="192dp"
+        app:layout_constraintTop_toBottomOf="@id/account_network_label_domain"
+        app:layout_constraintBottom_toTopOf="@id/account_subscription_top_barrier"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+        android:text="Transfer balance"
+
+        android:drawableLeft="@drawable/wallet_byio"
+        android:drawablePadding="4dp"
+        android:gravity="center_vertical"
+
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="16dp"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="8pt"
+        />
+
+
+    <TextView
+        android:id="@+id/account_balance_summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/account_balance_label"
+        app:layout_constraintBottom_toBottomOf="@id/account_balance_label"
+        app:layout_constraintLeft_toRightOf="@id/account_label_barrier"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:text="25Gib"
+
+
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+        />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/account_balance_bottom_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="account_balance_label,account_balance_summary" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/account_subscription_top_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="account_subscription_label,account_subscription_summary" />
+
+    <TextView
+        android:id="@+id/account_subscription_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintWidth_min="192dp"
+        app:layout_constraintWidth_max="192dp"
+        app:layout_constraintTop_toBottomOf="@id/account_balance_bottom_barrier"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+        android:text="Current subscription"
+
+
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="8pt"
+        />
+
+    <TextView
+        android:id="@+id/account_subscription_summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/account_subscription_label"
+        app:layout_constraintBottom_toBottomOf="@id/account_subscription_label"
+        app:layout_constraintLeft_toRightOf="@id/account_label_barrier"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:text="None"
+
+
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+        />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/account_subscription_bottom_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="account_subscription_label,account_subscription_summary" />
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Borderless"
+
+        android:id="@+id/account_subscription_change"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/account_subscription_bottom_barrier"
+        app:layout_constraintBottom_toTopOf="@id/account_wallet_top_barrier"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Change subscription"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="24dp"
+
+        />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/account_subscription_change_bottom_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="account_subscription_change" />
+
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/account_wallet_top_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="account_wallet_label,account_wallet_summary" />
+
+
+    <TextView
+        android:id="@+id/account_wallet_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintWidth_min="192dp"
+        app:layout_constraintWidth_max="192dp"
+        app:layout_constraintTop_toBottomOf="@id/account_subscription_change_bottom_barrier"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+        android:text="Wallet"
+
+
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="8pt"
+        />
+
+    <TextView
+        android:id="@+id/account_wallet_summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/account_wallet_label"
+        app:layout_constraintBottom_toBottomOf="@id/account_wallet_label"
+        app:layout_constraintLeft_toRightOf="@id/account_label_barrier"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:text="Circle USDC self-custody (Polygon)"
+
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+        />
+
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/account_wallet_bottom_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="account_wallet_label,account_wallet_summary" />
+
+
+    <TextView
+        android:id="@+id/account_wallet_balance_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintWidth_min="192dp"
+        app:layout_constraintWidth_max="192dp"
+        app:layout_constraintTop_toBottomOf="@id/account_wallet_bottom_barrier"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+        android:drawableLeft="@drawable/wallet_usdc_blue"
+        android:drawablePadding="4dp"
+        android:gravity="center_vertical"
+
+        android:text="Balance"
+
+
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="8pt"
+        />
+
+    <TextView
+        android:id="@+id/account_wallet_balance_summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/account_wallet_balance_label"
+        app:layout_constraintBottom_toBottomOf="@id/account_wallet_balance_label"
+        app:layout_constraintLeft_toRightOf="@id/account_wallet_balance_label"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:text="5 USDC"
+
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+        />
+
+    <TextView
+        android:id="@+id/account_wallet_pending_balance_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintWidth_min="192dp"
+        app:layout_constraintWidth_max="192dp"
+        app:layout_constraintTop_toBottomOf="@id/account_wallet_balance_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+        android:text="Pending balance"
+
+
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="8pt"
+        />
+
+    <TextView
+        android:id="@+id/account_wallet_pending_balance_summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/account_wallet_pending_balance_label"
+        app:layout_constraintBottom_toBottomOf="@id/account_wallet_pending_balance_label"
+        app:layout_constraintLeft_toRightOf="@id/account_wallet_balance_label"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:text="2 USDC"
+
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Borderless"
+
+        android:id="@+id/account_wallet_transfer_out"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/account_wallet_pending_balance_label"
+        app:layout_constraintBottom_toTopOf="@id/account_help"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Transfer out"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="24dp"
+
+        />
+
+
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Borderless"
+
+        android:id="@+id/account_help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/account_wallet_transfer_out"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="8dp"
+
+        android:text="Get help"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
+        />
+
+
+    <com.google.android.material.button.MaterialButton
+
+        android:id="@+id/account_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/account_help"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Logout"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+
+        />
+
+    <com.google.android.material.button.MaterialButton
+
+        android:id="@+id/account_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/account_logout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Delete account"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+
+        />
+
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/account_label_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="right"
+        app:constraint_referenced_ids="account_balance_label,account_subscription_label,account_wallet_label,account_wallet_balance_label,account_wallet_pending_balance_label" />
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

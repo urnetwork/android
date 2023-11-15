@@ -2,12 +2,15 @@
 <resources>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="almost_white">#FDFDFD</color>
+
 
     <color name="by_p_blue">#1D3150</color>
     <color name="by_p_gray">#A5ACB9</color>
     <color name="by_s_blue">#4148CD</color>
     <color name="by_s_brown">#B77B58</color>
     <color name="by_s_green">#20B24C</color>
+    <color name="p_s_gray">#EEEEEE</color>
 
     <color name="by_highlight">#FFF1A6</color>
     <color name="by_highlight_gray">#656565</color>

@@ -5,18 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.bringyour.client.Client.ProvideModeNone
+import com.bringyour.client.Client.ProvideModePublic
+import com.bringyour.client.ProvideViewController
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentProvideBinding
-import com.bringyour.network.goclient.client.BringYourClient
-import com.bringyour.network.goclient.client.Client
-import com.bringyour.network.goclient.endpoint.Endpoint
-import com.bringyour.network.goclient.endpoint.Endpoints
-import com.bringyour.network.goclient.support.GLSurfaceViewBinder
-import com.bringyour.network.goclient.vc.ProvideViewController
-import com.bringyour.network.goclient.vc.Vc
+import com.bringyour.client.support.GLSurfaceViewBinder
+import com.bringyour.network.MainApplication
 
 class ProvideFragment : Fragment() {
 
@@ -33,23 +32,31 @@ class ProvideFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val provideViewModel =
-            ViewModelProvider(this).get(ProvideViewModel::class.java)
 
         _binding = FragmentProvideBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+//
+//        val textView: TextView = binding.textProvide
+//        provideViewModel.text.observe(viewLifecycleOwner) {
+//            textView.text = it
+//        }
 
-        val textView: TextView = binding.textProvide
-        provideViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        val app = activity?.application as MainApplication
+        provideVc = app.byDevice?.openProvideViewController()
+
+//        val view = root.findViewById(R.id.provide_surface) as GLSurfaceView
+//        GLSurfaceViewBinder.bind("provide_surface", view, provideVc!!)
+
+        val provideSwitch = root.findViewById<CompoundButton>(R.id.provide_switch)
+        provideSwitch.setOnCheckedChangeListener { _, checked ->
+            if (checked) {
+                app.byDevice?.setProvideMode(ProvideModePublic)
+            } else {
+                app.byDevice?.setProvideMode(ProvideModeNone)
+            }
         }
 
-        // fixme move client and endpoints into the application
-        provideVc = Vc.newProvideViewController()
-
-        val view = root.findViewById(R.id.provide_surface) as GLSurfaceView
-        GLSurfaceViewBinder.bind("provide_surface", view, provideVc!!)
 
         return root
     }
@@ -58,6 +65,8 @@ class ProvideFragment : Fragment() {
         super.onDestroyView()
         _binding = null
 
-        provideVc?.close()
+        val app = activity?.application as MainApplication
+        app.byDevice?.closeViewController(provideVc)
+        provideVc = null
     }
 }

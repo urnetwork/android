@@ -83,6 +83,8 @@ class MainService : VpnService() {
 
 //        startForeground(1, getStatusNotificationBuilder().build());
 
+        // `START_STICKY` means that `onStartCommand` will be called on each launch of the service
+        // see https://developer.android.com/reference/android/app/Service#START_STICKY
         return START_STICKY
     }
 

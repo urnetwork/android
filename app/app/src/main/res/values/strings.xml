@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">BringYour</string>
     <string name="title_connect">Connect</string>
     <string name="title_provide">Provide</string>
@@ -12,5 +13,8 @@
     <string name="pro_superfast_badge">You have access to superfast providers and edges</string>
     <string name="pro_pro_thank">Thank you!</string>
 
+
+    <string name="login_logo_description">Fast and secure internet everywhere you want to be</string>
+    <string name="login_headline"><b>Fast and secure internet</b> wherever you want to be, with ultimate control of your data</string>
 
 </resources>
