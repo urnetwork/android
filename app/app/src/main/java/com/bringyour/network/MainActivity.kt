@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         navView.setupWithNavController(navController)
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setLogo(R.drawable.logo_by)
+        supportActionBar?.setLogo(R.drawable.logo_by_white_2)
         supportActionBar?.setDisplayUseLogoEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 

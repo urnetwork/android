@@ -35,7 +35,7 @@ class MainService : VpnService() {
         // establish
         val builder = Builder()
         builder.setSession("BringYour")
-        builder.setMtu(1500)
+        builder.setMtu(1440)
         builder.setBlocking(true)
         builder.addDisallowedApplication(packageName)
 

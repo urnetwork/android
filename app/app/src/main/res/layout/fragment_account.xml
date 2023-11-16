@@ -15,7 +15,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
 
-        android:text="heyimagonnagothere"
+        android:text="heyhey"
 
 
         android:layout_marginTop="8dp"

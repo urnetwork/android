@@ -28,6 +28,7 @@
     </style>
 
 
+
     <style name="Theme.BringYour.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/by_p_blue</item>

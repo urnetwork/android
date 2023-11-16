@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/login_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Create a network"
+        android:textSize="12pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+
+        />
+
+    <TextView
+        android:id="@+id/login_user_auth_jwt_summary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/login_header"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Google will be the primary login."
+        android:textSize="8pt"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/black"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+
+        />
+
+
+    <TextView
+        android:id="@+id/login_user_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/login_user_auth_jwt_summary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Your name"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="16dp"
+
+        />
+
+    <EditText
+
+        android:id="@+id/login_user_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/login_user_name_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:textSize="10pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:inputType="textPersonName"
+        />
+
+
+
+    <TextView
+        android:id="@+id/login_network_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/login_user_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Choose a network name"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="16dp"
+
+        />
+
+    <EditText
+
+        android:id="@+id/login_network_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/login_network_name_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:textSize="10pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:inputType="text"
+        />
+
+    <TextView
+        android:id="@+id/login_network_name_domain_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/login_network_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text=".bringyour.network"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:padding="8dp"
+        android:background="@color/p_s_gray"
+        />
+
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+
+        android:id="@+id/login_terms"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+
+        app:layout_constraintTop_toBottomOf="@id/login_network_name_domain_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+
+        android:paddingLeft="8dp"
+
+        android:text="@string/terms_jwt"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+
+        />
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:id="@+id/login_with_password_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/login_terms"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Create Network"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+
+        />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

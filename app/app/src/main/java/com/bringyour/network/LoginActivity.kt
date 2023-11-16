@@ -1,14 +1,26 @@
 package com.bringyour.network
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.VideoView
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.bringyour.client.AuthLoginArgs
+import com.bringyour.client.support.GLSurfaceViewBinder
 import com.bringyour.network.databinding.ActivityLoginBinding
 import com.google.android.gms.common.SignInButton
 import kotlin.math.sign
@@ -18,13 +30,21 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
 
+    private var app : MainApplication? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+        app = application as MainApplication
+
+        // immutable shadow
+        val app = app ?: return
+
+
         Log.i("BY", "LOGIN ACTIVITY")
 
-        if ((application as MainApplication).byDevice != null) {
+        if (app.byDevice != null) {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
@@ -39,61 +59,65 @@ class LoginActivity : AppCompatActivity() {
 
 
 
-        val videoView = findViewById<VideoView>(R.id.video_view)
-        videoView.setOnPreparedListener {
-            it.isLooping = true
-        }
+        setSupportActionBar(findViewById(R.id.nav_view))
 
-        val path = "android.resource://" + packageName + "/" + R.raw.login
-        videoView.setVideoURI(Uri.parse(path))
-        videoView.start()
+        val navController = findNavController(R.id.nav_host_fragment_activity_login)
 
 
-        /*
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
 
-        // Build a GoogleSignInClient with the options specified by gso.
-        val mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // Check for existing Google Sign In account, if the user is already signed in
-// the GoogleSignInAccount will be non-null.
-        // Check for existing Google Sign In account, if the user is already signed in
-// the GoogleSignInAccount will be non-null.
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-//        updateUI(account)
-*/
-
-        // Set the dimensions of the sign-in button.
-        // Set the dimensions of the sign-in button.
-        val signInButton = findViewById<SignInButton>(R.id.google_sign_in_button)
-        signInButton.setSize(SignInButton.SIZE_WIDE)
-        signInButton.setColorScheme(SignInButton.COLOR_LIGHT)
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.navigation_initial
+            )
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
 
 
-        val loginButton = findViewById<Button>(R.id.login_user_auth_button)
-        loginButton.setOnClickListener {
-            val userAuth = findViewById<EditText>(R.id.login_user_auth).text.toString()
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setLogo(R.drawable.logo_by_black_2)
+        supportActionBar?.setDisplayUseLogoEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
-            var args = AuthLoginArgs()
-            args.userAuth = userAuth
+//        navController.addOnDestinationChangedListener { _, destination, _ ->
+//            Log.i("LOGIN", "DESTINATION CHANGED ${destination.id}")
+//            when (destination.id) {
+//                R.id.navigation_initial -> {
+//                    supportActionBar?.hide()
+//                }
+//                else -> {
+//                    supportActionBar?.show()
+//                }
+//            }
+//        }
 
-            Log.i("LoginActivity", "GOT USER AUTH " + userAuth)
 
-            (application as MainApplication).byApi?.authLogin(args, { result, err ->
-                Log.i("LoginActivity", "GOT LOGIN RESULT " + result)
+//        supportActionBar?.setBackgroundDrawable(ColorDrawable(getColor(R.color.p_s_gray)))
 
-                if (err == null) {
-                    if (result.authAllowed != null && result.authAllowed.contains("password")) {
-                        var intent = Intent(this, LoginWithPasswordActivity::class.java)
-                        intent.putExtra("userAuth", userAuth)
-                        startActivity(intent)
-                    }
-                }
-            })
+        // fixme use a custom view to show up/down statistics and hot linpath spark
+        // setCustomView
 
-        }
+
+//        com.bringyour.network.goclient.client.
+
+
+
+
+
 
     }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                val navController = findNavController(R.id.nav_host_fragment_activity_login)
+                navController.navigateUp()
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 }
