@@ -65,13 +65,33 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="@id/login_verify_code_label"
         app:layout_constraintBottom_toBottomOf="@id/login_verify_code_label"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/login_resend_spinner"
         android:text="Resend"
         android:textAllCaps="false"
         android:textSize="8pt"
         android:fontFamily="sans-serif-thin"
         android:textColor="@color/by_p_blue"
         app:backgroundTint="@color/p_s_gray"
+
+        app:layout_goneMarginRight="16dp"
+
+        />
+
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/login_resend_spinner"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/login_verify_code_label"
+        app:layout_constraintBottom_toBottomOf="@id/login_verify_code_label"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:indeterminate="true"
+        app:indicatorSize="24dp"
+
+
         android:layout_marginRight="16dp"
 
         />
@@ -95,7 +115,7 @@
 
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Colored"
-        android:id="@+id/login_with_password_button"
+        android:id="@+id/login_verify_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/login_verify_code"
@@ -105,6 +125,24 @@
         android:fontFamily="sans-serif-thin"
         android:layout_marginTop="8dp"
         android:layout_marginLeft="16dp"
+
+        />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/login_verify_spinner"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/login_verify_button"
+        app:layout_constraintBottom_toBottomOf="@id/login_verify_button"
+        app:layout_constraintLeft_toRightOf="@id/login_verify_button"
+
+        android:indeterminate="true"
+        app:indicatorSize="24dp"
+
+
+        android:layout_marginRight="16dp"
 
         />
 

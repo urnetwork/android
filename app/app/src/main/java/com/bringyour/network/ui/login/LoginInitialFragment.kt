@@ -7,9 +7,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.VideoView
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -91,32 +94,52 @@ class LoginInitialFragment : Fragment() {
         signInButton.setColorScheme(SignInButton.COLOR_LIGHT)
 
 
+        val userAuth = root.findViewById<EditText>(R.id.login_user_auth)
+
+        val loginSpinner = root.findViewById<ProgressBar>(R.id.login_user_auth_spinner)
+        loginSpinner.visibility = GONE
+
         val loginButton = root.findViewById<Button>(R.id.login_user_auth_button)
         loginButton.setOnClickListener {
-            val userAuth = root.findViewById<EditText>(R.id.login_user_auth).text.toString()
 
-            var args = AuthLoginArgs()
-            args.userAuth = userAuth
 
             Log.i("LoginActivity", "GOT USER AUTH " + userAuth)
+
+            signInButton.isEnabled = false
+            userAuth.isEnabled = false
+            loginButton.isEnabled = false
+            loginSpinner.visibility = VISIBLE
+
+            val args = AuthLoginArgs()
+            args.userAuth = userAuth.text.toString()
+
 
             app.byApi?.authLogin(args, { result, err ->
                 Log.i("LoginActivity", "GOT LOGIN RESULT " + result)
 
-                if (err == null) {
-                    if (result.authAllowed != null && result.authAllowed.contains("password")) {
+                runBlocking(Dispatchers.Main.immediate) {
 
-                        runBlocking(Dispatchers.Main.immediate) {
+                    signInButton.isEnabled = true
+                    userAuth.isEnabled = true
+                    loginButton.isEnabled = true
+                    loginSpinner.visibility = GONE
+
+                    if (err == null) {
+                        if (result.authAllowed != null && result.authAllowed.contains("password")) {
+
+
                             val args = Bundle()
-                            args.putString("userAuth", userAuth)
+                            args.putString("userAuth", result.userAuth)
 
                             findNavController().navigate(R.id.navigation_password, args)
-                        }
 
-//                        var intent = Intent(activity, LoginWithPasswordActivity::class.java)
-//                        intent.putExtra("userAuth", userAuth)
-//                        startActivity(intent)
+
+    //                        var intent = Intent(activity, LoginWithPasswordActivity::class.java)
+    //                        intent.putExtra("userAuth", userAuth)
+    //                        startActivity(intent)
+                        }
                     }
+
                 }
             })
 

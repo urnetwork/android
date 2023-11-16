@@ -177,6 +177,21 @@
 
         />
 
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/login_user_auth_spinner"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/login_user_auth_button"
+        app:layout_constraintBottom_toBottomOf="@id/login_user_auth_button"
+        app:layout_constraintLeft_toRightOf="@id/login_user_auth_button"
+
+        android:indeterminate="true"
+        app:indicatorSize="24dp"
+
+        />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

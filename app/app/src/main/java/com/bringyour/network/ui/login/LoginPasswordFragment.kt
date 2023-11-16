@@ -6,9 +6,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -63,14 +66,17 @@ class LoginPasswordFragment : Fragment() {
 
         val userAuth = arguments?.getString("userAuth")
 
-
+        val loginPassword = root.findViewById<EditText>(R.id.login_password)
 
         root.findViewById<TextView>(R.id.login_description).text = "Log in using " + userAuth
 
-        val loginButton = root.findViewById<Button>(R.id.login_with_password_button)
+        val loginSpinner = root.findViewById<ProgressBar>(R.id.login_password_spinner)
+        loginSpinner.visibility = View.GONE
+
+        val loginButton = root.findViewById<Button>(R.id.login_password_button)
         loginButton.setOnClickListener {
 
-            val password = root.findViewById<EditText>(R.id.login_password).text.toString()
+            val password = loginPassword.text.toString()
 
             var args = AuthLoginWithPasswordArgs()
             args.userAuth = userAuth
@@ -78,27 +84,39 @@ class LoginPasswordFragment : Fragment() {
 
             Log.i("LoginWithPasswordActivity", "LOGIN WITH PASSWORD " + userAuth + " " + password)
 
+            loginPassword.isEnabled = false
+            loginButton.isEnabled = false
+            loginSpinner.visibility = VISIBLE
+
             app.byApi?.authLoginWithPassword(args, { result, err ->
                 if (err == null) {
                     Log.i("LoginWithPasswordActivity", "GOT RESULT " + it)
 
-                    if (result.network != null) {
-                        // now create a client id for the network
+                    runBlocking(Dispatchers.Main.immediate) {
 
-                        app.login(result.network.byJwt)
+                        loginPassword.isEnabled = true
+                        loginButton.isEnabled = true
+                        loginSpinner.visibility = GONE
 
-                        var authArgs = AuthNetworkClientArgs()
-                        authArgs.description = "test"
-                        authArgs.description = "test"
+                        if (result.network != null) {
+                            // now create a client id for the network
 
-                        app.byApi?.authNetworkClient(authArgs, { result, err ->
-                            Log.i("LoginWithPasswordActivity", "GOT CREATE CLIENT RESULT " + result)
+                            app.login(result.network.byJwt)
 
-                            if (result != null) {
+                            var authArgs = AuthNetworkClientArgs()
+                            authArgs.description = "test"
+                            authArgs.description = "test"
 
-                                app.loginClient(result.byJwt)
+                            app.byApi?.authNetworkClient(authArgs, { result, err ->
+                                Log.i(
+                                    "LoginWithPasswordActivity",
+                                    "GOT CREATE CLIENT RESULT " + result
+                                )
 
-                                runBlocking(Dispatchers.Main.immediate) {
+                                if (result != null) {
+
+                                    app.loginClient(result.byJwt)
+
 
                                     val intent = Intent(loginActivity, MainActivity::class.java)
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
@@ -106,8 +124,9 @@ class LoginPasswordFragment : Fragment() {
                                     loginActivity.finish()
                                 }
 
-                            }
-                        })
+                            })
+
+                        }
 
                     }
                 }
