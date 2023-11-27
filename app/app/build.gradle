@@ -1,9 +1,26 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
 
 android {
+    ext.appVersion = { ->
+        def out = new ByteArrayOutputStream()
+        exec {
+            executable 'warpctl'
+            args 'ls', 'version', '-b'
+            standardOutput out
+        }
+        return out.toString().trim()
+    }
+    ext.appVersionCode = { ->
+        // hours since company founding
+        def companyFounded = new SimpleDateFormat("MM/dd/yyyy").parse("05/23/2023")
+        return ((System.currentTimeMillis() - companyFounded.getTime()) / (1000 * 60 * 60)) as Integer
+    }
+
     namespace 'com.bringyour.network'
     compileSdk 33
 
@@ -11,8 +28,8 @@ android {
         applicationId "com.bringyour.network"
         minSdk 24
         targetSdk 33
-        versionCode 5
-        versionName "1.0"
+        versionCode appVersionCode()
+        versionName appVersion()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
