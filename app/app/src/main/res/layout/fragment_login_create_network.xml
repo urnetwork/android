@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+<androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/login_header"
+        android:id="@+id/create_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,10 +26,10 @@
 
 
     <TextView
-        android:id="@+id/login_user_name_label"
+        android:id="@+id/create_user_name_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_header"
+        app:layout_constraintTop_toBottomOf="@id/create_header"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Your name"
         android:textSize="8pt"
@@ -38,10 +42,10 @@
 
     <EditText
 
-        android:id="@+id/login_user_name"
+        android:id="@+id/create_user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_user_name_label"
+        app:layout_constraintTop_toBottomOf="@id/create_user_name_label"
         app:layout_constraintLeft_toLeftOf="parent"
         android:textSize="10pt"
         android:fontFamily="sans-serif-light"
@@ -54,10 +58,10 @@
 
 
     <TextView
-        android:id="@+id/login_user_auth_label"
+        android:id="@+id/create_user_auth_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_user_name"
+        app:layout_constraintTop_toBottomOf="@id/create_user_name"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Email or phone number"
         android:textSize="8pt"
@@ -70,10 +74,10 @@
 
     <EditText
 
-        android:id="@+id/login_user_auth"
+        android:id="@+id/create_user_auth"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_user_auth_label"
+        app:layout_constraintTop_toBottomOf="@id/create_user_auth_label"
         app:layout_constraintLeft_toLeftOf="parent"
         android:textSize="10pt"
         android:fontFamily="sans-serif-light"
@@ -85,10 +89,10 @@
         />
 
     <TextView
-        android:id="@+id/login_password_label"
+        android:id="@+id/create_password_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_user_auth"
+        app:layout_constraintTop_toBottomOf="@id/create_user_auth"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Password"
         android:textSize="8pt"
@@ -101,10 +105,10 @@
 
     <EditText
 
-        android:id="@+id/login_password"
+        android:id="@+id/create_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_password_label"
+        app:layout_constraintTop_toBottomOf="@id/create_password_label"
         app:layout_constraintLeft_toLeftOf="parent"
         android:textSize="10pt"
         android:fontFamily="sans-serif-light"
@@ -117,10 +121,28 @@
 
 
     <TextView
-        android:id="@+id/login_network_name_label"
+        android:id="@+id/create_password_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/create_password"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="@string/password_length_error"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/by_p_gray"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+
+        />
+
+
+    <TextView
+        android:id="@+id/create_network_name_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_password"
+        app:layout_constraintTop_toBottomOf="@id/create_password_error"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Choose a network name"
         android:textSize="8pt"
@@ -133,10 +155,10 @@
 
     <EditText
 
-        android:id="@+id/login_network_name"
+        android:id="@+id/create_network_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_network_name_label"
+        app:layout_constraintTop_toBottomOf="@id/create_network_name_label"
         app:layout_constraintLeft_toLeftOf="parent"
         android:textSize="10pt"
         android:fontFamily="sans-serif-light"
@@ -148,10 +170,10 @@
         />
 
     <TextView
-        android:id="@+id/login_network_name_domain_label"
+        android:id="@+id/create_network_name_domain_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_network_name"
+        app:layout_constraintTop_toBottomOf="@id/create_network_name"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text=".bringyour.network"
         android:textSize="8pt"
@@ -164,14 +186,14 @@
         />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/login_network_name_domain_spinner"
+        android:id="@+id/create_network_name_spinner"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        app:layout_constraintTop_toTopOf="@id/login_network_name_domain_label"
-        app:layout_constraintBottom_toBottomOf="@id/login_network_name_domain_label"
-        app:layout_constraintLeft_toRightOf="@id/login_network_name_domain_label"
+        app:layout_constraintTop_toTopOf="@id/create_network_name_domain_label"
+        app:layout_constraintBottom_toBottomOf="@id/create_network_name_domain_label"
+        app:layout_constraintLeft_toRightOf="@id/create_network_name_domain_label"
 
         android:indeterminate="true"
         app:indicatorSize="24dp"
@@ -179,29 +201,54 @@
 
 
     <TextView
-        android:id="@+id/login_network_name_domain_available_summary"
-        android:layout_width="wrap_content"
+        android:id="@+id/create_network_name_available"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_network_name_domain_label"
+        app:layout_constraintTop_toBottomOf="@id/create_network_name_domain_label"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:text="Available!"
         android:textSize="8pt"
         android:fontFamily="sans-serif-light"
         android:textColor="@color/by_s_green"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="0dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         />
+
+    <TextView
+        android:id="@+id/create_network_name_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/create_network_name_available"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="@string/network_name_check_error"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/by_p_gray"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/create_network_name_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="create_network_name_available_summary,create_network_name_error" />
 
 
     <com.google.android.material.checkbox.MaterialCheckBox
 
-        android:id="@+id/login_terms"
+        android:id="@+id/create_terms"
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
 
-        app:layout_constraintTop_toBottomOf="@id/login_network_name_domain_available_summary"
+        app:layout_constraintTop_toBottomOf="@id/create_network_name_barrier"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
 
@@ -220,10 +267,10 @@
 
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Colored"
-        android:id="@+id/login_with_password_button"
+        android:id="@+id/create_network_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_terms"
+        app:layout_constraintTop_toBottomOf="@id/create_terms"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Create Network"
         android:textSize="8pt"
@@ -234,20 +281,35 @@
         />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/login_with_password_spinner"
+        android:id="@+id/create_network_spinner"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        app:layout_constraintTop_toTopOf="@id/login_with_password_button"
-        app:layout_constraintBottom_toBottomOf="@id/login_with_password_button"
-        app:layout_constraintLeft_toRightOf="@id/login_with_password_button"
+        app:layout_constraintTop_toTopOf="@id/create_network_button"
+        app:layout_constraintBottom_toBottomOf="@id/create_network_button"
+        app:layout_constraintLeft_toRightOf="@id/create_network_button"
 
         android:indeterminate="true"
         app:indicatorSize="24dp"
 
         />
 
-
+    <TextView
+        android:id="@+id/create_network_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/create_network_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="@string/network_create_error"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/by_s_red"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

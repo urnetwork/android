@@ -10,6 +10,8 @@
     <color name="by_s_blue">#4148CD</color>
     <color name="by_s_brown">#B77B58</color>
     <color name="by_s_green">#20B24C</color>
+    <color name="by_s_orange">#FF8027</color>
+    <color name="by_s_red">#B2204C</color>
     <color name="p_s_gray">#EEEEEE</color>
 
     <color name="by_highlight">#FFF1A6</color>

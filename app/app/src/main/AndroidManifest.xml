@@ -38,12 +38,6 @@
         </activity>
 
         <activity
-            android:name=".LoginWithPasswordActivity"
-            android:exported="false"
-            android:theme="@style/Theme.BringYour.NoActionBar">
-        </activity>
-
-        <activity
             android:name=".MainActivity"
             android:exported="false">
         </activity>

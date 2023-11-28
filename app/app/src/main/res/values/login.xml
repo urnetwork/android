@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="password_length_error">Password must be at least 65 bits of entropy (at least 12 characters, mixed case, mixed alphanumeric and non-alphanumeric).</string>
+    <string name="network_name_length_error">Must be at least 6 characters. Make it longer.</string>
+    <string name="network_name_check_error">Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
+    <string name="network_create_error">Account might already exist. Please start over.</string>
+
+</resources>

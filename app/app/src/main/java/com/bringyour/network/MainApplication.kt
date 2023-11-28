@@ -7,6 +7,7 @@ import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
 import com.bringyour.client.ConnectViewController
 import com.bringyour.client.DevicesViewController
+import com.bringyour.client.LoginViewController
 import go.Universe
 import go.error
 
@@ -26,15 +27,16 @@ class MainApplication : Application() {
     val platformUrl = "wss://connect.bringyour.com"
     val apiUrl = "https://api.bringyour.com"
 
-    var byDevice : BringYourDevice? = null
-    var byApi : BringYourApi? = null
-    var asyncLocalState : AsyncLocalState? = null
-    var router : Router? = null
+    var byDevice: BringYourDevice? = null
+    var byApi: BringYourApi? = null
+    var asyncLocalState: AsyncLocalState? = null
+    var router: Router? = null
 
 
     // use one set of view controllers across the entire app
-    var connectVc : ConnectViewController? = null
-    var devicesVc : DevicesViewController? = null
+    var loginVc: LoginViewController? = null
+    var connectVc: ConnectViewController? = null
+    var devicesVc: DevicesViewController? = null
 
 
     override fun onCreate() {
@@ -43,6 +45,8 @@ class MainApplication : Application() {
         // use sync mode for the local state
         asyncLocalState = Client.newAsyncLocalState(filesDir.absolutePath)
         byApi = Client.newBringYourApi(apiUrl)
+
+        loginVc = Client.newLoginViewController(byApi)
 
         try {
             val byJwt = asyncLocalState?.localState()?.byJwt
