@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/login_header"
+        android:id="@+id/verify_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,10 +22,10 @@
 
 
     <TextView
-        android:id="@+id/login_description"
+        android:id="@+id/verify_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_header"
+        app:layout_constraintTop_toBottomOf="@id/verify_header"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:text="We sent a code to heyhey@bringyour.com. Please enter it below."
@@ -42,10 +42,10 @@
 
 
     <TextView
-        android:id="@+id/login_verify_code_label"
+        android:id="@+id/verify_code_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_description"
+        app:layout_constraintTop_toBottomOf="@id/verify_description"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Code"
         android:textSize="8pt"
@@ -60,12 +60,12 @@
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Borderless"
 
-        android:id="@+id/login_resend_code"
+        android:id="@+id/verify_resend_code_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/login_verify_code_label"
-        app:layout_constraintBottom_toBottomOf="@id/login_verify_code_label"
-        app:layout_constraintRight_toLeftOf="@id/login_resend_spinner"
+        app:layout_constraintTop_toTopOf="@id/verify_code_label"
+        app:layout_constraintBottom_toBottomOf="@id/verify_code_label"
+        app:layout_constraintRight_toLeftOf="@id/verify_resend_code_spinner"
         android:text="Resend"
         android:textAllCaps="false"
         android:textSize="8pt"
@@ -79,13 +79,13 @@
 
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/login_resend_spinner"
+        android:id="@+id/verify_resend_code_spinner"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        app:layout_constraintTop_toTopOf="@id/login_verify_code_label"
-        app:layout_constraintBottom_toBottomOf="@id/login_verify_code_label"
+        app:layout_constraintTop_toTopOf="@id/verify_code_label"
+        app:layout_constraintBottom_toBottomOf="@id/verify_code_label"
         app:layout_constraintRight_toRightOf="parent"
 
         android:indeterminate="true"
@@ -99,10 +99,10 @@
 
     <EditText
 
-        android:id="@+id/login_verify_code"
+        android:id="@+id/verify_code"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_verify_code_label"
+        app:layout_constraintTop_toBottomOf="@id/verify_code_label"
         app:layout_constraintLeft_toLeftOf="parent"
         android:textSize="10pt"
         android:fontFamily="sans-serif-light"
@@ -115,10 +115,10 @@
 
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Colored"
-        android:id="@+id/login_verify_button"
+        android:id="@+id/verify_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/login_verify_code"
+        app:layout_constraintTop_toBottomOf="@id/verify_code"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="Continue"
         android:textSize="8pt"
@@ -129,14 +129,14 @@
         />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/login_verify_spinner"
+        android:id="@+id/verify_spinner"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        app:layout_constraintTop_toTopOf="@id/login_verify_button"
-        app:layout_constraintBottom_toBottomOf="@id/login_verify_button"
-        app:layout_constraintLeft_toRightOf="@id/login_verify_button"
+        app:layout_constraintTop_toTopOf="@id/verify_button"
+        app:layout_constraintBottom_toBottomOf="@id/verify_button"
+        app:layout_constraintLeft_toRightOf="@id/verify_button"
 
         android:indeterminate="true"
         app:indicatorSize="24dp"
@@ -146,6 +146,20 @@
 
         />
 
-
+    <TextView
+        android:id="@+id/verify_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/verify_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="@string/verify_error"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/by_s_red"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

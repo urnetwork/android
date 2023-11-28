@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.Spanned
 import android.text.TextWatcher
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bringyour.client.LoginViewController
 import com.bringyour.client.NetworkCreateArgs
@@ -32,8 +34,6 @@ import kotlinx.coroutines.runBlocking
 import java.util.regex.Pattern
 
 class LoginCreateNetworkFragment : Fragment() {
-
-
     private var _binding: FragmentLoginCreateNetworkBinding? = null
 
     // This property is only valid between onCreateView and
@@ -46,9 +46,7 @@ class LoginCreateNetworkFragment : Fragment() {
 
     private var loginVc: LoginViewController? = null
 
-
     private var createNetworkButton: Button? = null
-
 
     private var hasUserName: Boolean = false
     private var hasUserAuth: Boolean = false
@@ -58,7 +56,6 @@ class LoginCreateNetworkFragment : Fragment() {
 
     private var networkNameEdited: Boolean = false
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -67,23 +64,17 @@ class LoginCreateNetworkFragment : Fragment() {
         _binding = FragmentLoginCreateNetworkBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-
         app = activity?.application as MainApplication
-
         // immutable shadow
         val app = app ?: return root
 
         loginActivity = activity as LoginActivity
-
         // immutable shadow
         val loginActivity = loginActivity ?: return root
 
         loginVc = app.loginVc
-
         val loginVc = loginVc ?: return root
 
-
-        // FIXME error texts
         val userName = root.findViewById<EditText>(R.id.create_user_name)
         val userAuth = root.findViewById<EditText>(R.id.create_user_auth)
         val password = root.findViewById<EditText>(R.id.create_password)
@@ -97,7 +88,6 @@ class LoginCreateNetworkFragment : Fragment() {
         val createNetworkSpinner = root.findViewById<ProgressBar>(R.id.create_network_spinner)
         val createNetworkError = root.findViewById<TextView>(R.id.create_network_error)
 
-
         passwordError.visibility = View.GONE
         networkNameAvailable.visibility = View.GONE
         networkNameError.visibility = View.GONE
@@ -106,11 +96,9 @@ class LoginCreateNetworkFragment : Fragment() {
         networkNameSpinner.visibility = View.GONE
         createNetworkSpinner.visibility = View.GONE
 
-
         // user name validation
         userName.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -130,7 +118,6 @@ class LoginCreateNetworkFragment : Fragment() {
         // user auth validation
         userAuth.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -138,7 +125,8 @@ class LoginCreateNetworkFragment : Fragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val userAuthStr = userAuth.text.toString().trim()
-                hasUserAuth = Patterns.EMAIL_ADDRESS.matcher(userAuthStr).matches() || Patterns.PHONE.matcher(userAuthStr).matches()
+                hasUserAuth = (Patterns.EMAIL_ADDRESS.matcher(userAuthStr).matches() ||
+                        Patterns.PHONE.matcher(userAuthStr).matches())
                 syncCreateNetworkButton()
             }
         })
@@ -146,7 +134,6 @@ class LoginCreateNetworkFragment : Fragment() {
         // password validation
         password.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -166,60 +153,53 @@ class LoginCreateNetworkFragment : Fragment() {
         })
 
         // network name validation
-
         // rules:
         // - must start with a letter
         // - alpha numeric and DNS compatible
-
         networkName.filters = arrayOf<InputFilter>(
             object: InputFilter {
                 override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence? {
                     if (start == end) {
                         // delete, accept
                         return null
-                    }
-
-                    if (dstart == 0) {
+                    } else if (dstart == 0) {
                         // must start with a letter
                         val out = StringBuilder()
                         for (i in start until end) {
                             if (Character.isLetter(source[i])) {
-                                out.append(source[i])
+                                out.append(Character.toLowerCase(source[i]))
                             } else if (0 < out.length && (Character.isLetter(source[i]) || Character.isDigit(source[i]))) {
-                                out.append(source[i])
+                                out.append(Character.toLowerCase(source[i]))
+                            }
+                        }
+                        return out
+                    } else {
+                        val out = StringBuilder()
+                        for (i in start until end) {
+                            if (Character.isLetter(source[i]) || Character.isDigit(source[i])) {
+                                out.append(Character.toLowerCase(source[i]))
                             }
                         }
                         return out
                     }
-
-                    val out = StringBuilder()
-                    for (i in start until end) {
-                        if (Character.isLetter(source[i]) || Character.isDigit(source[i])) {
-                            out.append(source[i])
-                        }
-                    }
-                    return out
                 }
             }
         )
 
         networkName.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
                 val networkNameStr = networkName.text.toString()
                 if (networkNameStr.length == 0) {
                     networkNameEdited = false
                 } else {
                     networkNameEdited = networkName.isFocused
                 }
-
 
                 networkNameAvailable.visibility = View.GONE
                 networkNameError.visibility = View.GONE
@@ -262,10 +242,7 @@ class LoginCreateNetworkFragment : Fragment() {
             syncCreateNetworkButton()
         }
 
-
-
-
-
+        terms.movementMethod = LinkMovementMethod.getInstance()
 
         createNetworkButton?.setOnClickListener {
             userName.isEnabled = false
@@ -273,6 +250,7 @@ class LoginCreateNetworkFragment : Fragment() {
             password.isEnabled = false
             networkName.isEnabled = false
             terms.isEnabled = false
+            createNetworkButton?.isEnabled = false
             createNetworkSpinner.visibility = View.VISIBLE
 
             val args = NetworkCreateArgs()
@@ -282,15 +260,14 @@ class LoginCreateNetworkFragment : Fragment() {
             args.networkName = networkName.text.toString()
             args.terms = terms.isChecked
 
-
             app.byApi?.networkCreate(args) { result, err ->
-
                 runBlocking(Dispatchers.Main.immediate) {
                     userName.isEnabled = true
                     userAuth.isEnabled = true
                     password.isEnabled = true
                     networkName.isEnabled = true
                     terms.isEnabled = true
+                    createNetworkButton?.isEnabled = true
                     createNetworkSpinner.visibility = View.GONE
 
                     if (err != null) {
@@ -302,7 +279,6 @@ class LoginCreateNetworkFragment : Fragment() {
 
                         app.loginClient(result.network.byJwt)
 
-
                         val intent = Intent(loginActivity, MainActivity::class.java)
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
                         startActivity(intent)
@@ -313,30 +289,23 @@ class LoginCreateNetworkFragment : Fragment() {
                         val navArgs = Bundle()
                         navArgs.putString("userAuth", result.verificationRequired.userAuth)
 
-                        findNavController().navigate(R.id.navigation_network_verify, navArgs)
+                        val navOpts = NavOptions.Builder()
+                            .setPopUpTo(R.id.navigation_initial, false, false)
+                            .build()
+
+                        findNavController().navigate(R.id.navigation_verify, navArgs, navOpts)
                     }
-
-
                 }
             }
         }
 
-
-
         syncCreateNetworkButton()
-
-
-
-
 
         return root
     }
 
-
-
     override fun onStart() {
         super.onStart()
-
 
         // immutable shadow
         val loginActivity = loginActivity ?: return
@@ -344,9 +313,7 @@ class LoginCreateNetworkFragment : Fragment() {
         loginActivity.supportActionBar?.show()
     }
 
-
     private fun syncCreateNetworkButton() {
         createNetworkButton?.isEnabled = hasUserName && hasUserAuth && hasPassword && hasNetworkName && hasTerms
     }
-
 }

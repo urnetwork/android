@@ -5,4 +5,5 @@
     <string name="network_name_check_error">Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
     <string name="network_create_error">Account might already exist. Please start over.</string>
 
+    <string name="verify_error">Could not verify code.</string>
 </resources>

@@ -75,7 +75,7 @@
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.AppCompat.Button.Borderless"
 
-        android:id="@+id/login_create_button"
+        android:id="@+id/login_create_network_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="@id/login_header"
@@ -167,7 +167,6 @@
         />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/login_user_auth_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

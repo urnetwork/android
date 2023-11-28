@@ -15,7 +15,8 @@
         android:id="@+id/navigation_create_network"
         android:name="com.bringyour.network.ui.login.LoginCreateNetworkFragment"
         android:label="@string/title_login"
-        tools:layout="@layout/fragment_login_create_network" />
+        tools:layout="@layout/fragment_login_create_network"
+        />
 
     <fragment
         android:id="@+id/navigation_create_network_auth_jwt"
@@ -24,10 +25,10 @@
         tools:layout="@layout/fragment_login_create_network_auth_jwt" />
 
     <fragment
-        android:id="@+id/navigation_network_verify"
-        android:name="com.bringyour.network.ui.login.LoginNetworkVerifyFragment"
+        android:id="@+id/navigation_verify"
+        android:name="com.bringyour.network.ui.login.LoginVerifyFragment"
         android:label="@string/title_login"
-        tools:layout="@layout/fragment_login_network_verify" />
+        tools:layout="@layout/fragment_login_verify" />
 
     <fragment
         android:id="@+id/navigation_password"

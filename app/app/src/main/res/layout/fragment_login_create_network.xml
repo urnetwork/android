@@ -237,7 +237,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="create_network_name_available_summary,create_network_name_error" />
+        app:constraint_referenced_ids="create_network_name_available,create_network_name_error" />
 
 
     <com.google.android.material.checkbox.MaterialCheckBox
@@ -263,10 +263,10 @@
         android:textSize="8pt"
         android:fontFamily="sans-serif-thin"
 
+        app:buttonTint="@color/login_checkbox"
         />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/Widget.AppCompat.Button.Colored"
         android:id="@+id/create_network_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
