@@ -2,12 +2,12 @@ package com.bringyour.network.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
@@ -64,82 +64,95 @@ class LoginPasswordFragment : Fragment() {
 
 
 
-        val userAuth = arguments?.getString("userAuth")
-
-        val loginPassword = root.findViewById<EditText>(R.id.login_password)
-
-        root.findViewById<TextView>(R.id.login_description).text = "Log in using " + userAuth
-
-        val loginSpinner = root.findViewById<ProgressBar>(R.id.login_password_spinner)
-        loginSpinner.visibility = View.GONE
-
-        val loginButton = root.findViewById<Button>(R.id.login_password_button)
-        loginButton.setOnClickListener {
-
-            val password = loginPassword.text.toString()
-
-            var args = AuthLoginWithPasswordArgs()
-            args.userAuth = userAuth
-            args.password = password
-
-            Log.i("LoginWithPasswordActivity", "LOGIN WITH PASSWORD " + userAuth + " " + password)
-
-            loginPassword.isEnabled = false
-            loginButton.isEnabled = false
-            loginSpinner.visibility = VISIBLE
-
-            app.byApi?.authLoginWithPassword(args, { result, err ->
-                if (err == null) {
-                    Log.i("LoginWithPasswordActivity", "GOT RESULT " + it)
-
-                    runBlocking(Dispatchers.Main.immediate) {
-
-                        loginPassword.isEnabled = true
-                        loginButton.isEnabled = true
-                        loginSpinner.visibility = GONE
-
-                        if (result.network != null) {
-                            // now create a client id for the network
-
-                            app.login(result.network.byJwt)
-
-                            var authArgs = AuthNetworkClientArgs()
-                            authArgs.description = "test"
-                            authArgs.description = "test"
-
-                            app.byApi?.authNetworkClient(authArgs, { result, err ->
-                                Log.i(
-                                    "LoginWithPasswordActivity",
-                                    "GOT CREATE CLIENT RESULT " + result
-                                )
-
-                                if (result != null) {
-
-                                    app.loginClient(result.byJwt)
-
-
-                                    val intent = Intent(loginActivity, MainActivity::class.java)
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
-                                    startActivity(intent)
-                                    loginActivity.finish()
-                                }
-
-                            })
-
-                        }
-
-                    }
-                }
-            })
-
-        }
+        val userAuthStr = arguments?.getString("userAuth")
 
 
         val forgotPasswordButton = root.findViewById<Button>(R.id.login_forgot_password_button)
+        val loginPasswordDescription = root.findViewById<TextView>(R.id.login_description)
+        val loginPassword = root.findViewById<EditText>(R.id.login_password)
+        val loginButton = root.findViewById<Button>(R.id.login_password_button)
+        val loginSpinner = root.findViewById<ProgressBar>(R.id.login_password_spinner)
+        val loginError = root.findViewById<TextView>(R.id.login_password_error)
+
+        loginPasswordDescription.text = getString(R.string.login_password_description, userAuthStr)
+        loginSpinner.visibility = View.GONE
+        loginError.visibility = View.GONE
+
         forgotPasswordButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_password_reset)
+            val navArgs = Bundle()
+            navArgs.putString("userAuth", userAuthStr)
+
+            findNavController().navigate(R.id.navigation_password_reset, navArgs)
         }
 
+        loginPassword.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                loginButton.isEnabled = (0 < loginPassword.text.toString().length)
+            }
+        })
+
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                loginPassword.isEnabled = false
+                loginButton.isEnabled = false
+                loginSpinner.visibility = View.VISIBLE
+            } else {
+                loginPassword.isEnabled = true
+                loginButton.isEnabled = true
+                loginSpinner.visibility = View.GONE
+            }
+        }
+
+        loginButton.setOnClickListener {
+            inProgress(true)
+
+            val args = AuthLoginWithPasswordArgs()
+            args.userAuth = userAuthStr
+            args.password = loginPassword.text.toString()
+
+            app.byApi?.authLoginWithPassword(args) { result, err ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    inProgress(false)
+
+                    if (err != null) {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = err.message
+                    } else if (result.error != null) {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = result.error.message
+                    } else if (result.network != null) {
+                        // now create a client id for the network
+                        loginError.visibility = View.GONE
+
+                        app.login(result.network.byJwt)
+
+                        inProgress(true)
+
+                        loginActivity.authClientAndFinish { error ->
+                            inProgress(false)
+
+                            if (error == null) {
+                                loginError.visibility = View.GONE
+                            } else {
+                                loginError.visibility = View.VISIBLE
+                                loginError.text = error
+                            }
+                        }
+                    } else {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = getString(R.string.login_error)
+                    }
+                }
+            }
+        }
+
+        loginButton.isEnabled = false
 
         return root
     }

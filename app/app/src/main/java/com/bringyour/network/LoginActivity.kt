@@ -1,29 +1,28 @@
 package com.bringyour.network
 
+import android.content.ComponentCallbacks
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.opengl.GLSurfaceView
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.EditText
-import android.widget.VideoView
-import androidx.annotation.ColorInt
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.bringyour.client.AuthLoginArgs
-import com.bringyour.client.support.GLSurfaceViewBinder
+import com.bringyour.client.AuthNetworkClientArgs
 import com.bringyour.network.databinding.ActivityLoginBinding
 import com.google.android.gms.common.SignInButton
-import kotlin.math.sign
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.Callable
 
 
 class LoginActivity : AppCompatActivity() {
@@ -118,6 +117,47 @@ class LoginActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+
+    fun authClientAndFinish(callback: (String?) -> Unit) {
+        val app = app ?: return
+
+        val authArgs = AuthNetworkClientArgs()
+        authArgs.description = "New device"
+        authArgs.deviceSpec = getDeviceSpec()
+
+        app.byApi?.authNetworkClient(authArgs) { result, err ->
+            runBlocking(Dispatchers.Main.immediate) {
+                if (err != null) {
+                    callback(err.message)
+                } else if (result.error != null) {
+                    callback(result.error.message)
+                } else if (0 < result.byClientJwt.length) {
+                    callback(null)
+
+                    app.loginClient(result.byClientJwt)
+
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    callback(getString(R.string.login_client_error))
+                }
+            }
+        }
+    }
+
+
+    companion object {
+        fun getDeviceSpec(): String {
+            if (32 <= Build.VERSION.SDK_INT) {
+                return "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
+            } else {
+                return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
+            }
+        }
     }
 
 }

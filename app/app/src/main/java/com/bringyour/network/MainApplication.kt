@@ -78,7 +78,7 @@ class MainApplication : Application() {
     }
 
     fun loginClient(byClientJwt : String) {
-        asyncLocalState?.localState()?.setByClientJwt(byClientJwt)
+        asyncLocalState?.localState()?.byClientJwt = byClientJwt
 
         val instanceId = asyncLocalState?.localState()?.instanceId
         byDevice = Client.newBringYourDevice(byClientJwt, platformUrl, apiUrl, instanceId)

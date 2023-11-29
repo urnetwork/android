@@ -1,12 +1,24 @@
 package com.bringyour.network.ui.login
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginPasswordResetAfterSendBinding
 
 class LoginPasswordResetAfterSendFragment : Fragment() {
@@ -40,19 +52,41 @@ class LoginPasswordResetAfterSendFragment : Fragment() {
         // immutable shadow
         val loginActivity = loginActivity ?: return root
 
+        val userAuthStr = arguments?.getString("userAuth")
+
+        val passwordResetDescription = root.findViewById<TextView>(R.id.password_reset_description)
+        val passwordResetResendButton = root.findViewById<Button>(R.id.password_reset_resend_button)
+        val passwordResetResendSpinner = root.findViewById<ProgressBar>(R.id.password_reset_resend_spinner)
+
+        passwordResetDescription.text = getString(R.string.password_reset_after_send_description, userAuthStr)
+
+        passwordResetResendSpinner.visibility = View.GONE
+
+        passwordResetResendButton.setOnClickListener {
+            passwordResetResendButton.isEnabled = false
+
+            passwordResetResendSpinner.visibility = View.VISIBLE
+
+            // FIXME add send code to api
+//            app.byApi.RESEND {
+            passwordResetResendButton.text = getString(R.string.password_reset_sent)
+            passwordResetResendSpinner.visibility = View.GONE
+            // allow sending another code after a delay
+            Handler(Looper.getMainLooper()).postDelayed({
+                passwordResetResendButton.isEnabled = true
+                passwordResetResendButton.text = getString(R.string.password_reset_resend)
+            }, 15 * 1000)
+            // }
+        }
 
         return root
     }
 
-
-
     override fun onStart() {
         super.onStart()
 
-
         // immutable shadow
         val loginActivity = loginActivity ?: return
-
         loginActivity.supportActionBar?.show()
     }
 }

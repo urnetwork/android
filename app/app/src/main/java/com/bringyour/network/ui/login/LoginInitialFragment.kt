@@ -12,8 +12,6 @@ import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
@@ -28,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bringyour.client.AuthLoginArgs
 import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.MainService
 import com.bringyour.network.R
@@ -39,9 +38,10 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.w3c.dom.Text
 
 
-class LoginInitialFragment : Fragment(), ActivityResultCallback<ActivityResult> {
+class LoginInitialFragment : Fragment() {
     private var _binding: FragmentLoginInitialBinding? = null
 
     // This property is only valid between onCreateView and
@@ -53,6 +53,9 @@ class LoginInitialFragment : Fragment(), ActivityResultCallback<ActivityResult> 
     private var loginActivity: LoginActivity? = null
 
     private var videoView: VideoView? = null
+
+    private var loginButton: Button? = null
+    private var hasUserAuth: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,6 +85,156 @@ class LoginInitialFragment : Fragment(), ActivityResultCallback<ActivityResult> 
         googleSignInButton.setSize(SignInButton.SIZE_STANDARD)
         googleSignInButton.setColorScheme(SignInButton.COLOR_LIGHT)
 
+        val userAuth = root.findViewById<EditText>(R.id.login_user_auth)
+        loginButton = root.findViewById<Button>(R.id.login_user_auth_button)
+        val loginSpinner = root.findViewById<ProgressBar>(R.id.login_user_auth_spinner)
+        val loginError = root.findViewById<TextView>(R.id.login_error)
+
+        loginButton?.isEnabled = false
+
+        loginSpinner.visibility = View.GONE
+        loginError.visibility = View.GONE
+
+        userAuth.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val userAuthStr = userAuth.text.toString().trim()
+                hasUserAuth = (Patterns.EMAIL_ADDRESS.matcher(userAuthStr).matches() ||
+                                Patterns.PHONE.matcher(userAuthStr).matches())
+                syncLoginButton()
+            }
+        })
+
+        loginButton?.setOnClickListener {
+            googleSignInButton.isEnabled = false
+            userAuth.isEnabled = false
+            loginButton?.isEnabled = false
+            loginSpinner.visibility = View.VISIBLE
+
+            val args = AuthLoginArgs()
+            args.userAuth = userAuth.text.toString().trim()
+
+            app.byApi?.authLogin(args) { result, err ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    googleSignInButton.isEnabled = true
+                    userAuth.isEnabled = true
+                    loginSpinner.visibility = View.GONE
+
+                    Log.i("LoginInitialFragment", "GOT RESULT " + result)
+
+                    syncLoginButton()
+
+                    if (err != null) {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = err.message
+                    } else if (result.error != null) {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = result.error.message
+                    } else if (result.authAllowed != null) {
+                        if (result.authAllowed.contains("password")) {
+                            loginError.visibility = View.GONE
+                            val navArgs = Bundle()
+                            navArgs.putString("userAuth", result.userAuth)
+
+                            findNavController().navigate(R.id.navigation_password, navArgs)
+                        } else {
+                            val authAllowed = mutableListOf<String>()
+                            for (i in 0 until result.authAllowed.len()) {
+                                authAllowed.add(result.authAllowed.get(i))
+                            }
+
+                            loginError.visibility = View.VISIBLE
+                            loginError.text = getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
+                        }
+                    } else {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = getString(R.string.login_error)
+                    }
+                }
+            }
+        }
+
+        val createButton = root.findViewById<Button>(R.id.login_create_network_button)
+        createButton.setOnClickListener {
+            findNavController().navigate(R.id.navigation_create_network)
+        }
+
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                googleSignInButton.isEnabled = false
+                userAuth.isEnabled = false
+                loginButton?.isEnabled = false
+                loginSpinner.visibility = View.VISIBLE
+            } else {
+                googleSignInButton.isEnabled = true
+                userAuth.isEnabled = true
+                loginSpinner.visibility = View.GONE
+                syncLoginButton()
+            }
+        }
+
+        val googleLogin = { account: GoogleSignInAccount ->
+            inProgress(true)
+
+            val args = AuthLoginArgs()
+            args.authJwt = account.idToken
+            args.authJwtType = "google"
+
+            app.byApi?.authLogin(args) { result, err ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    inProgress(false)
+
+                    if (err != null) {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = err.message
+                    } else if (result.error != null) {
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = result.error.message
+                    } else if (result.network != null && 0 < result.network.byJwt.length) {
+                        loginError.visibility = View.GONE
+
+                        app.login(result.network.byJwt)
+
+                        inProgress(true)
+
+                        loginActivity?.authClientAndFinish { error ->
+                            inProgress(false)
+
+                            if (error == null) {
+                                loginError.visibility = View.GONE
+                            } else {
+                                loginError.visibility = View.VISIBLE
+                                loginError.text = error
+                            }
+                        }
+                    } else if (result.authAllowed != null) {
+                        val authAllowed = mutableListOf<String>()
+                        for (i in 0 until result.authAllowed.len()) {
+                            authAllowed.add(result.authAllowed.get(i))
+                        }
+
+                        loginError.visibility = View.VISIBLE
+                        loginError.text = getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
+                    } else {
+                        loginError.visibility = View.GONE
+
+                        val navArgs = Bundle()
+                        navArgs.putString("authJwtType", "google")
+                        navArgs.putString("authJwt", account.idToken)
+                        navArgs.putString("userName", result.userName)
+                        navArgs.putString("userAuth", account.email)
+
+                        findNavController().navigate(R.id.navigation_create_network_auth_jwt, navArgs)
+                    }
+                }
+            }
+        }
+
         val account = GoogleSignIn.getLastSignedInAccount(requireContext())
         if (account != null) {
             setGoogleSignInButtonText(googleSignInButton, "Continue as ${account.email}")
@@ -97,69 +250,21 @@ class LoginInitialFragment : Fragment(), ActivityResultCallback<ActivityResult> 
             val googleSignInClient = GoogleSignIn.getClient(requireContext(), googleSignInOpts)
 
             val launcher = registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult(),
-                this
-            )
+                ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    googleLogin(account)
+                } catch (e: ApiException) {
+                    Log.w("LoginInitialFragment", "signInResult:failed code=" + e.statusCode)
+                }
+            }
 
             setGoogleSignInButtonText(googleSignInButton, "Continue with Google")
             googleSignInButton.setOnClickListener {
                 launcher.launch(googleSignInClient.signInIntent)
             }
-        }
-
-        val userAuth = root.findViewById<EditText>(R.id.login_user_auth)
-        val loginButton = root.findViewById<Button>(R.id.login_user_auth_button)
-        val loginSpinner = root.findViewById<ProgressBar>(R.id.login_user_auth_spinner)
-
-        loginButton.isEnabled = false
-
-        loginSpinner.visibility = GONE
-
-        userAuth.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val userAuthStr = userAuth.text.toString().trim()
-                loginButton.isEnabled = (Patterns.EMAIL_ADDRESS.matcher(userAuthStr).matches() ||
-                                Patterns.PHONE.matcher(userAuthStr).matches())
-            }
-        })
-
-        loginButton.setOnClickListener {
-            googleSignInButton.isEnabled = false
-            userAuth.isEnabled = false
-            loginButton.isEnabled = false
-            loginSpinner.visibility = VISIBLE
-
-            val args = AuthLoginArgs()
-            args.userAuth = userAuth.text.toString().trim()
-
-            app.byApi?.authLogin(args) { result, err ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    googleSignInButton.isEnabled = true
-                    userAuth.isEnabled = true
-                    loginButton.isEnabled = true
-                    loginSpinner.visibility = GONE
-
-                    if (err == null) {
-                        if (result.authAllowed != null && result.authAllowed.contains("password")) {
-                            val navArgs = Bundle()
-                            navArgs.putString("userAuth", result.userAuth)
-
-                            findNavController().navigate(R.id.navigation_password, navArgs)
-                        }
-                    }
-                }
-            }
-        }
-
-        val createButton = root.findViewById<Button>(R.id.login_create_network_button)
-        createButton.setOnClickListener {
-            findNavController().navigate(R.id.navigation_create_network)
         }
 
         return root
@@ -185,34 +290,21 @@ class LoginInitialFragment : Fragment(), ActivityResultCallback<ActivityResult> 
         videoView?.stopPlayback()
     }
 
-    override fun onActivityResult(result: ActivityResult) {
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            googleLogin(account)
-        } catch (e: ApiException) {
-            Log.w("LoginInitialFragment", "signInResult:failed code=" + e.statusCode)
-        }
+    private fun syncLoginButton() {
+        loginButton?.isEnabled = hasUserAuth
     }
 
-    private fun setGoogleSignInButtonText(googleSignInButton: SignInButton, text: String) {
-        // set the text on the first text view in the button
-        for (i in 0 until googleSignInButton.childCount) {
-            val v = googleSignInButton.getChildAt(i)
-            if (v is TextView) {
-                v.text = text
-                return
+
+    companion object {
+        fun setGoogleSignInButtonText(googleSignInButton: SignInButton, text: String) {
+            // set the text on the first text view in the button
+            for (i in 0 until googleSignInButton.childCount) {
+                val v = googleSignInButton.getChildAt(i)
+                if (v is TextView) {
+                    v.text = text
+                    return
+                }
             }
         }
-    }
-
-    private fun googleLogin(account: GoogleSignInAccount) {
-        val navArgs = Bundle()
-        navArgs.putString("jwtType", "Google")
-        navArgs.putString("jwt", account.idToken)
-        navArgs.putString("userName", account.displayName)
-        navArgs.putString("userAuth", account.email)
-
-        findNavController().navigate(R.id.navigation_create_network_auth_jwt, navArgs)
     }
 }

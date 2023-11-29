@@ -153,38 +153,7 @@ class LoginCreateNetworkFragment : Fragment() {
         })
 
         // network name validation
-        // rules:
-        // - must start with a letter
-        // - alpha numeric and DNS compatible
-        networkName.filters = arrayOf<InputFilter>(
-            object: InputFilter {
-                override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence? {
-                    if (start == end) {
-                        // delete, accept
-                        return null
-                    } else if (dstart == 0) {
-                        // must start with a letter
-                        val out = StringBuilder()
-                        for (i in start until end) {
-                            if (Character.isLetter(source[i])) {
-                                out.append(Character.toLowerCase(source[i]))
-                            } else if (0 < out.length && (Character.isLetter(source[i]) || Character.isDigit(source[i]))) {
-                                out.append(Character.toLowerCase(source[i]))
-                            }
-                        }
-                        return out
-                    } else {
-                        val out = StringBuilder()
-                        for (i in start until end) {
-                            if (Character.isLetter(source[i]) || Character.isDigit(source[i])) {
-                                out.append(Character.toLowerCase(source[i]))
-                            }
-                        }
-                        return out
-                    }
-                }
-            }
-        )
+        networkName.filters = arrayOf<InputFilter>(NetworkNameInputFilter())
 
         networkName.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -244,14 +213,28 @@ class LoginCreateNetworkFragment : Fragment() {
 
         terms.movementMethod = LinkMovementMethod.getInstance()
 
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                userName.isEnabled = false
+                userAuth.isEnabled = false
+                password.isEnabled = false
+                networkName.isEnabled = false
+                terms.isEnabled = false
+                createNetworkButton?.isEnabled = false
+                createNetworkSpinner.visibility = View.VISIBLE
+            } else {
+                userName.isEnabled = true
+                userAuth.isEnabled = true
+                password.isEnabled = true
+                networkName.isEnabled = true
+                terms.isEnabled = true
+                createNetworkButton?.isEnabled = true
+                createNetworkSpinner.visibility = View.GONE
+            }
+        }
+
         createNetworkButton?.setOnClickListener {
-            userName.isEnabled = false
-            userAuth.isEnabled = false
-            password.isEnabled = false
-            networkName.isEnabled = false
-            terms.isEnabled = false
-            createNetworkButton?.isEnabled = false
-            createNetworkSpinner.visibility = View.VISIBLE
+            inProgress(true)
 
             val args = NetworkCreateArgs()
             args.userName = userName.text.trim().toString()
@@ -262,27 +245,31 @@ class LoginCreateNetworkFragment : Fragment() {
 
             app.byApi?.networkCreate(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
-                    userName.isEnabled = true
-                    userAuth.isEnabled = true
-                    password.isEnabled = true
-                    networkName.isEnabled = true
-                    terms.isEnabled = true
-                    createNetworkButton?.isEnabled = true
-                    createNetworkSpinner.visibility = View.GONE
+                    inProgress(false)
 
                     if (err != null) {
                         createNetworkError.visibility = View.VISIBLE
+                        createNetworkError.text = err.message
                     } else if (result.error != null) {
                         createNetworkError.visibility = View.VISIBLE
+                        createNetworkError.text = result.error.message
                     } else if (result.network != null && 0 < result.network.byJwt.length) {
                         createNetworkError.visibility = View.GONE
 
-                        app.loginClient(result.network.byJwt)
+                        app.login(result.network.byJwt)
 
-                        val intent = Intent(loginActivity, MainActivity::class.java)
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
-                        startActivity(intent)
-                        loginActivity.finish()
+                        inProgress(true)
+
+                        loginActivity.authClientAndFinish { error ->
+                            inProgress(false)
+
+                            if (error == null) {
+                                createNetworkError.visibility = View.GONE
+                            } else {
+                                createNetworkError.visibility = View.VISIBLE
+                                createNetworkError.text = error
+                            }
+                        }
                     } else if (result.verificationRequired != null) {
                         createNetworkError.visibility = View.GONE
 
@@ -294,6 +281,9 @@ class LoginCreateNetworkFragment : Fragment() {
                             .build()
 
                         findNavController().navigate(R.id.navigation_verify, navArgs, navOpts)
+                    } else {
+                        createNetworkError.visibility = View.VISIBLE
+                        createNetworkError.text = getString(R.string.create_network_error)
                     }
                 }
             }

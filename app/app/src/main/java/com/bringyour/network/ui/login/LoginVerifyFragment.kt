@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,8 @@ import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginVerifyBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class LoginVerifyFragment : Fragment() {
 
@@ -62,7 +65,7 @@ class LoginVerifyFragment : Fragment() {
         val verifySpinner = root.findViewById<ProgressBar>(R.id.verify_spinner)
         val verifyError = root.findViewById<TextView>(R.id.verify_error)
 
-        verifyDescription.setText("We sent a code to ${userAuthStr}. Please enter it below.")
+        verifyDescription.text = getString(R.string.verify_description, userAuthStr)
 
         verifyResendCodeSpinner.visibility = View.GONE
         verifySpinner.visibility = View.GONE
@@ -75,12 +78,12 @@ class LoginVerifyFragment : Fragment() {
 
             // FIXME add send code to api
 //            app.byApi.RESEND {
-            verifyResendCodeButton.text = "Sent!"
+            verifyResendCodeButton.text = getString(R.string.verify_sent)
             verifyResendCodeSpinner.visibility = View.GONE
             // allow sending another code after a delay
             Handler(Looper.getMainLooper()).postDelayed({
                 verifyResendCodeButton.isEnabled = true
-                verifyResendCodeButton.text = "Resend"
+                verifyResendCodeButton.text = getString(R.string.verify_resend)
             }, 15 * 1000)
             // }
         }
@@ -99,30 +102,56 @@ class LoginVerifyFragment : Fragment() {
             }
         })
 
-        verifyButton.setOnClickListener {
-            verifyCode.isEnabled = false
-            verifyButton.isEnabled = false
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                verifyCode.isEnabled = false
+                verifyButton.isEnabled = false
+                verifySpinner.visibility = View.VISIBLE
+            } else {
+                verifyCode.isEnabled = true
+                verifyButton.isEnabled = true
+                verifySpinner.visibility = View.GONE
+            }
+        }
 
-            verifySpinner.visibility = View.VISIBLE
+        verifyButton.setOnClickListener {
+            inProgress(true)
 
             val args = AuthVerifyArgs()
             args.userAuth = userAuthStr
             args.verifyCode = verifyCode.text.toString().trim()
 
             app.byApi?.authVerify(args) { result, err ->
-                if (err != null) {
-                    verifyError.visibility = View.VISIBLE
-                } else if (result.network != null && 0 < result.network.byJwt.length) {
-                    verifyError.visibility = View.GONE
+                runBlocking(Dispatchers.Main.immediate) {
+                    inProgress(false)
 
-                    app.loginClient(result.network.byJwt)
+                    if (err != null) {
+                        verifyError.visibility = View.VISIBLE
+                        verifyError.text = err.message
+                    } else if (result.error != null) {
+                        verifyError.visibility = View.VISIBLE
+                        verifyError.text = result.error.message
+                    } else if (result.network != null && 0 < result.network.byJwt.length) {
+                        verifyError.visibility = View.GONE
 
-                    val intent = Intent(loginActivity, MainActivity::class.java)
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
-                    startActivity(intent)
-                    loginActivity.finish()
-                } else {
-                    verifyError.visibility = View.VISIBLE
+                        app.login(result.network.byJwt)
+
+                        inProgress(true)
+
+                        loginActivity.authClientAndFinish { error ->
+                            inProgress(false)
+
+                            if (error == null) {
+                                verifyError.visibility = View.GONE
+                            } else {
+                                verifyError.visibility = View.VISIBLE
+                                verifyError.text = error
+                            }
+                        }
+                    } else {
+                        verifyError.visibility = View.VISIBLE
+                        verifyError.text = getString(R.string.verify_error)
+                    }
                 }
             }
         }
