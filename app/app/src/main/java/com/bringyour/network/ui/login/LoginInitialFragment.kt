@@ -10,6 +10,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.util.Patterns
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -95,6 +96,20 @@ class LoginInitialFragment : Fragment() {
         loginSpinner.visibility = View.GONE
         loginError.visibility = View.GONE
 
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                googleSignInButton.isEnabled = false
+                userAuth.isEnabled = false
+                loginButton?.isEnabled = false
+                loginSpinner.visibility = View.VISIBLE
+            } else {
+                googleSignInButton.isEnabled = true
+                userAuth.isEnabled = true
+                loginSpinner.visibility = View.GONE
+                syncLoginButton()
+            }
+        }
+
         userAuth.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
             }
@@ -110,24 +125,17 @@ class LoginInitialFragment : Fragment() {
             }
         })
 
-        loginButton?.setOnClickListener {
-            googleSignInButton.isEnabled = false
-            userAuth.isEnabled = false
-            loginButton?.isEnabled = false
-            loginSpinner.visibility = View.VISIBLE
+        val login = {
+            inProgress(true)
 
             val args = AuthLoginArgs()
             args.userAuth = userAuth.text.toString().trim()
 
             app.byApi?.authLogin(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
-                    googleSignInButton.isEnabled = true
-                    userAuth.isEnabled = true
-                    loginSpinner.visibility = View.GONE
+                    inProgress(false)
 
                     Log.i("LoginInitialFragment", "GOT RESULT " + result)
-
-                    syncLoginButton()
 
                     if (err != null) {
                         loginError.visibility = View.VISIBLE
@@ -152,11 +160,33 @@ class LoginInitialFragment : Fragment() {
                             loginError.text = getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
                         }
                     } else {
-                        loginError.visibility = View.VISIBLE
-                        loginError.text = getString(R.string.login_error)
+                        // new network
+
+                        val navArgs = Bundle()
+                        navArgs.putString("userAuth", result.userAuth)
+
+                        findNavController().navigate(R.id.navigation_create_network, navArgs)
                     }
                 }
             }
+        }
+
+        userAuth?.setOnEditorActionListener { _, _, keyEvent ->
+            when (keyEvent.keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    if (loginButton?.isEnabled == true) {
+                        login()
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            }
+        }
+
+        loginButton?.setOnClickListener {
+            login()
         }
 
         val createButton = root.findViewById<Button>(R.id.login_create_network_button)
@@ -164,21 +194,9 @@ class LoginInitialFragment : Fragment() {
             findNavController().navigate(R.id.navigation_create_network)
         }
 
-        val inProgress = { busy: Boolean ->
-            if (busy) {
-                googleSignInButton.isEnabled = false
-                userAuth.isEnabled = false
-                loginButton?.isEnabled = false
-                loginSpinner.visibility = View.VISIBLE
-            } else {
-                googleSignInButton.isEnabled = true
-                userAuth.isEnabled = true
-                loginSpinner.visibility = View.GONE
-                syncLoginButton()
-            }
-        }
-
         val googleLogin = { account: GoogleSignInAccount ->
+            Log.i("LoginInitialFragment", "GOOGLE LOGIN")
+
             inProgress(true)
 
             val args = AuthLoginArgs()
@@ -252,6 +270,7 @@ class LoginInitialFragment : Fragment() {
             val launcher = registerForActivityResult(
                 ActivityResultContracts.StartActivityForResult()
             ) { result ->
+                Log.i("LoginInitialFragment", "GOT GOOGLE RESULT")
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                 try {
                     val account = task.getResult(ApiException::class.java)

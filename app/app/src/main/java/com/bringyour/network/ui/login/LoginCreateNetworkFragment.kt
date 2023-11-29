@@ -75,6 +75,8 @@ class LoginCreateNetworkFragment : Fragment() {
         loginVc = app.loginVc
         val loginVc = loginVc ?: return root
 
+        val userAuthStr = arguments?.getString("userAuth")
+
         val userName = root.findViewById<EditText>(R.id.create_user_name)
         val userAuth = root.findViewById<EditText>(R.id.create_user_auth)
         val password = root.findViewById<EditText>(R.id.create_password)
@@ -290,6 +292,10 @@ class LoginCreateNetworkFragment : Fragment() {
         }
 
         syncCreateNetworkButton()
+
+        if (userAuthStr != null) {
+            userAuth.setText(userAuthStr)
+        }
 
         return root
     }

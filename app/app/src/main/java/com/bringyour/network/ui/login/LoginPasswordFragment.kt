@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -109,7 +110,7 @@ class LoginPasswordFragment : Fragment() {
             }
         }
 
-        loginButton.setOnClickListener {
+        val login = {
             inProgress(true)
 
             val args = AuthLoginWithPasswordArgs()
@@ -150,6 +151,24 @@ class LoginPasswordFragment : Fragment() {
                     }
                 }
             }
+        }
+
+        loginPassword.setOnEditorActionListener { _, _, keyEvent ->
+            when (keyEvent.keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    if (loginButton?.isEnabled == true) {
+                        login()
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            }
+        }
+
+        loginButton.setOnClickListener {
+            login()
         }
 
         loginButton.isEnabled = false

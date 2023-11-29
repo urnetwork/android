@@ -23,7 +23,9 @@
 
     <string name="password_reset_sent">Sent!</string>
     <string name="password_reset_resend">Resend</string>
+    <string name="password_reset_send_error">Error</string>
 
     <string name="verify_sent">Sent!</string>
     <string name="verify_resend">Resend</string>
+    <string name="verify_send_error">Error</string>
 </resources>

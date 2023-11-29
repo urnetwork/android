@@ -14,12 +14,15 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.bringyour.client.AuthPasswordResetArgs
 import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginPasswordResetAfterSendBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class LoginPasswordResetAfterSendFragment : Fragment() {
 
@@ -67,16 +70,26 @@ class LoginPasswordResetAfterSendFragment : Fragment() {
 
             passwordResetResendSpinner.visibility = View.VISIBLE
 
-            // FIXME add send code to api
-//            app.byApi.RESEND {
-            passwordResetResendButton.text = getString(R.string.password_reset_sent)
-            passwordResetResendSpinner.visibility = View.GONE
-            // allow sending another code after a delay
-            Handler(Looper.getMainLooper()).postDelayed({
-                passwordResetResendButton.isEnabled = true
-                passwordResetResendButton.text = getString(R.string.password_reset_resend)
-            }, 15 * 1000)
-            // }
+            val args = AuthPasswordResetArgs()
+            args.userAuth = userAuthStr
+
+            app.byApi?.authPasswordReset(args) { result, err ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    if (err != null) {
+                        passwordResetResendButton.text = getString(R.string.password_reset_send_error)
+                    } else {
+                        passwordResetResendButton.text = getString(R.string.password_reset_sent)
+                    }
+
+                    passwordResetResendSpinner.visibility = View.GONE
+                    // allow sending another code after a delay
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        passwordResetResendButton.isEnabled = true
+                        passwordResetResendButton.text =
+                            getString(R.string.password_reset_resend)
+                    }, 15 * 1000)
+                }
+            }
         }
 
         return root

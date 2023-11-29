@@ -1,5 +1,6 @@
 <resources>
 
-    <string name="google_client_id">338638865390-sb3r83jjph034trp412uuge9nbnr36ub.apps.googleusercontent.com</string>
+    <!-- this is the play store client -->
+    <string name="google_client_id">338638865390-rbou31ec45ih82iagg0ei959edd0k97j.apps.googleusercontent.com</string>
     
 </resources>

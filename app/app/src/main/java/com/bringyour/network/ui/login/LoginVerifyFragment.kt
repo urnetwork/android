@@ -7,6 +7,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.bringyour.client.AuthVerifyArgs
+import com.bringyour.client.AuthVerifySendArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
@@ -76,16 +78,24 @@ class LoginVerifyFragment : Fragment() {
 
             verifyResendCodeSpinner.visibility = View.VISIBLE
 
-            // FIXME add send code to api
-//            app.byApi.RESEND {
-            verifyResendCodeButton.text = getString(R.string.verify_sent)
-            verifyResendCodeSpinner.visibility = View.GONE
-            // allow sending another code after a delay
-            Handler(Looper.getMainLooper()).postDelayed({
-                verifyResendCodeButton.isEnabled = true
-                verifyResendCodeButton.text = getString(R.string.verify_resend)
-            }, 15 * 1000)
-            // }
+            val args = AuthVerifySendArgs()
+            args.userAuth = userAuthStr
+
+            app.byApi?.authVerifySend(args) { result, err ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    if (err != null) {
+                        verifyResendCodeButton.text = getString(R.string.verify_send_error)
+                    } else {
+                        verifyResendCodeButton.text = getString(R.string.verify_sent)
+                    }
+                    verifyResendCodeSpinner.visibility = View.GONE
+                    // allow sending another code after a delay
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        verifyResendCodeButton.isEnabled = true
+                        verifyResendCodeButton.text = getString(R.string.verify_resend)
+                    }, 15 * 1000)
+                }
+            }
         }
 
         // validate code
@@ -114,7 +124,7 @@ class LoginVerifyFragment : Fragment() {
             }
         }
 
-        verifyButton.setOnClickListener {
+        val verify = {
             inProgress(true)
 
             val args = AuthVerifyArgs()
@@ -154,6 +164,24 @@ class LoginVerifyFragment : Fragment() {
                     }
                 }
             }
+        }
+
+        verifyCode.setOnEditorActionListener { _, _, keyEvent ->
+            when (keyEvent.keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    if (verifyButton?.isEnabled == true) {
+                        verify()
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            }
+        }
+
+        verifyButton.setOnClickListener {
+            verify()
         }
 
         verifyButton.isEnabled = false

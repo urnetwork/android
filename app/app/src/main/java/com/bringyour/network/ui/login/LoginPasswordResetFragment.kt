@@ -17,12 +17,15 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.bringyour.client.AuthPasswordResetArgs
 import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginPasswordResetBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class LoginPasswordResetFragment : Fragment() {
 
@@ -80,30 +83,49 @@ class LoginPasswordResetFragment : Fragment() {
             }
         })
 
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                userAuth.isEnabled = false
+                passwordResetButton.isEnabled = false
+                passwordResetSpinner.visibility = View.VISIBLE
+            } else {
+                userAuth.isEnabled = true
+                passwordResetButton.isEnabled = true
+                passwordResetSpinner.visibility = View.GONE
+            }
+        }
+
         passwordResetButton.setOnClickListener {
-            userAuth.isEnabled = false
-            passwordResetButton.isEnabled = false
+            inProgress(true)
 
-            passwordResetSpinner.visibility = View.VISIBLE
+            val args = AuthPasswordResetArgs()
+            args.userAuth = userAuth.text.toString().trim()
 
-            val userAuthStr = userAuth.text.toString().trim()
+            app.byApi?.authPasswordReset(args) { result, err ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    inProgress(false)
 
+                    if (err != null) {
+                        passwordResetError.visibility = View.VISIBLE
+                        passwordResetError.text = err.message
+                    } else {
+                        passwordResetError.visibility = View.GONE
 
-            // FIXME api {
+                        val navArgs = Bundle()
+                        navArgs.putString("userAuth", result.userAuth)
 
-            userAuth.isEnabled = true
-            passwordResetButton.isEnabled = true
+                        val navOpts = NavOptions.Builder()
+                            .setPopUpTo(R.id.navigation_initial, false, false)
+                            .build()
 
-            passwordResetSpinner.visibility = View.GONE
-
-            val navArgs = Bundle()
-            navArgs.putString("userAuth", userAuthStr)
-
-            val navOpts = NavOptions.Builder()
-                .setPopUpTo(R.id.navigation_initial, false, false)
-                .build()
-
-            findNavController().navigate(R.id.navigation_password_reset_after_send, navArgs, navOpts)
+                        findNavController().navigate(
+                            R.id.navigation_password_reset_after_send,
+                            navArgs,
+                            navOpts
+                        )
+                    }
+                }
+            }
 
             // }
         }

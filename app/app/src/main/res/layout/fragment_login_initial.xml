@@ -183,7 +183,6 @@
         android:textSize="8pt"
         android:fontFamily="sans-serif-thin"
         android:layout_marginTop="8dp"
-
         />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
