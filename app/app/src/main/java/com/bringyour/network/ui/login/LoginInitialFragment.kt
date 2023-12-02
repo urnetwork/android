@@ -14,6 +14,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -172,16 +173,21 @@ class LoginInitialFragment : Fragment() {
         }
 
         userAuth?.setOnEditorActionListener { _, _, keyEvent ->
-            when (keyEvent.keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    if (loginButton?.isEnabled == true) {
-                        login()
-                        true
-                    } else {
-                        false
+            if (keyEvent == null) {
+                false
+            } else {
+                when (keyEvent.keyCode) {
+                    KeyEvent.KEYCODE_ENTER -> {
+                        if (loginButton?.isEnabled == true) {
+                            login()
+                            true
+                        } else {
+                            false
+                        }
                     }
+
+                    else -> false
                 }
-                else -> false
             }
         }
 
@@ -256,35 +262,40 @@ class LoginInitialFragment : Fragment() {
         val account = GoogleSignIn.getLastSignedInAccount(requireContext())
         if (account != null) {
             setGoogleSignInButtonText(googleSignInButton, "Continue as ${account.email}")
-            googleSignInButton.setOnClickListener {
-                googleLogin(account)
-            }
+//            googleSignInButton.setOnClickListener {
+//                googleLogin(account)
+//            }
         } else {
-            val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.google_client_id))
-                .requestEmail()
-                .build()
-
-            val googleSignInClient = GoogleSignIn.getClient(requireContext(), googleSignInOpts)
-
-            val launcher = registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult()
-            ) { result ->
-                Log.i("LoginInitialFragment", "GOT GOOGLE RESULT")
-                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                try {
-                    val account = task.getResult(ApiException::class.java)
-                    googleLogin(account)
-                } catch (e: ApiException) {
-                    Log.w("LoginInitialFragment", "signInResult:failed code=" + e.statusCode)
-                }
-            }
-
             setGoogleSignInButtonText(googleSignInButton, "Continue with Google")
-            googleSignInButton.setOnClickListener {
-                launcher.launch(googleSignInClient.signInIntent)
+        }
+
+//        else {
+        val googleClientId = getString(R.string.google_client_id)
+        Log.i("LoginInitialFragment", "GOOGLE CLIENT ID '${googleClientId}'")
+        val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(googleClientId)
+            .requestEmail()
+            .build()
+
+        val googleSignInClient = GoogleSignIn.getClient(requireContext(), googleSignInOpts)
+
+        val launcher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            Log.i("LoginInitialFragment", "GOT GOOGLE RESULT")
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                googleLogin(account)
+            } catch (e: ApiException) {
+                Log.w("LoginInitialFragment", "signInResult:failed code=" + e.statusCode)
             }
         }
+
+        googleSignInButton.setOnClickListener {
+            launcher.launch(googleSignInClient.signInIntent)
+        }
+//        }
 
         return root
     }

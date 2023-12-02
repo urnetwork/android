@@ -39,8 +39,9 @@
         android:background="@color/almost_white"
         android:text="us"
         android:textSize="8pt"
-        android:fontFamily="sans-serif"
+        android:fontFamily="sans-serif-medium"
         android:textAlignment="center"
+        android:textColor="@color/by_p_blue"
         />
 
     <TextView
@@ -55,7 +56,7 @@
 
         android:background="@color/almost_white"
         android:text="12321312322sdfdsf342343246"
-        android:textSize="4pt"
+        android:textSize="8pt"
         android:fontFamily="sans-serif-thin"
         android:textAlignment="center"
         android:maxLines="1"

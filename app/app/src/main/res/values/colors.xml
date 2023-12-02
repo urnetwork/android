@@ -13,6 +13,8 @@
     <color name="by_s_orange">#FF8027</color>
     <color name="by_s_red">#B2204C</color>
     <color name="p_s_gray">#EEEEEE</color>
+    <color name="p_s_gray_blue">#EEEEFF</color>
+    <color name="by_highlight_yellow">#FFF36B</color>
 
     <color name="by_highlight">#FFF1A6</color>
     <color name="by_highlight_gray">#656565</color>

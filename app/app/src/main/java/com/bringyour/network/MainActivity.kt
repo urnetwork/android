@@ -158,11 +158,11 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
     override fun onActivityResult(result: ActivityResult) {
         Log.i("Main","ACTIVITY RESULT")
         if (result.resultCode == RESULT_OK) {
-            val intent = Intent(this, MainService::class.java)
+            val vpnIntent = Intent(this, MainService::class.java)
             if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-                startForegroundService(intent)
+                startForegroundService(vpnIntent)
             } else {
-                startService(intent)
+                startService(vpnIntent)
             }
         }
     }

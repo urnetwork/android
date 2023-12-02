@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.net.VpnService
 import android.os.Build
+import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
@@ -19,9 +21,9 @@ class MainService : VpnService() {
 
     // addDisallowedApplication (String packageName)
 
+//    private var pfd: ParcelFileDescriptor? = null
 
-    override fun onStartCommand(intent : Intent, flags: Int, startId : Int): Int {
-
+    override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
 
         // FIXME get the local IPv4 and IPv6 address from the platform
         // FIXME when using auth login, the jwt should contain the local addresses
@@ -60,8 +62,7 @@ class MainService : VpnService() {
             builder.addRoute("::", 0)
         }
 
-        val pfd = builder.establish()
-
+//        val pfd = builder.establish()
 
         // fis
         // fos
@@ -74,7 +75,9 @@ class MainService : VpnService() {
 
         // stop self when turned off
 
-        router.activateLocalInterface(pfd!!)
+        builder.establish()?.let { pfd ->
+            router.activateLocalInterface(pfd)
+        }
 
 
         updateForegroundNotification("BringYour")
@@ -83,10 +86,26 @@ class MainService : VpnService() {
 
 //        startForeground(1, getStatusNotificationBuilder().build());
 
-        // `START_STICKY` means that `onStartCommand` will be called on each launch of the service
+        // `START_STICKY` means that `onStartCommand` will be called if a new process is created
+        // the intent may be null
         // see https://developer.android.com/reference/android/app/Service#START_STICKY
         return START_STICKY
     }
+
+    override fun onDestroy() {
+        Log.i("MainService", "DESTROY SERVICE")
+
+        stopForeground(STOP_FOREGROUND_REMOVE)
+    }
+
+
+    override fun onRevoke() {
+        Log.i("MainService", "REVOKE SERVICE")
+
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
+    }
+
 
     val NOTIFICATION_ID = 101
     val NOTIFICATION_CHANNEL_ID = "BringYour"
@@ -115,7 +134,7 @@ class MainService : VpnService() {
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setOngoing(true)
 //                .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
-            .setSmallIcon(R.drawable.ic_notif)
+            .setSmallIcon(R.drawable.ic_status)
             .setContentText(message)
             .setContentTitle(message)
                 .setContentIntent(pendingIntent)

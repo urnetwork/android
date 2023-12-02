@@ -154,16 +154,21 @@ class LoginPasswordFragment : Fragment() {
         }
 
         loginPassword.setOnEditorActionListener { _, _, keyEvent ->
-            when (keyEvent.keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    if (loginButton?.isEnabled == true) {
-                        login()
-                        true
-                    } else {
-                        false
+            if (keyEvent == null) {
+                false
+            } else {
+                when (keyEvent.keyCode) {
+                    KeyEvent.KEYCODE_ENTER -> {
+                        if (loginButton?.isEnabled == true) {
+                            login()
+                            true
+                        } else {
+                            false
+                        }
                     }
+
+                    else -> false
                 }
-                else -> false
             }
         }
 

@@ -1,12 +1,14 @@
 package com.bringyour.network
 
 import android.app.Application
+import android.content.Intent
 import com.bringyour.client.AsyncLocalState
 import com.bringyour.client.BringYourApi
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
 import com.bringyour.client.ConnectViewController
 import com.bringyour.client.DevicesViewController
+import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
 import go.Universe
 import go.error
@@ -49,17 +51,14 @@ class MainApplication : Application() {
         loginVc = Client.newLoginViewController(byApi)
 
         try {
-            val byJwt = asyncLocalState?.localState()?.byJwt
-            val byClientJwt = asyncLocalState?.localState()?.byClientJwt
+            asyncLocalState?.localState()?.byJwt?.let { byJwt ->
+                byApi?.setByJwt(byJwt)
+            }
 
-            byApi?.setByJwt(byJwt)
-
-            val instanceId = asyncLocalState?.localState()?.instanceId
-            byDevice = Client.newBringYourDevice(byClientJwt, platformUrl, apiUrl, instanceId)
-            router = Router(byDevice!!)
-
-            connectVc = byDevice?.openConnectViewController()
-            devicesVc = byDevice?.openDevicesViewController()
+            asyncLocalState?.localState()?.byClientJwt?.let { byClientJwt ->
+                val instanceId = asyncLocalState?.localState()?.instanceId!!
+                initDevice(byClientJwt, instanceId)
+            }
 
         } catch (e: Throwable) {
             if (e is error) {
@@ -72,25 +71,47 @@ class MainApplication : Application() {
     }
 
 
-    fun login(byJwt : String) {
-        asyncLocalState?.localState()?.setByJwt(byJwt)
+    fun login(byJwt: String) {
+        asyncLocalState?.localState()?.byJwt = byJwt
         byApi?.setByJwt(byJwt)
     }
 
-    fun loginClient(byClientJwt : String) {
+    fun loginClient(byClientJwt: String) {
         asyncLocalState?.localState()?.byClientJwt = byClientJwt
 
-        val instanceId = asyncLocalState?.localState()?.instanceId
-        byDevice = Client.newBringYourDevice(byClientJwt, platformUrl, apiUrl, instanceId)
-        router = Router(byDevice!!)
+        val instanceId = asyncLocalState?.localState()?.instanceId!!
+        initDevice(byClientJwt, instanceId)
     }
 
     fun logout() {
+        val vpnIntent = Intent(this, MainService::class.java)
+        stopService(vpnIntent)
+
         asyncLocalState?.localState()?.logout()
+
+        connectVc?.let {
+            byDevice?.closeViewController(it)
+        }
+        connectVc = null
+        devicesVc?.let {
+            byDevice?.closeViewController(it)
+        }
+        devicesVc = null
+
+
         router?.close()
         router = null
         byDevice?.close()
         byDevice = null
+    }
+
+
+    private fun initDevice(byClientJwt: String, instanceId: Id) {
+        byDevice = Client.newBringYourDevice(byClientJwt, platformUrl, apiUrl, instanceId)
+        router = Router(byDevice!!)
+
+        connectVc = byDevice?.openConnectViewController()
+        devicesVc = byDevice?.openDevicesViewController()
     }
 
 

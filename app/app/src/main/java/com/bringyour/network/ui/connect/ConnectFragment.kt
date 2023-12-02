@@ -122,6 +122,15 @@ class ConnectFragment : Fragment() {
 
          */
 
+
+        val connectSearch = root.findViewById<EditText>(R.id.connect_search)
+        val locationList = root.findViewById<RecyclerView>(R.id.connect_list)
+
+        val adapter = ConnectAdapter(connectVc, subs)
+        locationList.adapter = adapter
+        locationList.layoutManager = LinearLayoutManager(context)
+
+
         subs.add(connectVc.addConnectionListener { location, connected ->
 
             runBlocking(Dispatchers.Main.immediate) {
@@ -177,34 +186,30 @@ class ConnectFragment : Fragment() {
 
                     val disconnectButton = view.findViewById<Button>(R.id.connect_disconnect)
                     disconnectButton?.let {
-                        it.setOnClickListener({
+                        it.setOnClickListener {
                             connectVc.disconnect()
-                        })
+                        }
                     }
 
                     val shuffleButton = view.findViewById<ImageButton>(R.id.connect_shuffle)
                     shuffleButton?.let {
-                        it.setOnClickListener({
+                        it.setOnClickListener {
                             connectVc.shuffle()
-                        })
+                        }
                     }
 
                     val broadenButton = view.findViewById<ImageButton>(R.id.connect_broaden)
                     broadenButton?.let {
-                        it.setOnClickListener({
+                        it.setOnClickListener {
                             connectVc.broaden()
-                        })
+                        }
                     }
                 }
             }
 
         })
 
-        val adapter = ConnectAdapter(connectVc, subs)
 
-        val locationList = root.findViewById<RecyclerView>(R.id.connect_list)
-        locationList.adapter = adapter
-        locationList.layoutManager = LinearLayoutManager(context)
 
 
 
@@ -223,7 +228,6 @@ class ConnectFragment : Fragment() {
         */
 
 
-        val connectSearch = root.findViewById<EditText>(R.id.connect_search)
         connectSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
@@ -233,7 +237,9 @@ class ConnectFragment : Fragment() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                connectVc.filterLocations(connectSearch.text.toString())
+                val filter = connectSearch.text.toString().trim()
+                Log.i("ConnectFragment", "SEARCH CHANGED ${filter}")
+                connectVc.filterLocations(filter)
 //                if (connectSearch.text.toString() == "palo alto") {
 //                    root.findViewById<View>(R.id.connect_local_control).visibility = View.GONE
 //                    root.findViewById<View>(R.id.connect_remote_control).visibility = View.VISIBLE
@@ -246,7 +252,7 @@ class ConnectFragment : Fragment() {
 
 
 
-        connectVc.filterLocations(connectSearch.text.toString())
+        connectVc.filterLocations(connectSearch.text.toString().trim())
 
 
 
@@ -280,21 +286,21 @@ class ConnectFragment : Fragment() {
 
 class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub>) : RecyclerView.Adapter<ViewHolder>() {
 
-    val connectLocations = mutableListOf<ConnectLocation>()
+    private val connectLocations = mutableListOf<ConnectLocation>()
     // map country code -> connect location for the country
-    val connectCountries = mutableMapOf<String, ConnectLocation>()
+    private val connectCountries = mutableMapOf<String, ConnectLocation>()
 
 
     init {
         // FIXME view controller to sort the locations before calling callback
         subs.add(connectVc.addFilteredLocationsListener { exportedLocations ->
-            val locations = mutableListOf<ConnectLocation>()
-            val n = exportedLocations.len()
-            for (i in 0 until n) {
-                locations.add(exportedLocations.get(i))
-            }
-            Log.i("CONNECT", "GOT NEW LOCATIONS $locations")
             runBlocking(Dispatchers.Main.immediate) {
+                val locations = mutableListOf<ConnectLocation>()
+                val n = exportedLocations.len()
+                for (i in 0 until n) {
+                    locations.add(exportedLocations.get(i))
+                }
+
                 Log.i("CONNECT", "UPDATE ON MAIN GOT NEW LOCATIONS $locations")
 
                 connectLocations.clear()

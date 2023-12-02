@@ -33,6 +33,7 @@ class Router(byDevice : BringYourDevice) {
 
     @Volatile
     var active = true
+//    var pfd: ParcelFileDescriptor? = null
 
 
     init {
@@ -126,18 +127,29 @@ class Router(byDevice : BringYourDevice) {
                             }
                         }
 
-                        // check for a new pfd only when there is an error on this one
-                        while (active) {
-                            try {
-                                val n = fis!!.read(buffer)
+                        val reader = thread {
+                            // check for a new pfd only when there is an error on this one
+                            while (active) {
+                                try {
+                                    val n = fis!!.read(buffer)
 //                                Log.d("Router", String.format("read(%d)", n))
-                                // localReceive makes a copy
-                                byDevice.sendPacket(buffer, n)
-                            } catch (_: IOException) {
-                                closeIn()
-                                break
+                                    // localReceive makes a copy
+                                    byDevice.sendPacket(buffer, n)
+                                } catch (_: IOException) {
+                                    break
+                                }
                             }
                         }
+
+                        while (active && reader.isAlive) {
+                            if (pfds.peek() != null) {
+                                break
+                            }
+                            reader.join(1000)
+                        }
+
+                        closeIn()
+                        reader.join()
                     }
 
                     writeLock.lock()
@@ -161,6 +173,7 @@ class Router(byDevice : BringYourDevice) {
     }
 
     fun close() {
+        pfds.clear()
         active = false
     }
 }

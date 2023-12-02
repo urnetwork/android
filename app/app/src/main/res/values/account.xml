@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="wallet_description">BringYour uses a USDC stablecoin self-custody wallet provided by <a href="https://circle.com">Circle</a>. BringYour can query the balance of the wallet but cannot move any funds out of the wallet. However you, as the owner, can transfer funds out to an exchange or another wallet at any time. Money earned by providing services to the network (in the provide tab) are transferred into your wallet as USDC. We use the Polygon chain to minimize transfer fees and maximize compatibility with exchanges.</string>
+
+    <string name="account_legal"><a href="">Privacy Policy</a>\n\n<a href="">Terms of Use</a>\n\n<a href="">Vulnerability Disclosure Policy</a>\n\n<a href="">Open Source Licenses</a>\n\nBringYour, Inc.\n2261 Market Street #5245\nSan Francisco, CA 94114 USA</string>
+</resources>

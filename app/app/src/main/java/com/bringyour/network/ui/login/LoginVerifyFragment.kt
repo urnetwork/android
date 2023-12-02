@@ -91,8 +91,10 @@ class LoginVerifyFragment : Fragment() {
                     verifyResendCodeSpinner.visibility = View.GONE
                     // allow sending another code after a delay
                     Handler(Looper.getMainLooper()).postDelayed({
-                        verifyResendCodeButton.isEnabled = true
-                        verifyResendCodeButton.text = getString(R.string.verify_resend)
+                        context?.let {
+                            verifyResendCodeButton.isEnabled = true
+                            verifyResendCodeButton.text = getString(R.string.verify_resend)
+                        }
                     }, 15 * 1000)
                 }
             }
@@ -167,16 +169,21 @@ class LoginVerifyFragment : Fragment() {
         }
 
         verifyCode.setOnEditorActionListener { _, _, keyEvent ->
-            when (keyEvent.keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    if (verifyButton?.isEnabled == true) {
-                        verify()
-                        true
-                    } else {
-                        false
+            if (keyEvent == null) {
+                false
+            } else {
+                when (keyEvent.keyCode) {
+                    KeyEvent.KEYCODE_ENTER -> {
+                        if (verifyButton?.isEnabled == true) {
+                            verify()
+                            true
+                        } else {
+                            false
+                        }
                     }
+
+                    else -> false
                 }
-                else -> false
             }
         }
 

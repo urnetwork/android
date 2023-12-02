@@ -83,10 +83,13 @@ class LoginPasswordResetAfterSendFragment : Fragment() {
 
                     passwordResetResendSpinner.visibility = View.GONE
                     // allow sending another code after a delay
+
                     Handler(Looper.getMainLooper()).postDelayed({
-                        passwordResetResendButton.isEnabled = true
-                        passwordResetResendButton.text =
-                            getString(R.string.password_reset_resend)
+                        context?.let {
+                            passwordResetResendButton.isEnabled = true
+                            passwordResetResendButton.text =
+                                getString(R.string.password_reset_resend)
+                        }
                     }, 15 * 1000)
                 }
             }
