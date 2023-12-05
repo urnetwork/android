@@ -60,6 +60,10 @@ class AccountFragment : Fragment() {
         val subscriptionButton = root.findViewById<Button>(R.id.account_subscription_change)
         val logoutButton = root.findViewById<Button>(R.id.account_logout)
         val walletDescription = root.findViewById<TextView>(R.id.account_wallet_description)
+        val walletInitButton = root.findViewById<Button>(R.id.account_wallet_init_button)
+        val walletTransferOutButton = root.findViewById<Button>(R.id.account_wallet_transfer_out_button)
+        val accountLegal = root.findViewById<TextView>(R.id.account_legal)
+
 
 
         val update = {
@@ -96,89 +100,30 @@ class AccountFragment : Fragment() {
         }
 
 
-        val initWallet = {
+        initCircleWallet()
 
-            val endpoint = ""
-            // FIXME what is this?
-            val addId = ""
-
-
-            WalletSdk.init(
-                requireContext().applicationContext,
-                WalletSdk.Configuration(endpoint, addId)
-            )
-
-            WalletSdk.setSecurityQuestions(
-                arrayOf(
-                    SecurityQuestion("What is your favorite color?"),
-                    SecurityQuestion("What is your favorite shape?"),
-                    SecurityQuestion("What is your favorite animal?"),
-                    SecurityQuestion("What is your favorite place?"),
-                    SecurityQuestion("What is your favorite material?"),
-                    SecurityQuestion("What is your favorite sound?"),
-                    SecurityQuestion("What would you explore in space?"),
-                    SecurityQuestion("What is your favorite way to recharge?"),
-                    SecurityQuestion("Go ____."),
-                    SecurityQuestion("Pick a word, any word."),
-                    SecurityQuestion("Pick a date, any date.", SecurityQuestion.InputType.datePicker),
-                ))
-
-            WalletSdk.addEventListener { event: ExecuteEvent? ->
-                // FIXME show a toast with the message
-            }
-
-            WalletSdk.setLayoutProvider(context?.let { CircleLayoutProvider(it) })
-            WalletSdk.setViewSetterProvider(context?.let { CircleViewSetterProvider(it) })
-
-        }
-
-        val setupWallet = {
+        walletInitButton.setOnClickListener {
             val userToken = ""
             val encryptionKey = ""
             val challengeId = ""
 
-            WalletSdk.execute(
-                activity,
-                userToken,
-                encryptionKey,
-                arrayOf<String>(challengeId),
-                object : Callback<ExecuteResult> {
-                    override fun onWarning(warning: ExecuteWarning?, result: ExecuteResult?): Boolean {
-                        // FIXME toast
-                        return true
-                    }
-
-                    override fun onError(error: Throwable): Boolean {
-
-                        if (error is ApiError) {
-                            when (error.code) {
-                                ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
-                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
-                                ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
-                                ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched-> {}
-                                ApiError.ErrorCode.networkError -> {
-                                    // FIXME toast
-                                }
-                                else -> {
-                                    // FIXME toast
-                                }
-                            }
-                            return true // App will handle next step, SDK will keep the Activity.
-                        }
-                        return false // App won't handle next step, SDK will finish the Activity.
-                    }
-
-                    override fun onResult(result: ExecuteResult) {
-                        // FIXME toast
-
-                    }
-                })
+            circleWalletExecute(userToken, encryptionKey, challengeId)
         }
 
-        // FIXME set up wallet button, look at sample project
+        walletTransferOutButton.setOnClickListener {
+            val walletTransferOutFragment = WalletTransferOutFragment()
 
-        // FIXME transfer out button
+            val navArgs = Bundle()
+            navArgs.putDouble("walletBalance", 0.0)
+            navArgs.putString("walletToken", "USDC")
+            navArgs.putString("walletTokenId", "xxx")
+            navArgs.putString("walletChain", "MATIC")
+            navArgs.putString("walletChainHumanName", "Polygon")
 
+            walletTransferOutFragment.arguments = navArgs
+
+            walletTransferOutFragment.show(childFragmentManager, "dialog")
+        }
 
 
 
@@ -190,6 +135,8 @@ class AccountFragment : Fragment() {
 
             activity?.finish()
         }
+
+        accountLegal.movementMethod = LinkMovementMethod.getInstance()
 
 
 //        val textView: TextView = binding.textAccount
@@ -204,5 +151,85 @@ class AccountFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+
+    private fun initCircleWallet() {
+        val endpoint = context?.getString(R.string.circle_endpoint)
+        val addId = context?.getString(R.string.circle_app_id)
+
+
+        WalletSdk.init(
+            requireContext().applicationContext,
+            WalletSdk.Configuration(endpoint, addId)
+        )
+
+        WalletSdk.setSecurityQuestions(
+            arrayOf(
+                SecurityQuestion("What is your favorite color?"),
+                SecurityQuestion("What is your favorite shape?"),
+                SecurityQuestion("What is your favorite animal?"),
+                SecurityQuestion("What is your favorite place?"),
+                SecurityQuestion("What is your favorite material?"),
+                SecurityQuestion("What is your favorite sound?"),
+                SecurityQuestion("What would you explore in space?"),
+                SecurityQuestion("Pick a word, any word."),
+                SecurityQuestion("Pick a date, any date.", SecurityQuestion.InputType.datePicker),
+            ))
+
+        WalletSdk.addEventListener { event: ExecuteEvent? ->
+            // FIXME show a toast with the message
+        }
+
+        WalletSdk.setLayoutProvider(context?.let { CircleLayoutProvider(it) })
+        WalletSdk.setViewSetterProvider(context?.let { CircleViewSetterProvider(it) })
+    }
+
+    private fun circleWalletExecute(userToken: String, encryptionKey: String, challengeId: String) {
+        WalletSdk.execute(
+            activity,
+            userToken,
+            encryptionKey,
+            arrayOf<String>(challengeId),
+            object : Callback<ExecuteResult> {
+                override fun onWarning(
+                    warning: ExecuteWarning?,
+                    result: ExecuteResult?
+                ): Boolean {
+                    // FIXME toast
+                    return true
+                }
+
+                override fun onError(error: Throwable): Boolean {
+
+                    if (error is ApiError) {
+                        when (error.code) {
+                            ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
+                            ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
+                            ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
+                            ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched -> {
+                            }
+
+                            ApiError.ErrorCode.networkError -> {
+                                // FIXME toast
+                            }
+
+                            else -> {
+                                // FIXME toast
+                            }
+                        }
+                        // App will handle next step, SDK will keep the Activity.
+                        return true
+                    }
+                    // App won't handle next step, SDK will finish the Activity.
+                    return false
+                }
+
+                override fun onResult(result: ExecuteResult) {
+                    // FIXME toast
+
+                }
+            }
+        )
     }
 }

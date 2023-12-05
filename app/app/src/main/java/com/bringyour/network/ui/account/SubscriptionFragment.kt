@@ -204,7 +204,7 @@ class SubscriptionFragment: DialogFragment() {
             480.0f,
             resources.displayMetrics
         ))
-        window.setLayout(Math.min((size.x * 0.90).toInt(), px), WindowManager.LayoutParams.WRAP_CONTENT)
+        window.setLayout((size.x * 0.90).toInt().coerceAtMost(px), WindowManager.LayoutParams.WRAP_CONTENT)
         window.setGravity(Gravity.CENTER)
         super.onResume()
     }

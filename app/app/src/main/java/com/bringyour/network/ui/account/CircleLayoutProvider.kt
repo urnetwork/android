@@ -4,6 +4,7 @@ import android.content.Context
 import circle.programmablewallet.sdk.api.ApiError.ErrorCode
 import circle.programmablewallet.sdk.presentation.IconTextConfig
 import circle.programmablewallet.sdk.presentation.LayoutProvider
+import circle.programmablewallet.sdk.presentation.LocalImageSetter
 import circle.programmablewallet.sdk.presentation.RemoteImageSetter
 import circle.programmablewallet.sdk.presentation.TextConfig
 import circle.programmablewallet.sdk.presentation.Resource.TextsKey
@@ -49,7 +50,7 @@ class CircleLayoutProvider(val context: Context) : LayoutProvider() {
 
             TextsKey.securityIntroLink -> return arrayOf(
                 TextConfig("Learn more"),
-                TextConfig("https://path/terms-policies/privacy-notice/")
+                TextConfig("https://bringyour.com/privacy")
             )
 
             TextsKey.recoverPinCodeHeadline -> return arrayOf(
@@ -63,23 +64,18 @@ class CircleLayoutProvider(val context: Context) : LayoutProvider() {
     }
 
     override fun getIconTextConfigs(key: IconTextsKey?): Array<IconTextConfig>? {
-        val url = arrayOf(
-            "https://path/intro_item0",
-            "https://path/intro_item1",
-            "https://path/intro_item2"
-        )
         when (key) {
             IconTextsKey.securityConfirmationItems -> return arrayOf<IconTextConfig>(
                 IconTextConfig(
-                    RemoteImageSetter(R.drawable.ic_intro_item0_icon, url[0]),
+                    LocalImageSetter(R.drawable.ic_intro_item0_icon),
                     TextConfig("This is the only way to recover my account access. ")
                 ),
                 IconTextConfig(
-                    RemoteImageSetter(R.drawable.ic_intro_item1_icon, url[1]),
+                    LocalImageSetter(R.drawable.ic_intro_item1_icon),
                     TextConfig("Neither BringYour or Circle will store my answers so it’s my responsibility to remember them.")
                 ),
                 IconTextConfig(
-                    RemoteImageSetter(R.drawable.ic_intro_item2_icon, url[2]),
+                    LocalImageSetter(R.drawable.ic_intro_item2_icon),
                     TextConfig("I will lose access to my wallet and my digital assets if I forget my answers. ")
                 )
             )

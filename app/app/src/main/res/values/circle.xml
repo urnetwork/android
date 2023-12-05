@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="circle_endpoint">https://enduser-sdk.circle.com/v1/w3s/</string>
+    <string name="circle_app_id">81a9454e-6987-5a77-b0d7-1379956c163d</string>
+
+</resources>
