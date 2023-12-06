@@ -11,6 +11,9 @@ import circle.programmablewallet.sdk.presentation.Resource.TextsKey
 import circle.programmablewallet.sdk.presentation.Resource.IconTextsKey
 import com.bringyour.network.R
 
+// see
+// https://developers.circle.com/w3s/docs/android-sdk-ui-customization-api
+// https://developers.circle.com/w3s/docs/android
 class CircleLayoutProvider(val context: Context) : LayoutProvider() {
 
     override fun getTextConfig(key: String?): TextConfig? {

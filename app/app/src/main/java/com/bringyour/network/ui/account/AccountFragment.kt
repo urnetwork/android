@@ -2,34 +2,29 @@ package com.bringyour.network.ui.account
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import circle.programmablewallet.sdk.WalletSdk
 import circle.programmablewallet.sdk.api.ApiError
 import circle.programmablewallet.sdk.api.Callback
 import circle.programmablewallet.sdk.api.ExecuteEvent
 import circle.programmablewallet.sdk.api.ExecuteWarning
-import circle.programmablewallet.sdk.presentation.EventListener
 import circle.programmablewallet.sdk.presentation.SecurityQuestion
+import circle.programmablewallet.sdk.presentation.SettingsManagement
 import circle.programmablewallet.sdk.result.ExecuteResult
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentAccountBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.w3c.dom.Text
+
 
 class AccountFragment : Fragment() {
 
@@ -103,11 +98,24 @@ class AccountFragment : Fragment() {
         initCircleWallet()
 
         walletInitButton.setOnClickListener {
-            val userToken = ""
-            val encryptionKey = ""
-            val challengeId = ""
 
-            circleWalletExecute(userToken, encryptionKey, challengeId)
+            app.byApi?.walletCircleInit { result, err ->
+
+                if (err != null) {
+
+                } else if (result.error != null) {
+
+                } else {
+
+                    circleWalletExecute(
+                        result.userToken.userToken,
+                        result.userToken.encryptionKey,
+                        result.challengeId
+                    )
+                }
+
+            }
+
         }
 
         walletTransferOutButton.setOnClickListener {
@@ -158,10 +166,12 @@ class AccountFragment : Fragment() {
         val endpoint = context?.getString(R.string.circle_endpoint)
         val addId = context?.getString(R.string.circle_app_id)
 
+        val settingsManagement = SettingsManagement()
+        settingsManagement.isEnableBiometricsPin = true //Set "true" to enable, "false" to disable
 
         WalletSdk.init(
             requireContext().applicationContext,
-            WalletSdk.Configuration(endpoint, addId)
+            WalletSdk.Configuration(endpoint, addId, settingsManagement)
         )
 
         WalletSdk.setSecurityQuestions(
@@ -227,6 +237,38 @@ class AccountFragment : Fragment() {
 
                 override fun onResult(result: ExecuteResult) {
                     // FIXME toast
+
+
+                    // enable biometrics
+
+                    WalletSdk.setBiometricsPin(
+                        activity,
+                        userToken,
+                        encryptionKey,
+                        object : Callback<ExecuteResult?> {
+                            override fun onError(error: Throwable): Boolean {
+                                error.printStackTrace()
+                                if (error is ApiError) {
+                                    when (error.code) {
+                                        ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> return true // App will handle next step, SDK will keep the Activity.
+                                        else -> return false
+                                    }
+                                }
+                                return false // App won't handle next step, SDK will finish the Activity.
+                            }
+
+                            override fun onResult(executeResult: ExecuteResult?) {
+                                //success
+                            }
+
+                            override fun onWarning(
+                                warning: ExecuteWarning,
+                                executeResult: ExecuteResult?
+                            ): Boolean {
+                                return false // App won't handle next step, SDK will finish the Activity.
+                            }
+                        })
+
 
                 }
             }

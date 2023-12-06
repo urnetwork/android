@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="circlepw_bottom_bt_margin_top">10dp</dimen>
+    <dimen name="circlepw_intro_title_margin_bottom">24dp</dimen>
+    <dimen name="circlepw_intro_custom_grab_icon_size">48dp</dimen>
+</resources>

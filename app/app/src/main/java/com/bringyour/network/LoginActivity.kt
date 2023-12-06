@@ -58,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
 
 
 
-        setSupportActionBar(findViewById(R.id.nav_view))
+        setSupportActionBar(findViewById(R.id.action_bar))
 
         val navController = findNavController(R.id.nav_host_fragment_activity_login)
 

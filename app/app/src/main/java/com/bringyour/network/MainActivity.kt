@@ -37,9 +37,13 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+        setSupportActionBar(findViewById(R.id.action_bar))
+
         val navView: BottomNavigationView = binding.navView
         // the tint occludes the drawable icons
         navView.itemIconTintList = null
+
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each

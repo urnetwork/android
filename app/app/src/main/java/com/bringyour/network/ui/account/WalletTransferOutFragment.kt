@@ -60,6 +60,12 @@ class WalletTransferOutFragment: DialogFragment() {
 
         // https://developers.circle.com/w3s/reference/createvalidateaddress-1
 
+
+
+
+
+
+
         return root
     }
 
