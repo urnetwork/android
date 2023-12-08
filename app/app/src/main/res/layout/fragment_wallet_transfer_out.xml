@@ -8,13 +8,32 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/wallet_balance"
+        android:id="@+id/wallet_transfer_out_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:layout_margin="16dp"
+
+        android:text="Transfer Out"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="10pt"
+
+        />
+
+    <TextView
+        android:id="@+id/wallet_balance"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toBottomOf="@id/wallet_transfer_out_header"
         app:layout_constraintBottom_toTopOf="@id/wallet_transfer_out_description"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
 
         android:drawableLeft="@drawable/wallet_usdc_blue"
         android:drawablePadding="16dp"
@@ -66,7 +85,7 @@
         app:layout_constraintRight_toRightOf="parent"
 
 
-        android:text="Transfer to address"
+        android:text="Transfer to address (Polygon USDC)"
 
 
         android:layout_marginTop="16dp"
@@ -108,7 +127,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
 
-        android:text="Valid Polygon address"
+        android:text="Valid Polygon USDC address"
         android:textSize="8pt"
         android:fontFamily="sans-serif-light"
         android:textColor="@color/by_s_green"
@@ -126,7 +145,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
 
-        android:text="Not a valid Polygon address"
+        android:text="Not a valid Polygon USDC address"
         android:textSize="8pt"
         android:fontFamily="sans-serif-light"
         android:textColor="@color/by_p_gray"
@@ -162,7 +181,7 @@
         app:layout_constraintRight_toRightOf="parent"
 
 
-        android:text="Transfer amount"
+        android:text="Transfer amount (USDC)"
 
 
         android:layout_marginTop="16dp"
@@ -295,6 +314,27 @@
 
         android:indeterminate="true"
         app:indicatorSize="24dp"
+
+        />
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Borderless"
+
+        android:id="@+id/wallet_transfer_out_help_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/wallet_transfer_out_button"
+        app:layout_constraintBottom_toBottomOf="@id/wallet_transfer_out_button"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:layout_marginRight="16dp"
+
+        android:text="Get help"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
 
         />
 

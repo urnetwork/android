@@ -1,8 +1,10 @@
 package com.bringyour.network.ui.account
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +12,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import circle.programmablewallet.sdk.WalletSdk
 import circle.programmablewallet.sdk.api.ApiError
 import circle.programmablewallet.sdk.api.Callback
@@ -18,12 +21,22 @@ import circle.programmablewallet.sdk.api.ExecuteWarning
 import circle.programmablewallet.sdk.presentation.SecurityQuestion
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import circle.programmablewallet.sdk.result.ExecuteResult
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.queryPurchasesAsync
+import com.bringyour.client.CircleWalletInfo
+import com.bringyour.client.Client
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentAccountBinding
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 
 class AccountFragment : Fragment() {
@@ -35,6 +48,15 @@ class AccountFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var app : MainApplication? = null
+
+
+    private var transferBalanceGib: Long = 0
+    private var currentPlan: String? = null
+    private var walletInfo: CircleWalletInfo? = null
+
+
+    private var billingClient: BillingClient? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,45 +71,26 @@ class AccountFragment : Fragment() {
         val app = app ?: return root
 
 
-        val accountNetwork = root.findViewById<TextView>(R.id.account_network_label)
-        val updateButton = root.findViewById<Button>(R.id.account_update_button)
-        val updateSpinner = root.findViewById<ProgressBar>(R.id.account_update_spinner)
-        val subscriptionButton = root.findViewById<Button>(R.id.account_subscription_change)
-        val logoutButton = root.findViewById<Button>(R.id.account_logout)
-        val walletDescription = root.findViewById<TextView>(R.id.account_wallet_description)
-        val walletInitButton = root.findViewById<Button>(R.id.account_wallet_init_button)
-        val walletTransferOutButton = root.findViewById<Button>(R.id.account_wallet_transfer_out_button)
-        val accountLegal = root.findViewById<TextView>(R.id.account_legal)
+        binding.accountNetworkName.text = ""
+        binding.accountUpdateSpinner.visibility = View.GONE
+
+        clear()
 
 
 
-        val update = {
+        binding.accountWalletDescription.movementMethod = LinkMovementMethod.getInstance()
 
-//            val byJwt = app.asyncLocalState?.localState()?.parseByJwt()
-//            byJwt?.networkName?.let { networkName ->
-//                accountNetwork.text = networkName
-//            }
 
-            app.asyncLocalState?.parseByJwt { byJwt, ok ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    if (ok) {
-                        accountNetwork.text = byJwt.networkName
-                    }
-                }
-            }
+        binding.accountUpdateButton.setOnClickListener {
+            update {}
         }
 
-
-
-        walletDescription.movementMethod = LinkMovementMethod.getInstance()
-
-
-        subscriptionButton.setOnClickListener {
+        binding.accountSubscriptionChangeButton.setOnClickListener {
             val subscriptionFragment = SubscriptionFragment()
 
             val navArgs = Bundle()
-            navArgs.putInt("transferBalanceGib", 0)
-            navArgs.putString("currentPlan", SubscriptionFragment.PlanBasic)
+            navArgs.putLong("transferBalanceGib", transferBalanceGib)
+            navArgs.putString("currentPlan", currentPlan)
 
             subscriptionFragment.arguments = navArgs
 
@@ -95,48 +98,162 @@ class AccountFragment : Fragment() {
         }
 
 
-        initCircleWallet()
 
-        walletInitButton.setOnClickListener {
+        binding.accountWalletInitButton.setOnClickListener {
 
-            app.byApi?.walletCircleInit { result, err ->
-
-                if (err != null) {
-
-                } else if (result.error != null) {
-
+            val inProgress = { busy: Boolean ->
+                if (busy) {
+                    binding.accountWalletInitButton.isEnabled = false
+                    binding.accountWalletInitSpinner.visibility = View.VISIBLE
                 } else {
+                    binding.accountWalletInitButton.isEnabled = true
+                    binding.accountWalletInitSpinner.visibility = View.GONE
+                }
+            }
 
-                    circleWalletExecute(
-                        result.userToken.userToken,
-                        result.userToken.encryptionKey,
-                        result.challengeId
-                    )
+            inProgress(true)
+
+            app.byApi?.walletCircleInit { result, error ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    inProgress(false)
+
+                    if (error != null) {
+                        binding.accountWalletError.text = error.message
+                        binding.accountWalletError.visibility = View.VISIBLE
+                    } else if (result.error != null) {
+                        binding.accountWalletError.text = result.error.message
+                        binding.accountWalletError.visibility = View.VISIBLE
+                    } else {
+                        binding.accountWalletError.visibility = View.GONE
+
+                        val userToken = result.userToken.userToken
+                        val encryptionKey = result.userToken.encryptionKey
+                        val challengeId = result.challengeId
+
+                        WalletSdk.execute(
+                            activity,
+                            userToken,
+                            encryptionKey,
+                            arrayOf<String>(challengeId),
+                            object : Callback<ExecuteResult> {
+                                override fun onWarning(
+                                    warning: ExecuteWarning?,
+                                    result: ExecuteResult?
+                                ): Boolean {
+                                    // FIXME toast
+                                    return true
+                                }
+
+                                override fun onError(error: Throwable): Boolean {
+                                    if (error is ApiError) {
+                                        when (error.code) {
+                                            ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
+                                            ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
+                                            ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
+                                            ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched -> {
+                                            }
+
+                                            ApiError.ErrorCode.networkError -> {
+                                                // FIXME toast
+                                            }
+
+                                            else -> {
+                                                // FIXME toast
+                                            }
+                                        }
+                                        // App will handle next step, SDK will keep the Activity.
+                                        return true
+                                    }
+                                    // App won't handle next step, SDK will finish the Activity.
+                                    return false
+                                }
+
+                                override fun onResult(result: ExecuteResult) {
+                                    // enable biometrics
+                                    WalletSdk.setBiometricsPin(
+                                        activity,
+                                        userToken,
+                                        encryptionKey,
+                                        object : Callback<ExecuteResult?> {
+                                            override fun onError(error: Throwable): Boolean {
+                                                update {}
+
+                                                error.printStackTrace()
+                                                if (error is ApiError) {
+                                                    when (error.code) {
+                                                        ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> return true // App will handle next step, SDK will keep the Activity.
+                                                        else -> return false
+                                                    }
+                                                }
+                                                return false // App won't handle next step, SDK will finish the Activity.
+                                            }
+
+                                            override fun onResult(executeResult: ExecuteResult?) {
+                                                //success
+                                                update {}
+                                            }
+
+                                            override fun onWarning(
+                                                warning: ExecuteWarning,
+                                                executeResult: ExecuteResult?
+                                            ): Boolean {
+                                                return false // App won't handle next step, SDK will finish the Activity.
+                                            }
+                                        })
+
+
+                                }
+                            }
+                        )
+
+                    }
+
                 }
 
             }
 
         }
 
-        walletTransferOutButton.setOnClickListener {
-            val walletTransferOutFragment = WalletTransferOutFragment()
+        binding.accountWalletTransferOutButton.setOnClickListener {
 
-            val navArgs = Bundle()
-            navArgs.putDouble("walletBalance", 0.0)
-            navArgs.putString("walletToken", "USDC")
-            navArgs.putString("walletTokenId", "xxx")
-            navArgs.putString("walletChain", "MATIC")
-            navArgs.putString("walletChainHumanName", "Polygon")
+            val inProgress = { busy: Boolean ->
+                if (busy) {
+                    binding.accountWalletTransferOutButton.isEnabled = false
+                    binding.accountWalletTransferOutSpinner.visibility = View.VISIBLE
+                } else {
+                    binding.accountWalletTransferOutButton.isEnabled = true
+                    binding.accountWalletTransferOutSpinner.visibility = View.GONE
+                }
+            }
 
-            walletTransferOutFragment.arguments = navArgs
+            inProgress(true)
 
-            walletTransferOutFragment.show(childFragmentManager, "dialog")
+            update {
+                inProgress(false)
+
+                walletInfo?.let { walletInfo ->
+                    val walletTransferOutFragment = WalletTransferOutFragment()
+
+                    val navArgs = Bundle()
+                    navArgs.putString("walletId", walletInfo.walletId)
+                    navArgs.putDouble("walletBalance", Client.nanoCentsToUsd(walletInfo.balanceUsdcNanoCents))
+                    navArgs.putString("walletToken", "USDC")
+                    navArgs.putString("walletTokenId", walletInfo.tokenId)
+                    navArgs.putString("walletBlockchain", walletInfo.blockchain)
+                    navArgs.putString("walletBlockchainSymbol", walletInfo.blockchainSymbol)
+
+                    walletTransferOutFragment.arguments = navArgs
+
+                    walletTransferOutFragment.show(childFragmentManager, "dialog")
+                }
+            }
         }
 
 
 
 
-        logoutButton.setOnClickListener {
+
+        binding.accountLogoutButton.setOnClickListener {
             (activity?.application as MainApplication).logout()
 
             activity?.startActivity(Intent(activity, LoginActivity::class.java))
@@ -144,14 +261,18 @@ class AccountFragment : Fragment() {
             activity?.finish()
         }
 
-        accountLegal.movementMethod = LinkMovementMethod.getInstance()
+        binding.accountHelpButton.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
+        }
+
+        binding.accountDeleteButton.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
+        }
 
 
-//        val textView: TextView = binding.textAccount
-//        accountViewModel.text.observe(viewLifecycleOwner) {
-//            textView.text = it
-//        }
-        update()
+        binding.accountLegal.movementMethod = LinkMovementMethod.getInstance()
+
+        update {}
 
         return root
     }
@@ -161,117 +282,285 @@ class AccountFragment : Fragment() {
         _binding = null
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
 
-    private fun initCircleWallet() {
-        val endpoint = context?.getString(R.string.circle_endpoint)
-        val addId = context?.getString(R.string.circle_app_id)
+        billingClient?.endConnection()
+    }
 
-        val settingsManagement = SettingsManagement()
-        settingsManagement.isEnableBiometricsPin = true //Set "true" to enable, "false" to disable
 
-        WalletSdk.init(
-            requireContext().applicationContext,
-            WalletSdk.Configuration(endpoint, addId, settingsManagement)
-        )
+    override fun onResume() {
+        super.onResume()
 
-        WalletSdk.setSecurityQuestions(
-            arrayOf(
-                SecurityQuestion("What is your favorite color?"),
-                SecurityQuestion("What is your favorite shape?"),
-                SecurityQuestion("What is your favorite animal?"),
-                SecurityQuestion("What is your favorite place?"),
-                SecurityQuestion("What is your favorite material?"),
-                SecurityQuestion("What is your favorite sound?"),
-                SecurityQuestion("What would you explore in space?"),
-                SecurityQuestion("Pick a word, any word."),
-                SecurityQuestion("Pick a date, any date.", SecurityQuestion.InputType.datePicker),
-            ))
+        update {}
+    }
 
-        WalletSdk.addEventListener { event: ExecuteEvent? ->
-            // FIXME show a toast with the message
+
+
+
+
+
+    private fun clear() {
+        binding.accountBalanceSummary.text = ""
+//        binding.accountSubscriptionSummary.text = ""
+//        binding.accountSubscriptionPrice.visibility = View.GONE
+//        binding.accountSubscriptionPriceDescription.visibility = View.GONE
+//        binding.accountSubscriptionChangeButton.isEnabled = false
+        binding.accountWalletSummary.text = ""
+
+        binding.accountWalletInitButton.visibility = View.GONE
+        binding.accountWalletInitSpinner.visibility = View.GONE
+        binding.accountWalletBalanceLabel.visibility = View.GONE
+        binding.accountWalletBalanceSummary.visibility = View.GONE
+        binding.accountWalletTransferOutButton.visibility = View.GONE
+        binding.accountWalletTransferOutSpinner.visibility = View.GONE
+        binding.accountWalletError.visibility = View.GONE
+
+        binding.accountWalletPendingBalanceSummary.text = ""
+    }
+
+    private fun update(callback: ()->Unit) {
+
+//            val byJwt = app.asyncLocalState?.localState()?.parseByJwt()
+//            byJwt?.networkName?.let { networkName ->
+//                accountNetwork.text = networkName
+//            }
+
+        val app = app ?: return
+
+
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                binding.accountUpdateButton.isEnabled = false
+                binding.accountUpdateSpinner.visibility = View.VISIBLE
+            } else {
+                binding.accountUpdateButton.isEnabled = true
+                binding.accountUpdateSpinner.visibility = View.GONE
+            }
         }
 
-        WalletSdk.setLayoutProvider(context?.let { CircleLayoutProvider(it) })
-        WalletSdk.setViewSetterProvider(context?.let { CircleViewSetterProvider(it) })
-    }
 
-    private fun circleWalletExecute(userToken: String, encryptionKey: String, challengeId: String) {
-        WalletSdk.execute(
-            activity,
-            userToken,
-            encryptionKey,
-            arrayOf<String>(challengeId),
-            object : Callback<ExecuteResult> {
-                override fun onWarning(
-                    warning: ExecuteWarning?,
-                    result: ExecuteResult?
-                ): Boolean {
-                    // FIXME toast
-                    return true
-                }
+        // FIXME show spinner
 
-                override fun onError(error: Throwable): Boolean {
+        inProgress(true)
 
-                    if (error is ApiError) {
-                        when (error.code) {
-                            ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
-                            ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
-                            ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
-                            ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched -> {
-                            }
+        app.byApi?.subscriptionBalance { result, error ->
 
-                            ApiError.ErrorCode.networkError -> {
-                                // FIXME toast
-                            }
+            runBlocking(Dispatchers.Main.immediate) {
 
-                            else -> {
-                                // FIXME toast
-                            }
-                        }
-                        // App will handle next step, SDK will keep the Activity.
-                        return true
+                inProgress(false)
+
+                Log.i("AccountFragment", "GOT UPDATE RESULT ${result} ${error}")
+
+                if (error != null) {
+                    clear()
+                    transferBalanceGib = 0
+//                    currentPlan = null
+                    walletInfo = null
+                } else {
+                    transferBalanceGib = Math.round(result.balanceByteCount / 1024.0)
+
+                    binding.accountBalanceSummary.text = "${transferBalanceGib}"
+
+                    if (result.walletInfo == null) {
+                        walletInfo = null
+                        binding.accountWalletSummary.text = "None"
+
+                        binding.accountWalletInitButton.visibility = View.VISIBLE
+                        binding.accountWalletInitSpinner.visibility = View.GONE
+                        binding.accountWalletBalanceLabel.visibility = View.GONE
+                        binding.accountWalletBalanceSummary.visibility = View.GONE
+                        binding.accountWalletTransferOutButton.visibility = View.GONE
+                        binding.accountWalletTransferOutSpinner.visibility = View.GONE
+
+                        binding.accountWalletInitButton.isEnabled = true
+                    } else {
+                        walletInfo = result.walletInfo
+                        binding.accountWalletSummary.text = String.format(
+                            "Circle USDC self-custody (%s %s)",
+                            result.walletInfo.blockchain,
+                            result.walletInfo.blockchainSymbol
+                        )
+
+                        binding.accountWalletInitButton.visibility = View.GONE
+                        binding.accountWalletInitSpinner.visibility = View.GONE
+                        binding.accountWalletBalanceLabel.visibility = View.VISIBLE
+                        binding.accountWalletBalanceSummary.visibility = View.VISIBLE
+                        binding.accountWalletTransferOutButton.visibility = View.VISIBLE
+                        binding.accountWalletTransferOutSpinner.visibility = View.GONE
+
+                        binding.accountWalletBalanceSummary.text = String.format(
+                            "%.2f USDC",
+                            Client.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents)
+                        )
+                        binding.accountWalletTransferOutButton.isEnabled = true
+
                     }
-                    // App won't handle next step, SDK will finish the Activity.
-                    return false
+
+                    binding.accountWalletError.visibility = View.GONE
+
+                    binding.accountWalletPendingBalanceSummary.text = String.format(
+                        "%.2f USDC",
+                        Client.nanoCentsToUsd(result.pendingPayoutUsdNanoCents)
+                    )
                 }
 
-                override fun onResult(result: ExecuteResult) {
-                    // FIXME toast
+                callback()
+            }
+        }
 
-
-                    // enable biometrics
-
-                    WalletSdk.setBiometricsPin(
-                        activity,
-                        userToken,
-                        encryptionKey,
-                        object : Callback<ExecuteResult?> {
-                            override fun onError(error: Throwable): Boolean {
-                                error.printStackTrace()
-                                if (error is ApiError) {
-                                    when (error.code) {
-                                        ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> return true // App will handle next step, SDK will keep the Activity.
-                                        else -> return false
-                                    }
-                                }
-                                return false // App won't handle next step, SDK will finish the Activity.
-                            }
-
-                            override fun onResult(executeResult: ExecuteResult?) {
-                                //success
-                            }
-
-                            override fun onWarning(
-                                warning: ExecuteWarning,
-                                executeResult: ExecuteResult?
-                            ): Boolean {
-                                return false // App won't handle next step, SDK will finish the Activity.
-                            }
-                        })
-
-
+        app.asyncLocalState?.parseByJwt { byJwt, ok ->
+            runBlocking(Dispatchers.Main.immediate) {
+                if (ok) {
+                    binding.accountNetworkName.text = byJwt.networkName
+                } else {
+                    binding.accountNetworkName.text = ""
                 }
             }
-        )
+        }
+
+        // use the google billing library to get the current plan
+        syncGoogleBilling()
     }
+
+    private fun syncGoogleBilling() {
+
+        // FIXME plan spinner
+        // FIXME plan error
+
+        val inProgress = { busy: Boolean ->
+            if (busy) {
+                binding.accountSubscriptionChangeSpinner.visibility = View.VISIBLE
+                binding.accountSubscriptionChangeButton.isEnabled = false
+            } else {
+                binding.accountSubscriptionChangeSpinner.visibility = View.GONE
+                binding.accountSubscriptionChangeButton.isEnabled = true
+            }
+        }
+
+
+        val planError = {
+            currentPlan = null
+            binding.accountSubscriptionSummary.text = ""
+            binding.accountSubscriptionPrice.visibility = View.GONE
+            binding.accountSubscriptionPriceDescription.visibility = View.GONE
+            binding.accountSubscriptionChangeButton.isEnabled = false
+        }
+
+//        binding.accountSubscriptionChangeButton.isEnabled = false
+
+
+        binding.accountSubscriptionError.visibility = View.GONE
+
+        inProgress(true)
+
+
+        billingClient?.endConnection()
+
+        billingClient = BillingClient.newBuilder(requireContext())
+            .enablePendingPurchases()
+            .setListener { billingResult, purchases ->
+                // ignore. The purchases are fetched once below.
+            }
+            .build()
+
+        billingClient?.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    // The BillingClient is ready. You can query purchases here.
+                    lifecycleScope.launch(Dispatchers.Main.immediate) {
+                        queryPurchase()
+
+                        inProgress(false)
+                        billingClient?.endConnection()
+                    }
+                } else {
+                    // show error message of billing error
+                    // FIXME show error
+
+
+
+                    binding.accountSubscriptionError.text = String.format("Billing error: %d %s", billingResult.responseCode, billingResult.debugMessage)
+                    binding.accountSubscriptionError.visibility = View.VISIBLE
+
+                    inProgress(false)
+                    billingClient?.endConnection()
+
+                    planError()
+                }
+            }
+
+            override fun onBillingServiceDisconnected() {
+                // Try to restart the connection on the next request to
+                // Google Play by calling the startConnection() method.
+
+                binding.accountSubscriptionError.text = String.format("Billing error: Disconnected")
+                binding.accountSubscriptionError.visibility = View.VISIBLE
+
+                inProgress(false)
+                billingClient?.endConnection()
+
+                planError()
+            }
+        })
+    }
+
+    private suspend fun queryPurchase() {
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+
+// uses queryPurchasesAsync Kotlin extension function
+        val purchasesResult = withContext(Dispatchers.IO) {
+            billingClient?.queryPurchasesAsync(params.build())
+        }
+
+        val planPurchases = purchasesResult?.purchasesList?.filter { purchase ->
+            "monthly_transfer_300gib" in purchase.products ||
+                    "monthly_transfer_1tib" in purchase.products ||
+                    "ultimate" in purchase.products
+        }
+
+        if (planPurchases.isNullOrEmpty()) {
+            currentPlan = SubscriptionFragment.PlanBasic
+
+            binding.accountSubscriptionSummary.text = "Basic"
+            binding.accountSubscriptionPrice.text = "Free"
+            binding.accountSubscriptionPrice.visibility = View.VISIBLE
+            binding.accountSubscriptionPriceDescription.visibility = View.GONE
+            return
+        }
+
+        val mostRecentPurchase = planPurchases.maxBy { purchase -> purchase.purchaseTime }
+
+        binding.accountSubscriptionPrice.visibility = View.VISIBLE
+        binding.accountSubscriptionPriceDescription.visibility = View.VISIBLE
+
+        if ("ultimate" in mostRecentPurchase.products) {
+            currentPlan = SubscriptionFragment.PlanUltimate
+            binding.accountSubscriptionSummary.text = "Ultimate"
+            binding.accountSubscriptionPrice.text = "$12"
+        } else if ("monthly_transfer_1tib" in mostRecentPurchase.products) {
+            currentPlan = SubscriptionFragment.Plan1Tib
+            binding.accountSubscriptionSummary.text = "1TiB Monthly"
+            binding.accountSubscriptionPrice.text = "$6"
+        } else if ("monthly_transfer_300gib" in mostRecentPurchase.products) {
+            currentPlan = SubscriptionFragment.Plan300Gib
+            binding.accountSubscriptionSummary.text = "300GiB Monthly"
+            binding.accountSubscriptionPrice.text = "$3"
+        } else {
+            // should not reach here
+            // check the conditions in the filter above
+            currentPlan = null
+            binding.accountSubscriptionSummary.text = "Unknown"
+            binding.accountSubscriptionPrice.visibility = View.GONE
+            binding.accountSubscriptionPriceDescription.visibility = View.GONE
+        }
+
+
+    }
+
+
+    // FIXME use billing client to fetch current subscription with auto renew enabled
+    // https://developer.android.com/google/play/billing/integrate#groovy
+
 }

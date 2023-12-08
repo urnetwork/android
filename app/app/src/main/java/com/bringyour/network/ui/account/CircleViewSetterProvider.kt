@@ -37,6 +37,12 @@ class CircleViewSetterProvider(val context: Context) : ViewSetterProvider() {
 
             Resource.Icon.securityConfirmMain -> return LocalImageSetter(R.drawable.ic_confirm_main_icon)
 
+            Resource.Icon.biometricsAllowMain -> return LocalImageSetter(R.drawable.ic_biometrics_general)
+
+            Resource.Icon.showPin -> return LocalImageSetter(R.drawable.ic_show_pin)
+
+            Resource.Icon.hidePin -> return LocalImageSetter(R.drawable.ic_hide_pin)
+
             else -> {}
         }
         return super.getImageSetter(type)

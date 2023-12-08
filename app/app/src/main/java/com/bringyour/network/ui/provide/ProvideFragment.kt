@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.provide
 
+import android.content.Intent
+import android.net.Uri
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -55,6 +57,10 @@ class ProvideFragment : Fragment() {
             } else {
                 app.byDevice?.setProvideMode(ProvideModeNone)
             }
+        }
+
+        binding.provideHelpButton.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
         }
 
 

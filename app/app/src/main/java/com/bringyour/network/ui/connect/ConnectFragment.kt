@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.connect
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -185,24 +187,24 @@ class ConnectFragment : Fragment() {
 
 
                     val disconnectButton = view.findViewById<Button>(R.id.connect_disconnect)
-                    disconnectButton?.let {
-                        it.setOnClickListener {
-                            connectVc.disconnect()
-                        }
+                    disconnectButton?.setOnClickListener {
+                        connectVc.disconnect()
                     }
 
                     val shuffleButton = view.findViewById<ImageButton>(R.id.connect_shuffle)
-                    shuffleButton?.let {
-                        it.setOnClickListener {
-                            connectVc.shuffle()
-                        }
+                    shuffleButton?.setOnClickListener {
+                        connectVc.shuffle()
                     }
 
                     val broadenButton = view.findViewById<ImageButton>(R.id.connect_broaden)
-                    broadenButton?.let {
-                        it.setOnClickListener {
-                            connectVc.broaden()
-                        }
+                    broadenButton?.setOnClickListener {
+                        connectVc.broaden()
+                    }
+
+
+                    val issueButton = view.findViewById<Button>(R.id.connect_issue)
+                    issueButton?.setOnClickListener {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
                     }
                 }
             }
@@ -247,7 +249,6 @@ class ConnectFragment : Fragment() {
 //                }
             }
         })
-
 
 
 

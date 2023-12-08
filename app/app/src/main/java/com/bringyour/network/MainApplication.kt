@@ -2,6 +2,11 @@ package com.bringyour.network
 
 import android.app.Application
 import android.content.Intent
+import circle.programmablewallet.sdk.WalletSdk
+import circle.programmablewallet.sdk.api.ExecuteEvent
+import circle.programmablewallet.sdk.presentation.SecurityQuestion
+import circle.programmablewallet.sdk.presentation.SettingsManagement
+import com.bringyour.client.AccountViewController
 import com.bringyour.client.AsyncLocalState
 import com.bringyour.client.BringYourApi
 import com.bringyour.client.BringYourDevice
@@ -10,6 +15,8 @@ import com.bringyour.client.ConnectViewController
 import com.bringyour.client.DevicesViewController
 import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
+import com.bringyour.network.ui.account.CircleLayoutProvider
+import com.bringyour.network.ui.account.CircleViewSetterProvider
 import go.Universe
 import go.error
 
@@ -39,6 +46,7 @@ class MainApplication : Application() {
     var loginVc: LoginViewController? = null
     var connectVc: ConnectViewController? = null
     var devicesVc: DevicesViewController? = null
+    var accountVc: AccountViewController? = null
 
 
     override fun onCreate() {
@@ -68,6 +76,8 @@ class MainApplication : Application() {
                 throw(e)
             }
         }
+
+        initCircleWallet()
     }
 
 
@@ -103,6 +113,8 @@ class MainApplication : Application() {
         router = null
         byDevice?.close()
         byDevice = null
+        accountVc?.close()
+        accountVc = null
     }
 
 
@@ -112,7 +124,43 @@ class MainApplication : Application() {
 
         connectVc = byDevice?.openConnectViewController()
         devicesVc = byDevice?.openDevicesViewController()
+        accountVc = byDevice?.openAccountViewController()
     }
 
 
+
+    private fun initCircleWallet() {
+        val applicationContext = applicationContext ?: return
+
+        val endpoint = applicationContext.getString(R.string.circle_endpoint)
+        val addId = applicationContext.getString(R.string.circle_app_id)
+
+        val settingsManagement = SettingsManagement()
+        settingsManagement.isEnableBiometricsPin = true //Set "true" to enable, "false" to disable
+
+        WalletSdk.init(
+            applicationContext,
+            WalletSdk.Configuration(endpoint, addId, settingsManagement)
+        )
+
+        WalletSdk.setSecurityQuestions(
+            arrayOf(
+                SecurityQuestion("What is your favorite color?"),
+                SecurityQuestion("What is your favorite shape?"),
+                SecurityQuestion("What is your favorite animal?"),
+                SecurityQuestion("What is your favorite place?"),
+                SecurityQuestion("What is your favorite material?"),
+                SecurityQuestion("What is your favorite sound?"),
+                SecurityQuestion("What would you explore in space?"),
+                SecurityQuestion("Pick a word, any word."),
+                SecurityQuestion("Pick a date, any date.", SecurityQuestion.InputType.datePicker),
+            ))
+
+        WalletSdk.addEventListener { event: ExecuteEvent? ->
+            // FIXME show a toast with the message
+        }
+
+        WalletSdk.setLayoutProvider(CircleLayoutProvider(applicationContext))
+        WalletSdk.setViewSetterProvider(CircleViewSetterProvider(applicationContext))
+    }
 }
