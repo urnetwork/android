@@ -26,6 +26,7 @@ import circle.programmablewallet.sdk.api.ApiError
 import circle.programmablewallet.sdk.api.Callback
 import circle.programmablewallet.sdk.api.ExecuteWarning
 import circle.programmablewallet.sdk.result.ExecuteResult
+import circle.programmablewallet.sdk.result.ExecuteResultStatus
 import com.bringyour.client.Client
 import com.bringyour.client.WalletCircleTransferOutArgs
 import com.bringyour.network.MainApplication
@@ -204,8 +205,14 @@ class WalletTransferOutFragment: DialogFragment() {
                                     warning: ExecuteWarning?,
                                     result: ExecuteResult?
                                 ): Boolean {
+                                    when (result?.status) {
+                                        ExecuteResultStatus.COMPLETE,
+                                        ExecuteResultStatus.IN_PROGRESS,
+                                        ExecuteResultStatus.PENDING -> complete(true)
+                                        else -> complete(false)
+                                    }
                                     // FIXME toast
-                                    return true
+                                    return false
                                 }
 
                                 override fun onError(error: Throwable): Boolean {
@@ -242,11 +249,21 @@ class WalletTransferOutFragment: DialogFragment() {
                                 override fun onResult(result: ExecuteResult) {
 
                                     // success
+                                    complete(true)
+
+                                }
+
+                                fun complete(success: Boolean) {
                                     update {
-                                        binding.walletTransferOutSuccess.visibility = View.VISIBLE
+                                        if (success) {
+                                            binding.walletTransferOutSuccess.visibility =
+                                                View.VISIBLE
+                                        } else {
+                                            binding.walletTransferOutError.visibility =
+                                                View.VISIBLE
+                                        }
                                         inProgress(false)
                                     }
-
                                 }
                             }
                         )

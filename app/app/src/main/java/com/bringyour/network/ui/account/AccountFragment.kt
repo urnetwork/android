@@ -140,8 +140,9 @@ class AccountFragment : Fragment() {
                                     warning: ExecuteWarning?,
                                     result: ExecuteResult?
                                 ): Boolean {
+                                    complete()
                                     // FIXME toast
-                                    return true
+                                    return false
                                 }
 
                                 override fun onError(error: Throwable): Boolean {
@@ -169,39 +170,46 @@ class AccountFragment : Fragment() {
                                 }
 
                                 override fun onResult(result: ExecuteResult) {
-                                    // enable biometrics
-                                    WalletSdk.setBiometricsPin(
-                                        activity,
-                                        userToken,
-                                        encryptionKey,
-                                        object : Callback<ExecuteResult?> {
-                                            override fun onError(error: Throwable): Boolean {
-                                                update {}
+                                    complete()
+                                }
 
-                                                error.printStackTrace()
-                                                if (error is ApiError) {
-                                                    when (error.code) {
-                                                        ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> return true // App will handle next step, SDK will keep the Activity.
-                                                        else -> return false
+                                fun complete() {
+                                    if (!app.hasBiometric) {
+                                        update {}
+                                    } else {
+                                        // enable biometrics
+                                        WalletSdk.setBiometricsPin(
+                                            activity,
+                                            userToken,
+                                            encryptionKey,
+                                            object : Callback<ExecuteResult?> {
+                                                override fun onError(error: Throwable): Boolean {
+                                                    update {}
+
+                                                    error.printStackTrace()
+                                                    if (error is ApiError) {
+                                                        when (error.code) {
+                                                            ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> return true // App will handle next step, SDK will keep the Activity.
+                                                            else -> return false
+                                                        }
                                                     }
+                                                    return false // App won't handle next step, SDK will finish the Activity.
                                                 }
-                                                return false // App won't handle next step, SDK will finish the Activity.
-                                            }
 
-                                            override fun onResult(executeResult: ExecuteResult?) {
-                                                //success
-                                                update {}
-                                            }
+                                                override fun onResult(executeResult: ExecuteResult?) {
+                                                    //success
+                                                    update {}
+                                                }
 
-                                            override fun onWarning(
-                                                warning: ExecuteWarning,
-                                                executeResult: ExecuteResult?
-                                            ): Boolean {
-                                                return false // App won't handle next step, SDK will finish the Activity.
-                                            }
-                                        })
+                                                override fun onWarning(
+                                                    warning: ExecuteWarning,
+                                                    executeResult: ExecuteResult?
+                                                ): Boolean {
+                                                    return false // App won't handle next step, SDK will finish the Activity.
+                                                }
+                                            })
 
-
+                                    }
                                 }
                             }
                         )

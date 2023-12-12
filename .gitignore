@@ -2,3 +2,4 @@
 app/app/release
 app/app/build
 app/.idea
+node_modules

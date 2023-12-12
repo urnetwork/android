@@ -1,0 +1,40 @@
+publisher:
+  name: <<YOUR_PUBLISHER_NAME>>
+  address: ''
+  website: <<URL_OF_PUBLISHER_WEBSITE>>
+  email: <<EMAIL_ADDRESS_TO_CONTACT_PUBLISHER>>
+  media:
+    - purpose: icon
+      uri: <<RELATIVE_PATH_TO_PUBLISHER_ICON>>
+app:
+  name: <<APP_NAME>>
+  address: ''
+  android_package: <<ANDROID_PACKAGE_NAME>>
+  urls:
+    license_url: <<URL_OF_APP_LICENSE_OR_TERMS_OF_SERVICE>>
+    copyright_url: <<URL_OF_COPYRIGHT_DETAILS_FOR_APP>>
+    privacy_policy_url: <<URL_OF_APP_PRIVACY_POLICY>>
+    website: <<URL_OF_APP_WEBSITE>>
+  media:
+    - purpose: icon
+      uri: <<RELATIVE_PATH_TO_APP_ICON>>
+release:
+  address: ''
+  media:
+    - purpose: icon
+      uri: <<RELATIVE_PATH_TO_RELEASE_ICON>>
+    - purpose: screenshot
+      uri: <<RELATIVE_PATH_TO_SCREENSHOT>>
+  files:
+    - purpose: install
+      uri: <<RELATIVE_PATH_TO_APK>>
+  catalog:
+    en-US:
+      name: <<APP_NAME>>
+      short_description: <<SHORT_APP_DESCRIPTION>>
+      long_description: <<LONG_APP_DESCRIPTION>>
+      new_in_version: <<WHATS_NEW_IN_THIS_VERSION>>
+      saga_features: <<ANY_FEATURES_ONLY_AVAILBLE_WHEN_RUNNING_ON_SAGA>>
+solana_mobile_dapp_publisher_portal:
+  google_store_package: <<ANDROID_PACKAGE_NAME_OF_GOOGLE_PLAY_STORE_VERSION_IF_DIFFERENT>>
+  testing_instructions: <<TESTING_INSTRUCTIONS>>

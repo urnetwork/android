@@ -101,3 +101,7 @@ dependencies {
     implementation "com.android.billingclient:billing:$billing_version"
     implementation "com.android.billingclient:billing-ktx:$billing_version"
 }
+
+dependencies {
+    implementation "androidx.biometric:biometric-ktx:1.2.0-alpha05"
+}

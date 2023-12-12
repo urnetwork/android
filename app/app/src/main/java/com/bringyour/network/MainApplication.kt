@@ -2,6 +2,9 @@ package com.bringyour.network
 
 import android.app.Application
 import android.content.Intent
+import android.os.Build
+import androidx.biometric.BiometricManager
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import circle.programmablewallet.sdk.WalletSdk
 import circle.programmablewallet.sdk.api.ExecuteEvent
 import circle.programmablewallet.sdk.presentation.SecurityQuestion
@@ -47,6 +50,8 @@ class MainApplication : Application() {
     var connectVc: ConnectViewController? = null
     var devicesVc: DevicesViewController? = null
     var accountVc: AccountViewController? = null
+
+    var hasBiometric: Boolean = false
 
 
     override fun onCreate() {
@@ -136,7 +141,14 @@ class MainApplication : Application() {
         val addId = applicationContext.getString(R.string.circle_app_id)
 
         val settingsManagement = SettingsManagement()
-        settingsManagement.isEnableBiometricsPin = true //Set "true" to enable, "false" to disable
+
+        val fingerprintManager = BiometricManager.from(applicationContext)
+
+        hasBiometric = BiometricManager.BIOMETRIC_SUCCESS == fingerprintManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG)
+
+        settingsManagement.isEnableBiometricsPin = hasBiometric //Set "true" to enable, "false" to disable
 
         WalletSdk.init(
             applicationContext,
