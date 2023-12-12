@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintWidth_max="480dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        >
+
+    <TextView
+        android:id="@+id/verify_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Verify your email"
+        android:textSize="12pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        />
+
+
+    <TextView
+        android:id="@+id/verify_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/verify_header"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="We sent a code to heyhey@bringyour.com. Please enter it below."
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="24dp"
+
+        />
+
+
+
+
+    <TextView
+        android:id="@+id/verify_code_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/verify_description"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Code"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="24dp"
+
+        />
+
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Borderless"
+
+        android:id="@+id/verify_resend_code_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/verify_code_label"
+        app:layout_constraintBottom_toBottomOf="@id/verify_code_label"
+        app:layout_constraintRight_toLeftOf="@id/verify_resend_code_spinner"
+        android:text="@string/verify_resend"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
+
+        />
+
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/verify_resend_code_spinner"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/verify_code_label"
+        app:layout_constraintBottom_toBottomOf="@id/verify_code_label"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:indeterminate="true"
+        app:indicatorSize="24dp"
+
+
+        />
+
+    <!-- see https://developer.android.com/reference/androidx/autofill/HintConstants#AUTOFILL_HINT_SMS_OTP() -->
+    <EditText
+
+        android:id="@+id/verify_code"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/verify_code_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textSize="10pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/black"
+        android:layout_marginTop="0dp"
+        android:inputType="text"
+        android:autofillHints="smsOTPCode"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/verify_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/verify_code"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Continue"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:layout_marginTop="8dp"
+
+        />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/verify_spinner"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/verify_button"
+        app:layout_constraintBottom_toBottomOf="@id/verify_button"
+        app:layout_constraintLeft_toRightOf="@id/verify_button"
+
+        android:indeterminate="true"
+        app:indicatorSize="24dp"
+        />
+
+    <TextView
+        android:id="@+id/verify_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/verify_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="@string/verify_error"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/by_s_red"
+        android:layout_marginTop="0dp"
+        />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

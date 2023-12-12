@@ -1,0 +1,31 @@
+<resources>
+
+    <string name="login_error_auth_allowed">Please login with one of: %s.</string>
+    <string name="login_error">Something went wrong. Try again.</string>
+    <string name="login_client_error">Something went wrong authenticating the client. Try again.</string>
+
+    <string name="password_length_error">Password must be at least 65 bits of entropy (at least 12 characters, mixed case, mixed alphanumeric and non-alphanumeric).</string>
+    <string name="network_name_length_error">Must be at least 6 characters. Make it longer.</string>
+    <string name="network_name_check_error">Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
+    <string name="network_create_error">Account might already exist. Please start over.</string>
+
+    <string name="verify_error">Something went wrong. Try again.</string>
+    <string name="verify_description">We sent a code to %s. Please enter it below.</string>
+
+    <string name="login_password_description">Log in using %s</string>
+    <string name="login_password_error">Error</string>
+
+    <string name="create_network_error">Something went wrong. Try again.</string>
+    <string name="create_network_auth_jwt_summary">%s will be the primary login.</string>
+
+    <string name="password_reset_help">You may need to check your spam folder or unblock no-reply@bringyour.com</string>
+    <string name="password_reset_after_send_description">Reset link sent to %s</string>
+
+    <string name="password_reset_sent">Sent!</string>
+    <string name="password_reset_resend">Resend</string>
+    <string name="password_reset_send_error">Error</string>
+
+    <string name="verify_sent">Sent!</string>
+    <string name="verify_resend">Resend</string>
+    <string name="verify_send_error">Error</string>
+</resources>

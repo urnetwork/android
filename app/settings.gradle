@@ -1,0 +1,30 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+//        flatDir {
+//            dirs "${System.env.HOME}/bringyour/bringyour/client/build/android"
+//        }
+
+        // circle sdk
+        maven {
+            Properties properties = new Properties()
+            properties.load(new File(rootDir.absolutePath + "/local.properties").newDataInputStream())
+            url properties.getProperty('pwsdk.maven.url')
+            credentials {
+                username properties.getProperty('pwsdk.maven.username')
+                password properties.getProperty('pwsdk.maven.password')
+            }
+        }
+    }
+}
+rootProject.name = "BringYour"
+include ':app'

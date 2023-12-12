@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <!--    [General]-->
+    <string name="circlepw_show_pin">Show PIN</string>
+    <string name="circlepw_hide_pin">Hide PIN</string>
+    <string name="circlepw_continue">Continue</string>
+    <string name="circlepw_next">Next</string>
+    <string name="circlepw_question_label">Question:</string>
+    <string name="circlepw_answer_label">Answer:</string>
+    <string name="circlepw_hint_label">Hint:</string>
+    <string name="circlepw_hint_tag">Hint</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">Confirm</string>
+    <string name="circlepw_pin_remain_attemps_template">You have %s attempts left.</string>
+    <string name="circlepw_pin_lock_period_template">You’ve used up all PIN attempts. Please wait for %s mins to retry later.</string>
+    <string name="circlepw_answer_remain_attemps_template">You have %s attempts left.</string>
+    <string name="circlepw_answer_lock_period_template">Please wait for %s mins to retry later.</string>
+
+    <!--    [Page] EnterPINCode-->
+    <string name="circlepw_enter_pincode_subhead">Let us know if it’s really you.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">Forgot PIN?</string>
+
+    <!-- [Page] NewPINCode   -->
+    <string name="circlepw_new_pincode_subhead">Your PIN can’t have repeating (e.g. 000000) or consecutive (e.g. 123456) numbers.</string>
+    <!--  [Page] ConfirmPINCode  -->
+    <string name="circlepw_confirm_pincode_headline">Re-enter your PIN to confirm</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <!--  [Page] SecurityIntros  -->
+    <string name="circlepw_security_intros_description">This is the only way to recover wallet access if you forget your PIN. Pick 2 security questions and provide answers for access recovery.</string>
+
+    <!--  [Page] SecurityQuestions  -->
+    <string name="circlepw_security_questions_title">Recovery method</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">Select one question</string>
+    <string name="circlepw_security_questions_answer_header">Provide an answer</string>
+    <string name="circlepw_security_questions_answer_placeholder">Type your answer here</string>
+    <string name="circlepw_security_questions_answer_hint_header">Provide an answer hint (optional)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Type your hint here</string>
+
+    <!-- [Page] SelectQuestion   -->
+    <string name="circlepw_select_question_title">Select one question</string>
+    <!-- [Page] SecuritySummary   -->
+    <string name="circlepw_security_summary_title">Summary</string>
+
+    <!-- [Page] SecurityConfirm  -->
+    <string name="circlepw_security_confirm_title">Confirmation</string>
+    <string name="circlepw_security_confirm_headline">Keep your questions safe</string>
+    <string name="circlepw_security_confirm_input_headline">Type \"I agree\" to proceed:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Type \"I agree\" here</string>
+    <string name="circlepw_security_confirm_input_match">I agree</string>
+
+    <!-- [Page] RecoverPINCode  -->
+    <string name="circlepw_recover_pincode_answer_input_header">Enter your answer here</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Type your answer here</string>
+
+
+</resources>

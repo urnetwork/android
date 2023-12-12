@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!--    <TextView-->
+<!--        android:id="@+id/get_started_header"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/get_started_search"-->
+<!--        app:layout_constraintHorizontal_bias="0"-->
+
+<!--        android:textAlignment="viewStart"-->
+<!--        android:textSize="22sp"-->
+<!--        app:fontWeight="100"-->
+<!--        android:textColor="?colorSecondary"-->
+<!--        android:text="Get Started"-->
+<!--        />-->
+
+    <Button
+        android:id="@+id/get_started_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/get_started_ff"
+
+        android:gravity="left|center_vertical"
+        android:text="Connect to a specific region"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+
+        android:drawableLeft="@drawable/ic_search"
+        android:drawableRight="@drawable/ic_filter"
+
+        app:cornerRadius="32dp"
+
+        />
+
+    <Button
+        android:id="@+id/get_started_ff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/get_started_search"
+        app:layout_constraintBottom_toTopOf="@id/get_started_nearest_region"
+
+        android:gravity="left|center_vertical"
+        android:text="Connect to your devices"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+
+        android:drawableLeft="@drawable/badge_ff"
+        app:iconSize="8dp"
+        />
+
+    <Button
+        android:id="@+id/get_started_nearest_region"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/get_started_ff"
+        app:layout_constraintBottom_toTopOf="@id/get_started_safe"
+
+        android:gravity="left|center_vertical"
+        android:text="Connect to nearest other region"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+
+        android:drawableLeft="@drawable/badge_nearest_region"
+        />
+
+    <Button
+        android:id="@+id/get_started_safe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/get_started_nearest_region"
+        app:layout_constraintBottom_toTopOf="@id/get_started_gimme"
+
+        android:gravity="left|center_vertical"
+        android:text="Connect to nearest safe region"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+
+        android:drawableLeft="@drawable/badge_safe"
+        />
+
+    <Button
+        android:id="@+id/get_started_gimme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/get_started_safe"
+
+        android:gravity="left|center_vertical"
+        android:text="Gimme some sugar, baby"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+
+        android:drawableLeft="@drawable/badge_gimme"
+        />
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
