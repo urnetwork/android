@@ -1,40 +1,40 @@
 publisher:
-  name: <<YOUR_PUBLISHER_NAME>>
-  address: ''
-  website: <<URL_OF_PUBLISHER_WEBSITE>>
-  email: <<EMAIL_ADDRESS_TO_CONTACT_PUBLISHER>>
+  name: BringYour, Inc.
+  address: 5vErPSDb9urcrqmpJ6Jhxne9bEjnCm4diWxNuYphFjRg
+  website: https://bringyour.com
+  email: support@bringyour.com
   media:
     - purpose: icon
-      uri: <<RELATIVE_PATH_TO_PUBLISHER_ICON>>
+      uri: bringyour.png
 app:
-  name: <<APP_NAME>>
-  address: ''
-  android_package: <<ANDROID_PACKAGE_NAME>>
+  name: BringYour
+  address: 5NZ2wvZLWWN9fWxvEm45dFf15iwnRNe3C64a1t4dQQKd
+  android_package: com.bringyour.network
   urls:
-    license_url: <<URL_OF_APP_LICENSE_OR_TERMS_OF_SERVICE>>
-    copyright_url: <<URL_OF_COPYRIGHT_DETAILS_FOR_APP>>
-    privacy_policy_url: <<URL_OF_APP_PRIVACY_POLICY>>
-    website: <<URL_OF_APP_WEBSITE>>
+    license_url: https://bringyour.com/terms
+    copyright_url: https://bringyour.com/terms
+    privacy_policy_url: https://bringyour.com/privacy
+    website: https://bringyour.com
   media:
     - purpose: icon
-      uri: <<RELATIVE_PATH_TO_APP_ICON>>
+      uri: icon.png
 release:
-  address: ''
+  address: 6QctX8EeBLPomNMVbtwhEmkFtPetcMiiip8Uwu3RJXcS
   media:
     - purpose: icon
-      uri: <<RELATIVE_PATH_TO_RELEASE_ICON>>
+      uri: icon.png
     - purpose: screenshot
-      uri: <<RELATIVE_PATH_TO_SCREENSHOT>>
+      uri: screens/login.png
   files:
     - purpose: install
-      uri: <<RELATIVE_PATH_TO_APK>>
+      uri: release/app-release.apk
   catalog:
     en-US:
-      name: <<APP_NAME>>
-      short_description: <<SHORT_APP_DESCRIPTION>>
-      long_description: <<LONG_APP_DESCRIPTION>>
-      new_in_version: <<WHATS_NEW_IN_THIS_VERSION>>
-      saga_features: <<ANY_FEATURES_ONLY_AVAILBLE_WHEN_RUNNING_ON_SAGA>>
+      name: BringYour
+      short_description: VPN that works just like home
+      long_description: Fast and secure internet wherever you want to be, with ultimate control of your data. Take ultimate control of your data between your devices and the cloud. BringYour lets you choose other real devices in the world through which your data travels. Additionally your device can provide security to the network in the background and earn USDC.
+      new_in_version: Updates and fixes.
+      saga_features: ''
 solana_mobile_dapp_publisher_portal:
-  google_store_package: <<ANDROID_PACKAGE_NAME_OF_GOOGLE_PLAY_STORE_VERSION_IF_DIFFERENT>>
-  testing_instructions: <<TESTING_INSTRUCTIONS>>
+  google_store_package: com.bringyour.network
+  testing_instructions: ''

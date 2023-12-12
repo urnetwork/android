@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Intent
 import android.os.Build
 import androidx.biometric.BiometricManager
-import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import circle.programmablewallet.sdk.WalletSdk
 import circle.programmablewallet.sdk.api.ExecuteEvent
 import circle.programmablewallet.sdk.presentation.SecurityQuestion

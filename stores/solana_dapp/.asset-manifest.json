@@ -1,0 +1,24 @@
+{
+  "assets": {
+    "bringyour.png": {
+      "path": "bringyour.png",
+      "sha256": "zDheooarTtU12a0rsqmJuL3YuuU+MGP3EKiV4tn5gYw=",
+      "uri": "https://arweave.net/Jni4YToy_5Qesmk5DyjBdX9PMf5GL70q0i2Or-H__5E"
+    },
+    "icon.png": {
+      "path": "icon.png",
+      "sha256": "WwRHBrS52raS/aw1IPlOdMC1N6xYA1moQA6n28rGTKs=",
+      "uri": "https://arweave.net/fC95hjuJ-bWmoYgSaD1imndVJiHCyWaqet31aV7eQRI"
+    },
+    "screens/login.png": {
+      "path": "screens/login.png",
+      "sha256": "S0sIXnslyCln0BqXhuwsq1f8qR6x3SDa2CIdTA1tURs=",
+      "uri": "https://arweave.net/PRdD_yG7gAHPZ7zfaFtkG3eWKd-zv10BsNRZqU5JwA0"
+    },
+    "release/app-release.apk": {
+      "path": "release/app-release.apk",
+      "sha256": "P6DmQJmelVngSlH06ec3+5w293nK5rviwA72rB1qVdE=",
+      "uri": "https://arweave.net/SfAMoED8-SrTqrt7mTxoyKpX8yyybkkcXYe2cwX_MnU"
+    }
+  }
+}

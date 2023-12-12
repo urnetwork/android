@@ -50,6 +50,20 @@ android {
         }
     }
 
+    flavorDimensions += "version"
+
+    // BuildConfig.FLAVOR
+    productFlavors {
+        play {
+            dimension = "version"
+            applicationId 'com.bringyour.network'
+        }
+        solana_dapp {
+            dimension = "version"
+            applicationId 'com.bringyour.network'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
