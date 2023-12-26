@@ -134,10 +134,10 @@ class AccountFragment : Fragment() {
                             activity,
                             userToken,
                             encryptionKey,
-                            arrayOf<String>(challengeId),
+                            arrayOf(challengeId),
                             object : Callback<ExecuteResult> {
                                 override fun onWarning(
-                                    warning: ExecuteWarning?,
+                                    warning: ExecuteWarning,
                                     result: ExecuteResult?
                                 ): Boolean {
                                     complete()
@@ -182,7 +182,7 @@ class AccountFragment : Fragment() {
                                             activity,
                                             userToken,
                                             encryptionKey,
-                                            object : Callback<ExecuteResult?> {
+                                            object : Callback<ExecuteResult> {
                                                 override fun onError(error: Throwable): Boolean {
                                                     update {}
 
@@ -196,14 +196,14 @@ class AccountFragment : Fragment() {
                                                     return false // App won't handle next step, SDK will finish the Activity.
                                                 }
 
-                                                override fun onResult(executeResult: ExecuteResult?) {
+                                                override fun onResult(result: ExecuteResult) {
                                                     //success
                                                     update {}
                                                 }
 
                                                 override fun onWarning(
                                                     warning: ExecuteWarning,
-                                                    executeResult: ExecuteResult?
+                                                    result: ExecuteResult?
                                                 ): Boolean {
                                                     return false // App won't handle next step, SDK will finish the Activity.
                                                 }

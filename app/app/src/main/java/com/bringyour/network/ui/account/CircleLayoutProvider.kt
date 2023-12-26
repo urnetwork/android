@@ -16,7 +16,7 @@ import com.bringyour.network.R
 // https://developers.circle.com/w3s/docs/android
 class CircleLayoutProvider(val context: Context) : LayoutProvider() {
 
-    override fun getTextConfig(key: String?): TextConfig? {
+    override fun getTextConfig(key: String): TextConfig? {
         return super.getTextConfig(key)
     }
 
@@ -24,7 +24,7 @@ class CircleLayoutProvider(val context: Context) : LayoutProvider() {
         return context.getColor(R.color.by_p_blue)
     }
 
-    override fun getTextConfigs(key: TextsKey?): Array<TextConfig>? {
+    override fun getTextConfigs(key: TextsKey): Array<TextConfig?>? {
         when (key) {
             TextsKey.securityQuestionHeaders -> return arrayOf(
                 TextConfig("Choose your 1st question"),
@@ -66,9 +66,9 @@ class CircleLayoutProvider(val context: Context) : LayoutProvider() {
         return super.getTextConfigs(key)
     }
 
-    override fun getIconTextConfigs(key: IconTextsKey?): Array<IconTextConfig>? {
+    override fun getIconTextConfigs(key: IconTextsKey): Array<IconTextConfig?>? {
         when (key) {
-            IconTextsKey.securityConfirmationItems -> return arrayOf<IconTextConfig>(
+            IconTextsKey.securityConfirmationItems -> return arrayOf(
                 IconTextConfig(
                     LocalImageSetter(R.drawable.ic_intro_item0_icon),
                     TextConfig("This is the only way to recover my account access. ")
@@ -88,7 +88,7 @@ class CircleLayoutProvider(val context: Context) : LayoutProvider() {
         return super.getIconTextConfigs(key)
     }
 
-    override fun getErrorString(code: ErrorCode?): String? {
+    override fun getErrorString(code: ErrorCode): String? {
         return super.getErrorString(code)
     }
 }

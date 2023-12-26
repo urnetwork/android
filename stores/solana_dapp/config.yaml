@@ -19,7 +19,7 @@ app:
     - purpose: icon
       uri: icon.png
 release:
-  address: 6QctX8EeBLPomNMVbtwhEmkFtPetcMiiip8Uwu3RJXcS
+  address: 62rvTvYL4axrSmGkdW7kEk3xm17ciAuGoGPyAd7P1JcM
   media:
     - purpose: icon
       uri: icon.png
@@ -27,7 +27,7 @@ release:
       uri: screens/login.png
   files:
     - purpose: install
-      uri: release/app-release.apk
+      uri: release/app-solana_dapp-release.apk
   catalog:
     en-US:
       name: BringYour

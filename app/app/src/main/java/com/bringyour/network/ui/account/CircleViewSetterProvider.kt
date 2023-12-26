@@ -14,7 +14,7 @@ import com.bringyour.network.R
 
 class CircleViewSetterProvider(val context: Context) : ViewSetterProvider() {
 
-    override fun getToolbarImageSetter(type: ToolbarIcon?): IToolbarSetter? {
+    override fun getToolbarImageSetter(type: ToolbarIcon): IToolbarSetter? {
         when (type) {
             ToolbarIcon.back -> return LocalToolbarImageSetter(R.drawable.ic_back)
 
@@ -25,7 +25,7 @@ class CircleViewSetterProvider(val context: Context) : ViewSetterProvider() {
         return super.getToolbarImageSetter(type)
     }
 
-    override fun getImageSetter(type: Resource.Icon?): IImageViewSetter? {
+    override fun getImageSetter(type: Resource.Icon): IImageViewSetter? {
         when (type) {
             Resource.Icon.securityIntroMain -> return LocalImageSetter(R.drawable.ic_intro_main_icon)
 

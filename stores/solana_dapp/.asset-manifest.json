@@ -19,6 +19,11 @@
       "path": "release/app-release.apk",
       "sha256": "P6DmQJmelVngSlH06ec3+5w293nK5rviwA72rB1qVdE=",
       "uri": "https://arweave.net/SfAMoED8-SrTqrt7mTxoyKpX8yyybkkcXYe2cwX_MnU"
+    },
+    "release/app-solana_dapp-release.apk": {
+      "path": "release/app-solana_dapp-release.apk",
+      "sha256": "SNRUPoBL7GQfas0w1BVP2m3OW8THBHJnG/Dqc7b050U=",
+      "uri": "https://arweave.net/778sJ0e_g6kBaZKCMeraRGPUKmF4cdWUp28rcjJHl6c"
     }
   }
 }

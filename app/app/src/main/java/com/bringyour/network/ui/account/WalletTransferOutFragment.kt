@@ -199,10 +199,10 @@ class WalletTransferOutFragment: DialogFragment() {
                             activity,
                             userToken,
                             encryptionKey,
-                            arrayOf<String>(challengeId),
+                            arrayOf(challengeId),
                             object : Callback<ExecuteResult> {
                                 override fun onWarning(
-                                    warning: ExecuteWarning?,
+                                    warning: ExecuteWarning,
                                     result: ExecuteResult?
                                 ): Boolean {
                                     when (result?.status) {

@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.bringyour.network",
+  "variantName": "solana_dappRelease",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 4962,
+      "versionName": "2023.12.15-outerwerld+1702690301113",
+      "outputFile": "app-solana_dapp-release.apk"
+    }
+  ],
+  "elementType": "File"
+}

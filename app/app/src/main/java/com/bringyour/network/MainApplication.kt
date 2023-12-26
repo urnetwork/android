@@ -19,7 +19,7 @@ import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
-import go.Universe
+import circle.programmablewallet.sdk.presentation.EventListener
 import go.error
 
 class MainApplication : Application() {
@@ -167,9 +167,11 @@ class MainApplication : Application() {
                 SecurityQuestion("Pick a date, any date.", SecurityQuestion.InputType.datePicker),
             ))
 
-        WalletSdk.addEventListener { event: ExecuteEvent? ->
+        /*
+        WalletSdk.addEventListener { event: ExecuteEvent ->
             // FIXME show a toast with the message
         }
+         */
 
         WalletSdk.setLayoutProvider(CircleLayoutProvider(applicationContext))
         WalletSdk.setViewSetterProvider(CircleViewSetterProvider(applicationContext))
