@@ -45,27 +45,16 @@ class Router(byDevice : BringYourDevice) {
             var fis : FileInputStream? = null
             var fos : FileOutputStream? = null
 
-            val closeIn = { ->
-                try {
-                    fis!!.close()
-                } catch (_: IOException) {
-                }
-                fis = null
-
-                try {
-                    pfd!!.close()
-                } catch (_: IOException) {
-                }
-                pfd = null
-            }
             val closeOut = { ->
                 writeLock.lock()
                 try {
-                    try {
-                        fos!!.close()
-                    } catch (_: IOException) {
+                    if (fos != null) {
+                        try {
+                            fos!!.close()
+                        } catch (_: IOException) {
+                        }
+                        fos = null
                     }
-                    fos = null
                 } finally {
                     writeLock.unlock()
                 }
@@ -110,10 +99,12 @@ class Router(byDevice : BringYourDevice) {
                         }
 
                         if (nextPfd != null) {
-                            if (pfd != null) {
-                                closeIn()
-                                closeOut()
-                            }
+                            // at this point pfd == null, fis == null, fos == null
+//                            if (pfd != null) {
+//                                closeIn()
+//                                closeOut()
+//                                closePfd()
+//                            }
 
                             pfd = nextPfd
                             fis = FileInputStream(pfd!!.fileDescriptor)
@@ -148,8 +139,19 @@ class Router(byDevice : BringYourDevice) {
                             reader.join(1000)
                         }
 
-                        closeIn()
+                        try {
+                            fis!!.close()
+                        } catch (_: IOException) {
+                        }
+
                         reader.join()
+
+                        fis = null
+                        try {
+                            pfd!!.close()
+                        } catch (_: IOException) {
+                        }
+                        pfd = null
                     }
 
                     writeLock.lock()

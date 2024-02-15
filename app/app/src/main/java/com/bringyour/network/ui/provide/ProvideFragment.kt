@@ -17,6 +17,7 @@ import com.bringyour.client.ProvideViewController
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentProvideBinding
 import com.bringyour.client.support.GLSurfaceViewBinder
+import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 
 class ProvideFragment : Fragment() {
@@ -53,6 +54,8 @@ class ProvideFragment : Fragment() {
         val provideSwitch = root.findViewById<CompoundButton>(R.id.provide_switch)
         provideSwitch.setOnCheckedChangeListener { _, checked ->
             if (checked) {
+                (activity as MainActivity).requestPermissionsThenStartVpnService()
+
                 app.byDevice?.setProvideMode(ProvideModePublic)
             } else {
                 app.byDevice?.setProvideMode(ProvideModeNone)

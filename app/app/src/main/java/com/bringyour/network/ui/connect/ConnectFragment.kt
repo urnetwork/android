@@ -29,10 +29,15 @@ import com.bringyour.client.ConnectLocation
 import com.bringyour.client.ConnectViewController
 import com.bringyour.client.LocationListener
 import com.bringyour.client.Sub
+import com.bringyour.network.MainActivity
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentConnectBinding
 import com.bringyour.network.MainApplication
+import com.google.android.flexbox.AlignItems
+import com.google.android.flexbox.AlignSelf
+import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayout
+import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.w3c.dom.Text
@@ -136,6 +141,8 @@ class ConnectFragment : Fragment() {
         subs.add(connectVc.addConnectionListener { location, connected ->
 
             runBlocking(Dispatchers.Main.immediate) {
+
+
                 val connectTop = root.findViewById<FrameLayout>(R.id.connect_top)
 
 //            connectTopSub.let {
@@ -147,6 +154,8 @@ class ConnectFragment : Fragment() {
                     LayoutInflater.from(connectTop.context)
                         .inflate(R.layout.connect_top_disconnected, connectTop, true)
                 } else {
+
+                    (activity as MainActivity).requestPermissionsThenStartVpnService()
 
                     val view: View
                     if (location.isGroup()) {
@@ -310,7 +319,7 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
                 connectCountries.clear()
                 connectLocations.forEach { location ->
                     if (location.locationType == LocationTypeCountry) {
-                        connectCountries.put(location.countryCode, location)
+                        connectCountries[location.countryCode] = location
                     }
                 }
 
@@ -429,14 +438,23 @@ class CountryChipsViewHolder(val connectVc: ConnectViewController, view: View) :
 
     init {
         flexboxRoot = view.findViewById<FlexboxLayout>(R.id.country_chip_root)
+        flexboxRoot.setFlexDirection(FlexDirection.ROW);
     }
 
     fun bind(connectCountries: Map<String, ConnectLocation>) {
         flexboxRoot.removeAllViews()
 
-        connectCountries.forEach { countryCode, location ->
+        connectCountries.entries.toList().sortedByDescending { it.value.providerCount }.forEach { e ->
+            val countryCode = e.key
+            val location = e.value
+
             val view = LayoutInflater.from(flexboxRoot.context)
-                .inflate(R.layout.connect_country_chip, flexboxRoot, true)
+                .inflate(R.layout.connect_country_chip, flexboxRoot, false)
+
+            val lp = view.layoutParams as FlexboxLayout.LayoutParams
+            lp.flexGrow = 0.0f
+            lp.alignSelf = AlignItems.FLEX_START
+            flexboxRoot.addView(view, lp)
 
             val countryImageButton = view.findViewById<ImageButton>(R.id.connect_country_image)
             val countryCodeView = view.findViewById<TextView>(R.id.connect_country_code)

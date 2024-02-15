@@ -11,6 +11,7 @@ import android.util.Log
 import android.util.TypedValue
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
@@ -25,11 +26,15 @@ import com.bringyour.client.StatusViewController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
-class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult> {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     private var statusVc : StatusViewController? = null
+
+
+    var requestPermissionLauncher : ActivityResultLauncher<String>? = null
+    var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,27 +100,35 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         GLSurfaceViewBinder.bind("status_surface", view, statusVc!!)
 
 
-        val requestPermissionLauncher =
+        requestPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
-            ) { isGranted: Boolean ->
-                if (isGranted) {
-                    // Permission is granted. Continue the action or workflow in your
-                    // app.
-                } else {
-                    // Explain to the user that the feature is unavailable because the
-                    // feature requires a permission that the user has denied. At the
-                    // same time, respect the user's decision. Don't link to system
-                    // settings in an effort to convince the user to change their
-                    // decision.
-                }
+            ) { granted ->
+                prepareVpnService()
             }
+
+        vpnLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            Log.i("Main","ACTIVITY RESULT")
+            if (result.resultCode == RESULT_OK) {
+
+                startVpnService()
+
+
+
+            }
+        }
+    }
+
+    fun requestPermissionsThenStartVpnService() {
         when {
             ContextCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED -> {
                 // You can use the API that requires the permission.
+                prepareVpnService()
             }
             /*
             shouldShowRequestPermissionRationale(...) -> {
@@ -128,26 +141,33 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
         */
             else -> {
+
                 // You can directly ask for the permission.
                 // The registered ActivityResultCallback gets the result of this request.
-                requestPermissionLauncher.launch(
+                requestPermissionLauncher?.launch(
                     android.Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+    }
 
-
+    // call this on tap connect or tap provide
+    private fun prepareVpnService() {
         val intent = VpnService.prepare(this)
         if (intent != null) {
-            val launcher = registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult(),
-                this
-            )
-            launcher.launch(intent)
+            vpnLauncher?.launch(intent)
         } else {
-            onActivityResult(ActivityResult(RESULT_OK, null))
+//            onActivityResult(ActivityResult(RESULT_OK, null))
+            startVpnService()
         }
+    }
 
-
+    private fun startVpnService() {
+        val vpnIntent = Intent(this, MainService::class.java)
+        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
+            startForegroundService(vpnIntent)
+        } else {
+            startService(vpnIntent)
+        }
     }
 
     override fun onDestroy() {
@@ -159,17 +179,15 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 //        statusVc?.close()
     }
 
-    override fun onActivityResult(result: ActivityResult) {
-        Log.i("Main","ACTIVITY RESULT")
-        if (result.resultCode == RESULT_OK) {
-            val vpnIntent = Intent(this, MainService::class.java)
-            if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-                startForegroundService(vpnIntent)
-            } else {
-                startService(vpnIntent)
-            }
-        }
-    }
+//    fun onVpnLauncherActivityResult(result: ActivityResult) {
+//        Log.i("Main","ACTIVITY RESULT")
+//        if (result.resultCode == RESULT_OK) {
+//
+//
+//
+//
+//        }
+//    }
 
 }
 

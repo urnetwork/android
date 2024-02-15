@@ -27,6 +27,9 @@ import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
+import com.bringyour.client.SubscriptionCreatePaymentIdArgs
+import com.bringyour.client.SubscriptionCreatePaymentIdResult
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentSubscriptionBinding
 import com.bringyour.network.databinding.FragmentWalletTransferOutBinding
@@ -44,6 +47,8 @@ class SubscriptionFragment: DialogFragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private var app : MainApplication? = null
 
 //    init {
 //        setCancelable(true)
@@ -68,6 +73,9 @@ class SubscriptionFragment: DialogFragment() {
 //        val root = inflater.inflate(R.layout.fragment_subscription, container, false)
         _binding = FragmentSubscriptionBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        app = activity?.application as MainApplication
+
 
         val transferBalanceGib = arguments?.getLong("transferBalanceGib", 0) ?: return root
         val currentPlan = arguments?.getString("currentPlan") ?: return root
@@ -297,6 +305,9 @@ class SubscriptionFragment: DialogFragment() {
 
 
     suspend fun purchase(plan: String) {
+        // immutable shadow
+        val app = app ?: return
+
         val productList = mutableListOf(
             QueryProductDetailsParams.Product.newBuilder()
                 .setProductId("monthly_transfer_300gib")
@@ -370,9 +381,20 @@ class SubscriptionFragment: DialogFragment() {
                 .build()
         )
 
-        val billingFlowParams = BillingFlowParams.newBuilder()
+        val subcriptionCreatePaymentIdResult: SubscriptionCreatePaymentIdResult? = withContext(Dispatchers.IO) {
+            app.byApi?.subscriptionCreatePaymentIdSync(SubscriptionCreatePaymentIdArgs())
+        }
+
+
+        val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(productDetailsParamsList)
-            .build()
+
+        subcriptionCreatePaymentIdResult?.subscriptionPaymentId?.string()?.let {
+            buildingFlowParamsBuilder.setObfuscatedAccountId(it)
+        }
+
+
+        val billingFlowParams = buildingFlowParamsBuilder.build()
 
 // Launch the billing flow
         val billingResult = billingClient?.launchBillingFlow(requireActivity(), billingFlowParams)
