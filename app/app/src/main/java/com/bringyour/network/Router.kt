@@ -41,24 +41,10 @@ class Router(byDevice : BringYourDevice) {
             val writeLock = ReentrantLock()
             val writeCondition = writeLock.newCondition()
 
-            var pfd : ParcelFileDescriptor? = null
-            var fis : FileInputStream? = null
+//            var pfd : ParcelFileDescriptor? = null
+//            var fis : FileInputStream? = null
             var fos : FileOutputStream? = null
 
-            val closeOut = { ->
-                writeLock.lock()
-                try {
-                    if (fos != null) {
-                        try {
-                            fos!!.close()
-                        } catch (_: IOException) {
-                        }
-                        fos = null
-                    }
-                } finally {
-                    writeLock.unlock()
-                }
-            }
 
             try {
                 // FIXME ReceivePacket
@@ -70,15 +56,22 @@ class Router(byDevice : BringYourDevice) {
                                 Log.i("Router", String.format("write(%d) waiting for pfd", it.size))
                                 writeCondition.await()
                             }
-                            if (fos != null) {
-                                try {
+                            if (!active) {
+                                break
+                            }
+
+                            try {
 //                                    Log.d("Router", String.format("write(%d)", it.size))
-                                    fos!!.write(it)
-                                    break
+                                fos!!.write(it)
+                                break
+                            } catch (_: IOException) {
+                                try {
+                                    fos!!.close()
                                 } catch (_: IOException) {
-                                    closeOut()
-                                    // retry
                                 }
+                                fos = null
+
+                                // retry
                             }
                         }
                     } finally {
@@ -89,69 +82,52 @@ class Router(byDevice : BringYourDevice) {
                 Log.i("Router", "init")
                 val localSendPacketSub = byDevice.addReceivePacket(receivePacket)
                 try {
-                    var buffer = ByteArray(2048)
+
                     while (active) {
-                        val nextPfd: ParcelFileDescriptor?
-                        if (pfd == null) {
-                            nextPfd = pfds.take()
-                        } else {
-                            nextPfd = pfds.poll()
-                        }
+                        val pfd: ParcelFileDescriptor = pfds.take()
 
-                        if (nextPfd != null) {
-                            // at this point pfd == null, fis == null, fos == null
-//                            if (pfd != null) {
-//                                closeIn()
-//                                closeOut()
-//                                closePfd()
-//                            }
-
-                            pfd = nextPfd
-                            fis = FileInputStream(pfd!!.fileDescriptor)
+                        try {
+                            val fis = FileInputStream(pfd.fileDescriptor)
 
                             writeLock.lock()
                             try {
-                                fos = FileOutputStream(pfd!!.fileDescriptor)
+                                fos = FileOutputStream(pfd.fileDescriptor)
                                 writeCondition.signalAll()
                             } finally {
                                 writeLock.unlock()
                             }
-                        }
 
-                        val reader = thread {
-                            // check for a new pfd only when there is an error on this one
-                            while (active) {
-                                try {
-                                    val n = fis!!.read(buffer)
+                            val reader = thread {
+                                // check for a new pfd only when there is an error on this one
+                                val buffer = ByteArray(2048)
+                                while (active) {
+                                    try {
+                                        val n = fis.read(buffer)
 //                                Log.d("Router", String.format("read(%d)", n))
-                                    // localReceive makes a copy
-                                    byDevice.sendPacket(buffer, n)
-                                } catch (_: IOException) {
-                                    break
+                                        // localReceive makes a copy
+                                        byDevice.sendPacket(buffer, n)
+                                    } catch (_: IOException) {
+                                        try {
+                                            fis.close()
+                                        } catch (_: IOException) {
+                                        }
+                                    }
                                 }
                             }
-                        }
 
-                        while (active && reader.isAlive) {
-                            if (pfds.peek() != null) {
-                                break
+                            while (active && reader.isAlive) {
+                                if (pfds.peek() != null) {
+                                    break
+                                }
+                                reader.join(1000)
                             }
-                            reader.join(1000)
-                        }
 
-                        try {
-                            fis!!.close()
-                        } catch (_: IOException) {
+                        } finally {
+                            try {
+                                pfd.close()
+                            } catch (_: IOException) {
+                            }
                         }
-
-                        reader.join()
-
-                        fis = null
-                        try {
-                            pfd!!.close()
-                        } catch (_: IOException) {
-                        }
-                        pfd = null
                     }
 
                     writeLock.lock()

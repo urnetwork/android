@@ -49,7 +49,7 @@ private const val ViewTypeLocationGroup: Int = 1
 private const val ViewTypeLocationCountry: Int = 2
 private const val ViewTypeLocationRegion: Int = 3
 private const val ViewTypeLocationCity: Int = 4
-
+private const val ViewTypeLocationDevice: Int = 5
 
 
 class ConnectFragment : Fragment() {
@@ -158,10 +158,16 @@ class ConnectFragment : Fragment() {
                     (activity as MainActivity).requestPermissionsThenStartVpnService()
 
                     val view: View
-                    if (location.isGroup()) {
+                    if (location.isGroup) {
                         view = LayoutInflater.from(connectTop.context)
                             .inflate(R.layout.connect_top_group, connectTop, true)
                         val viewHolder = ConnectTopGroupViewHolder(view)
+                        // todo there is no sub currently
+                        viewHolder.locationChanged(location)
+                    } else if (location.isDevice) {
+                        view = LayoutInflater.from(connectTop.context)
+                            .inflate(R.layout.connect_top_device, connectTop, true)
+                        val viewHolder = ConnectTopDeviceViewHolder(view)
                         // todo there is no sub currently
                         viewHolder.locationChanged(location)
                     } else {
@@ -360,6 +366,11 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
                     .inflate(R.layout.connect_location_list_group, viewGroup, false)
                 return ConnectGroupViewHolder(connectVc, view)
             }
+            ViewTypeLocationDevice -> {
+                val view = LayoutInflater.from(viewGroup.context)
+                    .inflate(R.layout.connect_location_list_device, viewGroup, false)
+                return ConnectDeviceViewHolder(connectVc, view)
+            }
             else -> throw IllegalArgumentException("${viewType}")
         }
     }
@@ -370,8 +381,10 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
         Log.i("CONNECT", "BIND $position")
 
         fun bindViewForLocation(location: ConnectLocation) {
-            if (location.isGroup()) {
+            if (location.isGroup) {
                 (viewHolder as ConnectGroupViewHolder).bind(location)
+            } else if (location.isDevice) {
+                (viewHolder as ConnectDeviceViewHolder).bind(location)
             } else {
                 when (location.locationType) {
                     LocationTypeCity -> (viewHolder as ConnectCityViewHolder).bind(location)
@@ -394,13 +407,16 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
 
     override fun getItemViewType(position: Int): Int {
         fun getViewTypeForLocation(location: ConnectLocation): Int {
-            if (location.isGroup()) {
+            if (location.isGroup) {
                 return ViewTypeLocationGroup
-            }
-            when (location.locationType) {
-                LocationTypeCity -> return ViewTypeLocationCity
-                LocationTypeRegion -> return ViewTypeLocationRegion
-                else -> return ViewTypeLocationCountry
+            } else if (location.isDevice) {
+                return ViewTypeLocationDevice
+            } else {
+                when (location.locationType) {
+                    LocationTypeCity -> return ViewTypeLocationCity
+                    LocationTypeRegion -> return ViewTypeLocationRegion
+                    else -> return ViewTypeLocationCountry
+                }
             }
         }
 
@@ -632,6 +648,31 @@ class ConnectGroupViewHolder(connectVc: ConnectViewController, view: View) : Rec
 }
 
 
+class ConnectDeviceViewHolder(connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
+    val locationLabelView: TextView
+    val connectButton: Button
+
+    var location: ConnectLocation? = null
+
+    init {
+        locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
+
+        connectButton = view.findViewById<Button>(R.id.connect_connect)
+
+        connectButton.setOnClickListener {
+            location?.let {
+                connectVc.connect(it)
+            }
+        }
+    }
+
+    fun bind(location: ConnectLocation) {
+        this.location = location
+
+        locationLabelView.text = location.name
+    }
+}
+
 
 class ConnectTopGroupViewHolder(val view: View) : LocationListener {
     val groupLabelView: TextView
@@ -653,6 +694,20 @@ class ConnectTopGroupViewHolder(val view: View) : LocationListener {
         providerSummaryView.text = providerSummary
     }
 }
+
+
+class ConnectTopDeviceViewHolder(val view: View) : LocationListener {
+    val deviceLabelView: TextView
+
+    init {
+        deviceLabelView = view.findViewById<TextView>(R.id.connect_location_device_label)
+    }
+
+    override fun locationChanged(location: ConnectLocation) {
+        deviceLabelView.text = location.name
+    }
+}
+
 
 class ConnectTopCityViewHolder(val view: View) : LocationListener {
     val countryImageView: ImageView
