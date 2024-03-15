@@ -1,6 +1,0 @@
-com.bringyour.network.test.app-annotation-experimental-1.3.0-0 /Users/brien/.gradle/caches/transforms-4/8ce17a63063f8f00d212fa53a32852d8/transformed/annotation-experimental-1.3.0/res
-com.bringyour.network.test.app-core-1.5.0-1 /Users/brien/.gradle/caches/transforms-4/fd71c87e04cb12336ac03b658d87d22a/transformed/core-1.5.0/res
-com.bringyour.network.test.app-play-2 /Users/brien/bringyour/android/app/app/build/generated/res/resValues/androidTest/play/debug
-com.bringyour.network.test.app-mergePlayDebugAndroidTestResources-3 /Users/brien/bringyour/android/app/app/build/intermediates/incremental/playDebugAndroidTest/mergePlayDebugAndroidTestResources/merged.dir
-com.bringyour.network.test.app-mergePlayDebugAndroidTestResources-4 /Users/brien/bringyour/android/app/app/build/intermediates/incremental/playDebugAndroidTest/mergePlayDebugAndroidTestResources/stripped.dir
-com.bringyour.network.test.app-playDebugAndroidTest-5 /Users/brien/bringyour/android/app/app/build/intermediates/merged_res/playDebugAndroidTest/mergePlayDebugAndroidTestResources

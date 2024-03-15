@@ -1,3 +1,0 @@
-com.bringyour.network.test
-style WhiteBackgroundDialogTheme
-style WhiteBackgroundTheme
