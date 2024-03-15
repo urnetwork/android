@@ -186,6 +186,7 @@ class MainApplication : Application() {
 
 
     fun startVpnService() {
+        // important: start the vpn service in the application context
         val vpnIntent = Intent(this, MainService::class.java)
         if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
             startForegroundService(vpnIntent)
