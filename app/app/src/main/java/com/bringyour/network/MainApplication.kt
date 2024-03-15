@@ -98,8 +98,7 @@ class MainApplication : Application() {
     }
 
     fun logout() {
-        val vpnIntent = Intent(this, MainService::class.java)
-        stopService(vpnIntent)
+        stopVpnService()
 
         asyncLocalState?.localState()?.logout()
 
@@ -123,7 +122,15 @@ class MainApplication : Application() {
 
 
     private fun initDevice(byClientJwt: String, instanceId: Id) {
-        byDevice = Client.newBringYourDevice(byClientJwt, platformUrl, apiUrl, instanceId)
+        byDevice = Client.newBringYourDeviceWithDefaults(
+            byClientJwt,
+            platformUrl,
+            apiUrl,
+            getDeviceDescription(),
+            getDeviceSpec(),
+            getAppVersion(),
+            instanceId
+        )
         router = Router(byDevice!!)
 
         connectVc = byDevice?.openConnectViewController()
@@ -175,5 +182,37 @@ class MainApplication : Application() {
 
         WalletSdk.setLayoutProvider(CircleLayoutProvider(applicationContext))
         WalletSdk.setViewSetterProvider(CircleViewSetterProvider(applicationContext))
+    }
+
+
+    fun startVpnService() {
+        val vpnIntent = Intent(this, MainService::class.java)
+        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
+            startForegroundService(vpnIntent)
+        } else {
+            startService(vpnIntent)
+        }
+    }
+
+    fun stopVpnService() {
+        val vpnIntent = Intent(this, MainService::class.java)
+        stopService(vpnIntent)
+    }
+
+
+    fun getDeviceDescription(): String {
+        return "New device"
+    }
+
+    fun getDeviceSpec(): String {
+        if (32 <= Build.VERSION.SDK_INT) {
+            return "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
+        } else {
+            return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
+        }
+    }
+
+    fun getAppVersion(): String {
+        return BuildConfig.VERSION_NAME
     }
 }

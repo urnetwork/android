@@ -8,6 +8,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.LinkedTransferQueue
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
@@ -49,6 +50,7 @@ class Router(byDevice : BringYourDevice) {
             try {
                 // FIXME ReceivePacket
                 val receivePacket = ReceivePacket {
+//                    Log.i("Router", String.format("write(%d)", it.size))
                     writeLock.lock()
                     try {
                         while (active) {
@@ -83,8 +85,17 @@ class Router(byDevice : BringYourDevice) {
                 val localSendPacketSub = byDevice.addReceivePacket(receivePacket)
                 try {
 
+                    var nextPfd: ParcelFileDescriptor? = null
                     while (active) {
-                        val pfd: ParcelFileDescriptor = pfds.take()
+                        if (nextPfd == null) {
+                            nextPfd = pfds.poll(1, TimeUnit.SECONDS)
+                        }
+                        if (nextPfd == null) {
+                            continue
+                        }
+
+                        val pfd: ParcelFileDescriptor = nextPfd
+                        nextPfd = null
 
                         try {
                             val fis = FileInputStream(pfd.fileDescriptor)
@@ -97,7 +108,8 @@ class Router(byDevice : BringYourDevice) {
                                 writeLock.unlock()
                             }
 
-                            val reader = thread {
+                            // (priority=Thread.MAX_PRIORITY)
+                            thread {
                                 // check for a new pfd only when there is an error on this one
                                 val buffer = ByteArray(2048)
                                 while (active) {
@@ -105,7 +117,9 @@ class Router(byDevice : BringYourDevice) {
                                         val n = fis.read(buffer)
 //                                Log.d("Router", String.format("read(%d)", n))
                                         // localReceive makes a copy
-                                        byDevice.sendPacket(buffer, n)
+                                        if (0 < n) {
+                                            byDevice.sendPacket(buffer, n)
+                                        }
                                     } catch (_: IOException) {
                                         try {
                                             fis.close()
@@ -115,11 +129,11 @@ class Router(byDevice : BringYourDevice) {
                                 }
                             }
 
-                            while (active && reader.isAlive) {
-                                if (pfds.peek() != null) {
+                            while (active) {
+                                nextPfd = pfds.poll(1, TimeUnit.SECONDS)
+                                if (nextPfd != null) {
                                     break
                                 }
-                                reader.join(1000)
                             }
 
                         } finally {

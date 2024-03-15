@@ -124,8 +124,8 @@ class LoginActivity : AppCompatActivity() {
         val app = app ?: return
 
         val authArgs = AuthNetworkClientArgs()
-        authArgs.description = "New device"
-        authArgs.deviceSpec = getDeviceSpec()
+        authArgs.description = app.getDeviceDescription()
+        authArgs.deviceSpec = app.getDeviceSpec()
 
         app.byApi?.authNetworkClient(authArgs) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
@@ -150,14 +150,5 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    companion object {
-        fun getDeviceSpec(): String {
-            if (32 <= Build.VERSION.SDK_INT) {
-                return "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
-            } else {
-                return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
-            }
-        }
-    }
 
 }

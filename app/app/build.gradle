@@ -47,6 +47,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // see https://developer.android.com/build/shrink-code
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
         }
     }
 
@@ -71,8 +75,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    // see https://developer.android.com/reference/tools/gradle-api/7.4/com/android/build/api/dsl/BuildFeatures
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
     task goclientBuild(type: Exec) {

@@ -12,7 +12,10 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
+import java.io.IOException
 
+
+// see https://developer.android.com/develop/connectivity/vpn
 
 class MainService : VpnService() {
 
@@ -21,7 +24,7 @@ class MainService : VpnService() {
 
     // addDisallowedApplication (String packageName)
 
-//    private var pfd: ParcelFileDescriptor? = null
+    private var pfd: ParcelFileDescriptor? = null
 
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
 
@@ -76,6 +79,7 @@ class MainService : VpnService() {
         // stop self when turned off
 
         builder.establish()?.let { pfd ->
+            this.pfd = pfd
             router.activateLocalInterface(pfd)
         }
 
@@ -101,6 +105,12 @@ class MainService : VpnService() {
 
     override fun onRevoke() {
         Log.i("MainService", "REVOKE SERVICE")
+
+        try {
+            this.pfd?.close()
+        } catch (e: IOException) {
+            // ignore
+        }
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()

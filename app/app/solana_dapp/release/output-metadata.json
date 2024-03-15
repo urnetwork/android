@@ -11,10 +11,27 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 4962,
-      "versionName": "2023.12.15-outerwerld+1702690301113",
+      "versionCode": 7126,
+      "versionName": "2024.3.14-outerwerld+1710481962605",
       "outputFile": "app-solana_dapp-release.apk"
     }
   ],
-  "elementType": "File"
+  "elementType": "File",
+  "baselineProfiles": [
+    {
+      "minApi": 28,
+      "maxApi": 30,
+      "baselineProfiles": [
+        "baselineProfiles/1/app-solana_dapp-release.dm"
+      ]
+    },
+    {
+      "minApi": 31,
+      "maxApi": 2147483647,
+      "baselineProfiles": [
+        "baselineProfiles/0/app-solana_dapp-release.dm"
+      ]
+    }
+  ],
+  "minSdkVersionForDexing": 24
 }

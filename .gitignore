@@ -1,5 +1,5 @@
 **/.DS_Store
-app/app/release
+app/**/release
 app/app/build
 app/.idea
 node_modules
