@@ -58,6 +58,10 @@ android {
 
     // BuildConfig.FLAVOR
     productFlavors {
+        local {
+            dimension = "version"
+            applicationId 'com.bringyour.network'
+        }
         play {
             dimension = "version"
             applicationId 'com.bringyour.network'
@@ -65,6 +69,7 @@ android {
         solana_dapp {
             dimension = "version"
             applicationId 'com.bringyour.network'
+            versionNameSuffix '-solana_dapp'
         }
     }
 
@@ -81,13 +86,15 @@ android {
         buildConfig true
     }
 
-    task goclientBuild(type: Exec) {
+    tasks.register('goclientBuild', Exec) {
         workingDir "${System.env.HOME}/bringyour/bringyour/client"
         commandLine 'make', 'clean', 'build_android'
     }
 
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn goclientBuild
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            compileTask -> compileTask.dependsOn goclientBuild
+        }
     }
 }
 
