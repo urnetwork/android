@@ -1,0 +1,2 @@
+#- File Locator -
+listingFile=../../../../../solana_dapp/release/output-metadata.json

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="almost_white">#FDFDFD</color>
+    <color name="almost_white_slight_alpha">#E6FDFDFD</color>
+    <color name="black">#000000</color>
+    <color name="by_highlight">#FFF1A6</color>
+    <color name="by_highlight_gray">#656565</color>
+    <color name="by_highlight_yellow">#FFF36B</color>
+    <color name="by_p_blue">#1D3150</color>
+    <color name="by_p_gray">#A5ACB9</color>
+    <color name="by_s_blue">#4148CD</color>
+    <color name="by_s_brown">#B77B58</color>
+    <color name="by_s_green">#20B24C</color>
+    <color name="by_s_orange">#FF8027</color>
+    <color name="by_s_red">#B2204C</color>
+    <color name="circlepw_background">@color/almost_white</color>
+    <color name="circlepw_disabled_input_background">#F5F5F5</color>
+    <color name="circlepw_disabled_main_bt_background">@color/by_p_gray</color>
+    <color name="circlepw_disabled_main_bt_text">#80FFFFFF</color>
+    <color name="circlepw_divider">#F0EFEF</color>
+    <color name="circlepw_error">#F55538</color>
+    <color name="circlepw_error_background">#FDF2F2</color>
+    <color name="circlepw_input_boarder">#E8E8E8</color>
+    <color name="circlepw_input_boarder_focused">#46B5FF</color>
+    <color name="circlepw_main_bt_background">@color/by_p_blue</color>
+    <color name="circlepw_main_bt_background_pressed">@color/by_s_blue</color>
+    <color name="circlepw_main_bt_text">#ffffff</color>
+    <color name="circlepw_main_bt_text_pressed">#ffffff</color>
+    <color name="circlepw_pin_dot_activated">#3D3D3D</color>
+    <color name="circlepw_pin_dot_base">@color/almost_white</color>
+    <color name="circlepw_pin_dot_base_boarder">#707070</color>
+    <color name="circlepw_placeholder">#A3A3A3</color>
+    <color name="circlepw_security_confirm_main_bg">#E9EEFE</color>
+    <color name="circlepw_success">#0073C3</color>
+    <color name="circlepw_tag_background">#E1F2FF</color>
+    <color name="circlepw_tag_following_text">#0073C3</color>
+    <color name="circlepw_tag_text">#005339</color>
+    <color name="circlepw_text_action">#136FD8</color>
+    <color name="circlepw_text_action_pressed">#B3136FD8</color>
+    <color name="circlepw_text_auxiliary">#3D3D3D</color>
+    <color name="circlepw_text_auxiliary2">#707070</color>
+    <color name="circlepw_text_main">#1A1A1A</color>
+    <color name="circlepw_text_main2">#1C1C1C</color>
+    <color name="circlepw_text_summary">#0073C3</color>
+    <color name="p_s_gray">#EEEEEE</color>
+    <color name="p_s_gray_blue">#EEEEFF</color>
+    <color name="white">#FFFFFF</color>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="circlepw_bottom_bt_margin_top">10dp</dimen>
+    <dimen name="circlepw_intro_custom_grab_icon_size">48dp</dimen>
+    <dimen name="circlepw_intro_title_margin_bottom">24dp</dimen>
+    <string name="account_legal"><a href="https://bringyour.com/privacy">Privacy Policy</a>\n\n<a href="https://bringyour.com/terms">Terms of Use</a>\n\n<a href="https://bringyour.com/vdp">Vulnerability Disclosure Policy</a>\n\n<a href="https://bringyour.com/opensource">Open Source Licenses</a>\n\nBringYour, Inc.\n2261 Market Street #5245\nSan Francisco, CA 94114 USA</string>
+    <string name="app_name">BringYour</string>
+    <string name="circle_app_id">81a9454e-6987-5a77-b0d7-1379956c163d</string>
+    <string name="circle_endpoint">https://enduser-sdk.circle.com/v1/w3s/</string>
+    <string name="circlepw_answer_label">Answer:</string>
+    <string name="circlepw_answer_lock_period_template">Please wait for %s mins to retry later.</string>
+    <string name="circlepw_answer_remain_attemps_template">You have %s attempts left.</string>
+    <string name="circlepw_confirm">Confirm</string>
+    <string name="circlepw_confirm_pincode_headline">Re-enter your PIN to confirm</string>
+    <string name="circlepw_confirm_pincode_subhead"/>
+    <string name="circlepw_continue">Continue</string>
+    <string name="circlepw_empty"/>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_enter_pincode_forgot_pin">Forgot PIN?</string>
+    <string name="circlepw_enter_pincode_subhead">Let us know if it’s really you.</string>
+    <string name="circlepw_hide_pin">Hide PIN</string>
+    <string name="circlepw_hint_label">Hint:</string>
+    <string name="circlepw_hint_tag">Hint</string>
+    <string name="circlepw_new_pincode_subhead">Your PIN can’t have repeating (e.g. 000000) or consecutive (e.g. 123456) numbers.</string>
+    <string name="circlepw_next">Next</string>
+    <string name="circlepw_pin_lock_period_template">You’ve used up all PIN attempts. Please wait for %s mins to retry later.</string>
+    <string name="circlepw_pin_remain_attemps_template">You have %s attempts left.</string>
+    <string name="circlepw_question_label">Question:</string>
+    <string name="circlepw_recover_pincode_answer_input_header">Enter your answer here</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Type your answer here</string>
+    <string name="circlepw_security_confirm_headline">Keep your questions safe</string>
+    <string name="circlepw_security_confirm_input_headline">Type \"I agree\" to proceed:</string>
+    <string name="circlepw_security_confirm_input_match">I agree</string>
+    <string name="circlepw_security_confirm_input_placeholder">Type \"I agree\" here</string>
+    <string name="circlepw_security_confirm_title">Confirmation</string>
+    <string name="circlepw_security_intros_description">This is the only way to recover wallet access if you forget your PIN. Pick 2 security questions and provide answers for access recovery.</string>
+    <string name="circlepw_security_questions_answer_header">Provide an answer</string>
+    <string name="circlepw_security_questions_answer_hint_header">Provide an answer hint (optional)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Type your hint here</string>
+    <string name="circlepw_security_questions_answer_placeholder">Type your answer here</string>
+    <string name="circlepw_security_questions_question_placeholder">Select one question</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_title">Recovery method</string>
+    <string name="circlepw_security_summary_title">Summary</string>
+    <string name="circlepw_select_question_title">Select one question</string>
+    <string name="circlepw_show_pin">Show PIN</string>
+    <string name="create_network_auth_jwt_summary">%s will be the primary login.</string>
+    <string name="create_network_error">Something went wrong. Try again.</string>
+    <string name="free_free_badge">You are on the free plan</string>
+    <string name="free_pro_badge">Upgrade to the pro plan</string>
+    <string name="free_superfast_badge">Access superfast providers and edges</string>
+    <string name="google_client_id">338638865390-sqtpdk41i165gu9sqa8mt7fs4sjtci59.apps.googleusercontent.com</string>
+    <string name="login_client_error">Something went wrong authenticating the client. Try again.</string>
+    <string name="login_error">Something went wrong. Try again.</string>
+    <string name="login_error_auth_allowed">Please login with one of: %s.</string>
+    <string name="login_headline"><b>Fast and secure internet</b> wherever you want to be, with ultimate control of your data</string>
+    <string name="login_logo_description">Fast and secure internet everywhere you want to be</string>
+    <string name="login_password_description">Log in using %s</string>
+    <string name="login_password_error">Error</string>
+    <string name="network_create_error">Account might already exist. Please start over.</string>
+    <string name="network_name_check_error">Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
+    <string name="network_name_length_error">Must be at least 6 characters. Make it longer.</string>
+    <string name="password_length_error">Password must be at least 65 bits of entropy (at least 12 characters, mixed case, mixed alphanumeric and non-alphanumeric).</string>
+    <string name="password_reset_after_send_description">Reset link sent to %s</string>
+    <string name="password_reset_help">You may need to check your spam folder or unblock no-reply@bringyour.com</string>
+    <string name="password_reset_resend">Resend</string>
+    <string name="password_reset_send_error">Error</string>
+    <string name="password_reset_sent">Sent!</string>
+    <string name="play_billing_public_key_rsa">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi9UddqoItcj1KMkdUpoheiF+vejYT1J3xi0lSxihoYAmJv2IcdpjlhqjHYahGb6mki+lEIIBZUTYnsx2cCDIFpWIDOurELXjzt+fx+foM1XusIyrKYZwkJ3oIxgLUuJV1gSI4u7ST+VD16uLIPMXQJtFNzKDhZX5JnHcxhheClLLp83NImXxpjouq+osslX6iui6tSoVAKk28AlAXNI/24cVMM0g0HHe+QQQ14MMyynAGvsZNZc5w6ZHCz2rhqWrYLVcsl2S39GXLApH6MxoRddGPQG0FqOHiHewfXtpBkG2C3lhVg6e73Ka/mUV5HpTSndZHgJjLSX2mp2XeKlaYQIDAQAB</string>
+    <string name="pro_pro_badge">You are on the pro plan</string>
+    <string name="pro_pro_thank">Thank you!</string>
+    <string name="pro_superfast_badge">You have access to superfast providers and edges</string>
+    <string name="terms">A one-time message to establish your identity will be sent to you. Message and data rates may apply. I agree to the <a href="https://bringyour.com/terms">BringYour terms</a>. Learn about how we use and protect your data in our <a href="https://bringyour.com/privacy">Privacy Policy</a></string>
+    <string name="terms_jwt">I agree to the <a href="https://bringyour.com/terms">BringYour terms</a>. Learn about how we use and protect your data in our <a href="https://bringyour.com/privacy">Privacy Policy</a></string>
+    <string name="title_account">Account</string>
+    <string name="title_connect">Connect</string>
+    <string name="title_devices">Devices</string>
+    <string name="title_login" translatable="false">Login</string>
+    <string name="title_provide">Provide</string>
+    <string name="verify_description">We sent a code to %s. Please enter it below.</string>
+    <string name="verify_error">Something went wrong. Try again.</string>
+    <string name="verify_resend">Resend</string>
+    <string name="verify_send_error">Error</string>
+    <string name="verify_sent">Sent!</string>
+    <string name="wallet_description">BringYour uses a USDC stablecoin self-custody wallet provided by <a href="https://circle.com">Circle</a>. BringYour can query the balance of the wallet but cannot move any funds out of the wallet. However you, as the owner, can transfer funds out to an exchange or another wallet at any time. Money earned by providing services to the network (in the provide tab) are transferred into your wallet as USDC. We use the Polygon blockchain to minimize transfer fees and maximize compatibility with exchanges.</string>
+    <string name="wallet_transfer_out_description">Your wallet is on the Polygon blockchain. The transfer to address must be on the Polygon blockchain. If you are depositing to an exchange, make sure you select your Polygon USDC wallet address. It is recommended to send a small test amount at first, and then send the rest after confirming the receipt of the test amount.</string>
+    <string name="wallet_transfer_out_terms">I understand this is my wallet and BringYour cannot help recover lost funds.</string>
+    <style name="BringYourActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+
+        <item name="android:icon">@drawable/logo_by</item>
+        <item name="android:logo">@drawable/logo_by</item>
+        <item name="android:displayOptions">useLogo|showHome|showTitle</item>
+    </style>
+    <style name="ProvideSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="thumbTint">@color/provide_switch_thumb_color_list</item>
+        <item name="trackTint">@color/provide_switch_track_color_list</item>
+    </style>
+    <style name="Theme.BringYour" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/by_p_blue</item>
+        <item name="colorPrimaryVariant">@color/by_s_blue</item>
+        <item name="colorOnPrimary">@color/almost_white</item>
+        
+        <item name="colorSecondary">@color/by_p_gray</item>
+        <item name="colorSecondaryVariant">@color/by_highlight_gray</item>
+        <item name="colorOnSecondary">@color/almost_white</item>
+
+        <item name="android:colorBackground">@color/almost_white</item>
+        <item name="colorOnBackground">@color/black</item>
+        <item name="android:colorForeground">@color/black</item>
+        <item name="android:windowBackground">@color/almost_white</item>
+
+        <item name="colorSurface">@color/almost_white</item>
+        <item name="colorOnSurface">@color/black</item>
+
+        <item name="colorError">@color/by_s_red</item>
+        <item name="colorOnError">@color/almost_white</item>
+
+        <item name="android:textColor">@color/black</item>
+
+        
+        <item name="android:statusBarColor">@color/by_p_blue</item>
+
+        
+        <item name="android:actionBarStyle">@style/BringYourActionBar</item>
+
+
+        
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorPrimaryInverse">@color/almost_white</item>
+        <item name="android:textColorSecondary">@color/by_p_blue</item>
+        <item name="android:textColorSecondaryInverse">@color/almost_white</item>
+        <item name="android:textColorTertiary">@color/by_p_gray</item>
+        <item name="android:textColorTertiaryInverse">@color/almost_white</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/by_highlight_gray</item>
+        <item name="android:textColorPrimaryInverseDisableOnly">@color/almost_white</item>
+        <item name="android:textColorHint">@color/by_highlight_gray</item>
+        <item name="android:textColorHintInverse">@color/almost_white</item>
+        <item name="android:textColorHighlight">@color/p_s_gray</item>
+        <item name="android:textColorHighlightInverse">@color/almost_white</item>
+        <item name="android:textColorAlertDialogListItem">@color/black</item>
+    </style>
+    <style name="circlepw_actionText">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="circlepw_body1">
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="circlepw_body2">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="circlepw_caption1">
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="circlepw_caption2">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="circlepw_heading3">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontWeight" ns1:targetApi="o">600</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+    <style name="circlepw_heading4">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontWeight" ns1:targetApi="o">600</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="circlepw_heading5">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="circlepw_mainButtonText">
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="circlepw_metadata1">
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="circlepw_metadata2">
+        <item name="android:textSize">10sp</item>
+    </style>
+    <style name="circlepw_pinDigitText">
+        <item name="android:textSize">40sp</item>
+    </style>
+    <style name="circlepw_toolbarTitle">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <declare-styleable name="Theme.BringYour">
+
+        <attr format="color" name="colorPrimary"/>
+        <attr format="color" name="colorUpgradeBackground"/>
+        <attr format="color" name="colorUpgradeButton"/>
+        <attr format="color" name="colorOnUpgradeButton"/>
+
+
+
+
+    </declare-styleable>
+</resources>

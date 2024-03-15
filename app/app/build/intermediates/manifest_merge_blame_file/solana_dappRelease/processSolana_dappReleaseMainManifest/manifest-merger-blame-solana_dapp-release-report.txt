@@ -1,0 +1,321 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.bringyour.network"
+4    android:versionCode="7126"
+5    android:versionName="2024.3.14-outerwerld+1710481962605" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-feature
+11-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:5:5-78
+12        android:glEsVersion="0x00020000"
+12-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:5:19-51
+13        android:required="true" />
+13-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:5:52-75
+14
+15    <uses-permission android:name="android.permission.INTERNET" />
+15-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:7:5-67
+15-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:7:22-64
+16    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+16-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:8:5-79
+16-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:8:22-76
+17    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+17-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:9:5-79
+17-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:9:22-76
+18    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+18-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:10:5-77
+18-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:10:22-74
+19    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+19-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:11:5-87
+19-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:11:22-84
+20    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+20-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:12:5-77
+20-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:12:22-74
+21    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+21-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:13:5-74
+21-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:13:22-71
+22    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+22-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:14:5-72
+22-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:14:22-69
+23    <uses-permission android:name="android.permission.REORDER_TASKS" />
+23-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:11:5-72
+23-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:11:22-69
+24    <uses-permission android:name="com.android.vending.BILLING" />
+24-->[com.android.billingclient:billing-ktx:6.1.0] /Users/brien/.gradle/caches/transforms-4/12614eeb9924922b11f7fbe046629d56/transformed/billing-ktx-6.1.0/AndroidManifest.xml:9:5-67
+24-->[com.android.billingclient:billing-ktx:6.1.0] /Users/brien/.gradle/caches/transforms-4/12614eeb9924922b11f7fbe046629d56/transformed/billing-ktx-6.1.0/AndroidManifest.xml:9:22-64
+25
+26    <queries>
+26-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:12:5-16:15
+27        <intent>
+27-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:13:9-15:18
+28            <action android:name="com.android.vending.billing.InAppBillingService.BIND" />
+28-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:14:13-91
+28-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:14:21-88
+29        </intent>
+30    </queries>
+31
+32    <permission
+32-->[androidx.core:core:1.12.0] /Users/brien/.gradle/caches/transforms-4/12d62f00bdeb2524c32824ca7460c3c3/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+33        android:name="com.bringyour.network.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+33-->[androidx.core:core:1.12.0] /Users/brien/.gradle/caches/transforms-4/12d62f00bdeb2524c32824ca7460c3c3/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+34        android:protectionLevel="signature" />
+34-->[androidx.core:core:1.12.0] /Users/brien/.gradle/caches/transforms-4/12d62f00bdeb2524c32824ca7460c3c3/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+35
+36    <uses-permission android:name="com.bringyour.network.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" /> <!-- This is automatically added by the billing library -->
+36-->[androidx.core:core:1.12.0] /Users/brien/.gradle/caches/transforms-4/12d62f00bdeb2524c32824ca7460c3c3/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+36-->[androidx.core:core:1.12.0] /Users/brien/.gradle/caches/transforms-4/12d62f00bdeb2524c32824ca7460c3c3/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+37    <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
+38    <!-- <uses-sdk android:minSdkVersion="24"/> -->
+39    <!-- android:logo="@drawable/logo_by" -->
+40    <application
+40-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:21:5-58:19
+41        android:name="com.bringyour.network.MainApplication"
+41-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:22:9-40
+42        android:allowBackup="true"
+42-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:23:9-35
+43        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+43-->[androidx.core:core:1.12.0] /Users/brien/.gradle/caches/transforms-4/12d62f00bdeb2524c32824ca7460c3c3/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+44        android:dataExtractionRules="@xml/data_extraction_rules"
+44-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:24:9-65
+45        android:extractNativeLibs="false"
+46        android:fullBackupContent="@xml/backup_rules"
+46-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:25:9-54
+47        android:icon="@drawable/ic_launcher"
+47-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:26:9-45
+48        android:label="@string/app_name"
+48-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:27:9-41
+49        android:roundIcon="@drawable/ic_launcher_round"
+49-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:28:9-56
+50        android:supportsRtl="true"
+50-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:29:9-35
+51        android:theme="@style/Theme.BringYour" >
+51-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:30:9-47
+52
+53        <!-- FIXME LoginActivity is the launcher. On create, check for client token, and if present finish and launch mainactivity -->
+54
+55        <activity
+55-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:35:9-43:20
+56            android:name="com.bringyour.network.LoginActivity"
+56-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:36:13-42
+57            android:exported="true"
+57-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:37:13-36
+58            android:theme="@style/Theme.BringYour" >
+58-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:38:13-51
+59            <intent-filter>
+59-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:39:13-42:29
+60                <action android:name="android.intent.action.MAIN" />
+60-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:40:17-69
+60-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:40:25-66
+61
+62                <category android:name="android.intent.category.LAUNCHER" />
+62-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:41:17-77
+62-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:41:27-74
+63            </intent-filter>
+64        </activity>
+65        <activity
+65-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:45:9-48:20
+66            android:name="com.bringyour.network.MainActivity"
+66-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:46:13-41
+67            android:exported="false" >
+67-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:47:13-37
+68        </activity>
+69
+70        <service
+70-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:50:9-57:19
+71            android:name="com.bringyour.network.MainService"
+71-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:51:13-40
+72            android:exported="true"
+72-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:53:13-36
+73            android:foregroundServiceType="dataSync"
+73-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:55:13-53
+74            android:label="@string/app_name"
+74-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:54:13-45
+75            android:permission="android.permission.BIND_VPN_SERVICE" >
+75-->/Users/brien/bringyour/android/app/app/src/main/AndroidManifest.xml:52:13-69
+76        </service>
+77
+78        <activity
+78-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:14:9-21:20
+79            android:name="circle.programmablewallet.sdk.internal.presentation.ui.PWalletAppActivity"
+79-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:15:13-101
+80            android:excludeFromRecents="true"
+80-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:16:13-46
+81            android:screenOrientation="portrait"
+81-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:17:13-49
+82            android:taskAffinity=""
+82-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:18:13-36
+83            android:windowSoftInputMode="adjustPan" >
+83-->[circle.programmablewallet:sdk:1.0.873] /Users/brien/.gradle/caches/transforms-4/de0be2ca4b37478bcf3a28b367857c96/transformed/sdk-1.0.873/AndroidManifest.xml:19:13-52
+84        </activity>
+85
+86        <meta-data
+86-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:19:9-21:37
+87            android:name="com.google.android.play.billingclient.version"
+87-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:20:13-73
+88            android:value="6.1.0" />
+88-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:21:13-34
+89
+90        <activity
+90-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:23:9-27:75
+91            android:name="com.android.billingclient.api.ProxyBillingActivity"
+91-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:24:13-78
+92            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+92-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:25:13-96
+93            android:exported="false"
+93-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:26:13-37
+94            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+94-->[com.android.billingclient:billing:6.1.0] /Users/brien/.gradle/caches/transforms-4/c1853388d90e93d4de2624bf7526a9f6/transformed/billing-6.1.0/AndroidManifest.xml:27:13-72
+95
+96        <provider
+96-->[androidx.emoji2:emoji2:1.2.0] /Users/brien/.gradle/caches/transforms-4/2fa7deb1810514f4280d3de6a02071e4/transformed/emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
+97            android:name="androidx.startup.InitializationProvider"
+97-->[androidx.emoji2:emoji2:1.2.0] /Users/brien/.gradle/caches/transforms-4/2fa7deb1810514f4280d3de6a02071e4/transformed/emoji2-1.2.0/AndroidManifest.xml:25:13-67
+98            android:authorities="com.bringyour.network.androidx-startup"
+98-->[androidx.emoji2:emoji2:1.2.0] /Users/brien/.gradle/caches/transforms-4/2fa7deb1810514f4280d3de6a02071e4/transformed/emoji2-1.2.0/AndroidManifest.xml:26:13-68
+99            android:exported="false" >
+99-->[androidx.emoji2:emoji2:1.2.0] /Users/brien/.gradle/caches/transforms-4/2fa7deb1810514f4280d3de6a02071e4/transformed/emoji2-1.2.0/AndroidManifest.xml:27:13-37
+100            <meta-data
+100-->[androidx.emoji2:emoji2:1.2.0] /Users/brien/.gradle/caches/transforms-4/2fa7deb1810514f4280d3de6a02071e4/transformed/emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+101                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+101-->[androidx.emoji2:emoji2:1.2.0] /Users/brien/.gradle/caches/transforms-4/2fa7deb1810514f4280d3de6a02071e4/transformed/emoji2-1.2.0/AndroidManifest.xml:30:17-75
+102                android:value="androidx.startup" />
+102-->[androidx.emoji2:emoji2:1.2.0] /Users/brien/.gradle/caches/transforms-4/2fa7deb1810514f4280d3de6a02071e4/transformed/emoji2-1.2.0/AndroidManifest.xml:31:17-49
+103            <meta-data
+103-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/brien/.gradle/caches/transforms-4/b8da48caee2c04c4e3b4c55c1ba5629a/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+104                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+104-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/brien/.gradle/caches/transforms-4/b8da48caee2c04c4e3b4c55c1ba5629a/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+105                android:value="androidx.startup" />
+105-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/brien/.gradle/caches/transforms-4/b8da48caee2c04c4e3b4c55c1ba5629a/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+106            <meta-data
+106-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+107                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+107-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+108                android:value="androidx.startup" />
+108-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+109        </provider>
+110
+111        <activity
+111-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:23:9-27:75
+112            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+112-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:24:13-93
+113            android:excludeFromRecents="true"
+113-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:25:13-46
+114            android:exported="false"
+114-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:26:13-37
+115            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+115-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:27:13-72
+116        <!--
+117            Service handling Google Sign-In user revocation. For apps that do not integrate with
+118            Google Sign-In, this service will never be started.
+119        -->
+120        <service
+120-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:33:9-37:51
+121            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
+121-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:34:13-89
+122            android:exported="true"
+122-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:35:13-36
+123            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION"
+123-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:36:13-107
+124            android:visibleToInstantApps="true" />
+124-->[com.google.android.gms:play-services-auth:20.7.0] /Users/brien/.gradle/caches/transforms-4/b33da456a0b32523b665120c6259bae3/transformed/play-services-auth-20.7.0/AndroidManifest.xml:37:13-48
+125
+126        <activity
+126-->[com.google.android.gms:play-services-base:18.0.1] /Users/brien/.gradle/caches/transforms-4/078e64aaab0a2f6a1338bc300680abf5/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
+127            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+127-->[com.google.android.gms:play-services-base:18.0.1] /Users/brien/.gradle/caches/transforms-4/078e64aaab0a2f6a1338bc300680abf5/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:19-85
+128            android:exported="false"
+128-->[com.google.android.gms:play-services-base:18.0.1] /Users/brien/.gradle/caches/transforms-4/078e64aaab0a2f6a1338bc300680abf5/transformed/play-services-base-18.0.1/AndroidManifest.xml:22:19-43
+129            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+129-->[com.google.android.gms:play-services-base:18.0.1] /Users/brien/.gradle/caches/transforms-4/078e64aaab0a2f6a1338bc300680abf5/transformed/play-services-base-18.0.1/AndroidManifest.xml:21:19-78
+130
+131        <meta-data
+131-->[com.google.android.gms:play-services-basement:18.2.0] /Users/brien/.gradle/caches/transforms-4/e4b6a0112531cfb4fc8a54938827f4d3/transformed/play-services-basement-18.2.0/AndroidManifest.xml:21:9-23:69
+132            android:name="com.google.android.gms.version"
+132-->[com.google.android.gms:play-services-basement:18.2.0] /Users/brien/.gradle/caches/transforms-4/e4b6a0112531cfb4fc8a54938827f4d3/transformed/play-services-basement-18.2.0/AndroidManifest.xml:22:13-58
+133            android:value="@integer/google_play_services_version" />
+133-->[com.google.android.gms:play-services-basement:18.2.0] /Users/brien/.gradle/caches/transforms-4/e4b6a0112531cfb4fc8a54938827f4d3/transformed/play-services-basement-18.2.0/AndroidManifest.xml:23:13-66
+134
+135        <uses-library
+135-->[androidx.window:window:1.0.0] /Users/brien/.gradle/caches/transforms-4/06267fe7178fa89a47500affe834c933/transformed/window-1.0.0/AndroidManifest.xml:25:9-27:40
+136            android:name="androidx.window.extensions"
+136-->[androidx.window:window:1.0.0] /Users/brien/.gradle/caches/transforms-4/06267fe7178fa89a47500affe834c933/transformed/window-1.0.0/AndroidManifest.xml:26:13-54
+137            android:required="false" />
+137-->[androidx.window:window:1.0.0] /Users/brien/.gradle/caches/transforms-4/06267fe7178fa89a47500affe834c933/transformed/window-1.0.0/AndroidManifest.xml:27:13-37
+138        <uses-library
+138-->[androidx.window:window:1.0.0] /Users/brien/.gradle/caches/transforms-4/06267fe7178fa89a47500affe834c933/transformed/window-1.0.0/AndroidManifest.xml:28:9-30:40
+139            android:name="androidx.window.sidecar"
+139-->[androidx.window:window:1.0.0] /Users/brien/.gradle/caches/transforms-4/06267fe7178fa89a47500affe834c933/transformed/window-1.0.0/AndroidManifest.xml:29:13-51
+140            android:required="false" />
+140-->[androidx.window:window:1.0.0] /Users/brien/.gradle/caches/transforms-4/06267fe7178fa89a47500affe834c933/transformed/window-1.0.0/AndroidManifest.xml:30:13-37
+141
+142        <service
+142-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/brien/.gradle/caches/transforms-4/5359e519b40547d67a126e3b0ca158a3/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:28:9-34:19
+143            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+143-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/brien/.gradle/caches/transforms-4/5359e519b40547d67a126e3b0ca158a3/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:29:13-103
+144            android:exported="false" >
+144-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/brien/.gradle/caches/transforms-4/5359e519b40547d67a126e3b0ca158a3/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:30:13-37
+145            <meta-data
+145-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/brien/.gradle/caches/transforms-4/5359e519b40547d67a126e3b0ca158a3/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:31:13-33:39
+146                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+146-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/brien/.gradle/caches/transforms-4/5359e519b40547d67a126e3b0ca158a3/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:32:17-94
+147                android:value="cct" />
+147-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/brien/.gradle/caches/transforms-4/5359e519b40547d67a126e3b0ca158a3/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:33:17-36
+148        </service>
+149        <service
+149-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/brien/.gradle/caches/transforms-4/536bb684e0eb6c3027508a6e1e07b2c7/transformed/transport-runtime-3.1.8/AndroidManifest.xml:26:9-30:19
+150            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+150-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/brien/.gradle/caches/transforms-4/536bb684e0eb6c3027508a6e1e07b2c7/transformed/transport-runtime-3.1.8/AndroidManifest.xml:27:13-117
+151            android:exported="false"
+151-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/brien/.gradle/caches/transforms-4/536bb684e0eb6c3027508a6e1e07b2c7/transformed/transport-runtime-3.1.8/AndroidManifest.xml:28:13-37
+152            android:permission="android.permission.BIND_JOB_SERVICE" >
+152-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/brien/.gradle/caches/transforms-4/536bb684e0eb6c3027508a6e1e07b2c7/transformed/transport-runtime-3.1.8/AndroidManifest.xml:29:13-69
+153        </service>
+154
+155        <receiver
+155-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/brien/.gradle/caches/transforms-4/536bb684e0eb6c3027508a6e1e07b2c7/transformed/transport-runtime-3.1.8/AndroidManifest.xml:32:9-34:40
+156            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+156-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/brien/.gradle/caches/transforms-4/536bb684e0eb6c3027508a6e1e07b2c7/transformed/transport-runtime-3.1.8/AndroidManifest.xml:33:13-132
+157            android:exported="false" />
+157-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/brien/.gradle/caches/transforms-4/536bb684e0eb6c3027508a6e1e07b2c7/transformed/transport-runtime-3.1.8/AndroidManifest.xml:34:13-37
+158        <receiver
+158-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+159            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+159-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+160            android:directBootAware="false"
+160-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+161            android:enabled="true"
+161-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+162            android:exported="true"
+162-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+163            android:permission="android.permission.DUMP" >
+163-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+164            <intent-filter>
+164-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+165                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+165-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+165-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+166            </intent-filter>
+167            <intent-filter>
+167-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+168                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+168-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+168-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+169            </intent-filter>
+170            <intent-filter>
+170-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+171                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+171-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+171-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+172            </intent-filter>
+173            <intent-filter>
+173-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+174                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+174-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+174-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/brien/.gradle/caches/transforms-4/ceb29e5b4d342235c1dff6df1e1ba619/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+175            </intent-filter>
+176        </receiver>
+177    </application>
+178
+179</manifest>

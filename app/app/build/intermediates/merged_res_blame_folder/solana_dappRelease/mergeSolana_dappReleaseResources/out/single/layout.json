@@ -1,0 +1,146 @@
+[
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_connect.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_connect.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/view_status.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/view_status.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_login_password_reset.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_password_reset.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/view_overview_pro.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/view_overview_pro.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/view_overview_pro_upgrade.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/view_overview_pro_upgrade.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_location_list_country_chips.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_country_chips.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/view_connection_active.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/view_connection_active.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/activity_login.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_provide.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_provide.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_top_city.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_city.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/view_overview_free.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/view_overview_free.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_login_verify.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_verify.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_top_country.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_country.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_top_disconnected.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_disconnected.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_location_list_region.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_region.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_login_create_network.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_create_network.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_location_list_device.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_device.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/activity_main.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_top_device.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_device.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_devices.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_devices.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/devices_device_list_android.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/devices_device_list_android.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_top_region.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_region.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_location_list_city.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_city.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_login_create_network_auth_jwt.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_create_network_auth_jwt.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_account.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_account.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_login_password.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_password.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/activity_login_with_password.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/activity_login_with_password.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_location_list_country.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_country.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_login_password_reset_after_send.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_password_reset_after_send.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_country_chip.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_country_chip.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_top_group.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_group.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_subscription.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_subscription.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/view_connection_get_started.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/view_connection_get_started.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_wallet_transfer_out.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_wallet_transfer_out.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/connect_location_list_group.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_group.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-mergeSolana_dappReleaseResources-56:/layout/fragment_login_initial.xml",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_initial.xml"
+    }
+]

@@ -1,0 +1,21 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.bringyour.network",
+  "variantName": "playDebug",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 7126,
+      "versionName": "2024.3.14-outerwerld+1710479937511",
+      "outputFile": "app-play-debug.apk"
+    }
+  ],
+  "elementType": "File",
+  "minSdkVersionForDexing": 24
+}

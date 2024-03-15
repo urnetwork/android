@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AndroidLayouts">
+    <shared>
+      <config>
+        <device id="_device_class_phone" />
+        <device id="pixel_tablet" />
+      </config>
+    </shared>
+    <layouts>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_country_chip.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_location_list_city.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_location_list_country.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_location_list_country_chips.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_location_list_device.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_top_country.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_top_device.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_top_disconnected.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/connect_top_group.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_account.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_connect.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_devices.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_login_create_network.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_login_create_network_auth_jwt.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_login_initial.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_provide.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_subscription.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_wallet_transfer_out.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/view_connection_active.xml">
+        <config>
+          <theme>@style/Theme.BringYour</theme>
+        </config>
+      </layout>
+    </layouts>
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="58f01d6d-c9e3-41cb-99fb-fc285f1f4048" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=PhysicalDevice, isTemplate=false, identifier=serial=O1N1XT142300239)]" />
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$/app">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="navigationResourceFile" />
+        <option value="resourceFile" />
+        <option value="layoutResourceFile" />
+        <option value="Kotlin Class" />
+        <option value="valueResourceFile" />
+      </list>
+    </option>
+  </component>
+  <component name="GenerateSignedApkSettings">
+    <option name="KEY_STORE_PATH" value="$PROJECT_DIR$/../../vault/android/app.jks" />
+    <option name="KEY_ALIAS" value="solana_dapp" />
+    <option name="REMEMBER_PASSWORDS" value="true" />
+    <option name="BUILD_TARGET_KEY" value="apk" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/transforms-3/5a41d9e6a7966db85f84ae90a5571f91/transformed/sdk-1.0.774/jars/classes.jar!/circle/programmablewallet/sdk/presentation/EventListener.class" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2PConI7DJXI6FXF5Se3NuIpJRrf" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android App.app.executor": "Run",
+    "ApkExportedModule": "BringYour.app",
+    "BundleExportedModule": "BringYour.app",
+    "ExportApk.ApkPathForBringYour.app": "/Users/brien/bringyour/android/app/app",
+    "ExportBundle.BundlePathForBringYour.app": "/Users/brien/bringyour/android/app/app",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ScreenRecorder.SavePath": "/Users/brien/Desktop",
+    "ScreenshotViewer.SavePath": "/Users/brien/Desktop",
+    "android-custom-view/Users/brien/.gradle/caches/modules-2/files-2.1/androidx.appcompat/appcompat/1.6.1/ace9a78b961165396147e8691faa18c1b0e48e20/appcompat-1.6.1-sources.jar!/androidx/appcompat/widget/AppCompatImageButton.java_SELECTED": "AppCompatImageButton",
+    "android-custom-view/Users/brien/Library/Android/sdk/sources/android-33/android/opengl/GLSurfaceView.java_SELECTED": "GLSurfaceView",
+    "android-custom-view/Users/brien/Library/Android/sdk/sources/android-33/android/view/View.java_SELECTED": "View",
+    "android-custom-view/Users/brien/Library/Android/sdk/sources/android-33/android/widget/ImageButton.java_SELECTED": "ImageButton",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "provide-fixes",
+    "kotlin-language-version-configured": "true",
+    "last_directory_selection": "/Users/brien/bringyour/android/app/app/src/main/res/values",
+    "last_opened_file_path": "/Users/brien/bringyour/android/app/app/src/main/res/layout",
+    "project.structure.last.edited": "Build Variants",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "device.mirroring"
+  },
+  "keyToStringList": {
+    "ExportApk.BuildVariants": [
+      "solana_dappRelease"
+    ]
+  }
+}]]></component>
+  <component name="PsdUISettings">
+    <option name="LAST_EDITED_BUILD_TYPE" value="debug" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/src/main/res/layout" />
+      <recent name="$PROJECT_DIR$/app/src/main/res/drawable-anydpi" />
+      <recent name="$PROJECT_DIR$/app/src/main/res/drawable-nodpi" />
+      <recent name="$PROJECT_DIR$/app/src/main/res/raw" />
+      <recent name="$PROJECT_DIR$/app/src/main/java/com/bringyour/network/ui" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/src/main/res/color" />
+      <recent name="$PROJECT_DIR$/app/src/main/java/com/bringyour/client" />
+      <recent name="$PROJECT_DIR$/app/src/main/res/drawable" />
+    </key>
+    <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="com.bringyour.network.goclient.support" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Android App.app">
+    <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App">
+      <module name="BringYour.app.main" />
+      <option name="DEPLOY" value="true" />
+      <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
+      <option name="DEPLOY_AS_INSTANT" value="false" />
+      <option name="ARTIFACT_NAME" value="" />
+      <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="ALL_USERS" value="false" />
+      <option name="ALWAYS_INSTALL_WITH_PM" value="true" />
+      <option name="CLEAR_APP_STORAGE" value="false" />
+      <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
+      <option name="ACTIVITY_EXTRA_FLAGS" value="" />
+      <option name="MODE" value="default_activity" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
+      <option name="INSPECTION_WITHOUT_ACTIVITY_RESTART" value="false" />
+      <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
+      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
+      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
+      <option name="DEBUGGER_TYPE" value="Java" />
+      <Auto>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Auto>
+      <Hybrid>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Hybrid>
+      <Java>
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Java>
+      <Native>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Native>
+      <Profilers>
+        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Java/Kotlin Method Sample (legacy)" />
+        <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
+        <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
+      </Profilers>
+      <option name="DEEP_LINK" value="" />
+      <option name="ACTIVITY_CLASS" value="" />
+      <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
+      <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="app [installDebug]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="installDebug" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="app [signingReport]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="signingReport" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="app:app [signingReport]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/app" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="signingReport" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Android App.app" />
+      <item itemvalue="Gradle.app [installDebug]" />
+      <item itemvalue="Gradle.app [signingReport]" />
+      <item itemvalue="Gradle.app:app [signingReport]" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.app [signingReport]" />
+        <item itemvalue="Gradle.app [installDebug]" />
+        <item itemvalue="Gradle.app:app [signingReport]" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="58f01d6d-c9e3-41cb-99fb-fc285f1f4048" name="Changes" comment="" />
+      <created>1682970589235</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1682970589235</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>

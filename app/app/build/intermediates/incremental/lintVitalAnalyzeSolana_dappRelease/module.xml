@@ -1,0 +1,19 @@
+<lint-module
+    format="1"
+    dir="/Users/brien/bringyour/android/app/app"
+    name=":app"
+    type="APP"
+    maven="BringYour:app:"
+    agpVersion="8.3.0"
+    buildFolder="build"
+    bootClassPath="/Users/brien/Library/Android/sdk/platforms/android-34/android.jar:/Users/brien/Library/Android/sdk/build-tools/34.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="1.8"
+    compileTarget="android-34"
+    neverShrinking="true">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="solana_dappRelease"/>
+</lint-module>

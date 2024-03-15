@@ -1,0 +1,7 @@
+#Thu Mar 14 22:52:56 PDT 2024
+base.0=/Users/brien/bringyour/android/app/app/build/intermediates/dex/solana_dappRelease/mergeDexSolana_dappRelease/classes.dex
+base.1=/Users/brien/bringyour/android/app/app/build/intermediates/dex/solana_dappRelease/mergeDexSolana_dappRelease/classes2.dex
+path.0=classes.dex
+path.1=classes2.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex

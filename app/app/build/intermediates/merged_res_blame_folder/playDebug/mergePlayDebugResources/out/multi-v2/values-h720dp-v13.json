@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.bringyour.network.app-mergePlayDebugResources-55:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "/Users/brien/.gradle/caches/transforms-4/72667b09608123d5c583eace8e116544/transformed/appcompat-1.6.1/res/values-h720dp-v13/values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        }
+    ]
+}

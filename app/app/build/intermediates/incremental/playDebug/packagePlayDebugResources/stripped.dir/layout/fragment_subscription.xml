@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/subscription_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:layout_margin="16dp"
+
+        android:text="Choose Your Plan"
+
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="10pt"
+
+        />
+
+    <TextView
+        android:id="@+id/subscription_data_description"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/subscription_data"
+        app:layout_constraintTop_toBottomOf="@id/subscription_header"
+
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+
+        android:text="Data available now"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+
+        />
+
+    <TextView
+        android:id="@+id/subscription_data"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/subscription_data_description"
+        app:layout_constraintTop_toTopOf="@id/subscription_data_description"
+        app:layout_constraintBottom_toBottomOf="@id/subscription_data_description"
+
+
+        android:layout_marginRight="16dp"
+
+        android:text="0GiB"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+
+        />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/plan_300gib_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toBottomOf="@id/subscription_data_description"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:background="@drawable/subscription_unselected"
+
+        android:layout_margin="16dp"
+        android:padding="12dp"
+
+        android:clickable="true"
+        android:focusable="true"
+        >
+
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/plan_300gib_radio"
+
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/plan_300gib_label"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_300gib_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_300gib_price_description"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/plan_300gib_current"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            android:text="300GiB monthly"
+
+            android:fontFamily="sans-serif"
+            android:textSize="10pt"
+
+            />
+
+        <TextView
+            android:id="@+id/plan_300gib_current"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_300gib_radio"
+            app:layout_constraintTop_toBottomOf="@id/plan_300gib_label"
+            app:layout_constraintBottom_toTopOf="@id/plan_300gib_description"
+
+            android:layout_marginLeft="8dp"
+
+            android:text="Current Plan"
+
+            android:background="@color/by_s_blue"
+            android:textColor="@color/almost_white"
+            android:padding="4dp"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+        <TextView
+            android:id="@+id/plan_300gib_description"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_300gib_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_300gib_price_description"
+            app:layout_constraintTop_toBottomOf="@id/plan_300gib_current"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+
+            android:text="Access to all global providers. Send up to 300GiB each month."
+            android:maxLines="3"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+
+        <TextView
+            android:id="@+id/plan_300gib_price"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toLeftOf="@id/plan_300gib_price_description"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/plan_300gib_label"
+
+            android:text="$3"
+
+            android:fontFamily="sans-serif"
+            android:textSize="8pt"
+            />
+
+        <TextView
+            android:id="@+id/plan_300gib_price_description"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/plan_300gib_price"
+
+            android:text="/month"
+
+            android:fontFamily="sans-serif"
+            android:textSize="6pt"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/plan_1tib_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toBottomOf="@id/plan_300gib_container"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:background="@drawable/subscription_unselected"
+
+        android:layout_margin="16dp"
+        android:padding="12dp"
+
+        android:clickable="true"
+        android:focusable="true"
+        >
+
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/plan_1tib_radio"
+
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/plan_1tib_label"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_1tib_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_1tib_price_description"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/plan_1tib_current"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            android:text="1TiB monthly"
+
+            android:fontFamily="sans-serif"
+            android:textSize="10pt"
+
+            />
+
+        <TextView
+            android:id="@+id/plan_1tib_best_value"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_1tib_radio"
+            app:layout_constraintTop_toBottomOf="@id/plan_1tib_label"
+            app:layout_constraintBottom_toTopOf="@id/plan_1tib_description"
+
+            android:layout_marginLeft="8dp"
+
+            android:text="Best Value"
+
+            android:background="@color/by_s_blue"
+            android:textColor="@color/almost_white"
+            android:padding="4dp"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+        <TextView
+            android:id="@+id/plan_1tib_current"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_1tib_best_value"
+            app:layout_constraintTop_toTopOf="@id/plan_1tib_best_value"
+            app:layout_constraintBottom_toBottomOf="@id/plan_1tib_best_value"
+
+            android:layout_marginLeft="4dp"
+
+            app:layout_goneMarginLeft="8dp"
+
+            android:text="Current Plan"
+
+            android:background="@color/by_s_blue"
+            android:textColor="@color/almost_white"
+            android:padding="4dp"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+
+
+        <TextView
+            android:id="@+id/plan_1tib_description"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_1tib_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_1tib_price_description"
+            app:layout_constraintTop_toBottomOf="@id/plan_1tib_best_value"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+
+            android:text="Access to all global providers. Send up to 1TiB each month."
+            android:maxLines="3"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+
+        <TextView
+            android:id="@+id/plan_1tib_price"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toLeftOf="@id/plan_1tib_price_description"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/plan_1tib_label"
+
+            android:text="$6"
+
+            android:fontFamily="sans-serif"
+            android:textSize="8pt"
+            />
+
+        <TextView
+            android:id="@+id/plan_1tib_price_description"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/plan_1tib_price"
+
+            android:text="/month"
+
+            android:fontFamily="sans-serif"
+            android:textSize="6pt"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/plan_ultimate_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toBottomOf="@id/plan_1tib_container"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:background="@drawable/subscription_unselected"
+
+        android:layout_margin="16dp"
+        android:padding="12dp"
+
+        android:clickable="true"
+        android:focusable="true"
+        >
+
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/plan_ultimate_radio"
+
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/plan_ultimate_label"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_ultimate_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_ultimate_price_description"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/plan_ultimate_current"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            android:text="Ultimate"
+
+            android:fontFamily="sans-serif"
+            android:textSize="10pt"
+
+            />
+
+        <TextView
+            android:id="@+id/plan_ultimate_current"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_ultimate_radio"
+            app:layout_constraintTop_toBottomOf="@id/plan_ultimate_label"
+            app:layout_constraintBottom_toTopOf="@id/plan_ultimate_description"
+
+            android:layout_marginLeft="8dp"
+
+            android:text="Current Plan"
+
+            android:background="@color/by_s_blue"
+            android:textColor="@color/almost_white"
+            android:padding="4dp"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+
+
+        <TextView
+            android:id="@+id/plan_ultimate_description"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_ultimate_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_ultimate_price_description"
+            app:layout_constraintTop_toBottomOf="@id/plan_ultimate_current"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+
+            android:text="Access to all global providers. Send up to 10TiB each month. Prioritized feature requests."
+            android:maxLines="3"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+
+        <TextView
+            android:id="@+id/plan_ultimate_price"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toLeftOf="@id/plan_ultimate_price_description"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/plan_ultimate_label"
+
+            android:text="$12"
+
+            android:fontFamily="sans-serif"
+            android:textSize="8pt"
+            />
+
+        <TextView
+            android:id="@+id/plan_ultimate_price_description"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/plan_ultimate_price"
+
+            android:text="/month"
+
+            android:fontFamily="sans-serif"
+            android:textSize="6pt"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/plan_basic_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toBottomOf="@id/plan_ultimate_container"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:background="@drawable/subscription_selected"
+
+        android:layout_margin="16dp"
+        android:padding="12dp"
+
+        android:clickable="true"
+        android:focusable="true"
+        >
+
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/plan_basic_radio"
+
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/plan_basic_label"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_basic_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_basic_price_description"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/plan_basic_current"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            android:text="Basic"
+
+            android:fontFamily="sans-serif"
+            android:textSize="10pt"
+
+            />
+
+        <TextView
+            android:id="@+id/plan_basic_current"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_basic_radio"
+            app:layout_constraintTop_toBottomOf="@id/plan_basic_label"
+            app:layout_constraintBottom_toTopOf="@id/plan_basic_description"
+
+            android:layout_marginLeft="8dp"
+
+            android:text="Current Plan"
+
+            android:background="@color/by_s_blue"
+            android:textColor="@color/almost_white"
+            android:padding="4dp"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+
+
+        <TextView
+            android:id="@+id/plan_basic_description"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toRightOf="@id/plan_basic_radio"
+            app:layout_constraintRight_toLeftOf="@id/plan_basic_price_description"
+            app:layout_constraintTop_toBottomOf="@id/plan_basic_current"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+
+            android:text="Unlimited access to your decives, friends and family."
+            android:maxLines="3"
+
+            android:fontFamily="sans-serif-light"
+            android:textSize="6pt"
+
+            />
+
+
+        <TextView
+            android:id="@+id/plan_basic_price"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintLeft_toLeftOf="@id/plan_basic_price_description"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/plan_basic_label"
+
+            android:text="Free"
+
+            android:fontFamily="sans-serif"
+            android:textSize="8pt"
+            />
+
+        <TextView
+            android:id="@+id/plan_basic_price_description"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/plan_basic_price"
+
+            android:text="/month"
+
+            android:fontFamily="sans-serif"
+            android:textSize="6pt"
+
+            android:visibility="invisible"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/subscription_data_updated_description"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/subscription_data_updated"
+        app:layout_constraintTop_toBottomOf="@id/plan_basic_container"
+
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+
+        android:text="Updated data available now"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+
+        android:textColor="@color/by_p_blue"
+
+        />
+
+    <TextView
+        android:id="@+id/subscription_data_updated"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/subscription_data_updated_description"
+        app:layout_constraintTop_toTopOf="@id/subscription_data_updated_description"
+        app:layout_constraintBottom_toBottomOf="@id/subscription_data_updated_description"
+
+
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+
+        android:text="0GiB"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+
+        android:textColor="@color/by_p_blue"
+
+        />
+
+
+    <TextView
+        android:id="@+id/subscription_description"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/subscription_price"
+        app:layout_constraintTop_toBottomOf="@id/subscription_data_updated_description"
+
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+
+        android:text="Upcoming monthly payment"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+
+        android:textColor="@color/by_p_blue"
+
+        />
+
+    <TextView
+        android:id="@+id/subscription_price"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintLeft_toRightOf="@id/subscription_description"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/subscription_description"
+        app:layout_constraintBottom_toBottomOf="@id/subscription_description"
+
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+
+        android:text="None"
+
+        android:fontFamily="sans-serif"
+        android:textSize="8pt"
+
+        android:textColor="@color/by_p_blue"
+
+        />
+
+    <TextView
+        android:id="@+id/subscription_renewal_description"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subscription_description"
+
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+
+        android:text="Subscriptions automatically renew until canceled."
+        android:maxLines="3"
+
+        android:fontFamily="sans-serif-light"
+        android:textSize="6pt"
+
+        android:textColor="@color/by_p_blue"
+
+        />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/subscription_continue_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/subscription_renewal_description"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="Continue"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/subscription_continue_spinner"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="@id/subscription_continue_button"
+        app:layout_constraintBottom_toBottomOf="@id/subscription_continue_button"
+        app:layout_constraintLeft_toRightOf="@id/subscription_continue_button"
+
+        android:indeterminate="true"
+        app:indicatorSize="24dp"
+
+        />
+
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.AppCompat.Button.Borderless"
+
+        android:id="@+id/subscription_help_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/subscription_continue_button"
+        app:layout_constraintBottom_toBottomOf="@id/subscription_continue_button"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:layout_marginRight="16dp"
+
+        android:text="Get help"
+        android:textAllCaps="false"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/by_p_blue"
+        app:backgroundTint="@color/p_s_gray"
+
+        />
+
+
+    <TextView
+        android:id="@+id/subscription_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/subscription_continue_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+
+        android:text="Error"
+        android:textSize="8pt"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/by_s_red"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

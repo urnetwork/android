@@ -1,0 +1,32 @@
+<variant
+    name="solana_dappRelease"
+    package="com.bringyour.network"
+    minSdkVersion="24"
+    targetSdkVersion="34"
+    mergedManifest="build/intermediates/merged_manifest/solana_dappRelease/processSolana_dappReleaseMainManifest/AndroidManifest.xml"
+    manifestMergeReport="build/outputs/logs/manifest-merger-solana_dapp-release-report.txt"
+    proguardFiles="build/intermediates/default_proguard_files/global/proguard-android-optimize.txt-8.3.0:proguard-rules.pro"
+    partialResultsDir="build/intermediates/lint_vital_partial_results/solana_dappRelease/lintVitalAnalyzeSolana_dappRelease/out">
+  <buildFeatures
+      viewBinding="true"
+      namespacing="REQUIRED"/>
+  <sourceProviders>
+    <sourceProvider
+        manifests="src/main/AndroidManifest.xml"
+        javaDirectories="src/main/java:src/solana_dapp/java:src/release/java:src/solana_dappRelease/java:src/main/kotlin:src/solana_dapp/kotlin:src/release/kotlin:src/solana_dappRelease/kotlin"
+        resDirectories="src/main/res:src/solana_dapp/res:src/release/res:src/solana_dappRelease/res"
+        assetsDirectories="src/main/assets:src/solana_dapp/assets:src/release/assets:src/solana_dappRelease/assets"/>
+  </sourceProviders>
+  <testSourceProviders>
+  </testSourceProviders>
+  <testFixturesSourceProviders>
+  </testFixturesSourceProviders>
+  <artifact
+      classOutputs="build/intermediates/javac/solana_dappRelease/compileSolana_dappReleaseJavaWithJavac/classes:build/tmp/kotlin-classes/solana_dappRelease:build/kotlinToolingMetadata:build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/solana_dappRelease/processSolana_dappReleaseResources/R.jar"
+      type="MAIN"
+      applicationId="com.bringyour.network"
+      generatedSourceFolders="build/generated/ap_generated_sources/solana_dappRelease/out:build/generated/source/buildConfig/solana_dapp/release:build/generated/data_binding_base_class_source_out/solana_dappRelease/out"
+      generatedResourceFolders="build/generated/res/resValues/solana_dapp/release"
+      desugaredMethodsFiles="/Users/brien/.gradle/caches/transforms-4/abc495bfaf9d5b23529de370396100a8/transformed/D8BackportedDesugaredMethods.txt">
+  </artifact>
+</variant>

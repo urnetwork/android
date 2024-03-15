@@ -1,0 +1,38 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.bringyour.network.app-mergeSolana_dappReleaseResources-55:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "/Users/brien/.gradle/caches/transforms-4/72667b09608123d5c583eace8e116544/transformed/appcompat-1.6.1/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "121",
+                        "endLines": "6",
+                        "endColumns": "12",
+                        "endOffsets": "289"
+                    }
+                },
+                {
+                    "source": "/Users/brien/.gradle/caches/transforms-4/12d62f00bdeb2524c32824ca7460c3c3/transformed/core-1.12.0/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                }
+            ]
+        }
+    ]
+}

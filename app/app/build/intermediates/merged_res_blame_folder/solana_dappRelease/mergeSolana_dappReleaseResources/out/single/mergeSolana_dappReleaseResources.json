@@ -1,0 +1,2478 @@
+[
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ag_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ag_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mt_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mt_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_im_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_im_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bh_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bh_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_device_connected_disconnected.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/device_connected_disconnected.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/menu_main_bottom_nav_menu.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/menu/main_bottom_nav_menu.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_co_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_co_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_eg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_eg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_provide_inactive.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_provide_inactive.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kh_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kh_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_search.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_search.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gu_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gu_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ck_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ck_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/color_provide_switch_track_color_list.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/color/provide_switch_track_color_list.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_subscription_selected_ultimate.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/subscription_selected_ultimate.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ke_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ke_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bb_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bb_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ad_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ad_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cl_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cl_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_at_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_at_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gb_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gb_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_aw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_aw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_provide_inactive_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_provide_inactive_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_top_country.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_country.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bo_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bo_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_st_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_st_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ss_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ss_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_activity_login.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_activity_main.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gu_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gu_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_subscription_unselected.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/subscription_unselected.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_uy_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_uy_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_au_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_au_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ge_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ge_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ps_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ps_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_devices_active.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_devices_active.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_location_list_country.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_country.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mu_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mu_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_wallet_usdc_blue.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/wallet_usdc_blue.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_logo_by_black.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/logo_by_black.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_th_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_th_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_to_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_to_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_as_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_as_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gs_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gs_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_no_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_no_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vu_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vu_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_is_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_is_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ms_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ms_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ly_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ly_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_rw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_rw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_intro_main_icon.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_intro_main_icon.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cy_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cy_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_provide.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_provide.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sd_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sd_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sa_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sa_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_device_connected_connected.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/device_connected_connected.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_login_password_reset.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_password_reset.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_group_large.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_group_large.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_my_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_my_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_region_large.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_region_large.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_location_list_group.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_group.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_status.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_status.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ly_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ly_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_promoted.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_promoted.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_login_create_network_auth_jwt.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_create_network_auth_jwt.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mv_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mv_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pl_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pl_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_um_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_um_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lv_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lv_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lu_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lu_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lb_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lb_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_na_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_na_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_qa_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_qa_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ph_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ph_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gh_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gh_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lc_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lc_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mh_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mh_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_account.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_account.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sh_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sh_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pe_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pe_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_login_create_network.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_create_network.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_om_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_om_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_za_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_za_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ph_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ph_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_device_android.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/device_android.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ba_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ba_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_im_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_im_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mc_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mc_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_np_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_np_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ee_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ee_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_be_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_be_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_account_active.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_account_active.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mv_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mv_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_li_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_li_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sd_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sd_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cx_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cx_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout-land_fragment_connect.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout-land/fragment_connect.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ls_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ls_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ar_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ar_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_badge_ff.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/badge_ff.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_filter.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_filter.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sv_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sv_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kp_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kp_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_np_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_np_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_login_password_reset_after_send.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_password_reset_after_send.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fj_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fj_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ml_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ml_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ad_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ad_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_account_inactive.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_account_inactive.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gd_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gd_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ms_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ms_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_md_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_md_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mp_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mp_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_na_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_na_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ne_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ne_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ke_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ke_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ng_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ng_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_top_disconnected.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_disconnected.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ua_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ua_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ec_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ec_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ru_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ru_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ch_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ch_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_checkmark.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_checkmark.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/navigation_login_navigation.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/navigation/login_navigation.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_devices_active_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_devices_active_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bd_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bd_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_iq_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_iq_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_view_status.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/view_status.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_es_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_es_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bs_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bs_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gy_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gy_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_devices_inactive.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_devices_inactive.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tl_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tl_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_co_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_co_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_devices.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_devices.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nl_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nl_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_badge_superfast.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/badge_superfast.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ki_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ki_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ws_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ws_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gq_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gq_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bt_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bt_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vi_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vi_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_in_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_in_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_text_pro.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/text_pro.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bl_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bl_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ae_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ae_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_subscription_selected.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/subscription_selected.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_zw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_zw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_as_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_as_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_va_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_va_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fj_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fj_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lu_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lu_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_py_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_py_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cu_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cu_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ps_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ps_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_top_region.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_region.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gi_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gi_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/color_provide_switch_thumb_color_list.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/color/provide_switch_thumb_color_list.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_am_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_am_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_launcher.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ci_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ci_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sx_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sx_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ug_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ug_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_jp_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_jp_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lb_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lb_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_badge_free.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/badge_free.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sh_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sh_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sj_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sj_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_location_list_region.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_region.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_li_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_li_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_rs_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_rs_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_logo_by_black_2.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/logo_by_black_2.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_city_large.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_city_large.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_bg_pro.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/bg_pro.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fi_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fi_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sb_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sb_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_al_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_al_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ee_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ee_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_uz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_uz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_wf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_wf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_account_inactive_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_account_inactive_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_logo_by.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/logo_by.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cu_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cu_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bj_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bj_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_back.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_back.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bd_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bd_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_td_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_td_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ye_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ye_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ge_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ge_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tc_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tc_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ae_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ae_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_to_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_to_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ve_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ve_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_de_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_de_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_se_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_se_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_je_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_je_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pe_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pe_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_me_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_me_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_account_active_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_account_active_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_login_verify.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_verify.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_br_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_br_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_rw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_rw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gs_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gs_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vc_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vc_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ag_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ag_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bq_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bq_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_superfast.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_superfast.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_za_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_za_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_er_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_er_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bb_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bb_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ga_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ga_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_aq_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_aq_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_br_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_br_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_au_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_au_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_zm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_zm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tj_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tj_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_country_small.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_country_small.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_broaden.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_broaden.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bj_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bj_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_by_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_by_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tc_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tc_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_provide_active_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_provide_active_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nc_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nc_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lv_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lv_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cv_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cv_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_af_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_af_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_yt_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_yt_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cc_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cc_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_es_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_es_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_am_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_am_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ky_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ky_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bv_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bv_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ec_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ec_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_provide.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_provide.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vu_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vu_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ro_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ro_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ca_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ca_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ca_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ca_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_jm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_jm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ci_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ci_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_io_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_io_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fo_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fo_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_country_large.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_country_large.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ck_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ck_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_wallet_transfer_out.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_wallet_transfer_out.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_dropdown_arrow.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_dropdown_arrow.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_la_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_la_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cy_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cy_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_at_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_at_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gt_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gt_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_notif.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_notif.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pt_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pt_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dj_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dj_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_st_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_st_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_yt_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_yt_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ki_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ki_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_top_device.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_device.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tv_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tv_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_no_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_no_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ni_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ni_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_al_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_al_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ua_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ua_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ir_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ir_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lr_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lr_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_active.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_active.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sy_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sy_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mh_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mh_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lt_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lt_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_badge_pro.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/badge_pro.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_er_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_er_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cd_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cd_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_account.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_account.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_error_info.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_error_info.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ie_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ie_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_group_small.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_group_small.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_intro_item0_icon.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_intro_item0_icon.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_la_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_la_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_intro_item1_icon.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_intro_item1_icon.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bs_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bs_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_region_small.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_region_small.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ve_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ve_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_re_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_re_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ai_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ai_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bi_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bi_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_id_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_id_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_content_copy_48px.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/content_copy_48px.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_km_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_km_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_shuffle.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_shuffle.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cd_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cd_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kp_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kp_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ga_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ga_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_re_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_re_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ao_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ao_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ht_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ht_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/color_login_checkbox.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/color/login_checkbox.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_biometrics_general.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_biometrics_general.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sv_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sv_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_view_overview_pro.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/view_overview_pro.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sa_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sa_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_view_overview_free.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/view_overview_free.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_va_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_va_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_eh_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_eh_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ma_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ma_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kh_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kh_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pa_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pa_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tj_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tj_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_th_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_th_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_az_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_az_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_si_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_si_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bv_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bv_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pl_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pl_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sl_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sl_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ml_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ml_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ro_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ro_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sc_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sc_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gl_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gl_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_launcher_round.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ru_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ru_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ir_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ir_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sl_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sl_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/raw_login.mp4.flat",
+        "source": "com.bringyour.network.app-main-58:/raw/login.mp4"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ie_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ie_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_devices_inactive_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_devices_inactive_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_io_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_io_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mo_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mo_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_jo_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_jo_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_py_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_py_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/xml_data_extraction_rules.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lc_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lc_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sy_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sy_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nu_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nu_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_my_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_my_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pa_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pa_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cc_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cc_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gy_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gy_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_devices_device_list_android.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/devices_device_list_android.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_om_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_om_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_jo_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_jo_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bh_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bh_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tt_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tt_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lt_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lt_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_qa_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_qa_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_it_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_it_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_do_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_do_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ky_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ky_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_so_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_so_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_location_city_small.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_location_city_small.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pt_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pt_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_devices.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_devices.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ao_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ao_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_login_password.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_password.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_lk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_lk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mx_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mx_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_me_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_me_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_logo_by_white_2.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/logo_by_white_2.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_connect.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_connect.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/xml_backup_rules.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bl_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bl_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ma_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ma_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mq_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mq_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mk_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mk_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_active_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_active_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mo_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mo_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mt_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mt_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mu_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mu_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nl_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nl_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nc_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nc_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dk_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dk_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ni_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ni_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_top_group.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_group.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_zw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_zw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_iq_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_iq_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ne_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ne_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_country_chip.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_country_chip.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_md_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_md_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_je_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_je_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_inactive_512.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_inactive_512.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_aq_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_aq_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sj_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sj_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_top_city.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_top_city.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hu_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hu_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_subscription.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_subscription.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gq_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gq_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bw_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bw_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_jm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_jm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_vpn_key.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_vpn_key.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ax_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ax_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tt_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tt_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mq_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mq_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bo_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bo_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_aw_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_aw_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mp_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mp_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ba_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ba_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_close.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_close.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_pn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_pn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ax_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ax_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_um_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_um_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mx_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mx_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tl_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tl_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_fragment_login_initial.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/fragment_login_initial.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_in_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_in_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bt_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bt_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_hide_pin.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_hide_pin.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_km_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_km_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_confirm_main_icon.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_confirm_main_icon.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_zm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_zm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_view_connection_get_started.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/view_connection_get_started.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ht_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ht_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_et_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_et_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_td_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_td_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_badge_nearest_region.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/badge_nearest_region.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_mc_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_mc_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/navigation_main_navigation.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/navigation/main_navigation.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_show_pin.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_show_pin.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dj_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dj_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bm_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bm_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_it_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_it_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_wf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_wf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_so_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_so_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_view_connection_active.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/view_connection_active.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_view_overview_pro_upgrade.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/view_overview_pro_upgrade.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_il_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_il_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tf_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tf_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sc_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sc_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_id_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_id_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_se_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_se_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_activity_login_with_password.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/activity_login_with_password.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vc_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vc_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gh_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gh_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_location_list_city.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_city.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gb_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gb_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ss_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ss_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gl_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gl_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ng_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ng_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_et_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_et_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_by_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_by_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_rs_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_rs_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cf_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cf_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_us_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_us_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_provide_active.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_provide_active.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ye_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ye_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ai_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ai_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bq_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bq_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tv_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tv_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gt_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gt_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_location_list_country_chips.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_country_chips.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_content_copy_24px.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/content_copy_24px.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gp_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gp_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fi_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fi_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_af_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_af_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_wallet_byio.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/wallet_byio.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_badge_safe.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/badge_safe.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ar_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ar_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gd_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gd_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ug_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ug_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_intro_item2_icon.png.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_intro_item2_icon.png"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_us_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_us_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_az_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_az_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_vi_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_vi_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sx_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sx_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bg_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bg_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_il_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_il_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_fo_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_fo_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_be_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_be_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_uy_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_uy_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_jp_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_jp_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gp_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gp_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bi_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bi_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_badge_gimme.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/badge_gimme.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cx_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cx_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cr_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cr_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cv_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cv_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cn_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cn_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_eh_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_eh_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cl_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cl_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable_ic_connect_inactive.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable/ic_connect_inactive.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_si_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_si_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ls_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ls_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_gi_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_gi_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_is_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_is_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_sb_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_sb_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ch_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ch_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_ws_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_ws_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_eg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_eg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hu_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hu_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_nu_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_nu_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kg_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kg_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/layout_connect_location_list_device.xml.flat",
+        "source": "com.bringyour.network.app-main-58:/layout/connect_location_list_device.xml"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_cz_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_cz_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_de_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_de_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_uz_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_uz_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_do_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_do_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_dm_512_a50.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_dm_512_a50.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_tn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_tn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_kn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_kn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_hn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_hn_512.webp"
+    },
+    {
+        "merged": "com.bringyour.network.app-solana_dappRelease-57:/drawable-nodpi_country_bn_512.webp.flat",
+        "source": "com.bringyour.network.app-main-58:/drawable-nodpi/country_bn_512.webp"
+    }
+]
