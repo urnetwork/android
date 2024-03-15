@@ -1,10 +1,10 @@
 *.apk filter=lfs diff=lfs merge=lfs -text
+*.aab filter=lfs diff=lfs merge=lfs -text
 *.gitignore filter=lfs diff=lfs merge=lfs -text
 *.md filter=lfs diff=lfs merge=lfs -text
 *.name filter=lfs diff=lfs merge=lfs -text
 *.xml filter=lfs diff=lfs merge=lfs -text
 *.gradle filter=lfs diff=lfs merge=lfs -text
-*.aab filter=lfs diff=lfs merge=lfs -text
 *.pro filter=lfs diff=lfs merge=lfs -text
 *.json filter=lfs diff=lfs merge=lfs -text
 *.kt filter=lfs diff=lfs merge=lfs -text
