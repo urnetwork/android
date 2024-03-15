@@ -4,5 +4,4 @@ app/**/build
 app/.gradle
 app/.idea
 node_modules
-stores/solana_dapp/release
-stores/play/release
+
