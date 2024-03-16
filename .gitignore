@@ -3,5 +3,5 @@ app/**/release
 app/**/build
 app/.gradle
 app/.idea
-node_modules
+**/node_modules
 

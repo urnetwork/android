@@ -1,1 +1,0 @@
-{"version":3,"file":"Collection.js","sourceRoot":"","sources":["../../../../src/generated/types/Collection.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;AAQA,gEAAkD;AAClD,6EAA+D;AAUlD,QAAA,cAAc,GAAG,IAAI,IAAI,CAAC,cAAc,CACnD;IACE,CAAC,UAAU,EAAE,IAAI,CAAC,IAAI,CAAC;IACvB,CAAC,KAAK,EAAE,UAAU,CAAC,SAAS,CAAC;CAC9B,EACD,YAAY,CACb,CAAC"}
