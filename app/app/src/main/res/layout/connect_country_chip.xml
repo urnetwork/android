@@ -36,7 +36,7 @@
         app:layout_constraintRight_toRightOf="@id/connect_provider_summary"
 
 
-        android:background="@color/almost_white"
+        android:background="@color/almost_white_slight_alpha"
         android:text="us"
         android:textSize="8pt"
         android:fontFamily="sans-serif-medium"
@@ -54,7 +54,7 @@
 
         android:padding="0dp"
 
-        android:background="@color/almost_white"
+        android:background="@color/almost_white_slight_alpha"
         android:text="12321312322sdfdsf342343246"
         android:textSize="8pt"
         android:fontFamily="sans-serif-thin"

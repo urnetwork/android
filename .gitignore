@@ -1,7 +1,7 @@
 **/.DS_Store
-app/app/release
-app/app/build
+app/**/release
+app/**/build
+app/.gradle
 app/.idea
 node_modules
-stores/solana_dapp/release
-stores/play/release
+

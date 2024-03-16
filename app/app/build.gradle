@@ -47,6 +47,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // see https://developer.android.com/build/shrink-code
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
         }
     }
 
@@ -54,6 +58,10 @@ android {
 
     // BuildConfig.FLAVOR
     productFlavors {
+        local {
+            dimension = "version"
+            applicationId 'com.bringyour.network'
+        }
         play {
             dimension = "version"
             applicationId 'com.bringyour.network'
@@ -61,6 +69,7 @@ android {
         solana_dapp {
             dimension = "version"
             applicationId 'com.bringyour.network'
+            versionNameSuffix '-solana_dapp'
         }
     }
 
@@ -71,17 +80,21 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    // see https://developer.android.com/reference/tools/gradle-api/7.4/com/android/build/api/dsl/BuildFeatures
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
-    task goclientBuild(type: Exec) {
+    tasks.register('goclientBuild', Exec) {
         workingDir "${System.env.HOME}/bringyour/bringyour/client"
         commandLine 'make', 'clean', 'build_android'
     }
 
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn goclientBuild
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            compileTask -> compileTask.dependsOn goclientBuild
+        }
     }
 }
 

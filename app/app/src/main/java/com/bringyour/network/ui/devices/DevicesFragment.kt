@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.devices
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -147,6 +150,8 @@ class AndroidDeviceViewHolder(val devicesVc: DevicesViewController, view: View) 
     val connectedSummaryView: TextView
     val thisDeviceLabelView: TextView
 
+    var networkClient: NetworkClientInfo? = null
+
 
 
     init {
@@ -156,9 +161,18 @@ class AndroidDeviceViewHolder(val devicesVc: DevicesViewController, view: View) 
         connectedSummaryView = view.findViewById<TextView>(R.id.device_connected_summary)
         thisDeviceLabelView = view.findViewById<TextView>(R.id.device_this_device_label)
 
+        clientIdCopyButton.setOnClickListener { view: View ->
+            networkClient?.let {
+                val clipboard = view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("client_id", it.clientId.string())
+                clipboard.setPrimaryClip(clip)
+            }
+        }
     }
 
     fun bind(networkClient: NetworkClientInfo) {
+        this.networkClient = networkClient
+
         clientIdView.text = networkClient.clientId.string()
         if (networkClient.connections != null && 0 < networkClient.connections.len()) {
             connectedIconView.setImageResource(R.drawable.device_connected_connected)

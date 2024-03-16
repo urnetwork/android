@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "image": {
+      "type": "string"
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "creators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "type": "string"
+              }
+            },
+            "required": ["address"]
+          }
+        }
+      },
+      "required": ["category", "creators"]
+    },
+    "extensions": {
+      "type": "object",
+      "properties": {
+        "solana_dapp_store": {
+          "type": "object",
+          "properties": {
+            "android_package": {
+              "type": "string"
+            }
+          },
+          "required": ["android_package"]
+        }
+      },
+      "required": ["solana_dapp_store"]
+    }
+  },
+  "required": [
+    "schema_version",
+    "name",
+    "image",
+    "properties",
+    "extensions"
+  ]
+}

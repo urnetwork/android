@@ -1,0 +1,1 @@
+{"version":3,"file":"aliases.js","sourceRoot":"","sources":["../../../../src/beets/aliases.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,kBAAkB,EAAE,UAAU,EAAE,MAAM,eAAe,CAAA;AAE9D;;;GAGG;AACH,MAAM,CAAC,MAAM,KAAK,GAAwC,UAAU,CAAA;AAmBpE,MAAM,CAAC,MAAM,cAAc,GAAmB;IAC5C,aAAa;IACb,KAAK,EAAE,kBAAkB,CAAC,UAAU;CACrC,CAAA"}

@@ -30,6 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+
+    private var app : MainApplication? = null
+
     private var statusVc : StatusViewController? = null
 
 
@@ -38,6 +41,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        app = application as MainApplication
+
+        // immutable shadow
+        val app = app ?: return
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -76,8 +84,6 @@ class MainActivity : AppCompatActivity() {
 
 //        com.bringyour.network.goclient.client.
 
-        val app = application as MainApplication
-
         statusVc = app.byDevice?.openStatusViewController()
 
 
@@ -104,7 +110,9 @@ class MainActivity : AppCompatActivity() {
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ) { granted ->
-                prepareVpnService()
+                if (granted) {
+                    prepareVpnService()
+                }
             }
 
         vpnLauncher = registerForActivityResult(
@@ -112,16 +120,20 @@ class MainActivity : AppCompatActivity() {
         ) { result ->
             Log.i("Main","ACTIVITY RESULT")
             if (result.resultCode == RESULT_OK) {
-
-                startVpnService()
-
-
-
+                app.startVpnService()
             }
         }
     }
 
     fun requestPermissionsThenStartVpnService() {
+        requestPermissionsThenStartVpnServiceWithRestart(true)
+    }
+
+    fun requestPermissionsThenStartVpnServiceWithRestart(restart: Boolean) {
+        val app = app ?: return
+        if (restart) {
+            app.stopVpnService()
+        }
         when {
             ContextCompat.checkSelfPermission(
                 this,
@@ -152,28 +164,21 @@ class MainActivity : AppCompatActivity() {
 
     // call this on tap connect or tap provide
     private fun prepareVpnService() {
+        val app = app ?: return
         val intent = VpnService.prepare(this)
         if (intent != null) {
             vpnLauncher?.launch(intent)
         } else {
 //            onActivityResult(ActivityResult(RESULT_OK, null))
-            startVpnService()
-        }
-    }
-
-    private fun startVpnService() {
-        val vpnIntent = Intent(this, MainService::class.java)
-        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-            startForegroundService(vpnIntent)
-        } else {
-            startService(vpnIntent)
+            app.startVpnService()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        val app = application as MainApplication
+        val app = app ?: return
+
         app.byDevice?.closeViewController(statusVc)
         statusVc = null
 //        statusVc?.close()
