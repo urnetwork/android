@@ -109,10 +109,9 @@ class MainActivity : AppCompatActivity() {
         requestPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
-            ) { granted ->
-                if (granted) {
-                    prepareVpnService()
-                }
+            ) { _ ->
+                // the vpn service can start with degraded options if not granted
+                prepareVpnService()
             }
 
         vpnLauncher = registerForActivityResult(
@@ -134,31 +133,23 @@ class MainActivity : AppCompatActivity() {
         if (restart) {
             app.stopVpnService()
         }
-        when {
-            ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                // You can use the API that requires the permission.
+
+        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
+            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+                        this,
+                        android.Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                if (hasForegroundPermissions) {
+                    prepareVpnService()
+                } else {
+                    requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            } else {
                 prepareVpnService()
             }
-            /*
-            shouldShowRequestPermissionRationale(...) -> {
-            // In an educational UI, explain to the user why your app requires this
-            // permission for a specific feature to behave as expected, and what
-            // features are disabled if it's declined. In this UI, include a
-            // "cancel" or "no thanks" button that lets the user continue
-            // using your app without granting the permission.
-            showInContextUI(...)
-        }
-        */
-            else -> {
-
-                // You can directly ask for the permission.
-                // The registered ActivityResultCallback gets the result of this request.
-                requestPermissionLauncher?.launch(
-                    android.Manifest.permission.POST_NOTIFICATIONS)
-            }
+        } else {
+            prepareVpnService()
         }
     }
 
@@ -173,6 +164,20 @@ class MainActivity : AppCompatActivity() {
             app.startVpnService()
         }
     }
+
+/*
+    override fun onResume() {
+        super.onResume()
+
+        val app = app ?: return
+
+        if (app.isVpnRequestStart()) {
+            // user might need to grant permissions
+            requestPermissionsThenStartVpnServiceWithRestart(false)
+        }
+    }
+
+ */
 
     override fun onDestroy() {
         super.onDestroy()

@@ -22,7 +22,7 @@ class Router(byDevice : BringYourDevice) {
 
 
     val clientIpv4: String? = "10.10.11.11"
-    val clientIpv4PrefixLength = 24
+    val clientIpv4PrefixLength = 32
     val dnsIpv4s = listOf("1.1.1.1", "8.8.8.8", "9.9.9.9")
 
     val clientIpv6: String? = null

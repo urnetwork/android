@@ -6,8 +6,14 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.VpnService
+import android.net.wifi.WifiManager
+import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import android.os.ParcelFileDescriptor
+import android.os.PowerManager
+import android.system.OsConstants.AF_INET
+import android.system.OsConstants.AF_INET6
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -16,6 +22,13 @@ import java.io.IOException
 
 
 // see https://developer.android.com/develop/connectivity/vpn
+
+class MainServiceBinder(val service: MainService) : Binder() {
+    fun stop() {
+        service.stop()
+    }
+}
+
 
 class MainService : VpnService() {
 
@@ -31,56 +44,80 @@ class MainService : VpnService() {
         // FIXME get the local IPv4 and IPv6 address from the platform
         // FIXME when using auth login, the jwt should contain the local addresses
 
+
+        // FIXME bundle args to start, restart, stop
+
         val app = application as MainApplication
-        val router = app.router!!
 
-        // TODO
-        // builder
-        // blockingx
-        // establish
-        val builder = Builder()
-        builder.setSession("BringYour")
-        builder.setMtu(1440)
-        builder.setBlocking(true)
-        builder.addDisallowedApplication(packageName)
 
-        if (router.clientIpv4 != null) {
-            builder.addAddress(
-                router.clientIpv4,
-                router.clientIpv4PrefixLength
-            )
-            for (dnsIpv4 in router.dnsIpv4s) {
-                builder.addDnsServer(dnsIpv4)
+        intent?.getBooleanExtra("stop", false)?.let { stop ->
+            if (stop && pfd != null) {
+                try {
+                    pfd?.close()
+                } catch (e: IOException) {
+                    // ignore
+                }
+                pfd = null
             }
-            builder.addRoute("0.0.0.0", 0)
         }
-        if (router.clientIpv6 != null) {
-            builder.addAddress(
-                router.clientIpv6,
-                router.clientIpv6PrefixLength
-            )
-            for (dnsIpv6 in router.dnsIpv6s) {
-                builder.addDnsServer(dnsIpv6)
-            }
-            builder.addRoute("::", 0)
-        }
+
+        intent?.getBooleanExtra("start", true)?.let { start ->
+            if (start && pfd == null) {
+
+                app.router?.let { router ->
+                    // TODO
+                    // builder
+                    // blockingx
+                    // establish
+                    val builder = Builder()
+                    builder.setSession("BringYour")
+                    builder.setMtu(1440)
+                    builder.setBlocking(true)
+                    builder.addDisallowedApplication(packageName)
+
+                    if (router.clientIpv4 != null) {
+                        builder.allowFamily(AF_INET)
+                        builder.addAddress(
+                            router.clientIpv4,
+                            router.clientIpv4PrefixLength
+                        )
+                        for (dnsIpv4 in router.dnsIpv4s) {
+                            builder.addDnsServer(dnsIpv4)
+                        }
+                        builder.addRoute("0.0.0.0", 0)
+                    }
+                    if (router.clientIpv6 != null) {
+                        builder.allowFamily(AF_INET6)
+                        builder.addAddress(
+                            router.clientIpv6,
+                            router.clientIpv6PrefixLength
+                        )
+                        for (dnsIpv6 in router.dnsIpv6s) {
+                            builder.addDnsServer(dnsIpv6)
+                        }
+                        builder.addRoute("::", 0)
+                    }
 
 //        val pfd = builder.establish()
 
-        // fis
-        // fos
+                    // fis
+                    // fos
 
-        // thread to read fis, post to user remote nat
-        // callback on user remote nat to synchronize on fos, write to fos
+                    // thread to read fis, post to user remote nat
+                    // callback on user remote nat to synchronize on fos, write to fos
 
-        // startForeground
-        // show the transfer stats
+                    // startForeground
+                    // show the transfer stats
 
-        // stop self when turned off
+                    // stop self when turned off
 
-        builder.establish()?.let { pfd ->
-            this.pfd = pfd
-            router.activateLocalInterface(pfd)
+                    builder.establish()?.let { pfd ->
+                        this.pfd = pfd
+                        router.activateLocalInterface(pfd)
+                    }
+                }
+
+            }
         }
 
 
@@ -99,18 +136,28 @@ class MainService : VpnService() {
     override fun onDestroy() {
         Log.i("MainService", "DESTROY SERVICE")
 
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        stop()
+    }
+
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return MainServiceBinder(this)
     }
 
 
     override fun onRevoke() {
         Log.i("MainService", "REVOKE SERVICE")
 
+        stop()
+    }
+
+    fun stop() {
         try {
-            this.pfd?.close()
+            pfd?.close()
         } catch (e: IOException) {
             // ignore
         }
+        pfd = null
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()

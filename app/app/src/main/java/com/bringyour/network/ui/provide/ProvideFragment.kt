@@ -54,11 +54,15 @@ class ProvideFragment : Fragment() {
         val provideSwitch = root.findViewById<CompoundButton>(R.id.provide_switch)
         provideSwitch.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                (activity as MainActivity).requestPermissionsThenStartVpnService()
 
-                app.byDevice?.setProvideMode(ProvideModePublic)
+
+                app.setProvideMode(ProvideModePublic)
+                if (app.isVpnRequestStart()) {
+                    // user might need to grant permissions
+                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart(false)
+                }
             } else {
-                app.byDevice?.setProvideMode(ProvideModeNone)
+                app.setProvideMode(ProvideModeNone)
             }
         }
 
@@ -66,6 +70,7 @@ class ProvideFragment : Fragment() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
         }
 
+        provideSwitch.isChecked = (ProvideModeNone < app.getProvideMode())
 
         return root
     }

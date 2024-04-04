@@ -137,90 +137,99 @@ class ConnectFragment : Fragment() {
         locationList.adapter = adapter
         locationList.layoutManager = LinearLayoutManager(context)
 
+        fun setActiveLocation(location: ConnectLocation?) {
 
-        subs.add(connectVc.addConnectionListener { location, connected ->
-
-            runBlocking(Dispatchers.Main.immediate) {
-
-
-                val connectTop = root.findViewById<FrameLayout>(R.id.connect_top)
+            val connectTop = root.findViewById<FrameLayout>(R.id.connect_top)
 
 //            connectTopSub.let {
 //                it.Close()
 //            }
-                connectTop.removeAllViews()
+            connectTop.removeAllViews()
 
-                if (!connected) {
-                    LayoutInflater.from(connectTop.context)
-                        .inflate(R.layout.connect_top_disconnected, connectTop, true)
+            if (location == null) {
+                LayoutInflater.from(connectTop.context)
+                    .inflate(R.layout.connect_top_disconnected, connectTop, true)
+            } else {
+
+                val view: View
+                if (location.isGroup) {
+                    view = LayoutInflater.from(connectTop.context)
+                        .inflate(R.layout.connect_top_group, connectTop, true)
+                    val viewHolder = ConnectTopGroupViewHolder(view)
+                    // todo there is no sub currently
+                    viewHolder.locationChanged(location)
+                } else if (location.isDevice) {
+                    view = LayoutInflater.from(connectTop.context)
+                        .inflate(R.layout.connect_top_device, connectTop, true)
+                    val viewHolder = ConnectTopDeviceViewHolder(view)
+                    // todo there is no sub currently
+                    viewHolder.locationChanged(location)
                 } else {
+                    when (location.locationType) {
+                        LocationTypeCity -> {
+                            view = LayoutInflater.from(connectTop.context)
+                                .inflate(R.layout.connect_top_city, connectTop, true)
+                            val viewHolder = ConnectTopCityViewHolder(view)
+                            // todo there is no sub currently
+                            viewHolder.locationChanged(location)
+                        }
 
-                    (activity as MainActivity).requestPermissionsThenStartVpnService()
+                        LocationTypeRegion -> {
+                            view = LayoutInflater.from(connectTop.context)
+                                .inflate(R.layout.connect_top_region, connectTop, true)
+                            val viewHolder = ConnectTopRegionViewHolder(view)
+                            // todo there is no sub currently
+                            viewHolder.locationChanged(location)
+                        }
 
-                    val view: View
-                    if (location.isGroup) {
-                        view = LayoutInflater.from(connectTop.context)
-                            .inflate(R.layout.connect_top_group, connectTop, true)
-                        val viewHolder = ConnectTopGroupViewHolder(view)
-                        // todo there is no sub currently
-                        viewHolder.locationChanged(location)
-                    } else if (location.isDevice) {
-                        view = LayoutInflater.from(connectTop.context)
-                            .inflate(R.layout.connect_top_device, connectTop, true)
-                        val viewHolder = ConnectTopDeviceViewHolder(view)
-                        // todo there is no sub currently
-                        viewHolder.locationChanged(location)
-                    } else {
-                        when (location.locationType) {
-                            LocationTypeCity -> {
-                                view = LayoutInflater.from(connectTop.context)
-                                    .inflate(R.layout.connect_top_city, connectTop, true)
-                                val viewHolder = ConnectTopCityViewHolder(view)
-                                // todo there is no sub currently
-                                viewHolder.locationChanged(location)
-                            }
-
-                            LocationTypeRegion -> {
-                                view = LayoutInflater.from(connectTop.context)
-                                    .inflate(R.layout.connect_top_region, connectTop, true)
-                                val viewHolder = ConnectTopRegionViewHolder(view)
-                                // todo there is no sub currently
-                                viewHolder.locationChanged(location)
-                            }
-
-                            else -> {
-                                view = LayoutInflater.from(connectTop.context)
-                                    .inflate(R.layout.connect_top_country, connectTop, true)
-                                val viewHolder = ConnectTopCountryViewHolder(view)
-                                // todo there is no sub currently
-                                viewHolder.locationChanged(location)
-                            }
+                        else -> {
+                            view = LayoutInflater.from(connectTop.context)
+                                .inflate(R.layout.connect_top_country, connectTop, true)
+                            val viewHolder = ConnectTopCountryViewHolder(view)
+                            // todo there is no sub currently
+                            viewHolder.locationChanged(location)
                         }
                     }
+                }
 
-                    // add common listeners
-
-
-                    val disconnectButton = view.findViewById<Button>(R.id.connect_disconnect)
-                    disconnectButton?.setOnClickListener {
-                        connectVc.disconnect()
-                    }
-
-                    val shuffleButton = view.findViewById<ImageButton>(R.id.connect_shuffle)
-                    shuffleButton?.setOnClickListener {
-                        connectVc.shuffle()
-                    }
-
-                    val broadenButton = view.findViewById<ImageButton>(R.id.connect_broaden)
-                    broadenButton?.setOnClickListener {
-                        connectVc.broaden()
-                    }
+                // add common listeners
 
 
-                    val issueButton = view.findViewById<Button>(R.id.connect_issue)
-                    issueButton?.setOnClickListener {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
-                    }
+                val disconnectButton = view.findViewById<Button>(R.id.connect_disconnect)
+                disconnectButton?.setOnClickListener {
+                    connectVc.disconnect()
+                }
+
+                val shuffleButton = view.findViewById<ImageButton>(R.id.connect_shuffle)
+                shuffleButton?.setOnClickListener {
+                    connectVc.shuffle()
+                }
+
+                val broadenButton = view.findViewById<ImageButton>(R.id.connect_broaden)
+                broadenButton?.setOnClickListener {
+                    connectVc.broaden()
+                }
+
+
+                val issueButton = view.findViewById<Button>(R.id.connect_issue)
+                issueButton?.setOnClickListener {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
+                }
+
+
+
+            }
+        }
+
+        subs.add(connectVc.addConnectionListener { location ->
+
+            runBlocking(Dispatchers.Main.immediate) {
+
+                setActiveLocation(location)
+
+                if (app.isVpnRequestStart()) {
+                    // user might need to grant permissions
+                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart(true)
                 }
             }
 
@@ -271,6 +280,7 @@ class ConnectFragment : Fragment() {
         connectVc.filterLocations(connectSearch.text.toString().trim())
 
 
+        setActiveLocation(connectVc.activeLocation)
 
         return root
     }
