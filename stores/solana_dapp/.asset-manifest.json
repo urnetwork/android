@@ -24,6 +24,11 @@
       "path": "release/app-solana_dapp-release.apk",
       "sha256": "m7x5zhj7WhXM/yTo2zgXvF6OTHwfsehL2IXIWa9PEiI=",
       "uri": "https://arweave.net/SIwW9XMlDr1uZ7rBEHvMnhRLEF6bma3IAb9ELWQxNiM"
+    },
+    "release/com.bringyour.network-2024.4.5-outerwerld+1712352648733-7646-solana_dapp-release.apk": {
+      "path": "release/com.bringyour.network-2024.4.5-outerwerld+1712352648733-7646-solana_dapp-release.apk",
+      "sha256": "/j8Wsv9SRhcW1IkQD3dtCmXcO9+Bz7Z7K5+TX3e/vzk=",
+      "uri": "https://arweave.net/2wb9SOjClLGHLnuvs5xHI_PONpaVRf9qkDXM9CDG97s"
     }
   }
 }
