@@ -67,8 +67,9 @@ class MainApplication : Application() {
     var hasBiometric: Boolean = false
 
     private var vpnRequestStart: Boolean = false
-    private var provideEnabled: Boolean = false
-    private var connectEnabled: Boolean = false
+    // FIXME remove these bools and just query the device directly
+//    private var provideEnabled: Boolean = false
+//    private var connectEnabled: Boolean = false
 
 
     private var wakeLock: PowerManager.WakeLock? = null
@@ -147,8 +148,8 @@ class MainApplication : Application() {
         deviceConnectSub = null
         byDevice?.close()
         byDevice = null
-        provideEnabled = false
-        connectEnabled = false
+//        provideEnabled = false
+//        connectEnabled = false
         accountVc?.close()
         accountVc = null
     }
@@ -164,17 +165,17 @@ class MainApplication : Application() {
             getAppVersion(),
             instanceId
         )
-        provideEnabled = false
-        connectEnabled = false
+//        provideEnabled = false
+//        connectEnabled = false
         deviceProvideSub = byDevice?.addProvideChangeListener { provideEnabled ->
             runBlocking(Dispatchers.Main.immediate) {
-                this@MainApplication.provideEnabled = provideEnabled
+//                this@MainApplication.provideEnabled = provideEnabled
                 updateVpnService()
             }
         }
         deviceConnectSub = byDevice?.addConnectChangeListener { connectEnabled ->
             runBlocking(Dispatchers.Main.immediate) {
-                this@MainApplication.connectEnabled = connectEnabled
+//                this@MainApplication.connectEnabled = connectEnabled
                 updateVpnService()
             }
         }
@@ -267,22 +268,18 @@ class MainApplication : Application() {
         if (VpnService.prepare(this) == null) {
             // important: start the vpn service in the application context
 
-            if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-                if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                    val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                        this,
-                        android.Manifest.permission.POST_NOTIFICATIONS
-                    ) == PackageManager.PERMISSION_GRANTED
-                    if (hasForegroundPermissions) {
-                        startForegroundService(vpnIntent)
-                    } else {
-                        startService(vpnIntent)
-                    }
-                } else {
+            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+                if (hasForegroundPermissions) {
                     startForegroundService(vpnIntent)
+                } else {
+                    startService(vpnIntent)
                 }
             } else {
-                startService(vpnIntent)
+                ContextCompat.startForegroundService(this, vpnIntent)
             }
         }
     }
@@ -323,6 +320,11 @@ class MainApplication : Application() {
 
 
     private fun updateVpnService() {
+        val byDevice = byDevice ?: return
+
+        val provideEnabled = byDevice.isProvideEnabled
+        val connectEnabled = byDevice.isConnectEnabled
+
         if (provideEnabled || connectEnabled) {
             requestStartVpnService()
             if (provideEnabled) {

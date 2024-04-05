@@ -23,12 +23,6 @@ import java.io.IOException
 
 // see https://developer.android.com/develop/connectivity/vpn
 
-class MainServiceBinder(val service: MainService) : Binder() {
-    fun stop() {
-        service.stop()
-    }
-}
-
 
 class MainService : VpnService() {
 
@@ -127,31 +121,15 @@ class MainService : VpnService() {
 
 //        startForeground(1, getStatusNotificationBuilder().build());
 
-        // `START_STICKY` means that `onStartCommand` will be called if a new process is created
-        // the intent may be null
         // see https://developer.android.com/reference/android/app/Service#START_STICKY
-        return START_STICKY
+        return START_REDELIVER_INTENT
+//        return START_STICKY
     }
 
     override fun onDestroy() {
         Log.i("MainService", "DESTROY SERVICE")
 
-        stop()
-    }
 
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return MainServiceBinder(this)
-    }
-
-
-    override fun onRevoke() {
-        Log.i("MainService", "REVOKE SERVICE")
-
-        stop()
-    }
-
-    fun stop() {
         try {
             pfd?.close()
         } catch (e: IOException) {
@@ -161,6 +139,17 @@ class MainService : VpnService() {
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+    }
+
+    override fun onRevoke() {
+        Log.i("MainService", "REVOKE SERVICE")
+
+        try {
+            pfd?.close()
+        } catch (e: IOException) {
+            // ignore
+        }
+        pfd = null
     }
 
 
