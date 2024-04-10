@@ -59,7 +59,7 @@ class ProvideFragment : Fragment() {
                 app.setProvideMode(ProvideModePublic)
                 if (app.isVpnRequestStart()) {
                     // user might need to grant permissions
-                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart(false)
+                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart()
                 }
             } else {
                 app.setProvideMode(ProvideModeNone)

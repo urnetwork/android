@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
 
         app:layout_constraintTop_toBottomOf="@id/connect_status"
-        app:layout_constraintBottom_toTopOf="@id/connect_vpn_key_details"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/connect_superfast_icon"
         app:layout_constraintRight_toRightOf="parent"
 
@@ -57,43 +57,6 @@
         android:layout_marginRight="8dp"
 
         android:text="The app will continuously optimize across all providers that match the selected location to give you the best experience."
-        android:fontFamily="sans-serif-light"
-        android:textSize="8pt"
-        />
-
-    <ImageView
-        android:id="@+id/connect_vpn_key_icon"
-
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-
-        app:layout_constraintTop_toTopOf="@id/connect_vpn_key_details"
-        app:layout_constraintBottom_toBottomOf="@id/connect_vpn_key_details"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/connect_vpn_key_details"
-
-        android:layout_marginLeft="8dp"
-
-        android:src="@drawable/ic_connect_vpn_key"
-        />
-
-    <TextView
-        android:id="@+id/connect_vpn_key_details"
-
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-
-        app:layout_constraintTop_toBottomOf="@id/connect_superfast_details"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/connect_vpn_key_icon"
-        app:layout_constraintRight_toRightOf="parent"
-
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-
-        android:text="The app scans all traffic even when disconnected from a location."
         android:fontFamily="sans-serif-light"
         android:textSize="8pt"
         />

@@ -56,7 +56,7 @@ class MainService : VpnService() {
         }
 
         intent?.getBooleanExtra("start", true)?.let { start ->
-            if (start && pfd == null) {
+            if (start /*&& pfd == null*/) {
 
                 app.router?.let { router ->
                     // TODO
@@ -106,6 +106,11 @@ class MainService : VpnService() {
                     // stop self when turned off
 
                     builder.establish()?.let { pfd ->
+                        try {
+                            this.pfd?.close()
+                        } catch (e: IOException) {
+                            // ignore
+                        }
                         this.pfd = pfd
                         router.activateLocalInterface(pfd)
                     }

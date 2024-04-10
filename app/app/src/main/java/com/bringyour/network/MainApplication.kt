@@ -340,7 +340,7 @@ class MainApplication : Application() {
 
 
                     wifiLock = (getSystemService(WIFI_SERVICE) as WifiManager).run {
-                        createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "bringyour::provide").apply {
+                        createWifiLock(WifiManager.WIFI_MODE_FULL_LOW_LATENCY, "bringyour::provide").apply {
                             acquire()
                         }
                     }

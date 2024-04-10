@@ -229,7 +229,7 @@ class ConnectFragment : Fragment() {
 
                 if (app.isVpnRequestStart()) {
                     // user might need to grant permissions
-                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart(true)
+                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart()
                 }
             }
 
@@ -464,7 +464,7 @@ class CountryChipsViewHolder(val connectVc: ConnectViewController, view: View) :
 
     init {
         flexboxRoot = view.findViewById<FlexboxLayout>(R.id.country_chip_root)
-        flexboxRoot.setFlexDirection(FlexDirection.ROW);
+//        flexboxRoot.setFlexDirection(FlexDirection.ROW);
     }
 
     fun bind(connectCountries: Map<String, ConnectLocation>) {
@@ -478,7 +478,7 @@ class CountryChipsViewHolder(val connectVc: ConnectViewController, view: View) :
                 .inflate(R.layout.connect_country_chip, flexboxRoot, false)
 
             val lp = view.layoutParams as FlexboxLayout.LayoutParams
-            lp.flexGrow = 0.0f
+            lp.flexGrow = 1.0f
             lp.alignSelf = AlignItems.FLEX_START
             flexboxRoot.addView(view, lp)
 

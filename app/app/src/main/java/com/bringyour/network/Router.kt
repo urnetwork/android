@@ -89,12 +89,15 @@ class Router(byDevice : BringYourDevice) {
                     while (active) {
                         if (nextPfd == null) {
                             nextPfd = pfds.poll(1, TimeUnit.SECONDS)
+                            if (nextPfd == null) {
+                                continue
+                            }
                         }
-                        if (nextPfd == null) {
-                            continue
+                        while (pfds.peek() != null) {
+                            nextPfd = pfds.poll()
                         }
 
-                        val pfd: ParcelFileDescriptor = nextPfd
+                        val pfd: ParcelFileDescriptor = nextPfd!!
                         nextPfd = null
 
                         try {
@@ -129,11 +132,8 @@ class Router(byDevice : BringYourDevice) {
                                 }
                             }
 
-                            while (active) {
+                            while (active && nextPfd == null) {
                                 nextPfd = pfds.poll(1, TimeUnit.SECONDS)
-                                if (nextPfd != null) {
-                                    break
-                                }
                             }
 
                         } finally {

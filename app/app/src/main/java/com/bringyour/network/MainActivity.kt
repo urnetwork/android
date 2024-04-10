@@ -125,15 +125,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun requestPermissionsThenStartVpnService() {
-        requestPermissionsThenStartVpnServiceWithRestart(true)
+        requestPermissionsThenStartVpnServiceWithRestart()
     }
 
-    fun requestPermissionsThenStartVpnServiceWithRestart(restart: Boolean) {
-        val app = app ?: return
-        if (restart) {
-            app.stopVpnService()
-        }
-
+    fun requestPermissionsThenStartVpnServiceWithRestart() {
         if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
             if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                 val hasForegroundPermissions = ContextCompat.checkSelfPermission(
