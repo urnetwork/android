@@ -19,9 +19,11 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/connect_location_label"
 
-        android:src="@drawable/country_us_512_a50"
         android:adjustViewBounds="true"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
+
+        android:src="@drawable/placeholder_rect"
+        android:alpha="0.5"
         />
 
 
@@ -36,9 +38,10 @@
         app:layout_constraintLeft_toLeftOf="@id/connect_country_image"
         app:layout_constraintRight_toRightOf="@id/connect_country_image"
 
-        android:src="@drawable/ic_location_region_large"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
+
+        android:src="@drawable/placeholder_rect"
         />
 
     <TextView

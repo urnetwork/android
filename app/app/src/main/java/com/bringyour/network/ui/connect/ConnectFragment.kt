@@ -1,6 +1,10 @@
 package com.bringyour.network.ui.connect
 
 import android.content.Intent
+import android.graphics.Rect
+import android.graphics.drawable.Animatable2
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -16,8 +20,9 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatImageButton
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.VISIBLE
@@ -30,18 +35,26 @@ import com.bringyour.client.ConnectViewController
 import com.bringyour.client.LocationListener
 import com.bringyour.client.Sub
 import com.bringyour.network.MainActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentConnectBinding
-import com.bringyour.network.MainApplication
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.android.flexbox.AlignItems
-import com.google.android.flexbox.AlignSelf
-import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayout
-import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.material.math.MathUtils.lerp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.w3c.dom.Text
-import java.lang.IllegalArgumentException
+import java.lang.Math.pow
+import java.util.Timer
+import kotlin.concurrent.timer
+import kotlin.math.pow
 
 
 private const val ViewTypeCountryChips: Int = 0
@@ -63,6 +76,10 @@ class ConnectFragment : Fragment() {
     private var app : MainApplication? = null
 
     private var subs = mutableListOf<Sub>()
+
+    private var updateTimer: Timer? = null
+
+    var activeLocation: ConnectLocation? = null
 
     // GetProviderLocations to get the initial list (or when query is empty)
     // on filter type, FindProviderLocations
@@ -133,11 +150,13 @@ class ConnectFragment : Fragment() {
         val connectSearch = root.findViewById<EditText>(R.id.connect_search)
         val locationList = root.findViewById<RecyclerView>(R.id.connect_list)
 
-        val adapter = ConnectAdapter(connectVc, subs)
+        val adapter = ConnectAdapter(this, connectVc, subs)
         locationList.adapter = adapter
         locationList.layoutManager = LinearLayoutManager(context)
 
         fun setActiveLocation(location: ConnectLocation?) {
+
+            activeLocation = location
 
             val connectTop = root.findViewById<FrameLayout>(R.id.connect_top)
 
@@ -146,9 +165,15 @@ class ConnectFragment : Fragment() {
 //            }
             connectTop.removeAllViews()
 
+            updateTimer?.cancel()
+            updateTimer = null
+
             if (location == null) {
+
+
                 LayoutInflater.from(connectTop.context)
                     .inflate(R.layout.connect_top_disconnected, connectTop, true)
+
             } else {
 
                 val view: View
@@ -216,6 +241,113 @@ class ConnectFragment : Fragment() {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
                 }
 
+
+
+                view.findViewById<TextView>(R.id.connect_header)?.let { connectHeader ->
+
+                    var iconState = -1
+
+                    // start window stats update
+                    updateTimer = timer(period = 1000) {
+                        app.byDevice?.windowEvents()?.let { windowEvents ->
+                            val currentSize = windowEvents.currentSize().toInt()
+                            val targetSize = windowEvents.targetSize().toInt()
+//                            val addedClientCount = windowEvents.addedClientCount().toInt()
+                            val notAddedClientCount = windowEvents.notAddedClientCount().toInt() + windowEvents.evaluationFailedClientCount().toInt()
+                            val inEvaluationClientCount = windowEvents.inEvaluationClientCount().toInt()
+
+                        runBlocking(Dispatchers.Main.immediate) {
+
+
+                                if (0 < currentSize) {
+                                    if (0 < inEvaluationClientCount) {
+                                        connectHeader.text =
+                                            "Connected (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
+                                    } else {
+                                        connectHeader.text =
+                                            "Connected (${currentSize}/${targetSize})"
+                                    }
+                                } else {
+                                    if (0 < inEvaluationClientCount) {
+                                        connectHeader.text =
+                                            "Connecting (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
+                                    } else {
+                                        connectHeader.text =
+                                            "Not Connected"
+                                    }
+                                }
+
+                                var nextIconState: Int
+                                if (currentSize == 0) {
+                                    if (0 < inEvaluationClientCount) {
+                                        nextIconState = 0
+                                    } else {
+                                        nextIconState = 1
+
+                                    }
+                                } else {
+                                    if (0 < inEvaluationClientCount) {
+                                        nextIconState = 2
+                                    } else {
+                                        nextIconState = 3
+                                    }
+                                }
+
+                                if (iconState != nextIconState) {
+                                    iconState = nextIconState
+                                    when (iconState) {
+                                        0 -> {
+                                            val d = ContextCompat.getDrawable(
+                                                view.context,
+                                                R.drawable.connect_not_connected_in_progress
+                                            ) as AnimatedVectorDrawable
+                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                                            d.registerAnimationCallback(object :
+                                                Animatable2.AnimationCallback() {
+                                                override fun onAnimationEnd(drawable: Drawable?) {
+                                                    d.start()
+                                                }
+
+                                            })
+                                            d.start()
+                                        }
+                                        1 -> {
+                                            val d = ContextCompat.getDrawable(
+                                                view.context,
+                                                R.drawable.connect_not_connected
+                                            ) as AnimatedVectorDrawable
+                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                                        }
+                                        2 -> {
+                                            val d = ContextCompat.getDrawable(
+                                                view.context,
+                                                R.drawable.connect_connected_in_progress
+                                            ) as AnimatedVectorDrawable
+                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                                            d.registerAnimationCallback(object :
+                                                Animatable2.AnimationCallback() {
+                                                override fun onAnimationEnd(drawable: Drawable?) {
+                                                    d.start()
+                                                }
+
+                                            })
+                                            d.start()
+                                        }
+                                        3 -> {
+                                            val d = ContextCompat.getDrawable(
+                                                view.context,
+                                                R.drawable.connect_connected
+                                            ) as AnimatedVectorDrawable
+                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
 
 
             }
@@ -307,10 +439,136 @@ class ConnectFragment : Fragment() {
 
         app?.connectVc?.stop()
     }
+
+
+    var animateJob: Job? = null
+
+    fun animateConnect(startView: View, location: ConnectLocation) {
+
+        val context = requireContext()
+
+        // FIXME switch on location type
+        val resId: Int = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
+
+        // startView must be a descendant of this fragment view
+        animateJob?.cancel()
+        animateJob = lifecycleScope.launch(Dispatchers.Main) {
+
+            val view = requireView() as ViewGroup
+
+            val startViewBounds = Rect()
+            startView.getDrawingRect(startViewBounds)
+            view.offsetDescendantRectToMyCoords(startView, startViewBounds)
+
+
+            val endViewBounds = Rect()
+            val connectTopImage = view.findViewById<View>(R.id.connect_top_image)
+            if (connectTopImage != null) {
+                connectTopImage.getDrawingRect(endViewBounds)
+                view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
+            } else {
+                // guess
+                endViewBounds.left = 0
+                endViewBounds.top = 126
+                endViewBounds.right = 420
+                endViewBounds.bottom = 546
+            }
+
+
+            val transitionRoot = view.findViewById<ViewGroup>(R.id.transition_root)!!
+            val transitionContainer = view.findViewById<View>(R.id.transition_container)!!
+            val transitionImage = view.findViewById<ImageView>(R.id.transition_image)!!
+
+
+            Glide.with(context)
+                .load(resId)
+                .override(512)
+                .into(transitionImage)
+
+            val lp = transitionContainer.layoutParams as FrameLayout.LayoutParams
+
+            lp.width = startViewBounds.right - startViewBounds.left
+            lp.height = startViewBounds.bottom - startViewBounds.top
+            lp.leftMargin = startViewBounds.left
+            lp.topMargin = startViewBounds.top
+            transitionContainer.layoutParams = lp
+
+
+            transitionContainer.alpha = 1.0f
+            transitionRoot.visibility = View.VISIBLE
+
+
+            var startTime = System.currentTimeMillis()
+            var endTime = startTime + 600
+
+
+            // start time
+            // end time
+            // while now < end time
+            while (true) {
+                val now = System.currentTimeMillis()
+
+                var u: Float
+                if (endTime <= now) {
+                    u = 1.0f
+                } else {
+                    u = (now - startTime).toFloat() / (endTime - startTime).toFloat()
+                    u = u.pow(0.5f)
+                }
+
+
+                lp.width = lerp((startViewBounds.right - startViewBounds.left).toFloat(), (endViewBounds.right - endViewBounds.left).toFloat(), u).toInt()
+                lp.height = lerp((startViewBounds.bottom - startViewBounds.top).toFloat(), (endViewBounds.bottom - endViewBounds.top).toFloat(), u).toInt()
+                lp.leftMargin = lerp(startViewBounds.left.toFloat(), endViewBounds.left.toFloat(), u).toInt()
+                lp.topMargin = lerp(startViewBounds.top.toFloat(), endViewBounds.top.toFloat(), u).toInt()
+                transitionContainer.layoutParams = lp
+
+                if (endTime <= now) {
+                    break
+                }
+
+                delay(1000/24)
+            }
+
+            // wait until the connection is active
+            while (true) {
+                if (activeLocation?.connectLocationId?.equals(location.connectLocationId) == true) {
+                    break
+                }
+                delay(200)
+            }
+
+            delay(2000)
+
+            startTime = System.currentTimeMillis()
+            endTime = startTime + 1000
+            while (true) {
+                val now = System.currentTimeMillis()
+
+                var u: Float
+                if (endTime <= now) {
+                    u = 1.0f
+                } else {
+                    u = (now - startTime).toFloat() / (endTime - startTime).toFloat()
+                }
+
+                transitionContainer.alpha = 1.0f - u
+
+                if (endTime <= now) {
+                    break
+                }
+
+                delay(1000/24)
+            }
+            transitionRoot.visibility = View.GONE
+
+
+        }
+    }
 }
 
 
-class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub>) : RecyclerView.Adapter<ViewHolder>() {
+class ConnectAdapter(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, subs: MutableList<Sub>) : RecyclerView.Adapter<ViewHolder>() {
 
     private val connectLocations = mutableListOf<ConnectLocation>()
     // map country code -> connect location for the country
@@ -327,7 +585,7 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
                     locations.add(exportedLocations.get(i))
                 }
 
-                Log.i("CONNECT", "UPDATE ON MAIN GOT NEW LOCATIONS $locations")
+//                Log.i("CONNECT", "UPDATE ON MAIN GOT NEW LOCATIONS $locations")
 
                 connectLocations.clear()
                 connectLocations.addAll(locations)
@@ -348,13 +606,13 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-        Log.i("CONNECT", "CREATE VIEW HOLDER")
+//        Log.i("CONNECT", "CREATE VIEW HOLDER")
 
         when (viewType) {
             ViewTypeCountryChips -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_country_chips, viewGroup, false)
-                return CountryChipsViewHolder(connectVc, view)
+                return CountryChipsViewHolder(connectFragment, connectVc, view)
             }
             ViewTypeLocationCity -> {
                 val view = LayoutInflater.from(viewGroup.context)
@@ -369,7 +627,7 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
             ViewTypeLocationCountry -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_country, viewGroup, false)
-                return ConnectCountryViewHolder(connectVc, view)
+                return ConnectCountryViewHolder(connectFragment, connectVc, view)
             }
             ViewTypeLocationGroup -> {
                 val view = LayoutInflater.from(viewGroup.context)
@@ -388,7 +646,7 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
 
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        Log.i("CONNECT", "BIND $position")
+//        Log.i("CONNECT", "BIND $position")
 
         fun bindViewForLocation(location: ConnectLocation) {
             if (location.isGroup) {
@@ -458,7 +716,7 @@ class ConnectAdapter(val connectVc: ConnectViewController, subs: MutableList<Sub
 
 
 
-class CountryChipsViewHolder(val connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
+class CountryChipsViewHolder(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
 
     val flexboxRoot: FlexboxLayout
 
@@ -487,12 +745,17 @@ class CountryChipsViewHolder(val connectVc: ConnectViewController, view: View) :
             val providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
 
             val context = view.context
-            val resId = context.resources.getIdentifier("country_${countryCode}_512", "drawable", context.packageName)
-            countryImageButton.setImageResource(resId)
+            val resId = context.resources.getIdentifier("country_${countryCode}_192", "drawable", context.packageName)
+            Glide.with(context)
+                .load(resId)
+                .override(192)
+                .into(countryImageButton)
+
             countryCodeView.text = countryCode
             providerSummaryView.text = "${location.providerCount}"
 
             countryImageButton.setOnClickListener {
+                connectFragment.animateConnect(countryImageButton, location)
                 connectVc.connect(location)
             }
         }
@@ -502,6 +765,7 @@ class CountryChipsViewHolder(val connectVc: ConnectViewController, view: View) :
 
 class ConnectCityViewHolder(val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
     val countryImageView: ImageView
+    val iconImageView: ImageView
     val locationLabelView: TextView
     val providerSummaryView: TextView
     val connectButton: Button
@@ -510,6 +774,12 @@ class ConnectCityViewHolder(val connectVc: ConnectViewController, val view: View
 
     init {
         countryImageView = view.findViewById<ImageView>(R.id.connect_country_image)
+
+        iconImageView = view.findViewById<ImageView>(R.id.connect_location_icon_large)
+        Glide.with(view.context)
+            .load(R.drawable.ic_location_city_large)
+            .into(iconImageView)
+
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
         providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
 
@@ -526,9 +796,12 @@ class ConnectCityViewHolder(val connectVc: ConnectViewController, val view: View
         this.location = location
 
         val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512_a50", "drawable", context.packageName)
+        val resId = context.resources.getIdentifier("country_${location.countryCode}_192", "drawable", context.packageName)
+        Glide.with(context)
+            .load(resId)
+            .override(192)
+            .into(countryImageView)
 
-        countryImageView.setImageResource(resId)
         locationLabelView.text = location.name
         val providerSummary: String
         if (location.providerCount == 1) {
@@ -542,6 +815,7 @@ class ConnectCityViewHolder(val connectVc: ConnectViewController, val view: View
 
 class ConnectRegionViewHolder(val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
     val countryImageView: ImageView
+    val iconImageView: ImageView
     val locationLabelView: TextView
     val providerSummaryView: TextView
     val connectButton: Button
@@ -550,6 +824,12 @@ class ConnectRegionViewHolder(val connectVc: ConnectViewController, val view: Vi
 
     init {
         countryImageView = view.findViewById<ImageView>(R.id.connect_country_image)
+
+        iconImageView = view.findViewById<ImageView>(R.id.connect_location_icon_large)
+        Glide.with(view.context)
+            .load(R.drawable.ic_location_region_large)
+            .into(iconImageView)
+
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
         providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
 
@@ -566,9 +846,12 @@ class ConnectRegionViewHolder(val connectVc: ConnectViewController, val view: Vi
         this.location = location
 
         val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512_a50", "drawable", context.packageName)
+        val resId = context.resources.getIdentifier("country_${location.countryCode}_192", "drawable", context.packageName)
+        Glide.with(context)
+            .load(resId)
+            .override(192)
+            .into(countryImageView)
 
-        countryImageView.setImageResource(resId)
         locationLabelView.text = location.name
         val providerSummary: String
         if (location.providerCount == 1) {
@@ -580,8 +863,9 @@ class ConnectRegionViewHolder(val connectVc: ConnectViewController, val view: Vi
     }
 }
 
-class ConnectCountryViewHolder(val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
+class ConnectCountryViewHolder(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
     val countryImageView: ImageView
+    val iconImageView: ImageView
     val locationLabelView: TextView
     val providerSummaryView: TextView
     val connectButton: Button
@@ -590,6 +874,13 @@ class ConnectCountryViewHolder(val connectVc: ConnectViewController, val view: V
 
     init {
         countryImageView = view.findViewById<ImageView>(R.id.connect_country_image)
+
+        val context = view.context
+        iconImageView = view.findViewById<ImageView>(R.id.connect_location_type_icon)
+        Glide.with(context)
+            .load(R.drawable.ic_location_country_small)
+            .into(iconImageView)
+
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
         providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
 
@@ -597,6 +888,7 @@ class ConnectCountryViewHolder(val connectVc: ConnectViewController, val view: V
 
         connectButton.setOnClickListener {
             location?.let {
+                connectFragment.animateConnect(countryImageView, it)
                 connectVc.connect(it)
             }
         }
@@ -606,8 +898,11 @@ class ConnectCountryViewHolder(val connectVc: ConnectViewController, val view: V
         this.location = location
 
         val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
-        countryImageView.setImageResource(resId)
+        val resId = context.resources.getIdentifier("country_${location.countryCode}_192", "drawable", context.packageName)
+        Glide.with(context)
+            .load(resId)
+            .override(192)
+            .into(countryImageView)
 
         locationLabelView.text = location.name
         val providerSummary: String
@@ -622,6 +917,7 @@ class ConnectCountryViewHolder(val connectVc: ConnectViewController, val view: V
 
 
 class ConnectGroupViewHolder(connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
+    val groupImageView: ImageView
     val locationLabelView: TextView
     val promotedImageView: ImageView
     val promotedSummaryView: TextView
@@ -630,8 +926,18 @@ class ConnectGroupViewHolder(connectVc: ConnectViewController, view: View) : Rec
     var location: ConnectLocation? = null
 
     init {
+        groupImageView = view.findViewById<ImageView>(R.id.connect_group_image)
+        Glide.with(view.context)
+            .load(R.drawable.ic_location_group_large)
+            .into(groupImageView)
+
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
+
         promotedImageView = view.findViewById<ImageView>(R.id.connect_promoted_image)
+        Glide.with(view.context)
+            .load(R.drawable.ic_connect_promoted)
+            .into(promotedImageView)
+
         promotedSummaryView = view.findViewById<TextView>(R.id.connect_promoted_summary)
 
         connectButton = view.findViewById<Button>(R.id.connect_connect)
@@ -659,12 +965,18 @@ class ConnectGroupViewHolder(connectVc: ConnectViewController, view: View) : Rec
 
 
 class ConnectDeviceViewHolder(connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
+    val deviceImageView: ImageView
     val locationLabelView: TextView
     val connectButton: Button
 
     var location: ConnectLocation? = null
 
     init {
+        deviceImageView = view.findViewById<ImageView>(R.id.connect_device_image)
+        Glide.with(view.context)
+            .load(R.drawable.device_android)
+            .into(deviceImageView)
+
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
 
         connectButton = view.findViewById<Button>(R.id.connect_connect)
@@ -727,7 +1039,7 @@ class ConnectTopCityViewHolder(val view: View) : LocationListener {
     val providerSummaryView: TextView
 
     init {
-        countryImageView = view.findViewById<ImageView>(R.id.connect_country_image)
+        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
         cityLabelView = view.findViewById<TextView>(R.id.connect_location_city_label)
         regionLabelView = view.findViewById<TextView>(R.id.connect_location_region_label)
         countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
@@ -736,8 +1048,11 @@ class ConnectTopCityViewHolder(val view: View) : LocationListener {
 
     override fun locationChanged(location: ConnectLocation) {
         val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512_a50", "drawable", context.packageName)
-        countryImageView.setImageResource(resId)
+        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
+        Glide.with(context)
+            .load(resId)
+            .override(512)
+            .into(countryImageView)
 
         cityLabelView.text = location.name
         regionLabelView.text = location.region
@@ -760,7 +1075,7 @@ class ConnectTopRegionViewHolder(val view: View) : LocationListener {
     val providerSummaryView: TextView
 
     init {
-        countryImageView = view.findViewById<ImageView>(R.id.connect_country_image)
+        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
         regionLabelView = view.findViewById<TextView>(R.id.connect_location_region_label)
         countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
         providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
@@ -768,8 +1083,11 @@ class ConnectTopRegionViewHolder(val view: View) : LocationListener {
 
     override fun locationChanged(location: ConnectLocation) {
         val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512_a50", "drawable", context.packageName)
-        countryImageView.setImageResource(resId)
+        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
+        Glide.with(context)
+            .load(resId)
+            .override(512)
+            .into(countryImageView)
 
         regionLabelView.text = location.name
         countryLabelView.text = location.country
@@ -790,7 +1108,7 @@ class ConnectTopCountryViewHolder(val view: View) : LocationListener {
     val providerSummaryView: TextView
 
     init {
-        countryImageView = view.findViewById<ImageView>(R.id.connect_country_image)
+        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
         countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
         providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
     }
@@ -798,7 +1116,10 @@ class ConnectTopCountryViewHolder(val view: View) : LocationListener {
     override fun locationChanged(location: ConnectLocation) {
         val context = view.context
         val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
-        countryImageView.setImageResource(resId)
+        Glide.with(context)
+            .load(resId)
+            .override(512)
+            .into(countryImageView)
 
         countryLabelView.text = location.name
 

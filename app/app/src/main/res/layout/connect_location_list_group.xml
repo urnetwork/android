@@ -8,7 +8,7 @@
 
 
     <ImageView
-        android:id="@+id/connect_country_image"
+        android:id="@+id/connect_group_image"
 
         android:layout_width="64dp"
         android:layout_height="0dp"
@@ -19,9 +19,10 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/connect_location_label"
 
-        android:src="@drawable/ic_location_group_large"
         android:adjustViewBounds="true"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
+
+        android:src="@drawable/placeholder_rect"
         />
 
 
@@ -33,7 +34,7 @@
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/connect_promoted_summary"
-        app:layout_constraintLeft_toRightOf="@id/connect_country_image"
+        app:layout_constraintLeft_toRightOf="@id/connect_group_image"
         app:layout_constraintRight_toLeftOf="@id/connect_connect"
 
 
@@ -62,14 +63,15 @@
         app:layout_constraintTop_toTopOf="@id/connect_promoted_summary"
         app:layout_constraintBottom_toBottomOf="@id/connect_promoted_summary"
 
-        app:layout_constraintLeft_toRightOf="@id/connect_country_image"
+        app:layout_constraintLeft_toRightOf="@id/connect_group_image"
         app:layout_constraintRight_toLeftOf="@id/connect_promoted_summary"
 
         android:layout_marginLeft="8dp"
 
-        android:src="@drawable/ic_connect_promoted"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
+
+        android:src="@drawable/placeholder_rect"
         />
 
     <TextView

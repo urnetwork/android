@@ -107,6 +107,8 @@ dependencies {
     implementation fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*.aar', '*.jar'])
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation "circle.programmablewallet:sdk:1.+"

@@ -19,6 +19,9 @@
         android:text="Connected"
         android:textSize="8pt"
         android:fontFamily="sans-serif-thin"
+
+        android:gravity="center"
+        android:drawableLeft="@drawable/connect_not_connected"
         />
 
     <androidx.constraintlayout.widget.Barrier
@@ -30,7 +33,7 @@
 
 
     <ImageView
-        android:id="@+id/connect_device_image"
+        android:id="@+id/connect_top_image"
 
         android:layout_width="160dp"
         android:layout_height="0dp"
@@ -54,8 +57,8 @@
         android:layout_width="0dp"
 
         app:layout_constraintVertical_bias="0"
-        app:layout_constraintTop_toTopOf="@id/connect_device_image"
-        app:layout_constraintLeft_toRightOf="@id/connect_device_image"
+        app:layout_constraintTop_toTopOf="@id/connect_top_image"
+        app:layout_constraintLeft_toRightOf="@id/connect_top_image"
         app:layout_constraintRight_toLeftOf="@id/connect_side_barrier"
 
 

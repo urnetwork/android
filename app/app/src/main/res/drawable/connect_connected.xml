@@ -1,0 +1,22 @@
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="32"
+            android:viewportHeight="32">
+
+            <group
+                android:translateX="16"
+                android:translateY="16">
+                <path
+                    android:name="dot_path"
+                    android:fillColor="@color/by_s_green"
+                    android:pathData="M 0,0 m -5,0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0"/>
+            </group>
+        </vector>
+    </aapt:attr>
+</animated-vector>

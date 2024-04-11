@@ -97,6 +97,7 @@ class MainActivity : AppCompatActivity() {
             Color.blue(colorPrimary) / 255f
         )
 
+        /*
         supportActionBar?.setCustomView(R.layout.view_status)
         supportActionBar?.setDisplayShowCustomEnabled(true)
 //
@@ -104,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         // overlapping gl surfaces will draw on each other. The status should always be on top
         view.setZOrderOnTop(true)
         GLSurfaceViewBinder.bind("status_surface", view, statusVc!!)
-
+*/
 
         requestPermissionLauncher =
             registerForActivityResult(
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity() {
         vpnLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            Log.i("Main","ACTIVITY RESULT")
+//            Log.i("Main","ACTIVITY RESULT")
             if (result.resultCode == RESULT_OK) {
                 app.startVpnService()
             }

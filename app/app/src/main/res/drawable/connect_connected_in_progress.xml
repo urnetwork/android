@@ -1,0 +1,71 @@
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="32"
+            android:viewportHeight="32">
+
+            <group
+                android:translateX="16"
+                android:translateY="16">
+                <path
+                    android:name="dot_path"
+                    android:fillColor="@color/by_s_green"
+                    android:pathData="M 0,0 m -5,0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0"/>
+
+                <group android:name="ring_outer">
+                    <path
+                        android:name="ring_outer_path"
+                        android:pathData="M 0,0 m -9,0 a 9,9 0 1,0 18,0 a 9,9 0 1,0 -18,0"
+                        android:strokeColor="@color/by_s_green"
+                        android:strokeWidth="1"/>
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="ring_outer">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="scaleX"
+                    android:duration="1500"
+                    android:valueFrom="0.3"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                <objectAnimator
+                    android:propertyName="scaleY"
+                    android:duration="1500"
+                    android:valueFrom="0.3"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="ring_outer_path">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="1500"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"
+                    android:propertyName="strokeWidth"
+                    android:valueFrom="12.0"
+                    android:valueTo="0.1"
+                    android:valueType="floatType"/>
+                <objectAnimator
+                    android:propertyName="strokeAlpha"
+                    android:startOffset="900"
+                    android:duration="600"
+                    android:valueFrom="1"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

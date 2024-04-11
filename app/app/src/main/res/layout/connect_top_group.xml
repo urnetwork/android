@@ -19,6 +19,9 @@
         android:text="Connected"
         android:textSize="8pt"
         android:fontFamily="sans-serif-thin"
+
+        android:gravity="center"
+        android:drawableLeft="@drawable/connect_not_connected"
         />
 
     <androidx.constraintlayout.widget.Barrier
@@ -31,7 +34,7 @@
 
 
     <ImageView
-        android:id="@+id/connect_location_icon_large"
+        android:id="@+id/connect_top_image"
 
         android:layout_width="160dp"
         android:layout_height="0dp"
@@ -57,7 +60,7 @@
 
         app:layout_constraintTop_toTopOf="@id/connect_location_type_label"
         app:layout_constraintBottom_toBottomOf="@id/connect_location_type_label"
-        app:layout_constraintLeft_toRightOf="@id/connect_location_icon_large"
+        app:layout_constraintLeft_toRightOf="@id/connect_top_image"
         app:layout_constraintRight_toLeftOf="@id/connect_location_type_label"
 
         android:layout_marginLeft="8dp"
@@ -75,7 +78,7 @@
 
         app:layout_constraintVertical_bias="0"
         app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintTop_toTopOf="@id/connect_location_icon_large"
+        app:layout_constraintTop_toTopOf="@id/connect_top_image"
         app:layout_constraintBottom_toTopOf="@id/connect_location_group_label"
         app:layout_constraintLeft_toRightOf="@id/connect_location_type_icon"
 
@@ -95,7 +98,7 @@
         app:layout_constraintVertical_bias="0"
         app:layout_constraintTop_toBottomOf="@id/connect_location_type_label"
         app:layout_constraintBottom_toTopOf="@id/connect_provider_summary"
-        app:layout_constraintLeft_toRightOf="@id/connect_location_icon_large"
+        app:layout_constraintLeft_toRightOf="@id/connect_top_image"
         app:layout_constraintRight_toLeftOf="@id/connect_side_barrier"
 
 
@@ -121,7 +124,7 @@
         app:layout_constraintVertical_bias="0"
         app:layout_constraintTop_toBottomOf="@id/connect_location_group_label"
         app:layout_constraintBottom_toTopOf="@id/connect_bottom_barrier"
-        app:layout_constraintLeft_toRightOf="@id/connect_location_icon_large"
+        app:layout_constraintLeft_toRightOf="@id/connect_top_image"
 
         android:layout_marginLeft="8dp"
         android:layout_marginBottom="4dp"

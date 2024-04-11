@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:maxWidth="96dp"
     android:maxHeight="96dp"
+    android:minWidth="72dp"
+    android:minHeight="72dp"
     android:layout_width="72dp"
     android:layout_height="wrap_content">
 
@@ -24,8 +26,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
 
-        android:src="@drawable/country_us_512"
         android:scaleType="fitCenter"
+        android:src="@drawable/placeholder_rect"
         />
 
 

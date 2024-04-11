@@ -3,6 +3,7 @@ package com.bringyour.network.ui.devices
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import com.bringyour.client.Sub
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentDevicesBinding
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -144,6 +146,7 @@ class DevicesAdapter(val devicesVc: DevicesViewController, subs: MutableList<Sub
 
 class AndroidDeviceViewHolder(val devicesVc: DevicesViewController, view: View) : RecyclerView.ViewHolder(view) {
 
+    val deviceImageView: ImageView
     val clientIdView: TextView
     val clientIdCopyButton: ImageButton
     val connectedIconView: ImageView
@@ -155,6 +158,11 @@ class AndroidDeviceViewHolder(val devicesVc: DevicesViewController, view: View) 
 
 
     init {
+        deviceImageView = view.findViewById<ImageView>(R.id.device_image)
+        Glide.with(view.context)
+            .load(R.drawable.device_android)
+            .into(deviceImageView)
+
         clientIdView = view.findViewById<TextView>(R.id.device_client_id)
         clientIdCopyButton = view.findViewById<ImageButton>(R.id.device_client_id_copy)
         connectedIconView = view.findViewById<ImageView>(R.id.device_connected_icon)
@@ -175,10 +183,16 @@ class AndroidDeviceViewHolder(val devicesVc: DevicesViewController, view: View) 
 
         clientIdView.text = networkClient.clientId.string()
         if (networkClient.connections != null && 0 < networkClient.connections.len()) {
-            connectedIconView.setImageResource(R.drawable.device_connected_connected)
+//            connectedIconView.setImageResource(R.drawable.device_connected_connected)
+            Glide.with(connectedIconView.context)
+                .load(R.drawable.device_connected_connected)
+                .into(connectedIconView)
             connectedSummaryView.text = "Connected"
         } else {
-            connectedIconView.setImageResource(R.drawable.device_connected_disconnected)
+            Glide.with(connectedIconView.context)
+                .load(R.drawable.device_connected_disconnected)
+                .into(connectedIconView)
+//            connectedIconView.setImageResource(R.drawable.device_connected_disconnected)
             connectedSummaryView.text = "Disconnected"
         }
         if (devicesVc.clientId().idEquals(networkClient.clientId)) {

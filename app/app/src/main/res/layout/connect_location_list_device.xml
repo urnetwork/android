@@ -19,9 +19,10 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/connect_location_label"
 
-        android:src="@drawable/device_android"
         android:adjustViewBounds="true"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
+
+        android:src="@drawable/placeholder_rect"
         />
 
 
