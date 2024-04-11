@@ -19,7 +19,7 @@ app:
     - purpose: icon
       uri: icon.png
 release:
-  address: EtBF6rfu1zGQhR49tgBELd8byW61LrAdKLkX53uXFxJq
+  address: FLQJNBXeUNWXAHpGchJ2D5PXWxmw7QzpbsD5HJkNJvrY
   media:
     - purpose: icon
       uri: icon.png
@@ -27,18 +27,16 @@ release:
       uri: screens/login.png
   files:
     - purpose: install
-      uri: release/com.bringyour.network-2024.4.5-outerwerld+1712352648733-7646-solana_dapp-release.apk
+      uri: release/com.bringyour.network-2024.4.11-outerwerld+1712825284027-7777-solana_dapp-release.apk
   catalog:
     en-US:
       name: BringYour
       short_description: VPN that works just like home
       long_description: Fast and secure internet wherever you want to be, with ultimate control of your data. Take ultimate control of your data between your devices and the cloud. BringYour lets you choose other real devices in the world through which your data travels. Additionally your device can provide security to the network in the background and earn USDC.
       new_in_version: |
-        This is a big one! We spent the last month fixing issues and bringing payment contracts back to the network. This release includes:
-        - Fixes to the client to connect to providers faster and more reliably.
-        - Fixes to the provider to keep the provider running in the background when enabled.
-        - Fixes to the VPN to allow users to completely turn off the VPN.
-        - Enable payment contracts. After April 15, contracts will be required between non-network/friends and family.
+        Follow up to the previous release to extend the contract requirement date to April 22.
+        Fixes to the client connect algorithm to reduce energy usage and improve speed of connect.
+        Fixes to the UI to give better visibility into the connection status.
       saga_features: ''
 solana_mobile_dapp_publisher_portal:
   google_store_package: com.bringyour.network

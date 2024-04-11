@@ -24,7 +24,15 @@ import java.io.IOException
 // see https://developer.android.com/develop/connectivity/vpn
 
 
+
 class MainService : VpnService() {
+    companion object {
+
+        const val NOTIFICATION_ID = 101
+        const val NOTIFICATION_CHANNEL_ID = "BringYour"
+
+    }
+
 
 
     // TODO opt this process out of the vpn network?
@@ -45,7 +53,7 @@ class MainService : VpnService() {
 
 
         intent?.getBooleanExtra("stop", false)?.let { stop ->
-            if (stop && pfd != null) {
+            if (stop) {
                 try {
                     pfd?.close()
                 } catch (e: IOException) {
@@ -56,7 +64,7 @@ class MainService : VpnService() {
         }
 
         intent?.getBooleanExtra("start", true)?.let { start ->
-            if (start /*&& pfd == null*/) {
+            if (start) {
 
                 app.router?.let { router ->
                     // TODO
@@ -106,12 +114,6 @@ class MainService : VpnService() {
                     // stop self when turned off
 
                     builder.establish()?.let { pfd ->
-                        try {
-                            this.pfd?.close()
-                        } catch (e: IOException) {
-                            // ignore
-                        }
-                        this.pfd = pfd
                         router.activateLocalInterface(pfd)
                     }
                 }
@@ -134,6 +136,8 @@ class MainService : VpnService() {
     override fun onDestroy() {
         Log.i("MainService", "DESTROY SERVICE")
 
+        super.onDestroy()
+
 
         try {
             pfd?.close()
@@ -149,6 +153,8 @@ class MainService : VpnService() {
     override fun onRevoke() {
         Log.i("MainService", "REVOKE SERVICE")
 
+        super.onRevoke()
+
         try {
             pfd?.close()
         } catch (e: IOException) {
@@ -158,8 +164,6 @@ class MainService : VpnService() {
     }
 
 
-    val NOTIFICATION_ID = 101
-    val NOTIFICATION_CHANNEL_ID = "BringYour"
 
     private fun updateForegroundNotification(message: String) {
 

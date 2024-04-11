@@ -39,6 +39,7 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentConnectBinding
 import com.bumptech.glide.Glide
+import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
@@ -245,115 +246,9 @@ class ConnectFragment : Fragment() {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
                 }
 
-
-
                 view.findViewById<TextView>(R.id.connect_header)?.let { connectHeader ->
-
-                    var iconState = -1
-
-                    // start window stats update
-                    updateTimer = timer(period = 1000) {
-                        app.byDevice?.windowEvents()?.let { windowEvents ->
-                            val currentSize = windowEvents.currentSize().toInt()
-                            val targetSize = windowEvents.targetSize().toInt()
-//                            val addedClientCount = windowEvents.addedClientCount().toInt()
-                            val notAddedClientCount = windowEvents.notAddedClientCount().toInt() + windowEvents.evaluationFailedClientCount().toInt()
-                            val inEvaluationClientCount = windowEvents.inEvaluationClientCount().toInt()
-
-                        runBlocking(Dispatchers.Main.immediate) {
-
-
-                                if (0 < currentSize) {
-                                    if (0 < inEvaluationClientCount) {
-                                        connectHeader.text =
-                                            "Connected (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
-                                    } else {
-                                        connectHeader.text =
-                                            "Connected (${currentSize}/${targetSize})"
-                                    }
-                                } else {
-                                    if (0 < inEvaluationClientCount) {
-                                        connectHeader.text =
-                                            "Connecting (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
-                                    } else {
-                                        connectHeader.text =
-                                            "Not Connected"
-                                    }
-                                }
-
-                                var nextIconState: Int
-                                if (currentSize == 0) {
-                                    if (0 < inEvaluationClientCount) {
-                                        nextIconState = 0
-                                    } else {
-                                        nextIconState = 1
-
-                                    }
-                                } else {
-                                    if (0 < inEvaluationClientCount) {
-                                        nextIconState = 2
-                                    } else {
-                                        nextIconState = 3
-                                    }
-                                }
-
-                                if (iconState != nextIconState) {
-                                    iconState = nextIconState
-                                    when (iconState) {
-                                        0 -> {
-                                            val d = ContextCompat.getDrawable(
-                                                view.context,
-                                                R.drawable.connect_not_connected_in_progress
-                                            ) as AnimatedVectorDrawable
-                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
-                                            d.registerAnimationCallback(object :
-                                                Animatable2.AnimationCallback() {
-                                                override fun onAnimationEnd(drawable: Drawable?) {
-                                                    d.start()
-                                                }
-
-                                            })
-                                            d.start()
-                                        }
-                                        1 -> {
-                                            val d = ContextCompat.getDrawable(
-                                                view.context,
-                                                R.drawable.connect_not_connected
-                                            ) as AnimatedVectorDrawable
-                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
-                                        }
-                                        2 -> {
-                                            val d = ContextCompat.getDrawable(
-                                                view.context,
-                                                R.drawable.connect_connected_in_progress
-                                            ) as AnimatedVectorDrawable
-                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
-                                            d.registerAnimationCallback(object :
-                                                Animatable2.AnimationCallback() {
-                                                override fun onAnimationEnd(drawable: Drawable?) {
-                                                    d.start()
-                                                }
-
-                                            })
-                                            d.start()
-                                        }
-                                        3 -> {
-                                            val d = ContextCompat.getDrawable(
-                                                view.context,
-                                                R.drawable.connect_connected
-                                            ) as AnimatedVectorDrawable
-                                            connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
-
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
-                    }
+                    updateWindowStats(connectHeader)
                 }
-
-
             }
         }
 
@@ -445,6 +340,115 @@ class ConnectFragment : Fragment() {
     }
 
 
+    fun updateWindowStats(connectHeader: TextView) {
+        val app = app ?: return
+
+        updateTimer?.cancel()
+
+        var iconState = -1
+
+        // start window stats update
+        updateTimer = timer(period = 1000) {
+            app.byDevice?.windowEvents()?.let { windowEvents ->
+                val currentSize = windowEvents.currentSize().toInt()
+                val targetSize = windowEvents.targetSize().toInt()
+//                            val addedClientCount = windowEvents.addedClientCount().toInt()
+                val notAddedClientCount = windowEvents.notAddedClientCount().toInt() + windowEvents.evaluationFailedClientCount().toInt()
+                val inEvaluationClientCount = windowEvents.inEvaluationClientCount().toInt()
+
+                runBlocking(Dispatchers.Main.immediate) {
+
+
+                    if (0 < currentSize) {
+                        if (0 < inEvaluationClientCount) {
+                            connectHeader.text =
+                                "Connected (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
+                        } else {
+                            connectHeader.text =
+                                "Connected (${currentSize}/${targetSize})"
+                        }
+                    } else {
+                        if (0 < inEvaluationClientCount) {
+                            connectHeader.text =
+                                "Connecting (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
+                        } else {
+                            connectHeader.text =
+                                "Not Connected"
+                        }
+                    }
+
+                    var nextIconState: Int
+                    if (currentSize == 0) {
+                        if (0 < inEvaluationClientCount) {
+                            nextIconState = 0
+                        } else {
+                            nextIconState = 1
+
+                        }
+                    } else {
+                        if (0 < inEvaluationClientCount) {
+                            nextIconState = 2
+                        } else {
+                            nextIconState = 3
+                        }
+                    }
+
+                    if (iconState != nextIconState) {
+                        iconState = nextIconState
+                        when (iconState) {
+                            0 -> {
+                                val d = ContextCompat.getDrawable(
+                                    requireContext(),
+                                    R.drawable.connect_not_connected_in_progress
+                                ) as AnimatedVectorDrawable
+                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                                d.registerAnimationCallback(object :
+                                    Animatable2.AnimationCallback() {
+                                    override fun onAnimationEnd(drawable: Drawable?) {
+                                        d.start()
+                                    }
+
+                                })
+                                d.start()
+                            }
+                            1 -> {
+                                val d = ContextCompat.getDrawable(
+                                    requireContext(),
+                                    R.drawable.connect_not_connected
+                                ) as AnimatedVectorDrawable
+                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                            }
+                            2 -> {
+                                val d = ContextCompat.getDrawable(
+                                    requireContext(),
+                                    R.drawable.connect_connected_in_progress
+                                ) as AnimatedVectorDrawable
+                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                                d.registerAnimationCallback(object :
+                                    Animatable2.AnimationCallback() {
+                                    override fun onAnimationEnd(drawable: Drawable?) {
+                                        d.start()
+                                    }
+
+                                })
+                                d.start()
+                            }
+                            3 -> {
+                                val d = ContextCompat.getDrawable(
+                                    requireContext(),
+                                    R.drawable.connect_connected
+                                ) as AnimatedVectorDrawable
+                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
     fun animateConnect(startView: View, location: ConnectLocation) {
         val context = requireContext()
 
@@ -489,11 +493,13 @@ class ConnectFragment : Fragment() {
                     Glide.with(this@ConnectFragment)
                         .load(R.drawable.ic_location_group_large)
                         .override(512)
+                        .priority(Priority.LOW)
                         .into(transitionImage)
                 } else if (location.isDevice) {
                     Glide.with(this@ConnectFragment)
                         .load(R.drawable.device_android)
                         .override(512)
+                        .priority(Priority.LOW)
                         .into(transitionImage)
                 } else {
                     val resId = context.resources.getIdentifier(
@@ -504,6 +510,7 @@ class ConnectFragment : Fragment() {
                     Glide.with(this@ConnectFragment)
                         .load(resId)
                         .override(512)
+                        .priority(Priority.LOW)
                         .into(transitionImage)
                 }
 
@@ -561,6 +568,7 @@ class ConnectFragment : Fragment() {
                     var x = lerp(startViewBounds.left.toFloat(), endViewBounds.left.toFloat(), u)
                     var y = lerp(startViewBounds.top.toFloat(), endViewBounds.top.toFloat(), u)
 
+                    // slightly arc the path
                     val s = 48 * sin(PI * u).toFloat()
                     x += -dy * s
                     y += dx * s
@@ -578,7 +586,7 @@ class ConnectFragment : Fragment() {
 
                 // wait until the connection is active
                 while (true) {
-                    if (connectTopImage != null && activeLocation?.connectLocationId?.equals(location.connectLocationId) == true) {
+                    if (connectTopImage != null && activeLocation?.connectLocationId == location.connectLocationId) {
                         break
                     }
                     if (connectTopImage == null) {
@@ -811,6 +819,7 @@ class CountryChipsViewHolder(val connectFragment: ConnectFragment, val connectVc
             Glide.with(connectFragment)
                 .load(resId)
                 .override(192)
+                .priority(Priority.LOW)
                 .into(countryImageButton)
 
             countryCodeView.text = countryCode
@@ -840,6 +849,7 @@ class ConnectCityViewHolder(val connectFragment: ConnectFragment, val connectVc:
         iconImageView = view.findViewById<ImageView>(R.id.connect_location_icon_large)
         Glide.with(connectFragment)
             .load(R.drawable.ic_location_city_large)
+            .priority(Priority.LOW)
             .into(iconImageView)
 
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
@@ -863,6 +873,7 @@ class ConnectCityViewHolder(val connectFragment: ConnectFragment, val connectVc:
         Glide.with(connectFragment)
             .load(resId)
             .override(192)
+            .priority(Priority.LOW)
             .into(countryImageView)
 
         locationLabelView.text = location.name
@@ -891,6 +902,7 @@ class ConnectRegionViewHolder(val connectFragment: ConnectFragment, val connectV
         iconImageView = view.findViewById<ImageView>(R.id.connect_location_icon_large)
         Glide.with(connectFragment)
             .load(R.drawable.ic_location_region_large)
+            .priority(Priority.LOW)
             .into(iconImageView)
 
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
@@ -914,6 +926,7 @@ class ConnectRegionViewHolder(val connectFragment: ConnectFragment, val connectV
         Glide.with(connectFragment)
             .load(resId)
             .override(192)
+            .priority(Priority.LOW)
             .into(countryImageView)
 
         locationLabelView.text = location.name
@@ -943,6 +956,7 @@ class ConnectCountryViewHolder(val connectFragment: ConnectFragment, val connect
         iconImageView = view.findViewById<ImageView>(R.id.connect_location_type_icon)
         Glide.with(connectFragment)
             .load(R.drawable.ic_location_country_small)
+            .priority(Priority.LOW)
             .into(iconImageView)
 
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
@@ -966,6 +980,7 @@ class ConnectCountryViewHolder(val connectFragment: ConnectFragment, val connect
         Glide.with(connectFragment)
             .load(resId)
             .override(192)
+            .priority(Priority.LOW)
             .into(countryImageView)
 
         locationLabelView.text = location.name
@@ -993,6 +1008,7 @@ class ConnectGroupViewHolder(val connectFragment: ConnectFragment, connectVc: Co
         groupImageView = view.findViewById<ImageView>(R.id.connect_group_image)
         Glide.with(connectFragment)
             .load(R.drawable.ic_location_group_large)
+            .priority(Priority.LOW)
             .into(groupImageView)
 
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
@@ -1000,6 +1016,7 @@ class ConnectGroupViewHolder(val connectFragment: ConnectFragment, connectVc: Co
         promotedImageView = view.findViewById<ImageView>(R.id.connect_promoted_image)
         Glide.with(connectFragment)
             .load(R.drawable.ic_connect_promoted)
+            .priority(Priority.LOW)
             .into(promotedImageView)
 
         promotedSummaryView = view.findViewById<TextView>(R.id.connect_promoted_summary)
@@ -1040,6 +1057,7 @@ class ConnectDeviceViewHolder(val connectFragment: ConnectFragment, connectVc: C
         deviceImageView = view.findViewById<ImageView>(R.id.connect_device_image)
         Glide.with(connectFragment)
             .load(R.drawable.device_android)
+            .priority(Priority.LOW)
             .into(deviceImageView)
 
         locationLabelView = view.findViewById<TextView>(R.id.connect_location_label)
@@ -1118,6 +1136,7 @@ class ConnectTopCityViewHolder(val connectFragment: ConnectFragment, val view: V
         Glide.with(connectFragment)
             .load(resId)
             .override(512)
+            .priority(Priority.LOW)
             .into(countryImageView)
 
         cityLabelView.text = location.name
@@ -1153,6 +1172,7 @@ class ConnectTopRegionViewHolder(val connectFragment: ConnectFragment, val view:
         Glide.with(connectFragment)
             .load(resId)
             .override(512)
+            .priority(Priority.LOW)
             .into(countryImageView)
 
         regionLabelView.text = location.name
@@ -1185,6 +1205,7 @@ class ConnectTopCountryViewHolder(val connectFragment: ConnectFragment, val view
         Glide.with(connectFragment)
             .load(resId)
             .override(512)
+            .priority(Priority.LOW)
             .into(countryImageView)
 
         countryLabelView.text = location.name

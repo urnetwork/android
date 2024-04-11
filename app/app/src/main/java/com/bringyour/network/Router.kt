@@ -88,13 +88,10 @@ class Router(byDevice : BringYourDevice) {
                     var nextPfd: ParcelFileDescriptor? = null
                     while (active) {
                         if (nextPfd == null) {
-                            nextPfd = pfds.poll(1, TimeUnit.SECONDS)
-                            if (nextPfd == null) {
-                                continue
-                            }
+                            nextPfd = pfds.poll(1, TimeUnit.SECONDS) ?: continue
                         }
-                        while (pfds.peek() != null) {
-                            nextPfd = pfds.poll()
+                        while (true) {
+                            nextPfd = pfds.poll() ?: break
                         }
 
                         val pfd: ParcelFileDescriptor = nextPfd!!
@@ -112,7 +109,7 @@ class Router(byDevice : BringYourDevice) {
                             }
 
                             // (priority=Thread.MAX_PRIORITY)
-                            thread {
+                            val readThread = thread {
                                 // check for a new pfd only when there is an error on this one
                                 val buffer = ByteArray(2048)
                                 while (active) {
@@ -128,11 +125,12 @@ class Router(byDevice : BringYourDevice) {
                                             fis.close()
                                         } catch (_: IOException) {
                                         }
+                                        break
                                     }
                                 }
                             }
 
-                            while (active && nextPfd == null) {
+                            while (active && nextPfd == null && readThread.isAlive) {
                                 nextPfd = pfds.poll(1, TimeUnit.SECONDS)
                             }
 
@@ -161,11 +159,18 @@ class Router(byDevice : BringYourDevice) {
     }
 
     fun activateLocalInterface(pfd : ParcelFileDescriptor) {
+        while (true) {
+            val drainPfd = pfds.poll() ?: break
+            drainPfd.close()
+        }
         pfds.add(pfd)
     }
 
     fun close() {
-        pfds.clear()
         active = false
+        while (true) {
+            val drainPfd = pfds.poll() ?: break
+            drainPfd.close()
+        }
     }
 }
