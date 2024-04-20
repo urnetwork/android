@@ -337,6 +337,12 @@ class ConnectFragment : Fragment() {
         super.onStop()
 
         app?.connectVc?.stop()
+
+        updateTimer?.cancel()
+        updateTimer = null
+
+        animateJob?.cancel()
+        animateJob = null
     }
 
 
@@ -358,88 +364,113 @@ class ConnectFragment : Fragment() {
 
                 runBlocking(Dispatchers.Main.immediate) {
 
+                    context?.let { context ->
 
-                    if (0 < currentSize) {
-                        if (0 < inEvaluationClientCount) {
-                            connectHeader.text =
-                                "Connected (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
-                        } else {
-                            connectHeader.text =
-                                "Connected (${currentSize}/${targetSize})"
-                        }
-                    } else {
-                        if (0 < inEvaluationClientCount) {
-                            connectHeader.text =
-                                "Connecting (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
-                        } else {
-                            connectHeader.text =
-                                "Not Connected"
-                        }
-                    }
-
-                    var nextIconState: Int
-                    if (currentSize == 0) {
-                        if (0 < inEvaluationClientCount) {
-                            nextIconState = 0
-                        } else {
-                            nextIconState = 1
-
-                        }
-                    } else {
-                        if (0 < inEvaluationClientCount) {
-                            nextIconState = 2
-                        } else {
-                            nextIconState = 3
-                        }
-                    }
-
-                    if (iconState != nextIconState) {
-                        iconState = nextIconState
-                        when (iconState) {
-                            0 -> {
-                                val d = ContextCompat.getDrawable(
-                                    requireContext(),
-                                    R.drawable.connect_not_connected_in_progress
-                                ) as AnimatedVectorDrawable
-                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
-                                d.registerAnimationCallback(object :
-                                    Animatable2.AnimationCallback() {
-                                    override fun onAnimationEnd(drawable: Drawable?) {
-                                        d.start()
-                                    }
-
-                                })
-                                d.start()
+                        if (0 < currentSize) {
+                            if (0 < inEvaluationClientCount) {
+                                connectHeader.text =
+                                    "Connected (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
+                            } else {
+                                connectHeader.text =
+                                    "Connected (${currentSize}/${targetSize})"
                             }
-                            1 -> {
-                                val d = ContextCompat.getDrawable(
-                                    requireContext(),
-                                    R.drawable.connect_not_connected
-                                ) as AnimatedVectorDrawable
-                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                        } else {
+                            if (0 < inEvaluationClientCount) {
+                                connectHeader.text =
+                                    "Connecting (${currentSize}/${targetSize}) scanning +${inEvaluationClientCount} rejected ${notAddedClientCount}"
+                            } else {
+                                connectHeader.text =
+                                    "Not Connected"
                             }
-                            2 -> {
-                                val d = ContextCompat.getDrawable(
-                                    requireContext(),
-                                    R.drawable.connect_connected_in_progress
-                                ) as AnimatedVectorDrawable
-                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
-                                d.registerAnimationCallback(object :
-                                    Animatable2.AnimationCallback() {
-                                    override fun onAnimationEnd(drawable: Drawable?) {
-                                        d.start()
-                                    }
+                        }
 
-                                })
-                                d.start()
+                        var nextIconState: Int
+                        if (currentSize == 0) {
+                            if (0 < inEvaluationClientCount) {
+                                nextIconState = 0
+                            } else {
+                                nextIconState = 1
+
                             }
-                            3 -> {
-                                val d = ContextCompat.getDrawable(
-                                    requireContext(),
-                                    R.drawable.connect_connected
-                                ) as AnimatedVectorDrawable
-                                connectHeader.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null)
+                        } else {
+                            if (0 < inEvaluationClientCount) {
+                                nextIconState = 2
+                            } else {
+                                nextIconState = 3
+                            }
+                        }
 
+                        if (iconState != nextIconState) {
+                            iconState = nextIconState
+                            when (iconState) {
+                                0 -> {
+                                    val d = ContextCompat.getDrawable(
+                                        requireContext(),
+                                        R.drawable.connect_not_connected_in_progress
+                                    ) as AnimatedVectorDrawable
+                                    connectHeader.setCompoundDrawablesWithIntrinsicBounds(
+                                        d,
+                                        null,
+                                        null,
+                                        null
+                                    )
+                                    d.registerAnimationCallback(object :
+                                        Animatable2.AnimationCallback() {
+                                        override fun onAnimationEnd(drawable: Drawable?) {
+                                            d.start()
+                                        }
+
+                                    })
+                                    d.start()
+                                }
+
+                                1 -> {
+                                    val d = ContextCompat.getDrawable(
+                                        context,
+                                        R.drawable.connect_not_connected
+                                    ) as AnimatedVectorDrawable
+                                    connectHeader.setCompoundDrawablesWithIntrinsicBounds(
+                                        d,
+                                        null,
+                                        null,
+                                        null
+                                    )
+                                }
+
+                                2 -> {
+                                    val d = ContextCompat.getDrawable(
+                                        context,
+                                        R.drawable.connect_connected_in_progress
+                                    ) as AnimatedVectorDrawable
+                                    connectHeader.setCompoundDrawablesWithIntrinsicBounds(
+                                        d,
+                                        null,
+                                        null,
+                                        null
+                                    )
+                                    d.registerAnimationCallback(object :
+                                        Animatable2.AnimationCallback() {
+                                        override fun onAnimationEnd(drawable: Drawable?) {
+                                            d.start()
+                                        }
+
+                                    })
+                                    d.start()
+                                }
+
+                                3 -> {
+                                    val d = ContextCompat.getDrawable(
+                                        context,
+                                        R.drawable.connect_connected
+                                    ) as AnimatedVectorDrawable
+                                    connectHeader.setCompoundDrawablesWithIntrinsicBounds(
+                                        d,
+                                        null,
+                                        null,
+                                        null
+                                    )
+
+                                }
                             }
                         }
                     }
@@ -450,189 +481,190 @@ class ConnectFragment : Fragment() {
     }
 
     fun animateConnect(startView: View, location: ConnectLocation) {
-        val context = requireContext()
 
         // startView must be a descendant of this fragment view
         animateJob?.cancel()
         animateJob = lifecycleScope.launch(Dispatchers.Main) {
-            val view = requireView() as ViewGroup
+            context?.let { context ->
+                val view = requireView() as ViewGroup
 
-            val transitionRoot = view.findViewById<ViewGroup>(R.id.transition_root)!!
-            val transitionContainer = view.findViewById<View>(R.id.transition_container)!!
-            val transitionImage = view.findViewById<ImageView>(R.id.transition_image)!!
+                val transitionRoot = view.findViewById<ViewGroup>(R.id.transition_root)!!
+                val transitionContainer = view.findViewById<View>(R.id.transition_container)!!
+                val transitionImage = view.findViewById<ImageView>(R.id.transition_image)!!
 
-            try {
+                try {
 
-                val startViewBounds = Rect()
-                startView.getDrawingRect(startViewBounds)
-                view.offsetDescendantRectToMyCoords(startView, startViewBounds)
-
-
-                val endViewBounds = Rect()
-                var connectTopImage = view.findViewById<View>(R.id.connect_top_image)
-                if (connectTopImage != null) {
-                    connectTopImage.getDrawingRect(endViewBounds)
-                    view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
-                } else {
-                    // guess
-                    endViewBounds.left = 0
-                    endViewBounds.top = 126
-                    endViewBounds.right = 420
-                    endViewBounds.bottom = 546
-                }
-
-                var dx = (endViewBounds.left - startViewBounds.left).toFloat()
-                var dy = (endViewBounds.top - startViewBounds.top).toFloat()
-                val d = (dx * dx + dy * dy).pow(0.5f)
-                dx /= d
-                dy /= d
+                    val startViewBounds = Rect()
+                    startView.getDrawingRect(startViewBounds)
+                    view.offsetDescendantRectToMyCoords(startView, startViewBounds)
 
 
-
-                if (location.isGroup) {
-                    Glide.with(this@ConnectFragment)
-                        .load(R.drawable.ic_location_group_large)
-                        .override(512)
-                        .priority(Priority.LOW)
-                        .into(transitionImage)
-                } else if (location.isDevice) {
-                    Glide.with(this@ConnectFragment)
-                        .load(R.drawable.device_android)
-                        .override(512)
-                        .priority(Priority.LOW)
-                        .into(transitionImage)
-                } else {
-                    val resId = context.resources.getIdentifier(
-                        "country_${location.countryCode}_512",
-                        "drawable",
-                        context.packageName
-                    )
-                    Glide.with(this@ConnectFragment)
-                        .load(resId)
-                        .override(512)
-                        .priority(Priority.LOW)
-                        .into(transitionImage)
-                }
-
-
-                val lp = transitionContainer.layoutParams as FrameLayout.LayoutParams
-
-                lp.width = startViewBounds.right - startViewBounds.left
-                lp.height = startViewBounds.bottom - startViewBounds.top
-                lp.leftMargin = startViewBounds.left
-                lp.topMargin = startViewBounds.top
-                transitionContainer.layoutParams = lp
-
-
-                transitionContainer.alpha = 1.0f
-                transitionRoot.visibility = View.VISIBLE
-
-
-                var startTime = System.currentTimeMillis()
-                var endTime = startTime + 600
-
-
-                // start time
-                // end time
-                // while now < end time
-                while (true) {
-                    val now = System.currentTimeMillis()
-
-                    var u: Float
-                    if (endTime <= now) {
-                        u = 1.0f
+                    val endViewBounds = Rect()
+                    var connectTopImage = view.findViewById<View>(R.id.connect_top_image)
+                    if (connectTopImage != null) {
+                        connectTopImage.getDrawingRect(endViewBounds)
+                        view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
                     } else {
-                        u = (now - startTime).toFloat() / (endTime - startTime).toFloat()
-                        u = u.pow(0.5f)
+                        // guess
+                        endViewBounds.left = 0
+                        endViewBounds.top = 126
+                        endViewBounds.right = 420
+                        endViewBounds.bottom = 546
                     }
 
-                    if (connectTopImage == null) {
-                        connectTopImage = view.findViewById<View>(R.id.connect_top_image)
-                        if (connectTopImage != null) {
-                            connectTopImage.getDrawingRect(endViewBounds)
-                            view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
-                        }
+                    var dx = (endViewBounds.left - startViewBounds.left).toFloat()
+                    var dy = (endViewBounds.top - startViewBounds.top).toFloat()
+                    val d = (dx * dx + dy * dy).pow(0.5f)
+                    dx /= d
+                    dy /= d
+
+
+
+                    if (location.isGroup) {
+                        Glide.with(this@ConnectFragment)
+                            .load(R.drawable.ic_location_group_large)
+                            .override(512)
+                            .priority(Priority.LOW)
+                            .into(transitionImage)
+                    } else if (location.isDevice) {
+                        Glide.with(this@ConnectFragment)
+                            .load(R.drawable.device_android)
+                            .override(512)
+                            .priority(Priority.LOW)
+                            .into(transitionImage)
+                    } else {
+                        val resId = context.resources.getIdentifier(
+                            "country_${location.countryCode}_512",
+                            "drawable",
+                            context.packageName
+                        )
+                        Glide.with(this@ConnectFragment)
+                            .load(resId)
+                            .override(512)
+                            .priority(Priority.LOW)
+                            .into(transitionImage)
                     }
 
 
-                    lp.width = lerp(
-                        (startViewBounds.right - startViewBounds.left).toFloat(),
-                        (endViewBounds.right - endViewBounds.left).toFloat(),
-                        u
-                    ).toInt()
-                    lp.height = lerp(
-                        (startViewBounds.bottom - startViewBounds.top).toFloat(),
-                        (endViewBounds.bottom - endViewBounds.top).toFloat(),
-                        u
-                    ).toInt()
-                    var x = lerp(startViewBounds.left.toFloat(), endViewBounds.left.toFloat(), u)
-                    var y = lerp(startViewBounds.top.toFloat(), endViewBounds.top.toFloat(), u)
+                    val lp = transitionContainer.layoutParams as FrameLayout.LayoutParams
 
-                    // slightly arc the path
-                    val s = 48 * sin(PI * u).toFloat()
-                    x += -dy * s
-                    y += dx * s
-
-                    lp.leftMargin = x.toInt()
-                    lp.topMargin = y.toInt()
+                    lp.width = startViewBounds.right - startViewBounds.left
+                    lp.height = startViewBounds.bottom - startViewBounds.top
+                    lp.leftMargin = startViewBounds.left
+                    lp.topMargin = startViewBounds.top
                     transitionContainer.layoutParams = lp
 
-                    if (endTime <= now) {
-                        break
-                    }
 
-                    delay(1000 / 24)
-                }
+                    transitionContainer.alpha = 1.0f
+                    transitionRoot.visibility = View.VISIBLE
 
-                // wait until the connection is active
-                while (true) {
-                    if (connectTopImage != null && activeLocation?.connectLocationId == location.connectLocationId) {
-                        break
-                    }
-                    if (connectTopImage == null) {
-                        connectTopImage = view.findViewById<View>(R.id.connect_top_image)
-                        if (connectTopImage != null) {
-                            connectTopImage.getDrawingRect(endViewBounds)
-                            view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
 
-                            lp.width = endViewBounds.width()
-                            lp.height = endViewBounds.height()
-                            lp.leftMargin = endViewBounds.left
-                            lp.topMargin = endViewBounds.top
-                            transitionContainer.layoutParams = lp
+                    var startTime = System.currentTimeMillis()
+                    var endTime = startTime + 600
+
+
+                    // start time
+                    // end time
+                    // while now < end time
+                    while (true) {
+                        val now = System.currentTimeMillis()
+
+                        var u: Float
+                        if (endTime <= now) {
+                            u = 1.0f
+                        } else {
+                            u = (now - startTime).toFloat() / (endTime - startTime).toFloat()
+                            u = u.pow(0.5f)
                         }
+
+                        if (connectTopImage == null) {
+                            connectTopImage = view.findViewById<View>(R.id.connect_top_image)
+                            if (connectTopImage != null) {
+                                connectTopImage.getDrawingRect(endViewBounds)
+                                view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
+                            }
+                        }
+
+
+                        lp.width = lerp(
+                            (startViewBounds.right - startViewBounds.left).toFloat(),
+                            (endViewBounds.right - endViewBounds.left).toFloat(),
+                            u
+                        ).toInt()
+                        lp.height = lerp(
+                            (startViewBounds.bottom - startViewBounds.top).toFloat(),
+                            (endViewBounds.bottom - endViewBounds.top).toFloat(),
+                            u
+                        ).toInt()
+                        var x =
+                            lerp(startViewBounds.left.toFloat(), endViewBounds.left.toFloat(), u)
+                        var y = lerp(startViewBounds.top.toFloat(), endViewBounds.top.toFloat(), u)
+
+                        // slightly arc the path
+                        val s = 48 * sin(PI * u).toFloat()
+                        x += -dy * s
+                        y += dx * s
+
+                        lp.leftMargin = x.toInt()
+                        lp.topMargin = y.toInt()
+                        transitionContainer.layoutParams = lp
+
+                        if (endTime <= now) {
+                            break
+                        }
+
+                        delay(1000 / 24)
                     }
-                    delay(200)
+
+                    // wait until the connection is active
+                    while (true) {
+                        if (connectTopImage != null && activeLocation?.connectLocationId == location.connectLocationId) {
+                            break
+                        }
+                        if (connectTopImage == null) {
+                            connectTopImage = view.findViewById<View>(R.id.connect_top_image)
+                            if (connectTopImage != null) {
+                                connectTopImage.getDrawingRect(endViewBounds)
+                                view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
+
+                                lp.width = endViewBounds.width()
+                                lp.height = endViewBounds.height()
+                                lp.leftMargin = endViewBounds.left
+                                lp.topMargin = endViewBounds.top
+                                transitionContainer.layoutParams = lp
+                            }
+                        }
+                        delay(200)
+                    }
+
+                    delay(2000)
+
+                    startTime = System.currentTimeMillis()
+                    endTime = startTime + 1000
+                    while (true) {
+                        val now = System.currentTimeMillis()
+
+                        var u: Float
+                        if (endTime <= now) {
+                            u = 1.0f
+                        } else {
+                            u = (now - startTime).toFloat() / (endTime - startTime).toFloat()
+                        }
+
+                        transitionContainer.alpha = 1.0f - u
+
+                        if (endTime <= now) {
+                            break
+                        }
+
+                        delay(1000 / 24)
+                    }
+
+                } finally {
+                    transitionRoot.visibility = View.GONE
                 }
 
-                delay(2000)
-
-                startTime = System.currentTimeMillis()
-                endTime = startTime + 1000
-                while (true) {
-                    val now = System.currentTimeMillis()
-
-                    var u: Float
-                    if (endTime <= now) {
-                        u = 1.0f
-                    } else {
-                        u = (now - startTime).toFloat() / (endTime - startTime).toFloat()
-                    }
-
-                    transitionContainer.alpha = 1.0f - u
-
-                    if (endTime <= now) {
-                        break
-                    }
-
-                    delay(1000 / 24)
-                }
-
-            } finally {
-                transitionRoot.visibility = View.GONE
             }
-
-
         }
     }
 }

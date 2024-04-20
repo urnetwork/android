@@ -181,7 +181,7 @@ class MainApplication : Application() {
         }
 
 
-        router = Router(byDevice!!)
+        router = Router(this, byDevice!!)
 
         byDevice?.provideMode = provideMode
 
@@ -285,40 +285,6 @@ class MainApplication : Application() {
     }
 
 
-
-    fun getDeviceDescription(): String {
-        return "New device"
-    }
-
-    fun getDeviceSpec(): String {
-        if (32 <= Build.VERSION.SDK_INT) {
-            return "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
-        } else {
-            return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
-        }
-    }
-
-    fun getAppVersion(): String {
-        return BuildConfig.VERSION_NAME
-    }
-
-    fun setProvideMode(provideMode: Long) {
-        // store the setting in local storage
-        asyncLocalState?.localState()?.provideMode = provideMode
-        byDevice?.setProvideMode(provideMode)
-
-    }
-
-    fun getProvideMode(): Long {
-        return asyncLocalState?.localState()?.provideMode!!
-    }
-
-    fun isVpnRequestStart(): Boolean {
-        return vpnRequestStart
-    }
-
-
-
     private fun updateVpnService() {
         val byDevice = byDevice ?: return
 
@@ -364,6 +330,42 @@ class MainApplication : Application() {
             wifiLock = null
         }
     }
+
+
+
+
+    fun getDeviceDescription(): String {
+        return "New device"
+    }
+
+    fun getDeviceSpec(): String {
+        if (32 <= Build.VERSION.SDK_INT) {
+            return "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
+        } else {
+            return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
+        }
+    }
+
+    fun getAppVersion(): String {
+        return BuildConfig.VERSION_NAME
+    }
+
+    fun setProvideMode(provideMode: Long) {
+        // store the setting in local storage
+        asyncLocalState?.localState()?.provideMode = provideMode
+        byDevice?.setProvideMode(provideMode)
+
+    }
+
+    fun getProvideMode(): Long {
+        return asyncLocalState?.localState()?.provideMode!!
+    }
+
+    fun isVpnRequestStart(): Boolean {
+        return vpnRequestStart
+    }
+
+
 
 
 }

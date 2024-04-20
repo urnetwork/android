@@ -65,7 +65,7 @@
 
         android:layout_marginLeft="8dp"
 
-        android:src="@drawable/ic_location_group_large"
+        android:src="@drawable/ic_location_group_small"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
         />
