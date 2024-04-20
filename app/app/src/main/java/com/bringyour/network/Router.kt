@@ -15,10 +15,9 @@ import kotlin.concurrent.Volatile
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
-class Router(val app: MainApplication, val byDevice: BringYourDevice) {
+class Router(val byDevice: BringYourDevice) {
     companion object {
         val WRITE_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(5L)
-        val READ_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(30L)
     }
 
     val clientIpv4: String? = "10.10.11.11"
@@ -39,8 +38,6 @@ class Router(val app: MainApplication, val byDevice: BringYourDevice) {
         thread {
             val writeLock = ReentrantLock()
             val writeCondition = writeLock.newCondition()
-            val readTimeout = IoCounter(-1)
-            val writeTimeout = IoCounter(-1)
             var fos : FileOutputStream? = null
 
             try {
@@ -65,13 +62,8 @@ class Router(val app: MainApplication, val byDevice: BringYourDevice) {
 
                             try {
 
-                                writeTimeout.addPending()
-                                try {
-                                    Log.i("Router", "write(${it.size})")
-                                    fos!!.write(it)
-                                } finally {
-                                    writeTimeout.addCompleted()
-                                }
+                                Log.i("Router", "write(${it.size})")
+                                fos!!.write(it)
 
                                 break
                             } catch (_: IOException) {
@@ -118,13 +110,7 @@ class Router(val app: MainApplication, val byDevice: BringYourDevice) {
                                 val buffer = ByteArray(2048)
                                 while (active) {
                                     try {
-                                        val n: Int
-                                        readTimeout.addPending()
-                                        try {
-                                            n = fis.read(buffer)
-                                        } finally {
-                                            readTimeout.addCompleted()
-                                        }
+                                        val n = fis.read(buffer)
 
                                         if (0 < n) {
                                             // note sendPacket makes a copy of the buffer
@@ -144,14 +130,6 @@ class Router(val app: MainApplication, val byDevice: BringYourDevice) {
                             }
 
                             while (active && nextPfd == null && readThread.isAlive) {
-                                if (writeTimeout.check() || readTimeout.check()) {
-                                    // write or read timeout.
-                                    // this happens when io with the pfd takes a long time but the pfd is not closed.
-                                    // something seems to be corrupted in the pfd. restart the vpn service
-                                    Log.i("Router", "IO Timeout")
-                                    app.startVpnService()
-                                    break
-                                }
                                 nextPfd = pfds.poll(1, TimeUnit.SECONDS)
                             }
 
@@ -193,48 +171,5 @@ class Router(val app: MainApplication, val byDevice: BringYourDevice) {
             val drainPfd = pfds.poll() ?: break
             drainPfd.close()
         }
-    }
-}
-
-
-class IoCounter(val timeoutMillis: Long) {
-    private val statsLock = ReentrantLock()
-
-    private var pendingSeq = 0L
-    private var completedSeq = 0L
-    private var headPendingSeq = -1L
-    private var headPendingTime = 0L
-
-    fun addPending() {
-        statsLock.withLock {
-            pendingSeq += 1
-        }
-    }
-
-    fun addCompleted() {
-        statsLock.withLock {
-            completedSeq += 1
-        }
-    }
-
-    fun check(): Boolean {
-        var checkTimeout = false
-        if (0 < timeoutMillis) {
-            statsLock.withLock {
-                if (pendingSeq == headPendingSeq) {
-                    if (pendingSeq < completedSeq) {
-                        val timeout =
-                            System.currentTimeMillis() - headPendingTime
-                        if (timeoutMillis <= timeout) {
-                            checkTimeout = true
-                        }
-                    }
-                } else {
-                    headPendingSeq = pendingSeq
-                    headPendingTime = System.currentTimeMillis()
-                }
-            }
-        }
-        return checkTimeout
     }
 }

@@ -181,7 +181,7 @@ class MainApplication : Application() {
         }
 
 
-        router = Router(this, byDevice!!)
+        router = Router(byDevice!!)
 
         byDevice?.provideMode = provideMode
 
