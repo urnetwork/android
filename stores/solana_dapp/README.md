@@ -1,6 +1,8 @@
 
 # Steps to publish
 
+https://docs.solanamobile.com/dapp-publishing/setup
+
 https://github.com/solana-mobile/dapp-publishing
 https://solana.com/docs/core/clusters
 
@@ -8,6 +10,9 @@ https://docs.solanamobile.com/dapp-publishing/publishing_releases
 
 
 ```
+
+# update
+# pnpm install @solana-mobile/dapp-store-cli@latest
 
 npx dapp-store create release -k ~/bringyour/vault/android/solana_dapp/keypair.json -b $ANDROID_HOME/build-tools/34.0.0 -u https://api.mainnet-beta.solana.com
 

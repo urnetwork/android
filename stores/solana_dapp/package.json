@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@solana-mobile/dapp-store-cli": "^0.7.1"
+    "@solana-mobile/dapp-store-cli": "^0.8.1"
   }
 }
