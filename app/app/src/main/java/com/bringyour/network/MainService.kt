@@ -40,6 +40,7 @@ class MainService : VpnService() {
     // addDisallowedApplication (String packageName)
 
     private var pfd: ParcelFileDescriptor? = null
+    private var foregroundStarted: Boolean = false
 
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
 
@@ -114,6 +115,12 @@ class MainService : VpnService() {
                     // stop self when turned off
 
                     builder.establish()?.let { pfd ->
+                        try {
+                            this.pfd?.close()
+                        } catch (e: IOException) {
+                            // ignore
+                        }
+                        this.pfd = pfd
                         router.activateLocalInterface(pfd)
                     }
                 }
@@ -121,8 +128,21 @@ class MainService : VpnService() {
             }
         }
 
-
-        updateForegroundNotification("BringYour")
+        intent?.getBooleanExtra("foreground", false)?.let { notification ->
+            if (notification) {
+                if (!foregroundStarted) {
+                    startForegroundNotification("BringYour")
+                    foregroundStarted = true
+                }
+                // update the notification `NOTIFICATION_ID` and it will update the displayed notification
+                // see https://stackoverflow.com/questions/5528288/how-do-i-update-the-notification-text-for-a-foreground-service-in-android
+            } else {
+                if (foregroundStarted) {
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                    foregroundStarted = false
+                }
+            }
+        }
 
     // FIXME configure intent
 
@@ -165,7 +185,7 @@ class MainService : VpnService() {
 
 
 
-    private fun updateForegroundNotification(message: String) {
+    private fun startForegroundNotification(message: String) {
 
 
         if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {

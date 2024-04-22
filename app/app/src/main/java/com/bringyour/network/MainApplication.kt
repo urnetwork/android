@@ -245,6 +245,7 @@ class MainApplication : Application() {
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("stop", false)
         vpnIntent.putExtra("start", true)
+        vpnIntent.putExtra("foreground", true)
         sendVpnServiceIntent(vpnIntent)
 
 
@@ -258,6 +259,7 @@ class MainApplication : Application() {
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
+        vpnIntent.putExtra("foreground", false)
         sendVpnServiceIntent(vpnIntent)
 
 
@@ -268,18 +270,25 @@ class MainApplication : Application() {
         if (VpnService.prepare(this) == null) {
             // important: start the vpn service in the application context
 
-            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-                if (hasForegroundPermissions) {
-                    startForegroundService(vpnIntent)
+            vpnIntent.getBooleanExtra("foreground", false).let { foreground ->
+                if (foreground) {
+                    // use a foreground service to allow notifications
+                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                        val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+                            this,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (hasForegroundPermissions) {
+                            startForegroundService(vpnIntent)
+                        } else {
+                            startService(vpnIntent)
+                        }
+                    } else {
+                        ContextCompat.startForegroundService(this, vpnIntent)
+                    }
                 } else {
                     startService(vpnIntent)
                 }
-            } else {
-                ContextCompat.startForegroundService(this, vpnIntent)
             }
         }
     }
