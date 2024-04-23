@@ -19,7 +19,7 @@ app:
     - purpose: icon
       uri: icon.png
 release:
-  address: 5U9JASeBeAvqa2R8iJ5iYbXWdizrqkykHHSkMeUhAssN
+  address: 7ujSVng5pAXpAqHDK2wpH6R6r6Z8DcPj1H3PqzZdsUuv
   media:
     - purpose: icon
       uri: icon.png
@@ -27,13 +27,14 @@ release:
       uri: screens/login.png
   files:
     - purpose: install
-      uri: release/com.bringyour.network-2024.4.20-outerwerld+1713599540578-7992-solana_dapp-release.apk
+      uri: release/com.bringyour.network-2024.4.22-outerwerld+1713814676957-8052-solana_dapp-release.apk
   catalog:
     en-US:
       name: BringYour
       short_description: VPN that works just like home
       long_description: Fast and secure internet wherever you want to be, with ultimate control of your data. Take ultimate control of your data between your devices and the cloud. BringYour lets you choose other real devices in the world through which your data travels. Additionally your device can provide security to the network in the background and earn USDC.
       new_in_version: |
+        Hot fix to address stopping the VPN when not in use.
         Fixes to address idle timeouts and CPU issues after disconnect. The VPN should now work correctly in always-on mode, including after phone sleep.
         Follow up to the previous release to extend the contract requirement date to April 22.
         Fixes to the client connect algorithm to reduce energy usage and improve speed of connect.
