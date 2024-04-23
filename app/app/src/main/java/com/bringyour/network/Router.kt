@@ -62,7 +62,7 @@ class Router(val byDevice: BringYourDevice) {
 
                             try {
 
-                                Log.i("Router", "write(${it.size})")
+//                                Log.i("Router", "write(${it.size})")
                                 fos!!.write(it)
 
                                 break
