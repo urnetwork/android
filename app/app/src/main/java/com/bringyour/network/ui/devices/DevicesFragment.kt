@@ -195,7 +195,7 @@ class AndroidDeviceViewHolder(val devicesVc: DevicesViewController, view: View) 
 //            connectedIconView.setImageResource(R.drawable.device_connected_disconnected)
             connectedSummaryView.text = "Disconnected"
         }
-        if (devicesVc.clientId().idEquals(networkClient.clientId)) {
+        if (devicesVc.clientId() == networkClient.clientId) {
             thisDeviceLabelView.visibility = VISIBLE
         } else {
             thisDeviceLabelView.visibility = GONE

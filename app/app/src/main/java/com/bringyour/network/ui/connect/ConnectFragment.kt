@@ -20,6 +20,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -333,16 +334,24 @@ class ConnectFragment : Fragment() {
         app?.connectVc?.start()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        view?.findViewById<TextView>(R.id.connect_header)?.let { connectHeader ->
+            updateWindowStats(connectHeader)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
 
         app?.connectVc?.stop()
 
-        updateTimer?.cancel()
-        updateTimer = null
-
         animateJob?.cancel()
         animateJob = null
+
+        updateTimer?.cancel()
+        updateTimer = null
     }
 
 
@@ -498,19 +507,37 @@ class ConnectFragment : Fragment() {
                     startView.getDrawingRect(startViewBounds)
                     view.offsetDescendantRectToMyCoords(startView, startViewBounds)
 
-
                     val endViewBounds = Rect()
-                    var connectTopImage = view.findViewById<View>(R.id.connect_top_image)
-                    if (connectTopImage != null) {
+
+                    val connectTop = view.findViewById<FrameLayout>(R.id.connect_top)
+                    val connectTopTemp = view.findViewById<FrameLayout>(R.id.connect_top_temp)
+                    val connectTopDisconnected = view.findViewById<View>(R.id.connect_top_disconnected)
+
+                    val h0: Int
+                    val h1: Int
+                    if (connectTopDisconnected != null) {
+                        // inflate a temp target view to use for target bounds
+                        val temp = LayoutInflater.from(context)
+                            .inflate(R.layout.connect_top_country, connectTopTemp, true)
+
+                        delay(1)
+
+                        val connectTopImage = connectTopTemp.findViewById<View>(R.id.connect_top_image)
                         connectTopImage.getDrawingRect(endViewBounds)
                         view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
+
+                        val tlp = connectTopDisconnected.layoutParams as FrameLayout.LayoutParams
+                        h0 = tlp.bottomMargin
+                        h1 = temp.height - connectTopDisconnected.height
                     } else {
-                        // guess
-                        endViewBounds.left = 0
-                        endViewBounds.top = 126
-                        endViewBounds.right = 420
-                        endViewBounds.bottom = 546
+                        h0 = 0
+                        h1 = 0
+
+                        val connectTopImage = connectTop.findViewById<View>(R.id.connect_top_image)
+                        connectTopImage.getDrawingRect(endViewBounds)
+                        view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
                     }
+
 
                     var dx = (endViewBounds.left - startViewBounds.left).toFloat()
                     var dy = (endViewBounds.top - startViewBounds.top).toFloat()
@@ -560,12 +587,9 @@ class ConnectFragment : Fragment() {
 
 
                     var startTime = System.currentTimeMillis()
-                    var endTime = startTime + 600
+                    var endTime = startTime + 300
 
-
-                    // start time
-                    // end time
-                    // while now < end time
+                    // animate to place
                     while (true) {
                         val now = System.currentTimeMillis()
 
@@ -577,13 +601,13 @@ class ConnectFragment : Fragment() {
                             u = u.pow(0.5f)
                         }
 
-                        if (connectTopImage == null) {
-                            connectTopImage = view.findViewById<View>(R.id.connect_top_image)
-                            if (connectTopImage != null) {
-                                connectTopImage.getDrawingRect(endViewBounds)
-                                view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
-                            }
-                        }
+//                        if (connectTopImage == null) {
+//                            connectTopImage = view.findViewById<View>(R.id.connect_top_image)
+//                            if (connectTopImage != null) {
+//                                connectTopImage.getDrawingRect(endViewBounds)
+//                                view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
+//                            }
+//                        }
 
 
                         lp.width = lerp(
@@ -609,7 +633,19 @@ class ConnectFragment : Fragment() {
                         lp.topMargin = y.toInt()
                         transitionContainer.layoutParams = lp
 
+
+                        if (connectTopDisconnected != null) {
+                            val tlp = connectTopDisconnected.layoutParams as FrameLayout.LayoutParams
+                            connectTopDisconnected.alpha = lerp(1f, 0f, u)
+                            tlp.bottomMargin = lerp(h0.toFloat(), h1.toFloat(), u).toInt()
+                            connectTopDisconnected.layoutParams = tlp
+                        }
+
                         if (endTime <= now) {
+                            break
+                        }
+
+                        if (activeLocation?.connectLocationId == location.connectLocationId) {
                             break
                         }
 
@@ -618,24 +654,23 @@ class ConnectFragment : Fragment() {
 
                     // wait until the connection is active
                     while (true) {
-                        if (connectTopImage != null && activeLocation?.connectLocationId == location.connectLocationId) {
-                            break
-                        }
-                        if (connectTopImage == null) {
-                            connectTopImage = view.findViewById<View>(R.id.connect_top_image)
-                            if (connectTopImage != null) {
-                                connectTopImage.getDrawingRect(endViewBounds)
-                                view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
+                        connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
+                            connectTopImage.getDrawingRect(endViewBounds)
+                            view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
 
-                                lp.width = endViewBounds.width()
-                                lp.height = endViewBounds.height()
-                                lp.leftMargin = endViewBounds.left
-                                lp.topMargin = endViewBounds.top
-                                transitionContainer.layoutParams = lp
-                            }
+                            lp.width = endViewBounds.width()
+                            lp.height = endViewBounds.height()
+                            lp.leftMargin = endViewBounds.left
+                            lp.topMargin = endViewBounds.top
+                            transitionContainer.layoutParams = lp
+                        }
+                        if (activeLocation?.connectLocationId == location.connectLocationId) {
+                            break
                         }
                         delay(200)
                     }
+
+                    connectTopTemp.removeAllViews()
 
                     delay(2000)
 
