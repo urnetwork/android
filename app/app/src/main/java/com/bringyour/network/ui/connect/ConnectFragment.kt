@@ -251,7 +251,7 @@ class ConnectFragment : Fragment() {
                     updateWindowStats(connectHeader)
                 }
 
-                if (animateJob == null) {
+                if (animateJob?.isActive != true) {
                     connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
                         connectTopImage.visibility = View.VISIBLE
                     }
@@ -497,11 +497,16 @@ class ConnectFragment : Fragment() {
 
     fun animateConnect(startView: View, location: ConnectLocation) {
 
+
         // startView must be a descendant of this fragment view
         animateJob?.cancel()
         animateJob = lifecycleScope.launch(Dispatchers.Main) {
             context?.let { context ->
                 val view = requireView() as ViewGroup
+
+                view.findViewById<View>(R.id.connect_search)?.let { connectSearch ->
+                    connectSearch.clearFocus()
+                }
 
                 val transitionRoot = view.findViewById<ViewGroup>(R.id.transition_root)!!
                 val transitionContainer = view.findViewById<View>(R.id.transition_container)!!
@@ -596,6 +601,8 @@ class ConnectFragment : Fragment() {
                     var startTime = System.currentTimeMillis()
                     var endTime = startTime + 300
 
+                    var a0 = connectTop.alpha
+
                     // animate to place
                     while (true) {
                         val now = System.currentTimeMillis()
@@ -648,6 +655,8 @@ class ConnectFragment : Fragment() {
                             connectTopDisconnected.layoutParams = tlp
                         }
 
+                        connectTop.alpha = lerp(a0, 0.5f, u)
+
                         if (endTime <= now) {
                             break
                         }
@@ -659,8 +668,7 @@ class ConnectFragment : Fragment() {
                         delay(1000 / 24)
                     }
 
-                    // wait until the connection is active
-                    while (true) {
+                    fun snap() {
                         connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
                             connectTopImage.visibility = View.VISIBLE
 
@@ -673,9 +681,16 @@ class ConnectFragment : Fragment() {
                             lp.topMargin = endViewBounds.top
                             transitionContainer.layoutParams = lp
                         }
+                    }
+
+                    // wait until the connection is active
+                    while (true) {
+                        snap()
+
                         if (activeLocation?.connectLocationId == location.connectLocationId) {
                             break
                         }
+
                         delay(200)
                     }
 
@@ -683,11 +698,13 @@ class ConnectFragment : Fragment() {
 
                     delay(2000)
 
+                    a0 = connectTop.alpha
                     startTime = System.currentTimeMillis()
                     endTime = startTime + 1000
                     while (true) {
-                        val now = System.currentTimeMillis()
+                        snap()
 
+                        val now = System.currentTimeMillis()
                         var u: Float
                         if (endTime <= now) {
                             u = 1.0f
@@ -696,6 +713,7 @@ class ConnectFragment : Fragment() {
                         }
 
                         transitionContainer.alpha = 1.0f - u
+                        connectTop.alpha = lerp(a0, 1.0f, u)
 
                         if (endTime <= now) {
                             break
@@ -710,6 +728,8 @@ class ConnectFragment : Fragment() {
                     connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
                         connectTopImage.visibility = View.VISIBLE
                     }
+
+                    connectTop.alpha = 1.0f
                 }
 
             }
