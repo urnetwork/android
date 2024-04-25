@@ -250,6 +250,12 @@ class ConnectFragment : Fragment() {
                 view.findViewById<TextView>(R.id.connect_header)?.let { connectHeader ->
                     updateWindowStats(connectHeader)
                 }
+
+                if (animateJob == null) {
+                    connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
+                        connectTopImage.visibility = View.VISIBLE
+                    }
+                }
             }
         }
 
