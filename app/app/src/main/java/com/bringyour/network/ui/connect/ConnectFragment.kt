@@ -501,6 +501,9 @@ class ConnectFragment : Fragment() {
                 val transitionContainer = view.findViewById<View>(R.id.transition_container)!!
                 val transitionImage = view.findViewById<ImageView>(R.id.transition_image)!!
 
+                val connectTop = view.findViewById<FrameLayout>(R.id.connect_top)!!
+                val connectTopTemp = view.findViewById<FrameLayout>(R.id.connect_top_temp)!!
+
                 try {
 
                     val startViewBounds = Rect()
@@ -509,8 +512,6 @@ class ConnectFragment : Fragment() {
 
                     val endViewBounds = Rect()
 
-                    val connectTop = view.findViewById<FrameLayout>(R.id.connect_top)
-                    val connectTopTemp = view.findViewById<FrameLayout>(R.id.connect_top_temp)
                     val connectTopDisconnected = view.findViewById<View>(R.id.connect_top_disconnected)
 
                     val h0: Int
@@ -645,9 +646,9 @@ class ConnectFragment : Fragment() {
                             break
                         }
 
-                        if (activeLocation?.connectLocationId == location.connectLocationId) {
-                            break
-                        }
+//                        if (activeLocation?.connectLocationId == location.connectLocationId) {
+//                            break
+//                        }
 
                         delay(1000 / 24)
                     }
@@ -655,6 +656,8 @@ class ConnectFragment : Fragment() {
                     // wait until the connection is active
                     while (true) {
                         connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
+                            connectTopImage.visibility = View.VISIBLE
+
                             connectTopImage.getDrawingRect(endViewBounds)
                             view.offsetDescendantRectToMyCoords(connectTopImage, endViewBounds)
 
@@ -697,6 +700,10 @@ class ConnectFragment : Fragment() {
 
                 } finally {
                     transitionRoot.visibility = View.GONE
+
+                    connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
+                        connectTopImage.visibility = View.VISIBLE
+                    }
                 }
 
             }

@@ -50,6 +50,9 @@
         android:src="@drawable/ic_location_group_large"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
+
+
+        android:visibility="invisible"
         />
 
     <ImageView

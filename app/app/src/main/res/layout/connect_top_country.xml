@@ -50,6 +50,8 @@
         android:scaleType="centerInside"
 
         android:src="@drawable/placeholder_rect"
+
+        android:visibility="invisible"
         />
 
     <ImageView

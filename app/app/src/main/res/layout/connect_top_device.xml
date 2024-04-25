@@ -49,6 +49,9 @@
         android:src="@drawable/device_android"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
+
+
+        android:visibility="invisible"
         />
 
     <TextView

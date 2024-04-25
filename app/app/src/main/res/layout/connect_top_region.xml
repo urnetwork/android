@@ -53,6 +53,9 @@
 
         android:src="@drawable/placeholder_rect"
         android:alpha="0.5"
+
+
+        android:visibility="invisible"
         />
 
 
