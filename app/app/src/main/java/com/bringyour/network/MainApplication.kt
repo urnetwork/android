@@ -315,7 +315,14 @@ class MainApplication : Application() {
 
 
                     wifiLock = (getSystemService(WIFI_SERVICE) as WifiManager).run {
-                        createWifiLock(WifiManager.WIFI_MODE_FULL_LOW_LATENCY, "bringyour::provide").apply {
+                        val wifiLockMode: Int
+                        if (Build.VERSION_CODES.Q <= Build.VERSION.SDK_INT) {
+                            wifiLockMode = WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+                        } else {
+                            wifiLockMode = WifiManager.WIFI_MODE_FULL_HIGH_PERF
+                        }
+
+                        createWifiLock(wifiLockMode, "bringyour::provide").apply {
                             acquire()
                         }
                     }
