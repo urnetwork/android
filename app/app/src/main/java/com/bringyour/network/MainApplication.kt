@@ -87,23 +87,24 @@ class MainApplication : Application() {
 
         loginVc = Client.newLoginViewController(byApi)
 
-        try {
-            asyncLocalState?.localState()?.byJwt?.let { byJwt ->
-                byApi?.setByJwt(byJwt)
-            }
+        asyncLocalState?.localState()?.let { localState ->
+            try {
+                localState.byJwt?.let { byJwt ->
+                    localState.byClientJwt?.let { byClientJwt ->
+                        byApi?.setByJwt(byJwt)
 
-            asyncLocalState?.localState()?.byClientJwt?.let { byClientJwt ->
-                val instanceId = asyncLocalState?.localState()?.instanceId!!
-                val provideMode = asyncLocalState?.localState()?.provideMode!!
-                initDevice(byClientJwt, instanceId, provideMode)
-            }
-
-        } catch (e: Throwable) {
-            if (e is error) {
-                // this was an error raised as a second value
-                logout()
-            } else {
-                throw(e)
+                        val instanceId = asyncLocalState?.localState()?.instanceId!!
+                        val provideMode = asyncLocalState?.localState()?.provideMode!!
+                        initDevice(byClientJwt, instanceId, provideMode)
+                    }
+                }
+            } catch (e: Throwable) {
+                if (e is error) {
+                    // missing one or both of jwt or client jwt
+                    localState.logout()
+                } else {
+                    throw(e)
+                }
             }
         }
 
