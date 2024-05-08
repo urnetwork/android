@@ -48,7 +48,7 @@
 
         android:src="@drawable/device_android"
         android:adjustViewBounds="true"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
 
 
         android:visibility="invisible"
