@@ -103,8 +103,11 @@ android {
 dependencies {
     // see https://developer.android.com/build/dependencies#groovy
 //    implementation name: 'client', ext: 'aar'
-    compileOnly fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*-sources.jar'])
-    implementation fileTree(dir: "${System.env.HOME}/bringyour/bringyour/client/build/android", include: ['*.aar', '*.jar'])
+
+    def bringyourHomeDir = System.getenv("BRINGYOUR_HOME") ?: "${System.env.HOME}/bringyour"
+
+    compileOnly fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*-sources.jar'])
+    implementation fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*.aar', '*.jar'])
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation 'com.github.bumptech.glide:glide:4.14.2'
