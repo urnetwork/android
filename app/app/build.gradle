@@ -5,6 +5,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def bringyourHomeDir = System.getenv("BRINGYOUR_HOME") ?: "${System.env.HOME}/bringyour"
+
 android {
     ext.appVersion = { ->
         def out = new ByteArrayOutputStream()
@@ -89,7 +91,7 @@ android {
     }
 
     tasks.register('goclientBuild', Exec) {
-        workingDir "${System.env.HOME}/bringyour/bringyour/client"
+        workingDir "${bringyourHomeDir}/bringyour/client"
         commandLine 'make', 'clean', 'build_android'
     }
 
@@ -103,8 +105,6 @@ android {
 dependencies {
     // see https://developer.android.com/build/dependencies#groovy
 //    implementation name: 'client', ext: 'aar'
-
-    def bringyourHomeDir = System.getenv("BRINGYOUR_HOME") ?: "${System.env.HOME}/bringyour"
 
     compileOnly fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*-sources.jar'])
     implementation fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*.aar', '*.jar'])
