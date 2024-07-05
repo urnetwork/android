@@ -1,5 +1,15 @@
 # android
 
+## Getting Started with Development
+
+- Install Android Studio
+- Ensure you have a Java Runtime installed (`brew install java` on Mac).
+- Install and configure Warp on your computer (https://github.com/bringyour/warp).
+- Make sure `BRINGYOUR_HOME` is set in your .zshrc file.
+- You will need to pull down Vault and have Vault access (https://github.com/bringyour/vault).
+- Install gomobile (https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile).
+- Install NDK + CMake on Android Studio (https://developer.android.com/studio/projects/install-ndk). You can specify version 25.2.9519653 by clicking "Show Package Details" Settings -> Languages & Frameworks -> Android SDK -> SDK Tools.
+- Pull down https://github.com/bringyour/bringyour. Inside of this repo, navigate to /bringyour/client and run `make`.
 
 ## Debugging notes
 
