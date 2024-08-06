@@ -267,6 +267,10 @@ fun LoginInitialActivity(
             Text("Get Started", style = buttonTextStyle)
         }
 
+        if (loginError != null) {
+            Text(loginError.toString())
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("or",
