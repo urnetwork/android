@@ -2,6 +2,7 @@ package com.bringyour.network
 
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import com.bringyour.network.ui.theme.TextMuted
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.text.KeyboardOptions
 import com.bringyour.client.AuthLoginArgs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -43,19 +45,20 @@ import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import androidx.compose.runtime.*
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.bringyour.client.BringYourApi
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-
 
 @Composable()
 fun LoginInitialActivity(
     appLogin: (String) -> Unit,
-    loginSuccess: (Bundle) -> Unit,
+    navigate: (Int, Bundle) -> Unit,
     byApi: BringYourApi?,
     loginActivity: LoginActivity?,
 ) {
     val context = LocalContext.current
-    var emailState by remember { mutableStateOf(TextFieldValue()) }
+    var userAuth by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
     var googleBtnText by remember { mutableStateOf("Log in with Google") }
@@ -122,7 +125,7 @@ fun LoginInitialActivity(
                     navArgs.putString("userName", result.userName)
                     navArgs.putString("userAuth", account.email)
 
-                    loginSuccess(navArgs)
+                    navigate(R.id.navigation_create_network_auth_jwt, navArgs)
                 }
             }
         }
@@ -137,6 +140,62 @@ fun LoginInitialActivity(
             googleLogin(account)
         } catch (e: ApiException) {
             loginError = "Error signing in with Google"
+        }
+    }
+
+    fun isValidUserAuth(userAuth: String): Boolean {
+        return userAuth.isNotEmpty() &&
+                (Patterns.EMAIL_ADDRESS.matcher(userAuth).matches() ||
+                        Patterns.PHONE.matcher(userAuth).matches())
+    }
+
+    val login = {
+
+        when {
+            !isValidUserAuth(userAuth.text) -> {}
+            else -> {
+                inProgress = true
+
+                val args = AuthLoginArgs()
+                args.userAuth = userAuth.text.trim()
+
+                byApi?.authLogin(args) { result, err ->
+                    runBlocking(Dispatchers.Main.immediate) {
+                        inProgress = false
+
+                        Log.i("LoginInitialFragment", "GOT RESULT " + result)
+
+                        if (err != null) {
+                            loginError = err.message
+                        } else if (result.error != null) {
+                            loginError = result.error.message
+                        } else if (result.authAllowed != null) {
+
+                            if (result.authAllowed.contains("password")) {
+                                // to the login password screen
+                                loginError = null
+                                val navArgs = Bundle()
+                                navArgs.putString("userAuth", result.userAuth)
+
+                                navigate(R.id.navigation_password, navArgs)
+                            } else {
+                                val authAllowed = mutableListOf<String>()
+                                for (i in 0 until result.authAllowed.len()) {
+                                    authAllowed.add(result.authAllowed.get(i))
+                                }
+
+                                loginError = context.getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
+                            }
+                        } else {
+                            // new network
+                            val navArgs = Bundle()
+                            navArgs.putString("userAuth", result.userAuth)
+
+                            navigate(R.id.navigation_create_network, navArgs)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -187,17 +246,23 @@ fun LoginInitialActivity(
         Spacer(modifier = Modifier.height(8.dp))
 
         URTextInput(
-            value = emailState,
+            value = userAuth,
             onValueChange = { newValue ->
-                emailState = newValue
+                userAuth = newValue
             },
-            placeholder = "Enter your phone number or email"
+            placeholder = "Enter your phone number or email",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Done
+            ),
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         URButton(
-            onClick = {}
+            onClick = {
+                login()
+            }
         ) { buttonTextStyle ->
             Text("Get Started", style = buttonTextStyle)
         }
@@ -214,7 +279,8 @@ fun LoginInitialActivity(
             style = ButtonStyle.SECONDARY,
             onClick = {
                 googleSignInLauncher.launch(googleSignInClient.signInIntent)
-            }
+            },
+            enabled = !inProgress
         ) { buttonTextStyle ->
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -261,7 +327,7 @@ fun LoginInitialPreview() {
             ) {
                 LoginInitialActivity(
                     appLogin = {},
-                    loginSuccess = {},
+                    navigate = { id, navArgs -> },
                     byApi = null,
                     loginActivity = null,
                 )

@@ -77,9 +77,6 @@ class LoginInitialFragment : Fragment() {
     ): View {
 
         val api = app?.byApi
-        // app?.login()
-
-        // app?.login()
 
         // val appLogin = app?.login
 
@@ -93,16 +90,6 @@ class LoginInitialFragment : Fragment() {
 //        val app = app ?: return root
 //
 //        loginActivity = activity as LoginActivity
-//
-//        videoView = root.findViewById<VideoView>(R.id.video_view)
-//
-//        videoView?.setOnPreparedListener {
-//            it.isLooping = true
-//        }
-//
-//        val path = "android.resource://" + app.packageName + "/" + R.raw.login
-//        videoView?.setVideoURI(Uri.parse(path))
-
 
 //        val googleSignInButton = root.findViewById<SignInButton>(R.id.google_sign_in_button)
 //        googleSignInButton.setSize(SignInButton.SIZE_STANDARD)
@@ -118,19 +105,6 @@ class LoginInitialFragment : Fragment() {
 //        loginSpinner.visibility = View.GONE
 //        loginError.visibility = View.GONE
 //
-//        val inProgress = { busy: Boolean ->
-//            if (busy) {
-//                googleSignInButton.isEnabled = false
-//                userAuth.isEnabled = false
-//                loginButton?.isEnabled = false
-//                loginSpinner.visibility = View.VISIBLE
-//            } else {
-//                googleSignInButton.isEnabled = true
-//                userAuth.isEnabled = true
-//                loginSpinner.visibility = View.GONE
-//                syncLoginButton()
-//            }
-//        }
 
 //        userAuth.addTextChangedListener(object: TextWatcher {
 //            override fun afterTextChanged(s: Editable?) {
@@ -146,52 +120,6 @@ class LoginInitialFragment : Fragment() {
 //                syncLoginButton()
 //            }
 //        })
-//
-//        val login = {
-//            inProgress(true)
-//
-//            val args = AuthLoginArgs()
-//            args.userAuth = userAuth.text.toString().trim()
-//
-//            app.byApi?.authLogin(args) { result, err ->
-//                runBlocking(Dispatchers.Main.immediate) {
-//                    inProgress(false)
-//
-//                    Log.i("LoginInitialFragment", "GOT RESULT " + result)
-//
-//                    if (err != null) {
-//                        loginError.visibility = View.VISIBLE
-//                        loginError.text = err.message
-//                    } else if (result.error != null) {
-//                        loginError.visibility = View.VISIBLE
-//                        loginError.text = result.error.message
-//                    } else if (result.authAllowed != null) {
-//                        if (result.authAllowed.contains("password")) {
-//                            loginError.visibility = View.GONE
-//                            val navArgs = Bundle()
-//                            navArgs.putString("userAuth", result.userAuth)
-//
-//                            findNavController().navigate(R.id.navigation_password, navArgs)
-//                        } else {
-//                            val authAllowed = mutableListOf<String>()
-//                            for (i in 0 until result.authAllowed.len()) {
-//                                authAllowed.add(result.authAllowed.get(i))
-//                            }
-//
-//                            loginError.visibility = View.VISIBLE
-//                            loginError.text = getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
-//                        }
-//                    } else {
-//                        // new network
-//
-//                        val navArgs = Bundle()
-//                        navArgs.putString("userAuth", result.userAuth)
-//
-//                        findNavController().navigate(R.id.navigation_create_network, navArgs)
-//                    }
-//                }
-//            }
-//        }
 //
 //        userAuth?.setOnEditorActionListener { _, _, keyEvent ->
 //            if (keyEvent == null) {
@@ -211,17 +139,7 @@ class LoginInitialFragment : Fragment() {
 //                }
 //            }
 //        }
-//
-//        loginButton?.setOnClickListener {
-//            login()
-//        }
-//
-//        val createButton = root.findViewById<Button>(R.id.login_create_network_button)
-//        createButton.setOnClickListener {
-//            findNavController().navigate(R.id.navigation_create_network)
-//        }
-//
-        
+
 
         // return root
         return ComposeView(requireContext()).apply {
@@ -239,8 +157,8 @@ class LoginInitialFragment : Fragment() {
                                     app?.login(byJwt)
                                 },
                                 loginActivity = loginActivity,
-                                loginSuccess = { navArgs ->
-                                    findNavController().navigate(R.id.navigation_create_network_auth_jwt, navArgs)
+                                navigate = { id, navArgs ->
+                                    findNavController().navigate(id, navArgs)
                                 }
                             )
                         }

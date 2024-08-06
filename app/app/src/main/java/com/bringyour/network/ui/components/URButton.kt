@@ -34,7 +34,8 @@ val buttonTextStyle = TextStyle(
 fun URButton(
     onClick: () -> Unit,
     style: ButtonStyle = ButtonStyle.PRIMARY,
-    content: @Composable (TextStyle) -> Unit
+    enabled: Boolean = true,
+    content: @Composable (TextStyle) -> Unit,
 ) {
 
     val buttonColors = when (style) {
@@ -53,8 +54,8 @@ fun URButton(
         colors = buttonColors,
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
-
+            .defaultMinSize(minHeight = 48.dp),
+        enabled = enabled
     ) {
 
         content(buttonTextStyle)
@@ -66,7 +67,7 @@ fun URButton(
 fun PrimaryButtonPreview() {
     URNetworkTheme {
         URButton(
-            onClick = {}
+            onClick = {},
         ) {
             Text("Get Started")
         }
