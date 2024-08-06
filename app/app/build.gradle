@@ -148,6 +148,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.7.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.7.5'
+    implementation "androidx.activity:activity-compose:1.9.1"
     // Material Design 3
     implementation 'androidx.compose.material3:material3'
     // Android Studio Preview support

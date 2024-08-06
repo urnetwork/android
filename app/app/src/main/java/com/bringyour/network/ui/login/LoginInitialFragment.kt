@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-// import com.bringyour.client.AuthLoginArgs
+import com.bringyour.client.AuthLoginArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.LoginInitialActivity
 import com.bringyour.network.MainActivity
@@ -61,7 +61,7 @@ class LoginInitialFragment : Fragment() {
     // onDestroyView.
     // private val binding get() = _binding!!
 
-    // private var app : MainApplication? = null
+    private var app : MainApplication? = null
 
     private var loginActivity: LoginActivity? = null
 
@@ -75,6 +75,16 @@ class LoginInitialFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        val api = app?.byApi
+        // app?.login()
+
+        // app?.login()
+
+        // val appLogin = app?.login
+
+        // getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
+
 //        _binding = FragmentLoginInitialBinding.inflate(inflater, container, false)
 //        val root: View = binding.root
 //
@@ -211,102 +221,7 @@ class LoginInitialFragment : Fragment() {
 //            findNavController().navigate(R.id.navigation_create_network)
 //        }
 //
-//        val googleLogin = { account: GoogleSignInAccount ->
-//            Log.i("LoginInitialFragment", "GOOGLE LOGIN")
-//
-//            inProgress(true)
-//
-//            val args = AuthLoginArgs()
-//            args.authJwt = account.idToken
-//            args.authJwtType = "google"
-//
-//            app.byApi?.authLogin(args) { result, err ->
-//                runBlocking(Dispatchers.Main.immediate) {
-//                    inProgress(false)
-//
-//                    if (err != null) {
-//                        loginError.visibility = View.VISIBLE
-//                        loginError.text = err.message
-//                    } else if (result.error != null) {
-//                        loginError.visibility = View.VISIBLE
-//                        loginError.text = result.error.message
-//                    } else if (result.network != null && 0 < result.network.byJwt.length) {
-//                        loginError.visibility = View.GONE
-//
-//                        app.login(result.network.byJwt)
-//
-//                        inProgress(true)
-//
-//                        loginActivity?.authClientAndFinish { error ->
-//                            inProgress(false)
-//
-//                            if (error == null) {
-//                                loginError.visibility = View.GONE
-//                            } else {
-//                                loginError.visibility = View.VISIBLE
-//                                loginError.text = error
-//                            }
-//                        }
-//                    } else if (result.authAllowed != null) {
-//                        val authAllowed = mutableListOf<String>()
-//                        for (i in 0 until result.authAllowed.len()) {
-//                            authAllowed.add(result.authAllowed.get(i))
-//                        }
-//
-//                        loginError.visibility = View.VISIBLE
-//                        loginError.text = getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
-//                    } else {
-//                        loginError.visibility = View.GONE
-//
-//                        val navArgs = Bundle()
-//                        navArgs.putString("authJwtType", "google")
-//                        navArgs.putString("authJwt", account.idToken)
-//                        navArgs.putString("userName", result.userName)
-//                        navArgs.putString("userAuth", account.email)
-//
-//                        findNavController().navigate(R.id.navigation_create_network_auth_jwt, navArgs)
-//                    }
-//                }
-//            }
-//        }
-//
-//        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
-//        if (account != null) {
-//            setGoogleSignInButtonText(googleSignInButton, "Continue as ${account.email}")
-////            googleSignInButton.setOnClickListener {
-////                googleLogin(account)
-////            }
-//        } else {
-//            setGoogleSignInButtonText(googleSignInButton, "Continue with Google")
-//        }
-//
-////        else {
-//        val googleClientId = getString(R.string.google_client_id)
-//        Log.i("LoginInitialFragment", "GOOGLE CLIENT ID '${googleClientId}'")
-//        val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//            .requestIdToken(googleClientId)
-//            .requestEmail()
-//            .build()
-//
-//        val googleSignInClient = GoogleSignIn.getClient(requireContext(), googleSignInOpts)
-//
-//        val launcher = registerForActivityResult(
-//            ActivityResultContracts.StartActivityForResult()
-//        ) { result ->
-//            Log.i("LoginInitialFragment", "GOT GOOGLE RESULT")
-//            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-//            try {
-//                val account = task.getResult(ApiException::class.java)
-//                googleLogin(account)
-//            } catch (e: ApiException) {
-//                Log.w("LoginInitialFragment", "signInResult:failed code=" + e.statusCode)
-//            }
-//        }
-//
-//        googleSignInButton.setOnClickListener {
-//            launcher.launch(googleSignInClient.signInIntent)
-//        }
-//        }
+        
 
         // return root
         return ComposeView(requireContext()).apply {
@@ -318,7 +233,16 @@ class LoginInitialFragment : Fragment() {
                                 .fillMaxSize()
                                 .padding(innerPadding),
                         ) {
-                            LoginInitialActivity()
+                            LoginInitialActivity(
+                                byApi = api,
+                                appLogin = { byJwt ->
+                                    app?.login(byJwt)
+                                },
+                                loginActivity = loginActivity,
+                                loginSuccess = { navArgs ->
+                                    findNavController().navigate(R.id.navigation_create_network_auth_jwt, navArgs)
+                                }
+                            )
                         }
                     }
                 }
@@ -335,33 +259,4 @@ class LoginInitialFragment : Fragment() {
         loginActivity.supportActionBar?.hide()
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        // videoView?.start()
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        // videoView?.stopPlayback()
-    }
-
-    private fun syncLoginButton() {
-        loginButton?.isEnabled = hasUserAuth
-    }
-
-
-    companion object {
-        fun setGoogleSignInButtonText(googleSignInButton: SignInButton, text: String) {
-            // set the text on the first text view in the button
-            for (i in 0 until googleSignInButton.childCount) {
-                val v = googleSignInButton.getChildAt(i)
-                if (v is TextView) {
-                    v.text = text
-                    return
-                }
-            }
-        }
-    }
 }

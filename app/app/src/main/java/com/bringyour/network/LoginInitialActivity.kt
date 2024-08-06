@@ -1,7 +1,7 @@
 package com.bringyour.network
 
-import android.graphics.BitmapFactory
-import androidx.compose.ui.graphics.BlendMode
+import android.os.Bundle
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,31 +21,124 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.URNetworkTheme
-import androidx.compose.material.icons.Icons
 import androidx.compose.ui.res.painterResource
-import com.bringyour.network.ui.components.buttonTextStyle
 import com.bringyour.network.ui.theme.TextMuted
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.bringyour.client.AuthLoginArgs
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import androidx.compose.runtime.*
+import com.bringyour.client.BringYourApi
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 
 @Composable()
-fun LoginInitialActivity() {
-    val emailState = remember { mutableStateOf(TextFieldValue()) }
+fun LoginInitialActivity(
+    appLogin: (String) -> Unit,
+    loginSuccess: (Bundle) -> Unit,
+    byApi: BringYourApi?,
+    loginActivity: LoginActivity?,
+) {
+    val context = LocalContext.current
+    var emailState by remember { mutableStateOf(TextFieldValue()) }
+    var inProgress by remember { mutableStateOf(false) }
+    var loginError by remember { mutableStateOf<String?>(null) }
+    var googleBtnText by remember { mutableStateOf("Log in with Google") }
+
+    val googleClientId = context.getString(R.string.google_client_id)
+
+    val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(googleClientId)
+        .requestEmail()
+        .build()
+
+    val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOpts)
+    val googleAccount = GoogleSignIn.getLastSignedInAccount(context)
+    if (googleAccount != null) {
+        googleBtnText = "Continue as ${googleAccount.email}"
+    }
+
+    val googleLogin = { account: GoogleSignInAccount ->
+        Log.i("LoginInitialFragment", "GOOGLE LOGIN")
+
+        inProgress = true
+
+        val args = AuthLoginArgs()
+        args.authJwt = account.idToken
+        args.authJwtType = "google"
+
+        byApi?.authLogin(args) { result, err ->
+            runBlocking(Dispatchers.Main.immediate) {
+                inProgress = false
+
+                if (err != null) {
+                    loginError = err.message
+                } else if (result.error != null) {
+                    loginError = result.error.message
+                } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                    loginError = null
+
+                    appLogin(result.network.byJwt)
+
+                    inProgress = true
+
+                    loginActivity?.authClientAndFinish { error ->
+                        inProgress = false
+
+                        if (error == null) {
+                            loginError = null
+                        } else {
+                            loginError = error
+                        }
+                    }
+                } else if (result.authAllowed != null) {
+                    val authAllowed = mutableListOf<String>()
+                    for (i in 0 until result.authAllowed.len()) {
+                        authAllowed.add(result.authAllowed.get(i))
+                    }
+
+                    loginError = context.getString(R.string.login_error_auth_allowed, authAllowed.joinToString(","))
+                } else {
+                    loginError = null
+
+                    val navArgs = Bundle()
+                    navArgs.putString("authJwtType", "google")
+                    navArgs.putString("authJwt", account.idToken)
+                    navArgs.putString("userName", result.userName)
+                    navArgs.putString("userAuth", account.email)
+
+                    loginSuccess(navArgs)
+                }
+            }
+        }
+    }
+
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            googleLogin(account)
+        } catch (e: ApiException) {
+            loginError = "Error signing in with Google"
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -63,9 +155,9 @@ fun LoginInitialActivity() {
         ) {
 
             Image(
-                painter = painterResource(id = R.drawable.initial_login_1), // Replace with your PNG's resource ID
+                painter = painterResource(id = R.drawable.initial_login_1),
                 contentDescription = "See all the world's content with URnetwork",
-                modifier = Modifier.size(256.dp) // Set the desired size (here, 100dp x 100dp)
+                modifier = Modifier.size(256.dp)
             )
 
             Column(
@@ -95,9 +187,9 @@ fun LoginInitialActivity() {
         Spacer(modifier = Modifier.height(8.dp))
 
         URTextInput(
-            value = emailState.value,
+            value = emailState,
             onValueChange = { newValue ->
-                emailState.value = newValue
+                emailState = newValue
             },
             placeholder = "Enter your phone number or email"
         )
@@ -120,7 +212,9 @@ fun LoginInitialActivity() {
 
         URButton(
             style = ButtonStyle.SECONDARY,
-            onClick = {}
+            onClick = {
+                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+            }
         ) { buttonTextStyle ->
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -134,7 +228,7 @@ fun LoginInitialActivity() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Text("Log in with Google", style = buttonTextStyle)
+                Text(googleBtnText, style = buttonTextStyle)
             }
         }
 
@@ -165,7 +259,12 @@ fun LoginInitialPreview() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                LoginInitialActivity()
+                LoginInitialActivity(
+                    appLogin = {},
+                    loginSuccess = {},
+                    byApi = null,
+                    loginActivity = null,
+                )
             }
         }
     }
