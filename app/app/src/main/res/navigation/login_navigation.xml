@@ -8,8 +8,7 @@
     <fragment
         android:id="@+id/navigation_initial"
         android:name="com.bringyour.network.ui.login.LoginInitialFragment"
-        android:label="@string/title_login"
-        tools:layout="@layout/fragment_login_initial" />
+        android:label="@string/title_login" />
 
     <fragment
         android:id="@+id/navigation_create_network"
