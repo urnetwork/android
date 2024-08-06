@@ -46,16 +46,6 @@ import com.bringyour.network.ui.theme.TextMuted
 
 @Composable()
 fun LoginInitialActivity() {
-
-    val context = LocalContext.current
-
-    val imageBitmap = remember {
-        BitmapFactory.decodeResource(context.resources, R.drawable.initial_login_1)
-    }
-//    val maskBitmap = remember {
-//        BitmapFactory.decodeResource(context.resources, R.drawable.initial_login_mask)
-//    }
-
     val emailState = remember { mutableStateOf(TextFieldValue()) }
 
     Column(
@@ -71,25 +61,12 @@ fun LoginInitialActivity() {
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(256.dp) // Set dimensions to 256x256 dp
-            ) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val canvasWidth = size.width
-                    val canvasHeight = size.height
 
-                    drawImage(
-                        image = imageBitmap.asImageBitmap(),
-                        dstSize = IntSize(canvasWidth.toInt(), canvasHeight.toInt())
-                    )
-//                    drawImage(
-//                        image = maskBitmap.asImageBitmap(),
-//                        dstSize = IntSize(canvasWidth.toInt(), canvasHeight.toInt()),
-//                        blendMode = BlendMode.SrcIn
-//                    )
-                }
-            }
+            Image(
+                painter = painterResource(id = R.drawable.initial_login_1), // Replace with your PNG's resource ID
+                contentDescription = "See all the world's content with URnetwork",
+                modifier = Modifier.size(256.dp) // Set the desired size (here, 100dp x 100dp)
+            )
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -111,7 +88,6 @@ fun LoginInitialActivity() {
                 "Email or phone",
                 style = TextStyle(
                     fontSize = 12.sp,
-                    // todo - use theme for this
                     color = TextMuted
                 )
             )

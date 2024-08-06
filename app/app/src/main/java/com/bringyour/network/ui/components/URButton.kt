@@ -32,7 +32,6 @@ val buttonTextStyle = TextStyle(
 
 @Composable
 fun URButton(
-    // text: String,
     onClick: () -> Unit,
     style: ButtonStyle = ButtonStyle.PRIMARY,
     content: @Composable (TextStyle) -> Unit

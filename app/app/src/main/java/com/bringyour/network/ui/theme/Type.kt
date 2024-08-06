@@ -10,11 +10,9 @@ import com.bringyour.network.R
 
 val gravityFamily = FontFamily(
     Font(R.font.abcgravity_extended, FontWeight.Normal),
-    // Font(R.font.abcgravity_extra_condensed, FontWeight.Normal),
 )
 
 val gravityCondensedFamily = FontFamily(
-    // Font(R.font.abcgravity_extended, FontWeight.Normal),
     Font(R.font.abcgravity_extra_condensed, FontWeight.Normal),
 )
 
