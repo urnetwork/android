@@ -10,8 +10,25 @@ def bringyourHomeDir = System.getenv("BRINGYOUR_HOME") ?: "${System.env.HOME}/br
 android {
     ext.appVersion = { ->
         def out = new ByteArrayOutputStream()
+        def osName = ""
+        def osArch = ""
+        switch (System.getProperty("os.name")) {
+            case "Linux":
+                osName = "linux"
+                break
+            case "Mac OS X":
+                osName = "darwin"
+                break
+        }
+        switch (System.getProperty("os.arch")) {
+            case "amd64":
+                osArch = "amd64"
+            case "aarch64":
+                osArch = "arm64"
+                break
+        }
         exec {
-            executable 'warpctl'
+            executable "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl"
             args 'ls', 'version', '-b'
             standardOutput out
         }
