@@ -18,6 +18,14 @@ val gravityCondensedFamily = FontFamily(
     Font(R.font.abcgravity_extra_condensed, FontWeight.Normal),
 )
 
+val ppNeueMontreal = FontFamily(
+    Font(R.font.pp_neue_montreal_regular, FontWeight.Normal),
+)
+
+val ppNeueBitBold = FontFamily(
+    Font(R.font.pp_neue_bit_bold, FontWeight.Bold),
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
@@ -42,7 +50,9 @@ val Typography = Typography(
         fontSize = 32.sp,
         lineHeight = 32.sp,
         letterSpacing = 0.sp
-    )
+    ),
+
+
 
     /* Other default text styles to override
     titleLarge = TextStyle(

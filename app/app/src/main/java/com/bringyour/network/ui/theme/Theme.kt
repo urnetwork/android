@@ -5,11 +5,12 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
+    primary = BlueMedium,
+    secondary = BlueLight,
+    tertiary = Pink,
     background = Black,
-    onBackground = OffWhite
+    onBackground = OffWhite,
+    onPrimary = OffWhite,
 )
 
 @Composable

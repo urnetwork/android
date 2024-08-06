@@ -15,13 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.ui.theme.TextFaint
+import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
-fun TextInput(
+fun URTextInput(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    placeholder: String = "" // Optional placeholder parameter
+    placeholder: String = ""
 ) {
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -38,7 +41,7 @@ fun TextInput(
                     if (value.text.isEmpty()) {
                         Text(
                             text = placeholder,
-                            style = TextStyle(color = Color.Gray)
+                            style = TextStyle(color = TextFaint)
                         )
                     }
                     innerTextField()
@@ -47,11 +50,35 @@ fun TextInput(
             Spacer(modifier = Modifier.height(8.dp))
         }
         HorizontalDivider(
-            color = Color.Gray,
-            thickness = 1.dp, // Adjust thickness as needed
+            color = TextFaint,
+            thickness = 1.dp,
             modifier = Modifier
-                .align(Alignment.BottomCenter) // Align to the bottom of the Box
+                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+        )
+    }
+}
+
+@Preview()
+@Composable()
+fun URTextInputEmptyPreview() {
+    URNetworkTheme {
+        URTextInput(
+            value = TextFieldValue(""),
+            onValueChange = {},
+            placeholder = "Placeholder Text"
+        )
+    }
+}
+
+@Preview()
+@Composable()
+fun URTextInputPreview() {
+    URNetworkTheme {
+        URTextInput(
+            value = TextFieldValue("Hello world"),
+            onValueChange = {},
+            placeholder = "Placeholder Text"
         )
     }
 }
