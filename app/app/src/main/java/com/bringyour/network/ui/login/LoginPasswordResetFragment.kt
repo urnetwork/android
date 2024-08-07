@@ -1,19 +1,9 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,16 +13,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
-import com.bringyour.client.AuthPasswordResetArgs
-import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 class LoginPasswordResetFragment : Fragment() {
 
@@ -55,7 +39,6 @@ class LoginPasswordResetFragment : Fragment() {
 
         val userAuthStr = arguments?.getString("userAuth") ?: ""
 
-        // return root
         return ComposeView(requireContext()).apply {
             setContent {
                 URNetworkTheme {

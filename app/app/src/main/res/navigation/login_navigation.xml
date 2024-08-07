@@ -45,6 +45,6 @@
         android:id="@+id/navigation_password_reset_after_send"
         android:name="com.bringyour.network.ui.login.LoginPasswordResetAfterSendFragment"
         android:label="@string/title_login"
-        tools:layout="@layout/fragment_login_password_reset_after_send" />
+        />
 
 </navigation>
