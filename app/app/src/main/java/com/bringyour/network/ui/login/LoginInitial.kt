@@ -1,4 +1,4 @@
-package com.bringyour.network
+package com.bringyour.network.ui.login
 
 import android.os.Bundle
 import android.util.Log
@@ -48,6 +48,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.bringyour.client.BringYourApi
+import com.bringyour.network.LoginActivity
+import com.bringyour.network.R
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable()
@@ -205,7 +207,6 @@ fun LoginInitialActivity(
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
 
         Box(

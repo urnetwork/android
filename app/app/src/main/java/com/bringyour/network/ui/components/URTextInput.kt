@@ -15,7 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.TextFaint
@@ -26,7 +28,8 @@ fun URTextInput(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     placeholder: String = "",
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    isPassword: Boolean = false
 ) {
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -48,7 +51,8 @@ fun URTextInput(
                     }
                     innerTextField()
                 },
-                keyboardOptions = keyboardOptions
+                keyboardOptions = keyboardOptions,
+                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -82,6 +86,19 @@ fun URTextInputPreview() {
             value = TextFieldValue("Hello world"),
             onValueChange = {},
             placeholder = "Placeholder Text"
+        )
+    }
+}
+
+@Preview()
+@Composable()
+fun URTextInputPasswordPreview() {
+    URNetworkTheme {
+        URTextInput(
+            value = TextFieldValue("Hello world"),
+            onValueChange = {},
+            placeholder = "***********",
+            isPassword = true
         )
     }
 }
