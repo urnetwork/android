@@ -24,7 +24,7 @@
         <item name="android:textColor">@color/black</item>
 
         <!-- status bar -->
-        <item name="android:statusBarColor">@color/by_p_blue</item>
+        <item name="android:statusBarColor">@color/by_background</item>
 
         <!-- action bar -->
         <item name="android:actionBarStyle">@style/BringYourActionBar</item>
@@ -49,8 +49,8 @@
     <style name="BringYourActionBar"
         parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
 
-        <item name="android:icon">@drawable/logo_by</item>
-        <item name="android:logo">@drawable/logo_by</item>
+        <item name="android:icon">@null</item>
+        <item name="android:logo">@null</item>
         <item name="android:displayOptions">useLogo|showHome|showTitle</item>
     </style>
 
