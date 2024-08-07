@@ -1,4 +1,4 @@
-package com.bringyour.network
+package com.bringyour.network.ui.login
 
 import android.os.Bundle
 import android.util.Log
@@ -48,6 +48,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.bringyour.client.BringYourApi
+import com.bringyour.network.LoginActivity
+import com.bringyour.network.R
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable()
@@ -62,6 +64,8 @@ fun LoginInitialActivity(
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
     var googleBtnText by remember { mutableStateOf("Log in with Google") }
+    val isUserAuthBtnEnabled = !inProgress && (Patterns.EMAIL_ADDRESS.matcher(userAuth.text).matches() ||
+            Patterns.PHONE.matcher(userAuth.text).matches())
 
     val googleClientId = context.getString(R.string.google_client_id)
 
@@ -161,7 +165,7 @@ fun LoginInitialActivity(
 
                 byApi?.authLogin(args) { result, err ->
                     runBlocking(Dispatchers.Main.immediate) {
-                        inProgress = false
+
 
                         Log.i("LoginInitialFragment", "GOT RESULT " + result)
 
@@ -193,6 +197,8 @@ fun LoginInitialActivity(
 
                             navigate(R.id.navigation_create_network, navArgs)
                         }
+
+                        inProgress = false
                     }
                 }
             }
@@ -205,7 +211,6 @@ fun LoginInitialActivity(
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
 
         Box(
@@ -262,7 +267,8 @@ fun LoginInitialActivity(
         URButton(
             onClick = {
                 login()
-            }
+            },
+            enabled = isUserAuthBtnEnabled
         ) { buttonTextStyle ->
             Text("Get Started", style = buttonTextStyle)
         }

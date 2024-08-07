@@ -1,39 +1,24 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
-import androidx.navigation.fragment.findNavController
-import com.bringyour.client.AuthPasswordResetArgs
-import com.bringyour.client.AuthVerifyArgs
+import androidx.navigation.findNavController
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.databinding.FragmentLoginPasswordResetBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import com.bringyour.network.ui.theme.URNetworkTheme
 
 class LoginPasswordResetFragment : Fragment() {
-
-    private var _binding: FragmentLoginPasswordResetBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
 
     private var app: MainApplication? = null
 
@@ -43,100 +28,50 @@ class LoginPasswordResetFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentLoginPasswordResetBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
+    ): View {
 
         app = activity?.application as MainApplication
 
         // immutable shadow
-        val app = app ?: return root
+        val app = app
 
         loginActivity = activity as LoginActivity
 
-        // immutable shadow
-        val loginActivity = loginActivity ?: return root
+        val userAuthStr = arguments?.getString("userAuth") ?: ""
 
-        val userAuthStr = arguments?.getString("userAuth")
+        return ComposeView(requireContext()).apply {
+            setContent {
+                URNetworkTheme {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                        ) {
+                            LoginPasswordReset(
+                                userAuth = userAuthStr,
+                                byApi = app?.byApi,
+                                onResetLinkSuccess = { userAuth ->
 
-        val userAuth = root.findViewById<EditText>(R.id.password_reset_user_auth)
-        val passwordResetButton = root.findViewById<Button>(R.id.password_reset_button)
-        val passwordResetSpinner = root.findViewById<ProgressBar>(R.id.password_reset_spinner)
-        val passwordResetError = root.findViewById<TextView>(R.id.password_reset_error)
+                                    val navArgs = Bundle()
+                                    navArgs.putString("userAuth", userAuth)
 
-        passwordResetSpinner.visibility = View.GONE
-        passwordResetError.visibility = View.GONE
+                                    val navOpts = NavOptions.Builder()
+                                        .setPopUpTo(R.id.navigation_initial, false, false)
+                                        .build()
 
-        // validate code
-        userAuth.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val userAuthStr = userAuth.text.toString().trim()
-                passwordResetButton.isEnabled = (Patterns.EMAIL_ADDRESS.matcher(userAuthStr).matches() ||
-                        Patterns.PHONE.matcher(userAuthStr).matches())
-            }
-        })
-
-        val inProgress = { busy: Boolean ->
-            if (busy) {
-                userAuth.isEnabled = false
-                passwordResetButton.isEnabled = false
-                passwordResetSpinner.visibility = View.VISIBLE
-            } else {
-                userAuth.isEnabled = true
-                passwordResetButton.isEnabled = true
-                passwordResetSpinner.visibility = View.GONE
-            }
-        }
-
-        passwordResetButton.setOnClickListener {
-            inProgress(true)
-
-            val args = AuthPasswordResetArgs()
-            args.userAuth = userAuth.text.toString().trim()
-
-            app.byApi?.authPasswordReset(args) { result, err ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    inProgress(false)
-
-                    if (err != null) {
-                        passwordResetError.visibility = View.VISIBLE
-                        passwordResetError.text = err.message
-                    } else {
-                        passwordResetError.visibility = View.GONE
-
-                        val navArgs = Bundle()
-                        navArgs.putString("userAuth", result.userAuth)
-
-                        val navOpts = NavOptions.Builder()
-                            .setPopUpTo(R.id.navigation_initial, false, false)
-                            .build()
-
-                        findNavController().navigate(
-                            R.id.navigation_password_reset_after_send,
-                            navArgs,
-                            navOpts
-                        )
+                                    findNavController().navigate(
+                                        R.id.navigation_password_reset_after_send,
+                                        navArgs,
+                                        navOpts
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
-
-            // }
         }
-
-        passwordResetButton.isEnabled = false
-
-        if (userAuthStr != null) {
-            userAuth.setText(userAuthStr)
-        }
-
-        return root
     }
 
     override fun onStart() {
