@@ -14,12 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.ui.theme.Blue500
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
 
@@ -38,6 +40,7 @@ fun URTextInput(
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
+                cursorBrush = SolidColor(Blue500),
                 textStyle = TextStyle(color = Color.LightGray),
                 modifier = Modifier
                     .fillMaxWidth()

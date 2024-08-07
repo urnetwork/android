@@ -33,7 +33,6 @@
         android:id="@+id/navigation_password"
         android:name="com.bringyour.network.ui.login.LoginPasswordFragment"
         android:label="@string/title_login"
-        tools:layout="@layout/fragment_login_password"
         />
 
     <fragment
