@@ -34,6 +34,7 @@ class LoginInitialFragment : Fragment() {
 //      val app = app ?: return root
 
         val api = app?.byApi
+        loginActivity = activity as LoginActivity
 //
 //        val userAuth = root.findViewById<EditText>(R.id.login_user_auth)
 //        loginButton = root.findViewById<Button>(R.id.login_user_auth_button)
