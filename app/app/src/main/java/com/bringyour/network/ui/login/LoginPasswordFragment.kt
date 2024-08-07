@@ -14,6 +14,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -25,6 +31,7 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.ActivityLoginWithPasswordBinding
 import com.bringyour.network.databinding.FragmentLoginPasswordBinding
+import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -52,20 +59,17 @@ class LoginPasswordFragment : Fragment() {
         app = activity?.application as MainApplication
 
         // immutable shadow
-        val app = app ?: return root
+        // val app = app ?: return root
+        val app = app
 
         loginActivity = activity as LoginActivity
 
         // immutable shadow
         val loginActivity = loginActivity ?: return root
 
-
         loginActivity.supportActionBar?.show()
 
-
-
-
-        val userAuthStr = arguments?.getString("userAuth")
+        val userAuthStr = arguments?.getString("userAuth") ?: ""
 
 
         val forgotPasswordButton = root.findViewById<Button>(R.id.login_forgot_password_button)
@@ -78,13 +82,6 @@ class LoginPasswordFragment : Fragment() {
         loginPasswordDescription.text = getString(R.string.login_password_description, userAuthStr)
         loginSpinner.visibility = View.GONE
         loginError.visibility = View.GONE
-
-        forgotPasswordButton.setOnClickListener {
-            val navArgs = Bundle()
-            navArgs.putString("userAuth", userAuthStr)
-
-            findNavController().navigate(R.id.navigation_password_reset, navArgs)
-        }
 
         loginPassword.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -117,7 +114,7 @@ class LoginPasswordFragment : Fragment() {
             args.userAuth = userAuthStr
             args.password = loginPassword.text.toString()
 
-            app.byApi?.authLoginWithPassword(args) { result, err ->
+            app?.byApi?.authLoginWithPassword(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 
@@ -178,7 +175,37 @@ class LoginPasswordFragment : Fragment() {
 
         loginButton.isEnabled = false
 
-        return root
+        // return root
+
+        return ComposeView(requireContext()).apply {
+            setContent {
+                URNetworkTheme {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                        ) {
+                            LoginPassword(
+                                userAuth = userAuthStr,
+                                byApi = app?.byApi,
+                                appLogin = { byJwt ->
+                                    app?.login(byJwt)
+                                },
+                                loginActivity = loginActivity,
+                                onResetPassword = {
+                                    val navArgs = Bundle()
+                                    navArgs.putString("userAuth", userAuthStr)
+
+                                    findNavController().navigate(R.id.navigation_password_reset, navArgs)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
 

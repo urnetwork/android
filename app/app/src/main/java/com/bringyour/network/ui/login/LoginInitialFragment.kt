@@ -30,7 +30,7 @@ class LoginInitialFragment : Fragment() {
         app = activity?.application as MainApplication
 //      // immutable shadow
         // not sure if we still need this
-//      val app = app ?: return root
+        val app = app
 
         val api = app?.byApi
         loginActivity = activity as LoginActivity

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import android.view.View
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -26,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,19 +37,65 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bringyour.client.AuthLoginWithPasswordArgs
+import com.bringyour.client.BringYourApi
+import com.bringyour.network.LoginActivity
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun LoginPassword(
-    userAuth: String
+    userAuth: String,
+    appLogin: (String) -> Unit,
+    onResetPassword: () -> Unit,
+    loginActivity: LoginActivity?,
+    byApi: BringYourApi?,
 ) {
-
+    val context = LocalContext.current
     var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
     var password by remember { mutableStateOf(TextFieldValue()) }
+    var inProgress by remember { mutableStateOf(false) }
+    var loginError by remember { mutableStateOf<String?>(null) }
+
+    val login = {
+        inProgress = true
+
+        val args = AuthLoginWithPasswordArgs()
+        args.userAuth = user.text
+        args.password = password.text
+
+        byApi?.authLoginWithPassword(args) { result, err ->
+            runBlocking(Dispatchers.Main.immediate) {
+                inProgress = false
+
+                if (err != null) {
+                    loginError = err.message
+                } else if (result.error != null) {
+                    loginError = result.error.message
+                } else if (result.network != null) {
+                    // now create a client id for the network
+                    loginError = null
+
+                    appLogin(result.network.byJwt)
+
+                    inProgress = true
+
+                    loginActivity?.authClientAndFinish { error ->
+                        inProgress = false
+                        loginError = error
+                    }
+                } else {
+                    loginError = context.getString(R.string.login_error)
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -115,7 +165,9 @@ fun LoginPassword(
 
         Spacer(modifier = Modifier.height(32.dp))
         
-        URButton(onClick = { /*TODO*/ }) { buttonTextStyle ->
+        URButton(onClick = {
+            login()
+        }) { buttonTextStyle ->
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -134,11 +186,19 @@ fun LoginPassword(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Forget your password?")
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Reset it.", color = BlueMedium)
+            ClickableText(
+                text = AnnotatedString("Reset it."),
+                onClick = {onResetPassword()},
+                style = TextStyle(
+                    color = BlueMedium,
+                    fontSize = 16.sp
+                )
+            )
         }
     }
 }
@@ -156,7 +216,11 @@ fun LoginPasswordPreview() {
                     .padding(innerPadding)
             ) {
                 LoginPassword(
-                    userAuth = "hello@urnetwork.com"
+                    userAuth = "hello@urnetwork.com",
+                    byApi = null,
+                    loginActivity = null,
+                    appLogin = {},
+                    onResetPassword = {}
                 )
             }
         }

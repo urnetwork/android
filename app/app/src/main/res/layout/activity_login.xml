@@ -16,7 +16,7 @@
         app:layout_constraintRight_toRightOf="parent"
 
         android:background="@color/by_background"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:theme="@style/BringYourActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <fragment

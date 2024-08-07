@@ -56,7 +56,7 @@ val Green900 = Color(0xFF063102)
 // URnetwork Color Theme
 
 val BlueDark = Blue900
-val BlueMedium = Blue600
+val BlueMedium = Blue500
 val BlueLight = Blue200
 val Pink = Pink300
 val RedDark = Red900
