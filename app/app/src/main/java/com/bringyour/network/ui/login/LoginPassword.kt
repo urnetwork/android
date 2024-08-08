@@ -109,20 +109,6 @@ fun LoginPassword(
         Text("see you again", style = MaterialTheme.typography.headlineLarge)
 
         Spacer(modifier = Modifier.height(64.dp))
-
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.Start
-//        ) {
-//            Text(
-//                "Email or phone",
-//                style = TextStyle(
-//                    fontSize = 12.sp,
-//                    color = TextMuted
-//                )
-//            )
-//        }
-//        Spacer(modifier = Modifier.height(8.dp))
         
         URTextInputLabel(text = "Email or phone")
 
@@ -137,8 +123,6 @@ fun LoginPassword(
                 imeAction = ImeAction.Done
             ),
         )
-
-        // Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
