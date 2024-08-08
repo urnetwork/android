@@ -116,7 +116,6 @@ fun LoginPasswordReset(
             ),
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             "You may need to check your spam folder or unblock no-reply@bringyour.com",
@@ -143,7 +142,7 @@ fun LoginPasswordReset(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "Right Arrow",
                     modifier = Modifier.size(16.dp),
-                    tint = Color.White
+                    tint = if (isBtnEnabled) Color.White else Color.Gray
                 )
             }
         }
