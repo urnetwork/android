@@ -3,6 +3,7 @@ package com.bringyour.network.ui.login
 import android.text.InputFilter
 import android.text.Spanned
 
+// TODO - deprecate NetworkNameInputFilter, use function instead
 // rules:
 // - must start with a letter
 // - alpha numeric and DNS compatible
@@ -33,4 +34,24 @@ class NetworkNameInputFilter: InputFilter {
             return out
         }
     }
+}
+
+// rules:
+// - must start with a letter
+// - alpha numeric and DNS compatible
+fun NetworkNameInputFilter(input: String): String {
+    // must start with a letter
+    if (input.isEmpty() || !input[0].isLetter()) {
+        return input
+    }
+
+    // convert all uppercase letters to lowercase
+    val filtered = input.map {
+        if (it.isUpperCase()) it.lowercaseChar() else it
+    }.filter {
+        // allow only alphanumeric characters and hyphens
+        it.isLetterOrDigit() || it == '-'
+    }.joinToString("")
+
+    return filtered
 }

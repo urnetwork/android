@@ -27,11 +27,20 @@ val ppNeueBitBold = FontFamily(
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = ppNeueMontreal,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
+    ),
+
+    bodyMedium = TextStyle(
+        fontFamily = ppNeueMontreal,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
+        // fontSize = 16.sp,
+        // lineHeight = 24.sp,
+        // letterSpacing = 0.5.sp
     ),
 
     headlineLarge = TextStyle(

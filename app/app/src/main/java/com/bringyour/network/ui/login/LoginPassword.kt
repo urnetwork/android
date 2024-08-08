@@ -41,6 +41,7 @@ import com.bringyour.client.AuthLoginWithPasswordArgs
 import com.bringyour.client.BringYourApi
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.BlueMedium
@@ -109,19 +110,21 @@ fun LoginPassword(
 
         Spacer(modifier = Modifier.height(64.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Text(
-                "Email or phone",
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.Start
+//        ) {
+//            Text(
+//                "Email or phone",
+//                style = TextStyle(
+//                    fontSize = 12.sp,
+//                    color = TextMuted
+//                )
+//            )
+//        }
+//        Spacer(modifier = Modifier.height(8.dp))
+        
+        URTextInputLabel(text = "Email or phone")
 
         URTextInput(
             value = user,
@@ -135,7 +138,7 @@ fun LoginPassword(
             ),
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -164,7 +167,7 @@ fun LoginPassword(
             isPassword = true
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
         URButton(
             onClick = {
@@ -181,7 +184,7 @@ fun LoginPassword(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "Right Arrow",
                     modifier = Modifier.size(16.dp),
-                    tint = Color.White
+                    tint = if (!inProgress) Color.White else Color.Gray
                 )
             }
         }
@@ -191,7 +194,7 @@ fun LoginPassword(
             Text("$loginError")
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
