@@ -50,6 +50,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.bringyour.client.BringYourApi
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.SnackBarType
+import com.bringyour.network.ui.components.URSnackBar
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable()
@@ -63,22 +65,16 @@ fun LoginInitial(
     var userAuth by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
-    var googleBtnText by remember { mutableStateOf("Log in with Google") }
     val isUserAuthBtnEnabled = !inProgress && (Patterns.EMAIL_ADDRESS.matcher(userAuth.text).matches() ||
             Patterns.PHONE.matcher(userAuth.text).matches())
 
-    val googleClientId = context.getString(R.string.google_client_id)
 
+    val googleClientId = context.getString(R.string.google_client_id)
     val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(googleClientId)
         .requestEmail()
         .build()
-
     val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOpts)
-    val googleAccount = GoogleSignIn.getLastSignedInAccount(context)
-    if (googleAccount != null) {
-        googleBtnText = "Continue as ${googleAccount.email}"
-    }
 
     val googleLogin = { account: GoogleSignInAccount ->
         Log.i("LoginInitialFragment", "GOOGLE LOGIN")
@@ -205,120 +201,132 @@ fun LoginInitial(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Image(
-                painter = painterResource(id = R.drawable.initial_login_1),
-                contentDescription = "See all the world's content with URnetwork",
-                modifier = Modifier.size(256.dp)
-            )
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("See all the", style = MaterialTheme.typography.headlineLarge)
-                Text("world's content", style = MaterialTheme.typography.headlineLarge)
-                Text("with URnetwork", style = MaterialTheme.typography.headlineMedium)
-            }
-
-        }
-
-        Spacer(modifier = Modifier.height(64.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Text(
-                "Email or phone",
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        URTextInput(
-            value = userAuth,
-            onValueChange = { newValue ->
-                userAuth = newValue
-            },
-            placeholder = "Enter your phone number or email",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Done
-            ),
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        URButton(
-            onClick = {
-                login()
-            },
-            enabled = isUserAuthBtnEnabled
-        ) { buttonTextStyle ->
-            Text("Get Started", style = buttonTextStyle)
-        }
-
-        if (loginError != null) {
-            Text(loginError.toString())
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("or",
-            color = TextMuted
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        URButton(
-            style = ButtonStyle.SECONDARY,
-            onClick = {
-                googleSignInLauncher.launch(googleSignInClient.signInIntent)
-            },
-            enabled = !inProgress
-        ) { buttonTextStyle ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
 
-                // todo - this looks a little blurry
                 Image(
-                    painter = painterResource(id = R.drawable.google_login_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
+                    painter = painterResource(id = R.drawable.initial_login_1),
+                    contentDescription = "See all the world's content with URnetwork",
+                    modifier = Modifier.size(256.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
 
-                Text(googleBtnText, style = buttonTextStyle)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("See all the", style = MaterialTheme.typography.headlineLarge)
+                    Text("world's content", style = MaterialTheme.typography.headlineLarge)
+                    Text("with URnetwork", style = MaterialTheme.typography.headlineMedium)
+                }
+
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
-        Row() {
-            Text(
-                "Commitment issues?",
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    "Email or phone",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = TextMuted
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            URTextInput(
+                value = userAuth,
+                onValueChange = { newValue ->
+                    userAuth = newValue
+                },
+                placeholder = "Enter your phone number or email",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            URButton(
+                onClick = {
+                    login()
+                },
+                enabled = isUserAuthBtnEnabled
+            ) { buttonTextStyle ->
+                Text("Get Started", style = buttonTextStyle)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("or",
                 color = TextMuted
             )
-            Spacer(
-                modifier = Modifier.width(4.dp)
-            )
-            Text("Try Guest Mode")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = {
+                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                },
+                enabled = !inProgress
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    // todo - this looks a little blurry
+                    Image(
+                        painter = painterResource(id = R.drawable.google_login_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text("Log in with Google", style = buttonTextStyle)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row() {
+                Text(
+                    "Commitment issues?",
+                    color = TextMuted
+                )
+                Spacer(
+                    modifier = Modifier.width(4.dp)
+                )
+                Text("Try Guest Mode")
+            }
+        }
+        URSnackBar(
+            type = SnackBarType.ERROR,
+            isVisible = loginError != null,
+            onDismiss = {
+                loginError = null
+            }
+        ) {
+            Column() {
+                Text("Something went wrong.")
+                Text("Please wait a few minutes and try again.")
+            }
         }
     }
 }
