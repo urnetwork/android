@@ -53,7 +53,7 @@ import com.bringyour.network.R
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable()
-fun LoginInitialActivity(
+fun LoginInitial(
     appLogin: (String) -> Unit,
     navigate: (Int, Bundle) -> Unit,
     byApi: BringYourApi?,
@@ -335,7 +335,7 @@ fun LoginInitialPreview() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                LoginInitialActivity(
+                LoginInitial(
                     appLogin = {},
                     navigate = { id, navArgs -> },
                     byApi = null,
