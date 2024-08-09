@@ -29,37 +29,11 @@ class LoginInitialFragment : Fragment() {
 
         app = activity?.application as MainApplication
 //      // immutable shadow
-        // not sure if we still need this
         val app = app
 
         val api = app?.byApi
         loginActivity = activity as LoginActivity
-//
-//        val userAuth = root.findViewById<EditText>(R.id.login_user_auth)
-//        loginButton = root.findViewById<Button>(R.id.login_user_auth_button)
-//        val loginSpinner = root.findViewById<ProgressBar>(R.id.login_user_auth_spinner)
-//        val loginError = root.findViewById<TextView>(R.id.login_error)
-//
-//        loginButton?.isEnabled = false
-//
-//        loginSpinner.visibility = View.GONE
-//        loginError.visibility = View.GONE
-//
 
-//        userAuth.addTextChangedListener(object: TextWatcher {
-//            override fun afterTextChanged(s: Editable?) {
-//            }
-//
-//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-//            }
-//
-//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-//                val userAuthStr = userAuth.text.toString().trim()
-//                hasUserAuth = (Patterns.EMAIL_ADDRESS.matcher(userAuthStr).matches() ||
-//                                Patterns.PHONE.matcher(userAuthStr).matches())
-//                syncLoginButton()
-//            }
-//        })
 //
 //        userAuth?.setOnEditorActionListener { _, _, keyEvent ->
 //            if (keyEvent == null) {
@@ -89,7 +63,7 @@ class LoginInitialFragment : Fragment() {
                                 .fillMaxSize()
                                 .padding(innerPadding),
                         ) {
-                            LoginInitialActivity(
+                            LoginInitial(
                                 byApi = api,
                                 appLogin = { byJwt ->
                                     app?.login(byJwt)

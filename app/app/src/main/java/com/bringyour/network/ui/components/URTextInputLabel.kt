@@ -13,12 +13,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bringyour.network.ui.theme.TextDanger
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
 fun URTextInputLabel(
-    text: String
+    text: String,
+    inputIsValid: Boolean = true
 ) {
      Column {
          Row(
@@ -29,7 +31,7 @@ fun URTextInputLabel(
                  text,
                  style = TextStyle(
                      fontSize = 12.sp,
-                     color = TextMuted
+                     color = if (inputIsValid) TextMuted else TextDanger
                  )
              )
          }

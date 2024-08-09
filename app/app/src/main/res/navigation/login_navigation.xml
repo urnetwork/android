@@ -20,7 +20,7 @@
         android:id="@+id/navigation_create_network_auth_jwt"
         android:name="com.bringyour.network.ui.login.LoginCreateNetworkAuthJwtFragment"
         android:label="@string/title_login"
-        tools:layout="@layout/fragment_login_create_network_auth_jwt" />
+        />
 
     <fragment
         android:id="@+id/navigation_verify"

@@ -67,6 +67,7 @@ val Green = Green300
 // text
 val TextMuted = Color(0xFF989898)
 val TextFaint = Color(0xFF5A5A5A)
+val TextDanger = Red500
 
 val OffWhite = Color(0xFFF8F8F8)
 val Black = Color(0xFF101010)

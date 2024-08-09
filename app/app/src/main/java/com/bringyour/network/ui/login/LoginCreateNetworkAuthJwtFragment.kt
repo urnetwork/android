@@ -1,46 +1,28 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.InputFilter
-import android.text.Spanned
-import android.text.TextWatcher
-import android.text.method.LinkMovementMethod
-import android.util.Log
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.core.widget.addTextChangedListener
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bringyour.client.LoginViewController
-import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.databinding.FragmentLoginCreateNetworkAuthJwtBinding
-import com.bringyour.network.databinding.FragmentLoginPasswordBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import org.w3c.dom.Text
-import java.util.Locale
-import java.util.regex.Pattern
+import com.bringyour.network.ui.theme.URNetworkTheme
 
 class LoginCreateNetworkAuthJwtFragment : Fragment() {
-    private var _binding: FragmentLoginCreateNetworkAuthJwtBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
-    private val binding get() = _binding!!
 
     private var app: MainApplication? = null
 
@@ -48,229 +30,68 @@ class LoginCreateNetworkAuthJwtFragment : Fragment() {
 
     private var loginVc: LoginViewController? = null
 
-    private var createNetworkButton: Button? = null
-
-    private var hasUserName: Boolean = false
-    private var hasNetworkName: Boolean = false
-    private var hasTerms: Boolean = false
-
-    private var networkNameEdited: Boolean = false
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentLoginCreateNetworkAuthJwtBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+    ): View {
 
         app = activity?.application as MainApplication
         // immutable shadow
-        val app = app ?: return root
+        val app = app
 
         loginActivity = activity as LoginActivity
         // immutable shadow
-        val loginActivity = loginActivity ?: return root
+        val loginActivity = loginActivity
 
-        loginVc = app.loginVc
-        val loginVc = loginVc ?: return root
+        loginVc = app?.loginVc
+        val loginVc = loginVc
 
-        val authJwt = arguments?.getString("authJwt")
-        val authJwtType = arguments?.getString("authJwtType")
-        val userAuthStr = arguments?.getString("userAuth")
-        val userNameStr = arguments?.getString("userName")
+        val authJwt = arguments?.getString("authJwt") ?: ""
+        val authJwtType = arguments?.getString("authJwtType") ?: ""
+        val userAuthStr = arguments?.getString("userAuth") ?: ""
+        val userNameStr = arguments?.getString("userName") ?: ""
 
-        val userAuthJwtSummary = root.findViewById<TextView>(R.id.create_user_auth_jwt_summary)
-        val userName = root.findViewById<EditText>(R.id.create_user_name)
-        val networkName = root.findViewById<EditText>(R.id.create_network_name)
-        val networkNameAvailable = root.findViewById<TextView>(R.id.create_network_name_available)
-        val networkNameError = root.findViewById<TextView>(R.id.create_network_name_error)
-        val networkNameSpinner = root.findViewById<ProgressBar>(R.id.create_network_name_spinner)
-        val terms = root.findViewById<CheckBox>(R.id.create_terms)
-        createNetworkButton = root.findViewById(R.id.create_network_button)
-        val createNetworkSpinner = root.findViewById<ProgressBar>(R.id.create_network_spinner)
-        val createNetworkError = root.findViewById<TextView>(R.id.create_network_error)
+        val createNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
+            userAuth = userAuthStr,
+            authJwt = authJwt,
+            authJwtType = authJwtType,
+            userName = userNameStr,
+            byApi = app?.byApi,
+            loginVc = loginVc,
+            loginActivity = loginActivity,
+            appLogin = { byJwt ->
+                app?.login(byJwt)
+            },
+            onVerificationRequired = { userAuth ->
+                val navArgs = Bundle()
+                navArgs.putString("userAuth", userAuth)
 
-        val capitalizedAuthJwtType = authJwtType?.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(
-                Locale.ROOT
-            ) else it.toString()
-        }
-        if (userAuthStr != null) {
-            userAuthJwtSummary.text = getString(R.string.create_network_auth_jwt_summary, "${capitalizedAuthJwtType} (${userAuthStr})")
-        } else {
-            userAuthJwtSummary.text = getString(R.string.create_network_auth_jwt_summary, capitalizedAuthJwtType)
-        }
+                val navOpts = NavOptions.Builder()
+                    .setPopUpTo(R.id.navigation_initial, false, false)
+                    .build()
 
-
-
-        networkNameAvailable.visibility = View.GONE
-        networkNameError.visibility = View.GONE
-        createNetworkError.visibility = View.GONE
-
-        networkNameSpinner.visibility = View.GONE
-        createNetworkSpinner.visibility = View.GONE
-
-        // user name validation
-        userName.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
+                findNavController().navigate(R.id.navigation_verify, navArgs, navOpts)
             }
+        )
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val userNameStr = userName.text.toString().trim()
-                hasUserName = 0 < userNameStr.length
-                syncCreateNetworkButton()
-
-                if (!networkNameEdited) {
-                    networkName.setText(userNameStr)
-                }
-            }
-        })
-
-        // network name validation
-        networkName.filters = arrayOf<InputFilter>(NetworkNameInputFilter())
-
-        networkName.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val networkNameStr = networkName.text.toString()
-                if (networkNameStr.length == 0) {
-                    networkNameEdited = false
-                } else {
-                    networkNameEdited = networkName.isFocused
-                }
-
-                networkNameAvailable.visibility = View.GONE
-                networkNameError.visibility = View.GONE
-
-                if (networkNameStr.length < 6) {
-                    hasNetworkName = false
-                    networkNameError.setText(R.string.network_name_length_error)
-                    networkNameError.visibility = View.VISIBLE
-                    syncCreateNetworkButton()
-                } else {
-                    networkNameSpinner.visibility = View.VISIBLE
-                    loginVc.networkCheck(networkNameStr) { result, err ->
-                        runBlocking(Dispatchers.Main.immediate) {
-                            networkNameSpinner.visibility = View.GONE
-
-                            if (err == null) {
-                                if (result.available) {
-                                    hasNetworkName = true
-                                    networkNameAvailable.visibility = View.VISIBLE
-                                } else {
-                                    hasNetworkName = false
-                                    networkNameError.setText(R.string.network_name_check_error)
-                                    networkNameError.visibility = View.VISIBLE
-                                }
-                            } else {
-                                hasNetworkName = false
-                                networkNameError.setText(R.string.network_name_check_error)
-                                networkNameError.visibility = View.VISIBLE
-                            }
-                            syncCreateNetworkButton()
+        return ComposeView(requireContext()).apply {
+            setContent {
+                URNetworkTheme {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                        ) {
+                            LoginCreateNetwork(
+                                createNetworkParams
+                            )
                         }
                     }
                 }
             }
-        })
-
-        // terms validation
-        terms.setOnCheckedChangeListener { _, checked ->
-            hasTerms = checked
-            syncCreateNetworkButton()
         }
-
-        terms.movementMethod = LinkMovementMethod.getInstance()
-
-        val inProgress = { busy: Boolean ->
-            if (busy) {
-                userName.isEnabled = false
-                networkName.isEnabled = false
-                terms.isEnabled = false
-                createNetworkButton?.isEnabled = false
-                createNetworkSpinner.visibility = View.VISIBLE
-            } else {
-                userName.isEnabled = true
-                networkName.isEnabled = true
-                terms.isEnabled = true
-                createNetworkButton?.isEnabled = true
-                createNetworkSpinner.visibility = View.GONE
-            }
-        }
-
-        createNetworkButton?.setOnClickListener {
-            inProgress(true)
-
-            val args = NetworkCreateArgs()
-            args.authJwt = authJwt
-            args.authJwtType = authJwtType
-            args.userName = userName.text.trim().toString()
-            args.networkName = networkName.text.toString()
-            args.terms = terms.isChecked
-
-
-            app.byApi?.networkCreate(args) { result, err ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    inProgress(false)
-
-                    if (err != null) {
-                        createNetworkError.visibility = View.VISIBLE
-                        createNetworkError.text = err.message
-                    } else if (result.error != null) {
-                        createNetworkError.visibility = View.VISIBLE
-                        createNetworkError.text = result.error.message
-                    } else if (result.network != null && 0 < result.network.byJwt.length) {
-                        createNetworkError.visibility = View.GONE
-
-                        app.login(result.network.byJwt)
-
-                        inProgress(true)
-
-                        loginActivity.authClientAndFinish { error ->
-                            inProgress(false)
-
-                            if (error == null) {
-                                createNetworkError.visibility = View.GONE
-                            } else {
-                                createNetworkError.visibility = View.VISIBLE
-                                createNetworkError.text = error
-                            }
-                        }
-                    } else if (result.verificationRequired != null) {
-                        createNetworkError.visibility = View.GONE
-
-                        val navArgs = Bundle()
-                        navArgs.putString("userAuth", result.verificationRequired.userAuth)
-
-                        val navOpts = NavOptions.Builder()
-                            .setPopUpTo(R.id.navigation_initial, false, false)
-                            .build()
-
-                        findNavController().navigate(R.id.navigation_verify, navArgs, navOpts)
-                    } else {
-                        createNetworkError.visibility = View.VISIBLE
-                        createNetworkError.text = getString(R.string.create_network_error)
-                    }
-                }
-            }
-        }
-
-        syncCreateNetworkButton()
-
-        if (userNameStr != null) {
-            userName.setText(userNameStr)
-        }
-
-        return root
     }
 
     override fun onStart() {
@@ -280,9 +101,5 @@ class LoginCreateNetworkAuthJwtFragment : Fragment() {
         val loginActivity = loginActivity ?: return
 
         loginActivity.supportActionBar?.show()
-    }
-
-    private fun syncCreateNetworkButton() {
-        createNetworkButton?.isEnabled = hasUserName && hasNetworkName && hasTerms
     }
 }

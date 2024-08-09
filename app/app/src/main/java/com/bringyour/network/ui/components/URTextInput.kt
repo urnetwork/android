@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.ui.theme.Blue500
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Red500
+import com.bringyour.network.ui.theme.TextDanger
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -47,9 +49,16 @@ fun URTextInput(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     isPassword: Boolean = false,
     isValidating: Boolean = false,
-    error: String? = null,
+    isValid: Boolean = true,
+    supportingText: String? = null,
+    label: String? = null
 ) {
     Column() {
+
+        if (label != null) {
+            URTextInputLabel(text = label, inputIsValid = isValid)
+        }
+
         Box(modifier = Modifier
             .fillMaxWidth()
         ) {
@@ -70,7 +79,7 @@ fun URTextInput(
                         decorationBox = { innerTextField ->
                             if (value.text.isEmpty()) {
                                 Text(
-                                    text = if (isPassword) "***********" else placeholder,
+                                    text = if (isPassword) "************" else placeholder,
                                     style = TextStyle(color = TextFaint)
                                 )
                             }
@@ -82,19 +91,21 @@ fun URTextInput(
 
                     if (isValidating) {
                         CircularProgressIndicator(
-                            modifier = Modifier.width(16.dp).height(16.dp),
+                            modifier = Modifier
+                                .width(16.dp)
+                                .height(16.dp),
                             color = TextMuted,
                             trackColor = TextFaint,
                             strokeWidth = 2.dp
                         )
                     }
 
-                    if (!isValidating && error != null) {
+                    if (!isValidating && !isValid) {
                         Icon(
                             imageVector = Icons.Filled.Warning,
-                            contentDescription = "Right Arrow",
+                            contentDescription = "Warning",
                             modifier = Modifier.size(16.dp),
-                            tint = Color.Gray
+                            tint = TextDanger
                         )
                     }
 
@@ -110,7 +121,7 @@ fun URTextInput(
             )
         }
 
-        if (error != null) {
+        if (supportingText != null) {
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -122,19 +133,16 @@ fun URTextInput(
             ) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    error.toString(),
+                    supportingText.toString(),
                     style = TextStyle(
                         fontSize = 12.sp,
-                        color = TextMuted
+                        color = if (isValid) TextMuted else TextDanger
                     )
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-        } else {
-            Spacer(modifier = Modifier.height(16.dp))
         }
+        Spacer(modifier = Modifier.height(24.dp))
 
     }
 }
@@ -146,7 +154,8 @@ fun URTextInputEmptyPreview() {
         URTextInput(
             value = TextFieldValue(""),
             onValueChange = {},
-            placeholder = "Placeholder Text"
+            placeholder = "Placeholder Text",
+            label = "Email or Phone"
         )
     }
 }
@@ -158,7 +167,8 @@ fun URTextInputPreview() {
         URTextInput(
             value = TextFieldValue("Hello world"),
             onValueChange = {},
-            placeholder = "Placeholder Text"
+            placeholder = "Placeholder Text",
+            label = "Email or Phone"
         )
     }
 }
@@ -171,7 +181,8 @@ fun URTextInputPasswordPreview() {
             value = TextFieldValue("Hello world"),
             onValueChange = {},
             placeholder = "***********",
-            isPassword = true
+            isPassword = true,
+            label = "Password"
         )
     }
 }
@@ -183,8 +194,9 @@ fun URTextInputIsValidatingPreview() {
         URTextInput(
             value = TextFieldValue("Hello world"),
             onValueChange = {},
-            placeholder = "***********",
-            isValidating = true
+            placeholder = "",
+            isValidating = true,
+            label = "Email or Phone"
         )
     }
 }
@@ -196,7 +208,9 @@ fun URTextInputErrorPreview() {
         URTextInput(
             value = TextFieldValue("Hello world"),
             onValueChange = {},
-            error = "Error encountered"
+            supportingText = "Error encountered",
+            isValid = false,
+            label = "Email or Phone"
         )
     }
 }
