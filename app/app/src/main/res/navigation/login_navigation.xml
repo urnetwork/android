@@ -26,7 +26,7 @@
         android:id="@+id/navigation_verify"
         android:name="com.bringyour.network.ui.login.LoginVerifyFragment"
         android:label="@string/title_login"
-        tools:layout="@layout/fragment_login_verify" />
+        />
 
     <fragment
         android:id="@+id/navigation_password"
