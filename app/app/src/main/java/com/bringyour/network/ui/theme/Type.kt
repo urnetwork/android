@@ -47,7 +47,7 @@ val Typography = Typography(
         fontFamily = gravityFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 32.sp,
-        lineHeight = 32.sp,
+        lineHeight = 36.sp,
         letterSpacing = 0.sp
     ),
 
