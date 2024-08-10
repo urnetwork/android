@@ -18,7 +18,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,15 +50,15 @@ fun URCodeInput(
                 contentAlignment = Alignment.Center
             ) {
                 BasicTextField(
-                    value = TextFieldValue(value[i]),
+                    value = value[i],
                     onValueChange = { newValue ->
-                        if (newValue.text.length <= 1) {
+                        if (newValue.length <= 1) {
                             val newCode = value.toMutableList().apply {
-                                this[i] = newValue.text
+                                this[i] = newValue
                             }
                             onValueChange(newCode)
 
-                            if (newValue.text.isNotEmpty() && i < codeLength - 1) {
+                            if (newValue.isNotEmpty() && i < codeLength - 1) {
                                 focusRequesters[i + 1].requestFocus()
                             }
                         }
@@ -78,18 +77,21 @@ fun URCodeInput(
                         .focusRequester(focusRequesters[i])
                         .onKeyEvent { keyEvent ->
                             if (keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_DEL) {
+                                val newCode = value.toMutableList()
+
                                 if (value[i].isEmpty() && i > 0) {
+                                    // Move focus to the previous field if the current one is empty
                                     focusRequesters[i - 1].requestFocus()
+                                    newCode[i - 1] = "" // Clear the previous field
                                 } else {
-                                    val newCode = value
-                                        .toMutableList()
-                                        .apply {
-                                            this[i] = ""
-                                        }
-                                    onValueChange(newCode)
+                                    newCode[i] = ""
                                 }
+
+                                onValueChange(newCode)
+                                true // Return true to indicate the event is consumed
+                            } else {
+                                false
                             }
-                            false
                         }
                 )
                 Spacer(modifier = Modifier.height(12.dp))

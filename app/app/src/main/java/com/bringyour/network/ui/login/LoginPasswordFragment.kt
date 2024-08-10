@@ -11,7 +11,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
@@ -65,6 +67,16 @@ class LoginPasswordFragment : Fragment() {
                                     navArgs.putString("userAuth", userAuthStr)
 
                                     findNavController().navigate(R.id.navigation_password_reset, navArgs)
+                                },
+                                onVerificationRequired = { userAuth ->
+                                    val navArgs = Bundle()
+                                    navArgs.putString("userAuth", userAuth)
+
+                                    val navOpts = NavOptions.Builder()
+                                        .setPopUpTo(R.id.navigation_initial, false, false)
+                                        .build()
+
+                                    findNavController().navigate(R.id.navigation_verify, navArgs, navOpts)
                                 }
                             )
                         }

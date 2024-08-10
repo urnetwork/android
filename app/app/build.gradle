@@ -127,9 +127,6 @@ android {
 dependencies {
     // see https://developer.android.com/build/dependencies#groovy
     //    implementation name: 'client', ext: 'aar'
-    def composeBom = platform('androidx.compose:compose-bom:2024.06.00')
-    implementation composeBom
-    androidTestImplementation composeBom
 
     compileOnly fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*-sources.jar'])
     implementation fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*.aar', '*.jar'])
@@ -148,9 +145,31 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.7.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.7.5'
+
+
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    // androidTestImplementation(platform(libs.androidx.compose.bom))
+}
+
+dependencies {
+    // jetpack compose
+
+    def nav_version = "2.7.7"
+
+    def composeBom = platform('androidx.compose:compose-bom:2024.06.00')
+    implementation composeBom
+    androidTestImplementation composeBom
+
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
     implementation "androidx.activity:activity-compose:1.9.1"
+
     // Material Design 3
     implementation 'androidx.compose.material3:material3'
+
     // Android Studio Preview support
     implementation 'androidx.compose.ui:ui-tooling-preview'
     debugImplementation 'androidx.compose.ui:ui-tooling'
@@ -158,11 +177,6 @@ dependencies {
     // UI Tests
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
-
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    // androidTestImplementation(platform(libs.androidx.compose.bom))
 }
 
 // google play billing
