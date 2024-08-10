@@ -70,14 +70,10 @@ fun LoginVerify(
 
     val resendCode = {
 
-        Log.i("LoginVerify", "resendCode hit")
-
         resendInProgress = true
 
         val args = AuthVerifySendArgs()
         args.userAuth = userAuth
-
-        Log.i("LoginVerify", "resendCode userAuth: ${args.userAuth}")
 
         byApi?.authVerifySend(args) { _, err ->
             runBlocking(Dispatchers.Main.immediate) {
@@ -95,16 +91,11 @@ fun LoginVerify(
 
     val verify = {
 
-        Log.i("LoginVerify", "verify in progress")
-
         verifyInProgress = true
 
         val args = AuthVerifyArgs()
         args.userAuth = userAuth
         args.verifyCode = code.joinToString("")
-
-        Log.i("LoginVerify", "userAuth: $userAuth")
-        Log.i("LoginVerify", "verifyCode: ${args.verifyCode}")
 
         byApi?.authVerify(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
@@ -117,7 +108,6 @@ fun LoginVerify(
                     verifyError = err.message
                 } else if (result.error != null) {
                     verifyError = result.error.message
-                    Log.i("LoginVerify", "BBB ${result.error.message}")
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     verifyError = null
 
@@ -128,11 +118,9 @@ fun LoginVerify(
                     loginActivity?.authClientAndFinish { error ->
                         verifyInProgress = false
 
-                        Log.i("LoginVerify", "CCC ${error.toString()}")
                         verifyError = error
                     }
                 } else {
-                    Log.i("LoginVerify", "DDD")
                     verifyError = context.getString(R.string.verify_error)
                 }
 
@@ -142,24 +130,6 @@ fun LoginVerify(
             }
         }
     }
-
-//    LaunchedEffect(markResendAsSent) {
-//        if (markResendAsSent) {
-//            delay(15 * 1000L)
-//            markResendAsSent = false
-//        }
-//    }
-
-//    LaunchedEffect(resendError) {
-//        if (resendError != null) {
-//
-//            delay(10 * 1000L)
-//
-//            // todo - launch error handling message
-//
-//            resendError = null
-//        }
-//    }
 
     LaunchedEffect(code) {
 

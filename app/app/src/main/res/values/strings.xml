@@ -2,12 +2,6 @@
 
     <string name="app_name">BringYour</string>
     <string name="title_login" translatable="false">Login</string>
-    <string name="title_connect">Connect</string>
-    <string name="title_provide">Provide</string>
-    <string name="title_devices">Devices</string>
-    <string name="title_account">Account</string>
-    <string name="title_main_nav">Main Navigation Host</string>
-
 
     <string name="free_free_badge">You are on the free plan</string>
     <string name="free_pro_badge">Upgrade to the pro plan</string>
@@ -15,7 +9,6 @@
     <string name="pro_pro_badge">You are on the pro plan</string>
     <string name="pro_superfast_badge">You have access to superfast providers and edges</string>
     <string name="pro_pro_thank">Thank you!</string>
-
 
     <string name="login_logo_description">Fast and secure internet everywhere you want to be</string>
     <string name="login_headline"><b>Fast and secure internet</b> wherever you want to be, with ultimate control of your data</string>

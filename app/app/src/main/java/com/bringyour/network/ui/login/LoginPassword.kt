@@ -80,15 +80,9 @@ fun LoginPassword(
                 if (err != null) {
                     loginError = err.message
                 } else if (result.error != null) {
-                    Log.i("LoginPassword", "BBBB ${result.verificationRequired}")
-
                     loginError = result.error.message
                 } else if (result.network != null) {
                     loginError = null
-
-                    Log.i("LoginPassword", "AAAA ${result.verificationRequired}")
-
-                    // val verificationRequired = result.verificationRequired
 
                     if (result.verificationRequired != null) {
                         onVerificationRequired(userAuth)
