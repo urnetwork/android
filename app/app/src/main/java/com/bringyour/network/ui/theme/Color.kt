@@ -64,6 +64,8 @@ val Red = Red400
 val Yellow = Yellow200
 val Green = Green300
 
+val MainBorderBase = Color(0x1FFFFFFF)
+
 // text
 val TextMuted = Color(0xFF989898)
 val TextFaint = Color(0xFF5A5A5A)
