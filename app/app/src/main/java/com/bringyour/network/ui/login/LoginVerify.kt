@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.login
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +40,6 @@ import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 @Composable
@@ -82,7 +80,6 @@ fun LoginVerify(
                 markResendAsSent = true
 
                 if (err != null) {
-                    Log.i("LoginVerify", err.toString())
                     resendError = context.getString(R.string.verify_send_error)
                 }
             }
@@ -102,9 +99,6 @@ fun LoginVerify(
                 verifyInProgress = false
 
                 if (err != null) {
-
-                    Log.i("LoginVerify", "AAA ${err.message}")
-
                     verifyError = err.message
                 } else if (result.error != null) {
                     verifyError = result.error.message
