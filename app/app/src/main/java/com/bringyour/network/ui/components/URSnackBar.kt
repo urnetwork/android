@@ -86,7 +86,7 @@ fun URSnackBar(
                     Icon(
                         imageVector = if (type == SnackBarType.SUCCESS)
                             Icons.Filled.CheckCircle
-                        else Icons.Filled.Warning,
+                            else Icons.Filled.Warning,
                         contentDescription = if (type == SnackBarType.SUCCESS) "Success" else "Error",
                         modifier = Modifier.size(24.dp),
                         tint = if (type == SnackBarType.SUCCESS) Green else TextDanger

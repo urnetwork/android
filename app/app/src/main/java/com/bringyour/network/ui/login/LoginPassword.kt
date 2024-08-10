@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import android.util.Log
 import android.view.View
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ fun LoginPassword(
     onResetPassword: () -> Unit,
     loginActivity: LoginActivity?,
     byApi: BringYourApi?,
+    onVerificationRequired: (String) -> Unit
 ) {
     val context = LocalContext.current
     var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
@@ -78,19 +80,29 @@ fun LoginPassword(
                 if (err != null) {
                     loginError = err.message
                 } else if (result.error != null) {
+                    Log.i("LoginPassword", "BBBB ${result.verificationRequired}")
+
                     loginError = result.error.message
                 } else if (result.network != null) {
-                    // now create a client id for the network
                     loginError = null
 
-                    appLogin(result.network.byJwt)
+                    Log.i("LoginPassword", "AAAA ${result.verificationRequired}")
 
-                    inProgress = true
+                    // val verificationRequired = result.verificationRequired
 
-                    loginActivity?.authClientAndFinish { error ->
-                        inProgress = false
-                        loginError = error
+                    if (result.verificationRequired != null) {
+                        onVerificationRequired(userAuth)
+                    } else {
+                        appLogin(result.network.byJwt)
+
+                        inProgress = true
+
+                        loginActivity?.authClientAndFinish { error ->
+                            inProgress = false
+                            loginError = error
+                        }
                     }
+
                 } else {
                     loginError = context.getString(R.string.login_error)
                 }
@@ -216,7 +228,8 @@ fun LoginPasswordPreview() {
                     byApi = null,
                     loginActivity = null,
                     appLogin = {},
-                    onResetPassword = {}
+                    onResetPassword = {},
+                    onVerificationRequired = {}
                 )
             }
         }

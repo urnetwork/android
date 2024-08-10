@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +35,9 @@ import com.bringyour.client.AuthVerifySendArgs
 import com.bringyour.client.BringYourApi
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URCodeInput
+import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
@@ -66,10 +69,15 @@ fun LoginVerify(
     var verifyError by remember { mutableStateOf<String?>(null) }
 
     val resendCode = {
+
+        Log.i("LoginVerify", "resendCode hit")
+
         resendInProgress = true
 
         val args = AuthVerifySendArgs()
         args.userAuth = userAuth
+
+        Log.i("LoginVerify", "resendCode userAuth: ${args.userAuth}")
 
         byApi?.authVerifySend(args) { _, err ->
             runBlocking(Dispatchers.Main.immediate) {
@@ -78,6 +86,7 @@ fun LoginVerify(
                 markResendAsSent = true
 
                 if (err != null) {
+                    Log.i("LoginVerify", err.toString())
                     resendError = context.getString(R.string.verify_send_error)
                 }
             }
@@ -85,20 +94,30 @@ fun LoginVerify(
     }
 
     val verify = {
+
+        Log.i("LoginVerify", "verify in progress")
+
         verifyInProgress = true
 
         val args = AuthVerifyArgs()
         args.userAuth = userAuth
         args.verifyCode = code.joinToString("")
 
+        Log.i("LoginVerify", "userAuth: $userAuth")
+        Log.i("LoginVerify", "verifyCode: ${args.verifyCode}")
+
         byApi?.authVerify(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 verifyInProgress = false
 
                 if (err != null) {
+
+                    Log.i("LoginVerify", "AAA ${err.message}")
+
                     verifyError = err.message
                 } else if (result.error != null) {
                     verifyError = result.error.message
+                    Log.i("LoginVerify", "BBB ${result.error.message}")
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     verifyError = null
 
@@ -109,96 +128,136 @@ fun LoginVerify(
                     loginActivity?.authClientAndFinish { error ->
                         verifyInProgress = false
 
+                        Log.i("LoginVerify", "CCC ${error.toString()}")
                         verifyError = error
                     }
                 } else {
+                    Log.i("LoginVerify", "DDD")
                     verifyError = context.getString(R.string.verify_error)
+                }
+
+                if (verifyError != null) {
+                    code = List(codeLength) { "" }
                 }
             }
         }
     }
 
-    LaunchedEffect(markResendAsSent) {
-        if (markResendAsSent) {
-            delay(15 * 1000L)
-            markResendAsSent = false
-        }
-    }
+//    LaunchedEffect(markResendAsSent) {
+//        if (markResendAsSent) {
+//            delay(15 * 1000L)
+//            markResendAsSent = false
+//        }
+//    }
 
-    LaunchedEffect(resendError) {
-        if (resendError != null) {
-
-            delay(10 * 1000L)
-
-            // todo - launch error handling message
-
-            resendError = null
-        }
-    }
+//    LaunchedEffect(resendError) {
+//        if (resendError != null) {
+//
+//            delay(10 * 1000L)
+//
+//            // todo - launch error handling message
+//
+//            resendError = null
+//        }
+//    }
 
     LaunchedEffect(code) {
 
-        if (code.size == 8 && !verifyInProgress) {
+        val codeStr = code.joinToString("")
+
+        if (codeStr.length == 8 && !verifyInProgress) {
             verify()
         }
 
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
 
-        Text("You've got mail", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            "Tell us who you really are. Enter the code we",
-            color = TextMuted
-        )
-        Text(
-            "sent you to verify your identity.",
-            color = TextMuted
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        URCodeInput(
-            value = code,
-            onValueChange = { newCode ->
-                code = newCode
-            },
-            codeLength = codeLength,
-            enabled = !verifyInProgress
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Text("You've got mail", style = MaterialTheme.typography.headlineLarge)
+            Spacer(modifier = Modifier.height(32.dp))
             Text(
-                "Don't see it?",
+                "Tell us who you really are. Enter the code we",
                 color = TextMuted
             )
-            Spacer(modifier = Modifier.width(4.dp))
-            ClickableText(
-                text = AnnotatedString("Resend code"),
-                onClick = {
-                    if (resendBtnEnabled) {
-                        resendCode()
-                    }},
-                style = TextStyle(
-                    color = if (resendBtnEnabled) Color.White else TextMuted,
-                    fontSize = 16.sp
-                ),
-
+            Text(
+                "sent you to verify your identity.",
+                color = TextMuted
             )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            URCodeInput(
+                value = code,
+                onValueChange = { newCode ->
+                    code = newCode
+                },
+                codeLength = codeLength,
+                enabled = !verifyInProgress
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Don't see it?",
+                    color = TextMuted
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                ClickableText(
+                    text = AnnotatedString("Resend code"),
+                    onClick = {
+                        if (resendBtnEnabled) {
+                            resendCode()
+                        }
+                    },
+                    style = TextStyle(
+                        color = if (resendBtnEnabled) Color.White else TextMuted,
+                        fontSize = 16.sp
+                    ),
+
+                    )
+            }
+        }
+
+        URSnackBar(
+            type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
+            isVisible = verifyError != null,
+            onDismiss = {
+                if (verifyError != null) {
+                    verifyError = null
+                }
+                if (resendError != null) {
+                    resendError = null
+                }
+                if (markResendAsSent) {
+                    markResendAsSent = false
+                }
+            }
+        ) {
+            if (markResendAsSent) {
+                Column() {
+                    Text("Verification email sent to $userAuth")
+                }
+            } else {
+                Column() {
+                    Text("Something went wrong.")
+                    Text("Please wait a few minutes and try again.")
+                }
+            }
         }
     }
-
 }
 
 @Preview
