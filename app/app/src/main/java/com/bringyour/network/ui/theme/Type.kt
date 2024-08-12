@@ -31,13 +31,15 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
+        color = MainTextBase
     ),
 
     bodyMedium = TextStyle(
         fontFamily = ppNeueMontreal,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp
+        fontSize = 14.sp,
+        color = TextMuted
         // fontSize = 16.sp,
         // lineHeight = 24.sp,
         // letterSpacing = 0.5.sp
