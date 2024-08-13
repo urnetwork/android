@@ -70,7 +70,7 @@ fun ProvidersBottomSheetScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var searchQuery by remember { mutableStateOf(TextFieldValue()) }
+    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     var totalProviderCount by remember { mutableIntStateOf(0) }
     val subs = remember { mutableListOf<Sub>() }
     val connectLocations = remember {
@@ -80,7 +80,6 @@ fun ProvidersBottomSheetScaffold(
         mutableStateMapOf<String, ConnectLocation>()
     }
     val keyboardController = LocalSoftwareKeyboardController.current
-    var debounceJob by remember { mutableStateOf<Job?>(null) }
 
     val addFilteredLocationsListener = {
 
@@ -114,16 +113,8 @@ fun ProvidersBottomSheetScaffold(
         }
     }
 
-    val search: (String) -> Unit = { query ->
-        debounceJob?.cancel()
-        debounceJob = scope.launch {
-            delay(500L)
-            connectVc?.filterLocations(searchQuery.text.trim())
-        }
-    }
-
     LaunchedEffect(searchQuery) {
-        connectVc?.filterLocations("")
+        connectVc?.filterLocations(searchQuery.text)
     }
 
     DisposableEffect(Unit) {
@@ -217,7 +208,6 @@ fun ProvidersBottomSheetScaffold(
                         value = searchQuery,
                         onValueChange = { query ->
                             searchQuery = query
-                            search(query.text)
                                         },
                         placeholder = "Search for all locations",
                         keyboardController
