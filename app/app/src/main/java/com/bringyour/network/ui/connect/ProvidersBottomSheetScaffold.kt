@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -20,7 +19,6 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -49,11 +49,14 @@ import com.bringyour.client.ConnectViewController
 import com.bringyour.client.Sub
 import com.bringyour.network.ApplicationPreviewParameterProvider
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -67,7 +70,7 @@ fun ProvidersBottomSheetScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf(TextFieldValue()) }
     var totalProviderCount by remember { mutableIntStateOf(0) }
     val subs = remember { mutableListOf<Sub>() }
     val connectLocations = remember {
@@ -76,6 +79,8 @@ fun ProvidersBottomSheetScaffold(
     val connectCountries = remember {
         mutableStateMapOf<String, ConnectLocation>()
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
 
     val addFilteredLocationsListener = {
 
@@ -109,13 +114,19 @@ fun ProvidersBottomSheetScaffold(
         }
     }
 
+    val search: (String) -> Unit = { query ->
+        debounceJob?.cancel()
+        debounceJob = scope.launch {
+            delay(500L)
+            connectVc?.filterLocations(searchQuery.text.trim())
+        }
+    }
+
     LaunchedEffect(searchQuery) {
         connectVc?.filterLocations("")
     }
 
     DisposableEffect(Unit) {
-
-        Log.i("ProvidersBottomSheetScaffold", "DisposableEffect called")
 
         // init subs
         addFilteredLocationsListener()
@@ -123,14 +134,18 @@ fun ProvidersBottomSheetScaffold(
         // when closing
         onDispose {
 
-            Log.i("ProvidersBottomSheetScaffold", "DisposableEffect onDispose called")
-
             subs.forEach { sub ->
                 sub.close()
             }
             subs.clear()
         }
 
+    }
+
+    LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
+        if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
+            keyboardController?.hide()
+        }
     }
 
     BottomSheetScaffold(
@@ -198,11 +213,14 @@ fun ProvidersBottomSheetScaffold(
                         )
                     }
 
-                    OutlinedTextField(
+                    URSearchInput(
                         value = searchQuery,
-                        onValueChange = { query -> searchQuery = query },
-                        label = { Text("Search") },
-                        modifier = Modifier.fillMaxWidth()
+                        onValueChange = { query ->
+                            searchQuery = query
+                            search(query.text)
+                                        },
+                        placeholder = "Search for all locations",
+                        keyboardController
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -215,15 +233,6 @@ fun ProvidersBottomSheetScaffold(
                             onLocationSelect()
                         }
                     )
-
-
-//                    Text("Sheet content")
-//                    Button(
-//                        modifier = Modifier.padding(bottom = 64.dp),
-//                        onClick = { scope.launch { scaffoldState.bottomSheetState.partialExpand() } }
-//                    ) {
-//                        Text("Click to collapse sheet")
-//                    }
                 }
             }
         }
