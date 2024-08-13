@@ -25,21 +25,14 @@ fun MainNavHost() {
         modifier = Modifier.fillMaxSize(),
         bottomBar = { BottomNavBar(navController) }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+        NavHost(
+            navController = navController,
+            startDestination = "connect",
+            modifier = Modifier.padding(innerPadding)
         ) {
-            NavHost(
-                navController = navController,
-                startDestination = "connect",
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable("connect") { ConnectScreen() }
-                composable("account") { AccountScreen() }
-                composable("support") { FeedbackScreen() }
-            }
-
+            composable("connect") { ConnectScreen() }
+            composable("account") { AccountScreen() }
+            composable("support") { FeedbackScreen() }
         }
     }
 

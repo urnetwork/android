@@ -77,11 +77,6 @@ class MainActivity: ComponentActivity() {
         }
 
         setContent {
-//            YourAppTheme {
-//                Surface(color = MaterialTheme.colorScheme.background) {
-//                    NavigationHost()
-//                }
-//            }
             URNetworkTheme {
                 MainNavHost()
             }

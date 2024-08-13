@@ -70,6 +70,8 @@ val MainBorderBase = Color(0x1FFFFFFF)
 val TextMuted = Color(0xFF989898)
 val TextFaint = Color(0xFF5A5A5A)
 val TextDanger = Red500
+val MainTextBase = Color.White
+val MainTintedBackgroundBase = Color(0xFF1C1C1C)
 
 val OffWhite = Color(0xFFF8F8F8)
 val Black = Color(0xFF101010)

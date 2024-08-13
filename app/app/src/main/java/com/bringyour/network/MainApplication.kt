@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.biometric.BiometricManager
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.core.content.ContextCompat
 import circle.programmablewallet.sdk.WalletSdk
 import circle.programmablewallet.sdk.api.ExecuteEvent
@@ -382,7 +383,9 @@ class MainApplication : Application() {
         return vpnRequestStart
     }
 
+}
 
-
-
+class ApplicationPreviewParameterProvider : PreviewParameterProvider<Application> {
+    override val values: Sequence<Application>
+        get() = sequenceOf(MainApplication())
 }

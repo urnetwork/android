@@ -153,8 +153,6 @@ class ConnectFragment : Fragment() {
 
          */
 
-
-        val connectSearch = root.findViewById<EditText>(R.id.connect_search)
         val locationList = root.findViewById<RecyclerView>(R.id.connect_list)
 
         val adapter = ConnectAdapter(this, connectVc, subs)
@@ -290,33 +288,6 @@ class ConnectFragment : Fragment() {
             Color.blue(colorBackground) / 255f
         )
         */
-
-
-        connectSearch.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val filter = connectSearch.text.toString().trim()
-                Log.i("ConnectFragment", "SEARCH CHANGED ${filter}")
-                connectVc.filterLocations(filter)
-//                if (connectSearch.text.toString() == "palo alto") {
-//                    root.findViewById<View>(R.id.connect_local_control).visibility = View.GONE
-//                    root.findViewById<View>(R.id.connect_remote_control).visibility = View.VISIBLE
-//                    root.requestLayout()
-//                }
-            }
-        })
-
-
-
-
-        connectVc.filterLocations(connectSearch.text.toString().trim())
-
 
         setActiveLocation(connectVc.activeLocation)
 
@@ -503,10 +474,6 @@ class ConnectFragment : Fragment() {
         animateJob = lifecycleScope.launch(Dispatchers.Main) {
             context?.let { context ->
                 val view = requireView() as ViewGroup
-
-                view.findViewById<View>(R.id.connect_search)?.let { connectSearch ->
-                    connectSearch.clearFocus()
-                }
 
                 val transitionRoot = view.findViewById<ViewGroup>(R.id.transition_root)!!
                 val transitionContainer = view.findViewById<View>(R.id.transition_container)!!
