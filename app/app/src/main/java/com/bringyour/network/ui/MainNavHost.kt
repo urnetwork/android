@@ -1,6 +1,5 @@
 package com.bringyour.network.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -10,7 +9,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.components.BottomNavBar
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.feedback.FeedbackScreen
@@ -22,16 +20,18 @@ fun MainNavHost() {
     val navController = rememberNavController()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         bottomBar = { BottomNavBar(navController) }
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = "connect",
+            // todo - for some reason innerPadding is 0
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("connect") { ConnectScreen() }
-            composable("account") { AccountScreen() }
+            composable("account") { AccountNavHost() }
             composable("support") { FeedbackScreen() }
         }
     }
