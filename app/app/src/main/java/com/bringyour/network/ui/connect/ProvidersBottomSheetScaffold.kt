@@ -63,7 +63,7 @@ import kotlinx.coroutines.runBlocking
 fun ProvidersBottomSheetScaffold(
     scaffoldState: BottomSheetScaffoldState,
     connectVc: ConnectViewController?,
-    activeLocation: ConnectLocation?,
+    selectedLocation: ConnectLocation?,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -197,7 +197,7 @@ fun ProvidersBottomSheetScaffold(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    if (activeLocation == null) {
+                    if (selectedLocation == null) {
                         ProviderRow(
                             location = "Best available provider",
                             /* todo -
@@ -211,8 +211,8 @@ fun ProvidersBottomSheetScaffold(
                         )
                     } else {
                         ProviderRow(
-                            location = activeLocation.name,
-                            providerCount = activeLocation.providerCount,
+                            location = selectedLocation.name,
+                            providerCount = selectedLocation.providerCount,
                             onClick = {}
                         )
                     }
@@ -259,7 +259,7 @@ fun PreviewConnectCountriesList(
         ProvidersBottomSheetScaffold(
             scaffoldState = scaffoldState,
             connectVc = connectVc,
-            activeLocation = null,
+            selectedLocation = null,
         ) {
             Text("Hello world")
         }
@@ -286,7 +286,7 @@ fun ProvidersBottomSheetOpenPreview(
         ProvidersBottomSheetScaffold(
             scaffoldState,
             connectVc,
-            activeLocation = null,
+            selectedLocation = null,
         ) {
             Text("Hello world")
         }
