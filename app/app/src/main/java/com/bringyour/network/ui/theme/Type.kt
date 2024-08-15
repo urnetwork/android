@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -50,7 +51,8 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 32.sp,
         lineHeight = 36.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.sp,
+        color = Color.White
     ),
 
     headlineMedium = TextStyle(
@@ -58,7 +60,17 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 32.sp,
         lineHeight = 32.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.sp,
+        color = Color.White
+    ),
+
+    headlineSmall = TextStyle(
+        fontFamily = gravityFamily,
+        fontWeight = FontWeight(900),
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 0.sp,
+        color = Color.White
     ),
 
 
