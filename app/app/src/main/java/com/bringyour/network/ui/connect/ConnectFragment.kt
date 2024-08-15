@@ -289,7 +289,7 @@ class ConnectFragment : Fragment() {
         )
         */
 
-        setActiveLocation(connectVc.activeLocation)
+        setActiveLocation(connectVc.selectedLocation)
 
         return root
     }

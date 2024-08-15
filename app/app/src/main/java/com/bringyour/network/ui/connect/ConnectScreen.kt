@@ -66,7 +66,7 @@ fun ConnectScreen(
     val application = context.applicationContext as? MainApplication
     val activity = context as? MainActivity
     val connectVc = application?.connectVc
-    var activeLocation by remember { mutableStateOf<ConnectLocation?>(null) }
+    var selectedLocation by remember { mutableStateOf<ConnectLocation?>(null) }
     val subs = remember { mutableListOf<Sub>() }
     var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECTED) }
     var networkName by remember { mutableStateOf<String?>(null) }
@@ -81,8 +81,18 @@ fun ConnectScreen(
         }
     }
 
-    val setActiveLocation: (ConnectLocation?) -> Unit = { location ->
-        activeLocation = location
+    val getSelectedLocation = {
+        selectedLocation = connectVc?.selectedLocation
+    }
+
+    val getConnectionStatus = {
+        val status = connectVc?.connectionStatus
+        if (status != null) {
+            val statusFromStr = ConnectStatus.fromString(status)
+            if (statusFromStr != null) {
+                connectStatus = statusFromStr
+            }
+        }
     }
 
     val addConnectionListener = {
@@ -90,7 +100,10 @@ fun ConnectScreen(
             subs.add(connectVc.addConnectionListener { location ->
                 runBlocking(Dispatchers.Main.immediate) {
 
-                    setActiveLocation(location)
+                    // selectedLocation = location
+                    getSelectedLocation()
+                    getConnectionStatus()
+
 
                     if (application.isVpnRequestStart()) {
                         // user might need to grant permissions
@@ -99,10 +112,6 @@ fun ConnectScreen(
                 }
             })
         }
-    }
-
-    val getActiveLocation = {
-        activeLocation = connectVc?.activeLocation
     }
 
     val addConnectionStatusListener = {
@@ -118,19 +127,9 @@ fun ConnectScreen(
         }
     }
 
-    val getConnectionStatus = {
-        val status = connectVc?.connectionStatus
-        if (status != null) {
-            val statusFromStr = ConnectStatus.fromString(status)
-            if (statusFromStr != null) {
-                connectStatus = statusFromStr
-            }
-        }
-    }
-
     LaunchedEffect(Unit) {
         populateNetworkName()
-        getActiveLocation()
+        getSelectedLocation()
         getConnectionStatus()
     }
 
@@ -157,7 +156,7 @@ fun ConnectScreen(
     ProvidersBottomSheetScaffold(
         scaffoldState,
         connectVc,
-        activeLocation,
+        selectedLocation,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -177,6 +176,7 @@ fun ConnectScreen(
                         onClick = {
                             if (connectStatus == ConnectStatus.DISCONNECTED) {
                                 // connect to best available
+                                connectVc?.connect(selectedLocation)
                             }
                         },
                         connectStatus = connectStatus
@@ -187,7 +187,7 @@ fun ConnectScreen(
 
                 ConnectStatusIndicator(
                     text = when(connectStatus) {
-                        ConnectStatus.CONNECTED -> "Connected to ${activeLocation?.providerCount ?: 0} providers"
+                        ConnectStatus.CONNECTED -> "Connected to ${selectedLocation?.providerCount ?: 0} providers"
                         ConnectStatus.CONNECTING -> "Connecting to providers..."
                         ConnectStatus.CANCELING -> "Canceling connection..."
                         // todo - username
