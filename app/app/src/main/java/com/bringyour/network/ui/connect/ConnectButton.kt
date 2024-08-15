@@ -16,13 +16,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
@@ -37,57 +40,71 @@ fun ConnectButton(
     Box(
         modifier = Modifier
             .size(256.dp)
-            .clickable(onClick = onClick)
+            .clipToBounds()
+            .background(color = Color(0x0AFFFFFF))
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.connect_button_bg),
-            contentDescription = "Clickable Image",
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(onClick = {})
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .offset(y = -(12).dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .clickable(onClick = onClick)
+                .zIndex(0f)
         ) {
-            Text(
-                "Tap to connect",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = ppNeueBitBold,
-                    fontWeight = FontWeight(700),
-                    color = Color.White
-                    // color = Variables.MainTextBase,
-                    // textAlign = TextAlign.Center,
-                )
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(54.dp)
-                    .background(color = BlueMedium, shape = CircleShape)
+                    .fillMaxSize()
+                    .offset(y = -(12).dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(52.dp)
-                        .background(color = Black, shape = CircleShape)
-                        .align(Alignment.Center)
-                ) {
+
+                if (connectStatus == ConnectStatus.DISCONNECTED) {
+
+                    Text(
+                        "Tap to connect",
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            lineHeight = 20.sp,
+                            fontFamily = ppNeueBitBold,
+                            fontWeight = FontWeight(700),
+                            color = Color.White
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(56.dp)
                             .background(color = BlueMedium, shape = CircleShape)
-                            .align(Alignment.Center)
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .background(color = Black, shape = CircleShape)
+                                .align(Alignment.Center)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(color = BlueMedium, shape = CircleShape)
+                                    .align(Alignment.Center)
+                            ) {
 
+                            }
+                        }
                     }
+
                 }
             }
         }
+
+        Image(
+            painter = painterResource(id = R.drawable.connect_mask),
+            contentDescription = "Clickable Image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(512.dp)
+                .align(Alignment.Center)
+                .zIndex(1f)
+        )
     }
 }
 

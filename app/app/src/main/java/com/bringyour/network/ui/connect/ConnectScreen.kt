@@ -1,7 +1,6 @@
 package com.bringyour.network.ui.connect
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -27,21 +24,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.Sub
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import com.bringyour.network.R
 
 enum class ConnectStatus {
-    DISCONNECTED, CONNECTING, CONNECTED
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED,
+    CANCELING;
+
+    companion object {
+        fun fromString(value: String): ConnectStatus? {
+            return when (value.uppercase()) {
+                "DISCONNECTED" -> DISCONNECTED
+                "CONNECTING" -> CONNECTING
+                "CONNECTED" -> CONNECTED
+                "CANCELING" ->CANCELING
+                else -> null // or throw IllegalArgumentException("Unknown ProvideMode: $value")
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,20 +62,27 @@ fun ConnectScreen(
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
-
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
     val activity = context as? MainActivity
-
     val connectVc = application?.connectVc
     var activeLocation by remember { mutableStateOf<ConnectLocation?>(null) }
-    var isConnecting by remember { mutableStateOf(false) }
     val subs = remember { mutableListOf<Sub>() }
-    var connectStatus by remember { mutableStateOf<ConnectStatus>(ConnectStatus.DISCONNECTED) }
+    var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECTED) }
+    var networkName by remember { mutableStateOf<String?>(null) }
+
+    val populateNetworkName = {
+        application?.asyncLocalState?.parseByJwt { byJwt, ok ->
+            runBlocking(Dispatchers.Main.immediate) {
+                if (ok) {
+                    networkName = byJwt.networkName
+                }
+            }
+        }
+    }
 
     val setActiveLocation: (ConnectLocation?) -> Unit = { location ->
         activeLocation = location
-        isConnecting = false
     }
 
     val addConnectionListener = {
@@ -83,12 +102,33 @@ fun ConnectScreen(
         }
     }
 
+    val addConnectionStatusListener = {
+        if (connectVc != null) {
+            subs.add(connectVc.addConnectionStatusListener { status ->
+                runBlocking(Dispatchers.Main.immediate) {
+
+                    Log.i("ConnectScreen", "Received status: $status")
+
+                    val statusFromStr = ConnectStatus.fromString(status)
+                    if (statusFromStr != null) {
+                        connectStatus = statusFromStr
+                    }
+                }
+            })
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        populateNetworkName()
+    }
+
     DisposableEffect(Unit) {
 
         Log.i("ConnectScreen", "DisposableEffect called")
 
         // init subs
         addConnectionListener()
+        addConnectionStatusListener()
 
         // when closing
         onDispose {
@@ -102,28 +142,10 @@ fun ConnectScreen(
         }
     }
 
-    LaunchedEffect(isConnecting, activeLocation) {
-        if (isConnecting) {
-            connectStatus = ConnectStatus.CONNECTING
-        }
-
-        if (!isConnecting && activeLocation == null) {
-            connectStatus = ConnectStatus.DISCONNECTED
-        }
-
-        if (!isConnecting && activeLocation != null) {
-            connectStatus = ConnectStatus.CONNECTED
-        }
-    }
-
-
     ProvidersBottomSheetScaffold(
         scaffoldState,
         connectVc,
         activeLocation,
-        onLocationSelect = {
-            isConnecting = true
-        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -133,45 +155,68 @@ fun ConnectScreen(
             contentAlignment = Alignment.Center
         ) {
             Column {
-                // Text("Is connecting: $isConnecting")
 
-                if (activeLocation != null) {
-                    Text("Connected to ${activeLocation?.name}")
-                    Button(
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+
+                ) {
+                    ConnectButton(
                         onClick = {
-                            connectVc?.disconnect()
-                        }
-                    ) {
-
-                        // Icon(painterResource(id = R.drawable.connect_button_bg), contentDescription = "Connect")
-                        Text("Disconnect")
-
-                    }
-                } else {
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-
-                    ) {
-                        ConnectButton(
-                            onClick = {},
-                            connectStatus = connectStatus
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    ConnectStatusIndicator(
-                        text = when(connectStatus) {
-                            ConnectStatus.CONNECTED -> "Connected to ${activeLocation?.providerCount ?: 0} providers"
-                            ConnectStatus.CONNECTING -> "Connecting to providers..."
-                            // todo - username
-                            ConnectStatus.DISCONNECTED -> "username is ready to connect"
+                            if (connectStatus == ConnectStatus.DISCONNECTED) {
+                                // connect to best available
+                            }
                         },
-                        status = connectStatus
+                        connectStatus = connectStatus
                     )
+                }
 
+                Spacer(modifier = Modifier.height(32.dp))
+
+                ConnectStatusIndicator(
+                    text = when(connectStatus) {
+                        ConnectStatus.CONNECTED -> "Connected to ${activeLocation?.providerCount ?: 0} providers"
+                        ConnectStatus.CONNECTING -> "Connecting to providers..."
+                        ConnectStatus.CANCELING -> "Canceling connection..."
+                        // todo - username
+                        ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
+                            else "ready to connect"
+                    },
+                    status = connectStatus
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (connectStatus == ConnectStatus.CONNECTED) {
+
+                        URButton(
+                            onClick = {
+                                connectVc?.disconnect()
+                            },
+                            style = ButtonStyle.OUTLINE
+                        ) { buttonTextStyle ->
+                            Text("Disconnect", style = buttonTextStyle)
+                        }
+
+                    } else if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.CANCELING) {
+
+                        // todo - we should only show cancel after connecting is over ~2 seconds
+                        URButton(
+                            onClick = {
+                                connectVc?.cancelConnection()
+                            },
+                            style = ButtonStyle.OUTLINE,
+                            enabled = connectStatus == ConnectStatus.CONNECTING
+                        ) { buttonTextStyle ->
+                            Text("Cancel", style = buttonTextStyle)
+                        }
+                    }
                 }
             }
         }
@@ -181,7 +226,6 @@ fun ConnectScreen(
 @Preview
 @Composable
 fun ConnectPreview() {
-
     URNetworkTheme {
         ConnectScreen()
     }
