@@ -88,7 +88,6 @@ fun ConnectScreen(
     val addConnectionListener = {
         if (connectVc != null) {
             subs.add(connectVc.addConnectionListener { location ->
-
                 runBlocking(Dispatchers.Main.immediate) {
 
                     setActiveLocation(location)
@@ -102,13 +101,14 @@ fun ConnectScreen(
         }
     }
 
+    val getActiveLocation = {
+        activeLocation = connectVc?.activeLocation
+    }
+
     val addConnectionStatusListener = {
         if (connectVc != null) {
             subs.add(connectVc.addConnectionStatusListener { status ->
                 runBlocking(Dispatchers.Main.immediate) {
-
-                    Log.i("ConnectScreen", "Received status: $status")
-
                     val statusFromStr = ConnectStatus.fromString(status)
                     if (statusFromStr != null) {
                         connectStatus = statusFromStr
@@ -118,8 +118,20 @@ fun ConnectScreen(
         }
     }
 
+    val getConnectionStatus = {
+        val status = connectVc?.connectionStatus
+        if (status != null) {
+            val statusFromStr = ConnectStatus.fromString(status)
+            if (statusFromStr != null) {
+                connectStatus = statusFromStr
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         populateNetworkName()
+        getActiveLocation()
+        getConnectionStatus()
     }
 
     DisposableEffect(Unit) {
