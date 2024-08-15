@@ -78,40 +78,50 @@ fun ProvidersBottomSheetScaffold(
     }
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val getLocations = {
+        val exportedLocations = connectVc?.locations
+        if (exportedLocations != null) {
+            val locations = mutableListOf<ConnectLocation>()
+            val n = exportedLocations.len()
+
+            for (i in 0 until n) {
+                locations.add(exportedLocations.get(i))
+            }
+
+            connectLocations.clear()
+            connectLocations.addAll(locations)
+
+            var providerCount = 0
+
+            connectCountries.clear()
+            connectLocations.forEach { location ->
+                providerCount += location.providerCount
+                if (location.locationType == LocationTypeCountry) {
+                    connectCountries[location.countryCode] = location
+                }
+            }
+
+            totalProviderCount = providerCount
+        } else {
+            connectCountries.clear()
+            totalProviderCount = 0
+        }
+    }
+
     val addFilteredLocationsListener = {
 
         if (connectVc != null) {
 
-            subs.add(connectVc.addFilteredLocationsListener { exportedLocations ->
+            subs.add(connectVc.addFilteredLocationsListener {
                 runBlocking(Dispatchers.Main.immediate) {
-                    val locations = mutableListOf<ConnectLocation>()
-                    val n = exportedLocations.len()
-
-                    for (i in 0 until n) {
-                        locations.add(exportedLocations.get(i))
-                    }
-
-                    connectLocations.clear()
-                    connectLocations.addAll(locations)
-
-                    var providerCount = 0
-
-                    connectCountries.clear()
-                    connectLocations.forEach { location ->
-                        providerCount += location.providerCount
-                        if (location.locationType == LocationTypeCountry) {
-                            connectCountries[location.countryCode] = location
-                        }
-                    }
-
-                    totalProviderCount = providerCount
+                    getLocations()
                 }
             })
         }
     }
 
-    LaunchedEffect(searchQuery) {
-        connectVc?.filterLocations(searchQuery.text)
+    LaunchedEffect(Unit) {
+        getLocations()
     }
 
     DisposableEffect(Unit) {
@@ -210,7 +220,10 @@ fun ProvidersBottomSheetScaffold(
                     URSearchInput(
                         value = searchQuery,
                         onValueChange = { query ->
-                            searchQuery = query
+                            if (query.text != searchQuery.text) {
+                                searchQuery = query
+                                connectVc?.filterLocations(searchQuery.text)
+                            }
                                         },
                         placeholder = "Search for all locations",
                         keyboardController

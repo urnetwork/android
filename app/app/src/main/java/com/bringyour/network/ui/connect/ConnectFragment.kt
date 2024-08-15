@@ -733,33 +733,33 @@ class ConnectAdapter(val connectFragment: ConnectFragment, val connectVc: Connec
     private val connectCountries = mutableMapOf<String, ConnectLocation>()
 
 
-    init {
-        // FIXME view controller to sort the locations before calling callback
-        subs.add(connectVc.addFilteredLocationsListener { exportedLocations ->
-            runBlocking(Dispatchers.Main.immediate) {
-                val locations = mutableListOf<ConnectLocation>()
-                val n = exportedLocations.len()
-                for (i in 0 until n) {
-                    locations.add(exportedLocations.get(i))
-                }
-
-//                Log.i("CONNECT", "UPDATE ON MAIN GOT NEW LOCATIONS $locations")
-
-                connectLocations.clear()
-                connectLocations.addAll(locations)
-
-                connectCountries.clear()
-                connectLocations.forEach { location ->
-                    if (location.locationType == LocationTypeCountry) {
-                        connectCountries[location.countryCode] = location
-                    }
-                }
-
-                // FIXME do a better merge and support stable ids
-                notifyDataSetChanged()
-            }
-        })
-    }
+//    init {
+//        // FIXME view controller to sort the locations before calling callback
+//        subs.add(connectVc.addFilteredLocationsListener { exportedLocations ->
+//            runBlocking(Dispatchers.Main.immediate) {
+//                val locations = mutableListOf<ConnectLocation>()
+//                val n = exportedLocations.len()
+//                for (i in 0 until n) {
+//                    locations.add(exportedLocations.get(i))
+//                }
+//
+////                Log.i("CONNECT", "UPDATE ON MAIN GOT NEW LOCATIONS $locations")
+//
+//                connectLocations.clear()
+//                connectLocations.addAll(locations)
+//
+//                connectCountries.clear()
+//                connectLocations.forEach { location ->
+//                    if (location.locationType == LocationTypeCountry) {
+//                        connectCountries[location.countryCode] = location
+//                    }
+//                }
+//
+//                // FIXME do a better merge and support stable ids
+//                notifyDataSetChanged()
+//            }
+//        })
+//    }
 
 
     // Create new views (invoked by the layout manager)

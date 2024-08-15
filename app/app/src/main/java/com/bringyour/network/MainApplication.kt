@@ -188,6 +188,7 @@ class MainApplication : Application() {
         byDevice?.provideMode = provideMode
 
         connectVc = byDevice?.openConnectViewController()
+        connectVc?.start()
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
     }
