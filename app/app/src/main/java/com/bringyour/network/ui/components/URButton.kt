@@ -1,10 +1,13 @@
 package com.bringyour.network.ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -17,12 +20,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.TextFaint
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 
 enum class ButtonStyle {
-    PRIMARY, SECONDARY
+    PRIMARY, SECONDARY, OUTLINE
 }
 
 val buttonTextStyle = TextStyle(
@@ -45,16 +51,31 @@ fun URButton(
         )
         ButtonStyle.SECONDARY -> ButtonDefaults.buttonColors(
             containerColor = Color.White,
-            contentColor = Color.Black
+            contentColor = Color.Black,
         )
+        ButtonStyle.OUTLINE -> ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = TextMuted
+        )
+    }
+
+    val modifier = when(style) {
+        ButtonStyle.PRIMARY -> Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp)
+        ButtonStyle.SECONDARY -> Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp)
+        ButtonStyle.OUTLINE -> Modifier
+            .border(1.dp, TextFaint, RoundedCornerShape(100))
+            .defaultMinSize(minHeight = 48.dp)
+            .padding(horizontal = 16.dp)
     }
 
     return Button(
         onClick = onClick,
         colors = buttonColors,
-        modifier = Modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp),
+        modifier = modifier,
         enabled = enabled
     ) {
 
@@ -68,8 +89,8 @@ fun PrimaryButtonPreview() {
     URNetworkTheme {
         URButton(
             onClick = {},
-        ) {
-            Text("Get Started")
+        ) { buttonTextStyle ->
+            Text("Get Started", style = buttonTextStyle)
         }
     }
 }
@@ -81,8 +102,21 @@ fun SecondaryButtonPreview() {
         URButton(
             style = ButtonStyle.SECONDARY,
             onClick = {}
-        ) {
-            Text("Get Started")
+        ) { buttonTextStyle ->
+            Text("Get Started", style = buttonTextStyle)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun OutlineButtonPreview() {
+    URNetworkTheme {
+        URButton(
+            style = ButtonStyle.OUTLINE,
+            onClick = {}
+        ) { buttonTextStyle ->
+            Text("Disconnect", style = buttonTextStyle)
         }
     }
 }

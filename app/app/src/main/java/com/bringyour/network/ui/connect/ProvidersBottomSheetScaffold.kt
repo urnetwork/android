@@ -55,8 +55,6 @@ import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -66,7 +64,6 @@ fun ProvidersBottomSheetScaffold(
     scaffoldState: BottomSheetScaffoldState,
     connectVc: ConnectViewController?,
     activeLocation: ConnectLocation?,
-    onLocationSelect: () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -193,8 +190,14 @@ fun ProvidersBottomSheetScaffold(
                     if (activeLocation == null) {
                         ProviderRow(
                             location = "Best available provider",
+                            /* todo -
+                                save totalProviderCount locally
+                                then on load, animate the number up or down depending on count fetched
+                            */
                             providerCount = totalProviderCount,
-                            onClick = {}
+                            onClick = {
+                                // todo - query bestAvailable
+                            }
                         )
                     } else {
                         ProviderRow(
@@ -220,7 +223,6 @@ fun ProvidersBottomSheetScaffold(
                         connectVc = connectVc,
                         onLocationSelect = {
                             scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                            onLocationSelect()
                         }
                     )
                 }
@@ -245,7 +247,6 @@ fun PreviewConnectCountriesList(
             scaffoldState = scaffoldState,
             connectVc = connectVc,
             activeLocation = null,
-            onLocationSelect = {}
         ) {
             Text("Hello world")
         }
@@ -273,7 +274,6 @@ fun ProvidersBottomSheetOpenPreview(
             scaffoldState,
             connectVc,
             activeLocation = null,
-            onLocationSelect = {}
         ) {
             Text("Hello world")
         }
