@@ -61,7 +61,8 @@ fun AccountSwitcher(
         Image(
             painter = painterResource(id = R.drawable.account_switcher_avatar),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .clickable { isOverlayVisible = true },
             colorFilter = if (loginMode == LoginMode.Authenticated) null
                 else ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
@@ -81,8 +82,9 @@ fun AccountSwitcher(
 }
 
 @Composable
-fun GuestPopup(
-    onDismiss: () -> Unit
+fun AccountSwitcherPopup(
+    onDismiss: () -> Unit,
+    content: @Composable () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -115,31 +117,7 @@ fun GuestPopup(
                                 horizontal = 16.dp
                             )
                     ) {
-                        PopupActionRow(
-                            iconResourceId = R.drawable.main_nav_user_filled,
-                            text = "Guest Mode",
-                            onClick = {},
-                            isSelected = true,
-                        )
-
-                        HorizontalDivider()
-
-                        PopupActionRow(
-                            iconResourceId = R.drawable.plus,
-                            text = "Create Account",
-                            onClick = {
-                                // todo - this should logout/navigate to login initial
-                            },
-                        )
-
-                        HorizontalDivider()
-
-                        PopupActionRow(
-                            iconResourceId = R.drawable.export,
-                            text = "Share URnetwork",
-                            onClick = {
-                            },
-                        )
+                        content()
                     }
                 }
             }
@@ -148,13 +126,49 @@ fun GuestPopup(
 }
 
 @Composable
+fun GuestPopup(
+    onDismiss: () -> Unit
+) {
+    AccountSwitcherPopup(onDismiss = { onDismiss() }) {
+        PopupActionRow(
+            iconResourceId = R.drawable.main_nav_user_filled,
+            text = "Guest Mode",
+            onClick = {},
+            isSelected = true,
+        )
+
+        HorizontalDivider()
+
+        PopupActionRow(
+            iconResourceId = R.drawable.plus,
+            text = "Create Account",
+            onClick = {
+                // todo - this should logout/navigate to login initial
+            },
+        )
+
+        HorizontalDivider()
+
+        PopupActionRow(
+            iconResourceId = R.drawable.export,
+            text = "Share URnetwork",
+            onClick = {
+            },
+        )
+    }
+}
+
+@Composable
 fun AuthenticatedPopup(
     onDismiss: () -> Unit
 ) {
-    Popup(
-        onDismissRequest = onDismiss
-    ) {
-
+    AccountSwitcherPopup(onDismiss = { onDismiss() }) {
+        PopupActionRow(
+            iconResourceId = R.drawable.export,
+            text = "Share URnetwork",
+            onClick = {
+            },
+        )
     }
 }
 
