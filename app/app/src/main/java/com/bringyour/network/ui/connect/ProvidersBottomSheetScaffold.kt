@@ -73,9 +73,22 @@ fun ProvidersBottomSheetScaffold(
     val connectLocations = remember {
         mutableStateListOf<ConnectLocation>()
     }
+
+//    val connectCountries = remember {
+//        mutableStateMapOf<String, ConnectLocation>()
+//    }
+
     val connectCountries = remember {
+        mutableStateListOf<ConnectLocation>()
+    }
+    val promotedLocations = remember {
+        mutableStateListOf<ConnectLocation>()
+    }
+
+    val connectGroups = remember {
         mutableStateMapOf<String, ConnectLocation>()
     }
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val getLocations = {
@@ -94,10 +107,18 @@ fun ProvidersBottomSheetScaffold(
             var providerCount = 0
 
             connectCountries.clear()
+            promotedLocations.clear()
+            connectGroups.clear()
             connectLocations.forEach { location ->
                 providerCount += location.providerCount
+
+                if (location.promoted) {
+                    promotedLocations.add(location)
+                }
+
                 if (location.locationType == LocationTypeCountry) {
-                    connectCountries[location.countryCode] = location
+                    // connectCountries[location.countryCode] = location
+                    connectCountries.add(location)
                 }
             }
 
@@ -232,12 +253,15 @@ fun ProvidersBottomSheetScaffold(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     LocationsList(
-                        connectCountries = connectCountries,
+                        // connectCountries = connectCountries,
+                        // connectLocations = connectLocations,
                         connectVc = connectVc,
                         onLocationSelect = {
                             scope.launch { scaffoldState.bottomSheetState.partialExpand() }
                         },
-                        selectedLocation
+                        selectedLocation = selectedLocation,
+                        promotedLocations = promotedLocations,
+                        connectCountries = connectCountries
                     )
                 }
             }

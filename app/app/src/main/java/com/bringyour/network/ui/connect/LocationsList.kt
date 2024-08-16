@@ -16,17 +16,44 @@ import com.bringyour.client.ConnectViewController
 
 @Composable
 fun LocationsList(
-    connectCountries: Map<String, ConnectLocation>,
+    // connectCountries: Map<String, ConnectLocation>,
+    connectCountries: List<ConnectLocation>,
+    promotedLocations: List<ConnectLocation>,
+    // connectLocations: List<ConnectLocation>,
     connectVc: ConnectViewController?,
     onLocationSelect: () -> Unit,
     selectedLocation: ConnectLocation?
 ) {
 
-    val countryList = connectCountries.entries.toList()
+    // val countryList = connectCountries.entries.toList()
 
     LazyColumn {
 
         item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text("Promoted Locations")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        items(promotedLocations) { country ->
+            ProviderRow(
+                location = country.name,
+                providerCount = country.providerCount,
+                onClick = {
+                    connectVc?.connect(country)
+                    onLocationSelect()
+                },
+                isSelected = selectedLocation?.connectLocationId == country.connectLocationId
+            )
+        }
+
+        item {
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
@@ -37,15 +64,15 @@ fun LocationsList(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        items(countryList) { country ->
+        items(connectCountries) { country ->
             ProviderRow(
-                location = country.value.name,
-                providerCount = country.value.providerCount,
+                location = country.name,
+                providerCount = country.providerCount,
                 onClick = {
-                    connectVc?.connect(country.value)
+                    connectVc?.connect(country)
                     onLocationSelect()
                 },
-                isSelected = selectedLocation?.connectLocationId == country.value.connectLocationId
+                isSelected = selectedLocation?.connectLocationId == country.connectLocationId
             )
         }
     }

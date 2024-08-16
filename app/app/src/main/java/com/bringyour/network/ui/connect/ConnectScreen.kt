@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,6 +68,7 @@ fun ConnectScreen(
     val activity = context as? MainActivity
     val connectVc = application?.connectVc
     var selectedLocation by remember { mutableStateOf<ConnectLocation?>(null) }
+    var connectedProviderCount by remember { mutableIntStateOf(0) }
     val subs = remember { mutableListOf<Sub>() }
     var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECTED) }
     var networkName by remember { mutableStateOf<String?>(null) }
@@ -83,6 +85,10 @@ fun ConnectScreen(
 
     val initSelectedLocation = {
         selectedLocation = connectVc?.selectedLocation
+    }
+
+    val initConnectedProviderCount = {
+        connectedProviderCount = connectVc?.connectedProviderCount ?: 0
     }
 
     val getConnectionStatus = {
@@ -122,10 +128,21 @@ fun ConnectScreen(
         }
     }
 
+    val addConnectedProviderCountListener = {
+        if (connectVc != null) {
+            subs.add(connectVc.addConnectedProviderCountListener { count ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    connectedProviderCount = count
+                }
+            })
+        }
+    }
+
     LaunchedEffect(Unit) {
         populateNetworkName()
         initSelectedLocation()
         getConnectionStatus()
+        initConnectedProviderCount()
     }
 
     DisposableEffect(Unit) {
@@ -135,6 +152,7 @@ fun ConnectScreen(
         // init subs
         addConnectionStatusListener()
         addSelectedLocationListener()
+        addConnectedProviderCountListener()
 
         // when closing
         onDispose {
@@ -170,8 +188,13 @@ fun ConnectScreen(
                     ConnectButton(
                         onClick = {
                             if (connectStatus == ConnectStatus.DISCONNECTED) {
-                                // connect to best available
-                                connectVc?.connect(selectedLocation)
+                                
+                                if (selectedLocation != null) {
+                                    connectVc?.connect(selectedLocation)
+                                } else {
+                                    connectVc?.connectBestAvailable()
+                                }
+
                             }
                         },
                         connectStatus = connectStatus
@@ -182,7 +205,7 @@ fun ConnectScreen(
 
                 ConnectStatusIndicator(
                     text = when(connectStatus) {
-                        ConnectStatus.CONNECTED -> "Connected to ${selectedLocation?.providerCount ?: 0} providers"
+                        ConnectStatus.CONNECTED -> "Connected to $connectedProviderCount providers"
                         ConnectStatus.CONNECTING -> "Connecting to providers..."
                         ConnectStatus.CANCELING -> "Canceling connection..."
                         // todo - username
