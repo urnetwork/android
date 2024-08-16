@@ -18,7 +18,8 @@ import com.bringyour.client.ConnectViewController
 fun LocationsList(
     connectCountries: Map<String, ConnectLocation>,
     connectVc: ConnectViewController?,
-    onLocationSelect: () -> Unit
+    onLocationSelect: () -> Unit,
+    selectedLocation: ConnectLocation?
 ) {
 
     val countryList = connectCountries.entries.toList()
@@ -43,7 +44,8 @@ fun LocationsList(
                 onClick = {
                     connectVc?.connect(country.value)
                     onLocationSelect()
-                }
+                },
+                isSelected = selectedLocation?.connectLocationId == country.value.connectLocationId
             )
         }
     }

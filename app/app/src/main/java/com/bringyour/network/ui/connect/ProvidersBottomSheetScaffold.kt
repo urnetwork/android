@@ -236,7 +236,8 @@ fun ProvidersBottomSheetScaffold(
                         connectVc = connectVc,
                         onLocationSelect = {
                             scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                        }
+                        },
+                        selectedLocation
                     )
                 }
             }

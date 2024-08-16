@@ -33,7 +33,7 @@ import com.bringyour.client.Client.LocationTypeCountry
 import com.bringyour.client.Client.LocationTypeRegion
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.ConnectViewController
-import com.bringyour.client.LocationListener
+// import com.bringyour.client.LocationListener
 import com.bringyour.client.Sub
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
@@ -181,95 +181,95 @@ class ConnectFragment : Fragment() {
                 animateJob = null
             } else {
                 val view: View
-                if (location.isGroup) {
-                    view = LayoutInflater.from(connectTop.context)
-                        .inflate(R.layout.connect_top_group, connectTop, true)
-                    val viewHolder = ConnectTopGroupViewHolder(view)
-                    // todo there is no sub currently
-                    viewHolder.locationChanged(location)
-                } else if (location.isDevice) {
-                    view = LayoutInflater.from(connectTop.context)
-                        .inflate(R.layout.connect_top_device, connectTop, true)
-                    val viewHolder = ConnectTopDeviceViewHolder(view)
-                    // todo there is no sub currently
-                    viewHolder.locationChanged(location)
-                } else {
-                    when (location.locationType) {
-                        LocationTypeCity -> {
-                            view = LayoutInflater.from(connectTop.context)
-                                .inflate(R.layout.connect_top_city, connectTop, true)
-                            val viewHolder = ConnectTopCityViewHolder(this, view)
-                            // todo there is no sub currently
-                            viewHolder.locationChanged(location)
-                        }
-
-                        LocationTypeRegion -> {
-                            view = LayoutInflater.from(connectTop.context)
-                                .inflate(R.layout.connect_top_region, connectTop, true)
-                            val viewHolder = ConnectTopRegionViewHolder(this, view)
-                            // todo there is no sub currently
-                            viewHolder.locationChanged(location)
-                        }
-
-                        else -> {
-                            view = LayoutInflater.from(connectTop.context)
-                                .inflate(R.layout.connect_top_country, connectTop, true)
-                            val viewHolder = ConnectTopCountryViewHolder(this, view)
-                            // todo there is no sub currently
-                            viewHolder.locationChanged(location)
-                        }
-                    }
-                }
+//                if (location.isGroup) {
+//                    view = LayoutInflater.from(connectTop.context)
+//                        .inflate(R.layout.connect_top_group, connectTop, true)
+//                    val viewHolder = ConnectTopGroupViewHolder(view)
+//                    // todo there is no sub currently
+//                    viewHolder.locationChanged(location)
+//                } else if (location.isDevice) {
+//                    view = LayoutInflater.from(connectTop.context)
+//                        .inflate(R.layout.connect_top_device, connectTop, true)
+//                    val viewHolder = ConnectTopDeviceViewHolder(view)
+//                    // todo there is no sub currently
+//                    viewHolder.locationChanged(location)
+//                } else {
+//                    when (location.locationType) {
+//                        LocationTypeCity -> {
+//                            view = LayoutInflater.from(connectTop.context)
+//                                .inflate(R.layout.connect_top_city, connectTop, true)
+//                            val viewHolder = ConnectTopCityViewHolder(this, view)
+//                            // todo there is no sub currently
+//                            viewHolder.locationChanged(location)
+//                        }
+//
+//                        LocationTypeRegion -> {
+//                            view = LayoutInflater.from(connectTop.context)
+//                                .inflate(R.layout.connect_top_region, connectTop, true)
+//                            val viewHolder = ConnectTopRegionViewHolder(this, view)
+//                            // todo there is no sub currently
+//                            viewHolder.locationChanged(location)
+//                        }
+//
+//                        else -> {
+//                            view = LayoutInflater.from(connectTop.context)
+//                                .inflate(R.layout.connect_top_country, connectTop, true)
+//                            val viewHolder = ConnectTopCountryViewHolder(this, view)
+//                            // todo there is no sub currently
+//                            viewHolder.locationChanged(location)
+//                        }
+//                    }
+//                }
 
                 // add common listeners
 
 
-                val disconnectButton = view.findViewById<Button>(R.id.connect_disconnect)
-                disconnectButton?.setOnClickListener {
-                    connectVc.disconnect()
-                }
+//                val disconnectButton = view.findViewById<Button>(R.id.connect_disconnect)
+//                disconnectButton?.setOnClickListener {
+//                    connectVc.disconnect()
+//                }
 
-                val shuffleButton = view.findViewById<ImageButton>(R.id.connect_shuffle)
-                shuffleButton?.setOnClickListener {
-                    connectVc.shuffle()
-                }
-
-                val broadenButton = view.findViewById<ImageButton>(R.id.connect_broaden)
-                broadenButton?.setOnClickListener {
-                    connectVc.broaden()
-                }
-
-
-                val issueButton = view.findViewById<Button>(R.id.connect_issue)
-                issueButton?.setOnClickListener {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
-                }
-
-                view.findViewById<TextView>(R.id.connect_header)?.let { connectHeader ->
-                    updateWindowStats(connectHeader)
-                }
-
-                if (animateJob?.isActive != true) {
-                    connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
-                        connectTopImage.visibility = View.VISIBLE
-                    }
-                }
+//                val shuffleButton = view.findViewById<ImageButton>(R.id.connect_shuffle)
+//                shuffleButton?.setOnClickListener {
+//                    connectVc.shuffle()
+//                }
+//
+//                val broadenButton = view.findViewById<ImageButton>(R.id.connect_broaden)
+//                broadenButton?.setOnClickListener {
+//                    connectVc.broaden()
+//                }
+//
+//
+//                val issueButton = view.findViewById<Button>(R.id.connect_issue)
+//                issueButton?.setOnClickListener {
+//                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://support.bringyour.com")))
+//                }
+//
+//                view.findViewById<TextView>(R.id.connect_header)?.let { connectHeader ->
+//                    updateWindowStats(connectHeader)
+//                }
+//
+//                if (animateJob?.isActive != true) {
+//                    connectTop.findViewById<View>(R.id.connect_top_image)?.let { connectTopImage ->
+//                        connectTopImage.visibility = View.VISIBLE
+//                    }
+//                }
             }
         }
 
-        subs.add(connectVc.addConnectionListener { location ->
-
-            runBlocking(Dispatchers.Main.immediate) {
-
-                setActiveLocation(location)
-
-                if (app.isVpnRequestStart()) {
-                    // user might need to grant permissions
-                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart()
-                }
-            }
-
-        })
+//        subs.add(connectVc.addConnectionListener { location ->
+//
+//            runBlocking(Dispatchers.Main.immediate) {
+//
+//                setActiveLocation(location)
+//
+//                if (app.isVpnRequestStart()) {
+//                    // user might need to grant permissions
+//                    (activity as MainActivity).requestPermissionsThenStartVpnServiceWithRestart()
+//                }
+//            }
+//
+//        })
 
 
 
@@ -1168,143 +1168,143 @@ class ConnectDeviceViewHolder(val connectFragment: ConnectFragment, connectVc: C
 }
 
 
-class ConnectTopGroupViewHolder(val view: View) : LocationListener {
-    val groupLabelView: TextView
-    val providerSummaryView: TextView
-
-    init {
-        groupLabelView = view.findViewById<TextView>(R.id.connect_location_group_label)
-        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
-    }
-
-    override fun locationChanged(location: ConnectLocation) {
-        groupLabelView.text = location.name
-        val providerSummary: String
-        if (location.providerCount == 1) {
-            providerSummary = "${location.providerCount} provider"
-        } else {
-            providerSummary = "${location.providerCount} providers"
-        }
-        providerSummaryView.text = providerSummary
-    }
-}
-
-
-class ConnectTopDeviceViewHolder(val view: View) : LocationListener {
-    val deviceLabelView: TextView
-
-    init {
-        deviceLabelView = view.findViewById<TextView>(R.id.connect_location_device_label)
-    }
-
-    override fun locationChanged(location: ConnectLocation) {
-        deviceLabelView.text = location.name
-    }
-}
+//class ConnectTopGroupViewHolder(val view: View) : LocationListener {
+//    val groupLabelView: TextView
+//    val providerSummaryView: TextView
+//
+//    init {
+//        groupLabelView = view.findViewById<TextView>(R.id.connect_location_group_label)
+//        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
+//    }
+//
+//    override fun locationChanged(location: ConnectLocation) {
+//        groupLabelView.text = location.name
+//        val providerSummary: String
+//        if (location.providerCount == 1) {
+//            providerSummary = "${location.providerCount} provider"
+//        } else {
+//            providerSummary = "${location.providerCount} providers"
+//        }
+//        providerSummaryView.text = providerSummary
+//    }
+//}
 
 
-class ConnectTopCityViewHolder(val connectFragment: ConnectFragment, val view: View) : LocationListener {
-    val countryImageView: ImageView
-    val cityLabelView: TextView
-    val regionLabelView: TextView
-    val countryLabelView: TextView
-    val providerSummaryView: TextView
+//class ConnectTopDeviceViewHolder(val view: View) : LocationListener {
+//    val deviceLabelView: TextView
+//
+//    init {
+//        deviceLabelView = view.findViewById<TextView>(R.id.connect_location_device_label)
+//    }
+//
+//    override fun locationChanged(location: ConnectLocation) {
+//        deviceLabelView.text = location.name
+//    }
+//}
 
-    init {
-        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
-        cityLabelView = view.findViewById<TextView>(R.id.connect_location_city_label)
-        regionLabelView = view.findViewById<TextView>(R.id.connect_location_region_label)
-        countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
-        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
-    }
 
-    override fun locationChanged(location: ConnectLocation) {
-        val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
-        Glide.with(connectFragment)
-            .load(resId)
-            .override(512)
-            .priority(Priority.LOW)
-            .into(countryImageView)
-
-        cityLabelView.text = location.name
-        regionLabelView.text = location.region
-        countryLabelView.text = location.country
-
-        val providerSummary: String
-        if (location.providerCount == 1) {
-            providerSummary = "${location.providerCount} provider"
-        } else {
-            providerSummary = "${location.providerCount} providers"
-        }
-        providerSummaryView.text = providerSummary
-    }
-}
-
-class ConnectTopRegionViewHolder(val connectFragment: ConnectFragment, val view: View) : LocationListener {
-    val countryImageView: ImageView
-    val regionLabelView: TextView
-    val countryLabelView: TextView
-    val providerSummaryView: TextView
-
-    init {
-        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
-        regionLabelView = view.findViewById<TextView>(R.id.connect_location_region_label)
-        countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
-        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
-    }
-
-    override fun locationChanged(location: ConnectLocation) {
-        val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
-        Glide.with(connectFragment)
-            .load(resId)
-            .override(512)
-            .priority(Priority.LOW)
-            .into(countryImageView)
-
-        regionLabelView.text = location.name
-        countryLabelView.text = location.country
-
-        val providerSummary: String
-        if (location.providerCount == 1) {
-            providerSummary = "${location.providerCount} provider"
-        } else {
-            providerSummary = "${location.providerCount} providers"
-        }
-        providerSummaryView.text = providerSummary
-    }
-}
-
-class ConnectTopCountryViewHolder(val connectFragment: ConnectFragment, val view: View) : LocationListener {
-    val countryImageView: ImageView
-    val countryLabelView: TextView
-    val providerSummaryView: TextView
-
-    init {
-        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
-        countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
-        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
-    }
-
-    override fun locationChanged(location: ConnectLocation) {
-        val context = view.context
-        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
-        Glide.with(connectFragment)
-            .load(resId)
-            .override(512)
-            .priority(Priority.LOW)
-            .into(countryImageView)
-
-        countryLabelView.text = location.name
-
-        val providerSummary: String
-        if (location.providerCount == 1) {
-            providerSummary = "${location.providerCount} provider"
-        } else {
-            providerSummary = "${location.providerCount} providers"
-        }
-        providerSummaryView.text = providerSummary
-    }
-}
+//class ConnectTopCityViewHolder(val connectFragment: ConnectFragment, val view: View) : LocationListener {
+//    val countryImageView: ImageView
+//    val cityLabelView: TextView
+//    val regionLabelView: TextView
+//    val countryLabelView: TextView
+//    val providerSummaryView: TextView
+//
+//    init {
+//        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
+//        cityLabelView = view.findViewById<TextView>(R.id.connect_location_city_label)
+//        regionLabelView = view.findViewById<TextView>(R.id.connect_location_region_label)
+//        countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
+//        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
+//    }
+//
+//    override fun locationChanged(location: ConnectLocation) {
+//        val context = view.context
+//        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
+//        Glide.with(connectFragment)
+//            .load(resId)
+//            .override(512)
+//            .priority(Priority.LOW)
+//            .into(countryImageView)
+//
+//        cityLabelView.text = location.name
+//        regionLabelView.text = location.region
+//        countryLabelView.text = location.country
+//
+//        val providerSummary: String
+//        if (location.providerCount == 1) {
+//            providerSummary = "${location.providerCount} provider"
+//        } else {
+//            providerSummary = "${location.providerCount} providers"
+//        }
+//        providerSummaryView.text = providerSummary
+//    }
+//}
+//
+//class ConnectTopRegionViewHolder(val connectFragment: ConnectFragment, val view: View) : LocationListener {
+//    val countryImageView: ImageView
+//    val regionLabelView: TextView
+//    val countryLabelView: TextView
+//    val providerSummaryView: TextView
+//
+//    init {
+//        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
+//        regionLabelView = view.findViewById<TextView>(R.id.connect_location_region_label)
+//        countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
+//        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
+//    }
+//
+//    override fun locationChanged(location: ConnectLocation) {
+//        val context = view.context
+//        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
+//        Glide.with(connectFragment)
+//            .load(resId)
+//            .override(512)
+//            .priority(Priority.LOW)
+//            .into(countryImageView)
+//
+//        regionLabelView.text = location.name
+//        countryLabelView.text = location.country
+//
+//        val providerSummary: String
+//        if (location.providerCount == 1) {
+//            providerSummary = "${location.providerCount} provider"
+//        } else {
+//            providerSummary = "${location.providerCount} providers"
+//        }
+//        providerSummaryView.text = providerSummary
+//    }
+//}
+//
+//class ConnectTopCountryViewHolder(val connectFragment: ConnectFragment, val view: View) : LocationListener {
+//    val countryImageView: ImageView
+//    val countryLabelView: TextView
+//    val providerSummaryView: TextView
+//
+//    init {
+//        countryImageView = view.findViewById<ImageView>(R.id.connect_top_image)
+//        countryLabelView = view.findViewById<TextView>(R.id.connect_location_country_label)
+//        providerSummaryView = view.findViewById<TextView>(R.id.connect_provider_summary)
+//    }
+//
+//    override fun locationChanged(location: ConnectLocation) {
+//        val context = view.context
+//        val resId = context.resources.getIdentifier("country_${location.countryCode}_512", "drawable", context.packageName)
+//        Glide.with(connectFragment)
+//            .load(resId)
+//            .override(512)
+//            .priority(Priority.LOW)
+//            .into(countryImageView)
+//
+//        countryLabelView.text = location.name
+//
+//        val providerSummary: String
+//        if (location.providerCount == 1) {
+//            providerSummary = "${location.providerCount} provider"
+//        } else {
+//            providerSummary = "${location.providerCount} providers"
+//        }
+//        providerSummaryView.text = providerSummary
+//    }
+//}
 
