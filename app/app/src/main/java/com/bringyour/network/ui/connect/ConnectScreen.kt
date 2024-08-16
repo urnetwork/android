@@ -81,7 +81,7 @@ fun ConnectScreen(
         }
     }
 
-    val getSelectedLocation = {
+    val initSelectedLocation = {
         selectedLocation = connectVc?.selectedLocation
     }
 
@@ -95,20 +95,11 @@ fun ConnectScreen(
         }
     }
 
-    val addConnectionListener = {
+    val addSelectedLocationListener = {
         if (connectVc != null) {
-            subs.add(connectVc.addConnectionListener { location ->
+            subs.add(connectVc.addSelectedLocationListener { location ->
                 runBlocking(Dispatchers.Main.immediate) {
-
-                    // selectedLocation = location
-                    getSelectedLocation()
-                    getConnectionStatus()
-
-
-                    if (application.isVpnRequestStart()) {
-                        // user might need to grant permissions
-                        activity?.requestPermissionsThenStartVpnServiceWithRestart()
-                    }
+                    selectedLocation = location
                 }
             })
         }
@@ -121,6 +112,10 @@ fun ConnectScreen(
                     val statusFromStr = ConnectStatus.fromString(status)
                     if (statusFromStr != null) {
                         connectStatus = statusFromStr
+
+                        if (connectStatus == ConnectStatus.CONNECTED && application.isVpnRequestStart()) {
+                            activity?.requestPermissionsThenStartVpnServiceWithRestart()
+                        }
                     }
                 }
             })
@@ -129,7 +124,7 @@ fun ConnectScreen(
 
     LaunchedEffect(Unit) {
         populateNetworkName()
-        getSelectedLocation()
+        initSelectedLocation()
         getConnectionStatus()
     }
 
@@ -138,8 +133,8 @@ fun ConnectScreen(
         Log.i("ConnectScreen", "DisposableEffect called")
 
         // init subs
-        addConnectionListener()
         addConnectionStatusListener()
+        addSelectedLocationListener()
 
         // when closing
         onDispose {
