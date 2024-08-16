@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -185,7 +184,7 @@ fun ConnectScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    AccountSwitcher(loginMode = LoginMode.Guest)
+                    AccountSwitcher(loginMode = LoginMode.Authenticated)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))

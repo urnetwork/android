@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.components
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -40,9 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
+import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 enum class LoginMode {
     Guest, Authenticated
@@ -52,6 +61,9 @@ enum class LoginMode {
 fun AccountSwitcher(
     loginMode: LoginMode
 ) {
+
+    val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
 
     var isOverlayVisible by remember { mutableStateOf(false) }
 
@@ -71,10 +83,14 @@ fun AccountSwitcher(
         if (isOverlayVisible) {
             when(loginMode) {
                 LoginMode.Guest -> GuestPopup(
-                    onDismiss = { isOverlayVisible = false }
+                    onDismiss = { isOverlayVisible = false },
+                    application = application,
+                    context = context
                 )
                 LoginMode.Authenticated -> AuthenticatedPopup(
-                    onDismiss = { isOverlayVisible = false }
+                    onDismiss = { isOverlayVisible = false },
+                    application = application,
+                    context = context
                 )
             }
         }
@@ -113,9 +129,6 @@ fun AccountSwitcherPopup(
                         modifier = Modifier
                             .background(color = Color(0xFF121212))
                             .background(Color(0x29FFFFFF))
-                            .padding(
-                                horizontal = 16.dp
-                            )
                     ) {
                         content()
                     }
@@ -127,7 +140,9 @@ fun AccountSwitcherPopup(
 
 @Composable
 fun GuestPopup(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    context: Context?,
+    application: MainApplication?
 ) {
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
         PopupActionRow(
@@ -143,7 +158,12 @@ fun GuestPopup(
             iconResourceId = R.drawable.plus,
             text = "Create Account",
             onClick = {
-                // todo - this should logout/navigate to login initial
+                application?.logout()
+
+                val intent = Intent(context, LoginActivity::class.java)
+                context?.startActivity(intent)
+                
+                (context as? Activity)?.finish()
             },
         )
 
@@ -160,19 +180,59 @@ fun GuestPopup(
 
 @Composable
 fun AuthenticatedPopup(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    context: Context?,
+    application: MainApplication?
 ) {
+
+    var networkName by remember { mutableStateOf("") }
+    val populateNetworkName = {
+        application?.asyncLocalState?.parseByJwt { byJwt, ok ->
+            runBlocking(Dispatchers.Main.immediate) {
+                if (ok) {
+                    networkName = byJwt.networkName
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        populateNetworkName()
+    }
+
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
+        PopupActionRow(
+            iconResourceId = R.drawable.main_nav_user_filled,
+            text = networkName,
+            onClick = {},
+            isSelected = true,
+        )
+        HorizontalDivider()
+        PopupActionRow(
+            iconResourceId = R.drawable.sign_out,
+            text = "Log out",
+            onClick = {
+                application?.logout()
+
+                val intent = Intent(context, LoginActivity::class.java)
+                context?.startActivity(intent)
+
+                (context as? Activity)?.finish()
+            },
+        )
+
+        HorizontalDivider()
         PopupActionRow(
             iconResourceId = R.drawable.export,
             text = "Share URnetwork",
             onClick = {
+
             },
         )
     }
 }
 
-@Composable()
+@Composable
 fun PopupActionRow(
     onClick: () -> Unit,
     iconResourceId: Int,
@@ -182,8 +242,8 @@ fun PopupActionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Row {
@@ -227,6 +287,10 @@ fun AccountSwitcherAuthenticatedPreview() {
 @Composable
 fun GuestPopupPreview() {
     URNetworkTheme {
-        GuestPopup(onDismiss = {})
+        GuestPopup(
+            onDismiss = {},
+            application =  null,
+            context = null
+        )
     }
 }

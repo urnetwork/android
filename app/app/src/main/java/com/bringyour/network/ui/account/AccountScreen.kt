@@ -55,7 +55,7 @@ fun AccountScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Account", style = MaterialTheme.typography.headlineSmall)
-            AccountSwitcher(loginMode = LoginMode.Guest)
+            AccountSwitcher(loginMode = LoginMode.Authenticated)
         }
         
         Spacer(modifier = Modifier.height(28.dp))
