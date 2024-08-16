@@ -29,6 +29,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URNavListItem
+import com.bringyour.network.ui.components.AccountSwitcher
+import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
@@ -47,11 +49,16 @@ fun AccountScreen(
         verticalArrangement = Arrangement.Top
     ) {
 
-        Row() {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text("Account", style = MaterialTheme.typography.headlineSmall)
+            AccountSwitcher(loginMode = LoginMode.Authenticated)
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         Box(
             modifier = Modifier

@@ -1,5 +1,7 @@
 package com.bringyour.network.ui
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -28,7 +30,9 @@ fun MainNavHost() {
             navController = navController,
             startDestination = "connect",
             // todo - for some reason innerPadding is 0
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             composable("connect") { ConnectScreen() }
             composable("account") { AccountNavHost() }

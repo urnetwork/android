@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,7 +30,9 @@ import com.bringyour.client.ConnectLocation
 import com.bringyour.client.Sub
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -170,15 +171,23 @@ fun ConnectScreen(
         scaffoldState,
         connectVc,
         selectedLocation,
-    ) { innerPadding ->
+    ) { _ ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .background(Black),
-            contentAlignment = Alignment.Center
+                .background(Black)
+                .padding(16.dp),
+            // contentAlignment = Alignment.Center
         ) {
             Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    AccountSwitcher(loginMode = LoginMode.Authenticated)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
