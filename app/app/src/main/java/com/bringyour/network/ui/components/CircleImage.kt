@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,13 +15,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
+import com.bringyour.network.ui.theme.Red400
 
 @Composable
 fun CircleImage(
     size: Dp,
     imageResourceId: Int? = null,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    backgroundColor: Color,
 ) {
+
     Box(
         modifier = Modifier
             .size(size)
@@ -47,7 +48,8 @@ fun CircleImagePreview() {
     URNetworkTheme {
         CircleImage(
             imageResourceId = R.drawable.ic_account_active_512,
-            size = 40.dp
+            size = 40.dp,
+            backgroundColor = Red400
         )
     }
 }
@@ -57,7 +59,8 @@ fun CircleImagePreview() {
 fun CircleImageEmptyPreview() {
     URNetworkTheme {
         CircleImage(
-            size = 40.dp
+            size = 40.dp,
+            backgroundColor = Red400
         )
     }
 }

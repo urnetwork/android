@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
@@ -52,6 +53,7 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
+import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
@@ -228,13 +230,20 @@ fun ProvidersBottomSheetScaffold(
                             providerCount = totalProviderCount,
                             onClick = {
                                 // todo - query bestAvailable
-                            }
+                            },
+                            color = Red400
                         )
                     } else {
+
+                        val key = if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
+                            else selectedLocation.countryCode
+                        val countryColor = connectVc?.getColorHex(key)
+
                         ProviderRow(
                             location = selectedLocation.name,
                             providerCount = selectedLocation.providerCount,
-                            onClick = {}
+                            onClick = {},
+                            color = Color(android.graphics.Color.parseColor("#$countryColor"))
                         )
                     }
 
