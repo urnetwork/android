@@ -1,49 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.BringYour" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/by_p_blue</item>
-        <item name="colorPrimaryVariant">@color/by_s_blue</item>
-        <item name="colorOnPrimary">@color/almost_white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/by_p_gray</item>
-        <item name="colorSecondaryVariant">@color/by_highlight_gray</item>
-        <item name="colorOnSecondary">@color/almost_white</item>
-
-        <item name="android:colorBackground">@color/almost_white</item>
-        <item name="colorOnBackground">@color/black</item>
-        <item name="android:colorForeground">@color/black</item>
-        <item name="android:windowBackground">@color/almost_white</item>
-
-        <item name="colorSurface">@color/almost_white</item>
-        <item name="colorOnSurface">@color/black</item>
-
-        <item name="colorError">@color/by_s_red</item>
-        <item name="colorOnError">@color/almost_white</item>
-
-        <item name="android:textColor">@color/black</item>
-
-        <!-- status bar -->
-        <item name="android:statusBarColor">@color/by_background</item>
-
-        <!-- action bar -->
-        <item name="android:actionBarStyle">@style/BringYourActionBar</item>
-
-
-        <!-- material text colors -->
-        <item name="android:textColorPrimary">@color/black</item>
-        <item name="android:textColorPrimaryInverse">@color/almost_white</item>
-        <item name="android:textColorSecondary">@color/by_p_blue</item>
-        <item name="android:textColorSecondaryInverse">@color/almost_white</item>
-        <item name="android:textColorTertiary">@color/by_p_gray</item>
-        <item name="android:textColorTertiaryInverse">@color/almost_white</item>
-        <item name="android:textColorPrimaryDisableOnly">@color/by_highlight_gray</item>
-        <item name="android:textColorPrimaryInverseDisableOnly">@color/almost_white</item>
-        <item name="android:textColorHint">@color/by_highlight_gray</item>
-        <item name="android:textColorHintInverse">@color/almost_white</item>
-        <item name="android:textColorHighlight">@color/p_s_gray</item>
-        <item name="android:textColorHighlightInverse">@color/almost_white</item>
-        <item name="android:textColorAlertDialogListItem">@color/black</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <style name="BringYourActionBar"

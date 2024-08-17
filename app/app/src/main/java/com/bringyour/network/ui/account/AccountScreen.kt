@@ -18,19 +18,26 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
@@ -40,6 +47,14 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun AccountScreen(
     navController: NavHostController
 ) {
+
+    val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
+    val overlayVc = application?.overlayVc
+
+    var loginMode by remember {
+        mutableStateOf(LoginMode.Guest)
+    }
 
     Column(
         modifier = Modifier
@@ -55,7 +70,7 @@ fun AccountScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Account", style = MaterialTheme.typography.headlineSmall)
-            AccountSwitcher(loginMode = LoginMode.Authenticated)
+            AccountSwitcher(loginMode = loginMode)
         }
         
         Spacer(modifier = Modifier.height(28.dp))
@@ -160,7 +175,11 @@ fun AccountScreen(
             iconResourceId = R.drawable.nav_list_item_user,
             text = "Profile",
             onClick = {
-                navController.navigate("profile")
+                if (loginMode == LoginMode.Authenticated) {
+                    navController.navigate("profile")
+                } else {
+                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                }
             }
         )
         HorizontalDivider()
@@ -168,7 +187,11 @@ fun AccountScreen(
             iconResourceId = R.drawable.nav_list_item_settings,
             text = "Settings",
             onClick = {
-                navController.navigate("settings")
+                if (loginMode == LoginMode.Authenticated) {
+                    navController.navigate("settings")
+                } else {
+                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                }
             }
         )
         HorizontalDivider()
@@ -176,7 +199,11 @@ fun AccountScreen(
             iconResourceId = R.drawable.nav_list_item_wallet,
             text = "Wallet",
             onClick = {
-                navController.navigate("wallet")
+                if (loginMode == LoginMode.Authenticated) {
+                    navController.navigate("wallet")
+                } else {
+                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                }
             }
         )
         HorizontalDivider()
@@ -184,7 +211,11 @@ fun AccountScreen(
             iconResourceId = R.drawable.nav_list_item_refer,
             text = "Refer and earn",
             onClick = {
-                navController.navigate("refer")
+                if (loginMode == LoginMode.Authenticated) {
+                    navController.navigate("refer")
+                } else {
+                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                }
             }
         )
         HorizontalDivider()

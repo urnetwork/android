@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.theme.URNetworkTheme
 
@@ -75,6 +76,8 @@ class MainActivity: ComponentActivity() {
                 app?.startVpnService()
             }
         }
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
             URNetworkTheme {

@@ -30,6 +30,7 @@ import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
 import circle.programmablewallet.sdk.presentation.EventListener
 import com.bringyour.client.Client.ProvideModeNone
+import com.bringyour.client.OverlayViewController
 import com.bringyour.client.Sub
 import go.error
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +65,7 @@ class MainApplication : Application() {
     var connectVc: ConnectViewController? = null
     var devicesVc: DevicesViewController? = null
     var accountVc: AccountViewController? = null
+    var overlayVc: OverlayViewController? = null
 
     var hasBiometric: Boolean = false
 
@@ -141,6 +143,10 @@ class MainApplication : Application() {
         }
         devicesVc = null
 
+        overlayVc?.let {
+            byDevice?.closeViewController(it)
+        }
+        overlayVc = null
 
         router?.close()
         router = null
@@ -191,6 +197,7 @@ class MainApplication : Application() {
         connectVc?.start()
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
+        overlayVc = byDevice?.openOverlayViewController()
     }
 
 

@@ -2,6 +2,7 @@ package com.bringyour.network.ui
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -12,34 +13,47 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.components.BottomNavBar
+import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.theme.URNetworkTheme
+
 
 @Composable
 fun MainNavHost() {
 
     val navController = rememberNavController()
 
-    Scaffold(
+    Box(
         modifier = Modifier
-            .fillMaxSize(),
-        bottomBar = { BottomNavBar(navController) }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "connect",
-            // todo - for some reason innerPadding is 0
-            modifier = Modifier.padding(innerPadding),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
-        ) {
-            composable("connect") { ConnectScreen() }
-            composable("account") { AccountNavHost() }
-            composable("support") { FeedbackScreen() }
-        }
-    }
+            .fillMaxSize()
+            // .systemBarsPadding()
+            // .windowInsetsPadding(WindowInsets.systemBars)
+    ) {
 
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize(),
+            bottomBar = { BottomNavBar(navController) }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = "connect",
+                // todo - for some reason innerPadding is 0
+                modifier = Modifier
+                    .padding(innerPadding),
+                    // .systemBarsPadding(),
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
+                composable("connect") { ConnectScreen() }
+                composable("account") { AccountNavHost() }
+                composable("support") { FeedbackScreen() }
+            }
+        }
+
+        FullScreenOverlay()
+    }
 }
 
 @Preview
