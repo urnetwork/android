@@ -17,10 +17,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.components.CircleImage
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import java.text.NumberFormat
@@ -32,7 +34,8 @@ fun ProviderRow(
     providerCount: Int,
     imageResourceId: Int? = null,
     onClick: (Int) -> Unit,
-    isSelected: Boolean = false
+    isSelected: Boolean = false,
+    color: Color
 ) {
 
     val formatter = NumberFormat.getNumberInstance(Locale.US)
@@ -49,7 +52,8 @@ fun ProviderRow(
         Row() {
             CircleImage(
                 size = 40.dp,
-                imageResourceId
+                imageResourceId = imageResourceId,
+                backgroundColor = color,
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
@@ -81,7 +85,8 @@ fun ProviderRowPreview() {
         ProviderRow(
             location = "Switzerland",
             providerCount = 1520,
-            onClick = {}
+            onClick = {},
+            color = Red400
         )
     }
 }
@@ -94,7 +99,8 @@ fun ProviderRowSelectedPreview() {
             location = "Switzerland",
             providerCount = 1520,
             onClick = {},
-            isSelected = true
+            isSelected = true,
+            color = Red400
         )
     }
 }
