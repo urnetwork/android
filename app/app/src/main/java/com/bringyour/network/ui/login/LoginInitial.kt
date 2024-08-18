@@ -259,6 +259,7 @@ fun LoginInitial(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Done
                 ),
+                label = "Email or phone"
             )
 
             Spacer(modifier = Modifier.height(16.dp))

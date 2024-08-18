@@ -46,12 +46,13 @@ fun URTextInput(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     placeholder: String = "",
+    label: String,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     isPassword: Boolean = false,
     isValidating: Boolean = false,
     isValid: Boolean = true,
     supportingText: String? = null,
-    label: String? = null
+    enabled: Boolean = true
 ) {
     Column() {
 
@@ -87,6 +88,7 @@ fun URTextInput(
                         },
                         keyboardOptions = keyboardOptions,
                         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                        enabled = enabled
                     )
 
                     if (isValidating) {
