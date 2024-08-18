@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -91,19 +90,6 @@ fun LoginPasswordReset(
         Text("Forgot your password?", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(64.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Text(
-                "Enter your email or phone",
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
         URTextInput(
             value = user,
             onValueChange = { newValue ->
@@ -114,6 +100,7 @@ fun LoginPasswordReset(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Done
             ),
+            label = "Enter your email or phone"
         )
 
 

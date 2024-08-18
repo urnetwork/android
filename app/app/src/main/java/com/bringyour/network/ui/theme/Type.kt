@@ -6,6 +6,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
 
@@ -91,4 +92,13 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+
+val TopBarTitleTextStyle = TextStyle(
+    fontSize = 24.sp,
+    lineHeight = 24.sp,
+    fontFamily = ppNeueBitBold,
+    fontWeight = FontWeight(700),
+    color = Color.White,
+    textAlign = TextAlign.Center,
 )

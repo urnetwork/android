@@ -53,7 +53,7 @@ fun AccountScreen(
     val overlayVc = application?.overlayVc
 
     var loginMode by remember {
-        mutableStateOf(LoginMode.Guest)
+        mutableStateOf(LoginMode.Authenticated)
     }
 
     Column(
