@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,7 +60,11 @@ fun ProviderRow(
                     Text(location)
                 }
                 Row {
-                    Text("${formatter.format(providerCount)} Providers", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "${formatter.format(providerCount)} Providers",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
+                    )
                 }
             }
         }
