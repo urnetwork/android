@@ -47,6 +47,12 @@ val Typography = Typography(
         // letterSpacing = 0.5.sp
     ),
 
+    bodySmall = TextStyle(
+        fontFamily = ppNeueMontreal,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+    ),
+
     headlineLarge = TextStyle(
         fontFamily = gravityFamily,
         fontWeight = FontWeight.Medium,
