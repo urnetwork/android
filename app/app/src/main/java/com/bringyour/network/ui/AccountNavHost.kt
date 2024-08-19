@@ -55,7 +55,7 @@ fun AccountNavHost() {
             navController,
             loginMode = loginMode
         ) }
-        composable("settings") { SettingsScreen() }
+        composable("settings") { SettingsScreen(navController) }
         composable("wallet") { WalletScreen() }
         composable("refer") { ReferScreen() }
     }
