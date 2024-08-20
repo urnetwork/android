@@ -53,7 +53,7 @@ fun FullScreenOverlay() {
     val application = context.applicationContext as? MainApplication
     val overlayVc = application?.overlayVc
     val subs = remember { mutableListOf<Sub>() }
-    var overlayMode by remember { mutableStateOf<OverlayMode?>(null) }
+    var overlayMode by remember { mutableStateOf<OverlayMode?>(OverlayMode.Refer) }
 
     val addOverlayModeListener = {
         if (overlayVc != null) {
@@ -81,6 +81,12 @@ fun FullScreenOverlay() {
 
     if (overlayMode == OverlayMode.GuestMode) {
         GuestModeOverlay(
+            onDismiss = { overlayMode = null }
+        )
+    }
+
+    if (overlayMode == OverlayMode.Refer) {
+        ReferOverlay(
             onDismiss = { overlayMode = null }
         )
     }
