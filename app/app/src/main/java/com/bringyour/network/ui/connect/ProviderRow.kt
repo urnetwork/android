@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.components.CircleImage
@@ -48,7 +50,10 @@ fun ProviderRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row() {
+        Row(
+            modifier = Modifier
+                .weight(1f),
+        ) {
             CircleImage(
                 size = 40.dp,
                 imageResourceId = imageResourceId,
@@ -57,7 +62,15 @@ fun ProviderRow(
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Row {
-                    Text(location)
+                    Text(
+                        location,
+                        style = MaterialTheme.typography.bodyLarge,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .weight(1f)
+                    )
                 }
                 Row {
                     Text(
@@ -83,12 +96,27 @@ fun ProviderRow(
 
 @Preview
 @Composable
-fun ProviderRowPreview() {
+private fun ProviderRowPreview() {
     URNetworkTheme {
         ProviderRow(
             location = "Switzerland",
             providerCount = 1520,
             onClick = {},
+            color = Red400,
+            isSelected = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ProviderRowSelectedPreview() {
+    URNetworkTheme {
+        ProviderRow(
+            location = "Switzerland",
+            providerCount = 1520,
+            onClick = {},
+            isSelected = true,
             color = Red400
         )
     }
@@ -96,10 +124,10 @@ fun ProviderRowPreview() {
 
 @Preview
 @Composable
-fun ProviderRowSelectedPreview() {
+private fun ProviderRowLongTextSelectedPreview() {
     URNetworkTheme {
         ProviderRow(
-            location = "Switzerland",
+            location = "Strong Privacy Laws and Internet Freedom lorem ipsum",
             providerCount = 1520,
             onClick = {},
             isSelected = true,
