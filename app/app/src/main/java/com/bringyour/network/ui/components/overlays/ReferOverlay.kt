@@ -67,7 +67,6 @@ fun ReferOverlay(
 
     OverlayBackground(
         onDismiss = { onDismiss() },
-        bgHorizontalOffset = 1000f,
         bgImageResourceId = R.drawable.overlay_refer_bg
     ) {
         Box(

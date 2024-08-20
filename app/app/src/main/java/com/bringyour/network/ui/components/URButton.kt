@@ -1,26 +1,20 @@
 package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
@@ -41,6 +35,7 @@ fun URButton(
     onClick: () -> Unit,
     style: ButtonStyle = ButtonStyle.PRIMARY,
     enabled: Boolean = true,
+    borderColor: Color? = null,
     content: @Composable (TextStyle) -> Unit,
 ) {
 
@@ -59,7 +54,7 @@ fun URButton(
         )
     }
 
-    val modifier = when(style) {
+    val baseModifier = when(style) {
         ButtonStyle.PRIMARY -> Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp)
@@ -67,7 +62,7 @@ fun URButton(
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp)
         ButtonStyle.OUTLINE -> Modifier
-            .border(1.dp, TextFaint, RoundedCornerShape(100))
+            .border(1.dp, borderColor ?: TextFaint, RoundedCornerShape(100))
             .defaultMinSize(minHeight = 48.dp)
             .padding(horizontal = 16.dp)
     }
@@ -75,7 +70,7 @@ fun URButton(
     return Button(
         onClick = onClick,
         colors = buttonColors,
-        modifier = modifier,
+        modifier = baseModifier,
         enabled = enabled
     ) {
 
