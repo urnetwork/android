@@ -61,6 +61,7 @@ fun SettingsScreen(
     var enableConnectionNotifications by remember { mutableStateOf(true) }
     var enableProductUpdates by remember { mutableStateOf(true) }
 
+    // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
 
     Scaffold(

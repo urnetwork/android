@@ -45,9 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
+import com.bringyour.client.OverlayViewController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +66,7 @@ fun AccountSwitcher(
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
+    val overlayVc = application?.overlayVc
 
     var isOverlayVisible by remember { mutableStateOf(false) }
 
@@ -85,12 +88,14 @@ fun AccountSwitcher(
                 LoginMode.Guest -> GuestPopup(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
-                    context = context
+                    context = context,
+                    overlayVc = overlayVc
                 )
                 LoginMode.Authenticated -> AuthenticatedPopup(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
-                    context = context
+                    context = context,
+                    overlayVc = overlayVc
                 )
             }
         }
@@ -142,7 +147,8 @@ fun AccountSwitcherPopup(
 fun GuestPopup(
     onDismiss: () -> Unit,
     context: Context?,
-    application: MainApplication?
+    application: MainApplication?,
+    overlayVc: OverlayViewController?
 ) {
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
         PopupActionRow(
@@ -173,6 +179,8 @@ fun GuestPopup(
             iconResourceId = R.drawable.export,
             text = "Share URnetwork",
             onClick = {
+                overlayVc?.openOverlay(OverlayMode.Refer.toString())
+                onDismiss()
             },
         )
     }
@@ -182,7 +190,8 @@ fun GuestPopup(
 fun AuthenticatedPopup(
     onDismiss: () -> Unit,
     context: Context?,
-    application: MainApplication?
+    application: MainApplication?,
+    overlayVc: OverlayViewController?
 ) {
 
     var networkName by remember { mutableStateOf("") }
@@ -226,7 +235,8 @@ fun AuthenticatedPopup(
             iconResourceId = R.drawable.export,
             text = "Share URnetwork",
             onClick = {
-
+                overlayVc?.openOverlay(OverlayMode.Refer.toString())
+                onDismiss()
             },
         )
     }
@@ -290,7 +300,8 @@ fun GuestPopupPreview() {
         GuestPopup(
             onDismiss = {},
             application =  null,
-            context = null
+            context = null,
+            overlayVc = null
         )
     }
 }

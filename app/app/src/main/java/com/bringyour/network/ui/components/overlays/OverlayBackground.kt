@@ -90,7 +90,7 @@ fun OverlayBackground(
 
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter
+            contentAlignment = Alignment.BottomCenter,
         ) {
             content()
         }
@@ -99,7 +99,7 @@ fun OverlayBackground(
 
 @Preview(showBackground = true)
 @Composable
-fun FullScreenOverlayPreview() {
+private fun FullScreenOverlayPreview() {
     URNetworkTheme {
         OverlayBackground(
             onDismiss = {},

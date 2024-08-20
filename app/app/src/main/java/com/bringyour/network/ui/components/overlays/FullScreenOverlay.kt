@@ -1,5 +1,10 @@
 package com.bringyour.network.ui.components.overlays
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -78,11 +83,29 @@ fun FullScreenOverlay() {
 
     }
 
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.GuestMode,
+        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
+        exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
+    ) {
 
-    if (overlayMode == OverlayMode.GuestMode) {
         GuestModeOverlay(
-            onDismiss = { overlayMode = null }
+            onDismiss = {
+                overlayMode = null
+            }
         )
     }
 
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.Refer,
+        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
+        exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
+    ) {
+
+        ReferOverlay(
+            onDismiss = {
+                overlayMode = null
+            }
+        )
+    }
 }

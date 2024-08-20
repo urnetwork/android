@@ -177,6 +177,9 @@ dependencies {
     // UI Tests
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    // for QR Code generation
+    implementation 'com.google.zxing:core:3.5.3'
 }
 
 // google play billing
