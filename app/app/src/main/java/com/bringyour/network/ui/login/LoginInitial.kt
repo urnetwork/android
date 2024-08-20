@@ -235,20 +235,6 @@ fun LoginInitial(
 
             Spacer(modifier = Modifier.height(64.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text(
-                    "Email or phone",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        color = TextMuted
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-
             URTextInput(
                 value = userAuth,
                 onValueChange = { newValue ->

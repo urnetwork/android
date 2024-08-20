@@ -52,7 +52,8 @@ fun URTextInput(
     isValidating: Boolean = false,
     isValid: Boolean = true,
     supportingText: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    maxLines: Int = 1
 ) {
     Column() {
 
@@ -88,7 +89,8 @@ fun URTextInput(
                         },
                         keyboardOptions = keyboardOptions,
                         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-                        enabled = enabled
+                        enabled = enabled,
+                        maxLines = maxLines
                     )
 
                     if (isValidating) {

@@ -58,7 +58,7 @@ fun MainNavHost() {
 
 @Preview
 @Composable
-fun MainNavHostPreview() {
+private fun MainNavHostPreview() {
     URNetworkTheme {
         MainNavHost()
     }
