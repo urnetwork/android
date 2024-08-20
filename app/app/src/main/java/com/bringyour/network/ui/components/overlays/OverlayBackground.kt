@@ -16,13 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -30,7 +30,6 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 @Composable
 fun OverlayBackground(
     onDismiss: () -> Unit,
-    bgHorizontalOffset: Float = 0f,
     bgImageResourceId: Int,
     content: @Composable () -> Unit,
 ) {
@@ -43,28 +42,10 @@ fun OverlayBackground(
 
             .drawBehind {
 
-                val imageHeight = imageBitmap.height.toFloat()
-                val boxHeight = size.height
-                
-                val scale = boxHeight / imageHeight
-
-                val offsetX = -(bgHorizontalOffset)
-                val offsetY = 0f
-
-                with(drawContext.canvas) {
-                    save()
-
-                    translate(offsetX, offsetY)
-
-                    scale(scale, scale)
-
-                    drawImage(
-                        image = imageBitmap,
-                        topLeft = Offset.Zero
-                    )
-
-                    restore()
-                }
+                drawImage(
+                    image = imageBitmap,
+                    dstSize = IntSize(size.width.toInt(), size.height.toInt())
+                )
             }
             .padding(16.dp)
             .pointerInput(Unit) {
@@ -103,7 +84,6 @@ private fun FullScreenOverlayPreview() {
     URNetworkTheme {
         OverlayBackground(
             onDismiss = {},
-            bgHorizontalOffset = 255f,
             bgImageResourceId = R.drawable.overlay_guest_mode_bg
         ) {
             Text("Hello world")

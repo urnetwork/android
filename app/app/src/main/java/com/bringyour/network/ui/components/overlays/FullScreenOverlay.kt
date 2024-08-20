@@ -59,6 +59,8 @@ fun FullScreenOverlay() {
     val overlayVc = application?.overlayVc
     val subs = remember { mutableListOf<Sub>() }
     var overlayMode by remember { mutableStateOf<OverlayMode?>(null) }
+    val enterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
+    val exitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
     val addOverlayModeListener = {
         if (overlayVc != null) {
@@ -83,10 +85,11 @@ fun FullScreenOverlay() {
 
     }
 
+    // Guest mode overlay
     AnimatedVisibility(
         visible = overlayMode == OverlayMode.GuestMode,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
-        exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
+        enter = enterTransition,
+        exit = exitTransition,
     ) {
 
         GuestModeOverlay(
@@ -96,13 +99,28 @@ fun FullScreenOverlay() {
         )
     }
 
+    // Refer overlay
     AnimatedVisibility(
         visible = overlayMode == OverlayMode.Refer,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
-        exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
+        enter = enterTransition,
+        exit = exitTransition,
     ) {
 
         ReferOverlay(
+            onDismiss = {
+                overlayMode = null
+            }
+        )
+    }
+
+    // Feedback submitted overlay
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.FeedbackSubmitted,
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+
+        FeedbackSubmittedOverlay(
             onDismiss = {
                 overlayMode = null
             }

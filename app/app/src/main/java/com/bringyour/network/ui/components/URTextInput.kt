@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -45,6 +47,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun URTextInput(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    onSend: () -> Unit = {},
     placeholder: String = "",
     label: String,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -55,6 +58,9 @@ fun URTextInput(
     enabled: Boolean = true,
     maxLines: Int = 1
 ) {
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column() {
 
         if (label != null) {
@@ -88,6 +94,12 @@ fun URTextInput(
                             innerTextField()
                         },
                         keyboardOptions = keyboardOptions,
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                onSend()
+                                keyboardController?.hide()
+                            }
+                        ),
                         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
                         enabled = enabled,
                         maxLines = maxLines

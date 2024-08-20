@@ -15,91 +15,87 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.Blue200
+import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
-fun GuestModeOverlay(
+fun FeedbackSubmittedOverlay(
     onDismiss: () -> Unit
 ) {
 
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-
     OverlayBackground(
         onDismiss = { onDismiss() },
-        bgImageResourceId = R.drawable.overlay_guest_mode_bg
+        bgImageResourceId = R.drawable.overlay_feedback_bg
     ) {
-        Box(modifier = Modifier
-            .background(
-                Blue200,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .fillMaxWidth()
-            .padding(24.dp)
+        Box(
+            modifier = Modifier
+                .background(
+                    Pink,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .fillMaxWidth()
+                .padding(24.dp)
         ) {
             Column() {
 
-                Icon(painter = painterResource(id = R.drawable.globe_filled), contentDescription = "URnetwork globe filled")
+                Icon(
+                    painter = painterResource(id = R.drawable.globe_filled),
+                    contentDescription = "URnetwork globe filled"
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    "You're in guest mode.",
+                    "Feedback submitted.",
                     style = MaterialTheme.typography.headlineMedium,
                     color = Black
                 )
-                Text(
-                    "To start",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Black
-                )
-                Text(
-                    "earning, join",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Black
-                )
-                Text(
-                    "the network.",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Black
-                )
 
-                Spacer(modifier = Modifier.height(128.dp))
-
+                Text(
+                    "Thank you for sharing your feelings <3",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Black
+                )
+                Spacer(modifier = Modifier.height(64.dp))
                 URButton(
                     onClick = {
-                        application?.logout()
+                        onDismiss()
                     },
-                    style = ButtonStyle.OUTLINE
+                    style = ButtonStyle.OUTLINE,
+                    borderColor = Black
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Create an account", style = buttonTextStyle, color = Black)
+                        Text(
+                            "Close",
+                            style = buttonTextStyle,
+                            color = Black
+                        )
                     }
                 }
             }
         }
     }
+
 }
 
 @Preview
 @Composable
-private fun GuestModeOverlayPreview() {
+private fun FeedbackSubmittedOverlayPreview() {
+
     URNetworkTheme {
-        GuestModeOverlay(
+        FeedbackSubmittedOverlay(
             onDismiss = {}
         )
     }
+
 }
