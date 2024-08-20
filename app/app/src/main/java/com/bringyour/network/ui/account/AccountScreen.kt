@@ -212,7 +212,7 @@ fun AccountScreen(
             text = "Refer and earn",
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate("refer")
+                    overlayVc?.openOverlay(OverlayMode.Refer.toString())
                 } else {
                     overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
                 }
