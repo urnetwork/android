@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components.overlays
 
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -20,8 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,11 +35,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,6 +58,9 @@ import com.google.zxing.common.BitMatrix
 fun ReferOverlay(
     onDismiss: () -> Unit
 ) {
+
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
     // todo - fetch network referral code
     val referralCode = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
@@ -134,7 +136,7 @@ fun ReferOverlay(
 
                         ClickableText(
                             onClick = {
-                                // todo
+                                clipboardManager.setText(AnnotatedString(referralCode))
                             },
                             text = AnnotatedString("Copy"),
                             style = MaterialTheme.typography.bodyMedium.copy(
@@ -146,7 +148,14 @@ fun ReferOverlay(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                URButton(onClick = { /*TODO*/ }) { textStyle ->
+                URButton(onClick = {
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, referralCode)
+                        type = "text/plain"
+                    }
+                    context.startActivity(Intent.createChooser(shareIntent, null))
+                }) { textStyle ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
