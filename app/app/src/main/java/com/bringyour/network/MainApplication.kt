@@ -1,20 +1,16 @@
 package com.bringyour.network
 
 import android.app.Application
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.os.IBinder
 import android.os.PowerManager
 import androidx.biometric.BiometricManager
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.core.content.ContextCompat
 import circle.programmablewallet.sdk.WalletSdk
-import circle.programmablewallet.sdk.api.ExecuteEvent
 import circle.programmablewallet.sdk.presentation.SecurityQuestion
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.client.AccountViewController
@@ -28,7 +24,6 @@ import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
-import circle.programmablewallet.sdk.presentation.EventListener
 import com.bringyour.client.Client.ProvideModeNone
 import com.bringyour.client.OverlayViewController
 import com.bringyour.client.Sub
@@ -322,7 +317,6 @@ class MainApplication : Application() {
 
                 }
                 if (wifiLock == null) {
-
 
                     wifiLock = (getSystemService(WIFI_SERVICE) as WifiManager).run {
                         val wifiLockMode: Int

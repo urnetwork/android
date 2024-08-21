@@ -60,6 +60,11 @@ class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        app = application as MainApplication
+
+        // immutable shadow
+        val app = app ?: return
+
         requestPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()

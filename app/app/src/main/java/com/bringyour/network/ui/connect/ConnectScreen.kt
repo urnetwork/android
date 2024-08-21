@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -148,8 +147,6 @@ fun ConnectScreen(
 
     DisposableEffect(Unit) {
 
-        Log.i("ConnectScreen", "DisposableEffect called")
-
         // init subs
         addConnectionStatusListener()
         addSelectedLocationListener()
@@ -157,8 +154,6 @@ fun ConnectScreen(
 
         // when closing
         onDispose {
-
-            Log.i("ConnectScreen", "DisposableEffect onDispose called")
 
             subs.forEach { sub ->
                 sub.close()
