@@ -84,6 +84,7 @@ class MainApplication : Application() {
         byApi = Client.newBringYourApi(apiUrl)
 
         loginVc = Client.newLoginViewController(byApi)
+        overlayVc = Client.newOverlayViewController()
 
         asyncLocalState?.localState()?.let { localState ->
             try {
@@ -192,7 +193,7 @@ class MainApplication : Application() {
         connectVc?.start()
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
-        overlayVc = byDevice?.openOverlayViewController()
+        // overlayVc = byDevice?.openOverlayViewController()
     }
 
 

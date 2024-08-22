@@ -24,11 +24,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
@@ -37,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import com.bringyour.network.ui.theme.TextMuted
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import com.bringyour.client.AuthLoginArgs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -45,13 +44,21 @@ import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import com.bringyour.client.BringYourApi
 import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
+import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.theme.BlueMedium
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable()
@@ -62,11 +69,31 @@ fun LoginInitial(
     loginActivity: LoginActivity?,
 ) {
     val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
+    val overlayVc = application?.overlayVc
     var userAuth by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
     val isUserAuthBtnEnabled = !inProgress && (Patterns.EMAIL_ADDRESS.matcher(userAuth.text).matches() ||
             Patterns.PHONE.matcher(userAuth.text).matches())
+
+    val guestModeStr = buildAnnotatedString {
+        append("Commitment issues? ")
+
+        pushStringAnnotation(
+            tag = "GUEST_MODE",
+            annotation = "Guest Mode"
+        )
+        withStyle(
+            style = SpanStyle(
+                color = Color.White
+            )
+        ) {
+            append(" Try Guest Mode")
+        }
+        pop()
+
+    }
 
 
     val googleClientId = context.getString(R.string.google_client_id)
@@ -293,14 +320,18 @@ fun LoginInitial(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row() {
-                Text(
-                    "Commitment issues?",
-                    color = TextMuted
+
+                ClickableText(
+                    text = guestModeStr,
+                    onClick = { offset ->
+                        guestModeStr.getStringAnnotations(
+                            tag = "GUEST_MODE", start = offset, end = offset
+                        ).firstOrNull()?.let {
+                            overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
+                        }
+                    },
+                    style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted)
                 )
-                Spacer(
-                    modifier = Modifier.width(4.dp)
-                )
-                Text("Try Guest Mode")
             }
         }
         URSnackBar(
