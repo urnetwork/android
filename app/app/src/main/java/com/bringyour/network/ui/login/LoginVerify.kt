@@ -29,10 +29,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.client.AuthVerifySendArgs
-import com.bringyour.client.BringYourApi
 import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URCodeInput
@@ -45,12 +47,12 @@ import kotlinx.coroutines.runBlocking
 @Composable
 fun LoginVerify(
     userAuth: String,
-    byApi: BringYourApi?,
-    appLogin: (String) -> Unit,
-    loginActivity: LoginActivity?,
+    navController: NavController
 ) {
 
     val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
+    val loginActivity = context as? LoginActivity
     val codeLength = 8
     var code by remember { mutableStateOf(List(codeLength) { "" }) }
     var resendInProgress by remember { mutableStateOf(false) }
@@ -73,7 +75,7 @@ fun LoginVerify(
         val args = AuthVerifySendArgs()
         args.userAuth = userAuth
 
-        byApi?.authVerifySend(args) { _, err ->
+        application?.byApi?.authVerifySend(args) { _, err ->
             runBlocking(Dispatchers.Main.immediate) {
 
                 resendInProgress = false
@@ -94,7 +96,7 @@ fun LoginVerify(
         args.userAuth = userAuth
         args.verifyCode = code.joinToString("")
 
-        byApi?.authVerify(args) { result, err ->
+        application?.byApi?.authVerify(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 verifyInProgress = false
 
@@ -105,7 +107,7 @@ fun LoginVerify(
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     verifyError = null
 
-                    appLogin(result.network.byJwt)
+                    application.login(result.network.byJwt)
 
                     verifyInProgress = true
 
@@ -227,6 +229,9 @@ fun LoginVerify(
 @Preview
 @Composable
 fun LoginVerifyPreview() {
+
+    val navController = rememberNavController()
+
     URNetworkTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize()
@@ -238,9 +243,7 @@ fun LoginVerifyPreview() {
             ) {
                 LoginVerify(
                     userAuth = "hello@ur.io",
-                    byApi = null,
-                    appLogin =  {},
-                    loginActivity = null
+                    navController
                 )
             }
         }

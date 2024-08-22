@@ -57,22 +57,22 @@ class LoginCreateNetworkAuthJwtFragment : Fragment() {
             authJwt = authJwt,
             authJwtType = authJwtType,
             userName = userNameStr,
-            byApi = app?.byApi,
-            loginVc = loginVc,
-            loginActivity = loginActivity,
-            appLogin = { byJwt ->
-                app?.login(byJwt)
-            },
-            onVerificationRequired = { userAuth ->
-                val navArgs = Bundle()
-                navArgs.putString("userAuth", userAuth)
-
-                val navOpts = NavOptions.Builder()
-                    .setPopUpTo(R.id.navigation_initial, false, false)
-                    .build()
-
-                findNavController().navigate(R.id.navigation_verify, navArgs, navOpts)
-            }
+//            byApi = app?.byApi,
+//            loginVc = loginVc,
+//            loginActivity = loginActivity,
+//            appLogin = { byJwt ->
+//                app?.login(byJwt)
+//            },
+//            onVerificationRequired = { userAuth ->
+//                val navArgs = Bundle()
+//                navArgs.putString("userAuth", userAuth)
+//
+//                val navOpts = NavOptions.Builder()
+//                    .setPopUpTo(R.id.navigation_initial, false, false)
+//                    .build()
+//
+//                findNavController().navigate(R.id.navigation_verify, navArgs, navOpts)
+//            }
         )
 
         return ComposeView(requireContext()).apply {
@@ -84,9 +84,9 @@ class LoginCreateNetworkAuthJwtFragment : Fragment() {
                                 .fillMaxSize()
                                 .padding(innerPadding),
                         ) {
-                            LoginCreateNetwork(
-                                createNetworkParams
-                            )
+//                            LoginCreateNetwork(
+//                                createNetworkParams
+//                            )
                         }
                     }
                 }

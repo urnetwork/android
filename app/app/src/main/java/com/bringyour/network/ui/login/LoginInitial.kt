@@ -45,32 +45,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
-import com.bringyour.client.BringYourApi
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.OverlayMode
-import com.bringyour.network.ui.theme.BlueMedium
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable()
 fun LoginInitial(
-    appLogin: (String) -> Unit,
-    navigate: (Int, Bundle) -> Unit,
-    byApi: BringYourApi?,
-    loginActivity: LoginActivity?,
+    navController: NavController,
 ) {
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
+    val loginActivity = context as? LoginActivity
     val overlayVc = application?.overlayVc
+    // val loginVc = application?.loginVc
     var userAuth by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
@@ -95,7 +93,6 @@ fun LoginInitial(
 
     }
 
-
     val googleClientId = context.getString(R.string.google_client_id)
     val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(googleClientId)
@@ -112,7 +109,7 @@ fun LoginInitial(
         args.authJwt = account.idToken
         args.authJwtType = "google"
 
-        byApi?.authLogin(args) { result, err ->
+        application?.byApi?.authLogin(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 inProgress = false
 
@@ -123,7 +120,7 @@ fun LoginInitial(
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     loginError = null
 
-                    appLogin(result.network.byJwt)
+                    application?.login(result.network.byJwt)
 
                     inProgress = true
 
@@ -146,13 +143,11 @@ fun LoginInitial(
                 } else {
                     loginError = null
 
-                    val navArgs = Bundle()
-                    navArgs.putString("authJwtType", "google")
-                    navArgs.putString("authJwt", account.idToken)
-                    navArgs.putString("userName", result.userName)
-                    navArgs.putString("userAuth", account.email)
+                    val authJwt = account.idToken
+                    val userName = result.userName
 
-                    navigate(R.id.navigation_create_network_auth_jwt, navArgs)
+                    navController.navigate("create-network-jwt/${account.email}/$authJwt/$userName")
+
                 }
             }
         }
@@ -186,9 +181,8 @@ fun LoginInitial(
                 val args = AuthLoginArgs()
                 args.userAuth = userAuth.text.trim()
 
-                byApi?.authLogin(args) { result, err ->
+                application?.byApi?.authLogin(args) { result, err ->
                     runBlocking(Dispatchers.Main.immediate) {
-
 
                         Log.i("LoginInitialFragment", "GOT RESULT " + result)
 
@@ -201,10 +195,8 @@ fun LoginInitial(
                             if (result.authAllowed.contains("password")) {
                                 // to the login password screen
                                 loginError = null
-                                val navArgs = Bundle()
-                                navArgs.putString("userAuth", result.userAuth)
 
-                                navigate(R.id.navigation_password, navArgs)
+                                navController.navigate("login-password/${result.userAuth}")
                             } else {
                                 val authAllowed = mutableListOf<String>()
                                 for (i in 0 until result.authAllowed.len()) {
@@ -215,10 +207,8 @@ fun LoginInitial(
                             }
                         } else {
                             // new network
-                            val navArgs = Bundle()
-                            navArgs.putString("userAuth", result.userAuth)
+                            navController.navigate("create-network/${result.userAuth}")
 
-                            navigate(R.id.navigation_create_network, navArgs)
                         }
 
                         inProgress = false
@@ -228,12 +218,12 @@ fun LoginInitial(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Scaffold { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding) // need to debug why this is 0
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -262,6 +252,7 @@ fun LoginInitial(
 
             Spacer(modifier = Modifier.height(64.dp))
 
+            // todo - input filter no spaces
             URTextInput(
                 value = userAuth,
                 onValueChange = { newValue ->
@@ -270,8 +261,13 @@ fun LoginInitial(
                 placeholder = "Enter your phone number or email",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Send
                 ),
+                onSend = {
+                    if (isUserAuthBtnEnabled) {
+                        login()
+                    }
+                },
                 label = "Email or phone"
             )
 
@@ -327,6 +323,7 @@ fun LoginInitial(
                         guestModeStr.getStringAnnotations(
                             tag = "GUEST_MODE", start = offset, end = offset
                         ).firstOrNull()?.let {
+                            Log.i("Login Initial", "overlayVc is null? ${overlayVc == null}")
                             overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
                         }
                     },
@@ -346,12 +343,17 @@ fun LoginInitial(
                 Text("Please wait a few minutes and try again.")
             }
         }
+
     }
+
 }
 
 @Preview()
 @Composable
-fun LoginInitialPreview() {
+private fun LoginInitialPreview() {
+
+    val navController = rememberNavController()
+
     URNetworkTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize()
@@ -362,10 +364,7 @@ fun LoginInitialPreview() {
                     .padding(innerPadding)
             ) {
                 LoginInitial(
-                    appLogin = {},
-                    navigate = { id, navArgs -> },
-                    byApi = null,
-                    loginActivity = null,
+                    navController = navController
                 )
             }
         }
