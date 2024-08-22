@@ -43,6 +43,7 @@ import com.bringyour.client.LoginViewController
 import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLinkText
 import com.bringyour.network.ui.components.URTextInput
@@ -367,32 +368,12 @@ fun LoginCreateNetwork(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                modifier = Modifier.size(16.dp),
-                checked = termsAgreed,
-                onCheckedChange = { termsAgreed = it },
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text("I agree to URnetwork's")
-            Spacer(modifier = Modifier.width(1.dp))
-            URLinkText(text = "Terms and Services", url = "https://ur.io/terms")
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = Modifier.width(30.dp))
-            Text("and")
-            Spacer(modifier = Modifier.width(1.dp))
-            URLinkText(text = "Privacy Policy", url = "https://ur.io/privacy")
-        }
+        TermsCheckbox(
+            checked = termsAgreed,
+            onCheckChanged = { it ->
+                termsAgreed = it
+            }
+        )
 
         Spacer(modifier = Modifier.height(48.dp))
 

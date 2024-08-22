@@ -12,14 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.bringyour.client.OverlayViewController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 class LoginInitialFragment : Fragment() {
 
     private var app : MainApplication? = null
     private var loginActivity: LoginActivity? = null
+    var overlayVc: OverlayViewController? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,6 +78,8 @@ class LoginInitialFragment : Fragment() {
                             )
                         }
                     }
+
+                    FullScreenOverlay()
                 }
             }
         }

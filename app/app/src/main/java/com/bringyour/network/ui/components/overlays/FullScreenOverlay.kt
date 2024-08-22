@@ -23,6 +23,7 @@ enum class OverlayMode {
     Refer,
     FeedbackSubmitted,
     Onboarding,
+    OnboardingGuestMode,
     TransferSubmitted;
 
     companion object {
@@ -33,6 +34,7 @@ enum class OverlayMode {
                 "refer" -> Refer
                 "feedback_submitted" -> FeedbackSubmitted
                 "onboarding" -> Onboarding
+                "onboarding_guest_mode" -> OnboardingGuestMode
                 "transfer_submitted" -> TransferSubmitted
                 else -> null
             }
@@ -46,6 +48,7 @@ enum class OverlayMode {
             Refer -> "refer"
             FeedbackSubmitted -> "feedback_submitted"
             Onboarding -> "onboarding"
+            OnboardingGuestMode -> "onboarding_guest_mode"
             TransferSubmitted -> "transfer_submitted"
         }
     }
@@ -121,6 +124,34 @@ fun FullScreenOverlay() {
     ) {
 
         FeedbackSubmittedOverlay(
+            onDismiss = {
+                overlayMode = null
+            }
+        )
+    }
+
+    // Onboarding overlay
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.Onboarding,
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+
+        OnboardingOverlay(
+            onDismiss = {
+                overlayMode = null
+            }
+        )
+    }
+
+    // Onboarding guest mode overlay
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.OnboardingGuestMode,
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+
+        OnboardingGuestModeOverlay(
             onDismiss = {
                 overlayMode = null
             }
