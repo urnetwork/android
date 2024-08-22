@@ -76,12 +76,12 @@ class MainActivity: ComponentActivity() {
         vpnLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-//            Log.i("Main","ACTIVITY RESULT")
             if (result.resultCode == RESULT_OK) {
-                app?.startVpnService()
+                app.startVpnService()
             }
         }
 
+        // this is so overlays don't get cut by top bar and bottom drawer
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {

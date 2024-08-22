@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,14 +36,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bringyour.client.BringYourApi
-import com.bringyour.client.LoginViewController
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.components.URLinkText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
@@ -57,43 +55,18 @@ import kotlinx.coroutines.runBlocking
 // Base class with common parameters
 open class CommonLoginParams(
     val userAuth: String,
-    val appLogin: (String) -> Unit,
-    val onVerificationRequired: (String) -> Unit,
-    val byApi: BringYourApi?,
-    val loginVc: LoginViewController?,
-    val loginActivity: LoginActivity?
 )
 
 // Sealed class with specific parameters, properly initializing the base class
 sealed class LoginCreateNetworkParams(
     userAuth: String,
-    appLogin: (String) -> Unit,
-    onVerificationRequired: (String) -> Unit,
-    byApi: BringYourApi?,
-    loginVc: LoginViewController?,
-    loginActivity: LoginActivity?
 ) : CommonLoginParams(
     userAuth,
-    appLogin,
-    onVerificationRequired,
-    byApi,
-    loginVc,
-    loginActivity
 ) {
      class LoginCreateUserAuthParams(
         userAuth: String,
-        appLogin: (String) -> Unit,
-        onVerificationRequired: (String) -> Unit,
-        byApi: BringYourApi?,
-        loginVc: LoginViewController?,
-        loginActivity: LoginActivity?
     ) : LoginCreateNetworkParams(
         userAuth,
-        appLogin,
-        onVerificationRequired,
-        byApi,
-        loginVc,
-        loginActivity
     )
 
      class LoginCreateAuthJwtParams(
@@ -101,27 +74,21 @@ sealed class LoginCreateNetworkParams(
         val authJwtType: String,
         val userName: String,
         userAuth: String,
-        appLogin: (String) -> Unit,
-        onVerificationRequired: (String) -> Unit,
-        byApi: BringYourApi?,
-        loginVc: LoginViewController?,
-        loginActivity: LoginActivity?
     ) : LoginCreateNetworkParams(
          userAuth,
-        appLogin,
-        onVerificationRequired,
-        byApi,
-        loginVc,
-        loginActivity
     )
 }
 
 @Composable
 fun LoginCreateNetwork(
-    params: LoginCreateNetworkParams
+    params: LoginCreateNetworkParams,
+    navController: NavController,
 ) {
 
     val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
+    val loginVc = application?.loginVc
+    val loginActivity = context as? LoginActivity
     var emailOrPhone by remember { mutableStateOf(TextFieldValue()) }
     var userPassword by remember { mutableStateOf(TextFieldValue()) }
     var userName by remember { mutableStateOf(TextFieldValue()) }
@@ -185,7 +152,7 @@ fun LoginCreateNetwork(
             Log.i("LoginCreateNetwork", "checking network name")
             isValidatingNetworkName = true
 
-            params.loginVc?.networkCheck(networkName.text) { result, err ->
+            loginVc?.networkCheck(networkName.text) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
 
                     if (err == null) {
@@ -231,7 +198,7 @@ fun LoginCreateNetwork(
     val createNetwork = {
         val args = createNetworkArgs()
 
-        params.byApi?.networkCreate(args) { result, err ->
+        application?.byApi?.networkCreate(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 inProgress = false
 
@@ -242,19 +209,17 @@ fun LoginCreateNetwork(
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     createNetworkError = null
 
-                    params.appLogin(result.network.byJwt)
+                    application.login(result.network.byJwt)
 
                     inProgress = true
 
-                    params.loginActivity?.authClientAndFinish { error ->
+                    loginActivity?.authClientAndFinish { error ->
                         inProgress = false
 
                         createNetworkError = error
                     }
                 } else if (result.verificationRequired != null) {
                     createNetworkError = null
-
-                    Log.i("LoginCreateNetwork", "result.verificationRequired.userAuth: ${result.verificationRequired.userAuth}")
 
                     // this might be unnecessary
                     // but following the current fragments
@@ -269,7 +234,8 @@ fun LoginCreateNetwork(
                         }
                     }
 
-                    params.onVerificationRequired(userAuth)
+                    navController.navigate("verify/${userAuth}")
+
                 } else {
                     createNetworkError = context.getString(R.string.create_network_error)
                 }
@@ -397,16 +363,13 @@ fun LoginCreateNetwork(
 
 @Preview
 @Composable
-fun LoginNetworkCreatePreview() {
+private fun LoginNetworkCreatePreview() {
 
     val params = LoginCreateNetworkParams.LoginCreateUserAuthParams(
         userAuth = "hello@urnetwork.com",
-        byApi = null,
-        loginVc = null,
-        loginActivity =  null,
-        onVerificationRequired = {},
-        appLogin = {},
     )
+
+    val navController = rememberNavController()
 
     URNetworkTheme {
         Scaffold(
@@ -418,7 +381,8 @@ fun LoginNetworkCreatePreview() {
                     .padding(innerPadding)
             ) {
                 LoginCreateNetwork(
-                    params
+                    params,
+                    navController
                 )
             }
         }
