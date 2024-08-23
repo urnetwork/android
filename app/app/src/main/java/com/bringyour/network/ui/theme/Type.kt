@@ -2,10 +2,12 @@ package com.bringyour.network.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
@@ -106,4 +108,10 @@ val TopBarTitleTextStyle = TextStyle(
     fontWeight = FontWeight(700),
     color = Color.White,
     textAlign = TextAlign.Center,
+)
+
+val HeadingLargeCondensed = TextStyle(
+    fontSize = 40.sp,
+    fontFamily = gravityCondensedFamily,
+    fontWeight = FontWeight(900),
 )
