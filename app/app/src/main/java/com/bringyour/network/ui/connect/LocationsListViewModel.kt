@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client.LocationTypeCountry
 import com.bringyour.client.ConnectLocation
-import com.bringyour.client.LocationsViewModel
 import com.bringyour.client.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

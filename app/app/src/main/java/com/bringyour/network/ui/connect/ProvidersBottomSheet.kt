@@ -20,6 +20,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,11 +32,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.Black
@@ -42,6 +45,9 @@ import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextFaint
 import kotlinx.coroutines.launch
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bringyour.client.ConnectLocation
+import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.URNetworkTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,13 +57,37 @@ fun ProvidersBottomSheet(
     locationsViewModel: LocationsListViewModel = hiltViewModel(),
     content: @Composable (PaddingValues) -> Unit,
 ) {
+
+    ProvidersBottomSheet(
+        scaffoldState = scaffoldState,
+        selectedLocation = connectViewModel.selectedLocation,
+        totalProviderCount = locationsViewModel.totalProviderCount.intValue,
+        connectCountries = locationsViewModel.connectCountries,
+        promotedLocations = locationsViewModel.promotedLocations,
+        getLocationColor = locationsViewModel.getLocationColor,
+        filterLocations = locationsViewModel.filterLocations,
+        connect = connectViewModel.connect
+    ) { innerPadding ->
+        content(innerPadding)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProvidersBottomSheet(
+    scaffoldState: BottomSheetScaffoldState,
+    selectedLocation: ConnectLocation?,
+    totalProviderCount: Int,
+    connectCountries: List<ConnectLocation>,
+    promotedLocations: List<ConnectLocation>,
+    getLocationColor: (String) -> Color,
+    filterLocations: (String) -> Unit,
+    connect: (ConnectLocation?) -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
+) {
     val scope = rememberCoroutineScope()
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    val totalProviderCount by locationsViewModel.totalProviderCount
-    val connectCountries = locationsViewModel.connectCountries
-    val promotedLocations = locationsViewModel.promotedLocations
     val keyboardController = LocalSoftwareKeyboardController.current
-    val selectedLocation = connectViewModel.selectedLocation
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -132,13 +162,13 @@ fun ProvidersBottomSheet(
                     } else {
 
                         val key = if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
-                            else selectedLocation.countryCode
+                        else selectedLocation.countryCode
 
                         ProviderRow(
                             location = selectedLocation.name,
                             providerCount = selectedLocation.providerCount,
                             onClick = {},
-                            color = locationsViewModel.getLocationColor(key)
+                            color = getLocationColor(key)
                         )
                     }
 
@@ -147,9 +177,9 @@ fun ProvidersBottomSheet(
                         onValueChange = { query ->
                             if (query.text != searchQuery.text) {
                                 searchQuery = query
-                                locationsViewModel.filterLocations(searchQuery.text)
+                                filterLocations(searchQuery.text)
                             }
-                                        },
+                        },
                         placeholder = "Search for all locations",
                         keyboardController
                     )
@@ -157,15 +187,14 @@ fun ProvidersBottomSheet(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     LocationsList(
-                        // connectCountries = connectCountries,
-                        // connectLocations = connectLocations,
-                        onLocationSelect = {
+                        onLocationSelect = { location ->
+                            connect(location)
                             scope.launch { scaffoldState.bottomSheetState.partialExpand() }
                         },
                         promotedLocations = promotedLocations,
                         connectCountries = connectCountries,
-                        locationsVm = locationsViewModel,
-                        connectViewModel = connectViewModel
+                        getLocationColor = getLocationColor,
+                        selectedLocation = selectedLocation,
                     )
                 }
             }
@@ -175,49 +204,59 @@ fun ProvidersBottomSheet(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Preview
-//@Composable
-//fun PreviewConnectCountriesList(
-//    @PreviewParameter(ApplicationPreviewParameterProvider::class) application: MainApplication
-//) {
-//    val scaffoldState = rememberBottomSheetScaffoldState()
-//    val connectVc = application.connectVc
-//
-//    URNetworkTheme {
-//        ProvidersBottomSheet(
-//            scaffoldState = scaffoldState,
-//            connectVc = connectVc,
-//
-//        ) {
-//            Text("Hello world")
-//        }
-//    }
-//}
-//
-//
-//
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Preview
-//@Composable
-//fun ProvidersBottomSheetOpenPreview(
-//    @PreviewParameter(ApplicationPreviewParameterProvider::class) application: MainApplication
-//) {
-//    val connectVc = application.connectVc
-//
-//    val scaffoldState = rememberBottomSheetScaffoldState(
-//        bottomSheetState = rememberStandardBottomSheetState(
-//            SheetValue.Expanded
-//        )
-//    )
-//
-//    URNetworkTheme {
-//        ProvidersBottomSheet(
-//            scaffoldState,
-//            connectVc,
-//            selectedLocation = null,
-//        ) {
-//            Text("Hello world")
-//        }
-//    }
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun PreviewBottomSheet() {
+    val scaffoldState = rememberBottomSheetScaffoldState()
+
+    URNetworkTheme {
+        ProvidersBottomSheet(
+            scaffoldState = scaffoldState,
+            connect = {},
+            selectedLocation = null,
+            totalProviderCount = 100,
+            connectCountries = listOf<ConnectLocation>(),
+            promotedLocations = listOf<ConnectLocation>(),
+            getLocationColor = { _ ->
+                BlueMedium
+            },
+            filterLocations = { _ -> }
+            // connectVc = connectVc,
+
+        ) {
+            Text("Hello world")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun PreviewBottomSheetExpanded() {
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            SheetValue.Expanded
+        )
+    )
+
+    URNetworkTheme {
+        ProvidersBottomSheet(
+            scaffoldState = scaffoldState,
+            connect = {},
+            selectedLocation = null,
+            totalProviderCount = 100,
+            connectCountries = listOf<ConnectLocation>(),
+            promotedLocations = listOf<ConnectLocation>(),
+            getLocationColor = { _ ->
+                BlueMedium
+            },
+            filterLocations = { _ -> }
+            // connectVc = connectVc,
+
+        ) {
+            Text("Hello world")
+        }
+    }
+}

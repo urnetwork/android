@@ -11,15 +11,16 @@ import com.bringyour.client.ConnectLocation
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun LocationsList(
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
-    locationsVm: LocationsListViewModel,
-    connectViewModel: ConnectViewModel,
-    onLocationSelect: () -> Unit,
+    onLocationSelect: (ConnectLocation) -> Unit,
+    selectedLocation: ConnectLocation?,
+    getLocationColor: (String) -> Color,
 ) {
 
     LazyColumn {
@@ -40,11 +41,10 @@ fun LocationsList(
                 location = location.name,
                 providerCount = location.providerCount,
                 onClick = {
-                    connectViewModel.connect(location)
-                    onLocationSelect()
+                    onLocationSelect(location)
                 },
-                isSelected = connectViewModel.selectedLocation?.connectLocationId == location.connectLocationId,
-                color = locationsVm.getLocationColor(location.connectLocationId.toString())
+                isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                color = getLocationColor(location.connectLocationId.toString())
             )
         }
 
@@ -65,11 +65,10 @@ fun LocationsList(
                 location = country.name,
                 providerCount = country.providerCount,
                 onClick = {
-                    connectViewModel.connect(country)
-                    onLocationSelect()
+                    onLocationSelect(country)
                 },
-                isSelected = connectViewModel.selectedLocation?.connectLocationId == country.connectLocationId,
-                color = locationsVm.getLocationColor(country.countryCode)
+                isSelected = selectedLocation?.connectLocationId == country.connectLocationId,
+                color = getLocationColor(country.countryCode)
             )
         }
     }
