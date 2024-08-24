@@ -55,7 +55,7 @@ fun OnboardingGuestModeOverlay(
         if (termsAgreed) {
             val args = NetworkCreateArgs()
             args.terms = termsAgreed
-            args.guestMode = true
+            // args.guestMode = true
 
             application?.byApi?.networkCreate(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {

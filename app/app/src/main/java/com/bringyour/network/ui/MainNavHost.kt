@@ -9,18 +9,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.components.BottomNavBar
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
+import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 
 @Composable
-fun MainNavHost() {
+fun MainNavHost(
+    connectViewModel: ConnectViewModel
+) {
 
     val navController = rememberNavController()
 
@@ -46,7 +50,9 @@ fun MainNavHost() {
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {
-                composable("connect") { ConnectScreen() }
+                composable("connect") {
+                    ConnectScreen(connectViewModel)
+                }
                 composable("account") { AccountNavHost() }
                 composable("support") { FeedbackScreen() }
             }
@@ -56,10 +62,10 @@ fun MainNavHost() {
     }
 }
 
-@Preview
-@Composable
-private fun MainNavHostPreview() {
-    URNetworkTheme {
-        MainNavHost()
-    }
-}
+//@Preview
+//@Composable
+//private fun MainNavHostPreview() {
+//    URNetworkTheme {
+//        MainNavHost()
+//    }
+//}

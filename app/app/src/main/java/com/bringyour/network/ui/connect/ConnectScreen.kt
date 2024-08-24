@@ -14,63 +14,35 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bringyour.client.ConnectLocation
-import com.bringyour.client.Sub
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-
-enum class ConnectStatus {
-    DISCONNECTED,
-    CONNECTING,
-    CONNECTED,
-    CANCELING;
-
-    companion object {
-        fun fromString(value: String): ConnectStatus? {
-            return when (value.uppercase()) {
-                "DISCONNECTED" -> DISCONNECTED
-                "CONNECTING" -> CONNECTING
-                "CONNECTED" -> CONNECTED
-                "CANCELING" ->CANCELING
-                else -> null // or throw IllegalArgumentException("Unknown ProvideMode: $value")
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectScreen(
+    connectViewModel: ConnectViewModel,
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-    val activity = context as? MainActivity
-    val connectVc = application?.connectVc
-    var selectedLocation by remember { mutableStateOf<ConnectLocation?>(null) }
-    var connectedProviderCount by remember { mutableIntStateOf(0) }
-    val subs = remember { mutableListOf<Sub>() }
-    var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECTED) }
+    val connectedProviderCount = connectViewModel.connectedProviderCount
+    val connectStatus by connectViewModel.connectStatus.collectAsState()
     var networkName by remember { mutableStateOf<String?>(null) }
 
     val populateNetworkName = {
@@ -83,96 +55,19 @@ fun ConnectScreen(
         }
     }
 
-    val initSelectedLocation = {
-        selectedLocation = connectVc?.selectedLocation
-    }
-
-    val initConnectedProviderCount = {
-        connectedProviderCount = connectVc?.connectedProviderCount ?: 0
-    }
-
-    val getConnectionStatus = {
-        val status = connectVc?.connectionStatus
-        if (status != null) {
-            val statusFromStr = ConnectStatus.fromString(status)
-            if (statusFromStr != null) {
-                connectStatus = statusFromStr
-            }
-        }
-    }
-
-    val addSelectedLocationListener = {
-        if (connectVc != null) {
-            subs.add(connectVc.addSelectedLocationListener { location ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    selectedLocation = location
-                }
-            })
-        }
-    }
-
-    val addConnectionStatusListener = {
-        if (connectVc != null) {
-            subs.add(connectVc.addConnectionStatusListener { status ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    val statusFromStr = ConnectStatus.fromString(status)
-                    if (statusFromStr != null) {
-                        connectStatus = statusFromStr
-
-                        if (connectStatus == ConnectStatus.CONNECTED && application.isVpnRequestStart()) {
-                            activity?.requestPermissionsThenStartVpnServiceWithRestart()
-                        }
-                    }
-                }
-            })
-        }
-    }
-
-    val addConnectedProviderCountListener = {
-        if (connectVc != null) {
-            subs.add(connectVc.addConnectedProviderCountListener { count ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    connectedProviderCount = count
-                }
-            })
-        }
-    }
-
     LaunchedEffect(Unit) {
         populateNetworkName()
-        initSelectedLocation()
-        getConnectionStatus()
-        initConnectedProviderCount()
     }
 
-    DisposableEffect(Unit) {
-
-        // init subs
-        addConnectionStatusListener()
-        addSelectedLocationListener()
-        addConnectedProviderCountListener()
-
-        // when closing
-        onDispose {
-
-            subs.forEach { sub ->
-                sub.close()
-            }
-            subs.clear()
-        }
-    }
-
-    ProvidersBottomSheetScaffold(
+    ProvidersBottomSheet(
         scaffoldState,
-        connectVc,
-        selectedLocation,
+        connectViewModel = connectViewModel
     ) { _ ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Black)
                 .padding(16.dp),
-            // contentAlignment = Alignment.Center
         ) {
             Column {
                 Row(
@@ -192,13 +87,7 @@ fun ConnectScreen(
                     ConnectButton(
                         onClick = {
                             if (connectStatus == ConnectStatus.DISCONNECTED) {
-                                
-                                if (selectedLocation != null) {
-                                    connectVc?.connect(selectedLocation)
-                                } else {
-                                    connectVc?.connectBestAvailable()
-                                }
-
+                                connectViewModel.connect(connectViewModel.selectedLocation)
                             }
                         },
                         connectStatus = connectStatus
@@ -231,7 +120,7 @@ fun ConnectScreen(
 
                         URButton(
                             onClick = {
-                                connectVc?.disconnect()
+                                connectViewModel.disconnect()
                             },
                             style = ButtonStyle.OUTLINE
                         ) { buttonTextStyle ->
@@ -243,7 +132,7 @@ fun ConnectScreen(
                         // todo - we should only show cancel after connecting is over ~2 seconds
                         URButton(
                             onClick = {
-                                connectVc?.cancelConnection()
+                                connectViewModel.cancelConnection()
                             },
                             style = ButtonStyle.OUTLINE,
                             enabled = connectStatus == ConnectStatus.CONNECTING
@@ -257,10 +146,10 @@ fun ConnectScreen(
     }
 }
 
-@Preview
-@Composable
-fun ConnectPreview() {
-    URNetworkTheme {
-        ConnectScreen()
-    }
-}
+//@Preview
+//@Composable
+//fun ConnectPreview() {
+//    URNetworkTheme {
+//        ConnectScreen()
+//    }
+//}

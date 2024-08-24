@@ -11,20 +11,15 @@ import com.bringyour.client.ConnectLocation
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import android.graphics.Color as AndroidColor
 import androidx.compose.ui.unit.dp
-import com.bringyour.client.ConnectViewController
 
 @Composable
 fun LocationsList(
-    // connectCountries: Map<String, ConnectLocation>,
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
-    // connectLocations: List<ConnectLocation>,
-    connectVc: ConnectViewController?,
+    locationsVm: LocationsListViewModel,
+    connectViewModel: ConnectViewModel,
     onLocationSelect: () -> Unit,
-    selectedLocation: ConnectLocation?
 ) {
 
     LazyColumn {
@@ -41,18 +36,15 @@ fun LocationsList(
         }
 
         items(promotedLocations) { location ->
-
-            val countryColor = connectVc?.getColorHex(location.connectLocationId.toString())
-
             ProviderRow(
                 location = location.name,
                 providerCount = location.providerCount,
                 onClick = {
-                    connectVc?.connect(location)
+                    connectViewModel.connect(location)
                     onLocationSelect()
                 },
-                isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                color = Color(AndroidColor.parseColor("#$countryColor"))
+                isSelected = connectViewModel.selectedLocation?.connectLocationId == location.connectLocationId,
+                color = locationsVm.getLocationColor(location.connectLocationId.toString())
             )
         }
 
@@ -69,18 +61,15 @@ fun LocationsList(
         }
 
         items(connectCountries) { country ->
-
-            val countryColor = connectVc?.getColorHex(country.countryCode)
-
             ProviderRow(
                 location = country.name,
                 providerCount = country.providerCount,
                 onClick = {
-                    connectVc?.connect(country)
+                    connectViewModel.connect(country)
                     onLocationSelect()
                 },
-                isSelected = selectedLocation?.connectLocationId == country.connectLocationId,
-                color = Color(AndroidColor.parseColor("#$countryColor"))
+                isSelected = connectViewModel.selectedLocation?.connectLocationId == country.connectLocationId,
+                color = locationsVm.getLocationColor(country.countryCode)
             )
         }
     }

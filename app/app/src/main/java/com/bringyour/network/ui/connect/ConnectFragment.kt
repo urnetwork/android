@@ -117,7 +117,7 @@ class ConnectFragment : Fragment() {
         // immutable shadow
         val app = app ?: return root
 
-        val connectVc = app.connectVc ?: return root
+        // val connectVc = app.connectVc ?: return root
 //
 //        val view = root.findViewById(R.id.connect_surface) as GLSurfaceView
 //        GLSurfaceViewBinder.bind("connect_surface", view, connectVc!!)
@@ -155,8 +155,8 @@ class ConnectFragment : Fragment() {
 
         val locationList = root.findViewById<RecyclerView>(R.id.connect_list)
 
-        val adapter = ConnectAdapter(this, connectVc, subs)
-        locationList.adapter = adapter
+        // val adapter = ConnectAdapter(this, null, subs)
+        // locationList.adapter = adapter
         locationList.layoutManager = LinearLayoutManager(context)
 
         fun setActiveLocation(location: ConnectLocation?) {
@@ -289,7 +289,7 @@ class ConnectFragment : Fragment() {
         )
         */
 
-        setActiveLocation(connectVc.selectedLocation)
+        // setActiveLocation(connectVc.selectedLocation)
 
         return root
     }
@@ -308,7 +308,7 @@ class ConnectFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        app?.connectVc?.start()
+        // app?.connectVc?.start()
     }
 
     override fun onResume() {
@@ -322,7 +322,7 @@ class ConnectFragment : Fragment() {
     override fun onStop() {
         super.onStop()
 
-        app?.connectVc?.stop()
+        // app?.connectVc?.stop()
 
         animateJob?.cancel()
         animateJob = null
@@ -724,155 +724,6 @@ class ConnectFragment : Fragment() {
         }
     }
 }
-
-
-class ConnectAdapter(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, subs: MutableList<Sub>) : RecyclerView.Adapter<ViewHolder>() {
-
-    private val connectLocations = mutableListOf<ConnectLocation>()
-    // map country code -> connect location for the country
-    private val connectCountries = mutableMapOf<String, ConnectLocation>()
-
-
-//    init {
-//        // FIXME view controller to sort the locations before calling callback
-//        subs.add(connectVc.addFilteredLocationsListener { exportedLocations ->
-//            runBlocking(Dispatchers.Main.immediate) {
-//                val locations = mutableListOf<ConnectLocation>()
-//                val n = exportedLocations.len()
-//                for (i in 0 until n) {
-//                    locations.add(exportedLocations.get(i))
-//                }
-//
-////                Log.i("CONNECT", "UPDATE ON MAIN GOT NEW LOCATIONS $locations")
-//
-//                connectLocations.clear()
-//                connectLocations.addAll(locations)
-//
-//                connectCountries.clear()
-//                connectLocations.forEach { location ->
-//                    if (location.locationType == LocationTypeCountry) {
-//                        connectCountries[location.countryCode] = location
-//                    }
-//                }
-//
-//                // FIXME do a better merge and support stable ids
-//                notifyDataSetChanged()
-//            }
-//        })
-//    }
-
-
-    // Create new views (invoked by the layout manager)
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-//        Log.i("CONNECT", "CREATE VIEW HOLDER")
-
-        when (viewType) {
-            ViewTypeCountryChips -> {
-                val view = LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.connect_location_list_country_chips, viewGroup, false)
-                return CountryChipsViewHolder(connectFragment, connectVc, view)
-            }
-            ViewTypeLocationCity -> {
-                val view = LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.connect_location_list_city, viewGroup, false)
-                return ConnectCityViewHolder(connectFragment, connectVc, view)
-            }
-            ViewTypeLocationRegion -> {
-                val view = LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.connect_location_list_region, viewGroup, false)
-                return ConnectRegionViewHolder(connectFragment, connectVc, view)
-            }
-            ViewTypeLocationCountry -> {
-                val view = LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.connect_location_list_country, viewGroup, false)
-                return ConnectCountryViewHolder(connectFragment, connectVc, view)
-            }
-            ViewTypeLocationGroup -> {
-                val view = LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.connect_location_list_group, viewGroup, false)
-                return ConnectGroupViewHolder(connectFragment, connectVc, view)
-            }
-            ViewTypeLocationDevice -> {
-                val view = LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.connect_location_list_device, viewGroup, false)
-                return ConnectDeviceViewHolder(connectFragment, connectVc, view)
-            }
-            else -> throw IllegalArgumentException("${viewType}")
-        }
-    }
-
-
-    // Replace the contents of a view (invoked by the layout manager)
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-//        Log.i("CONNECT", "BIND $position")
-
-        fun bindViewForLocation(location: ConnectLocation) {
-            if (location.isGroup) {
-                (viewHolder as ConnectGroupViewHolder).bind(location)
-            } else if (location.isDevice) {
-                (viewHolder as ConnectDeviceViewHolder).bind(location)
-            } else {
-                when (location.locationType) {
-                    LocationTypeCity -> (viewHolder as ConnectCityViewHolder).bind(location)
-                    LocationTypeRegion -> (viewHolder as ConnectRegionViewHolder).bind(location)
-                    else -> (viewHolder as ConnectCountryViewHolder).bind(location)
-                }
-            }
-        }
-
-        if (0 < connectCountries.size) {
-            if (position == 0) {
-                (viewHolder as CountryChipsViewHolder).bind(connectCountries)
-            } else {
-                bindViewForLocation(connectLocations[position - 1])
-            }
-        } else {
-            bindViewForLocation(connectLocations[position])
-        }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        fun getViewTypeForLocation(location: ConnectLocation): Int {
-            if (location.isGroup) {
-                return ViewTypeLocationGroup
-            } else if (location.isDevice) {
-                return ViewTypeLocationDevice
-            } else {
-                when (location.locationType) {
-                    LocationTypeCity -> return ViewTypeLocationCity
-                    LocationTypeRegion -> return ViewTypeLocationRegion
-                    else -> return ViewTypeLocationCountry
-                }
-            }
-        }
-
-        if (0 < connectCountries.size) {
-            if (position == 0) {
-                return ViewTypeCountryChips
-            } else {
-                return getViewTypeForLocation(connectLocations[position - 1])
-            }
-        } else {
-            return getViewTypeForLocation(connectLocations[position])
-        }
-    }
-
-
-    // see https://developer.android.com/develop/ui/views/layout/recyclerview
-
-    // Return the size of your dataset (invoked by the layout manager)
-    override fun getItemCount(): Int {
-        if (0 < connectCountries.size) {
-            // add a country chip filter to the top
-            return 1 + connectLocations.size
-        } else {
-            return connectLocations.size
-        }
-    }
-
-}
-
-
 
 class CountryChipsViewHolder(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
 

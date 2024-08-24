@@ -27,10 +27,12 @@ import com.bringyour.network.ui.account.CircleViewSetterProvider
 import com.bringyour.client.Client.ProvideModeNone
 import com.bringyour.client.OverlayViewController
 import com.bringyour.client.Sub
+import dagger.hilt.android.HiltAndroidApp
 import go.error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
+@HiltAndroidApp
 class MainApplication : Application() {
 
     // FIXME
@@ -57,7 +59,6 @@ class MainApplication : Application() {
 
     // use one set of view controllers across the entire app
     var loginVc: LoginViewController? = null
-    var connectVc: ConnectViewController? = null
     var devicesVc: DevicesViewController? = null
     var accountVc: AccountViewController? = null
     var overlayVc: OverlayViewController? = null
@@ -84,7 +85,6 @@ class MainApplication : Application() {
         byApi = Client.newBringYourApi(apiUrl)
 
         loginVc = Client.newLoginViewController(byApi)
-        overlayVc = Client.newOverlayViewController()
 
         asyncLocalState?.localState()?.let { localState ->
             try {
@@ -130,10 +130,6 @@ class MainApplication : Application() {
 
         asyncLocalState?.localState()?.logout()
 
-        connectVc?.let {
-            byDevice?.closeViewController(it)
-        }
-        connectVc = null
         devicesVc?.let {
             byDevice?.closeViewController(it)
         }
@@ -189,11 +185,9 @@ class MainApplication : Application() {
 
         byDevice?.provideMode = provideMode
 
-        connectVc = byDevice?.openConnectViewController()
-        connectVc?.start()
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
-        // overlayVc = byDevice?.openOverlayViewController()
+        overlayVc = byDevice?.openOverlayViewController()
     }
 
 
