@@ -4,21 +4,24 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import com.bringyour.client.BringYourDevice
+import androidx.lifecycle.viewModelScope
 import com.bringyour.client.Client.LocationTypeCountry
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.LocationsViewModel
 import com.bringyour.client.Sub
+import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class LocationsListViewModel @Inject constructor(
-    private val byDevice: BringYourDevice?
+    private val byDeviceManager: ByDeviceManager
 ): ViewModel() {
 
-    private var locationsVm = byDevice?.openLocationsViewModel()
+    private var locationsVm: LocationsViewModel? = null
 
     var totalProviderCount = mutableIntStateOf(0)
         private set
@@ -74,17 +77,19 @@ class LocationsListViewModel @Inject constructor(
 
     private val addFilteredLocationsListener = {
 
-        if (locationsVm != null) {
-
-            subs.add(locationsVm!!.addFilteredLocationsListener {
-                runBlocking(Dispatchers.Main.immediate) {
+        locationsVm?.let { vm ->
+            vm.addFilteredLocationsListener {
                     getLocations()
-                }
-            })
+            }
         }
+
     }
 
     init {
+
+        val byDevice = byDeviceManager.getByDevice()
+        locationsVm = byDevice?.openLocationsViewModel()
+
         addFilteredLocationsListener()
 
         locationsVm?.start()
@@ -99,7 +104,7 @@ class LocationsListViewModel @Inject constructor(
         subs.clear()
 
         locationsVm?.let {
-            byDevice?.closeViewController(it)
+            byDeviceManager.getByDevice()?.closeViewController(it)
         }
     }
 }

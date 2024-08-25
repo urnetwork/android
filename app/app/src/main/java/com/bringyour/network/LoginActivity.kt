@@ -8,10 +8,11 @@ import androidx.core.view.WindowCompat
 import com.bringyour.client.AuthNetworkClientArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.theme.URNetworkTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
     private var app : MainApplication? = null

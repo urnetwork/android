@@ -18,7 +18,6 @@ import com.bringyour.client.AsyncLocalState
 import com.bringyour.client.BringYourApi
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
-import com.bringyour.client.ConnectViewController
 import com.bringyour.client.DevicesViewController
 import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
@@ -31,6 +30,7 @@ import dagger.hilt.android.HiltAndroidApp
 import go.error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 @HiltAndroidApp
 class MainApplication : Application() {
@@ -65,16 +65,16 @@ class MainApplication : Application() {
 
     var hasBiometric: Boolean = false
 
+    @Inject
+    lateinit var byDeviceManager: ByDeviceManager
+
     private var vpnRequestStart: Boolean = false
     // FIXME remove these bools and just query the device directly
 //    private var provideEnabled: Boolean = false
 //    private var connectEnabled: Boolean = false
 
-
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
-
-
 
 
     override fun onCreate() {
@@ -146,25 +146,33 @@ class MainApplication : Application() {
         deviceProvideSub = null
         deviceConnectSub?.close()
         deviceConnectSub = null
-        byDevice?.close()
-        byDevice = null
+
 //        provideEnabled = false
 //        connectEnabled = false
+
+        byDevice?.close()
+        byDevice = null
+        byDeviceManager.clearByDevice()
+
         accountVc?.close()
         accountVc = null
     }
 
 
-    private fun initDevice(byClientJwt: String, instanceId: Id, provideMode: Long) {
-        byDevice = Client.newBringYourDeviceWithDefaults(
+    private fun initDevice(byClientJwt: String, instanceId: Id, provideMode: Long): BringYourDevice? {
+
+        byDeviceManager.initDevice(
             byClientJwt,
+            instanceId,
+            provideMode,
             platformUrl,
             apiUrl,
             getDeviceDescription(),
-            getDeviceSpec(),
-            getAppVersion(),
-            instanceId
+            getDeviceSpec()
         )
+
+        byDevice = byDeviceManager.getByDevice()
+
 //        provideEnabled = false
 //        connectEnabled = false
         deviceProvideSub = byDevice?.addProvideChangeListener { provideEnabled ->
@@ -180,14 +188,13 @@ class MainApplication : Application() {
             }
         }
 
-
         router = Router(byDevice!!)
-
-        byDevice?.provideMode = provideMode
 
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
         overlayVc = byDevice?.openOverlayViewController()
+
+        return byDevice
     }
 
 
@@ -359,10 +366,6 @@ class MainApplication : Application() {
         } else {
             return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
         }
-    }
-
-    fun getAppVersion(): String {
-        return BuildConfig.VERSION_NAME
     }
 
     fun setProvideMode(provideMode: Long) {

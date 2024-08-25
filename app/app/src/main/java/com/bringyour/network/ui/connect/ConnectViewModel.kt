@@ -6,9 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.BringYourDevice
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.ConnectViewModel
 import com.bringyour.client.Sub
+import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,10 +38,10 @@ enum class ConnectStatus {
 
 @HiltViewModel
 class ConnectViewModel @Inject constructor(
-    private val byDevice: BringYourDevice?,
+    private val byDeviceManager: ByDeviceManager
 ): ViewModel() {
 
-    private val connectVm = byDevice?.openConnectViewModel()
+    private var connectVm: ConnectViewModel? = null
 
     private val subs = mutableListOf<Sub>()
 
@@ -61,45 +62,54 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
-    private val getSelectedLocation = {
-        selectedLocation = connectVm?.selectedLocation
+    private fun addListener(listener: (ConnectViewModel) -> Sub) {
+        connectVm?.let {
+            subs.add(listener(it))
+        }
     }
 
-    private val getConnectionStatus = {
-        val status = connectVm?.connectionStatus
-        if (status != null) {
-            val statusFromStr = ConnectStatus.fromString(status)
-            if (statusFromStr != null) {
+    val addConnectedProviderCountListener = {
+
+        addListener { vm ->
+            vm.addConnectedProviderCountListener { count ->
                 viewModelScope.launch {
-                    _connectStatus.value = statusFromStr
+                    connectedProviderCount = count
                 }
             }
         }
     }
 
-    val addConnectedProviderCountListener = {
-        if (connectVm != null) {
-            subs.add(connectVm.addConnectedProviderCountListener { count ->
-                viewModelScope.launch {
-                    connectedProviderCount = count
+    private fun updateConnectionStatus() {
+        connectVm?.let { vm ->
+            vm.connectionStatus?.let { status ->
+                ConnectStatus.fromString(status)?.let { statusFromStr ->
+                    viewModelScope.launch {
+                        _connectStatus.value = statusFromStr
+                    }
                 }
-            })
+            }
         }
     }
 
     val addConnectionStatusListener = {
-        if (connectVm != null) {
-            subs.add(connectVm.addConnectionStatusListener {
-                getConnectionStatus()
-            })
+        addListener { vm ->
+            vm.addConnectionStatusListener {
+                updateConnectionStatus()
+            }
+        }
+    }
+
+    private fun updateSelectedLocation() {
+        connectVm?.let {
+            selectedLocation = it.selectedLocation
         }
     }
 
     val addSelectedLocationListener = {
-        if (connectVm != null) {
-            subs.add(connectVm.addSelectedLocationListener {
-                getSelectedLocation()
-            })
+        addListener { vm ->
+            vm.addSelectedLocationListener {
+                updateSelectedLocation()
+            }
         }
     }
 
@@ -112,7 +122,12 @@ class ConnectViewModel @Inject constructor(
     }
 
     init {
-        getConnectionStatus()
+
+        val byDevice = byDeviceManager.getByDevice()
+        connectVm = byDevice?.openConnectViewModel()
+        
+        updateConnectionStatus()
+
         addConnectionStatusListener()
         addConnectedProviderCountListener()
         addSelectedLocationListener()
@@ -127,7 +142,7 @@ class ConnectViewModel @Inject constructor(
         subs.clear()
 
         connectVm?.let {
-            byDevice?.closeViewController(it)
+            byDeviceManager.getByDevice()?.closeViewController(it)
         }
 
         viewModelScope.cancel()
