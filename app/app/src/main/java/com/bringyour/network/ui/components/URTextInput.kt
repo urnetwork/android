@@ -165,7 +165,7 @@ fun URTextInput(
 
 @Preview()
 @Composable()
-fun URTextInputEmptyPreview() {
+private fun URTextInputEmptyPreview() {
     URNetworkTheme {
         URTextInput(
             value = TextFieldValue(""),
@@ -178,7 +178,7 @@ fun URTextInputEmptyPreview() {
 
 @Preview()
 @Composable()
-fun URTextInputPreview() {
+private fun URTextInputPreview() {
     URNetworkTheme {
         URTextInput(
             value = TextFieldValue("Hello world"),
@@ -191,7 +191,7 @@ fun URTextInputPreview() {
 
 @Preview()
 @Composable()
-fun URTextInputPasswordPreview() {
+private fun URTextInputPasswordPreview() {
     URNetworkTheme {
         URTextInput(
             value = TextFieldValue("Hello world"),
@@ -205,7 +205,7 @@ fun URTextInputPasswordPreview() {
 
 @Preview()
 @Composable()
-fun URTextInputIsValidatingPreview() {
+private fun URTextInputIsValidatingPreview() {
     URNetworkTheme {
         URTextInput(
             value = TextFieldValue("Hello world"),
@@ -219,7 +219,7 @@ fun URTextInputIsValidatingPreview() {
 
 @Preview()
 @Composable()
-fun URTextInputErrorPreview() {
+private fun URTextInputErrorPreview() {
     URNetworkTheme {
         URTextInput(
             value = TextFieldValue("Hello world"),
