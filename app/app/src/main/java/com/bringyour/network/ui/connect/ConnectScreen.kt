@@ -22,13 +22,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.client.ConnectLocation
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -38,11 +41,10 @@ fun ConnectScreen(
     connectViewModel: ConnectViewModel,
 ) {
 
+    val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-    val connectedProviderCount = connectViewModel.connectedProviderCount
-    val connectStatus by connectViewModel.connectStatus.collectAsState()
     var networkName by remember { mutableStateOf<String?>(null) }
 
     val populateNetworkName = {
@@ -61,84 +63,105 @@ fun ConnectScreen(
 
     ProvidersBottomSheet(
         scaffoldState,
-        connectViewModel = connectViewModel
+        connect = connectViewModel.connect,
+        selectedLocation = connectViewModel.selectedLocation
     ) { _ ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Black)
-                .padding(16.dp),
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    AccountSwitcher(loginMode = LoginMode.Authenticated)
-                }
+        ConnectMainContent(
+            connectedProviderCount = connectViewModel.connectedProviderCount,
+            connectStatus = connectStatus,
+            selectedLocation = connectViewModel.selectedLocation,
+            networkName = networkName,
+            connect = connectViewModel.connect,
+            disconnect = connectViewModel.disconnect,
+            cancelConnection = connectViewModel.cancelConnection
+        )
+    }
+}
 
-                Spacer(modifier = Modifier.height(24.dp))
+@Composable
+fun ConnectMainContent(
+    connectedProviderCount: Int,
+    connectStatus: ConnectStatus,
+    selectedLocation: ConnectLocation?,
+    networkName: String?,
+    connect: (ConnectLocation?) -> Unit,
+    disconnect: () -> Unit?,
+    cancelConnection: () -> Unit?
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Black)
+            .padding(16.dp),
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                AccountSwitcher(loginMode = LoginMode.Authenticated)
+            }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+            Spacer(modifier = Modifier.height(24.dp))
 
-                ) {
-                    ConnectButton(
-                        onClick = {
-                            if (connectStatus == ConnectStatus.DISCONNECTED) {
-                                connectViewModel.connect(connectViewModel.selectedLocation)
-                            }
-                        },
-                        connectStatus = connectStatus
-                    )
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
 
-                Spacer(modifier = Modifier.height(32.dp))
-
-                ConnectStatusIndicator(
-                    text = when(connectStatus) {
-                        ConnectStatus.CONNECTED -> "Connected to $connectedProviderCount providers"
-                        ConnectStatus.CONNECTING -> "Connecting to providers..."
-                        ConnectStatus.CANCELING -> "Canceling connection..."
-                        // todo - username
-                        ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
-                            else "ready to connect"
+            ) {
+                ConnectButton(
+                    onClick = {
+                        if (connectStatus == ConnectStatus.DISCONNECTED) {
+                            connect(selectedLocation)
+                        }
                     },
-                    status = connectStatus
+                    connectStatus = connectStatus
                 )
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-                Row(
-                    modifier = Modifier
-                        .height(48.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    if (connectStatus == ConnectStatus.CONNECTED) {
+            ConnectStatusIndicator(
+                text = when(connectStatus) {
+                    ConnectStatus.CONNECTED -> "Connected to $connectedProviderCount providers"
+                    ConnectStatus.CONNECTING -> "Connecting to providers..."
+                    ConnectStatus.CANCELING -> "Canceling connection..."
+                    ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
+                    else "ready to connect"
+                },
+                status = connectStatus
+            )
 
-                        URButton(
-                            onClick = {
-                                connectViewModel.disconnect()
-                            },
-                            style = ButtonStyle.OUTLINE
-                        ) { buttonTextStyle ->
-                            Text("Disconnect", style = buttonTextStyle)
-                        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    } else if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.CANCELING) {
+            Row(
+                modifier = Modifier
+                    .height(48.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (connectStatus == ConnectStatus.CONNECTED) {
 
-                        // todo - we should only show cancel after connecting is over ~2 seconds
-                        URButton(
-                            onClick = {
-                                connectViewModel.cancelConnection()
-                            },
-                            style = ButtonStyle.OUTLINE,
-                            enabled = connectStatus == ConnectStatus.CONNECTING
-                        ) { buttonTextStyle ->
-                            Text("Cancel", style = buttonTextStyle)
-                        }
+                    URButton(
+                        onClick = {
+                            disconnect()
+                        },
+                        style = ButtonStyle.OUTLINE
+                    ) { buttonTextStyle ->
+                        Text("Disconnect", style = buttonTextStyle)
+                    }
+
+                } else if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.CANCELING) {
+
+                    // todo - we should only show cancel after connecting is over ~2 seconds
+                    URButton(
+                        onClick = {
+                            cancelConnection()
+                        },
+                        style = ButtonStyle.OUTLINE,
+                        enabled = connectStatus == ConnectStatus.CONNECTING
+                    ) { buttonTextStyle ->
+                        Text("Cancel", style = buttonTextStyle)
                     }
                 }
             }
@@ -146,10 +169,18 @@ fun ConnectScreen(
     }
 }
 
-//@Preview
-//@Composable
-//fun ConnectPreview() {
-//    URNetworkTheme {
-//        ConnectScreen()
-//    }
-//}
+@Preview
+@Composable
+private fun ConnectMainContentPreview() {
+    URNetworkTheme {
+        ConnectMainContent(
+            connectedProviderCount = 100,
+            connectStatus = ConnectStatus.DISCONNECTED,
+            selectedLocation = null,
+            networkName = "my_network",
+            connect = {},
+            disconnect = {},
+            cancelConnection = {}
+        )
+    }
+}

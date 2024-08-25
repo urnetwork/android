@@ -53,20 +53,21 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 @Composable
 fun ProvidersBottomSheet(
     scaffoldState: BottomSheetScaffoldState,
-    connectViewModel: ConnectViewModel,
+    selectedLocation: ConnectLocation?,
+    connect: (ConnectLocation?) -> Unit,
     locationsViewModel: LocationsListViewModel = hiltViewModel(),
     content: @Composable (PaddingValues) -> Unit,
 ) {
 
     ProvidersBottomSheet(
         scaffoldState = scaffoldState,
-        selectedLocation = connectViewModel.selectedLocation,
+        selectedLocation = selectedLocation,
         totalProviderCount = locationsViewModel.totalProviderCount.intValue,
         connectCountries = locationsViewModel.connectCountries,
         promotedLocations = locationsViewModel.promotedLocations,
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
-        connect = connectViewModel.connect
+        connect = connect
     ) { innerPadding ->
         content(innerPadding)
     }
