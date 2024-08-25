@@ -70,8 +70,8 @@ class ConnectViewModel @Inject constructor(
 
     val addConnectedProviderCountListener = {
 
-        addListener { vm ->
-            vm.addConnectedProviderCountListener { count ->
+        addListener { vc ->
+            vc.addConnectedProviderCountListener { count ->
                 viewModelScope.launch {
                     connectedProviderCount = count
                 }
@@ -80,8 +80,8 @@ class ConnectViewModel @Inject constructor(
     }
 
     private fun updateConnectionStatus() {
-        connectVc?.let { vm ->
-            vm.connectionStatus?.let { status ->
+        connectVc?.let { vc ->
+            vc.connectionStatus?.let { status ->
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
                     viewModelScope.launch {
                         _connectStatus.value = statusFromStr
@@ -92,8 +92,8 @@ class ConnectViewModel @Inject constructor(
     }
 
     val addConnectionStatusListener = {
-        addListener { vm ->
-            vm.addConnectionStatusListener {
+        addListener { vc ->
+            vc.addConnectionStatusListener {
                 updateConnectionStatus()
             }
         }
@@ -106,8 +106,8 @@ class ConnectViewModel @Inject constructor(
     }
 
     val addSelectedLocationListener = {
-        addListener { vm ->
-            vm.addSelectedLocationListener {
+        addListener { vc ->
+            vc.addSelectedLocationListener {
                 updateSelectedLocation()
             }
         }

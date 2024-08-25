@@ -73,8 +73,8 @@ class LocationsListViewModel @Inject constructor(
 
     private val addFilteredLocationsListener = {
 
-        locationsVc?.let { vm ->
-            vm.addFilteredLocationsListener {
+        locationsVc?.let { vc ->
+            vc.addFilteredLocationsListener {
                     getLocations()
             }
         }

@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.bringyour.client.WalletViewModel
+import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -14,7 +14,7 @@ class WalletViewModel @Inject constructor(
     private val byDeviceManager: ByDeviceManager
 ): ViewModel() {
 
-    private var walletVm: WalletViewModel? = null
+    private var walletVc: WalletViewController? = null
 
     var nextPayoutDateStr by mutableStateOf("")
         private set
@@ -23,8 +23,8 @@ class WalletViewModel @Inject constructor(
         private set
 
     val updateNextPayoutDateStr = {
-        walletVm?.let { vm ->
-            nextPayoutDateStr = vm.nextPayoutDate
+        walletVc?.let { vc ->
+            nextPayoutDateStr = vc.nextPayoutDate
         }
     }
 
@@ -39,7 +39,7 @@ class WalletViewModel @Inject constructor(
     init {
 
         val byDevice = byDeviceManager.getByDevice()
-        walletVm = byDevice?.openWalletViewModel()
+        walletVc = byDevice?.openWalletViewController()
 
         updateNextPayoutDateStr()
     }
