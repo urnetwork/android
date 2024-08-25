@@ -4,16 +4,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.bringyour.client.Client.LocationTypeCountry
 import com.bringyour.client.ConnectLocation
-import com.bringyour.client.LocationsViewModel
+import com.bringyour.client.LocationsViewController
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +17,7 @@ class LocationsListViewModel @Inject constructor(
     private val byDeviceManager: ByDeviceManager
 ): ViewModel() {
 
-    private var locationsVm: LocationsViewModel? = null
+    private var locationsVc: LocationsViewController? = null
 
     var totalProviderCount = mutableIntStateOf(0)
         private set
@@ -33,7 +29,7 @@ class LocationsListViewModel @Inject constructor(
     private val subs = mutableListOf<Sub>()
 
     val getLocations = {
-        val exportedLocations = locationsVm?.locations
+        val exportedLocations = locationsVc?.locations
         if (exportedLocations != null) {
             val locations = mutableListOf<ConnectLocation>()
             val n = exportedLocations.len()
@@ -67,17 +63,17 @@ class LocationsListViewModel @Inject constructor(
     }
 
     val filterLocations:(String) -> Unit = { search ->
-        locationsVm?.filterLocations(search)
+        locationsVc?.filterLocations(search)
     }
 
     val getLocationColor: (String) -> Color = { color ->
-        val hex = locationsVm?.getColorHex(color)
+        val hex = locationsVc?.getColorHex(color)
         Color(android.graphics.Color.parseColor("#$hex"))
     }
 
     private val addFilteredLocationsListener = {
 
-        locationsVm?.let { vm ->
+        locationsVc?.let { vm ->
             vm.addFilteredLocationsListener {
                     getLocations()
             }
@@ -88,11 +84,11 @@ class LocationsListViewModel @Inject constructor(
     init {
 
         val byDevice = byDeviceManager.getByDevice()
-        locationsVm = byDevice?.openLocationsViewModel()
+        locationsVc = byDevice?.openLocationsViewController()
 
         addFilteredLocationsListener()
 
-        locationsVm?.start()
+        locationsVc?.start()
     }
 
     override fun onCleared() {
@@ -103,7 +99,7 @@ class LocationsListViewModel @Inject constructor(
         }
         subs.clear()
 
-        locationsVm?.let {
+        locationsVc?.let {
             byDeviceManager.getByDevice()?.closeViewController(it)
         }
     }

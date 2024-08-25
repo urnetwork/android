@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.client.ConnectLocation
-import com.bringyour.client.ConnectViewModel
+import com.bringyour.client.ConnectViewControllerV0
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +41,7 @@ class ConnectViewModel @Inject constructor(
     private val byDeviceManager: ByDeviceManager
 ): ViewModel() {
 
-    private var connectVm: ConnectViewModel? = null
+    private var connectVc: ConnectViewControllerV0? = null
 
     private val subs = mutableListOf<Sub>()
 
@@ -56,14 +56,14 @@ class ConnectViewModel @Inject constructor(
 
     val connect: (ConnectLocation?) -> Unit = { location ->
         if (location != null) {
-            connectVm?.connect(location)
+            connectVc?.connect(location)
         } else {
-            connectVm?.connectBestAvailable()
+            connectVc?.connectBestAvailable()
         }
     }
 
-    private fun addListener(listener: (ConnectViewModel) -> Sub) {
-        connectVm?.let {
+    private fun addListener(listener: (ConnectViewControllerV0) -> Sub) {
+        connectVc?.let {
             subs.add(listener(it))
         }
     }
@@ -80,7 +80,7 @@ class ConnectViewModel @Inject constructor(
     }
 
     private fun updateConnectionStatus() {
-        connectVm?.let { vm ->
+        connectVc?.let { vm ->
             vm.connectionStatus?.let { status ->
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
                     viewModelScope.launch {
@@ -100,7 +100,7 @@ class ConnectViewModel @Inject constructor(
     }
 
     private fun updateSelectedLocation() {
-        connectVm?.let {
+        connectVc?.let {
             selectedLocation = it.selectedLocation
         }
     }
@@ -114,17 +114,17 @@ class ConnectViewModel @Inject constructor(
     }
 
     val disconnect: () -> Unit = {
-        connectVm?.disconnect()
+        connectVc?.disconnect()
     }
 
     val cancelConnection: () -> Unit = {
-        connectVm?.cancelConnection()
+        connectVc?.cancelConnection()
     }
 
     init {
 
         val byDevice = byDeviceManager.getByDevice()
-        connectVm = byDevice?.openConnectViewModel()
+        connectVc = byDevice?.openConnectViewControllerV0()
 
         updateConnectionStatus()
 
@@ -141,7 +141,7 @@ class ConnectViewModel @Inject constructor(
         }
         subs.clear()
 
-        connectVm?.let {
+        connectVc?.let {
             byDeviceManager.getByDevice()?.closeViewController(it)
         }
 
