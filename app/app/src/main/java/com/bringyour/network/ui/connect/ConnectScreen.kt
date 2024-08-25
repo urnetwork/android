@@ -14,52 +14,28 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.client.ConnectLocation
-import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
+    networkName: String?
 ) {
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-    var networkName by remember { mutableStateOf<String?>(null) }
-
-    val populateNetworkName = {
-        application?.asyncLocalState?.parseByJwt { byJwt, ok ->
-            runBlocking(Dispatchers.Main.immediate) {
-                if (ok) {
-                    networkName = byJwt.networkName
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        populateNetworkName()
-    }
 
     ProvidersBottomSheet(
         scaffoldState,

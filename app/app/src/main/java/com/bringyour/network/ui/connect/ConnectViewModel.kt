@@ -30,7 +30,7 @@ enum class ConnectStatus {
                 "CONNECTING" -> CONNECTING
                 "CONNECTED" -> CONNECTED
                 "CANCELING" ->CANCELING
-                else -> null // or throw IllegalArgumentException("Unknown ProvideMode: $value")
+                else -> null
             }
         }
     }
@@ -113,11 +113,11 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
-    val disconnect = {
+    val disconnect: () -> Unit = {
         connectVm?.disconnect()
     }
 
-    val cancelConnection = {
+    val cancelConnection: () -> Unit = {
         connectVm?.cancelConnection()
     }
 
@@ -125,7 +125,7 @@ class ConnectViewModel @Inject constructor(
 
         val byDevice = byDeviceManager.getByDevice()
         connectVm = byDevice?.openConnectViewModel()
-        
+
         updateConnectionStatus()
 
         addConnectionStatusListener()
