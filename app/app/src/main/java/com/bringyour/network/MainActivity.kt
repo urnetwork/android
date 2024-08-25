@@ -5,22 +5,29 @@ import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import com.bringyour.network.ui.MainNavHost
+import com.bringyour.network.ui.connect.ConnectStatus
+import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
-
-class MainActivity: ComponentActivity() {
-    // private var statusVc : StatusViewController? = null
+@AndroidEntryPoint
+class MainActivity: AppCompatActivity() {
     private var app : MainApplication? = null
 
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
+
+    private val connectViewModel: ConnectViewModel by viewModels()
 
     private fun prepareVpnService() {
         val app = app ?: return
@@ -86,7 +93,15 @@ class MainActivity: ComponentActivity() {
 
         setContent {
             URNetworkTheme {
-                MainNavHost()
+                MainNavHost(connectViewModel)
+            }
+        }
+
+        lifecycleScope.launch {
+            connectViewModel.connectStatus.collect { status ->
+                if (status == ConnectStatus.CONNECTED && app.isVpnRequestStart()) {
+                    requestPermissionsThenStartVpnServiceWithRestart()
+                }
             }
         }
     }
