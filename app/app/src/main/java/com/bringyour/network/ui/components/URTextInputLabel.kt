@@ -41,7 +41,7 @@ fun URTextInputLabel(
 
 @Preview
 @Composable
-fun TextInputLabelPreview() {
+private fun TextInputLabelPreview() {
     URNetworkTheme {
         URTextInputLabel(text = "Enter your email or phone")
     }

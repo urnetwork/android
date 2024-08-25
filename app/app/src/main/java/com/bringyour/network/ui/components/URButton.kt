@@ -80,7 +80,7 @@ fun URButton(
 
 @Preview
 @Composable
-fun PrimaryButtonPreview() {
+private fun PrimaryButtonPreview() {
     URNetworkTheme {
         URButton(
             onClick = {},
@@ -92,7 +92,7 @@ fun PrimaryButtonPreview() {
 
 @Preview
 @Composable
-fun SecondaryButtonPreview() {
+private fun SecondaryButtonPreview() {
     URNetworkTheme {
         URButton(
             style = ButtonStyle.SECONDARY,
@@ -105,7 +105,7 @@ fun SecondaryButtonPreview() {
 
 @Preview
 @Composable
-fun OutlineButtonPreview() {
+private fun OutlineButtonPreview() {
     URNetworkTheme {
         URButton(
             style = ButtonStyle.OUTLINE,
