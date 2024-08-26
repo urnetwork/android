@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.login
 
-import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -229,26 +227,7 @@ fun LoginInitial(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Image(
-                    painter = painterResource(id = R.drawable.initial_login_1),
-                    contentDescription = "See all the world's content with URnetwork",
-                    modifier = Modifier.size(256.dp)
-                )
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("See all the", style = MaterialTheme.typography.headlineLarge)
-                    Text("world's content", style = MaterialTheme.typography.headlineLarge)
-                    Text("with URnetwork", style = MaterialTheme.typography.headlineMedium)
-                }
-
-            }
+            OnboardingCarousel()
 
             Spacer(modifier = Modifier.height(64.dp))
 
