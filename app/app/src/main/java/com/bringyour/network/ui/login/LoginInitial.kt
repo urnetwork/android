@@ -66,7 +66,6 @@ fun LoginInitial(
     val application = context.applicationContext as? MainApplication
     val loginActivity = context as? LoginActivity
     val overlayVc = application?.overlayVc
-    // val loginVc = application?.loginVc
     var userAuth by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
@@ -118,18 +117,14 @@ fun LoginInitial(
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     loginError = null
 
-                    application?.login(result.network.byJwt)
+                    application.login(result.network.byJwt)
 
                     inProgress = true
 
                     loginActivity?.authClientAndFinish { error ->
                         inProgress = false
 
-                        if (error == null) {
-                            loginError = null
-                        } else {
-                            loginError = error
-                        }
+                        loginError = error
                     }
                 } else if (result.authAllowed != null) {
                     val authAllowed = mutableListOf<String>()
@@ -231,11 +226,12 @@ fun LoginInitial(
 
             Spacer(modifier = Modifier.height(64.dp))
 
-            // todo - input filter no spaces
             URTextInput(
                 value = userAuth,
                 onValueChange = { newValue ->
-                    userAuth = newValue
+                    val filteredText = newValue.text.filter { it != ' ' }
+                    val filteredTextFieldValue = newValue.copy(text = filteredText)
+                    userAuth = filteredTextFieldValue
                 },
                 placeholder = "Enter your phone number or email",
                 keyboardOptions = KeyboardOptions(
