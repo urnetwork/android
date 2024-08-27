@@ -81,7 +81,7 @@ fun OnboardingCarousel() {
     LaunchedEffect(activeSlideIndex) {
         delay(1000)
         contentVisible = true
-        delay(7000)
+        delay(5000)
         contentVisible = false
         delay(500)
         activeSlideIndex = (activeSlideIndex + 1) % slides.size
