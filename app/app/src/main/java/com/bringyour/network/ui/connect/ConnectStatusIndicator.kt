@@ -25,6 +25,7 @@ fun ConnectStatusIndicator(
     val indicatorId = when(status) {
         ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
         ConnectStatus.CONNECTING -> R.drawable.circle_indicator_yellow
+        ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
         ConnectStatus.CANCELING -> R.drawable.circle_indicator_yellow
         ConnectStatus.DISCONNECTED -> R.drawable.circle_indicator_blue
     }
@@ -32,6 +33,7 @@ fun ConnectStatusIndicator(
     val indicatorDescription = when(status) {
         ConnectStatus.CONNECTED -> "Connected"
         ConnectStatus.CONNECTING -> "Connecting"
+        ConnectStatus.DESTINATION_SET -> "Connecting"
         ConnectStatus.CANCELING -> "Canceling"
         ConnectStatus.DISCONNECTED -> "Disconnected"
     }

@@ -248,16 +248,15 @@ class MainApplication : Application() {
         vpnRequestStart = true
     }
 
-    fun startVpnService() {
+    fun startVpnService(onStart: (() -> Unit) = {}) {
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("stop", false)
         vpnIntent.putExtra("start", true)
         vpnIntent.putExtra("foreground", true)
-        sendVpnServiceIntent(vpnIntent)
-
-
-
-//        startService(vpnIntent)
+        sendVpnServiceIntent(
+            vpnIntent,
+            onStart = onStart
+        )
 
         vpnRequestStart = true
     }
@@ -273,7 +272,7 @@ class MainApplication : Application() {
         vpnRequestStart = false
     }
 
-    private fun sendVpnServiceIntent(vpnIntent: Intent) {
+    private fun sendVpnServiceIntent(vpnIntent: Intent, onStart: (() -> Unit) = {}) {
         if (VpnService.prepare(this) == null) {
             // important: start the vpn service in the application context
 
@@ -290,12 +289,15 @@ class MainApplication : Application() {
                         } else {
                             startService(vpnIntent)
                         }
+
                     } else {
                         ContextCompat.startForegroundService(this, vpnIntent)
                     }
                 } else {
                     startService(vpnIntent)
                 }
+
+                onStart()
             }
         }
     }
