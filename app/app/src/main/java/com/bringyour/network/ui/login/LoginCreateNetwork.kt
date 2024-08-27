@@ -279,7 +279,9 @@ fun LoginCreateNetwork(
                 label = "Email or phone",
                 value = emailOrPhone,
                 onValueChange = { newValue ->
-                    emailOrPhone = newValue
+                    val filteredText = newValue.text.filter { it != ' ' }
+                    val filteredTextFieldValue = newValue.copy(text = filteredText)
+                    emailOrPhone = filteredTextFieldValue
                 },
                 placeholder = "Enter your phone number or email",
                 keyboardOptions = KeyboardOptions(
