@@ -20,6 +20,7 @@ import javax.inject.Inject
 enum class ConnectStatus {
     DISCONNECTED,
     CONNECTING,
+    DESTINATION_SET,
     CONNECTED,
     CANCELING;
 
@@ -28,9 +29,20 @@ enum class ConnectStatus {
             return when (value.uppercase()) {
                 "DISCONNECTED" -> DISCONNECTED
                 "CONNECTING" -> CONNECTING
+                "DESTINATION_SET" -> DESTINATION_SET
                 "CONNECTED" -> CONNECTED
-                "CANCELING" ->CANCELING
+                "CANCELING" -> CANCELING
                 else -> null
+            }
+        }
+
+        fun toString(value: ConnectStatus): String {
+            return when (value) {
+                DISCONNECTED -> "DISCONNECTED"
+                CONNECTING -> "CONNECTING"
+                DESTINATION_SET -> "DESTINATION_SET"
+                CONNECTED -> "CONNECTED"
+                CANCELING -> "CANCELING"
             }
         }
     }
@@ -89,6 +101,10 @@ class ConnectViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun setConnectionStatus(connectStatus: ConnectStatus) {
+        connectVc?.connectionStatus = connectStatus.toString()
     }
 
     val addConnectionStatusListener = {

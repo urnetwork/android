@@ -101,6 +101,7 @@ fun ConnectMainContent(
                 text = when(connectStatus) {
                     ConnectStatus.CONNECTED -> "Connected to $connectedProviderCount providers"
                     ConnectStatus.CONNECTING -> "Connecting to providers..."
+                    ConnectStatus.DESTINATION_SET -> "Connecting to providers..."
                     ConnectStatus.CANCELING -> "Canceling connection..."
                     ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
                     else "ready to connect"

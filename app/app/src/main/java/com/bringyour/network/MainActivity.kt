@@ -36,7 +36,11 @@ class MainActivity: AppCompatActivity() {
             vpnLauncher?.launch(intent)
         } else {
 //            onActivityResult(ActivityResult(RESULT_OK, null))
-            app.startVpnService()
+            app.startVpnService(
+                onStart = {
+                    connectViewModel.setConnectionStatus(ConnectStatus.CONNECTED)
+                }
+            )
         }
     }
 
@@ -99,7 +103,7 @@ class MainActivity: AppCompatActivity() {
 
         lifecycleScope.launch {
             connectViewModel.connectStatus.collect { status ->
-                if (status == ConnectStatus.CONNECTED && app.isVpnRequestStart()) {
+                if (status == ConnectStatus.DESTINATION_SET && app.isVpnRequestStart()) {
                     requestPermissionsThenStartVpnServiceWithRestart()
                 }
             }
