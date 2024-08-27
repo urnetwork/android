@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.connect
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -31,6 +36,8 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ConnectButton(
@@ -69,28 +76,9 @@ fun ConnectButton(
                             color = Color.White
                         )
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(color = BlueMedium, shape = CircleShape)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(52.dp)
-                                .background(color = Black, shape = CircleShape)
-                                .align(Alignment.Center)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .background(color = BlueMedium, shape = CircleShape)
-                                    .align(Alignment.Center)
-                            ) {
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                            }
-                        }
-                    }
+                    TapToConnectAnimation()
 
                 }
             }
@@ -108,9 +96,70 @@ fun ConnectButton(
     }
 }
 
+@Composable
+fun TapToConnectAnimation() {
+
+    val size = remember { Animatable(56f) }
+    val alpha = remember { Animatable(1f) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            launch {
+                size.animateTo(
+                    targetValue = 82f,
+                    animationSpec = tween(durationMillis = 1000)
+                )
+            }
+            launch {
+                alpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(durationMillis = 1000)
+                )
+            }
+            delay(4000)
+            size.snapTo(56f)
+            alpha.snapTo(1f)
+            delay(100)
+        }
+    }
+
+    Box(
+        modifier = Modifier.size(82.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+
+        // pulsing animation
+        Box(
+            modifier = Modifier
+                .size(size.value.dp)
+                .background(color = BlueMedium.copy(alpha = alpha.value), shape = CircleShape)
+        )
+
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .background(color = BlueMedium, shape = CircleShape)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .background(color = Black, shape = CircleShape)
+                    .align(Alignment.Center)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(color = BlueMedium, shape = CircleShape)
+                        .align(Alignment.Center)
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
-fun ConnectButtonPreview() {
+private fun ConnectButtonPreview() {
     URNetworkTheme {
         ConnectButton(
             onClick = {},
