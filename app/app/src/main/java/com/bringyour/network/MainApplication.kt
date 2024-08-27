@@ -1,6 +1,7 @@
 package com.bringyour.network
 
 import android.app.Application
+import android.app.BackgroundServiceStartNotAllowedException
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
@@ -10,6 +11,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.core.content.ContextCompat
 import circle.programmablewallet.sdk.WalletSdk
@@ -247,9 +249,12 @@ class MainApplication : Application() {
         vpnIntent.putExtra("stop", false)
         vpnIntent.putExtra("start", true)
         vpnIntent.putExtra("foreground", true)
-        sendVpnServiceIntent(vpnIntent)
-
-
+        try {
+            sendVpnServiceIntent(vpnIntent)
+        } catch (e: Exception) {
+            Log.i(TAG, "Could not start vpn service: ${e.message}")
+            // ignore
+        }
 
 //        startService(vpnIntent)
 
@@ -261,7 +266,12 @@ class MainApplication : Application() {
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
-        sendVpnServiceIntent(vpnIntent)
+        try {
+            sendVpnServiceIntent(vpnIntent)
+        } catch (e: Exception) {
+            Log.i(TAG, "Could not start vpn service: ${e.message}")
+            // ignore
+        }
 
 
         vpnRequestStart = false
