@@ -93,8 +93,7 @@ class MainApplication : Application() {
             try {
                 localState.byJwt?.let { byJwt ->
                     localState.byClientJwt?.let { byClientJwt ->
-                        byApi?.setByJwt(byJwt)
-
+                        // the device wraps the api and sets the jwt
                         val instanceId = asyncLocalState?.localState()?.instanceId!!
                         val provideMode = asyncLocalState?.localState()?.provideMode!!
                         initDevice(byClientJwt, instanceId, provideMode)
@@ -155,14 +154,16 @@ class MainApplication : Application() {
 //        connectEnabled = false
         accountVc?.close()
         accountVc = null
+
+        byApi?.setByJwt(null)
     }
 
 
     private fun initDevice(byClientJwt: String, instanceId: Id, provideMode: Long) {
         byDevice = Client.newBringYourDeviceWithDefaults(
+            byApi,
             byClientJwt,
             platformUrl,
-            apiUrl,
             getDeviceDescription(),
             getDeviceSpec(),
             getAppVersion(),
