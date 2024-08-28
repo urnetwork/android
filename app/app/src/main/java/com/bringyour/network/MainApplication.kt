@@ -93,9 +93,7 @@ class MainApplication : Application() {
             try {
                 localState.byJwt?.let { byJwt ->
                     localState.byClientJwt?.let { byClientJwt ->
-//                        byApi?.setByJwt(byJwt)
-
-                        // the device upgrades the api and sets the jwt
+                        // the device wraps the api and sets the jwt
                         val instanceId = asyncLocalState?.localState()?.instanceId!!
                         val provideMode = asyncLocalState?.localState()?.provideMode!!
                         initDevice(byClientJwt, instanceId, provideMode)
