@@ -91,13 +91,11 @@ class MainApplication : Application() {
 
         asyncLocalState?.localState()?.let { localState ->
             try {
-                localState.byJwt?.let { byJwt ->
-                    localState.byClientJwt?.let { byClientJwt ->
-                        // the device wraps the api and sets the jwt
-                        val instanceId = asyncLocalState?.localState()?.instanceId!!
-                        val provideMode = asyncLocalState?.localState()?.provideMode!!
-                        initDevice(byClientJwt, instanceId, provideMode)
-                    }
+                localState.byClientJwt?.let { byClientJwt ->
+                    // the device wraps the api and sets the jwt
+                    val instanceId = asyncLocalState?.localState()?.instanceId!!
+                    val provideMode = asyncLocalState?.localState()?.provideMode!!
+                    initDevice(byClientJwt, instanceId, provideMode)
                 }
             } catch (e: Throwable) {
                 if (e is error) {
