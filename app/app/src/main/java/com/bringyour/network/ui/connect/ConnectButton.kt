@@ -2,10 +2,13 @@ package com.bringyour.network.ui.connect
 
 import android.util.Log
 import androidx.compose.animation.Animatable
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -93,6 +96,7 @@ fun ConnectButton(
                 ConnectingButtonContent(
                     providerGridPoints = providerGridPoints,
                     grid = grid,
+                    status = connectStatus
                 )
             }
 
@@ -114,15 +118,23 @@ fun ConnectButton(
 private fun ConnectingButtonContent(
     grid: ConnectGrid?,
     providerGridPoints: List<ProviderGridPoint>,
+    status: ConnectStatus
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.connector_globe),
-            contentDescription = "Connecting"
-        )
+
+        AnimatedVisibility(
+            visible = status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.connector_globe),
+                contentDescription = "Connecting"
+            )
+        }
 
         GridCanvas(
             size = 248.dp,
