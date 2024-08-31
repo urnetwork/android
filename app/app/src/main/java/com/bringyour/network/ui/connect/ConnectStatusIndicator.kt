@@ -18,9 +18,19 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
 fun ConnectStatusIndicator(
-    text: String,
-    status: ConnectStatus
+    networkName: String?,
+    status: ConnectStatus,
+    windowCurrentSize: Int,
 ) {
+
+    val text = when(status) {
+        ConnectStatus.CONNECTED -> "Connected to $windowCurrentSize providers"
+        ConnectStatus.CONNECTING -> "Connecting to providers..."
+        ConnectStatus.DESTINATION_SET -> "Connecting to providers..."
+        ConnectStatus.CANCELING -> "Canceling connection..."
+        ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
+        else "ready to connect"
+    }
 
     val indicatorId = when(status) {
         ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
@@ -61,8 +71,9 @@ fun ConnectStatusIndicator(
 fun ConnectStatusIndicatorDisconnected() {
     URNetworkTheme {
         ConnectStatusIndicator(
-            text = "username is ready to connect",
-            status = ConnectStatus.DISCONNECTED
+            status = ConnectStatus.DISCONNECTED,
+            windowCurrentSize = 0,
+            networkName = "my_network"
         )
     }
 }
@@ -72,8 +83,9 @@ fun ConnectStatusIndicatorDisconnected() {
 fun ConnectStatusIndicatorConnecting() {
     URNetworkTheme {
         ConnectStatusIndicator(
-            text = "Connecting to providers...",
-            status = ConnectStatus.CONNECTING
+            status = ConnectStatus.CONNECTING,
+            windowCurrentSize = 12,
+            networkName = "my_network"
         )
     }
 }
@@ -83,8 +95,9 @@ fun ConnectStatusIndicatorConnecting() {
 fun ConnectStatusIndicatorConnected() {
     URNetworkTheme {
         ConnectStatusIndicator(
-            text = "Connecting to 32 providers",
-            status = ConnectStatus.CONNECTED
+            status = ConnectStatus.CONNECTED,
+            windowCurrentSize = 32,
+            networkName = "my_network"
         )
     }
 }

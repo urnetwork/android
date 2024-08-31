@@ -19,7 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.ProviderGridPoint
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
@@ -33,7 +35,6 @@ fun ConnectScreen(
     connectViewModel: ConnectViewModel,
     networkName: String?
 ) {
-
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
 
@@ -43,23 +44,27 @@ fun ConnectScreen(
         selectedLocation = connectViewModel.selectedLocation
     ) { _ ->
         ConnectMainContent(
-            connectedProviderCount = connectViewModel.connectedProviderCount,
             connectStatus = connectStatus,
             selectedLocation = connectViewModel.selectedLocation,
             networkName = networkName,
             connect = connectViewModel.connect,
             disconnect = connectViewModel.disconnect,
-            cancelConnection = connectViewModel.cancelConnection
+            cancelConnection = connectViewModel.cancelConnection,
+            providerGridPoints = connectViewModel.providerGridPoints,
+            windowCurrentSize = connectViewModel.windowCurrentSize,
+            grid = connectViewModel.grid
         )
     }
 }
 
 @Composable
 fun ConnectMainContent(
-    connectedProviderCount: Int,
     connectStatus: ConnectStatus,
     selectedLocation: ConnectLocation?,
     networkName: String?,
+    grid: ConnectGrid?,
+    providerGridPoints: List<ProviderGridPoint>,
+    windowCurrentSize: Int,
     connect: (ConnectLocation?) -> Unit,
     disconnect: () -> Unit?,
     cancelConnection: () -> Unit?
@@ -91,22 +96,18 @@ fun ConnectMainContent(
                             connect(selectedLocation)
                         }
                     },
-                    connectStatus = connectStatus
+                    connectStatus = connectStatus,
+                    providerGridPoints = providerGridPoints,
+                    grid = grid,
                 )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             ConnectStatusIndicator(
-                text = when(connectStatus) {
-                    ConnectStatus.CONNECTED -> "Connected to $connectedProviderCount providers"
-                    ConnectStatus.CONNECTING -> "Connecting to providers..."
-                    ConnectStatus.DESTINATION_SET -> "Connecting to providers..."
-                    ConnectStatus.CANCELING -> "Canceling connection..."
-                    ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
-                    else "ready to connect"
-                },
-                status = connectStatus
+                status = connectStatus,
+                windowCurrentSize = windowCurrentSize,
+                networkName = networkName
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -151,13 +152,15 @@ fun ConnectMainContent(
 private fun ConnectMainContentPreview() {
     URNetworkTheme {
         ConnectMainContent(
-            connectedProviderCount = 100,
             connectStatus = ConnectStatus.DISCONNECTED,
             selectedLocation = null,
             networkName = "my_network",
             connect = {},
             disconnect = {},
-            cancelConnection = {}
+            cancelConnection = {},
+            grid = null,
+            providerGridPoints = listOf(),
+            windowCurrentSize = 16,
         )
     }
 }

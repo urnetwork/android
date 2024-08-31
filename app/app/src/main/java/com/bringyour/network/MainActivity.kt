@@ -38,7 +38,7 @@ class MainActivity: AppCompatActivity() {
 //            onActivityResult(ActivityResult(RESULT_OK, null))
             app.startVpnService(
                 onStart = {
-                    connectViewModel.setConnectionStatus(ConnectStatus.CONNECTED)
+                    // connectViewModel.setConnectionStatus(ConnectStatus.CONNECTED)
                 }
             )
         }
