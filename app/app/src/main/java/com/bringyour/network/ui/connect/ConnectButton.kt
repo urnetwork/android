@@ -55,10 +55,13 @@ import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.network.ui.theme.ppNeueBitBold
@@ -137,12 +140,19 @@ private fun ConnectingButtonContent(
         }
 
         GridCanvas(
-            size = 248.dp,
+            size = 248.dp, // slightly smaller than the parent so points don't rub against edges
             providerGridPoints = providerGridPoints,
-            grid = grid
+            grid = grid,
+            updatedStatus = status
         )
     }
 }
+
+data class AnimatedGridPoint(
+    val center: Offset,
+    val color: Color,
+    val radius: Animatable<Float, AnimationVector1D> = Animatable(0f),
+)
 
 data class AnimatedProviderGridPoint(
     val x: Int,
@@ -156,11 +166,13 @@ data class AnimatedProviderGridPoint(
 fun GridCanvas(
     grid: ConnectGrid?,
     providerGridPoints: List<ProviderGridPoint>,
-    size: Dp
+    size: Dp,
+    updatedStatus: ConnectStatus
 ) {
     val density = LocalDensity.current.density
     val pointSize = (size.value / (grid?.width ?: 0)) * density
     val padding = 1f
+    var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     // this is hacky, but we need it for LaunchedEffect to process
     // changes in the providerGridPoints list
     val derivedState = remember(providerGridPoints) {
@@ -171,6 +183,18 @@ fun GridCanvas(
 
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val animatedPoints = remember { mutableStateListOf<AnimatedProviderGridPoint>() }
+
+    val connectedBigPointRadius = 300f
+    val connectedBigPoints = listOf(
+        AnimatedGridPoint(center = Offset(size.value, 0f), color = Red),
+        AnimatedGridPoint(center = Offset(size.value, size.value.times(2.25.toFloat())), color = Pink),
+        AnimatedGridPoint(center = Offset(size.value.times(2.25.toFloat()), size.value), color = Green),
+        AnimatedGridPoint(center = Offset(size.value.times(2.25.toFloat()), size.value.times(2.25.toFloat())), color = Yellow),
+        AnimatedGridPoint(center = Offset(0f, size.value), color = BlueLight),
+    )
+
+    val shuffledPoints = remember { mutableStateListOf<AnimatedGridPoint>() }
+
     var isInFocus by remember { mutableStateOf(true) }
 
     val updateAnimatedPoints: suspend () -> Unit = {
@@ -212,6 +236,45 @@ fun GridCanvas(
         }
     }
 
+    LaunchedEffect(updatedStatus) {
+
+        shuffledPoints.clear()
+        shuffledPoints.addAll(connectedBigPoints.shuffled())
+
+        val firstHalf = shuffledPoints.take(connectedBigPoints.size / 2)
+        val secondHalf = shuffledPoints.drop(connectedBigPoints.size / 2)
+
+        if (updatedStatus == ConnectStatus.CONNECTED && (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET)) {
+
+            delay(1000)
+
+            // animate in the first half
+            firstHalf.forEach { point ->
+                launch {
+                    point.radius.animateTo(connectedBigPointRadius)
+                }
+            }
+
+            delay(1000)
+
+            // animate in the second half
+            secondHalf.forEach { point ->
+                launch {
+                    point.radius.animateTo(connectedBigPointRadius)
+                }
+            }
+
+        }
+
+        if (currentStatus == ConnectStatus.CONNECTED && updatedStatus != ConnectStatus.CONNECTED) {
+            connectedBigPoints.forEach { point ->
+                point.radius.animateTo(0f)
+            }
+        }
+
+        currentStatus = updatedStatus
+    }
+
     // Update points with animations
     // we have to check isInFocus because the app will not draw new points
     // if this is trigged when the app is in the background
@@ -248,11 +311,21 @@ fun GridCanvas(
     }
 
     Canvas(modifier = Modifier.size(size)) {
+        // our provider grid
         animatedPoints.forEach { point ->
             drawCircle(
                 color = point.color.value,
                 radius = point.radius.value,
                 center = Offset(point.x * pointSize + pointSize / 2, point.y * pointSize + pointSize / 2)
+            )
+        }
+
+        // the overlaying big dots on connection success
+        shuffledPoints.forEach { point ->
+            drawCircle(
+                color = point.color,
+                radius = point.radius.value,
+                center = point.center
             )
         }
     }
