@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.connect
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,8 +17,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +35,8 @@ import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,6 +78,42 @@ fun ConnectMainContent(
     disconnect: () -> Unit?,
     cancelConnection: () -> Unit?
 ) {
+
+    var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
+    var cancelBtnVisible by remember { mutableStateOf(false) }
+    var disconnectBtnVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(connectStatus) {
+
+        currentStatus = connectStatus
+
+        if (connectStatus == ConnectStatus.CONNECTED) {
+            launch {
+                cancelBtnVisible = false
+
+                delay(2000)
+                disconnectBtnVisible = true
+            }
+        }
+
+        if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.DESTINATION_SET) {
+
+            launch {
+                delay(5000)
+                // ensure still connecting
+                if (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET) {
+                    cancelBtnVisible = true
+                }
+            }
+        }
+
+        if (connectStatus == ConnectStatus.DISCONNECTED) {
+            cancelBtnVisible = false
+            disconnectBtnVisible = false
+        }
+
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -96,7 +141,7 @@ fun ConnectMainContent(
                             connect(selectedLocation)
                         }
                     },
-                    connectStatus = connectStatus,
+                    updatedStatus = connectStatus,
                     providerGridPoints = providerGridPoints,
                     grid = grid,
                 )
@@ -118,7 +163,12 @@ fun ConnectMainContent(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                if (connectStatus == ConnectStatus.CONNECTED) {
+
+                AnimatedVisibility(
+                    visible = disconnectBtnVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
 
                     URButton(
                         onClick = {
@@ -129,15 +179,20 @@ fun ConnectMainContent(
                         Text("Disconnect", style = buttonTextStyle)
                     }
 
-                } else if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.CANCELING) {
+                }
 
-                    // todo - we should only show cancel after connecting is over ~2 seconds
+
+                AnimatedVisibility(
+                    visible = cancelBtnVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
                     URButton(
                         onClick = {
+                            // todo - handle canceling
                             cancelConnection()
                         },
                         style = ButtonStyle.OUTLINE,
-                        enabled = connectStatus == ConnectStatus.CONNECTING
                     ) { buttonTextStyle ->
                         Text("Cancel", style = buttonTextStyle)
                     }
