@@ -2,12 +2,15 @@ package com.bringyour.network.ui.connect
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.ConnectViewControllerV0
+import com.bringyour.client.ProviderGridPoint
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,37 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-enum class ConnectStatus {
-    DISCONNECTED,
-    CONNECTING,
-    DESTINATION_SET,
-    CONNECTED,
-    CANCELING;
-
-    companion object {
-        fun fromString(value: String): ConnectStatus? {
-            return when (value.uppercase()) {
-                "DISCONNECTED" -> DISCONNECTED
-                "CONNECTING" -> CONNECTING
-                "DESTINATION_SET" -> DESTINATION_SET
-                "CONNECTED" -> CONNECTED
-                "CANCELING" -> CANCELING
-                else -> null
-            }
-        }
-
-        fun toString(value: ConnectStatus): String {
-            return when (value) {
-                DISCONNECTED -> "DISCONNECTED"
-                CONNECTING -> "CONNECTING"
-                DESTINATION_SET -> "DESTINATION_SET"
-                CONNECTED -> "CONNECTED"
-                CANCELING -> "CANCELING"
-            }
-        }
-    }
-}
 
 @HiltViewModel
 class ConnectViewModel @Inject constructor(
@@ -63,7 +35,12 @@ class ConnectViewModel @Inject constructor(
     var selectedLocation by mutableStateOf<ConnectLocation?>(null)
         private set
 
-    var connectedProviderCount by mutableIntStateOf(0)
+    var windowCurrentSize by mutableIntStateOf(0)
+        private set
+
+    val providerGridPoints = mutableStateListOf<ProviderGridPoint>()
+
+    var grid by mutableStateOf<ConnectGrid?>(null)
         private set
 
     val connect: (ConnectLocation?) -> Unit = { location ->
@@ -80,12 +57,35 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
-    val addConnectedProviderCountListener = {
+    private val addWindowEventSizeListener = {
 
         addListener { vc ->
-            vc.addConnectedProviderCountListener { count ->
+            vc.addWindowEventSizeListener {
                 viewModelScope.launch {
-                    connectedProviderCount = count
+                    windowCurrentSize = vc.windowCurrentSize
+                    grid = vc.grid
+                }
+            }
+        }
+    }
+
+    private val addProviderGridPointChangedListener = {
+        addListener { vc ->
+            vc.addProviderGridPointListener {
+                viewModelScope.launch {
+
+                    val providerGridPointList = vc.providerGridPointList
+                    val updatedPoints = mutableListOf<ProviderGridPoint>()
+                    val n = providerGridPointList.len()
+
+                    providerGridPoints.clear()
+
+                    for (i in 0 until n) {
+                        updatedPoints.add(providerGridPointList.get(i))
+                    }
+
+                    providerGridPoints.addAll(updatedPoints)
+
                 }
             }
         }
@@ -97,14 +97,14 @@ class ConnectViewModel @Inject constructor(
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
                     viewModelScope.launch {
                         _connectStatus.value = statusFromStr
+
+                        if (statusFromStr == ConnectStatus.DISCONNECTED) {
+                            windowCurrentSize = 0
+                        }
                     }
                 }
             }
         }
-    }
-
-    fun setConnectionStatus(connectStatus: ConnectStatus) {
-        connectVc?.connectionStatus = connectStatus.toString()
     }
 
     val addConnectionStatusListener = {
@@ -141,12 +141,14 @@ class ConnectViewModel @Inject constructor(
 
         val byDevice = byDeviceManager.getByDevice()
         connectVc = byDevice?.openConnectViewControllerV0()
+        connectVc?.start()
 
         updateConnectionStatus()
 
+        addProviderGridPointChangedListener()
         addConnectionStatusListener()
-        addConnectedProviderCountListener()
         addSelectedLocationListener()
+        addWindowEventSizeListener()
     }
 
     override fun onCleared() {
@@ -163,5 +165,57 @@ class ConnectViewModel @Inject constructor(
 
         viewModelScope.cancel()
     }
+}
 
+enum class ConnectStatus {
+    DISCONNECTED,
+    CONNECTING,
+    DESTINATION_SET,
+    CONNECTED,
+    CANCELING;
+
+    companion object {
+        fun fromString(value: String): ConnectStatus? {
+            return when (value.uppercase()) {
+                "DISCONNECTED" -> DISCONNECTED
+                "CONNECTING" -> CONNECTING
+                "DESTINATION_SET" -> DESTINATION_SET
+                "CONNECTED" -> CONNECTED
+                "CANCELING" -> CANCELING
+                else -> null
+            }
+        }
+
+        fun toString(value: ConnectStatus): String {
+            return when (value) {
+                DISCONNECTED -> "DISCONNECTED"
+                CONNECTING -> "CONNECTING"
+                DESTINATION_SET -> "DESTINATION_SET"
+                CONNECTED -> "CONNECTED"
+                CANCELING -> "CANCELING"
+            }
+        }
+    }
+}
+
+enum class ProviderPointState {
+
+    IN_EVALUATION,
+    EVALUATION_FAILED,
+    NOT_ADDED,
+    ADDED,
+    REMOVED;
+
+    companion object {
+        fun fromString(value: String): ProviderPointState? {
+            return when (value) {
+                "InEvaluation" -> IN_EVALUATION
+                "EvaluationFailed" -> EVALUATION_FAILED
+                "NotAdded" -> NOT_ADDED
+                "Added" -> ADDED
+                "Removed" -> REMOVED
+                else -> null
+            }
+        }
+    }
 }

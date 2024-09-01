@@ -1,7 +1,17 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,24 +26,45 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.bringyour.client.ConnectGrid
+import com.bringyour.client.ProviderGridPoint
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.theme.Pink
+import com.bringyour.network.ui.theme.Red
+import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -41,8 +72,32 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConnectButton(
     onClick: () -> Unit,
-    connectStatus: ConnectStatus
+    grid: ConnectGrid?,
+    providerGridPoints: List<ProviderGridPoint>,
+    updatedStatus: ConnectStatus,
 ) {
+
+    var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
+    var disconnectedVisible by remember { mutableStateOf(true) }
+
+
+    LaunchedEffect(updatedStatus) {
+
+        if (currentStatus == ConnectStatus.CONNECTED && updatedStatus == ConnectStatus.DISCONNECTED) {
+
+            delay(500)
+            disconnectedVisible = true
+
+        }
+
+        if (updatedStatus != ConnectStatus.DISCONNECTED) {
+            disconnectedVisible = false
+        }
+
+        currentStatus = updatedStatus
+
+    }
+
     Box(
         modifier = Modifier
             .size(256.dp)
@@ -55,43 +110,366 @@ fun ConnectButton(
                 .clickable(onClick = onClick)
                 .zIndex(0f)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .offset(y = -(12).dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+
+
+            AnimatedVisibility(
+                visible = disconnectedVisible,
+                enter = fadeIn(),
+                exit = fadeOut(),
             ) {
-
-                if (connectStatus == ConnectStatus.DISCONNECTED) {
-
-                    Text(
-                        "Tap to connect",
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            lineHeight = 20.sp,
-                            fontFamily = ppNeueBitBold,
-                            fontWeight = FontWeight(700),
-                            color = Color.White
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    TapToConnectAnimation()
-
-                }
+                DisconnectedButtonContent()
             }
+
+
+            ConnectingButtonContent(
+                providerGridPoints = providerGridPoints,
+                grid = grid,
+                status = updatedStatus
+            )
+
         }
 
         Image(
             painter = painterResource(id = R.drawable.connect_mask),
-            contentDescription = "Clickable Image",
+            contentDescription = "Connect Mask",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(512.dp)
                 .align(Alignment.Center)
                 .zIndex(1f)
         )
+    }
+}
+
+@Composable
+private fun ConnectingButtonContent(
+    grid: ConnectGrid?,
+    providerGridPoints: List<ProviderGridPoint>,
+    status: ConnectStatus
+) {
+
+    var globeVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(status) {
+
+        if (status == ConnectStatus.DESTINATION_SET || status == ConnectStatus.CONNECTING) {
+            delay(500)
+            globeVisible = true
+        } else {
+            globeVisible = false
+        }
+
+    }
+
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+
+        AnimatedVisibility(
+            visible = globeVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.connector_globe),
+                contentDescription = "Connecting"
+            )
+        }
+
+        GridCanvas(
+            size = 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
+            providerGridPoints = providerGridPoints,
+            grid = grid,
+            updatedStatus = status
+        )
+    }
+}
+
+data class AnimatedGridPoint(
+    val initialOffset: Offset,
+    val targetOffset: Offset,
+    val center: Animatable<Offset, AnimationVector2D> = Animatable(Offset(-500f, 0f), Offset.VectorConverter),
+    val color: Color,
+    val radius: Float = 300f
+)
+
+data class AnimatedProviderGridPoint(
+    val x: Int,
+    val y: Int,
+    var state: ProviderPointState,
+    val radius: Animatable<Float, AnimationVector1D> = Animatable(0f),
+    val color: Animatable<Color, AnimationVector4D> = Animatable(Color.Transparent)
+)
+
+@Composable
+fun GridCanvas(
+    grid: ConnectGrid?,
+    providerGridPoints: List<ProviderGridPoint>,
+    size: Dp,
+    updatedStatus: ConnectStatus
+) {
+    val density = LocalDensity.current.density
+    val pointSize = (size.value / (grid?.width ?: 0)) * density
+    val padding = 1f
+    var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
+    // this is hacky, but we need it for LaunchedEffect to process
+    // changes in the providerGridPoints list
+    val derivedState = remember(providerGridPoints) {
+        derivedStateOf {
+            providerGridPoints.map { it.x to it.y to it.state }
+        }
+    }
+
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+    val animatedPoints = remember { mutableStateListOf<AnimatedProviderGridPoint>() }
+
+    val connectedBigPoints = remember {
+        listOf(
+            AnimatedGridPoint(
+                initialOffset = Offset(-size.value, 0f),
+                targetOffset = Offset(size.value, 0f),
+                color = Red
+            ),
+            AnimatedGridPoint(
+                initialOffset = Offset(size.value, size.value.times(4)),
+                targetOffset = Offset(size.value, size.value.times(2.25.toFloat())),
+                color = Pink
+            ),
+            AnimatedGridPoint(
+                initialOffset = Offset(size.value.times(4), size.value),
+                targetOffset = Offset(size.value.times(2.25.toFloat()), size.value),
+                color = Green
+            ),
+            AnimatedGridPoint(
+                initialOffset = Offset(size.value.times(4), size.value.times(4)),
+                targetOffset = Offset(size.value.times(2.25.toFloat()), size.value.times(2.25.toFloat())),
+                color = Yellow
+            ),
+            AnimatedGridPoint(
+                initialOffset = Offset(-size.value.times(2), size.value),
+                targetOffset = Offset(0f, size.value),
+                color = BlueLight
+            ),
+        )
+    }
+
+    val shuffledPoints = remember { mutableStateListOf<AnimatedGridPoint>() }
+
+    var isInFocus by remember { mutableStateOf(true) }
+
+    val updateAnimatedPoints: suspend () -> Unit = {
+
+        providerGridPoints.forEach { point ->
+
+            val existingPoint = animatedPoints.find { it.x == point.x && it.y == point.y }
+            val newState = ProviderPointState.fromString(point.state)
+
+            val targetColor = when (newState) {
+                ProviderPointState.IN_EVALUATION -> Yellow
+                ProviderPointState.EVALUATION_FAILED -> Red
+                ProviderPointState.NOT_ADDED -> TextFaint
+                ProviderPointState.ADDED -> Green
+                ProviderPointState.REMOVED -> TextFaint
+                else -> Color.Transparent
+            }
+
+            if (existingPoint == null) {
+                // Adding a new point
+                val newPoint = AnimatedProviderGridPoint(point.x, point.y, newState!!)
+                animatedPoints.add(newPoint)
+                newPoint.color.snapTo(targetColor)
+                newPoint.radius.animateTo(pointSize / 2 - padding / 2)
+            } else if (existingPoint.state != newState) {
+
+                // Update point state and animate accordingly
+                if (newState == ProviderPointState.REMOVED) {
+                    // Remove point
+                    existingPoint.radius.animateTo(0f)
+                    existingPoint.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 500))
+                    delay(500)
+                    animatedPoints.remove(existingPoint)
+                } else {
+                    // Otherwise update to the new state
+                    existingPoint.color.animateTo(targetColor, animationSpec = tween(durationMillis = 500))
+                    existingPoint.state = newState!!
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(updatedStatus) {
+
+        // update to connected state
+        // animate big dots in
+        if (updatedStatus == ConnectStatus.CONNECTED && (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET)) {
+
+            shuffledPoints.clear()
+            shuffledPoints.addAll(connectedBigPoints.shuffled())
+
+            val firstHalf = shuffledPoints.take(connectedBigPoints.size / 2)
+            val secondHalf = shuffledPoints.drop(connectedBigPoints.size / 2)
+
+            delay(500)
+
+            animatedPoints.forEach { point ->
+                launch {
+                    point.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 1000))
+                }
+            }
+
+            delay(1000)
+
+            // animate in the first half
+            firstHalf.forEach { point ->
+                launch {
+                    point.center.snapTo(point.initialOffset)
+                    point.center.animateTo(point.targetOffset)
+                }
+            }
+
+            delay(1000)
+
+            // animate in the second half
+            secondHalf.forEach { point ->
+                launch {
+                    point.center.snapTo(point.initialOffset)
+                    point.center.animateTo(point.targetOffset)
+                }
+            }
+
+        }
+
+        // we went from connected to reconnecting
+        // animate the big dots out
+        if (currentStatus == ConnectStatus.CONNECTED && (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET)) {
+
+            shuffledPoints.forEach { point ->
+                launch {
+                    point.center.animateTo(point.initialOffset)
+                }
+            }
+
+            delay(100)
+
+            animatedPoints.forEach { point ->
+                launch {
+                    point.radius.animateTo(pointSize / 2 - padding / 2)
+                }
+            }
+
+        }
+
+        //
+        // disconnect
+        //
+        if (updatedStatus == ConnectStatus.DISCONNECTED && currentStatus != ConnectStatus.DISCONNECTED) {
+            Log.i("ConnectButton", "setting to disconnected")
+
+            // remove all provider grid points
+            animatedPoints.forEach { point ->
+                launch {
+                    point.radius.snapTo(0f)
+                }
+            }
+
+            // pull out the large dots
+            shuffledPoints.forEach{ point ->
+                launch {
+                    point.center.animateTo(point.initialOffset)
+                }
+            }
+
+            delay(500)
+        }
+
+        currentStatus = updatedStatus
+    }
+
+    // Update points with animations
+    // we have to check isInFocus because the app will not draw new points
+    // if this is trigged when the app is in the background
+    LaunchedEffect(derivedState.value, isInFocus) {
+
+        if (isInFocus) {
+            updateAnimatedPoints()
+        }
+
+    }
+
+    // used for detecting when the app goes into the background or foreground
+    DisposableEffect(Unit) {
+        val lifecycle = lifecycleOwner.value.lifecycle
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    isInFocus = true
+                }
+
+                Lifecycle.Event.ON_PAUSE -> {
+                    isInFocus = false
+                }
+
+                else -> Unit
+            }
+        }
+
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+        }
+
+    }
+
+    Canvas(modifier = Modifier.size(size)) {
+        // our provider grid
+        animatedPoints.forEach { point ->
+            drawCircle(
+                color = point.color.value,
+                radius = point.radius.value,
+                center = Offset(
+                    point.x * pointSize + pointSize / 2,
+                    point.y * pointSize + pointSize / 2
+                )
+            )
+        }
+
+        // the overlaying big dots on connection success
+        shuffledPoints.forEach { point ->
+            drawCircle(
+                color = point.color,
+                radius = point.radius,
+                center = point.center.value
+            )
+        }
+    }
+}
+
+@Composable
+private fun DisconnectedButtonContent() {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .offset(y = -(12).dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+        Text(
+            "Tap to connect",
+            style = TextStyle(
+                fontSize = 20.sp,
+                lineHeight = 20.sp,
+                fontFamily = ppNeueBitBold,
+                fontWeight = FontWeight(700),
+                color = Color.White
+            )
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TapToConnectAnimation()
     }
 }
 
@@ -103,6 +481,7 @@ fun TapToConnectAnimation() {
 
     LaunchedEffect(Unit) {
         while (true) {
+            delay(100)
             launch {
                 size.animateTo(
                     targetValue = 82f,
@@ -156,13 +535,29 @@ fun TapToConnectAnimation() {
     }
 }
 
+
 @Preview
 @Composable
-private fun ConnectButtonPreview() {
+private fun ConnectButtonDisconnectedPreview() {
     URNetworkTheme {
         ConnectButton(
             onClick = {},
-            connectStatus = ConnectStatus.DISCONNECTED
+            updatedStatus = ConnectStatus.DISCONNECTED,
+            providerGridPoints = listOf(),
+            grid = null
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ConnectButtonConnectedPreview() {
+    URNetworkTheme {
+        ConnectButton(
+            onClick = {},
+            updatedStatus = ConnectStatus.CONNECTED,
+            providerGridPoints = listOf(),
+            grid = null
         )
     }
 }
