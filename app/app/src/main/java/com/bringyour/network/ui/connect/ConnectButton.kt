@@ -66,6 +66,7 @@ import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -261,39 +262,50 @@ fun GridCanvas(
 
     val updateAnimatedPoints: suspend () -> Unit = {
 
-        providerGridPoints.forEach { point ->
+        coroutineScope {
 
-            val existingPoint = animatedPoints.find { it.x == point.x && it.y == point.y }
-            val newState = ProviderPointState.fromString(point.state)
+            providerGridPoints.forEach { point ->
 
-            val targetColor = when (newState) {
-                ProviderPointState.IN_EVALUATION -> Yellow
-                ProviderPointState.EVALUATION_FAILED -> Red
-                ProviderPointState.NOT_ADDED -> TextFaint
-                ProviderPointState.ADDED -> Green
-                ProviderPointState.REMOVED -> TextFaint
-                else -> Color.Transparent
-            }
+                launch {
+                    val existingPoint = animatedPoints.find { it.x == point.x && it.y == point.y }
+                    val newState = ProviderPointState.fromString(point.state)
 
-            if (existingPoint == null) {
-                // Adding a new point
-                val newPoint = AnimatedProviderGridPoint(point.x, point.y, newState!!)
-                animatedPoints.add(newPoint)
-                newPoint.color.snapTo(targetColor)
-                newPoint.radius.animateTo(pointSize / 2 - padding / 2)
-            } else if (existingPoint.state != newState) {
+                    val targetColor = when (newState) {
+                        ProviderPointState.IN_EVALUATION -> Yellow
+                        ProviderPointState.EVALUATION_FAILED -> Red
+                        ProviderPointState.NOT_ADDED -> TextFaint
+                        ProviderPointState.ADDED -> Green
+                        ProviderPointState.REMOVED -> TextFaint
+                        else -> Color.Transparent
+                    }
 
-                // Update point state and animate accordingly
-                if (newState == ProviderPointState.REMOVED) {
-                    // Remove point
-                    existingPoint.radius.animateTo(0f)
-                    existingPoint.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 500))
-                    delay(500)
-                    animatedPoints.remove(existingPoint)
-                } else {
-                    // Otherwise update to the new state
-                    existingPoint.color.animateTo(targetColor, animationSpec = tween(durationMillis = 500))
-                    existingPoint.state = newState!!
+                    if (existingPoint == null) {
+                        // Adding a new point
+                        val newPoint = AnimatedProviderGridPoint(point.x, point.y, newState!!)
+                        animatedPoints.add(newPoint)
+                        newPoint.color.snapTo(targetColor)
+                        newPoint.radius.animateTo(pointSize / 2 - padding / 2)
+                    } else if (existingPoint.state != newState) {
+
+                        // Update point state and animate accordingly
+                        if (newState == ProviderPointState.REMOVED) {
+                            // Remove point
+                            existingPoint.radius.animateTo(0f)
+                            existingPoint.color.animateTo(
+                                Color.Transparent,
+                                animationSpec = tween(durationMillis = 500)
+                            )
+                            delay(500)
+                            animatedPoints.remove(existingPoint)
+                        } else {
+                            // Otherwise update to the new state
+                            existingPoint.color.animateTo(
+                                targetColor,
+                                animationSpec = tween(durationMillis = 500)
+                            )
+                            existingPoint.state = newState!!
+                        }
+                    }
                 }
             }
         }
