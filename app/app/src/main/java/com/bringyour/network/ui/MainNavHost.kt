@@ -23,7 +23,7 @@ import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
-import com.bringyour.network.ui.wallet.SolanaViewModel
+import com.bringyour.network.ui.wallet.SagaViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -31,7 +31,7 @@ import kotlinx.coroutines.runBlocking
 @Composable
 fun MainNavHost(
     connectViewModel: ConnectViewModel,
-    solanaViewModel: SolanaViewModel
+    sagaViewModel: SagaViewModel
 ) {
 
     val context = LocalContext.current
@@ -83,7 +83,7 @@ fun MainNavHost(
                     )
                 }
                 composable("account") { AccountNavHost(
-                    solanaViewModel
+                    sagaViewModel
                 ) }
                 composable("support") { FeedbackScreen() }
             }

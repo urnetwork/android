@@ -13,12 +13,12 @@ import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.settings.SettingsScreen
-import com.bringyour.network.ui.wallet.SolanaViewModel
+import com.bringyour.network.ui.wallet.SagaViewModel
 import com.bringyour.network.ui.wallet.WalletScreen
 
 @Composable
 fun AccountNavHost(
-    solanaViewModel: SolanaViewModel
+    sagaViewModel: SagaViewModel
 ) {
 
     val navController = rememberNavController()
@@ -56,7 +56,7 @@ fun AccountNavHost(
         composable("settings") { SettingsScreen(navController) }
         composable("wallet") { WalletScreen(
             navController,
-            solanaViewModel
+            sagaViewModel
         ) }
     }
 

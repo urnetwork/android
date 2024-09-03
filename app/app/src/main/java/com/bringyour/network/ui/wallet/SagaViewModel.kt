@@ -18,7 +18,7 @@ import javax.inject.Inject
 import com.solana.publickey.SolanaPublicKey
 
 @HiltViewModel
-class SolanaViewModel @Inject constructor(): ViewModel() {
+class SagaViewModel @Inject constructor(): ViewModel() {
 
     private var solanaWalletAdapter by mutableStateOf<MobileWalletAdapter?>(null)
 

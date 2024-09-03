@@ -52,14 +52,14 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 @Composable
 fun WalletScreen(
     navController: NavController,
-    solanaViewModel: SolanaViewModel,
+    sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
 
     WalletScreen(
         navController,
-        isSolanaSaga = solanaViewModel.isSolanaSaga,
-        getSolanaAddress = solanaViewModel.getSagaWalletAddress,
+        isSolanaSaga = sagaViewModel.isSolanaSaga,
+        getSolanaAddress = sagaViewModel.getSagaWalletAddress,
         nextPayoutDate = walletViewModel.nextPayoutDateStr,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openModal = walletViewModel.openExternalWalletModal,
