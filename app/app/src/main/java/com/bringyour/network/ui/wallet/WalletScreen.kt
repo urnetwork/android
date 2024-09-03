@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,13 +52,14 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 @Composable
 fun WalletScreen(
     navController: NavController,
-    isSolanaSaga: Boolean,
+    sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
 
     WalletScreen(
         navController,
-        isSolanaSaga,
+        isSolanaSaga = sagaViewModel.isSolanaSaga,
+        getSolanaAddress = sagaViewModel.getSagaWalletAddress,
         nextPayoutDate = walletViewModel.nextPayoutDateStr,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openModal = walletViewModel.openExternalWalletModal,
@@ -71,6 +73,7 @@ fun WalletScreen(
 fun WalletScreen(
     navController: NavController,
     isSolanaSaga: Boolean,
+    getSolanaAddress: ((String?) -> Unit) -> Unit,
     nextPayoutDate: String,
     addExternalWalletModalVisible: Boolean,
     openModal: () -> Unit,
@@ -78,6 +81,14 @@ fun WalletScreen(
 ) {
     // todo - populate this with real data
     val estimatedPayoutAmount = "0.25"
+
+    val connectSaga = {
+        getSolanaAddress { address ->
+            Log.i("WalletScreen", "Solana address is $address")
+
+            // todo - create wallet + set as payout wallet
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -184,7 +195,9 @@ fun WalletScreen(
                 if (isSolanaSaga) {
 
                     URButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            connectSaga()
+                        },
                         style = ButtonStyle.OUTLINE
                     ) { buttonTextStyle ->
                         Row(
@@ -306,6 +319,7 @@ private fun WalletScreenPreview() {
         WalletScreen(
             navController,
             isSolanaSaga = false,
+            getSolanaAddress = {},
             nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
@@ -324,6 +338,7 @@ private fun WalletScreenSagaPreview() {
         WalletScreen(
             navController,
             isSolanaSaga = true,
+            getSolanaAddress = {},
             nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
@@ -342,6 +357,7 @@ private fun WalletScreenExternalWalletModalPreview() {
         WalletScreen(
             navController,
             isSolanaSaga = true,
+            getSolanaAddress = {},
             nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = true,
             openModal = {},

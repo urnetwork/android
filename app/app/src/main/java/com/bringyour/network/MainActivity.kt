@@ -17,6 +17,8 @@ import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.connect.ConnectStatus
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.wallet.SagaViewModel
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -28,6 +30,7 @@ class MainActivity: AppCompatActivity() {
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
     private val connectViewModel: ConnectViewModel by viewModels()
+    private val sagaViewModel: SagaViewModel by viewModels()
 
     private fun prepareVpnService() {
         val app = app ?: return
@@ -76,6 +79,9 @@ class MainActivity: AppCompatActivity() {
         // immutable shadow
         val app = app ?: return
 
+        val sender = ActivityResultSender(this)
+        sagaViewModel.setSender(sender)
+
         requestPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
@@ -97,7 +103,10 @@ class MainActivity: AppCompatActivity() {
 
         setContent {
             URNetworkTheme {
-                MainNavHost(connectViewModel)
+                MainNavHost(
+                    connectViewModel,
+                    sagaViewModel
+                )
             }
         }
 

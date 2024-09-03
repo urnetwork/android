@@ -1,7 +1,5 @@
 package com.bringyour.network.ui
 
-import android.os.Build
-import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -15,16 +13,15 @@ import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.settings.SettingsScreen
+import com.bringyour.network.ui.wallet.SagaViewModel
 import com.bringyour.network.ui.wallet.WalletScreen
 
 @Composable
-fun AccountNavHost() {
+fun AccountNavHost(
+    sagaViewModel: SagaViewModel
+) {
 
     val navController = rememberNavController()
-
-    val isSolanaSaga = {
-        Build.MODEL.equals("SAGA", ignoreCase = true)
-    }
 
     // for testing
     val loginMode = LoginMode.Authenticated
@@ -57,7 +54,10 @@ fun AccountNavHost() {
             loginMode = loginMode
         ) }
         composable("settings") { SettingsScreen(navController) }
-        composable("wallet") { WalletScreen(navController, isSolanaSaga = isSolanaSaga()) }
+        composable("wallet") { WalletScreen(
+            navController,
+            sagaViewModel
+        ) }
     }
 
 }
