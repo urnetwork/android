@@ -149,7 +149,7 @@ private fun ConnectingButtonContent(
     status: ConnectStatus
 ) {
 
-    var globeVisible by remember { mutableStateOf(true) }
+    var globeVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(status) {
 
