@@ -7,26 +7,27 @@ plugins {
     id 'com.google.dagger.hilt.android'
 }
 
-def bringyourHomeDir = System.getenv("BRINGYOUR_HOME") ?: "${System.env.HOME}/bringyour"
+def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
+
 
 android {
     ext.appVersion = { ->
         def out = new ByteArrayOutputStream()
-        def osName = ""
-        def osArch = ""
-        switch (System.getProperty("os.name")) {
-            case "Linux":
-                osName = "linux"
+        def osName = ''
+        def osArch = ''
+        switch (System.getProperty('os.name')) {
+            case 'Linux':
+                osName = 'linux'
                 break
-            case "Mac OS X":
-                osName = "darwin"
+            case 'Mac OS X':
+                osName = 'darwin'
                 break
         }
-        switch (System.getProperty("os.arch")) {
-            case "amd64":
-                osArch = "amd64"
-            case "aarch64":
-                osArch = "arm64"
+        switch (System.getProperty('os.arch')) {
+            case 'amd64':
+                osArch = 'amd64'
+            case 'aarch64':
+                osArch = 'arm64'
                 break
         }
         exec {
@@ -38,23 +39,31 @@ android {
     }
     ext.appVersionCode = { ->
         // hours since company founding
-        def companyFounded = new SimpleDateFormat("MM/dd/yyyy").parse("05/23/2023")
+        def companyFounded = new SimpleDateFormat('MM/dd/yyyy').parse('05/23/2023')
         return ((System.currentTimeMillis() - companyFounded.getTime()) / (1000 * 60 * 60)) as Integer
     }
 
     namespace 'com.bringyour.network'
     compileSdk 34
+    ndkVersion '25.2.9519653'
 
     defaultConfig {
+        // applicationId "com.bringyour.network"
+        // minSdk 26
         applicationId "com.bringyour.network"
-        minSdk 26
+        minSdk 24
         targetSdk 34
         versionCode appVersionCode()
         versionName appVersion()
 
-        setProperty("archivesBaseName", "${applicationId}-${versionName}-${versionCode}")
+        setProperty('archivesBaseName', "${applicationId}-${versionName}-${versionCode}")
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        // see https://developer.android.com/build/shrink-code
+        ndk {
+            debugSymbolLevel 'SYMBOL_TABLE'
+        }
     }
 
     signingConfigs {
@@ -70,27 +79,23 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // see https://developer.android.com/build/shrink-code
-            ndk {
-                debugSymbolLevel 'FULL'
-            }
         }
     }
 
-    flavorDimensions += "version"
+    flavorDimensions += 'version'
 
     // BuildConfig.FLAVOR
     productFlavors {
         local {
-            dimension = "version"
+            dimension = 'version'
             applicationId 'com.bringyour.network'
         }
         play {
-            dimension = "version"
+            dimension = 'version'
             applicationId 'com.bringyour.network'
         }
         solana_dapp {
-            dimension = "version"
+            dimension = 'version'
             applicationId 'com.bringyour.network'
             versionNameSuffix '-solana_dapp'
         }
@@ -134,26 +139,24 @@ dependencies {
     implementation fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*.aar', '*.jar'])
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation 'com.github.bumptech.glide:glide:4.14.2'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
-    implementation "circle.programmablewallet:sdk:1.+"
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.5'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.7.5'
-
-
-
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     // androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'circle.programmablewallet:sdk:1.0.1059'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.7'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }
 
 dependencies {
@@ -194,7 +197,7 @@ dependencies {
 // google play billing
 // https://developer.android.com/google/play/billing/integrate#groovy
 dependencies {
-    def billing_version = "6.1.0"
+    def billing_version = '7.0.0'
     implementation "com.android.billingclient:billing:$billing_version"
     implementation "com.android.billingclient:billing-ktx:$billing_version"
 }
@@ -208,7 +211,7 @@ dependencies {
 }
 
 dependencies {
-    implementation "androidx.biometric:biometric-ktx:1.2.0-alpha05"
+    implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha05'
 }
 
 // Allow references to generated code

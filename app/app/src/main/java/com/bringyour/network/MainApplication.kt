@@ -1,12 +1,15 @@
 package com.bringyour.network
 
 import android.app.Application
+import android.app.BackgroundServiceStartNotAllowedException
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.PowerManager
+import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.core.content.ContextCompat
@@ -88,14 +91,11 @@ class MainApplication : Application() {
 
         asyncLocalState?.localState()?.let { localState ->
             try {
-                localState.byJwt?.let { byJwt ->
-                    localState.byClientJwt?.let { byClientJwt ->
-                        byApi?.setByJwt(byJwt)
-
-                        val instanceId = asyncLocalState?.localState()?.instanceId!!
-                        val provideMode = asyncLocalState?.localState()?.provideMode!!
-                        initDevice(byClientJwt, instanceId, provideMode)
-                    }
+                localState.byClientJwt?.let { byClientJwt ->
+                    // the device wraps the api and sets the jwt
+                    val instanceId = asyncLocalState?.localState()?.instanceId!!
+                    val provideMode = asyncLocalState?.localState()?.provideMode!!
+                    initDevice(byClientJwt, instanceId, provideMode)
                 }
             } catch (e: Throwable) {
                 if (e is error) {
@@ -156,6 +156,8 @@ class MainApplication : Application() {
 
         accountVc?.close()
         accountVc = null
+
+        byApi?.setByJwt(null)
     }
 
 
@@ -253,10 +255,18 @@ class MainApplication : Application() {
         vpnIntent.putExtra("stop", false)
         vpnIntent.putExtra("start", true)
         vpnIntent.putExtra("foreground", true)
-        sendVpnServiceIntent(
-            vpnIntent,
-            onStart = onStart
-        )
+
+        try {
+            sendVpnServiceIntent(
+                vpnIntent,
+                onStart = onStart
+            )
+        } catch (e: Exception) {
+            Log.i(TAG, "Could not start vpn service: ${e.message}")
+            // ignore
+        }
+
+//        startService(vpnIntent)
 
         vpnRequestStart = true
     }
@@ -266,7 +276,12 @@ class MainApplication : Application() {
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
-        sendVpnServiceIntent(vpnIntent)
+        try {
+            sendVpnServiceIntent(vpnIntent)
+        } catch (e: Exception) {
+            Log.i(TAG, "Could not start vpn service: ${e.message}")
+            // ignore
+        }
 
 
         vpnRequestStart = false
