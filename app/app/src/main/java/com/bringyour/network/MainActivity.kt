@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import com.bringyour.client.Client.ProvideModeNone
+import com.bringyour.client.Client.ProvideModePublic
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.connect.ConnectStatus
 import com.bringyour.network.ui.connect.ConnectViewModel
@@ -113,7 +115,12 @@ class MainActivity: AppCompatActivity() {
         lifecycleScope.launch {
             connectViewModel.connectStatus.collect { status ->
                 if (status == ConnectStatus.DESTINATION_SET && app.isVpnRequestStart()) {
+                    app.setProvideMode(ProvideModePublic)
                     requestPermissionsThenStartVpnServiceWithRestart()
+                }
+
+                if (status == ConnectStatus.DISCONNECTED) {
+                    app.setProvideMode(ProvideModeNone)
                 }
             }
         }
