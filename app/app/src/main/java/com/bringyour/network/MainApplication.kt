@@ -162,11 +162,11 @@ class MainApplication : Application() {
     private fun initDevice(byClientJwt: String, instanceId: Id, provideMode: Long): BringYourDevice? {
 
         byDeviceManager.initDevice(
+            byApi,
             byClientJwt,
             instanceId,
             provideMode,
             platformUrl,
-            apiUrl,
             getDeviceDescription(),
             getDeviceSpec()
         )
