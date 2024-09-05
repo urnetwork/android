@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.account
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +15,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,19 +49,54 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(
     navController: NavHostController
 ) {
 
+    var loginMode by remember {
+        mutableStateOf(LoginMode.Guest)
+    }
+
+    val scope = rememberCoroutineScope()
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        )
+    )
+
+    UpgradePlanBottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        scope = scope
+    ) {
+        AccountScreenContent(
+            loginMode = loginMode,
+            navController = navController,
+            scaffoldState = scaffoldState,
+            scope = scope
+        )
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AccountScreenContent(
+    loginMode: LoginMode,
+    navController: NavHostController,
+    scaffoldState: BottomSheetScaffoldState,
+    scope: CoroutineScope,
+) {
+
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
     val overlayVc = application?.overlayVc
-
-    var loginMode by remember {
-        mutableStateOf(LoginMode.Authenticated)
-    }
 
     Column(
         modifier = Modifier
@@ -72,7 +114,7 @@ fun AccountScreen(
             Text("Account", style = MaterialTheme.typography.headlineSmall)
             AccountSwitcher(loginMode = loginMode)
         }
-        
+
         Spacer(modifier = Modifier.height(28.dp))
 
         Box(
@@ -106,9 +148,14 @@ fun AccountScreen(
                                 style = MaterialTheme.typography.headlineMedium
                             )
                             ClickableText(
-                                modifier = Modifier.offset(y = -8.dp),
+                                modifier = Modifier.offset(y = (-8).dp),
                                 text = AnnotatedString("Change"),
-                                onClick = {},
+                                onClick = {
+                                    Log.i("AccountScreen", "expanding bottom sheet")
+                                    scope.launch {
+                                        scaffoldState.bottomSheetState.expand()
+                                    }
+                                },
                                 style = TextStyle(
                                     color = BlueMedium
                                 )
@@ -225,7 +272,7 @@ fun AccountScreen(
 
 @Preview
 @Composable
-fun ConnectPreview() {
+private fun ConnectPreview() {
 
     val navController = rememberNavController()
 
