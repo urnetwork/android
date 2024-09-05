@@ -71,7 +71,8 @@ fun WalletScreen(
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
-        createCircleWallet = walletViewModel.createCircleWallet
+        createCircleWallet = walletViewModel.createCircleWallet,
+        circleWalletInProgress = walletViewModel.circleWalletInProgress
     )
 
 }
@@ -86,7 +87,8 @@ fun WalletScreen(
     addExternalWalletModalVisible: Boolean,
     openModal: () -> Unit,
     closeModal: () -> Unit,
-    createCircleWallet: (OnWalletExecute) -> Unit
+    createCircleWallet: (OnWalletExecute) -> Unit,
+    circleWalletInProgress: Boolean
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -298,7 +300,8 @@ fun WalletScreen(
                 URButton(
                     onClick = {
                         initCircleWallet()
-                    }
+                    },
+                    enabled = !circleWalletInProgress
                 ) { buttonTextStyle ->
                     Text("Set up Circle Wallet", style = buttonTextStyle)
                 }
@@ -437,7 +440,8 @@ private fun WalletScreenPreview() {
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
-            createCircleWallet = {}
+            createCircleWallet = {},
+            circleWalletInProgress = false
         )
     }
 }
@@ -457,7 +461,8 @@ private fun WalletScreenSagaPreview() {
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
-            createCircleWallet = {}
+            createCircleWallet = {},
+            circleWalletInProgress = false
         )
     }
 }
@@ -477,7 +482,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             addExternalWalletModalVisible = true,
             openModal = {},
             closeModal = {},
-            createCircleWallet = {}
+            createCircleWallet = {},
+            circleWalletInProgress = false
         )
     }
 }

@@ -1,15 +1,10 @@
 package com.bringyour.network.ui.wallet
 
-import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import circle.programmablewallet.sdk.WalletSdk
-import circle.programmablewallet.sdk.api.ApiError
-import circle.programmablewallet.sdk.api.Callback
-import circle.programmablewallet.sdk.api.ExecuteWarning
-import circle.programmablewallet.sdk.result.ExecuteResult
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
