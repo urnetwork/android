@@ -28,6 +28,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,6 +38,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import circle.programmablewallet.sdk.api.ApiError
+import circle.programmablewallet.sdk.api.Callback
+import circle.programmablewallet.sdk.api.ExecuteWarning
+import circle.programmablewallet.sdk.result.ExecuteResult
+import com.bringyour.network.MainActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URDialog
@@ -63,7 +70,8 @@ fun WalletScreen(
         nextPayoutDate = walletViewModel.nextPayoutDateStr,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openModal = walletViewModel.openExternalWalletModal,
-        closeModal = walletViewModel.closeExternalWalletModal
+        closeModal = walletViewModel.closeExternalWalletModal,
+        createCircleWallet = walletViewModel.createCircleWallet
     )
 
 }
@@ -77,8 +85,13 @@ fun WalletScreen(
     nextPayoutDate: String,
     addExternalWalletModalVisible: Boolean,
     openModal: () -> Unit,
-    closeModal: () -> Unit
+    closeModal: () -> Unit,
+    createCircleWallet: (OnWalletExecute) -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = context as? MainActivity
+    val app = context.applicationContext as? MainApplication
+
     // todo - populate this with real data
     val estimatedPayoutAmount = "0.25"
 
@@ -88,6 +101,102 @@ fun WalletScreen(
 
             // todo - create wallet + set as payout wallet
         }
+    }
+
+    val initCircleWallet = {
+
+        val onWalletExecute: OnWalletExecute = { walletSdk, userToken, encryptionKey, challengeId ->
+            walletSdk.execute(
+                activity,
+                userToken,
+                encryptionKey,
+                arrayOf(challengeId),
+                object : Callback<ExecuteResult> {
+                    override fun onWarning(
+                        warning: ExecuteWarning,
+                        result: ExecuteResult?
+                    ): Boolean {
+                        complete()
+                        // FIXME toast
+                        return false
+                    }
+
+                    override fun onError(error: Throwable): Boolean {
+
+                        if (error is ApiError) {
+                            when (error.code) {
+                                ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
+                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
+                                ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
+                                ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched -> {
+                                }
+
+                                ApiError.ErrorCode.networkError -> {
+                                    // FIXME toast
+                                }
+
+                                else -> {
+                                    // FIXME toast
+                                }
+                            }
+                            // App will handle next step, SDK will keep the Activity.
+                            return true
+                        }
+                        // App won't handle next step, SDK will finish the Activity.
+                        return false
+                    }
+
+                    override fun onResult(result: ExecuteResult) {
+
+                        Log.i("WalletScreen", "circle wallet on result")
+                        Log.i("WalletScreen", result.toString())
+
+                        complete()
+                    }
+
+                    fun complete() {
+                        if (app?.hasBiometric == false) {
+                            // update {}
+                        } else {
+                            // enable biometrics
+                            walletSdk.setBiometricsPin(
+                                activity,
+                                userToken,
+                                encryptionKey,
+                                object : Callback<ExecuteResult> {
+                                    override fun onError(error: Throwable): Boolean {
+                                        // update {}
+
+                                        error.printStackTrace()
+                                        if (error is ApiError) {
+                                            return when (error.code) {
+                                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> true // App will handle next step, SDK will keep the Activity.
+                                                else -> false
+                                            }
+                                        }
+                                        return false // App won't handle next step, SDK will finish the Activity.
+                                    }
+
+                                    override fun onResult(result: ExecuteResult) {
+                                        //success
+                                        // update {}
+                                    }
+
+                                    override fun onWarning(
+                                        warning: ExecuteWarning,
+                                        result: ExecuteResult?
+                                    ): Boolean {
+                                        return false // App won't handle next step, SDK will finish the Activity.
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            )
+        }
+
+        createCircleWallet(onWalletExecute)
     }
 
     Scaffold(
@@ -186,7 +295,11 @@ fun WalletScreen(
             }
 
             Column {
-                URButton(onClick = { /*TODO*/ }) { buttonTextStyle ->
+                URButton(
+                    onClick = {
+                        initCircleWallet()
+                    }
+                ) { buttonTextStyle ->
                     Text("Set up Circle Wallet", style = buttonTextStyle)
                 }
 
@@ -323,7 +436,8 @@ private fun WalletScreenPreview() {
             nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
-            closeModal = {}
+            closeModal = {},
+            createCircleWallet = {}
         )
     }
 }
@@ -342,7 +456,8 @@ private fun WalletScreenSagaPreview() {
             nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
-            closeModal = {}
+            closeModal = {},
+            createCircleWallet = {}
         )
     }
 }
@@ -361,7 +476,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = true,
             openModal = {},
-            closeModal = {}
+            closeModal = {},
+            createCircleWallet = {}
         )
     }
 }

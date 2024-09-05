@@ -1,8 +1,6 @@
 package com.bringyour.network
 
 import android.app.Application
-import android.app.BackgroundServiceStartNotAllowedException
-import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.VpnService
@@ -70,6 +68,9 @@ class MainApplication : Application() {
 
     @Inject
     lateinit var byDeviceManager: ByDeviceManager
+
+    @Inject
+    lateinit var circleWalletManager: CircleWalletManager
 
     private var vpnRequestStart: Boolean = false
     // FIXME remove these bools and just query the device directly
@@ -216,33 +217,17 @@ class MainApplication : Application() {
                     BiometricManager.Authenticators.BIOMETRIC_STRONG)
 
         settingsManagement.isEnableBiometricsPin = hasBiometric //Set "true" to enable, "false" to disable
+        val layoutProvider = CircleLayoutProvider(applicationContext)
+        val viewSetterProvider = CircleViewSetterProvider(applicationContext)
 
-        WalletSdk.init(
+        circleWalletManager.init(
             applicationContext,
-            WalletSdk.Configuration(endpoint, addId, settingsManagement)
+            addId,
+            settingsManagement,
+            layoutProvider,
+            viewSetterProvider
         )
 
-        WalletSdk.setSecurityQuestions(
-            arrayOf(
-                SecurityQuestion("What is your favorite color?"),
-                SecurityQuestion("What is your favorite shape?"),
-                SecurityQuestion("What is your favorite animal?"),
-                SecurityQuestion("What is your favorite place?"),
-                SecurityQuestion("What is your favorite material?"),
-                SecurityQuestion("What is your favorite sound?"),
-                SecurityQuestion("What would you explore in space?"),
-                SecurityQuestion("Pick a word, any word."),
-                SecurityQuestion("Pick a date, any date.", SecurityQuestion.InputType.datePicker),
-            ))
-
-        /*
-        WalletSdk.addEventListener { event: ExecuteEvent ->
-            // FIXME show a toast with the message
-        }
-         */
-
-        WalletSdk.setLayoutProvider(CircleLayoutProvider(applicationContext))
-        WalletSdk.setViewSetterProvider(CircleViewSetterProvider(applicationContext))
     }
 
 
