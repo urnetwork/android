@@ -157,4 +157,17 @@ fun FullScreenOverlay() {
             }
         )
     }
+
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.Upgrade,
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+
+        PlanUpgradedOverlay(
+            onDismiss = {
+                overlayMode = null
+            }
+        )
+    }
 }

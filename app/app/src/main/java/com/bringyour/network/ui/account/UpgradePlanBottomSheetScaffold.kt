@@ -37,11 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextMuted
@@ -58,6 +61,10 @@ fun UpgradePlanBottomSheetScaffold(
     scope: CoroutineScope,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+
+    val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
+    val overlayVc = application?.overlayVc
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -187,7 +194,18 @@ fun UpgradePlanBottomSheetScaffold(
 
                         Column {
                             Row(modifier = Modifier.fillMaxWidth()) {
-                                URButton(onClick = { /*TODO*/ }) { buttonTextStyle ->
+                                URButton(onClick = {
+
+                                    // todo - process plan upgrade
+
+                                    overlayVc?.openOverlay(OverlayMode.Upgrade.toString())
+
+                                    scope.launch {
+                                        scaffoldState.bottomSheetState.hide()
+                                    }
+
+
+                                }) { buttonTextStyle ->
                                     Text("Join the movement", style = buttonTextStyle)
                                 }
                             }
