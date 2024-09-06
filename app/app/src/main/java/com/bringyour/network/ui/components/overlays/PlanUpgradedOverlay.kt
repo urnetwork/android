@@ -22,28 +22,33 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.Pink
+import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.theme.Green100
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.theme.Yellow
 
 @Composable
-fun FeedbackSubmittedOverlay(
+fun PlanUpgradedOverlay(
     onDismiss: () -> Unit
 ) {
-
     OverlayBackground(
         onDismiss = { onDismiss() },
-        bgImageResourceId = R.drawable.overlay_feedback_bg
+        bgImageResourceId = R.drawable.overlay_plan_upgraded_bg_mobile
     ) {
         Box(
             modifier = Modifier
                 .background(
-                    Pink,
+                    Green100,
                     shape = RoundedCornerShape(12.dp)
                 )
                 .fillMaxWidth()
                 .padding(24.dp)
+
         ) {
-            Column() {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
 
                 Icon(
                     painter = painterResource(id = R.drawable.globe_filled),
@@ -51,19 +56,21 @@ fun FeedbackSubmittedOverlay(
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
-
                 Text(
-                    "Feedback submitted.",
+                    "You're premium.",
                     style = MaterialTheme.typography.headlineMedium,
                     color = Black
                 )
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    "Thank you for sharing your feelings <3",
+                    "Thanks for building the new internet with us.",
                     style = MaterialTheme.typography.headlineLarge,
                     color = Black
                 )
+
                 Spacer(modifier = Modifier.height(128.dp))
+
                 URButton(
                     onClick = {
                         onDismiss()
@@ -85,17 +92,15 @@ fun FeedbackSubmittedOverlay(
             }
         }
     }
-
 }
 
 @Preview
 @Composable
-private fun FeedbackSubmittedOverlayPreview() {
-
+private fun PlanUpgradedOverlayPreview() {
     URNetworkTheme {
-        FeedbackSubmittedOverlay(
+        PlanUpgradedOverlay(
             onDismiss = {}
         )
     }
-
 }
+
