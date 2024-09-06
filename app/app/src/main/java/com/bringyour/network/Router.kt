@@ -20,8 +20,12 @@ class Router(val byDevice: BringYourDevice) {
         val WRITE_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(5L)
     }
 
-    val clientIpv4: String? = "10.10.11.11"
+    val clientIpv4: String? = "169.254.2.1"
     val clientIpv4PrefixLength = 32
+    // see:
+    // https://security.googleblog.com/2022/07/dns-over-http3-in-android.html#fn2
+    // only Google DNS and CloudFlare DNS will auto-enable DoT/DoH on Android
+    // *important* removing the Google public server will disable DoT/DoH
     val dnsIpv4s = listOf("1.1.1.1", "8.8.8.8", "9.9.9.9")
 
     val clientIpv6: String? = null
