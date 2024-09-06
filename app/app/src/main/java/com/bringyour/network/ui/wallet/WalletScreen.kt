@@ -42,6 +42,7 @@ import circle.programmablewallet.sdk.api.ApiError
 import circle.programmablewallet.sdk.api.Callback
 import circle.programmablewallet.sdk.api.ExecuteWarning
 import circle.programmablewallet.sdk.result.ExecuteResult
+import com.bringyour.client.AccountWallet
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.ButtonStyle
@@ -72,7 +73,8 @@ fun WalletScreen(
         openModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
         createCircleWallet = walletViewModel.createCircleWallet,
-        circleWalletInProgress = walletViewModel.circleWalletInProgress
+        circleWalletInProgress = walletViewModel.circleWalletInProgress,
+        wallets = walletViewModel.wallets
     )
 
 }
@@ -88,7 +90,8 @@ fun WalletScreen(
     openModal: () -> Unit,
     closeModal: () -> Unit,
     createCircleWallet: (OnWalletExecute) -> Unit,
-    circleWalletInProgress: Boolean
+    circleWalletInProgress: Boolean,
+    wallets: List<AccountWallet>
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -441,7 +444,8 @@ private fun WalletScreenPreview() {
             openModal = {},
             closeModal = {},
             createCircleWallet = {},
-            circleWalletInProgress = false
+            circleWalletInProgress = false,
+            wallets = listOf()
         )
     }
 }
@@ -462,7 +466,8 @@ private fun WalletScreenSagaPreview() {
             openModal = {},
             closeModal = {},
             createCircleWallet = {},
-            circleWalletInProgress = false
+            circleWalletInProgress = false,
+            wallets = listOf()
         )
     }
 }
@@ -483,7 +488,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             openModal = {},
             closeModal = {},
             createCircleWallet = {},
-            circleWalletInProgress = false
+            circleWalletInProgress = false,
+            wallets = listOf()
         )
     }
 }
