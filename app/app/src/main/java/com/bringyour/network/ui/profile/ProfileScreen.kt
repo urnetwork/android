@@ -19,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.AuthPasswordResetArgs
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.SnackBarType
@@ -49,17 +49,32 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
+
+@Composable
+fun ProfileScreen(
+    navController: NavController,
+    accountViewModel: AccountViewModel,
+) {
+
+    ProfileScreen(
+        navController = navController,
+        currentNetworkName = accountViewModel.networkName,
+        loginMode = accountViewModel.loginMode,
+    )
+
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    loginMode: LoginMode
+    currentNetworkName: String,
+    loginMode: LoginMode,
 ) {
-
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
 
-    var networkName by remember { mutableStateOf("") }
+    var networkName by remember { mutableStateOf(currentNetworkName) }
     var sendingResetPassLink by remember { mutableStateOf(false) }
     var passwordResetError by remember { mutableStateOf<String?>(null) }
     // todo populate this from the api
@@ -94,21 +109,6 @@ fun ProfileScreen(
                 }
             }
         }
-    }
-
-    val populateProfile = {
-        application?.asyncLocalState?.parseByJwt { byJwt, ok ->
-            runBlocking(Dispatchers.Main.immediate) {
-                if (ok) {
-                    networkName = byJwt.networkName
-
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        populateProfile()
     }
 
     Scaffold(
@@ -228,7 +228,8 @@ fun ProfileScreenPreview() {
     URNetworkTheme {
         ProfileScreen(
             navController,
-            loginMode = LoginMode.Authenticated
+            loginMode = LoginMode.Authenticated,
+            currentNetworkName = "my_network"
         )
     }
 }
