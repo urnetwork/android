@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AccountScreen(
     navController: NavHostController,
-    accountViewModel: AccountViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -262,7 +262,7 @@ fun AccountScreenContent(
             text = "Wallet",
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate("wallet")
+                    navController.navigate("wallets")
                 } else {
                     overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
                 }

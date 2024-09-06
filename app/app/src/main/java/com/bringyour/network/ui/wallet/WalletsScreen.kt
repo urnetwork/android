@@ -42,6 +42,7 @@ import circle.programmablewallet.sdk.api.ApiError
 import circle.programmablewallet.sdk.api.Callback
 import circle.programmablewallet.sdk.api.ExecuteWarning
 import circle.programmablewallet.sdk.result.ExecuteResult
+import com.bringyour.client.AccountWallet
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.ButtonStyle
@@ -57,13 +58,13 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
-fun WalletScreen(
+fun WalletsScreen(
     navController: NavController,
     sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
 
-    WalletScreen(
+    WalletsScreen(
         navController,
         isSolanaSaga = sagaViewModel.isSolanaSaga,
         getSolanaAddress = sagaViewModel.getSagaWalletAddress,
@@ -72,14 +73,15 @@ fun WalletScreen(
         openModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
         createCircleWallet = walletViewModel.createCircleWallet,
-        circleWalletInProgress = walletViewModel.circleWalletInProgress
+        circleWalletInProgress = walletViewModel.circleWalletInProgress,
+        wallets = walletViewModel.wallets
     )
 
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WalletScreen(
+fun WalletsScreen(
     navController: NavController,
     isSolanaSaga: Boolean,
     getSolanaAddress: ((String?) -> Unit) -> Unit,
@@ -88,7 +90,8 @@ fun WalletScreen(
     openModal: () -> Unit,
     closeModal: () -> Unit,
     createCircleWallet: (OnWalletExecute) -> Unit,
-    circleWalletInProgress: Boolean
+    circleWalletInProgress: Boolean,
+    wallets: List<AccountWallet>
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -432,7 +435,7 @@ private fun WalletScreenPreview() {
     val navController = rememberNavController()
 
     URNetworkTheme {
-        WalletScreen(
+        WalletsScreen(
             navController,
             isSolanaSaga = false,
             getSolanaAddress = {},
@@ -441,7 +444,8 @@ private fun WalletScreenPreview() {
             openModal = {},
             closeModal = {},
             createCircleWallet = {},
-            circleWalletInProgress = false
+            circleWalletInProgress = false,
+            wallets = listOf()
         )
     }
 }
@@ -453,7 +457,7 @@ private fun WalletScreenSagaPreview() {
     val navController = rememberNavController()
 
     URNetworkTheme {
-        WalletScreen(
+        WalletsScreen(
             navController,
             isSolanaSaga = true,
             getSolanaAddress = {},
@@ -462,7 +466,8 @@ private fun WalletScreenSagaPreview() {
             openModal = {},
             closeModal = {},
             createCircleWallet = {},
-            circleWalletInProgress = false
+            circleWalletInProgress = false,
+            wallets = listOf()
         )
     }
 }
@@ -474,7 +479,7 @@ private fun WalletScreenExternalWalletModalPreview() {
     val navController = rememberNavController()
 
     URNetworkTheme {
-        WalletScreen(
+        WalletsScreen(
             navController,
             isSolanaSaga = true,
             getSolanaAddress = {},
@@ -483,7 +488,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             openModal = {},
             closeModal = {},
             createCircleWallet = {},
-            circleWalletInProgress = false
+            circleWalletInProgress = false,
+            wallets = listOf()
         )
     }
 }

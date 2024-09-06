@@ -7,26 +7,26 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.network.ui.account.AccountScreen
-import com.bringyour.network.ui.account.AccountViewModel
-import com.bringyour.network.ui.profile.ProfileScreen
-import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.wallet.SagaViewModel
+import com.bringyour.network.ui.wallet.WalletViewModel
+import com.bringyour.network.ui.wallet.WalletsScreen
 
 @Composable
-fun AccountNavHost(
+fun WalletsNavHost(
+    parentNavController: NavController,
     sagaViewModel: SagaViewModel,
-    accountViewModel: AccountViewModel = hiltViewModel(),
+    walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
 
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = "account",
+        startDestination = "wallets",
         enterTransition = { slideInHorizontally(
             initialOffsetX = { fullWidth -> fullWidth },
             animationSpec = tween(durationMillis = 300)
@@ -34,7 +34,8 @@ fun AccountNavHost(
         ) },
         exitTransition = {
             fadeOut(
-                animationSpec = tween(300))
+                animationSpec = tween(300)
+            )
         },
         popEnterTransition = {
             fadeIn(animationSpec = tween(300))
@@ -46,22 +47,12 @@ fun AccountNavHost(
             )
         }
     ) {
-        composable("account") { AccountScreen(
-            navController,
-            accountViewModel
-        ) }
-        composable("profile") { ProfileScreen(
-            navController,
-            accountViewModel
-        ) }
-        composable("settings") { SettingsScreen(navController) }
-        
         composable("wallets") {
-            WalletsNavHost(
-                parentNavController = navController,
+            WalletsScreen(
+                parentNavController,
                 sagaViewModel,
+                walletViewModel
             )
         }
     }
-
 }

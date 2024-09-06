@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import circle.programmablewallet.sdk.WalletSdk
+import com.bringyour.client.AccountWallet
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
@@ -32,6 +33,8 @@ class WalletViewModel @Inject constructor(
 
     var circleWalletInProgress by mutableStateOf(false)
         private set
+
+    val wallets = mutableListOf<AccountWallet>()
 
     val updateNextPayoutDateStr = {
         walletVc?.let { vc ->
@@ -75,6 +78,35 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+    private val updateWallets = {
+
+        walletVc?.let { vc ->
+            val result = vc.wallets
+            val n = result.len()
+
+            val updatedWallets = mutableListOf<AccountWallet>()
+
+            for (i in 0 until n) {
+                val wallet = result.get(i)
+                updatedWallets.add(wallet)
+            }
+            wallets.clear()
+            wallets.addAll(updatedWallets)
+
+        }
+
+    }
+
+    val addAccountWalletsListener = {
+
+        walletVc?.let { vc ->
+            vc.addAccountWalletsListener {
+                updateWallets()
+            }
+        }
+
+    }
+
     init {
 
         byDevice = byDeviceManager.getByDevice()
@@ -84,6 +116,18 @@ class WalletViewModel @Inject constructor(
         circleWalletSdk = circleWalletManager.getWalletSdk()
 
         updateNextPayoutDateStr()
+
+        addAccountWalletsListener()
+
+        walletVc?.start()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        walletVc?.let {
+            byDeviceManager.getByDevice()?.closeViewController(it)
+        }
     }
 
 }
