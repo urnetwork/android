@@ -21,6 +21,7 @@
 
 <!--    <uses-sdk android:minSdkVersion="24"/>-->
 
+
 <!--    android:logo="@drawable/logo_by"-->
     <!-- see https://developer.android.com/privacy-and-security/security-config -->
     <application
@@ -60,6 +61,12 @@
             android:exported="true"
             android:label="@string/app_name"
             android:foregroundServiceType="dataSync">
+
+            <intent-filter>
+                <action android:name="android.net.VpnService"/>
+            </intent-filter>
+            <meta-data android:name="android.net.VpnService.SUPPORTS_ALWAYS_ON"
+                android:value="true"/>
 
         </service>
 
