@@ -58,13 +58,13 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
-fun WalletScreen(
+fun WalletsScreen(
     navController: NavController,
     sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
 
-    WalletScreen(
+    WalletsScreen(
         navController,
         isSolanaSaga = sagaViewModel.isSolanaSaga,
         getSolanaAddress = sagaViewModel.getSagaWalletAddress,
@@ -81,7 +81,7 @@ fun WalletScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WalletScreen(
+fun WalletsScreen(
     navController: NavController,
     isSolanaSaga: Boolean,
     getSolanaAddress: ((String?) -> Unit) -> Unit,
@@ -435,7 +435,7 @@ private fun WalletScreenPreview() {
     val navController = rememberNavController()
 
     URNetworkTheme {
-        WalletScreen(
+        WalletsScreen(
             navController,
             isSolanaSaga = false,
             getSolanaAddress = {},
@@ -457,7 +457,7 @@ private fun WalletScreenSagaPreview() {
     val navController = rememberNavController()
 
     URNetworkTheme {
-        WalletScreen(
+        WalletsScreen(
             navController,
             isSolanaSaga = true,
             getSolanaAddress = {},
@@ -479,7 +479,7 @@ private fun WalletScreenExternalWalletModalPreview() {
     val navController = rememberNavController()
 
     URNetworkTheme {
-        WalletScreen(
+        WalletsScreen(
             navController,
             isSolanaSaga = true,
             getSolanaAddress = {},

@@ -8,13 +8,12 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.wallet.SagaViewModel
-import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
+import com.bringyour.network.ui.wallet.WalletsScreen
 
 @Composable
 fun WalletsNavHost(
@@ -49,7 +48,7 @@ fun WalletsNavHost(
         }
     ) {
         composable("wallets") {
-            WalletScreen(
+            WalletsScreen(
                 parentNavController,
                 sagaViewModel,
                 walletViewModel
