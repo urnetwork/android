@@ -24,11 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +33,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.MainApplication
@@ -55,12 +52,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
-
-    var loginMode by remember {
-        mutableStateOf(LoginMode.Guest)
-    }
 
     val scope = rememberCoroutineScope()
 
@@ -76,7 +70,7 @@ fun AccountScreen(
         scope = scope
     ) {
         AccountScreenContent(
-            loginMode = loginMode,
+            loginMode = accountViewModel.loginMode,
             navController = navController,
             scaffoldState = scaffoldState,
             scope = scope
@@ -144,22 +138,43 @@ fun AccountScreenContent(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Bottom
                         ) {
-                            Text("Free",
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                            ClickableText(
-                                modifier = Modifier.offset(y = (-8).dp),
-                                text = AnnotatedString("Change"),
-                                onClick = {
-                                    Log.i("AccountScreen", "expanding bottom sheet")
-                                    scope.launch {
-                                        scaffoldState.bottomSheetState.expand()
-                                    }
-                                },
-                                style = TextStyle(
-                                    color = BlueMedium
+
+                            if (loginMode == LoginMode.Guest) {
+                                Text("Guest",
+                                    style = MaterialTheme.typography.headlineMedium
                                 )
-                            )
+                            } else {
+                                Text("Free",
+                                    style = MaterialTheme.typography.headlineMedium
+                                )
+                            }
+
+                            if (loginMode == LoginMode.Guest) {
+                                ClickableText(
+                                    modifier = Modifier.offset(y = (-8).dp),
+                                    text = AnnotatedString("Create account"),
+                                    onClick = {
+                                        application?.logout()
+                                    },
+                                    style = TextStyle(
+                                        color = BlueMedium
+                                    )
+                                )
+                            } else {
+                                ClickableText(
+                                    modifier = Modifier.offset(y = (-8).dp),
+                                    text = AnnotatedString("Change"),
+                                    onClick = {
+                                        Log.i("AccountScreen", "expanding bottom sheet")
+                                        scope.launch {
+                                            scaffoldState.bottomSheetState.expand()
+                                        }
+                                    },
+                                    style = TextStyle(
+                                        color = BlueMedium
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -270,14 +285,66 @@ fun AccountScreenContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-private fun ConnectPreview() {
+private fun AccountAuthenticatedPreview() {
 
     val navController = rememberNavController()
 
-    URNetworkTheme {
-        AccountScreen(navController)
-    }
+    val scope = rememberCoroutineScope()
 
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        )
+    )
+
+    URNetworkTheme {
+
+        UpgradePlanBottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            scope = scope
+        ) {
+            AccountScreenContent(
+                loginMode = LoginMode.Authenticated,
+                navController = navController,
+                scaffoldState = scaffoldState,
+                scope = scope
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun AccountGuestPreview() {
+
+    val navController = rememberNavController()
+
+    val scope = rememberCoroutineScope()
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        )
+    )
+
+    URNetworkTheme {
+
+        UpgradePlanBottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            scope = scope
+        ) {
+            AccountScreenContent(
+                loginMode = LoginMode.Guest,
+                navController = navController,
+                scaffoldState = scaffoldState,
+                scope = scope
+            )
+        }
+    }
 }

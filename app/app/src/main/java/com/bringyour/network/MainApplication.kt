@@ -11,8 +11,6 @@ import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.core.content.ContextCompat
-import circle.programmablewallet.sdk.WalletSdk
-import circle.programmablewallet.sdk.presentation.SecurityQuestion
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.client.AccountViewController
 import com.bringyour.client.AsyncLocalState
@@ -72,6 +70,9 @@ class MainApplication : Application() {
     @Inject
     lateinit var circleWalletManager: CircleWalletManager
 
+    @Inject
+    lateinit var asyncLocalStateManager: AsyncLocalStateManager
+
     private var vpnRequestStart: Boolean = false
     // FIXME remove these bools and just query the device directly
 //    private var provideEnabled: Boolean = false
@@ -84,8 +85,8 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // use sync mode for the local state
-        asyncLocalState = Client.newAsyncLocalState(filesDir.absolutePath)
+        asyncLocalState = asyncLocalStateManager.init(filesDir)
+
         byApi = Client.newBringYourApi(apiUrl)
 
         loginVc = Client.newLoginViewController(byApi)
@@ -205,7 +206,6 @@ class MainApplication : Application() {
     private fun initCircleWallet() {
         val applicationContext = applicationContext ?: return
 
-        val endpoint = applicationContext.getString(R.string.circle_endpoint)
         val addId = applicationContext.getString(R.string.circle_app_id)
 
         val settingsManagement = SettingsManagement()

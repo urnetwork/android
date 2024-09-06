@@ -26,9 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.ProviderGridPoint
+import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
@@ -42,7 +44,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
-    networkName: String?
+    accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -55,13 +57,14 @@ fun ConnectScreen(
         ConnectMainContent(
             connectStatus = connectStatus,
             selectedLocation = connectViewModel.selectedLocation,
-            networkName = networkName,
+            networkName = accountViewModel.networkName,
             connect = connectViewModel.connect,
             disconnect = connectViewModel.disconnect,
             cancelConnection = connectViewModel.cancelConnection,
             providerGridPoints = connectViewModel.providerGridPoints,
             windowCurrentSize = connectViewModel.windowCurrentSize,
-            grid = connectViewModel.grid
+            grid = connectViewModel.grid,
+            loginMode = accountViewModel.loginMode
         )
     }
 }
@@ -76,7 +79,8 @@ fun ConnectMainContent(
     windowCurrentSize: Int,
     connect: (ConnectLocation?) -> Unit,
     disconnect: () -> Unit?,
-    cancelConnection: () -> Unit?
+    cancelConnection: () -> Unit?,
+    loginMode: LoginMode,
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -125,7 +129,7 @@ fun ConnectMainContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                AccountSwitcher(loginMode = LoginMode.Authenticated)
+                AccountSwitcher(loginMode)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -216,6 +220,7 @@ private fun ConnectMainContentPreview() {
             grid = null,
             providerGridPoints = listOf(),
             windowCurrentSize = 16,
+            loginMode = LoginMode.Authenticated
         )
     }
 }
