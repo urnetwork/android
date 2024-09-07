@@ -2,6 +2,7 @@ package com.bringyour.network.ui.settings
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -32,15 +34,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.components.URLinkText
 import com.bringyour.network.ui.components.URSwitch
@@ -48,18 +54,36 @@ import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     navController: NavController,
+    accountViewModel: AccountViewModel,
+) {
+
+    SettingsScreen(
+        navController,
+        clientId = accountViewModel.clientId
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    navController: NavController,
+    clientId: String,
 ) {
 
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     var enableConnectionNotifications by remember { mutableStateOf(true) }
     var enableProductUpdates by remember { mutableStateOf(true) }
+    var allowLocalConnections by remember { mutableStateOf(true) }
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
@@ -124,7 +148,8 @@ fun SettingsScreen(
 
                             Spacer(modifier = Modifier.height(16.dp))
                             Row(
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .clickable {
                                         // todo - navigate to premium user flow
                                     },
@@ -160,6 +185,77 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            URTextInputLabel(text = "Client ID")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color(0x1AFFFFFF),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clickable {
+                        clipboardManager.setText(AnnotatedString(clientId))
+                    }
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+
+            ) {
+                Text(
+                    clientId,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.content_copy),
+                    contentDescription = "Copy",
+                    tint = TextMuted,
+                    modifier = Modifier.width(16.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            URTextInputLabel(text = "Share URnetwork")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color(0x1AFFFFFF),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clickable {
+                        clipboardManager.setText(
+                            AnnotatedString(clientId)
+                        )
+                    }
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+
+                ) {
+                Text(
+                    "https://ur.io/c?$clientId",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.content_copy),
+                    contentDescription = "Copy",
+                    tint = TextMuted,
+                    modifier = Modifier.width(16.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             URTextInputLabel(text = "Notifications")
             Row(
                 modifier = Modifier
@@ -169,6 +265,29 @@ fun SettingsScreen(
             ) {
                 Text(
                     "Receive connection notifications",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                URSwitch(
+                    checked = enableConnectionNotifications,
+                    toggle = {
+                        enableConnectionNotifications = !enableConnectionNotifications
+                    },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            URTextInputLabel(text = "Connectivity")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Allow local connections",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
@@ -239,7 +358,7 @@ fun SettingsScreen(
                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "Right Arrow",
                         tint = Color.White,
-                        )
+                    )
                 }
             }
         }
@@ -251,6 +370,9 @@ fun SettingsScreen(
 fun SettingsScreenPreview() {
     val navController = rememberNavController()
     URNetworkTheme {
-        SettingsScreen(navController)
+        SettingsScreen(
+            navController,
+            clientId = "0000abc0-1111-0000-a123-000000abc000"
+        )
     }
 }
