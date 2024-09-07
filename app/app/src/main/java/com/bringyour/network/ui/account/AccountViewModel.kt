@@ -33,6 +33,9 @@ class AccountViewModel @Inject constructor(
     var networkName by mutableStateOf("")
         private set
 
+    var clientId by mutableStateOf("")
+        private set
+
     val upgradePlan = {}
 
     val getCurrentPlan = {}
@@ -44,6 +47,10 @@ class AccountViewModel @Inject constructor(
         localState?.parseByJwt().let { jwt ->
             setLoginMode(if (jwt?.guestMode == true) LoginMode.Guest else LoginMode.Authenticated)
             setNetworkName(jwt?.networkName ?: "guest")
+        }
+
+        byDeviceManager.getByDevice().let { device ->
+            clientId = device?.clientId()?.idStr ?: ""
         }
 
     }

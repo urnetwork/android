@@ -54,7 +54,10 @@ fun AccountNavHost(
             navController,
             accountViewModel
         ) }
-        composable("settings") { SettingsScreen(navController) }
+        composable("settings") { SettingsScreen(
+            navController,
+            accountViewModel
+        ) }
         
         composable("wallets") {
             WalletsNavHost(
