@@ -52,6 +52,9 @@ class MainService : VpnService() {
 
         val app = application as MainApplication
 
+//        Log.i(TAG,"START INTENT = $intent")
+
+
 
         intent?.getBooleanExtra("stop", false)?.let { stop ->
             if (stop) {
@@ -66,6 +69,10 @@ class MainService : VpnService() {
 
         intent?.getBooleanExtra("start", true)?.let { start ->
             if (start) {
+                // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
+                intent.getBooleanExtra("route-local", false).let { routeLocal ->
+                    app.byDevice?.setRouteLocal(routeLocal)
+                }
 
                 app.router?.let { router ->
                     // TODO
@@ -77,6 +84,9 @@ class MainService : VpnService() {
                     builder.setMtu(1440)
                     builder.setBlocking(true)
                     builder.addDisallowedApplication(packageName)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        builder.setMetered(false)
+                    }
 
                     if (router.clientIpv4 != null) {
                         builder.allowFamily(AF_INET)

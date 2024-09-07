@@ -239,6 +239,7 @@ class MainApplication : Application() {
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("stop", false)
         vpnIntent.putExtra("start", true)
+        vpnIntent.putExtra("route-local", isRouteLocal())
         vpnIntent.putExtra("foreground", true)
 
         try {
@@ -373,12 +374,22 @@ class MainApplication : Application() {
     fun setProvideMode(provideMode: Long) {
         // store the setting in local storage
         asyncLocalState?.localState()?.provideMode = provideMode
-        byDevice?.setProvideMode(provideMode)
+        byDevice?.provideMode = provideMode
 
     }
 
     fun getProvideMode(): Long {
         return asyncLocalState?.localState()?.provideMode!!
+    }
+
+    fun setRouteLocal(routeLocal: Boolean) {
+        // store the setting in local storage
+        asyncLocalState?.localState()?.routeLocal = routeLocal
+        byDevice?.routeLocal = routeLocal
+    }
+
+    fun isRouteLocal(): Boolean {
+        return asyncLocalState?.localState()?.routeLocal!!
     }
 
     fun isVpnRequestStart(): Boolean {
