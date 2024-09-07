@@ -6,6 +6,10 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -31,6 +35,7 @@ import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
 import circle.programmablewallet.sdk.presentation.EventListener
 import com.bringyour.client.Client.ProvideModeNone
+import com.bringyour.client.ConnectLocation
 import com.bringyour.client.Sub
 import go.error
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +63,8 @@ class MainApplication : Application() {
     var byApi: BringYourApi? = null
     var asyncLocalState: AsyncLocalState? = null
     var router: Router? = null
+
+    var networkCallback: ConnectivityManager.NetworkCallback? = null
 
 
     // use one set of view controllers across the entire app
@@ -98,12 +105,80 @@ class MainApplication : Application() {
                     // the device wraps the api and sets the jwt
                     val instanceId = localState.instanceId!!
                     val provideMode = localState.provideMode
-                    initDevice(byClientJwt, instanceId, provideMode)
+                    val connectLocation = localState.connectLocation
+                    initDevice(byClientJwt, instanceId, provideMode, connectLocation)
                 }
             }
         }
 
         initCircleWallet()
+    }
+
+    fun addNetworkCallback() {
+        removeNetworkCallback()
+
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            var connectedNetwork: Network? = null
+
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+
+                Log.i(TAG, "network available device = $network")
+                connectedNetwork = network
+                byDevice?.providePaused = false
+            }
+
+//            override fun onCapabilitiesChanged(
+//                network: Network,
+//                networkCapabilities: NetworkCapabilities
+//            ) {
+//                super.onCapabilitiesChanged(network, networkCapabilities)
+//
+////                val metered = !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+////                byDevice?.providePaused = metered
+//            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+
+                if (network == connectedNetwork) {
+                    Log.i(TAG, "network lost device = $network")
+                    connectedNetwork = null
+                    byDevice?.providePaused = true
+                }
+            }
+        }
+
+
+        // see https://developer.android.com/training/monitoring-device-state/connectivity-status-type
+        val networkRequestBuilder = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+//            .build()
+
+
+        // note the following capabilities appear to never be satisfied
+        // NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_LATENCY
+        // NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_BANDWIDTH
+
+        val networkRequest = networkRequestBuilder.build()
+
+        val connectivityManager =
+            getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        connectivityManager.requestNetwork(networkRequest, networkCallback!!)
+
+    }
+
+    fun removeNetworkCallback() {
+        networkCallback?.let {
+            val connectivityManager =
+                getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+            connectivityManager.unregisterNetworkCallback(it)
+        }
+        networkCallback = null
     }
 
 
@@ -115,14 +190,25 @@ class MainApplication : Application() {
     fun loginClient(byClientJwt: String) {
         asyncLocalState?.localState()?.byClientJwt = byClientJwt
         val provideMode = ProvideModeNone
+        val connectLocation: ConnectLocation? = null
         asyncLocalState?.localState()?.provideMode = provideMode
+        asyncLocalState?.localState()?.connectLocation = connectLocation
 
         val instanceId = asyncLocalState?.localState()?.instanceId!!
-        initDevice(byClientJwt, instanceId, provideMode)
+        initDevice(byClientJwt, instanceId, provideMode, connectLocation)
     }
 
     fun logout() {
+        stop()
+
+        asyncLocalState?.localState()?.byJwt = ""
+        byApi?.setByJwt(null)
+    }
+
+    fun stop() {
         stopVpnService()
+
+        removeNetworkCallback()
 
         asyncLocalState?.localState()?.logout()
 
@@ -148,12 +234,10 @@ class MainApplication : Application() {
 //        connectEnabled = false
         accountVc?.close()
         accountVc = null
-
-        byApi?.setByJwt(null)
     }
 
 
-    private fun initDevice(byClientJwt: String, instanceId: Id, provideMode: Long) {
+    private fun initDevice(byClientJwt: String, instanceId: Id, provideMode: Long, connectLocation: ConnectLocation?) {
         byDevice = Client.newBringYourDeviceWithDefaults(
             byApi,
             byClientJwt,
@@ -181,11 +265,19 @@ class MainApplication : Application() {
 
         router = Router(byDevice!!)
 
-        byDevice?.provideMode = provideMode
-
         connectVc = byDevice?.openConnectViewController()
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
+
+
+        byDevice?.providePaused = true
+        byDevice?.provideMode = provideMode
+
+        connectLocation?.let {
+            connectVc?.connect(it)
+        }
+
+        addNetworkCallback()
     }
 
 
@@ -240,7 +332,10 @@ class MainApplication : Application() {
     }
 
     fun startVpnService() {
+        vpnRequestStart = true
+
         val vpnIntent = Intent(this, MainService::class.java)
+//        vpnIntent.putExtra("managed", true)
         vpnIntent.putExtra("stop", false)
         vpnIntent.putExtra("start", true)
         vpnIntent.putExtra("route-local", isRouteLocal())
@@ -254,11 +349,13 @@ class MainApplication : Application() {
 
 //        startService(vpnIntent)
 
-        vpnRequestStart = true
     }
 
     fun stopVpnService() {
+        vpnRequestStart = false
+
         val vpnIntent = Intent(this, MainService::class.java)
+//        vpnIntent.putExtra("managed", true)
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
@@ -270,7 +367,6 @@ class MainApplication : Application() {
         }
 
 
-        vpnRequestStart = false
     }
 
     private fun sendVpnServiceIntent(vpnIntent: Intent) {
@@ -308,6 +404,7 @@ class MainApplication : Application() {
         val connectEnabled = byDevice.isConnectEnabled
 
         if (provideEnabled || connectEnabled) {
+            // note the app will call `startVpnService` once it determines the permissions are ready
             requestStartVpnService()
             if (provideEnabled) {
                 if (wakeLock == null) {
@@ -398,6 +495,19 @@ class MainApplication : Application() {
         return vpnRequestStart
     }
 
+    fun setConnectLocation(connectLocation: ConnectLocation?) {
+        // save connect location
+        asyncLocalState?.localState()?.connectLocation = connectLocation
+        if (connectLocation == null) {
+            connectVc?.disconnect()
+        } else {
+            connectVc?.connect(connectLocation)
+        }
+    }
+
+    fun getConnectLocation(): ConnectLocation? {
+        return connectVc?.activeLocation
+    }
 
 
 

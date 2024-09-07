@@ -40,6 +40,8 @@
 
         <!-- FIXME LoginActivity is the launcher. On create, check for client token, and if present finish and launch mainactivity -->
 
+        <property android:name="android.net.PROPERTY_SELF_CERTIFIED_NETWORK_CAPABILITIES" android:resource="@xml/self_certified_network_capabilities"/>
+
         <activity
             android:name=".LoginActivity"
             android:exported="true"
