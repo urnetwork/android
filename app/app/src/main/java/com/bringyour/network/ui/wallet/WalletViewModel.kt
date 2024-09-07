@@ -97,6 +97,10 @@ class WalletViewModel @Inject constructor(
 
     }
 
+    val findWalletById: (String) -> AccountWallet? = { id ->
+        walletVc?.filterWalletsById(id)
+    }
+
     val addAccountWalletsListener = {
 
         walletVc?.let { vc ->

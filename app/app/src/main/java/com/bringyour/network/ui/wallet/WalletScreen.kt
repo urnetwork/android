@@ -37,11 +37,13 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import androidx.compose.foundation.lazy.items
+import com.bringyour.client.AccountWallet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExternalWalletScreen(
-    navController: NavController
+fun WalletScreen(
+    navController: NavController,
+    accountWallet: AccountWallet?
 ) {
 
     // todo - wire this up
@@ -159,12 +161,15 @@ fun ExternalWalletScreen(
 
 @Preview
 @Composable
-private fun ExternalWalletScreenPreview() {
+private fun WalletScreenPreview() {
     val navController = rememberNavController()
 
+    val accountWallet = AccountWallet()
+
     URNetworkTheme {
-        ExternalWalletScreen(
-            navController
+        WalletScreen(
+            navController,
+            accountWallet
         )
     }
 }

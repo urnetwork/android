@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.wallet.SagaViewModel
+import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
 
@@ -52,6 +53,17 @@ fun WalletsNavHost(
                 parentNavController,
                 sagaViewModel,
                 walletViewModel
+            )
+        }
+
+        composable("wallet/{walletId}") { backStackEntry ->
+
+            val walletId = backStackEntry.arguments?.getString("walletId") ?: ""
+            val accountWallet = walletViewModel.findWalletById(walletId)
+
+            WalletScreen(
+                navController = navController,
+                accountWallet = accountWallet
             )
         }
     }
