@@ -74,8 +74,10 @@ class MainService : VpnService() {
         intent?.getBooleanExtra("start", true)?.let { start ->
             if (start) {
                 // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
-                intent.getBooleanExtra("route-local", false).let { routeLocal ->
-                    app.byDevice?.setRouteLocal(routeLocal)
+                if (intent.getStringExtra("source") != "app") {
+                    // this was started with always-on mode
+                    // turn off local routing
+                    app.setRouteLocal(false)
                 }
 
                 app.router?.let { router ->

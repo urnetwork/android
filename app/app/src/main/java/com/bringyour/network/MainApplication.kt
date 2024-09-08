@@ -295,6 +295,7 @@ class MainApplication : Application() {
 
         addNetworkCallback()
 
+        updateVpnService()
     }
 
 
@@ -351,10 +352,9 @@ class MainApplication : Application() {
     fun startVpnService() {
 
         val vpnIntent = Intent(this, MainService::class.java)
-//        vpnIntent.putExtra("managed", true)
+        vpnIntent.putExtra("source", "app")
         vpnIntent.putExtra("stop", false)
         vpnIntent.putExtra("start", true)
-        vpnIntent.putExtra("route-local", isRouteLocal())
         vpnIntent.putExtra("foreground", true)
         try {
             sendVpnServiceIntent(vpnIntent)
@@ -374,7 +374,7 @@ class MainApplication : Application() {
         vpnRequestStart = false
 
         val vpnIntent = Intent(this, MainService::class.java)
-//        vpnIntent.putExtra("managed", true)
+        vpnIntent.putExtra("source", "app")
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
