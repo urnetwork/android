@@ -51,6 +51,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
+import com.bringyour.network.utils.isTablet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -66,6 +67,14 @@ fun UpgradePlanBottomSheetScaffold(
     val application = context.applicationContext as? MainApplication
     val overlayVc = application?.overlayVc
 
+    val containerModifier = Modifier
+
+    if (isTablet()) {
+        containerModifier.fillMaxWidth()
+    } else {
+        containerModifier.requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+    }
+
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetShape = RoundedCornerShape(
@@ -77,8 +86,7 @@ fun UpgradePlanBottomSheetScaffold(
         sheetDragHandle = {},
         sheetContent = {
             Box(
-                modifier = Modifier
-                    .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+                modifier = containerModifier
                     .fillMaxHeight()
                     .offset(y = 1.dp)
                     .border(

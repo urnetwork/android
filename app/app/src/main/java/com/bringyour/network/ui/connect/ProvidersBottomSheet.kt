@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -48,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.ConnectLocation
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.isTablet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +92,14 @@ fun ProvidersBottomSheet(
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val containerModifier = Modifier
+
+    if (isTablet()) {
+        containerModifier.fillMaxWidth()
+    } else {
+        containerModifier.requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+    }
+
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
             keyboardController?.hide()
@@ -107,8 +117,7 @@ fun ProvidersBottomSheet(
         sheetDragHandle = {},
         sheetContent = {
             Box(
-                modifier = Modifier
-                    .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+                modifier = containerModifier
                     .fillMaxHeight()
                     .offset(y = 1.dp)
                     .border(
