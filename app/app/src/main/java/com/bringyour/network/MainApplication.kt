@@ -60,6 +60,7 @@ class MainApplication : Application() {
     var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
     var deviceConnectSub: Sub? = null
+    var deviceRouteLocalSub: Sub? = null
     var byApi: BringYourApi? = null
     var asyncLocalState: AsyncLocalState? = null
     var router: Router? = null
@@ -104,9 +105,10 @@ class MainApplication : Application() {
                 } else {
                     // the device wraps the api and sets the jwt
                     val instanceId = localState.instanceId!!
+                    val routeLocal = localState.routeLocal
                     val provideMode = localState.provideMode
                     val connectLocation = localState.connectLocation
-                    initDevice(byClientJwt, instanceId, provideMode, connectLocation)
+                    initDevice(byClientJwt, instanceId, routeLocal, provideMode, connectLocation)
                 }
             }
         }
@@ -188,14 +190,16 @@ class MainApplication : Application() {
     }
 
     fun loginClient(byClientJwt: String) {
-        asyncLocalState?.localState()?.byClientJwt = byClientJwt
-        val provideMode = ProvideModeNone
-        val connectLocation: ConnectLocation? = null
-        asyncLocalState?.localState()?.provideMode = provideMode
-        asyncLocalState?.localState()?.connectLocation = connectLocation
+        asyncLocalState?.localState()?.let { localState ->
+            localState.byClientJwt = byClientJwt
 
-        val instanceId = asyncLocalState?.localState()?.instanceId!!
-        initDevice(byClientJwt, instanceId, provideMode, connectLocation)
+            val instanceId = localState.instanceId!!
+            val routeLocal = localState.routeLocal
+            val provideMode = localState.provideMode
+            val connectLocation = localState.connectLocation
+
+            initDevice(byClientJwt, instanceId, routeLocal, provideMode, connectLocation)
+        }
     }
 
     fun logout() {
@@ -237,7 +241,7 @@ class MainApplication : Application() {
     }
 
 
-    private fun initDevice(byClientJwt: String, instanceId: Id, provideMode: Long, connectLocation: ConnectLocation?) {
+    private fun initDevice(byClientJwt: String, instanceId: Id, routeLocal: Boolean, provideMode: Long, connectLocation: ConnectLocation?) {
         byDevice = Client.newBringYourDeviceWithDefaults(
             byApi,
             byClientJwt,
@@ -249,18 +253,7 @@ class MainApplication : Application() {
         )
 //        provideEnabled = false
 //        connectEnabled = false
-        deviceProvideSub = byDevice?.addProvideChangeListener { provideEnabled ->
-            runBlocking(Dispatchers.Main.immediate) {
-//                this@MainApplication.provideEnabled = provideEnabled
-                updateVpnService()
-            }
-        }
-        deviceConnectSub = byDevice?.addConnectChangeListener { connectEnabled ->
-            runBlocking(Dispatchers.Main.immediate) {
-//                this@MainApplication.connectEnabled = connectEnabled
-                updateVpnService()
-            }
-        }
+
 
 
         router = Router(byDevice!!)
@@ -271,13 +264,37 @@ class MainApplication : Application() {
 
 
         byDevice?.providePaused = true
+        byDevice?.routeLocal = routeLocal
         byDevice?.provideMode = provideMode
+
 
         connectLocation?.let {
             connectVc?.connect(it)
         }
 
+
+        deviceRouteLocalSub = byDevice?.addRouteLocalChangeListener {
+            runBlocking(Dispatchers.Main.immediate) {
+//                this@MainApplication.connectEnabled = connectEnabled
+                updateVpnService()
+            }
+        }
+        deviceProvideSub = byDevice?.addProvideChangeListener {
+            runBlocking(Dispatchers.Main.immediate) {
+//                this@MainApplication.provideEnabled = provideEnabled
+                updateVpnService()
+            }
+        }
+        deviceConnectSub = byDevice?.addConnectChangeListener {
+            runBlocking(Dispatchers.Main.immediate) {
+//                this@MainApplication.connectEnabled = connectEnabled
+                updateVpnService()
+            }
+        }
+
+
         addNetworkCallback()
+
     }
 
 
@@ -327,12 +344,11 @@ class MainApplication : Application() {
     }
 
 
-    fun requestStartVpnService() {
-        vpnRequestStart = true
-    }
+//    fun requestStartVpnService() {
+//        vpnRequestStart = true
+//    }
 
     fun startVpnService() {
-        vpnRequestStart = true
 
         val vpnIntent = Intent(this, MainService::class.java)
 //        vpnIntent.putExtra("managed", true)
@@ -342,9 +358,12 @@ class MainApplication : Application() {
         vpnIntent.putExtra("foreground", true)
         try {
             sendVpnServiceIntent(vpnIntent)
+            vpnRequestStart = false
         } catch (e: Exception) {
             Log.i(TAG, "Could not start vpn service: ${e.message}")
-            // ignore
+            // set the `vpnRequestStart` flag on failure
+            // the app will call `startVpnService` once the permissions are ready
+            vpnRequestStart = true
         }
 
 //        startService(vpnIntent)
@@ -400,12 +419,12 @@ class MainApplication : Application() {
     private fun updateVpnService() {
         val byDevice = byDevice ?: return
 
-        val provideEnabled = byDevice.isProvideEnabled
-        val connectEnabled = byDevice.isConnectEnabled
+        val provideEnabled = byDevice.provideEnabled
+        val connectEnabled = byDevice.connectEnabled
+        val routeLocal = byDevice.routeLocal
 
-        if (provideEnabled || connectEnabled) {
-            // note the app will call `startVpnService` once it determines the permissions are ready
-            requestStartVpnService()
+        if (provideEnabled || connectEnabled || !routeLocal) {
+            startVpnService()
             if (provideEnabled) {
                 if (wakeLock == null) {
                     wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
