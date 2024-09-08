@@ -76,7 +76,6 @@ fun UpgradePlanBottomSheetScaffold(
         containerModifier
             .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
             .fillMaxHeight()
-            // .offset(y = 1.dp)
     }
 
     BottomSheetScaffold(
