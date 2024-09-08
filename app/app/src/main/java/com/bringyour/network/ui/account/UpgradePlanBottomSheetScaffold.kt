@@ -70,9 +70,12 @@ fun UpgradePlanBottomSheetScaffold(
     val containerModifier = Modifier
 
     if (isTablet()) {
-        containerModifier.fillMaxWidth()
+        containerModifier
+            .fillMaxWidth()
     } else {
-        containerModifier.requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+        containerModifier
+            .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+            .fillMaxHeight()
     }
 
     BottomSheetScaffold(
@@ -87,7 +90,6 @@ fun UpgradePlanBottomSheetScaffold(
         sheetContent = {
             Box(
                 modifier = containerModifier
-                    .fillMaxHeight()
                     .offset(y = 1.dp)
                     .border(
                         1.dp,
@@ -101,126 +103,129 @@ fun UpgradePlanBottomSheetScaffold(
                     )
             ) {
 
-                Scaffold(
-                    topBar = {
-                        CenterAlignedTopAppBar(
-                            title = {
-                                Text("Upgrade Subscription", style = TopBarTitleTextStyle)
-                            },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = Black
-                            ),
-                            actions = {
-                                IconButton(
-                                    onClick = {
-                                        scope.launch {
-                                            scaffoldState.bottomSheetState.hide()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Close,
-                                        contentDescription = "Close",
-                                        tint = Color.White
-                                    )
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text("Upgrade Subscription", style = TopBarTitleTextStyle)
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Black
+                    ),
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    scaffoldState.bottomSheetState.hide()
                                 }
-                            },
+                            }
+                        ) {
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = "Close",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                )
+
+                val colModifier = Modifier
+
+                if (!isTablet()) {
+                    colModifier.fillMaxSize()
+                }
+
+                Column(
+                    modifier = colModifier
+                        .background(color = Black)
+                        // .padding(innerPadding)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                    // horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    Column {
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Become a",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                            Text(
+                                "$5/month",
+                                style = TextStyle(
+                                    fontSize = 24.sp,
+                                    fontFamily = gravityCondensedFamily,
+                                    color = TextMuted
+                                )
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                "URnetwork",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                "Supporter",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            "Support us in building a new kind of network that gives instead of takes.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextMuted
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            "You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextMuted
                         )
                     }
-                ) { innerPadding ->
 
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .background(color = Black)
-                            .padding(innerPadding)
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
-                        // horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Spacer(modifier = Modifier.height(64.dp))
 
-                        Column {
-                            Spacer(modifier = Modifier.height(32.dp))
+                    Column {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            URButton(onClick = {
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    "Become a",
-                                    style = MaterialTheme.typography.headlineMedium
-                                )
-                                Text(
-                                    "$5/month",
-                                    style = TextStyle(
-                                        fontSize = 24.sp,
-                                        fontFamily = gravityCondensedFamily,
-                                        color = TextMuted
-                                    )
-                                )
-                            }
+                                // todo - process plan upgrade
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                overlayVc?.openOverlay(OverlayMode.Upgrade.toString())
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    "URnetwork",
-                                    style = MaterialTheme.typography.headlineLarge
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    "Supporter",
-                                    style = MaterialTheme.typography.headlineLarge
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                "Support us in building a new kind of network that gives instead of takes.",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TextMuted
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                "You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TextMuted
-                            )
-                        }
-
-                        Column {
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                URButton(onClick = {
-
-                                    // todo - process plan upgrade
-
-                                    overlayVc?.openOverlay(OverlayMode.Upgrade.toString())
-
-                                    scope.launch {
-                                        scaffoldState.bottomSheetState.hide()
-                                    }
-
-
-                                }) { buttonTextStyle ->
-                                    Text("Join the movement", style = buttonTextStyle)
+                                scope.launch {
+                                    scaffoldState.bottomSheetState.hide()
                                 }
+
+
+                            }) { buttonTextStyle ->
+                                Text("Join the movement", style = buttonTextStyle)
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
                         }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
+
             }
         }) { innerPadding ->
             content(innerPadding)

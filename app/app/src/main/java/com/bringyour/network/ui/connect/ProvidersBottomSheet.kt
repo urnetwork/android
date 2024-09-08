@@ -97,7 +97,9 @@ fun ProvidersBottomSheet(
     if (isTablet()) {
         containerModifier.fillMaxWidth()
     } else {
-        containerModifier.requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+        containerModifier
+            .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+            .fillMaxHeight()
     }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
@@ -118,7 +120,6 @@ fun ProvidersBottomSheet(
         sheetContent = {
             Box(
                 modifier = containerModifier
-                    .fillMaxHeight()
                     .offset(y = 1.dp)
                     .border(
                         1.dp,
