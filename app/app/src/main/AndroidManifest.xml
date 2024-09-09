@@ -73,10 +73,12 @@
         </service>
 
         <receiver
-            android:name=".StartAtBootReceiver"
+            android:name=".StartReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.MY_PACKAGE_UNSUSPENDED" />
             </intent-filter>
         </receiver>
     </application>
