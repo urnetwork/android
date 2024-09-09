@@ -7,9 +7,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
@@ -19,10 +19,9 @@ import com.bringyour.network.ui.wallet.SagaViewModel
 @Composable
 fun AccountNavHost(
     sagaViewModel: SagaViewModel,
+    navController: NavHostController,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
-
-    val navController = rememberNavController()
 
     NavHost(
         navController = navController,
