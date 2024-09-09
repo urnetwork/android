@@ -26,7 +26,6 @@ import com.bringyour.client.Client.ProvideModeNone
 import com.bringyour.client.OverlayViewController
 import com.bringyour.client.Sub
 import dagger.hilt.android.HiltAndroidApp
-import go.error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject

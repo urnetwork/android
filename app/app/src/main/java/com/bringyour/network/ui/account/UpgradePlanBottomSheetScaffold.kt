@@ -67,17 +67,6 @@ fun UpgradePlanBottomSheetScaffold(
     val application = context.applicationContext as? MainApplication
     val overlayVc = application?.overlayVc
 
-    val containerModifier = Modifier
-
-    if (isTablet()) {
-        containerModifier
-            .fillMaxWidth()
-    } else {
-        containerModifier
-            .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
-            .fillMaxHeight()
-    }
-
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetShape = RoundedCornerShape(
@@ -89,7 +78,16 @@ fun UpgradePlanBottomSheetScaffold(
         sheetDragHandle = {},
         sheetContent = {
             Box(
-                modifier = containerModifier
+                modifier = Modifier
+                    .then(
+                        if (isTablet()) {
+                            Modifier.fillMaxWidth()
+                        } else {
+                            Modifier
+                                .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+                                .fillMaxHeight()
+                        }
+                    )
                     .offset(y = 1.dp)
                     .border(
                         1.dp,

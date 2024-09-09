@@ -92,16 +92,6 @@ fun ProvidersBottomSheet(
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val containerModifier = Modifier
-
-    if (isTablet()) {
-        containerModifier.fillMaxWidth()
-    } else {
-        containerModifier
-            .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
-            .fillMaxHeight()
-    }
-
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
             keyboardController?.hide()
@@ -119,7 +109,16 @@ fun ProvidersBottomSheet(
         sheetDragHandle = {},
         sheetContent = {
             Box(
-                modifier = containerModifier
+                modifier = Modifier
+                    .then(
+                        if (isTablet()) {
+                            Modifier.fillMaxWidth()
+                        } else {
+                            Modifier
+                                .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+                                .fillMaxHeight()
+                        }
+                    )
                     .offset(y = 1.dp)
                     .border(
                         1.dp,
