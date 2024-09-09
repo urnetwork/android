@@ -36,6 +36,7 @@ import com.bringyour.network.ui.account.CircleViewSetterProvider
 import circle.programmablewallet.sdk.presentation.EventListener
 import com.bringyour.client.Client.ProvideModeNone
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.NetworkSpace
 import com.bringyour.client.Sub
 import go.error
 import kotlinx.coroutines.Dispatchers
@@ -54,15 +55,19 @@ class MainApplication : Application() {
 //    var endpoints : Endpoints? = null
 
     // fixme should be set on the first screen
-    val platformUrl = "wss://connect.bringyour.com"
-    val apiUrl = "https://api.bringyour.com"
+//    val platformUrl = "wss://connect.bringyour.com"
+//    val apiUrl = "https://api.bringyour.com"
+
+    val networkSpaceManager = Client.newNetworkSpaceManager(filesDir.absolutePath)
+    var networkSpaceSub: Sub? = null
+    var networkSpace: NetworkSpace? = null
 
     var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
-    var byApi: BringYourApi? = null
-    var asyncLocalState: AsyncLocalState? = null
+//    var byApi: BringYourApi? = null
+//    var asyncLocalState: AsyncLocalState? = null
     var router: Router? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
@@ -86,21 +91,73 @@ class MainApplication : Application() {
     private var wifiLock: WifiManager.WifiLock? = null
 
 
+    val byApi get() = networkSpace?.api
+    val asyncLocalState get() = networkSpace?.asyncLocalState
+    val apiUrl get() = networkSpace?.apiUrl
+    val platformUrl get() = networkSpace?.platformUrl
 
 
     override fun onCreate() {
         super.onCreate()
 
+        val bundleNetworkSpaceExists = networkSpaceManager.getNetworkSpace(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV) != null
+        val bundleNetworkSpace = networkSpaceManager.updateNetworkSpace(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV) { values ->
+            // migrate specific bundled fields to the latest from the build
+            values.envSecret = BuildConfig.BRINGYOUR_BUNDLE_ENV_SECRET
+            values.bundled = true
+            // security settings
+            // more security can mean fewer connectivity options and slower connectivity in some regions
+            values.netExposeServerIps = BuildConfig.BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS
+            values.netExposeServerHostNames = BuildConfig.BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES
+            // server settings
+            values.linkHostName = BuildConfig.BRINGYOUR_BUNDLE_LINK_HOST_NAME
+            values.migrationHostName = BuildConfig.BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME
+            // third party settings
+            // TODO sso settings
+            values.store = BuildConfig.BRINGYOUR_BUNDLE_STORE
+            values.wallet = BuildConfig.BRINGYOUR_BUNDLE_WALLET
+        }
+
+        if (!bundleNetworkSpaceExists || networkSpaceManager.activeNetworkSpace == null) {
+            // switch to the bundled network space when first created
+            // this is important when migrating from an older bundle to a newer bundle
+            networkSpaceManager.activeNetworkSpace = bundleNetworkSpace
+        }
+
+        networkSpaceSub = networkSpaceManager.addNetworkSpaceListener { networkSpace ->
+            runBlocking(Dispatchers.Main.immediate) {
+                updateActiveNetworkSpace(networkSpace)
+
+                // launch the initial activity
+                val intent = Intent(applicationContext, LoginActivity::class.java)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_TASK_ON_HOME))
+                startActivity(intent)
+            }
+        }
+
+        updateActiveNetworkSpace(networkSpaceManager.activeNetworkSpace!!)
+    }
+
+
+    fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
+        stop()
+
+        this.networkSpace = networkSpace
         // use sync mode for the local state
-        asyncLocalState = Client.newAsyncLocalState(filesDir.absolutePath)
-        byApi = Client.newBringYourApi(apiUrl)
+//        asyncLocalState = networkSpace.asyncLocalState
+//        byApi = networkSpace.byApi
 
         loginVc = Client.newLoginViewController(byApi)
+
+        if (networkSpace.wallet == "circle" || networkSpace.wallet == "all") {
+            initCircleWallet()
+        }
 
         asyncLocalState?.localState()?.let { localState ->
             localState.byClientJwt?.let { byClientJwt ->
                 if (byClientJwt == "") {
                     // missing one or both of jwt or client jwt
+                    // clean up the local state
                     localState.logout()
                 } else {
                     // the device wraps the api and sets the jwt
@@ -113,7 +170,7 @@ class MainApplication : Application() {
             }
         }
 
-        initCircleWallet()
+
     }
 
     fun addNetworkCallback() {
@@ -205,6 +262,7 @@ class MainApplication : Application() {
     fun logout() {
         stop()
 
+        // note this clears the clientJwt also
         asyncLocalState?.localState()?.byJwt = ""
         byApi?.setByJwt(null)
     }
@@ -238,14 +296,17 @@ class MainApplication : Application() {
 //        connectEnabled = false
         accountVc?.close()
         accountVc = null
+
+        loginVc?.close()
+        loginVc = null
     }
 
 
     private fun initDevice(byClientJwt: String, instanceId: Id, routeLocal: Boolean, provideMode: Long, connectLocation: ConnectLocation?) {
         byDevice = Client.newBringYourDeviceWithDefaults(
-            byApi,
+            networkSpace,
             byClientJwt,
-            platformUrl,
+//            platformUrl,
             getDeviceDescription(),
             getDeviceSpec(),
             getAppVersion(),
