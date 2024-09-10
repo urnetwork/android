@@ -1,17 +1,22 @@
 package com.bringyour.network.ui.wallet
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.BringYourDevice
+import com.bringyour.client.ValidateAddressCallback
 import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -48,6 +53,25 @@ class WalletViewModel @Inject constructor(
 
     val closeExternalWalletModal = {
         addExternalWalletModalVisible = false
+    }
+
+    var externalWalletAddress by mutableStateOf(TextFieldValue())
+        private set
+
+    var externalWalletAddressIsValid by mutableStateOf(WalletValidationState(
+        solana = false,
+        polygon = false
+    ))
+
+    val setExternaWalletAddress: (TextFieldValue) -> Unit = { address ->
+
+        externalWalletAddress = address
+
+        if (externalWalletAddress.text.length >= 42) {
+            validateWalletAddress(externalWalletAddress.text, "MATIC")
+            validateWalletAddress(externalWalletAddress.text, "SOL")
+        }
+
     }
 
     val createCircleWallet: (OnWalletExecute) -> Unit = { onExecute ->
@@ -97,6 +121,26 @@ class WalletViewModel @Inject constructor(
 
     }
 
+
+    val validateWalletAddress: (address: String, chain: String) -> Unit = { address, chain ->
+
+        viewModelScope.launch {
+
+            val callback = ValidateAddressCallback { result ->
+
+                if (chain == "MATIC") {
+                    externalWalletAddressIsValid = externalWalletAddressIsValid.copy(polygon = result)
+                } else if (chain == "SOL") {
+                    externalWalletAddressIsValid = externalWalletAddressIsValid.copy(solana = result)
+                }
+
+            }
+
+            walletVc?.validateAddress(address, chain, callback)
+
+        }
+    }
+
     val findWalletById: (String) -> AccountWallet? = { id ->
         walletVc?.filterWalletsById(id)
     }
@@ -135,5 +179,10 @@ class WalletViewModel @Inject constructor(
     }
 
 }
+
+data class WalletValidationState(
+    var solana: Boolean = false,
+    var polygon: Boolean = false
+)
 
 typealias OnWalletExecute = (walletSdk: WalletSdk, userToken: String, encryptionKey: String, challengeId: String) -> Unit
