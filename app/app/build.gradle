@@ -22,10 +22,17 @@ import org.yaml.snakeyaml.Yaml
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
 
 ext.envSecret = { envName ->
-    def services = new Yaml().load(file("$bringyourHomeDir/vault/$envName/services.yml").newInputStream())
-    if (services.hidden_prefixes && 0 < services.hidden_prefixes.size()) {
-        services.hidden_prefixes[0]
+    def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
+    if (servicesFile.exists()) {
+        def services = new Yaml().load(servicesFile.newInputStream())
+        if (services.hidden_prefixes && 0 < services.hidden_prefixes.size()) {
+            services.hidden_prefixes[0]
+        } else {
+            ''
+        }
     } else {
+        // services file doesn't exist
+        println("WARNING: [${envName}] services file doesn't exist, so the env secret won't be set (${servicesFile})")
         ''
     }
 }
