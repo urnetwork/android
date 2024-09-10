@@ -1,16 +1,33 @@
-import java.text.SimpleDateFormat
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.3'
+    }
+}
 
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
 
+
+import java.text.SimpleDateFormat
+import org.yaml.snakeyaml.Yaml
+
+
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
 
-
-ext.envSecret = { env ->
-    // FIXME loop up the env secret in $BRINGYOUR_HOME/vault/env/settings.yml
-    return ''
+ext.envSecret = { envName ->
+    def services = new Yaml().load(file("$bringyourHomeDir/vault/$envName/services.yml").newInputStream())
+    if (services.hidden_prefixes && 0 < services.hidden_prefixes.size()) {
+        services.hidden_prefixes[0]
+    } else {
+        ''
+    }
 }
 
 android {
@@ -93,7 +110,7 @@ android {
             versionNameSuffix '-local'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV", '"local"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"local"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
@@ -108,11 +125,15 @@ android {
             applicationId 'com.bringyour.network.dev'
             versionNameSuffix '-dev'
 
+            // set up dns entries for your developer host ip, e.g.
+            //   outerwerld-api.bringyour.com -> 192.168.1.11
+            //   outerwerld-connect.bringyour.com -> 192.168.1.11
+
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
             // the env is the host name
             // the server names will be e.g. outerwerld-lb.bringyour.com, outerwerld-api.bringyour.com, outerwerld-connect.bringyour.com, etc.
             // to make development easy, set your ip in the DNS
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV", "\"$System.env.HOST\""
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", "\"${System.env.HOST}\""
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
@@ -128,9 +149,9 @@ android {
             versionNameSuffix '-canary'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV", '"canary"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"canary"'
             // use secret so that we can use public routing that only our builds can access
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", "\"$envSecret('canary')\""
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", "\"${envSecret('canary')}\""
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
@@ -145,7 +166,7 @@ android {
             versionNameSuffix '-github'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
@@ -166,7 +187,7 @@ android {
             versionNameSuffix '-play'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
@@ -182,7 +203,7 @@ android {
             versionNameSuffix '-solana_dapp'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
@@ -198,7 +219,7 @@ android {
             versionNameSuffix '-fire'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'

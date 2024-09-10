@@ -1,10 +1,7 @@
 package com.bringyour.network
 
 import android.app.Application
-import android.app.BackgroundServiceStartNotAllowedException
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
@@ -13,18 +10,14 @@ import android.net.NetworkRequest
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.core.content.ContextCompat
 import circle.programmablewallet.sdk.WalletSdk
-import circle.programmablewallet.sdk.api.ExecuteEvent
 import circle.programmablewallet.sdk.presentation.SecurityQuestion
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.client.AccountViewController
-import com.bringyour.client.AsyncLocalState
-import com.bringyour.client.BringYourApi
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
 import com.bringyour.client.ConnectViewController
@@ -33,12 +26,10 @@ import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
-import circle.programmablewallet.sdk.presentation.EventListener
-import com.bringyour.client.Client.ProvideModeNone
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.NetworkSpace
+import com.bringyour.client.NetworkSpaceManager
 import com.bringyour.client.Sub
-import go.error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -58,7 +49,7 @@ class MainApplication : Application() {
 //    val platformUrl = "wss://connect.bringyour.com"
 //    val apiUrl = "https://api.bringyour.com"
 
-    val networkSpaceManager = Client.newNetworkSpaceManager(filesDir.absolutePath)
+    var networkSpaceManager: NetworkSpaceManager? = null
     var networkSpaceSub: Sub? = null
     var networkSpace: NetworkSpace? = null
 
@@ -91,17 +82,22 @@ class MainApplication : Application() {
     private var wifiLock: WifiManager.WifiLock? = null
 
 
-    val byApi get() = networkSpace?.api
+    val api get() = networkSpace?.api
     val asyncLocalState get() = networkSpace?.asyncLocalState
-    val apiUrl get() = networkSpace?.apiUrl
-    val platformUrl get() = networkSpace?.platformUrl
+//    val apiUrl get() = networkSpace?.apiUrl
+//    val platformUrl get() = networkSpace?.platformUrl
 
 
     override fun onCreate() {
         super.onCreate()
 
-        val bundleNetworkSpaceExists = networkSpaceManager.getNetworkSpace(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV) != null
-        val bundleNetworkSpace = networkSpaceManager.updateNetworkSpace(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV) { values ->
+        networkSpaceManager = Client.newNetworkSpaceManager(filesDir.absolutePath)
+
+        val networkSpaceManager = this.networkSpaceManager ?: return
+
+        val key = Client.newNetworkSpaceKey(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
+        val bundleNetworkSpaceExists = networkSpaceManager.getNetworkSpace(key) != null
+        val bundleNetworkSpace = networkSpaceManager.updateNetworkSpace(key) { values ->
             // migrate specific bundled fields to the latest from the build
             values.envSecret = BuildConfig.BRINGYOUR_BUNDLE_ENV_SECRET
             values.bundled = true
@@ -124,7 +120,7 @@ class MainApplication : Application() {
             networkSpaceManager.activeNetworkSpace = bundleNetworkSpace
         }
 
-        networkSpaceSub = networkSpaceManager.addNetworkSpaceListener { networkSpace ->
+        networkSpaceSub = networkSpaceManager.addActiveNetworkSpaceChangeListener { networkSpace ->
             runBlocking(Dispatchers.Main.immediate) {
                 updateActiveNetworkSpace(networkSpace)
 
@@ -147,7 +143,7 @@ class MainApplication : Application() {
 //        asyncLocalState = networkSpace.asyncLocalState
 //        byApi = networkSpace.byApi
 
-        loginVc = Client.newLoginViewController(byApi)
+        loginVc = Client.newLoginViewController(api)
 
         if (networkSpace.wallet == "circle" || networkSpace.wallet == "all") {
             initCircleWallet()
@@ -243,7 +239,7 @@ class MainApplication : Application() {
 
     fun login(byJwt: String) {
         asyncLocalState?.localState()?.byJwt = byJwt
-        byApi?.setByJwt(byJwt)
+        api?.setByJwt(byJwt)
     }
 
     fun loginClient(byClientJwt: String) {
@@ -263,16 +259,14 @@ class MainApplication : Application() {
         stop()
 
         // note this clears the clientJwt also
-        asyncLocalState?.localState()?.byJwt = ""
-        byApi?.setByJwt(null)
+        asyncLocalState?.localState()?.logout()
+        api?.byJwt = null
     }
 
     fun stop() {
         stopVpnService()
 
         removeNetworkCallback()
-
-        asyncLocalState?.localState()?.logout()
 
         connectVc?.let {
             byDevice?.closeViewController(it)
@@ -317,7 +311,11 @@ class MainApplication : Application() {
 
 
 
-        router = Router(byDevice!!)
+        router = Router(byDevice!!) {
+            runBlocking(Dispatchers.Main.immediate) {
+                updateVpnService()
+            }
+        }
 
         connectVc = byDevice?.openConnectViewController()
         devicesVc = byDevice?.openDevicesViewController()
@@ -410,72 +408,6 @@ class MainApplication : Application() {
 //        vpnRequestStart = true
 //    }
 
-    fun startVpnService() {
-
-        val vpnIntent = Intent(this, MainService::class.java)
-        vpnIntent.putExtra("source", "app")
-        vpnIntent.putExtra("stop", false)
-        vpnIntent.putExtra("start", true)
-        vpnIntent.putExtra("foreground", true)
-        try {
-            sendVpnServiceIntent(vpnIntent)
-            vpnRequestStart = false
-        } catch (e: Exception) {
-            Log.i(TAG, "Could not start vpn service: ${e.message}")
-            // set the `vpnRequestStart` flag on failure
-            // the app will call `startVpnService` once the permissions are ready
-            vpnRequestStart = true
-        }
-
-//        startService(vpnIntent)
-
-    }
-
-    fun stopVpnService() {
-        vpnRequestStart = false
-
-        val vpnIntent = Intent(this, MainService::class.java)
-        vpnIntent.putExtra("source", "app")
-        vpnIntent.putExtra("stop", true)
-        vpnIntent.putExtra("start", false)
-        vpnIntent.putExtra("foreground", false)
-        try {
-            sendVpnServiceIntent(vpnIntent)
-        } catch (e: Exception) {
-            Log.i(TAG, "Could not start vpn service: ${e.message}")
-            // ignore
-        }
-
-
-    }
-
-    private fun sendVpnServiceIntent(vpnIntent: Intent) {
-        if (VpnService.prepare(this) == null) {
-            // important: start the vpn service in the application context
-
-            vpnIntent.getBooleanExtra("foreground", false).let { foreground ->
-                if (foreground) {
-                    // use a foreground service to allow notifications
-                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                        val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                            this,
-                            android.Manifest.permission.POST_NOTIFICATIONS
-                        ) == PackageManager.PERMISSION_GRANTED
-                        if (hasForegroundPermissions) {
-                            startForegroundService(vpnIntent)
-                        } else {
-                            startService(vpnIntent)
-                        }
-                    } else {
-                        ContextCompat.startForegroundService(this, vpnIntent)
-                    }
-                } else {
-                    startService(vpnIntent)
-                }
-            }
-        }
-    }
-
 
     private fun updateVpnService() {
         val byDevice = byDevice ?: return
@@ -500,7 +432,7 @@ class MainApplication : Application() {
 
                     wifiLock = (getSystemService(WIFI_SERVICE) as WifiManager).run {
                         val wifiLockMode: Int
-                        if (Build.VERSION_CODES.Q <= Build.VERSION.SDK_INT) {
+                        if (Build.VERSION_CODES.UPSIDE_DOWN_CAKE <= Build.VERSION.SDK_INT) {
                             wifiLockMode = WifiManager.WIFI_MODE_FULL_LOW_LATENCY
                         } else {
                             wifiLockMode = WifiManager.WIFI_MODE_FULL_HIGH_PERF
@@ -529,6 +461,70 @@ class MainApplication : Application() {
             wifiLock?.release()
             wifiLock = null
         }
+    }
+
+
+    fun startVpnService() {
+
+        val foreground = true
+
+        val vpnIntent = Intent(this, MainService::class.java)
+        vpnIntent.putExtra("source", "app")
+        vpnIntent.putExtra("stop", false)
+        vpnIntent.putExtra("start", true)
+        vpnIntent.putExtra("foreground", foreground)
+
+        try {
+            if (VpnService.prepare(this) != null) {
+                // prepare returns an intent when the user must grant additional permissions
+                // the ui will check `vpnRequestStart` and start again when the permissions have been set up
+                vpnRequestStart = true
+            } else {
+                // important: start the vpn service in the application context
+
+                if (foreground) {
+                    // use a foreground service to allow notifications
+                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                        val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+                            this,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (hasForegroundPermissions) {
+                            startForegroundService(vpnIntent)
+                        } else {
+                            startService(vpnIntent)
+                        }
+                    } else {
+                        ContextCompat.startForegroundService(this, vpnIntent)
+                    }
+                } else {
+                    startService(vpnIntent)
+                }
+
+                vpnRequestStart = false
+            }
+        } catch (e: Exception) {
+            Log.i(TAG, "Error trying to communicate with the vpn service to start: ${e.message}")
+            vpnRequestStart = true
+        }
+    }
+
+    fun stopVpnService() {
+        vpnRequestStart = false
+
+        val vpnIntent = Intent(this, MainService::class.java)
+        vpnIntent.putExtra("source", "app")
+        vpnIntent.putExtra("stop", true)
+        vpnIntent.putExtra("start", false)
+        vpnIntent.putExtra("foreground", false)
+        try {
+            startService(vpnIntent)
+        } catch (e: Exception) {
+            Log.i(TAG, "Error trying to communicate with the vpn service to stop: ${e.message}")
+            // ignore
+        }
+
+
     }
 
 

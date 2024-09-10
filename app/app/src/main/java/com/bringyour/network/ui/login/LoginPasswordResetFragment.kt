@@ -1,9 +1,6 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
@@ -18,9 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bringyour.client.AuthPasswordResetArgs
-import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginPasswordResetBinding
@@ -101,7 +96,7 @@ class LoginPasswordResetFragment : Fragment() {
             val args = AuthPasswordResetArgs()
             args.userAuth = userAuth.text.toString().trim()
 
-            app.byApi?.authPasswordReset(args) { result, err ->
+            app.api?.authPasswordReset(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 

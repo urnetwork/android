@@ -1,12 +1,10 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +17,6 @@ import androidx.fragment.app.Fragment
 import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.client.AuthVerifySendArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginVerifyBinding
@@ -81,7 +78,7 @@ class LoginVerifyFragment : Fragment() {
             val args = AuthVerifySendArgs()
             args.userAuth = userAuthStr
 
-            app.byApi?.authVerifySend(args) { result, err ->
+            app.api?.authVerifySend(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     if (err != null) {
                         verifyResendCodeButton.text = getString(R.string.verify_send_error)
@@ -133,7 +130,7 @@ class LoginVerifyFragment : Fragment() {
             args.userAuth = userAuthStr
             args.verifyCode = verifyCode.text.toString().trim()
 
-            app.byApi?.authVerify(args) { result, err ->
+            app.api?.authVerify(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 

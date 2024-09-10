@@ -1,10 +1,6 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
-import android.net.VpnService
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,23 +10,17 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.VideoView
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bringyour.client.AuthLoginArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
-import com.bringyour.network.MainService
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginInitialBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -40,7 +30,6 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.w3c.dom.Text
 
 
 class LoginInitialFragment : Fragment() {
@@ -132,7 +121,7 @@ class LoginInitialFragment : Fragment() {
             val args = AuthLoginArgs()
             args.userAuth = userAuth.text.toString().trim()
 
-            app.byApi?.authLogin(args) { result, err ->
+            app.api?.authLogin(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 
@@ -209,7 +198,7 @@ class LoginInitialFragment : Fragment() {
             args.authJwt = account.idToken
             args.authJwtType = "google"
 
-            app.byApi?.authLogin(args) { result, err ->
+            app.api?.authLogin(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 

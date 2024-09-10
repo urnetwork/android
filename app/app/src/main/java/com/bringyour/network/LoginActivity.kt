@@ -1,28 +1,17 @@
 package com.bringyour.network
 
-import android.content.ComponentCallbacks
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.net.Uri
-import android.opengl.GLSurfaceView
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.bringyour.client.AuthNetworkClientArgs
 import com.bringyour.network.databinding.ActivityLoginBinding
-import com.google.android.gms.common.SignInButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.Callable
 
 
 class LoginActivity : AppCompatActivity() {
@@ -127,7 +116,7 @@ class LoginActivity : AppCompatActivity() {
         authArgs.description = app.getDeviceDescription()
         authArgs.deviceSpec = app.getDeviceSpec()
 
-        app.byApi?.authNetworkClient(authArgs) { result, err ->
+        app.api?.authNetworkClient(authArgs) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 if (err != null) {
                     callback(err.message)
