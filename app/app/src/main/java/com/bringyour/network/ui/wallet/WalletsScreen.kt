@@ -74,7 +74,10 @@ fun WalletsScreen(
         closeModal = walletViewModel.closeExternalWalletModal,
         createCircleWallet = walletViewModel.createCircleWallet,
         circleWalletInProgress = walletViewModel.circleWalletInProgress,
-        wallets = walletViewModel.wallets
+        wallets = walletViewModel.wallets,
+        externalWalletAddress = walletViewModel.externalWalletAddress,
+        setExternalWalletAddress = walletViewModel.setExternaWalletAddress,
+        walletValidationState = walletViewModel.externalWalletAddressIsValid
     )
 
 }
@@ -90,7 +93,10 @@ fun WalletsScreen(
     openModal: () -> Unit,
     closeModal: () -> Unit,
     createCircleWallet: (OnWalletExecute) -> Unit,
+    externalWalletAddress: TextFieldValue,
+    setExternalWalletAddress: (TextFieldValue) -> Unit,
     circleWalletInProgress: Boolean,
+    walletValidationState: WalletValidationState,
     wallets: List<AccountWallet>
 ) {
     val context = LocalContext.current
@@ -383,10 +389,13 @@ fun WalletsScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 URTextInput(
-                    value = TextFieldValue(""),
-                    onValueChange = {},
+                    value = externalWalletAddress,
+                    onValueChange = { newValue ->
+                        setExternalWalletAddress(newValue)
+                                    },
                     label = "Wallet Address",
-                    placeholder = "Copy and paste here"
+                    placeholder = "Copy and paste here",
+                    maxLines = 2
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -405,7 +414,11 @@ fun WalletsScreen(
                                 fontSize = 14.sp
                             )
                         ),
-                        onClick = {closeModal()},
+                        onClick = {
+                            closeModal()
+                            setExternalWalletAddress(TextFieldValue(""))
+                                  },
+
                     )
 
                     Spacer(modifier = Modifier.width(32.dp))
@@ -413,10 +426,15 @@ fun WalletsScreen(
                     ClickableText(
                         text = AnnotatedString(
                             "Connect",
-                            spanStyle = SpanStyle(
-                                color = BlueMedium,
-                                fontSize = 14.sp
-                            )
+                            spanStyle = if (walletValidationState.solana || walletValidationState.polygon)
+                                SpanStyle(
+                                    color = BlueMedium,
+                                    fontSize = 14.sp
+                                ) else
+                                SpanStyle(
+                                    color = TextMuted,
+                                    fontSize = 14.sp
+                                )
                         ),
                         onClick = {
                             // todo - validate and add external wallet
@@ -445,7 +463,10 @@ private fun WalletScreenPreview() {
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
-            wallets = listOf()
+            wallets = listOf(),
+            externalWalletAddress = TextFieldValue(""),
+            setExternalWalletAddress = {},
+            walletValidationState = WalletValidationState()
         )
     }
 }
@@ -467,7 +488,10 @@ private fun WalletScreenSagaPreview() {
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
-            wallets = listOf()
+            wallets = listOf(),
+            externalWalletAddress = TextFieldValue(""),
+            setExternalWalletAddress = {},
+            walletValidationState = WalletValidationState()
         )
     }
 }
@@ -489,7 +513,10 @@ private fun WalletScreenExternalWalletModalPreview() {
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
-            wallets = listOf()
+            wallets = listOf(),
+            externalWalletAddress = TextFieldValue(""),
+            setExternalWalletAddress = {},
+            walletValidationState = WalletValidationState()
         )
     }
 }
