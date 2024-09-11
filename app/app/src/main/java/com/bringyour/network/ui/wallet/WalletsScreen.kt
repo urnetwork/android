@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
@@ -45,8 +47,6 @@ import circle.programmablewallet.sdk.result.ExecuteResult
 import com.bringyour.client.AccountWallet
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
-import com.bringyour.network.ui.components.ButtonStyle
-import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URDialog
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
@@ -56,6 +56,13 @@ import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.res.painterResource
+import com.bringyour.client.Id
+import com.bringyour.network.R
+import com.bringyour.network.ui.components.InfoIconWithOverlay
+import com.bringyour.network.ui.theme.BlueLight
 
 @Composable
 fun WalletsScreen(
@@ -77,7 +84,10 @@ fun WalletsScreen(
         wallets = walletViewModel.wallets,
         externalWalletAddress = walletViewModel.externalWalletAddress,
         setExternalWalletAddress = walletViewModel.setExternaWalletAddress,
-        walletValidationState = walletViewModel.externalWalletAddressIsValid
+        walletValidationState = walletViewModel.externalWalletAddressIsValid,
+        createExternalWallet = walletViewModel.createExternalWallet,
+        isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
+        payoutWalletId = walletViewModel.payoutWalletId
     )
 
 }
@@ -97,6 +107,9 @@ fun WalletsScreen(
     setExternalWalletAddress: (TextFieldValue) -> Unit,
     circleWalletInProgress: Boolean,
     walletValidationState: WalletValidationState,
+    createExternalWallet: () -> Unit,
+    isProcessingExternalWallet: Boolean,
+    payoutWalletId: Id?,
     wallets: List<AccountWallet>
 ) {
     val context = LocalContext.current
@@ -105,14 +118,6 @@ fun WalletsScreen(
 
     // todo - populate this with real data
     val estimatedPayoutAmount = "0.25"
-
-    val connectSaga = {
-        getSolanaAddress { address ->
-            Log.i("WalletScreen", "Solana address is $address")
-
-            // todo - create wallet + set as payout wallet
-        }
-    }
 
     val initCircleWallet = {
 
@@ -176,7 +181,6 @@ fun WalletsScreen(
                                 encryptionKey,
                                 object : Callback<ExecuteResult> {
                                     override fun onError(error: Throwable): Boolean {
-                                        // update {}
 
                                         error.printStackTrace()
                                         if (error is ApiError) {
@@ -233,7 +237,6 @@ fun WalletsScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 Row(
@@ -290,87 +293,91 @@ fun WalletsScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                Text(
-                    "You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = TextMuted
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    "To start earning, connect your cryptocurrency wallet to URnetwork or set one up with Circle.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = TextMuted
-                )
             }
 
-            Column {
-                URButton(
-                    onClick = {
-                        initCircleWallet()
-                    },
-                    enabled = !circleWalletInProgress
-                ) { buttonTextStyle ->
-                    Text("Set up Circle Wallet", style = buttonTextStyle)
-                }
+            if (wallets.isEmpty()) {
+                SetupWallet(
+                    initCircleWallet = initCircleWallet,
+                    circleWalletInProgress = circleWalletInProgress,
+                    isSolanaSaga = isSolanaSaga,
+                    getSolanaAddress = getSolanaAddress,
+                    openModal = openModal,
+                    connectSaga = { address ->
+                        if (!address.isNullOrEmpty()) {
+                            setExternalWalletAddress(TextFieldValue(address))
+                            createExternalWallet()
+                        }
+                    }
+                )
+            } else {
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row {
+                        Text(
+                            "Wallets",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
 
-                if (isSolanaSaga) {
-
-                    URButton(
-                        onClick = {
-                            connectSaga()
-                        },
-                        style = ButtonStyle.OUTLINE
-                    ) { buttonTextStyle ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text("Connect Saga wallet", style = buttonTextStyle)
+                        InfoIconWithOverlay() {
+                            Column() {
+                                Text(
+                                    "Solana and Polygon wallets are currently supported",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = BlueLight
+                                )
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                    IconButton(
+                        onClick = { openModal() },
+                        modifier = Modifier
+                            .background(
+                                color = MainTintedBackgroundBase,
+                                shape = CircleShape
+                            )
+                            .width(26.dp)
+                            .height(26.dp)
                     ) {
-                        ClickableText(
-                            text = AnnotatedString("Connect another wallet"),
-                            style = MaterialTheme.typography.bodyLarge.copy(color = BlueMedium),
-                            onClick = {
-                                openModal()
-                            }
+                        Icon(
+                            painter = painterResource(id = R.drawable.plus_icon),
+                            contentDescription = "Add wallet",
+                            tint = TextMuted,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-                } else {
-                    // non Saga wallet
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    URButton(
-                        onClick = {
-                            openModal()
-                        },
-                        style = ButtonStyle.OUTLINE
-                    ) { buttonTextStyle ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text("Connect external wallet", style = buttonTextStyle)
-                        }
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(124.dp)
+                ) {
+
+
+                    items(wallets) { wallet ->
+
+                        WalletCard(
+                            isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
+                            blockchain = Blockchain.fromString(wallet.blockchain),
+                            isPayoutWallet = wallet.walletId.equals(payoutWalletId),
+                            walletAddress = wallet.walletAddress
+                        )
+
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
 
                 }
 
             }
+
         }
 
         URDialog(
@@ -426,7 +433,7 @@ fun WalletsScreen(
                     ClickableText(
                         text = AnnotatedString(
                             "Connect",
-                            spanStyle = if (walletValidationState.solana || walletValidationState.polygon)
+                            spanStyle = if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet)
                                 SpanStyle(
                                     color = BlueMedium,
                                     fontSize = 14.sp
@@ -438,6 +445,9 @@ fun WalletsScreen(
                         ),
                         onClick = {
                             // todo - validate and add external wallet
+                            if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
+                                createExternalWallet()
+                            }
                         },
                     )
                 }
@@ -466,7 +476,10 @@ private fun WalletScreenPreview() {
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState()
+            walletValidationState = WalletValidationState(),
+            createExternalWallet = {},
+            isProcessingExternalWallet = false,
+            payoutWalletId = null
         )
     }
 }
@@ -491,7 +504,10 @@ private fun WalletScreenSagaPreview() {
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState()
+            walletValidationState = WalletValidationState(),
+            createExternalWallet = {},
+            isProcessingExternalWallet = false,
+            payoutWalletId = null
         )
     }
 }
@@ -516,7 +532,10 @@ private fun WalletScreenExternalWalletModalPreview() {
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState()
+            walletValidationState = WalletValidationState(),
+            createExternalWallet = {},
+            isProcessingExternalWallet = false,
+            payoutWalletId = null
         )
     }
 }
