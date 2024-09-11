@@ -60,7 +60,7 @@ fun AccountNavHost(
         
         composable("wallets") {
             WalletsNavHost(
-                parentNavController = navController,
+                accountNavController = navController,
                 sagaViewModel,
             )
         }

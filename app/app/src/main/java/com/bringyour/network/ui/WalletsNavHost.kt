@@ -18,7 +18,7 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 
 @Composable
 fun WalletsNavHost(
-    parentNavController: NavController,
+    accountNavController: NavController,
     sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
@@ -50,7 +50,8 @@ fun WalletsNavHost(
     ) {
         composable("wallets") {
             WalletsScreen(
-                parentNavController,
+                accountNavController,
+                navController,
                 sagaViewModel,
                 walletViewModel
             )

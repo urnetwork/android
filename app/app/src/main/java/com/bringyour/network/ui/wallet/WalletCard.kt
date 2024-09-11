@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.wallet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.bringyour.client.Id
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
@@ -40,6 +44,8 @@ fun WalletCard(
     blockchain: Blockchain?,
     isPayoutWallet: Boolean,
     walletAddress: String,
+    walletId: Id,
+    navController: NavController,
 ) {
 
     val walletType = if (isCircleWallet) "Circle"
@@ -57,6 +63,9 @@ fun WalletCard(
                 shape = RoundedCornerShape(size = 12.dp)
             )
             .padding(16.dp)
+            .clickable {
+                navController.navigate("wallet/${walletId}")
+            }
     ) {
 
         Row(
@@ -212,12 +221,16 @@ fun WalletChainIcon(
 @Preview
 @Composable
 private fun WalletCardCirclePreview() {
+    val navController = rememberNavController()
+
     URNetworkTheme {
         WalletCard(
             isCircleWallet = true,
             blockchain = Blockchain.POLYGON,
             isPayoutWallet = true,
-            walletAddress = "0x0000000000000000000000"
+            walletAddress = "0x0000000000000000000000",
+            navController = navController,
+            walletId = Id()
         )
     }
 }
@@ -225,12 +238,16 @@ private fun WalletCardCirclePreview() {
 @Preview
 @Composable
 private fun WalletCardSolanaPreview() {
+    val navController = rememberNavController()
+
     URNetworkTheme {
         WalletCard(
             isCircleWallet = false,
             blockchain = Blockchain.SOLANA,
             isPayoutWallet = false,
-            walletAddress = "0x0000000000000000000000"
+            walletAddress = "0x0000000000000000000000",
+            navController = navController,
+            walletId = Id()
         )
     }
 }
@@ -238,12 +255,16 @@ private fun WalletCardSolanaPreview() {
 @Preview
 @Composable
 private fun WalletCardPolygonPreview() {
+    val navController = rememberNavController()
+
     URNetworkTheme {
         WalletCard(
             isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
             isPayoutWallet = false,
             walletAddress = "0x0000000000000000000000",
+            navController = navController,
+            walletId = Id()
         )
     }
 }

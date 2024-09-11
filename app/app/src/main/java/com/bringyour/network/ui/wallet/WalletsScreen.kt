@@ -66,13 +66,15 @@ import com.bringyour.network.ui.theme.BlueLight
 
 @Composable
 fun WalletsScreen(
-    navController: NavController,
+    accountNavController: NavController,
+    walletNavController: NavController,
     sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
 
     WalletsScreen(
-        navController,
+        accountNavController,
+        walletNavController,
         isSolanaSaga = sagaViewModel.isSolanaSaga,
         getSolanaAddress = sagaViewModel.getSagaWalletAddress,
         nextPayoutDate = walletViewModel.nextPayoutDateStr,
@@ -95,7 +97,8 @@ fun WalletsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletsScreen(
-    navController: NavController,
+    accountNavController: NavController,
+    walletNavController: NavController,
     isSolanaSaga: Boolean,
     getSolanaAddress: ((String?) -> Unit) -> Unit,
     nextPayoutDate: String,
@@ -218,10 +221,10 @@ fun WalletsScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Wallet", style = TopBarTitleTextStyle)
+                    Text("Payout Wallets", style = TopBarTitleTextStyle)
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { accountNavController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
                     }
                 },
@@ -368,7 +371,9 @@ fun WalletsScreen(
                             isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
                             blockchain = Blockchain.fromString(wallet.blockchain),
                             isPayoutWallet = wallet.walletId.equals(payoutWalletId),
-                            walletAddress = wallet.walletAddress
+                            walletAddress = wallet.walletAddress,
+                            walletId = wallet.walletId,
+                            navController = walletNavController
                         )
 
                     }
@@ -460,11 +465,13 @@ fun WalletsScreen(
 @Composable
 private fun WalletScreenPreview() {
 
-    val navController = rememberNavController()
+    val parentNavController = rememberNavController()
+    val walletNavController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            navController,
+            parentNavController,
+            walletNavController,
             isSolanaSaga = false,
             getSolanaAddress = {},
             nextPayoutDate = "Jan 1",
@@ -488,11 +495,13 @@ private fun WalletScreenPreview() {
 @Composable
 private fun WalletScreenSagaPreview() {
 
-    val navController = rememberNavController()
+    val parentNavController = rememberNavController()
+    val walletNavController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            navController,
+            parentNavController,
+            walletNavController,
             isSolanaSaga = true,
             getSolanaAddress = {},
             nextPayoutDate = "Jan 1",
@@ -516,11 +525,13 @@ private fun WalletScreenSagaPreview() {
 @Composable
 private fun WalletScreenExternalWalletModalPreview() {
 
-    val navController = rememberNavController()
+    val parentNavController = rememberNavController()
+    val walletNavController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            navController,
+            parentNavController,
+            walletNavController,
             isSolanaSaga = true,
             getSolanaAddress = {},
             nextPayoutDate = "Jan 1",
