@@ -1,12 +1,41 @@
-import java.text.SimpleDateFormat
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.3'
+    }
+}
 
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
 
+
+import java.text.SimpleDateFormat
+import org.yaml.snakeyaml.Yaml
+
+
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
 
+ext.envSecret = { envName ->
+    def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
+    if (servicesFile.exists()) {
+        def services = new Yaml().load(servicesFile.newInputStream())
+        if (services.hidden_prefixes && 0 < services.hidden_prefixes.size()) {
+            services.hidden_prefixes[0]
+        } else {
+            ''
+        }
+    } else {
+        // services file doesn't exist
+        println("WARNING: [${envName}] services file doesn't exist, so the env secret won't be set (${servicesFile})")
+        ''
+    }
+}
 
 android {
     ext.appVersion = { ->
@@ -84,16 +113,128 @@ android {
     productFlavors {
         local {
             dimension = 'version'
+            applicationId 'com.bringyour.network.local'
+            versionNameSuffix '-local'
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"local"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+        }
+        dev {
+            dimension = 'version'
+            applicationId 'com.bringyour.network.dev'
+            versionNameSuffix '-dev'
+
+            // set up dns entries for your developer host ip, e.g.
+            //   outerwerld-api.bringyour.com -> 192.168.1.11
+            //   outerwerld-connect.bringyour.com -> 192.168.1.11
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
+            // the env is the host name
+            // the server names will be e.g. outerwerld-lb.bringyour.com, outerwerld-api.bringyour.com, outerwerld-connect.bringyour.com, etc.
+            // to make development easy, set your ip in the DNS
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", "\"${System.env.HOST}\""
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"all"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"all"'
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+        }
+        canary {
+            dimension = 'version'
+            applicationId 'com.bringyour.network.canary'
+            versionNameSuffix '-canary'
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"canary"'
+            // use secret so that we can use public routing that only our builds can access
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", "\"${envSecret('canary')}\""
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+        }
+        github {
+            dimension = 'version'
             applicationId 'com.bringyour.network'
+            versionNameSuffix '-github'
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
+            // the migratioon host name is used for services
+            // TODO this will be removed once we fully migrate to ur.network
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"circle"'
+            // hard coded initial extender networks
+            // this can avoid the need for an initial doh query
+            // json string array
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
         }
         play {
             dimension = 'version'
             applicationId 'com.bringyour.network'
+            versionNameSuffix '-play'
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"play"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"circle"'
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
         }
         solana_dapp {
             dimension = 'version'
             applicationId 'com.bringyour.network'
             versionNameSuffix '-solana_dapp'
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+        }
+        fire {
+            dimension = 'version'
+            applicationId 'com.bringyour.network'
+            versionNameSuffix '-fire'
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"circle"'
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
         }
     }
 

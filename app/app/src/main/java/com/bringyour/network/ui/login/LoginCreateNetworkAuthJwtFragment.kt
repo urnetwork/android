@@ -1,14 +1,10 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputFilter
-import android.text.Spanned
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
-import android.util.Log
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,23 +13,18 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.bringyour.client.LoginViewController
 import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginCreateNetworkAuthJwtBinding
-import com.bringyour.network.databinding.FragmentLoginPasswordBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.w3c.dom.Text
 import java.util.Locale
-import java.util.regex.Pattern
 
 class LoginCreateNetworkAuthJwtFragment : Fragment() {
     private var _binding: FragmentLoginCreateNetworkAuthJwtBinding? = null
@@ -218,7 +209,7 @@ class LoginCreateNetworkAuthJwtFragment : Fragment() {
             args.terms = terms.isChecked
 
 
-            app.byApi?.networkCreate(args) { result, err ->
+            app.api?.networkCreate(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 

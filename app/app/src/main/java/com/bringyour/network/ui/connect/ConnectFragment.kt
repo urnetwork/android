@@ -157,7 +157,7 @@ class ConnectFragment : Fragment() {
         val connectSearch = root.findViewById<EditText>(R.id.connect_search)
         val locationList = root.findViewById<RecyclerView>(R.id.connect_list)
 
-        val adapter = ConnectAdapter(this, connectVc, subs)
+        val adapter = ConnectAdapter(this, app, connectVc, subs)
         locationList.adapter = adapter
         locationList.layoutManager = LinearLayoutManager(context)
 
@@ -228,7 +228,8 @@ class ConnectFragment : Fragment() {
 
                 val disconnectButton = view.findViewById<Button>(R.id.connect_disconnect)
                 disconnectButton?.setOnClickListener {
-                    connectVc.disconnect()
+//                    connectVc.disconnect()
+                    app.setConnectLocation(null)
                 }
 
                 val shuffleButton = view.findViewById<ImageButton>(R.id.connect_shuffle)
@@ -759,7 +760,7 @@ class ConnectFragment : Fragment() {
 }
 
 
-class ConnectAdapter(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, subs: MutableList<Sub>) : RecyclerView.Adapter<ViewHolder>() {
+class ConnectAdapter(val connectFragment: ConnectFragment, val app: MainApplication, val connectVc: ConnectViewController, subs: MutableList<Sub>) : RecyclerView.Adapter<ViewHolder>() {
 
     private val connectLocations = mutableListOf<ConnectLocation>()
     // map country code -> connect location for the country
@@ -803,32 +804,32 @@ class ConnectAdapter(val connectFragment: ConnectFragment, val connectVc: Connec
             ViewTypeCountryChips -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_country_chips, viewGroup, false)
-                return CountryChipsViewHolder(connectFragment, connectVc, view)
+                return CountryChipsViewHolder(connectFragment, app, connectVc, view)
             }
             ViewTypeLocationCity -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_city, viewGroup, false)
-                return ConnectCityViewHolder(connectFragment, connectVc, view)
+                return ConnectCityViewHolder(connectFragment, app, connectVc, view)
             }
             ViewTypeLocationRegion -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_region, viewGroup, false)
-                return ConnectRegionViewHolder(connectFragment, connectVc, view)
+                return ConnectRegionViewHolder(connectFragment, app, connectVc, view)
             }
             ViewTypeLocationCountry -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_country, viewGroup, false)
-                return ConnectCountryViewHolder(connectFragment, connectVc, view)
+                return ConnectCountryViewHolder(connectFragment, app, connectVc, view)
             }
             ViewTypeLocationGroup -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_group, viewGroup, false)
-                return ConnectGroupViewHolder(connectFragment, connectVc, view)
+                return ConnectGroupViewHolder(connectFragment, app, connectVc, view)
             }
             ViewTypeLocationDevice -> {
                 val view = LayoutInflater.from(viewGroup.context)
                     .inflate(R.layout.connect_location_list_device, viewGroup, false)
-                return ConnectDeviceViewHolder(connectFragment, connectVc, view)
+                return ConnectDeviceViewHolder(connectFragment, app, connectVc, view)
             }
             else -> throw IllegalArgumentException("${viewType}")
         }
@@ -907,7 +908,7 @@ class ConnectAdapter(val connectFragment: ConnectFragment, val connectVc: Connec
 
 
 
-class CountryChipsViewHolder(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
+class CountryChipsViewHolder(val connectFragment: ConnectFragment, val app: MainApplication, val connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
 
     val flexboxRoot: FlexboxLayout
 
@@ -948,14 +949,15 @@ class CountryChipsViewHolder(val connectFragment: ConnectFragment, val connectVc
 
             countryImageButton.setOnClickListener {
                 connectFragment.animateConnect(countryImageButton, location)
-                connectVc.connect(location)
+//                connectVc.connect(location)
+                app.setConnectLocation(location)
             }
         }
     }
 
 }
 
-class ConnectCityViewHolder(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
+class ConnectCityViewHolder(val connectFragment: ConnectFragment, val app: MainApplication, val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
     val countryImageView: ImageView
     val iconImageView: ImageView
     val locationLabelView: TextView
@@ -981,7 +983,8 @@ class ConnectCityViewHolder(val connectFragment: ConnectFragment, val connectVc:
         connectButton.setOnClickListener {
             location?.let {
                 connectFragment.animateConnect(countryImageView, it)
-                connectVc.connect(it)
+//                connectVc.connect(it)
+                app.setConnectLocation(it)
             }
         }
     }
@@ -1008,7 +1011,7 @@ class ConnectCityViewHolder(val connectFragment: ConnectFragment, val connectVc:
     }
 }
 
-class ConnectRegionViewHolder(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
+class ConnectRegionViewHolder(val connectFragment: ConnectFragment, val app: MainApplication, val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
     val countryImageView: ImageView
     val iconImageView: ImageView
     val locationLabelView: TextView
@@ -1034,7 +1037,8 @@ class ConnectRegionViewHolder(val connectFragment: ConnectFragment, val connectV
         connectButton.setOnClickListener {
             location?.let {
                 connectFragment.animateConnect(countryImageView, it)
-                connectVc.connect(it)
+//                connectVc.connect(it)
+                app.setConnectLocation(it)
             }
         }
     }
@@ -1061,7 +1065,7 @@ class ConnectRegionViewHolder(val connectFragment: ConnectFragment, val connectV
     }
 }
 
-class ConnectCountryViewHolder(val connectFragment: ConnectFragment, val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
+class ConnectCountryViewHolder(val connectFragment: ConnectFragment, val app: MainApplication, val connectVc: ConnectViewController, val view: View) : RecyclerView.ViewHolder(view) {
     val countryImageView: ImageView
     val iconImageView: ImageView
     val locationLabelView: TextView
@@ -1088,7 +1092,8 @@ class ConnectCountryViewHolder(val connectFragment: ConnectFragment, val connect
         connectButton.setOnClickListener {
             location?.let {
                 connectFragment.animateConnect(countryImageView, it)
-                connectVc.connect(it)
+//                connectVc.connect(it)
+                app.setConnectLocation(it)
             }
         }
     }
@@ -1116,7 +1121,7 @@ class ConnectCountryViewHolder(val connectFragment: ConnectFragment, val connect
 }
 
 
-class ConnectGroupViewHolder(val connectFragment: ConnectFragment, connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
+class ConnectGroupViewHolder(val connectFragment: ConnectFragment, app: MainApplication, connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
     val groupImageView: ImageView
     val locationLabelView: TextView
     val promotedImageView: ImageView
@@ -1147,7 +1152,8 @@ class ConnectGroupViewHolder(val connectFragment: ConnectFragment, connectVc: Co
         connectButton.setOnClickListener {
             location?.let {
                 connectFragment.animateConnect(groupImageView, it)
-                connectVc.connect(it)
+//                connectVc.connect(it)
+                app.setConnectLocation(it)
             }
         }
     }
@@ -1167,7 +1173,7 @@ class ConnectGroupViewHolder(val connectFragment: ConnectFragment, connectVc: Co
 }
 
 
-class ConnectDeviceViewHolder(val connectFragment: ConnectFragment, connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
+class ConnectDeviceViewHolder(val connectFragment: ConnectFragment, app: MainApplication, connectVc: ConnectViewController, view: View) : RecyclerView.ViewHolder(view) {
     val deviceImageView: ImageView
     val locationLabelView: TextView
     val connectButton: Button
@@ -1188,7 +1194,8 @@ class ConnectDeviceViewHolder(val connectFragment: ConnectFragment, connectVc: C
         connectButton.setOnClickListener {
             location?.let {
                 connectFragment.animateConnect(deviceImageView, it)
-                connectVc.connect(it)
+//                connectVc.connect(it)
+                app.setConnectLocation(it)
             }
         }
     }

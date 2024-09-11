@@ -1,23 +1,17 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.bringyour.client.AuthPasswordResetArgs
-import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentLoginPasswordResetAfterSendBinding
@@ -73,7 +67,7 @@ class LoginPasswordResetAfterSendFragment : Fragment() {
             val args = AuthPasswordResetArgs()
             args.userAuth = userAuthStr
 
-            app.byApi?.authPasswordReset(args) { result, err ->
+            app.api?.authPasswordReset(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     if (err != null) {
                         passwordResetResendButton.text = getString(R.string.password_reset_send_error)

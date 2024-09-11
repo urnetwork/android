@@ -5,6 +5,8 @@ import android.util.Log
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.ReceivePacket
 import com.bringyour.network.Router.Companion.WRITE_TIMEOUT_MILLIS
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -15,7 +17,7 @@ import kotlin.concurrent.Volatile
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
-class Router(val byDevice: BringYourDevice) {
+class Router(val byDevice: BringYourDevice, val reconnect: () -> Unit = {}) {
     companion object {
         val WRITE_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(5L)
     }
@@ -88,58 +90,80 @@ class Router(val byDevice: BringYourDevice) {
                 try {
 
                     var nextPfd: ParcelFileDescriptor? = null
-                    while (active) {
-                        if (nextPfd == null) {
-                            nextPfd = pfds.poll(1, TimeUnit.SECONDS) ?: continue
-                        }
-                        while (true) {
-                            nextPfd = pfds.poll() ?: break
-                        }
-
-                        val pfd: ParcelFileDescriptor = nextPfd!!
-                        nextPfd = null
-
-                        try {
-                            val fis = FileInputStream(pfd.fileDescriptor)
-
-                            writeLock.lock()
-                            try {
-                                fos = FileOutputStream(pfd.fileDescriptor)
-                                writeCondition.signalAll()
-                            } finally {
-                                writeLock.unlock()
+                    try {
+                        while (active) {
+                            if (nextPfd == null) {
+                                nextPfd = pfds.poll(1, TimeUnit.SECONDS) ?: continue
+                            }
+                            // drain the queue
+                            while (true) {
+                                val p = pfds.poll() ?: break
+                                try {
+                                    nextPfd?.close()
+                                } catch (e: IOException) {
+                                    // ignore
+                                }
+                                nextPfd = p
                             }
 
-                            val readThread = thread {
-                                val buffer = ByteArray(2048)
-                                while (active) {
-                                    try {
-                                        val n = fis.read(buffer)
+                            val pfd: ParcelFileDescriptor = nextPfd!!
+                            nextPfd = null
 
-                                        if (0 < n) {
-                                            // note sendPacket makes a copy of the buffer
-                                            val success = byDevice.sendPacket(buffer, n)
-                                            if (!success) {
-                                                Log.i("Router", "Send packet dropped.")
-                                            }
-                                        }
-                                    } catch (_: IOException) {
+                            try {
+                                val fis = FileInputStream(pfd.fileDescriptor)
+
+                                writeLock.lock()
+                                try {
+                                    fos = FileOutputStream(pfd.fileDescriptor)
+                                    writeCondition.signalAll()
+                                } finally {
+                                    writeLock.unlock()
+                                }
+
+                                val readThread = thread {
+                                    val buffer = ByteArray(2048)
+                                    while (active) {
                                         try {
-                                            fis.close()
+                                            val n = fis.read(buffer)
+
+                                            if (0 < n) {
+                                                // note sendPacket makes a copy of the buffer
+                                                val success = byDevice.sendPacket(buffer, n)
+                                                if (!success) {
+                                                    Log.i("Router", "Send packet dropped.")
+                                                }
+                                            }
                                         } catch (_: IOException) {
+                                            try {
+                                                fis.close()
+                                            } catch (_: IOException) {
+                                            }
+                                            break
                                         }
-                                        break
                                     }
                                 }
-                            }
 
-                            while (active && nextPfd == null && readThread.isAlive) {
-                                nextPfd = pfds.poll(1, TimeUnit.SECONDS)
-                            }
+                                while (active && nextPfd == null && readThread.isAlive) {
+                                    nextPfd = pfds.poll(1, TimeUnit.SECONDS)
+                                }
 
-                        } finally {
+                                if (active && nextPfd == null) {
+                                    // the reader terminated without a replacement pfd
+                                    // request a reconnect
+                                    reconnect()
+                                }
+
+                            } finally {
+                                try {
+                                    pfd.close()
+                                } catch (_: IOException) {
+                                }
+                            }
+                        }
+                    } finally {
+                        if (nextPfd != null) {
                             try {
-                                pfd.close()
+                                nextPfd.close()
                             } catch (_: IOException) {
                             }
                         }

@@ -1,13 +1,10 @@
 package com.bringyour.network.ui.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -15,15 +12,11 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.bringyour.client.AuthLoginWithPasswordArgs
-import com.bringyour.client.AuthNetworkClientArgs
 import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.databinding.ActivityLoginWithPasswordBinding
 import com.bringyour.network.databinding.FragmentLoginPasswordBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -117,7 +110,7 @@ class LoginPasswordFragment : Fragment() {
             args.userAuth = userAuthStr
             args.password = loginPassword.text.toString()
 
-            app.byApi?.authLoginWithPassword(args) { result, err ->
+            app.api?.authLoginWithPassword(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 

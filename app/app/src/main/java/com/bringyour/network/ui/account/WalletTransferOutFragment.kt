@@ -7,19 +7,12 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.util.Patterns
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.RadioButton
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import circle.programmablewallet.sdk.WalletSdk
 import circle.programmablewallet.sdk.api.ApiError
@@ -30,12 +23,9 @@ import circle.programmablewallet.sdk.result.ExecuteResultStatus
 import com.bringyour.client.Client
 import com.bringyour.client.WalletCircleTransferOutArgs
 import com.bringyour.network.MainApplication
-import com.bringyour.network.R
-import com.bringyour.network.databinding.FragmentAccountBinding
 import com.bringyour.network.databinding.FragmentWalletTransferOutBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.w3c.dom.Text
 import java.lang.NumberFormatException
 
 class WalletTransferOutFragment: DialogFragment() {
@@ -174,7 +164,7 @@ class WalletTransferOutFragment: DialogFragment() {
             args.terms = binding.walletTransferOutTerms.isChecked
 
 
-            app.byApi?.walletCircleTransferOut(args) { result, error ->
+            app.api?.walletCircleTransferOut(args) { result, error ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 
@@ -372,7 +362,7 @@ class WalletTransferOutFragment: DialogFragment() {
 
         binding.walletTransferOutError.visibility = View.GONE
 
-        app.byApi?.walletBalance { result, error ->
+        app.api?.walletBalance { result, error ->
 
             runBlocking(Dispatchers.Main.immediate) {
 
