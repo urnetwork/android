@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.BringYourDevice
+import com.bringyour.client.Id
 import com.bringyour.client.ValidateAddressCallback
 import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
@@ -39,7 +40,8 @@ class WalletViewModel @Inject constructor(
     var circleWalletInProgress by mutableStateOf(false)
         private set
 
-    val wallets = mutableListOf<AccountWallet>()
+    var wallets by mutableStateOf(listOf<AccountWallet>())
+        private set
 
     val updateNextPayoutDateStr = {
         walletVc?.let { vc ->
@@ -62,6 +64,12 @@ class WalletViewModel @Inject constructor(
         solana = false,
         polygon = false
     ))
+
+    var isProcessingExternalWallet by mutableStateOf(false)
+        private set
+
+    var payoutWalletId by mutableStateOf<Id?>(null)
+        private set
 
     val setExternaWalletAddress: (TextFieldValue) -> Unit = { address ->
 
@@ -114,8 +122,8 @@ class WalletViewModel @Inject constructor(
                 val wallet = result.get(i)
                 updatedWallets.add(wallet)
             }
-            wallets.clear()
-            wallets.addAll(updatedWallets)
+
+            wallets = updatedWallets
 
         }
 
@@ -141,6 +149,21 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+    val createExternalWallet: () -> Unit = {
+
+        var chain: String = ""
+        if (externalWalletAddressIsValid.solana) {
+            chain = "SOL"
+        } else if (externalWalletAddressIsValid.polygon) {
+            chain = "MATIC"
+        }
+
+        if (chain != "") {
+            walletVc?.addExternalWallet(externalWalletAddress.text, chain)
+        }
+
+    }
+
     val findWalletById: (String) -> AccountWallet? = { id ->
         walletVc?.filterWalletsById(id)
     }
@@ -155,6 +178,24 @@ class WalletViewModel @Inject constructor(
 
     }
 
+    val addExternalWalletProcessingListener = {
+        walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
+
+            if (isProcessingExternalWallet && !isProcessing) {
+                closeExternalWalletModal()
+            }
+
+            isProcessingExternalWallet = isProcessing
+        }
+    }
+
+    val addPayoutWalletListener = {
+        walletVc?.addPayoutWalletListener { id ->
+            Log.i("WalletViewModel", "payout wallet is: $id")
+            payoutWalletId = id
+        }
+    }
+
     init {
 
         byDevice = byDeviceManager.getByDevice()
@@ -166,6 +207,8 @@ class WalletViewModel @Inject constructor(
         updateNextPayoutDateStr()
 
         addAccountWalletsListener()
+        addExternalWalletProcessingListener()
+        addPayoutWalletListener()
 
         walletVc?.start()
     }
@@ -178,6 +221,22 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+}
+
+enum class Blockchain {
+    POLYGON,
+    SOLANA;
+
+    companion object {
+        fun fromString(value: String): Blockchain? {
+            return when (value.uppercase()) {
+                "POLYGON" -> POLYGON
+                "MATIC" -> POLYGON
+                "SOLANA" -> SOLANA
+                else -> null
+            }
+        }
+    }
 }
 
 data class WalletValidationState(
