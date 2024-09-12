@@ -37,7 +37,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import circle.programmablewallet.sdk.api.ApiError
@@ -58,6 +57,7 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.res.painterResource
 import com.bringyour.client.Id
 import com.bringyour.network.R
@@ -69,7 +69,7 @@ fun WalletsScreen(
     accountNavController: NavController,
     walletNavController: NavController,
     sagaViewModel: SagaViewModel,
-    walletViewModel: WalletViewModel = hiltViewModel(),
+    walletViewModel: WalletViewModel,
 ) {
 
     WalletsScreen(
@@ -89,7 +89,9 @@ fun WalletsScreen(
         walletValidationState = walletViewModel.externalWalletAddressIsValid,
         createExternalWallet = walletViewModel.createExternalWallet,
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
-        payoutWalletId = walletViewModel.payoutWalletId
+        payoutWalletId = walletViewModel.payoutWalletId,
+        setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
+        isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet
     )
 
 }
@@ -113,6 +115,8 @@ fun WalletsScreen(
     createExternalWallet: () -> Unit,
     isProcessingExternalWallet: Boolean,
     payoutWalletId: Id?,
+    setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit,
+    isInitializingFirstWallet: Boolean,
     wallets: List<AccountWallet>
 ) {
     val context = LocalContext.current
@@ -298,86 +302,110 @@ fun WalletsScreen(
 
             }
 
-            if (wallets.isEmpty()) {
-                SetupWallet(
-                    initCircleWallet = initCircleWallet,
-                    circleWalletInProgress = circleWalletInProgress,
-                    isSolanaSaga = isSolanaSaga,
-                    getSolanaAddress = getSolanaAddress,
-                    openModal = openModal,
-                    connectSaga = { address ->
-                        if (!address.isNullOrEmpty()) {
-                            setExternalWalletAddress(TextFieldValue(address))
-                            createExternalWallet()
-                        }
-                    }
-                )
-            } else {
+            if (isInitializingFirstWallet) {
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Row {
-                        Text(
-                            "Wallets",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.width(2.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(24.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                }
 
-                        InfoIconWithOverlay() {
-                            Column() {
-                                Text(
-                                    "Solana and Polygon wallets are currently supported",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = BlueLight
-                                )
+            } else {
+
+                if (wallets.isEmpty()) {
+                    SetupWallet(
+                        initCircleWallet = initCircleWallet,
+                        circleWalletInProgress = circleWalletInProgress,
+                        isSolanaSaga = isSolanaSaga,
+                        getSolanaAddress = getSolanaAddress,
+                        openModal = openModal,
+                        connectSaga = { address ->
+
+                            Log.i("WalletsScreen", "Solana address is: $address")
+                            if (!address.isNullOrEmpty()) {
+                                setExternalWalletAddress(TextFieldValue(address))
+                                // since this is taken directly from the saga,
+                                // we can mark this as true without calling our API to validate
+                                setExternalWalletAddressIsValid("SOL", true)
+                                createExternalWallet()
                             }
+                        }
+                    )
+                } else {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row {
+                            Text(
+                                "Wallets",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+
+                            InfoIconWithOverlay() {
+                                Column() {
+                                    Text(
+                                        "Solana and Polygon wallets are currently supported",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = BlueLight
+                                    )
+                                }
+                            }
+                        }
+
+                        IconButton(
+                            onClick = { openModal() },
+                            modifier = Modifier
+                                .background(
+                                    color = MainTintedBackgroundBase,
+                                    shape = CircleShape
+                                )
+                                .width(26.dp)
+                                .height(26.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.plus_icon),
+                                contentDescription = "Add wallet",
+                                tint = TextMuted,
+                                modifier = Modifier.size(18.dp)
+                            )
                         }
                     }
 
-                    IconButton(
-                        onClick = { openModal() },
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    LazyRow(
                         modifier = Modifier
-                            .background(
-                                color = MainTintedBackgroundBase,
-                                shape = CircleShape
-                            )
-                            .width(26.dp)
-                            .height(26.dp)
+                            .fillMaxWidth()
+                            .height(124.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.plus_icon),
-                            contentDescription = "Add wallet",
-                            tint = TextMuted,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(124.dp)
-                ) {
 
 
-                    items(wallets) { wallet ->
+                        items(wallets) { wallet ->
 
-                        WalletCard(
-                            isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
-                            blockchain = Blockchain.fromString(wallet.blockchain),
-                            isPayoutWallet = wallet.walletId.equals(payoutWalletId),
-                            walletAddress = wallet.walletAddress,
-                            walletId = wallet.walletId,
-                            navController = walletNavController
-                        )
+                            WalletCard(
+                                isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
+                                blockchain = Blockchain.fromString(wallet.blockchain),
+                                isPayoutWallet = wallet.walletId.equals(payoutWalletId),
+                                walletAddress = wallet.walletAddress,
+                                walletId = wallet.walletId,
+                                navController = walletNavController
+                            )
+
+                        }
+
 
                     }
-
 
                 }
 
@@ -486,7 +514,9 @@ private fun WalletScreenPreview() {
             walletValidationState = WalletValidationState(),
             createExternalWallet = {},
             isProcessingExternalWallet = false,
-            payoutWalletId = null
+            payoutWalletId = null,
+            setExternalWalletAddressIsValid = { _, _ -> },
+            isInitializingFirstWallet = false
         )
     }
 }
@@ -516,7 +546,9 @@ private fun WalletScreenSagaPreview() {
             walletValidationState = WalletValidationState(),
             createExternalWallet = {},
             isProcessingExternalWallet = false,
-            payoutWalletId = null
+            payoutWalletId = null,
+            setExternalWalletAddressIsValid = { _, _ -> },
+            isInitializingFirstWallet = false
         )
     }
 }
@@ -546,7 +578,41 @@ private fun WalletScreenExternalWalletModalPreview() {
             walletValidationState = WalletValidationState(),
             createExternalWallet = {},
             isProcessingExternalWallet = false,
-            payoutWalletId = null
+            payoutWalletId = null,
+            setExternalWalletAddressIsValid = { _, _ -> },
+            isInitializingFirstWallet = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun WalletScreenInitializingWalletPreview() {
+
+    val parentNavController = rememberNavController()
+    val walletNavController = rememberNavController()
+
+    URNetworkTheme {
+        WalletsScreen(
+            parentNavController,
+            walletNavController,
+            isSolanaSaga = false,
+            getSolanaAddress = {},
+            nextPayoutDate = "Jan 1",
+            addExternalWalletModalVisible = false,
+            openModal = {},
+            closeModal = {},
+            createCircleWallet = {},
+            circleWalletInProgress = false,
+            wallets = listOf(),
+            externalWalletAddress = TextFieldValue(""),
+            setExternalWalletAddress = {},
+            walletValidationState = WalletValidationState(),
+            createExternalWallet = {},
+            isProcessingExternalWallet = false,
+            payoutWalletId = null,
+            setExternalWalletAddressIsValid = { _, _ -> },
+            isInitializingFirstWallet = true
         )
     }
 }

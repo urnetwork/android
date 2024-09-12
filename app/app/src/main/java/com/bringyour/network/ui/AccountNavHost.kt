@@ -15,12 +15,14 @@ import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.wallet.SagaViewModel
+import com.bringyour.network.ui.wallet.WalletViewModel
 
 @Composable
 fun AccountNavHost(
     sagaViewModel: SagaViewModel,
     navController: NavHostController,
     accountViewModel: AccountViewModel = hiltViewModel(),
+    walletViewModel: WalletViewModel = hiltViewModel(),
 ) {
 
     NavHost(
@@ -62,6 +64,7 @@ fun AccountNavHost(
             WalletsNavHost(
                 accountNavController = navController,
                 sagaViewModel,
+                walletViewModel
             )
         }
     }
