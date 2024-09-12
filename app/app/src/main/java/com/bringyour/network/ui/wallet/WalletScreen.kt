@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.client.Payout
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
@@ -37,6 +36,7 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import androidx.compose.foundation.lazy.items
+import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +48,7 @@ fun WalletScreen(
 
     // todo - wire this up
     val payouts = remember {
-        mutableListOf<Payout>()
+        mutableListOf<AccountPayment>()
     }
 
     Scaffold(
@@ -149,9 +149,9 @@ fun WalletScreen(
                 items(payouts) { payout ->
 
                     PayoutRow(
-                        walletAddress = payout.walletAddress,
-                        completeTime = payout.completeTimeFmt,
-                        amountUsd = payout.amountUsd
+                        walletAddress = accountWallet?.walletAddress ?: "",
+                        completeTime = payout.completeTime.format("Jan 2"),
+                        amountUsd = payout.tokenAmount
                     )
                 }
             }

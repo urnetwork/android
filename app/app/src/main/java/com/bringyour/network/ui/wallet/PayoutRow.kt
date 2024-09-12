@@ -32,7 +32,7 @@ import com.bringyour.network.ui.theme.Green
 fun PayoutRow(
     walletAddress: String,
     completeTime: String,
-    amountUsd: Float
+    amountUsd: Double
 ) {
     Row(
         modifier = Modifier
@@ -98,7 +98,7 @@ private fun PayoutRowPreview() {
         PayoutRow(
             "0xb696b7a5e41c9ec487f1b81064ec487261a1c3ddbaff96d5892854c824530ca5",
             "Jan 2",
-            1.25f
+            1.25
         )
     }
 }
