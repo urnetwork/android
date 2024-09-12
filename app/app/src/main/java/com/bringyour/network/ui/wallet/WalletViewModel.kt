@@ -80,7 +80,6 @@ class WalletViewModel @Inject constructor(
         externalWalletAddress = address
 
         if (externalWalletAddress.text.length >= 42) {
-            Log.i("WalletViewModel", "externalWalletAddress.text.length >= 42")
             validateWalletAddress(externalWalletAddress.text, "MATIC")
             validateWalletAddress(externalWalletAddress.text, "SOL")
         }
@@ -119,8 +118,6 @@ class WalletViewModel @Inject constructor(
 
     private val updateWallets = {
 
-        Log.i("WalletViewModel", "current wallets length is: ${wallets.count()}")
-
         walletVc?.let { vc ->
             val result = vc.wallets
             val n = result.len()
@@ -139,8 +136,6 @@ class WalletViewModel @Inject constructor(
             if (prevWalletCount <= 0 && n > 0) {
                 isInitializingFirstWallet = false
             }
-
-            Log.i("WalletViewModel", "updated wallets length is: ${wallets.count()}")
 
         }
 
@@ -216,7 +211,6 @@ class WalletViewModel @Inject constructor(
 
     val addPayoutWalletListener = {
         walletVc?.addPayoutWalletListener { id ->
-            Log.i("WalletViewModel", "payout wallet is: $id")
             payoutWalletId = id
         }
     }
