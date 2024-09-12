@@ -8,6 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
+import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Id
@@ -44,6 +45,9 @@ class WalletViewModel @Inject constructor(
         private set
 
     var wallets by mutableStateOf(listOf<AccountWallet>())
+        private set
+
+    var payouts by mutableStateOf(listOf<AccountPayment>())
         private set
 
     val updateNextPayoutDateStr = {
@@ -215,6 +219,31 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+    private val getPayouts = {
+
+        walletVc?.let { vc ->
+            val result = vc.accountPayments
+            val n = result.len()
+
+            val updatedPayouts = mutableListOf<AccountPayment>()
+
+            for (i in 0 until n) {
+                val payout = result.get(i)
+                updatedPayouts.add(payout)
+
+            }
+
+            payouts = updatedPayouts
+        }
+
+    }
+
+    val addPayoutsListener = {
+        walletVc?.addPayoutWalletListener {
+            getPayouts()
+        }
+    }
+
     init {
 
         byDevice = byDeviceManager.getByDevice()
@@ -228,6 +257,7 @@ class WalletViewModel @Inject constructor(
         addAccountWalletsListener()
         addExternalWalletProcessingListener()
         addPayoutWalletListener()
+        addPayoutsListener()
 
         walletVc?.start()
     }
