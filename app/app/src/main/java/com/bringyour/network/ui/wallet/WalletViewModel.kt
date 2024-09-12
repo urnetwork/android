@@ -40,6 +40,9 @@ class WalletViewModel @Inject constructor(
     var circleWalletInProgress by mutableStateOf(false)
         private set
 
+    var isInitializingFirstWallet by mutableStateOf(false)
+        private set
+
     var wallets by mutableStateOf(listOf<AccountWallet>())
         private set
 
@@ -64,6 +67,7 @@ class WalletViewModel @Inject constructor(
         solana = false,
         polygon = false
     ))
+        private set
 
     var isProcessingExternalWallet by mutableStateOf(false)
         private set
@@ -76,6 +80,7 @@ class WalletViewModel @Inject constructor(
         externalWalletAddress = address
 
         if (externalWalletAddress.text.length >= 42) {
+            Log.i("WalletViewModel", "externalWalletAddress.text.length >= 42")
             validateWalletAddress(externalWalletAddress.text, "MATIC")
             validateWalletAddress(externalWalletAddress.text, "SOL")
         }
@@ -86,10 +91,12 @@ class WalletViewModel @Inject constructor(
 
         if (!circleWalletInProgress) {
             circleWalletInProgress = true
+            isInitializingFirstWallet = true
 
             byDevice?.api()?.walletCircleInit { result, error ->
                 runBlocking(Dispatchers.Main.immediate) {
                     circleWalletInProgress = false
+                    isInitializingFirstWallet = false
 
                     val userToken = result.userToken.userToken
                     val encryptionKey = result.userToken.encryptionKey
@@ -112,6 +119,8 @@ class WalletViewModel @Inject constructor(
 
     private val updateWallets = {
 
+        Log.i("WalletViewModel", "current wallets length is: ${wallets.count()}")
+
         walletVc?.let { vc ->
             val result = vc.wallets
             val n = result.len()
@@ -123,29 +132,41 @@ class WalletViewModel @Inject constructor(
                 updatedWallets.add(wallet)
             }
 
+            val prevWalletCount = wallets.count()
+
             wallets = updatedWallets
+
+            if (prevWalletCount <= 0 && n > 0) {
+                isInitializingFirstWallet = false
+            }
+
+            Log.i("WalletViewModel", "updated wallets length is: ${wallets.count()}")
 
         }
 
     }
 
 
-    val validateWalletAddress: (address: String, chain: String) -> Unit = { address, chain ->
+    private val validateWalletAddress: (address: String, chain: String) -> Unit = { address, chain ->
 
         viewModelScope.launch {
 
             val callback = ValidateAddressCallback { result ->
 
-                if (chain == "MATIC") {
-                    externalWalletAddressIsValid = externalWalletAddressIsValid.copy(polygon = result)
-                } else if (chain == "SOL") {
-                    externalWalletAddressIsValid = externalWalletAddressIsValid.copy(solana = result)
-                }
+                setExternalWalletAddressIsValid(chain, result)
 
             }
 
             walletVc?.validateAddress(address, chain, callback)
 
+        }
+    }
+
+    val setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit = { chain, isValid ->
+        if (chain == "MATIC") {
+            externalWalletAddressIsValid = externalWalletAddressIsValid.copy(polygon = isValid)
+        } else if (chain == "SOL") {
+            externalWalletAddressIsValid = externalWalletAddressIsValid.copy(solana = isValid)
         }
     }
 
@@ -156,6 +177,10 @@ class WalletViewModel @Inject constructor(
             chain = "SOL"
         } else if (externalWalletAddressIsValid.polygon) {
             chain = "MATIC"
+        }
+
+        if (wallets.isEmpty()) {
+            isInitializingFirstWallet = true
         }
 
         if (chain != "") {

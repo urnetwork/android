@@ -20,7 +20,7 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 fun WalletsNavHost(
     accountNavController: NavController,
     sagaViewModel: SagaViewModel,
-    walletViewModel: WalletViewModel = hiltViewModel(),
+    walletViewModel: WalletViewModel,
 ) {
 
     val navController = rememberNavController()
