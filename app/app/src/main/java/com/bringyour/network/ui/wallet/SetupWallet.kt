@@ -53,16 +53,6 @@ fun SetupWallet(
 
 
         Column {
-            URButton(
-                onClick = {
-                    initCircleWallet()
-                },
-                enabled = !circleWalletInProgress
-            ) { buttonTextStyle ->
-                Text("Set up Circle Wallet", style = buttonTextStyle)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             if (isSolanaSaga) {
 
@@ -73,7 +63,7 @@ fun SetupWallet(
                             connectSaga(address)
                         }
                     },
-                    style = ButtonStyle.OUTLINE
+                    // style = ButtonStyle.OUTLINE
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -85,22 +75,35 @@ fun SetupWallet(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    ClickableText(
-                        text = AnnotatedString("Connect another wallet"),
-                        style = MaterialTheme.typography.bodyLarge.copy(color = BlueMedium),
-                        onClick = {
-                            openModal()
-                        }
-                    )
+                URButton(
+                    onClick = {
+                        openModal()
+                    },
+                    style = ButtonStyle.OUTLINE
+                ) { buttonTextStyle ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text("Connect external wallet", style = buttonTextStyle)
+                    }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
             } else {
                 // non Saga wallet
+
+                URButton(
+                    onClick = {
+                        initCircleWallet()
+                    },
+                    enabled = !circleWalletInProgress
+                ) { buttonTextStyle ->
+                    Text("Set up Circle Wallet", style = buttonTextStyle)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 URButton(
                     onClick = {
