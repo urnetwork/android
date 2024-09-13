@@ -5,17 +5,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.bringyour.network.AsyncLocalStateManager
+import androidx.lifecycle.viewModelScope
+// import com.bringyour.network.AsyncLocalStateManager
 import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.ui.components.LoginMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val byDeviceManager: ByDeviceManager,
-    private val asyncLocalStateManager: AsyncLocalStateManager
+    // private val asyncLocalStateManager: AsyncLocalStateManager,
+    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
     var loginMode by mutableStateOf<LoginMode>(LoginMode.Guest)
@@ -26,12 +30,14 @@ class AccountViewModel @Inject constructor(
         loginMode = mode
     }
 
-    val setNetworkName: (String) -> Unit = { name ->
-        networkName = name
-    }
-
-    var networkName by mutableStateOf("")
+    var networkName by mutableStateOf<String?>(null)
         private set
+
+    private val setNetworkName: (String) -> Unit = { name ->
+        Log.i("AccountViewModel", "setting network name to $name")
+        networkName = name
+        Log.i("AccountViewModel", "networkName is $networkName")
+    }
 
     var clientId by mutableStateOf("")
         private set
@@ -42,15 +48,20 @@ class AccountViewModel @Inject constructor(
 
     init {
 
-        val localState = asyncLocalStateManager.getAsyncLocalState()?.localState()
+        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+        val localState = networkSpace?.asyncLocalState
 
-        localState?.parseByJwt().let { jwt ->
-            setLoginMode(if (jwt?.guestMode == true) LoginMode.Guest else LoginMode.Authenticated)
-            setNetworkName(jwt?.networkName ?: "guest")
+        localState?.parseByJwt { jwt, _ ->
+            viewModelScope.launch {
+                setLoginMode(if (jwt?.guestMode == true) LoginMode.Guest else LoginMode.Authenticated)
+                setNetworkName(jwt?.networkName ?: "guest")
+            }
         }
 
         byDeviceManager.getByDevice().let { device ->
-            clientId = device?.clientId()?.idStr ?: ""
+            viewModelScope.launch {
+                clientId = device?.clientId()?.idStr ?: ""
+            }
         }
 
     }

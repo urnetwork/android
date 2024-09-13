@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,8 @@ fun ConnectStatusIndicator(
     status: ConnectStatus,
     windowCurrentSize: Int,
 ) {
+
+    Log.i("ConnectStatusIndicator", "network name is: $networkName")
 
     val text = when(status) {
         ConnectStatus.CONNECTED -> "Connected to $windowCurrentSize providers"

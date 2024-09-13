@@ -198,7 +198,7 @@ fun LoginCreateNetwork(
     val createNetwork = {
         val args = createNetworkArgs()
 
-        application?.byApi?.networkCreate(args) { result, err ->
+        application?.api?.networkCreate(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 inProgress = false
 

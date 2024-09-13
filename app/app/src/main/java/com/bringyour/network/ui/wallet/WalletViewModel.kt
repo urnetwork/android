@@ -96,7 +96,7 @@ class WalletViewModel @Inject constructor(
             circleWalletInProgress = true
             isInitializingFirstWallet = true
 
-            byDevice?.api()?.walletCircleInit { result, error ->
+            byDevice?.api?.walletCircleInit { result, error ->
                 runBlocking(Dispatchers.Main.immediate) {
                     circleWalletInProgress = false
                     isInitializingFirstWallet = false

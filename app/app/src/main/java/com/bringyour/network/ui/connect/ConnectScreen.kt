@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,9 +46,14 @@ import kotlinx.coroutines.launch
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
+    // accountViewModel: AccountViewModel,
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
+    // val networkName by accountViewModel.networkName
+    // val networkName by remember { accountViewModel.networkName }
+    // val networkName by remember { accountViewModel.networkName }
+    // val networkName = accountViewModel.networkName
 
     ProvidersBottomSheet(
         scaffoldState,
@@ -58,6 +64,7 @@ fun ConnectScreen(
             connectStatus = connectStatus,
             selectedLocation = connectViewModel.selectedLocation,
             networkName = accountViewModel.networkName,
+            // networkName = networkName,
             connect = connectViewModel.connect,
             disconnect = connectViewModel.disconnect,
             cancelConnection = connectViewModel.cancelConnection,
@@ -82,6 +89,8 @@ fun ConnectMainContent(
     cancelConnection: () -> Unit?,
     loginMode: LoginMode,
 ) {
+
+    Log.i("ConnectScreen", "network name is: $networkName")
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var cancelBtnVisible by remember { mutableStateOf(false) }

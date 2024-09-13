@@ -75,7 +75,7 @@ fun LoginVerify(
         val args = AuthVerifySendArgs()
         args.userAuth = userAuth
 
-        application?.byApi?.authVerifySend(args) { _, err ->
+        application?.api?.authVerifySend(args) { _, err ->
             runBlocking(Dispatchers.Main.immediate) {
 
                 resendInProgress = false
@@ -96,7 +96,7 @@ fun LoginVerify(
         args.userAuth = userAuth
         args.verifyCode = code.joinToString("")
 
-        application?.byApi?.authVerify(args) { result, err ->
+        application?.api?.authVerify(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 verifyInProgress = false
 

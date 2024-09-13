@@ -26,12 +26,10 @@ import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
-import com.bringyour.client.Client.ProvideModeNone
 import com.bringyour.client.OverlayViewController
 import dagger.hilt.android.HiltAndroidApp
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.NetworkSpace
-import com.bringyour.client.NetworkSpaceManager
 import com.bringyour.client.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -54,9 +52,9 @@ class MainApplication : Application() {
 //    val platformUrl = "wss://connect.bringyour.com"
 //    val apiUrl = "https://api.bringyour.com"
 
-    var networkSpaceManager: NetworkSpaceManager? = null
+    // var networkSpaceManager: NetworkSpaceManager? = null
     var networkSpaceSub: Sub? = null
-    var networkSpace: NetworkSpace? = null
+    // var networkSpace: NetworkSpace? = null
 
     var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
@@ -84,7 +82,7 @@ class MainApplication : Application() {
     lateinit var circleWalletManager: CircleWalletManager
 
     @Inject
-    lateinit var asyncLocalStateManager: AsyncLocalStateManager
+    lateinit var networkSpaceManagerProvider: NetworkSpaceManagerProvider
 
     private var vpnRequestStart: Boolean = false
     // FIXME remove these bools and just query the device directly
@@ -94,19 +92,8 @@ class MainApplication : Application() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
 
-
-    // ##  previous
-    // override fun onCreate() {
-    //     super.onCreate()
-
-    //     asyncLocalState = asyncLocalStateManager.init(filesDir)
-
-    //     byApi = Client.newBringYourApi(apiUrl)
-    // ## end previous
-
-
-    val api get() = networkSpace?.api
-    val asyncLocalState get() = networkSpace?.asyncLocalState
+    val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
+    val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
 //    val apiUrl get() = networkSpace?.apiUrl
 //    val platformUrl get() = networkSpace?.platformUrl
 
@@ -114,13 +101,13 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        networkSpaceManager = Client.newNetworkSpaceManager(filesDir.absolutePath)
+        networkSpaceManagerProvider.init(filesDir.absolutePath)
 
-        val networkSpaceManager = this.networkSpaceManager ?: return
+        val networkSpaceManager = networkSpaceManagerProvider.getNetworkSpaceManager()
 
         val key = Client.newNetworkSpaceKey(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
-        val bundleNetworkSpaceExists = networkSpaceManager.getNetworkSpace(key) != null
-        val bundleNetworkSpace = networkSpaceManager.updateNetworkSpace(key) { values ->
+        val bundleNetworkSpaceExists = networkSpaceManager?.getNetworkSpace(key) != null
+        val bundleNetworkSpace = networkSpaceManager?.updateNetworkSpace(key) { values ->
             // migrate specific bundled fields to the latest from the build
             values.envSecret = BuildConfig.BRINGYOUR_BUNDLE_ENV_SECRET
             values.bundled = true
@@ -137,13 +124,13 @@ class MainApplication : Application() {
             values.wallet = BuildConfig.BRINGYOUR_BUNDLE_WALLET
         }
 
-        if (!bundleNetworkSpaceExists || networkSpaceManager.activeNetworkSpace == null) {
+        if (!bundleNetworkSpaceExists || networkSpaceManager?.activeNetworkSpace == null) {
             // switch to the bundled network space when first created
             // this is important when migrating from an older bundle to a newer bundle
-            networkSpaceManager.activeNetworkSpace = bundleNetworkSpace
+            networkSpaceManager?.activeNetworkSpace = bundleNetworkSpace
         }
 
-        networkSpaceSub = networkSpaceManager.addActiveNetworkSpaceChangeListener { networkSpace ->
+        networkSpaceSub = networkSpaceManager?.addActiveNetworkSpaceChangeListener { networkSpace ->
             runBlocking(Dispatchers.Main.immediate) {
                 updateActiveNetworkSpace(networkSpace)
 
@@ -154,17 +141,14 @@ class MainApplication : Application() {
             }
         }
 
-        updateActiveNetworkSpace(networkSpaceManager.activeNetworkSpace!!)
+        updateActiveNetworkSpace(networkSpaceManager?.activeNetworkSpace!!)
     }
 
 
-    fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
+    private fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
         stop()
 
-        this.networkSpace = networkSpace
-        // use sync mode for the local state
-//        asyncLocalState = networkSpace.asyncLocalState
-//        byApi = networkSpace.byApi
+        networkSpaceManagerProvider.setNetworkSpace(networkSpace)
 
         loginVc = Client.newLoginViewController(api)
 
@@ -192,7 +176,7 @@ class MainApplication : Application() {
 
     }
 
-    fun addNetworkCallback() {
+    private fun addNetworkCallback() {
         removeNetworkCallback()
 
         networkCallback = object : ConnectivityManager.NetworkCallback() {
@@ -326,12 +310,10 @@ class MainApplication : Application() {
    private fun initDevice(byClientJwt: String, instanceId: Id, routeLocal: Boolean, provideMode: Long, connectLocation: ConnectLocation?) {
 
         byDeviceManager.initDevice(
-            // byApi,
-            networkSpace,
+            networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
             instanceId,
             provideMode,
-            platformUrl,
             getDeviceDescription(),
             getDeviceSpec()
         )
@@ -349,7 +331,7 @@ class MainApplication : Application() {
             }
         }
 
-        connectVc = byDevice?.openConnectViewController()
+        // connectVc = byDevice?.openConnectViewController()
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
 
@@ -359,9 +341,9 @@ class MainApplication : Application() {
         byDevice?.provideMode = provideMode
 
 
-        connectLocation?.let {
-            connectVc?.connect(it)
-        }
+//        connectLocation?.let {
+//            connectVc?.connect(it)
+//        }
 
 
         deviceRouteLocalSub = byDevice?.addRouteLocalChangeListener {
@@ -393,7 +375,7 @@ class MainApplication : Application() {
 
         updateVpnService()
 
-        return byDevice
+        // return byDevice
     }
 
 
@@ -524,7 +506,7 @@ class MainApplication : Application() {
         }
     }
 
-    fun stopVpnService() {
+    private fun stopVpnService() {
         vpnRequestStart = false
 
         val vpnIntent = Intent(this, MainService::class.java)
@@ -541,9 +523,6 @@ class MainApplication : Application() {
 
 
     }
-
-
-
 
     fun getDeviceDescription(): String {
         return "New device"
@@ -582,25 +561,4 @@ class MainApplication : Application() {
         return vpnRequestStart
     }
 
-    fun setConnectLocation(connectLocation: ConnectLocation?) {
-        // save connect location
-        asyncLocalState?.localState()?.connectLocation = connectLocation
-        if (connectLocation == null) {
-            connectVc?.disconnect()
-        } else {
-            connectVc?.connect(connectLocation)
-        }
-    }
-
-    fun getConnectLocation(): ConnectLocation? {
-        return connectVc?.activeLocation
-    }
-
-
-
-}
-
-class ApplicationPreviewParameterProvider : PreviewParameterProvider<Application> {
-    override val values: Sequence<Application>
-        get() = sequenceOf(MainApplication())
 }

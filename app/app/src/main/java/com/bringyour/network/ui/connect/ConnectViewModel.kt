@@ -12,7 +12,10 @@ import com.bringyour.client.ConnectLocation
 import com.bringyour.client.ConnectViewControllerV0
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.client.Sub
+// import com.bringyour.network.AsyncLocalStateManager
 import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.ui.components.LoginMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +25,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConnectViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager
+    private val byDeviceManager: ByDeviceManager,
+    // private val asyncLocalStateManager: AsyncLocalStateManager
+    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
     private var connectVc: ConnectViewControllerV0? = null
@@ -131,6 +136,14 @@ class ConnectViewModel @Inject constructor(
 
     val disconnect: () -> Unit = {
         connectVc?.disconnect()
+
+        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+        networkSpace?.asyncLocalState?.let { asyncLocalState ->
+            viewModelScope.launch {
+                asyncLocalState.localState().connectLocation = null
+            }
+        }
+
     }
 
     val cancelConnection: () -> Unit = {
@@ -149,6 +162,13 @@ class ConnectViewModel @Inject constructor(
         addConnectionStatusListener()
         addSelectedLocationListener()
         addWindowEventSizeListener()
+
+        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+        networkSpace?.asyncLocalState?.let { asyncLocalState ->
+            viewModelScope.launch {
+                asyncLocalState.localState().connectLocation?.let(connect)
+            }
+        }
     }
 
     override fun onCleared() {

@@ -76,7 +76,7 @@ fun LoginPassword(
         args.userAuth = user.text
         args.password = password.text
 
-        app?.byApi?.authLoginWithPassword(args) { result, err ->
+        app?.api?.authLoginWithPassword(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 inProgress = false
 

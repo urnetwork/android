@@ -68,7 +68,7 @@ fun LoginPasswordResetAfterSend(
 
         inProgress = true
 
-        app?.byApi?.authPasswordReset(args) { _, err ->
+        app?.api?.authPasswordReset(args) { _, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 inProgress = false
 

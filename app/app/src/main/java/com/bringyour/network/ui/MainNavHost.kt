@@ -27,9 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
@@ -53,7 +55,8 @@ enum class AppDestinations(
 @Composable
 fun MainNavHost(
     connectViewModel: ConnectViewModel,
-    sagaViewModel: SagaViewModel
+    sagaViewModel: SagaViewModel,
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -112,7 +115,13 @@ fun MainNavHost(
             if (isTablet()) {
 
                 Row {
-                    MainNavContent(currentDestination, sagaViewModel, connectViewModel, accountNavHostController)
+                    MainNavContent(
+                        currentDestination,
+                        sagaViewModel,
+                        connectViewModel,
+                        accountNavHostController,
+                        // accountViewModel
+                    )
                 }
 
             } else {
@@ -120,7 +129,13 @@ fun MainNavHost(
                 Column(
                     modifier = Modifier.padding(bottom = 1.dp)
                 ) {
-                    MainNavContent(currentDestination, sagaViewModel, connectViewModel, accountNavHostController)
+                    MainNavContent(
+                        currentDestination,
+                        sagaViewModel,
+                        connectViewModel,
+                        accountNavHostController,
+                        // accountViewModel
+                    )
                     HorizontalDivider(
                         modifier = Modifier
                             .height(1.dp)
@@ -145,8 +160,8 @@ fun MainNavContent(
     currentDestination: AppDestinations,
     sagaViewModel: SagaViewModel,
     connectViewModel: ConnectViewModel,
-    accountNavHostController: NavHostController
-
+    accountNavHostController: NavHostController,
+    // accountViewModel: AccountViewModel,
 ) {
 
     if (isTablet()) {
@@ -161,6 +176,7 @@ fun MainNavContent(
     when (currentDestination) {
         AppDestinations.CONNECT -> ConnectScreen(
             connectViewModel,
+            // accountViewModel
         )
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,

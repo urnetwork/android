@@ -68,7 +68,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    currentNetworkName: String,
+    currentNetworkName: String?,
     loginMode: LoginMode,
 ) {
     val context = LocalContext.current
@@ -96,7 +96,7 @@ fun ProfileScreen(
 
             sendingResetPassLink = true
 
-            application?.byApi?.authPasswordReset(args) { _, err ->
+            application?.api?.authPasswordReset(args) { _, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     sendingResetPassLink = false
 
@@ -159,7 +159,7 @@ fun ProfileScreen(
             )
 
             URTextInput(
-                value = TextFieldValue(networkName),
+                value = TextFieldValue(networkName ?: ""),
                 onValueChange = {},
                 enabled = false,
                 label = "Network name"

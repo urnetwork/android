@@ -57,7 +57,7 @@ fun OnboardingGuestModeOverlay(
             args.terms = termsAgreed
             // args.guestMode = true
 
-            application?.byApi?.networkCreate(args) { result, err ->
+            application?.api?.networkCreate(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress = false
 

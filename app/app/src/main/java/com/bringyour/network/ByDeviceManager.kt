@@ -1,6 +1,5 @@
 package com.bringyour.network
 
-import com.bringyour.client.BringYourApi
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
 import com.bringyour.client.Id
@@ -15,20 +14,17 @@ class ByDeviceManager @Inject constructor() {
 
     fun initDevice(
         // byApi: BringYourApi?,
-        networkSpace: NetworkSpace,
+        networkSpace: NetworkSpace?,
         byClientJwt: String,
         instanceId: Id,
         provideMode: Long,
-        platformUrl: String,
         deviceDescription: String,
         deviceSpec: String
     ) {
         byDevice?.close()  // Ensure old instance is cleaned up
         byDevice = Client.newBringYourDeviceWithDefaults(
-            // byApi,
             networkSpace,
             byClientJwt,
-            platformUrl,
             deviceDescription,
             deviceSpec,
             getAppVersion(),

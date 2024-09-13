@@ -106,7 +106,7 @@ fun LoginInitial(
         args.authJwt = account.idToken
         args.authJwtType = "google"
 
-        application?.byApi?.authLogin(args) { result, err ->
+        application?.api?.authLogin(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 inProgress = false
 
@@ -174,7 +174,7 @@ fun LoginInitial(
                 val args = AuthLoginArgs()
                 args.userAuth = userAuth.text.trim()
 
-                application?.byApi?.authLogin(args) { result, err ->
+                application?.api?.authLogin(args) { result, err ->
                     runBlocking(Dispatchers.Main.immediate) {
 
                         Log.i("LoginInitialFragment", "GOT RESULT " + result)
