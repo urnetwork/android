@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.account
 
-import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Point
@@ -13,9 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.RadioButton
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.BillingClient
@@ -32,12 +28,9 @@ import com.bringyour.client.SubscriptionCreatePaymentIdResult
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.databinding.FragmentSubscriptionBinding
-import com.bringyour.network.databinding.FragmentWalletTransferOutBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.w3c.dom.Text
 
 
 class SubscriptionFragment: DialogFragment() {
@@ -382,7 +375,7 @@ class SubscriptionFragment: DialogFragment() {
         )
 
         val subcriptionCreatePaymentIdResult: SubscriptionCreatePaymentIdResult? = withContext(Dispatchers.IO) {
-            app.byApi?.subscriptionCreatePaymentIdSync(SubscriptionCreatePaymentIdArgs())
+            app.api?.subscriptionCreatePaymentIdSync(SubscriptionCreatePaymentIdArgs())
         }
 
 

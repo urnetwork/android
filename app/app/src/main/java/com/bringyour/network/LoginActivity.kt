@@ -3,6 +3,8 @@ package com.bringyour.network
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import android.util.Log
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import com.bringyour.client.AuthNetworkClientArgs
@@ -51,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
         authArgs.description = app.getDeviceDescription()
         authArgs.deviceSpec = app.getDeviceSpec()
 
-        app.byApi?.authNetworkClient(authArgs) { result, err ->
+        app.api?.authNetworkClient(authArgs) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
                 if (err != null) {
                     callback(err.message)

@@ -105,7 +105,7 @@ class AccountFragment : Fragment() {
 
             inProgress(true)
 
-            app.byApi?.walletCircleInit { result, error ->
+            app.api?.walletCircleInit { result, error ->
                 runBlocking(Dispatchers.Main.immediate) {
                     inProgress(false)
 
@@ -344,7 +344,7 @@ class AccountFragment : Fragment() {
 
         inProgress(true)
 
-        app.byApi?.subscriptionBalance { result, error ->
+        app.api?.subscriptionBalance { result, error ->
 
             runBlocking(Dispatchers.Main.immediate) {
 

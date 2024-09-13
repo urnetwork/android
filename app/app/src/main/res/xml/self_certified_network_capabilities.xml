@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-capabilities-declaration xmlns:android="http://schemas.android.com/apk/res/android">
+<!--    <uses-network-capability android:name="NET_CAPABILITY_PRIORITIZE_LATENCY"/>-->
+<!--    <uses-network-capability android:name="NET_CAPABILITY_PRIORITIZE_BANDWIDTH"/>-->
+    <uses-network-capability android:name="NET_CAPABILITY_INTERNET"/>
+    <uses-network-capability android:name="NET_CAPABILITY_NOT_METERED"/>
+</network-capabilities-declaration>

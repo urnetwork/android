@@ -42,6 +42,9 @@ class MainService : VpnService() {
     private var pfd: ParcelFileDescriptor? = null
     private var foregroundStarted: Boolean = false
 
+//    private var managed: Boolean = false
+
+
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
 
         // FIXME get the local IPv4 and IPv6 address from the platform
@@ -54,6 +57,7 @@ class MainService : VpnService() {
 
 //        Log.i(TAG,"START INTENT = $intent")
 
+//        managed = intent?.getBooleanExtra("managed", false) ?: false
 
 
         intent?.getBooleanExtra("stop", false)?.let { stop ->
@@ -70,8 +74,10 @@ class MainService : VpnService() {
         intent?.getBooleanExtra("start", true)?.let { start ->
             if (start) {
                 // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
-                intent.getBooleanExtra("route-local", false).let { routeLocal ->
-                    app.byDevice?.setRouteLocal(routeLocal)
+                if (intent.getStringExtra("source") != "app") {
+                    // this was started with always-on mode
+                    // turn off local routing
+                    app.setRouteLocal(false)
                 }
 
                 app.router?.let { router ->
@@ -168,6 +174,8 @@ class MainService : VpnService() {
 
         super.onDestroy()
 
+//        val app = application as MainApplication
+
 
         try {
             pfd?.close()
@@ -178,6 +186,10 @@ class MainService : VpnService() {
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+
+//        if (!managed) {
+//            app.stop()
+//        }
     }
 
     override fun onRevoke() {
@@ -185,12 +197,18 @@ class MainService : VpnService() {
 
         super.onRevoke()
 
+//        val app = application as MainApplication
+
         try {
             pfd?.close()
         } catch (e: IOException) {
             // ignore
         }
         pfd = null
+
+//        if (!managed) {
+//            app.stop()
+//        }
     }
 
 

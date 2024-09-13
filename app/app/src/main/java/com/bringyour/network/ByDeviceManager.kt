@@ -6,6 +6,7 @@ import com.bringyour.client.Client
 import com.bringyour.client.Id
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.bringyour.client.NetworkSpace
 
 @Singleton
 class ByDeviceManager @Inject constructor() {
@@ -13,7 +14,8 @@ class ByDeviceManager @Inject constructor() {
     private var byDevice: BringYourDevice? = null
 
     fun initDevice(
-        byApi: BringYourApi?,
+        // byApi: BringYourApi?,
+        networkSpace: NetworkSpace,
         byClientJwt: String,
         instanceId: Id,
         provideMode: Long,
@@ -23,7 +25,8 @@ class ByDeviceManager @Inject constructor() {
     ) {
         byDevice?.close()  // Ensure old instance is cleaned up
         byDevice = Client.newBringYourDeviceWithDefaults(
-            byApi,
+            // byApi,
+            networkSpace,
             byClientJwt,
             platformUrl,
             deviceDescription,
