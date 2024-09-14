@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLinkText
@@ -40,36 +41,46 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
-fun FeedbackScreen() {
+fun FeedbackScreen(
+    feedbackViewModel: FeedbackViewModel = hiltViewModel(),
+) {
+
+    FeedbackScreen(
+        isSending = feedbackViewModel.isSendingFeedback,
+        feedbackMsg = feedbackViewModel.feedbackMsg,
+        setFeedbackMsg = feedbackViewModel.setFeedbackMsg,
+        sendFeedback = feedbackViewModel.sendFeedback
+    )
+
+}
+
+@Composable
+fun FeedbackScreen(
+    isSending: Boolean,
+    feedbackMsg: TextFieldValue,
+    setFeedbackMsg: (TextFieldValue) -> Unit,
+    sendFeedback: () -> Unit
+) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
     val overlayVc = application?.overlayVc
 
-    var feedback by remember {
-        mutableStateOf(TextFieldValue())
-    }
-    var isSending by remember {
-        mutableStateOf(false)
-    }
-
     val isBtnEnabled by remember {
         derivedStateOf {
-            !isSending && feedback.text.isNotEmpty()
+            !isSending && feedbackMsg.text.isNotEmpty()
         }
     }
 
     val submitFeedback = {
-        if (feedback.text.isNotEmpty()) {
-            isSending = true
+        if (feedbackMsg.text.isNotEmpty()) {
 
-            // todo create view controller that sends feedback to /feedback/send-feedback
+            sendFeedback()
 
             overlayVc?.openOverlay(OverlayMode.FeedbackSubmitted.toString())
 
-            feedback = TextFieldValue()
+            setFeedbackMsg(TextFieldValue())
 
-            isSending = false
         }
     }
 
@@ -98,9 +109,9 @@ fun FeedbackScreen() {
             Spacer(modifier = Modifier.height(32.dp))
 
             URTextInput(
-                value = feedback,
+                value = feedbackMsg,
                 onValueChange = { newValue ->
-                    feedback = newValue
+                    setFeedbackMsg(newValue)
                 },
                 label = "Feedback box",
                 placeholder = "Tell us how you really feel",
@@ -139,10 +150,15 @@ fun FeedbackScreen() {
 
 @Preview
 @Composable
-private fun ConnectPreview() {
+private fun FeedbackScreenPreview() {
 
     URNetworkTheme {
-        FeedbackScreen()
+        FeedbackScreen(
+            isSending = false,
+            feedbackMsg = TextFieldValue(),
+            setFeedbackMsg = {},
+            sendFeedback = {}
+        )
     }
 
 }
