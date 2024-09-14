@@ -59,6 +59,8 @@ fun WalletScreen(
         payouts = walletViewModel.payouts,
         setPayoutWallet = walletViewModel.setPayoutWallet,
         isSettingPayoutWallet = walletViewModel.isSettingPayoutWallet,
+        removeWallet = walletViewModel.removeWallet,
+        isRemovingWallet = walletViewModel.isRemovingWallet
     )
 }
 
@@ -74,6 +76,8 @@ fun WalletScreen(
     payouts: List<AccountPayment>,
     setPayoutWallet: (Id) -> Unit,
     isSettingPayoutWallet: Boolean,
+    removeWallet: (Id) -> Unit,
+    isRemovingWallet: Boolean,
 ) {
 
     Scaffold(
@@ -157,8 +161,13 @@ fun WalletScreen(
 
             if (!isCircleWallet) {
                 URButton(
-                    onClick = { /*TODO*/ },
-                    style = ButtonStyle.OUTLINE
+                    onClick = {
+                        if (walletId != null) {
+                            removeWallet(walletId)
+                        }
+                    },
+                    style = ButtonStyle.OUTLINE,
+                    enabled = !isRemovingWallet && walletId != null
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -217,7 +226,9 @@ private fun WalletScreenPreview() {
             blockchain = Blockchain.POLYGON,
             payouts = listOf(),
             setPayoutWallet = {},
-            isSettingPayoutWallet = false
+            isSettingPayoutWallet = false,
+            removeWallet = {},
+            isRemovingWallet = false
         )
     }
 }
@@ -238,7 +249,9 @@ private fun WalletScreenIsPayoutPreview() {
             blockchain = Blockchain.POLYGON,
             payouts = listOf(),
             setPayoutWallet = {},
-            isSettingPayoutWallet = false
+            isSettingPayoutWallet = false,
+            removeWallet = {},
+            isRemovingWallet = false
         )
     }
 }
