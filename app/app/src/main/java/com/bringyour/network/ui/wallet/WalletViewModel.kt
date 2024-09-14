@@ -38,6 +38,9 @@ class WalletViewModel @Inject constructor(
     var addExternalWalletModalVisible by mutableStateOf(false)
         private set
 
+    var removeWalletModalVisible by mutableStateOf(false)
+        private set
+
     var circleWalletInProgress by mutableStateOf(false)
         private set
 
@@ -67,6 +70,14 @@ class WalletViewModel @Inject constructor(
     }
 
     val closeExternalWalletModal = {
+        addExternalWalletModalVisible = false
+    }
+
+    val openRemoveWalletModal = {
+        addExternalWalletModalVisible = true
+    }
+
+    val closeRemoveWalletModal = {
         addExternalWalletModalVisible = false
     }
 

@@ -34,9 +34,21 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.Id
+import com.bringyour.network.R
+import com.bringyour.network.ui.components.URDialog
+import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Red
+import com.bringyour.network.ui.theme.TextMuted
 
 
 @Composable
@@ -60,7 +72,10 @@ fun WalletScreen(
         setPayoutWallet = walletViewModel.setPayoutWallet,
         isSettingPayoutWallet = walletViewModel.isSettingPayoutWallet,
         removeWallet = walletViewModel.removeWallet,
-        isRemovingWallet = walletViewModel.isRemovingWallet
+        isRemovingWallet = walletViewModel.isRemovingWallet,
+        removeWalletModalVisible = walletViewModel.removeWalletModalVisible,
+        openRemoveWalletModal = walletViewModel.openRemoveWalletModal,
+        closeRemoveWalletModal = walletViewModel.closeRemoveWalletModal
     )
 }
 
@@ -78,6 +93,9 @@ fun WalletScreen(
     isSettingPayoutWallet: Boolean,
     removeWallet: (Id) -> Unit,
     isRemovingWallet: Boolean,
+    removeWalletModalVisible: Boolean,
+    closeRemoveWalletModal: () -> Unit,
+    openRemoveWalletModal: () -> Unit,
 ) {
 
     Scaffold(
@@ -162,12 +180,10 @@ fun WalletScreen(
             if (!isCircleWallet) {
                 URButton(
                     onClick = {
-                        if (walletId != null) {
-                            removeWallet(walletId)
-                        }
+                        openRemoveWalletModal()
                     },
                     style = ButtonStyle.OUTLINE,
-                    enabled = !isRemovingWallet && walletId != null
+                    enabled = !removeWalletModalVisible
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -208,6 +224,81 @@ fun WalletScreen(
                 NoPayoutsFound()
             }
         }
+
+        URDialog(
+            visible = removeWalletModalVisible,
+            onDismiss = { closeRemoveWalletModal() }
+        ) {
+            Column() {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_warning),
+                        contentDescription = "",
+                        tint = Red
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        "Remove wallet?",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Are you sure you want to delete this wallet? If this is your default wallet, we’ll hold you have set another wallet as default.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    ClickableText(
+                        text = AnnotatedString(
+                            "Cancel",
+                            spanStyle = SpanStyle(
+                                color = BlueMedium,
+                                fontSize = 14.sp
+                            )
+                        ),
+                        onClick = {
+                            closeRemoveWalletModal()
+                        },
+                        )
+
+                    Spacer(modifier = Modifier.width(32.dp))
+
+                    ClickableText(
+                        text = AnnotatedString(
+                            "Remove wallet",
+                            spanStyle = if (!isRemovingWallet && walletId != null)
+                                SpanStyle(
+                                    color = BlueMedium,
+                                    fontSize = 14.sp
+                                ) else
+                                SpanStyle(
+                                    color = TextMuted,
+                                    fontSize = 14.sp
+                                )
+                        ),
+                        onClick = {
+                            if (walletId != null) {
+                                removeWallet(walletId)
+                                closeRemoveWalletModal()
+                                navController.popBackStack()
+                            }
+                        },
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -228,7 +319,10 @@ private fun WalletScreenPreview() {
             setPayoutWallet = {},
             isSettingPayoutWallet = false,
             removeWallet = {},
-            isRemovingWallet = false
+            isRemovingWallet = false,
+            removeWalletModalVisible = false,
+            openRemoveWalletModal = {},
+            closeRemoveWalletModal = {}
         )
     }
 }
@@ -251,7 +345,35 @@ private fun WalletScreenIsPayoutPreview() {
             setPayoutWallet = {},
             isSettingPayoutWallet = false,
             removeWallet = {},
-            isRemovingWallet = false
+            isRemovingWallet = false,
+            removeWalletModalVisible = false,
+            openRemoveWalletModal = {},
+            closeRemoveWalletModal = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun WalletScreenRemoveWalletPreview() {
+    val navController = rememberNavController()
+
+    URNetworkTheme {
+        WalletScreen(
+            navController,
+            walletId = null,
+            walletAddress = "0x000000000000000",
+            isPayoutWallet = true,
+            isCircleWallet = true,
+            blockchain = Blockchain.POLYGON,
+            payouts = listOf(),
+            setPayoutWallet = {},
+            isSettingPayoutWallet = false,
+            removeWallet = {},
+            isRemovingWallet = false,
+            removeWalletModalVisible = true,
+            openRemoveWalletModal = {},
+            closeRemoveWalletModal = {}
         )
     }
 }
