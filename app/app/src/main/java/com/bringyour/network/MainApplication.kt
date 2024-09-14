@@ -13,10 +13,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 import androidx.biometric.BiometricManager
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.core.content.ContextCompat
-// import circle.programmablewallet.sdk.WalletSdk
-// import circle.programmablewallet.sdk.presentation.SecurityQuestion
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.client.AccountViewController
 import com.bringyour.client.BringYourDevice
@@ -52,16 +49,12 @@ class MainApplication : Application() {
 //    val platformUrl = "wss://connect.bringyour.com"
 //    val apiUrl = "https://api.bringyour.com"
 
-    // var networkSpaceManager: NetworkSpaceManager? = null
     var networkSpaceSub: Sub? = null
-    // var networkSpace: NetworkSpace? = null
 
     var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
-//    var byApi: BringYourApi? = null
-//    var asyncLocalState: AsyncLocalState? = null
     var router: Router? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null

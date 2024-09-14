@@ -92,20 +92,34 @@ class WalletViewModel @Inject constructor(
 
     val createCircleWallet: (OnWalletExecute) -> Unit = { onExecute ->
 
+        Log.i("WalletViewModel", "create circle wallet")
+        Log.i("WalletViewModel", "circleWalletInProgress: $circleWalletInProgress")
+
         if (!circleWalletInProgress) {
-            circleWalletInProgress = true
-            isInitializingFirstWallet = true
+
+            setCircleWalletInProgress(true)
+            setInitializingFirstWallet(true)
 
             byDevice?.api?.walletCircleInit { result, error ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    circleWalletInProgress = false
-                    isInitializingFirstWallet = false
+                // runBlocking(Dispatchers.Main.immediate) {
+                viewModelScope.launch {
+                    Log.i("WalletViewModel", "inside run blocking")
+                    if (error != null) {
+                        Log.i("WalletViewModel", "error is ${error?.message}")
+                    }
+                    Log.i("WalletViewModel", "result is $result")
 
                     val userToken = result.userToken.userToken
                     val encryptionKey = result.userToken.encryptionKey
                     val challengeId = result.challengeId
 
+                    Log.i("WalletViewModel", "userToken: $userToken")
+                    Log.i("WalletViewModel", "encryptionKey: $encryptionKey")
+                    Log.i("WalletViewModel", "challengeId: $challengeId")
+
                     circleWalletSdk?.let { walletSdk ->
+
+                        Log.i("WalletViewModel", "inside wallet sdk")
 
                         onExecute(
                             walletSdk,
@@ -114,10 +128,21 @@ class WalletViewModel @Inject constructor(
                             challengeId
                         )
 
+//                        setCircleWalletInProgress(false)
+//                        setInitializingFirstWallet(false)
+
                     }
                 }
             }
         }
+    }
+
+    val setCircleWalletInProgress: (Boolean) -> Unit = { inProgress ->
+        circleWalletInProgress = inProgress
+    }
+
+    val setInitializingFirstWallet: (Boolean) -> Unit = { isInitializing ->
+        isInitializingFirstWallet = isInitializing
     }
 
     private val updateWallets = {

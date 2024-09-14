@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// import com.bringyour.network.AsyncLocalStateManager
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.ui.components.LoginMode
@@ -18,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val byDeviceManager: ByDeviceManager,
-    // private val asyncLocalStateManager: AsyncLocalStateManager,
     private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 

@@ -91,7 +91,9 @@ fun WalletsScreen(
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
         payoutWalletId = walletViewModel.payoutWalletId,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
-        isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet
+        isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet,
+        setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
+        setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet
     )
 
 }
@@ -117,7 +119,9 @@ fun WalletsScreen(
     payoutWalletId: Id?,
     setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit,
     isInitializingFirstWallet: Boolean,
-    wallets: List<AccountWallet>
+    wallets: List<AccountWallet>,
+    setCircleWalletInProgress: (Boolean) -> Unit,
+    setInitializingFirstWallet: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -165,6 +169,10 @@ fun WalletsScreen(
                             // App will handle next step, SDK will keep the Activity.
                             return true
                         }
+
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
+
                         // App won't handle next step, SDK will finish the Activity.
                         return false
                     }
@@ -213,6 +221,9 @@ fun WalletsScreen(
                                 }
                             )
                         }
+
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
                     }
                 }
             )
@@ -516,7 +527,9 @@ private fun WalletScreenPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = false
+            isInitializingFirstWallet = false,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {}
         )
     }
 }
@@ -548,7 +561,9 @@ private fun WalletScreenSagaPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = false
+            isInitializingFirstWallet = false,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {}
         )
     }
 }
@@ -580,7 +595,9 @@ private fun WalletScreenExternalWalletModalPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = false
+            isInitializingFirstWallet = false,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {}
         )
     }
 }
@@ -612,7 +629,9 @@ private fun WalletScreenInitializingWalletPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = true
+            isInitializingFirstWallet = true,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {}
         )
     }
 }
