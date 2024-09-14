@@ -59,6 +59,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.res.painterResource
+import com.bringyour.client.AccountPayment
 import com.bringyour.client.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
@@ -91,7 +92,10 @@ fun WalletsScreen(
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
         payoutWalletId = walletViewModel.payoutWalletId,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
-        isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet
+        isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet,
+        setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
+        setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
+        payouts = walletViewModel.payouts
     )
 
 }
@@ -117,7 +121,10 @@ fun WalletsScreen(
     payoutWalletId: Id?,
     setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit,
     isInitializingFirstWallet: Boolean,
-    wallets: List<AccountWallet>
+    wallets: List<AccountWallet>,
+    setCircleWalletInProgress: (Boolean) -> Unit,
+    setInitializingFirstWallet: (Boolean) -> Unit,
+    payouts: List<AccountPayment>
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -165,6 +172,10 @@ fun WalletsScreen(
                             // App will handle next step, SDK will keep the Activity.
                             return true
                         }
+
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
+
                         // App won't handle next step, SDK will finish the Activity.
                         return false
                     }
@@ -213,6 +224,9 @@ fun WalletsScreen(
                                 }
                             )
                         }
+
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
                     }
                 }
             )
@@ -242,10 +256,12 @@ fun WalletsScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(16.dp)
+                // .padding(16.dp)
                 .fillMaxSize(),
         ) {
-            Column {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -320,28 +336,34 @@ fun WalletsScreen(
             } else {
 
                 if (wallets.isEmpty()) {
-                    SetupWallet(
-                        initCircleWallet = initCircleWallet,
-                        circleWalletInProgress = circleWalletInProgress,
-                        isSolanaSaga = isSolanaSaga,
-                        getSolanaAddress = getSolanaAddress,
-                        openModal = openModal,
-                        connectSaga = { address ->
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        SetupWallet(
+                            initCircleWallet = initCircleWallet,
+                            circleWalletInProgress = circleWalletInProgress,
+                            isSolanaSaga = isSolanaSaga,
+                            getSolanaAddress = getSolanaAddress,
+                            openModal = openModal,
+                            connectSaga = { address ->
 
-                            Log.i("WalletsScreen", "Solana address is: $address")
-                            if (!address.isNullOrEmpty()) {
-                                setExternalWalletAddress(TextFieldValue(address))
-                                // since this is taken directly from the saga,
-                                // we can mark this as true without calling our API to validate
-                                setExternalWalletAddressIsValid("SOL", true)
-                                createExternalWallet()
+                                Log.i("WalletsScreen", "Solana address is: $address")
+                                if (!address.isNullOrEmpty()) {
+                                    setExternalWalletAddress(TextFieldValue(address))
+                                    // since this is taken directly from the saga,
+                                    // we can mark this as true without calling our API to validate
+                                    setExternalWalletAddressIsValid("SOL", true)
+                                    createExternalWallet()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 } else {
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -390,6 +412,9 @@ fun WalletsScreen(
                             .height(124.dp)
                     ) {
 
+                        item {
+                            Spacer(modifier = Modifier.width(16.dp))
+                        }
 
                         items(wallets) { wallet ->
 
@@ -402,9 +427,22 @@ fun WalletsScreen(
                                 navController = walletNavController
                             )
 
+                            Spacer(modifier = Modifier.width(16.dp))
+
                         }
 
 
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        WalletsPayoutsList(
+                            payouts,
+                            wallets
+                        )
                     }
 
                 }
@@ -516,7 +554,10 @@ private fun WalletScreenPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = false
+            isInitializingFirstWallet = false,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {},
+            payouts = listOf()
         )
     }
 }
@@ -548,7 +589,10 @@ private fun WalletScreenSagaPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = false
+            isInitializingFirstWallet = false,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {},
+            payouts = listOf()
         )
     }
 }
@@ -580,7 +624,10 @@ private fun WalletScreenExternalWalletModalPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = false
+            isInitializingFirstWallet = false,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {},
+            payouts = listOf()
         )
     }
 }
@@ -612,7 +659,10 @@ private fun WalletScreenInitializingWalletPreview() {
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             setExternalWalletAddressIsValid = { _, _ -> },
-            isInitializingFirstWallet = true
+            isInitializingFirstWallet = true,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {},
+            payouts = listOf()
         )
     }
 }
