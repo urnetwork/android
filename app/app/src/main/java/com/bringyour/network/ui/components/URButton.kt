@@ -61,10 +61,13 @@ fun URButton(
         ButtonStyle.SECONDARY -> Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp)
-        ButtonStyle.OUTLINE -> Modifier
-            .border(1.dp, borderColor ?: TextFaint, RoundedCornerShape(100))
-            .defaultMinSize(minHeight = 48.dp)
-            .padding(horizontal = 16.dp)
+        ButtonStyle.OUTLINE -> when(enabled) {
+            true -> Modifier
+                .border(1.dp, borderColor ?: TextFaint, RoundedCornerShape(100))
+                .defaultMinSize(minHeight = 48.dp)
+            false -> Modifier
+                .defaultMinSize(minHeight = 48.dp)
+        }
     }
 
     return Button(

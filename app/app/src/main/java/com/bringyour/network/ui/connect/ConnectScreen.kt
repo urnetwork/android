@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -46,14 +45,9 @@ import kotlinx.coroutines.launch
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
-    // accountViewModel: AccountViewModel,
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
-    // val networkName by accountViewModel.networkName
-    // val networkName by remember { accountViewModel.networkName }
-    // val networkName by remember { accountViewModel.networkName }
-    // val networkName = accountViewModel.networkName
 
     ProvidersBottomSheet(
         scaffoldState,
@@ -89,8 +83,6 @@ fun ConnectMainContent(
     cancelConnection: () -> Unit?,
     loginMode: LoginMode,
 ) {
-
-    Log.i("ConnectScreen", "network name is: $networkName")
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var cancelBtnVisible by remember { mutableStateOf(false) }
@@ -189,7 +181,11 @@ fun ConnectMainContent(
                         },
                         style = ButtonStyle.OUTLINE
                     ) { buttonTextStyle ->
-                        Text("Disconnect", style = buttonTextStyle)
+                        Text(
+                            "Disconnect",
+                            style = buttonTextStyle,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
                     }
 
                 }
@@ -207,7 +203,11 @@ fun ConnectMainContent(
                         },
                         style = ButtonStyle.OUTLINE,
                     ) { buttonTextStyle ->
-                        Text("Cancel", style = buttonTextStyle)
+                        Text(
+                            "Cancel",
+                            style = buttonTextStyle,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
                     }
                 }
             }

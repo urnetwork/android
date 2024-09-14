@@ -47,6 +47,9 @@ class WalletViewModel @Inject constructor(
     var isSettingPayoutWallet by mutableStateOf(false)
         private set
 
+    var isRemovingWallet by mutableStateOf(false)
+        private set
+
     var wallets by mutableStateOf(listOf<AccountWallet>())
         private set
 
@@ -95,16 +98,12 @@ class WalletViewModel @Inject constructor(
 
     val createCircleWallet: (OnWalletExecute) -> Unit = { onExecute ->
 
-        Log.i("WalletViewModel", "create circle wallet")
-        Log.i("WalletViewModel", "circleWalletInProgress: $circleWalletInProgress")
-
         if (!circleWalletInProgress) {
 
             setCircleWalletInProgress(true)
             setInitializingFirstWallet(true)
 
             byDevice?.api?.walletCircleInit { result, error ->
-                // runBlocking(Dispatchers.Main.immediate) {
                 viewModelScope.launch {
                     Log.i("WalletViewModel", "inside run blocking")
                     if (error != null) {
@@ -130,10 +129,6 @@ class WalletViewModel @Inject constructor(
                             encryptionKey,
                             challengeId
                         )
-
-//                        setCircleWalletInProgress(false)
-//                        setInitializingFirstWallet(false)
-
                     }
                 }
             }
@@ -281,6 +276,16 @@ class WalletViewModel @Inject constructor(
         walletVc?.setPayoutWallet(walletId)
     }
 
+    val removeWallet: (Id) -> Unit = { id ->
+        walletVc?.removeWallet(id)
+    }
+
+    val addIsRemovingWalletListener = {
+        walletVc?.addIsRemovingWalletListener { isRemoving ->
+            isRemovingWallet = isRemoving
+        }
+    }
+
     init {
 
         byDevice = byDeviceManager.getByDevice()
@@ -295,6 +300,7 @@ class WalletViewModel @Inject constructor(
         addExternalWalletProcessingListener()
         addPayoutWalletListener()
         addPayoutsListener()
+        addIsRemovingWalletListener()
 
         walletVc?.start()
     }
