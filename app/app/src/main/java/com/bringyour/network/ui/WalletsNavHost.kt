@@ -64,7 +64,8 @@ fun WalletsNavHost(
 
             WalletScreen(
                 navController = navController,
-                accountWallet = accountWallet
+                accountWallet = accountWallet,
+                walletViewModel = walletViewModel,
             )
         }
     }

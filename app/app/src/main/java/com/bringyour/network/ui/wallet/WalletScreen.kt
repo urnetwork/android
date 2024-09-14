@@ -1,7 +1,6 @@
 package com.bringyour.network.ui.wallet
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,18 +36,45 @@ import com.bringyour.network.ui.theme.ppNeueBitBold
 import androidx.compose.foundation.lazy.items
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
+import com.bringyour.client.Id
+
+
+@Composable
+fun WalletScreen(
+    navController: NavController,
+    accountWallet: AccountWallet?,
+    walletViewModel: WalletViewModel,
+) {
+
+    val payoutWalletId = walletViewModel.payoutWalletId
+    val isPayoutWallet = accountWallet?.walletId?.equals(payoutWalletId) ?: false
+
+    WalletScreen(
+        navController,
+        walletId = accountWallet?.walletId,
+        walletAddress = accountWallet?.walletAddress,
+        isPayoutWallet = isPayoutWallet,
+        blockchain = Blockchain.fromString(accountWallet?.blockchain ?: ""),
+        isCircleWallet = !accountWallet?.circleWalletId.isNullOrEmpty(),
+        payouts = walletViewModel.payouts,
+        setPayoutWallet = walletViewModel.setPayoutWallet,
+        isSettingPayoutWallet = walletViewModel.isSettingPayoutWallet,
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletScreen(
     navController: NavController,
-    accountWallet: AccountWallet?
+    walletId: Id?,
+    walletAddress: String?,
+    isPayoutWallet: Boolean,
+    blockchain: Blockchain?,
+    isCircleWallet: Boolean,
+    payouts: List<AccountPayment>,
+    setPayoutWallet: (Id) -> Unit,
+    isSettingPayoutWallet: Boolean,
 ) {
-
-    // todo - wire this up
-    val payouts = remember {
-        mutableListOf<AccountPayment>()
-    }
 
     Scaffold(
         topBar = {
@@ -82,23 +107,24 @@ fun WalletScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
-                // todo - placeholder for external wallet icon
-                Box(modifier = Modifier
-                    .width(32.dp)
-                    .height(32.dp))
+                WalletChainIcon(
+                    blockchain = blockchain,
+                    isCircleWallet = isCircleWallet
+                )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column {
                     Text(
-                        "External Wallet",
+                        if (isCircleWallet) "Circle Wallet" else
+                            "${blockchain.toString().lowercase().capitalize()} Wallet",
                         style = MaterialTheme.typography.headlineSmall
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        "External Wallet",
+                        "***${walletAddress?.takeLast(7)}",
                         style = TextStyle(
                             fontSize = 20.sp,
                             fontFamily = ppNeueBitBold
@@ -111,49 +137,66 @@ fun WalletScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            URButton(onClick = { /*TODO*/ }) { buttonTextStyle ->
-                Text(
-                    "Make default",
-                    style = buttonTextStyle
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            URButton(
-                onClick = { /*TODO*/ },
-                style = ButtonStyle.OUTLINE
-            ) { buttonTextStyle ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
+            if (!isPayoutWallet) {
+                URButton(
+                    onClick = {
+                        if (walletId != null) {
+                            setPayoutWallet(walletId)
+                        }
+                    },
+                    enabled = !isSettingPayoutWallet && walletId != null
+                ) { buttonTextStyle ->
                     Text(
-                        "Remove",
+                        "Make default",
                         style = buttonTextStyle
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                "Earnings",
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn {
-
-                items(payouts) { payout ->
-
-                    PayoutRow(
-                        walletAddress = accountWallet?.walletAddress ?: "",
-                        completeTime = payout.completeTime.format("Jan 2"),
-                        amountUsd = payout.tokenAmount
-                    )
+            if (!isCircleWallet) {
+                URButton(
+                    onClick = { /*TODO*/ },
+                    style = ButtonStyle.OUTLINE
+                ) { buttonTextStyle ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            "Remove",
+                            style = buttonTextStyle
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+
+            if (payouts.isNotEmpty()) {
+
+                Text(
+                    "Earnings",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn {
+
+                    items(payouts) { payout ->
+
+                        PayoutRow(
+                            walletAddress = walletAddress ?: "",
+                            completeTime = payout.completeTime.format("Jan 2"),
+                            amountUsd = payout.tokenAmount
+                        )
+                    }
+                }
+
+            } else {
+                NoPayoutsFound()
             }
         }
     }
@@ -164,12 +207,38 @@ fun WalletScreen(
 private fun WalletScreenPreview() {
     val navController = rememberNavController()
 
-    val accountWallet = AccountWallet()
+    URNetworkTheme {
+        WalletScreen(
+            navController,
+            walletId = null,
+            walletAddress = "0x000000000000000",
+            isPayoutWallet = false,
+            isCircleWallet = false,
+            blockchain = Blockchain.POLYGON,
+            payouts = listOf(),
+            setPayoutWallet = {},
+            isSettingPayoutWallet = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun WalletScreenIsPayoutPreview() {
+    val navController = rememberNavController()
+
 
     URNetworkTheme {
         WalletScreen(
             navController,
-            accountWallet
+            walletId = null,
+            walletAddress = "0x000000000000000",
+            isPayoutWallet = true,
+            isCircleWallet = true,
+            blockchain = Blockchain.POLYGON,
+            payouts = listOf(),
+            setPayoutWallet = {},
+            isSettingPayoutWallet = false
         )
     }
 }

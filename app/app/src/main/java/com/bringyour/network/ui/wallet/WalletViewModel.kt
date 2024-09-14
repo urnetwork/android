@@ -44,6 +44,9 @@ class WalletViewModel @Inject constructor(
     var isInitializingFirstWallet by mutableStateOf(false)
         private set
 
+    var isSettingPayoutWallet by mutableStateOf(false)
+        private set
+
     var wallets by mutableStateOf(listOf<AccountWallet>())
         private set
 
@@ -241,6 +244,10 @@ class WalletViewModel @Inject constructor(
     val addPayoutWalletListener = {
         walletVc?.addPayoutWalletListener { id ->
             payoutWalletId = id
+
+            if (isSettingPayoutWallet) {
+                isSettingPayoutWallet = false
+            }
         }
     }
 
@@ -267,6 +274,11 @@ class WalletViewModel @Inject constructor(
         walletVc?.addPayoutWalletListener {
             getPayouts()
         }
+    }
+
+    val setPayoutWallet: (Id) -> Unit = { walletId ->
+        isSettingPayoutWallet = true
+        walletVc?.setPayoutWallet(walletId)
     }
 
     init {
@@ -307,6 +319,7 @@ enum class Blockchain {
                 "POLYGON" -> POLYGON
                 "MATIC" -> POLYGON
                 "SOLANA" -> SOLANA
+                "SOL" -> SOLANA
                 else -> null
             }
         }
