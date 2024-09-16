@@ -27,11 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
-import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
@@ -56,7 +54,6 @@ enum class AppDestinations(
 fun MainNavHost(
     connectViewModel: ConnectViewModel,
     sagaViewModel: SagaViewModel,
-    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -120,7 +117,6 @@ fun MainNavHost(
                         sagaViewModel,
                         connectViewModel,
                         accountNavHostController,
-                        // accountViewModel
                     )
                 }
 
@@ -134,7 +130,6 @@ fun MainNavHost(
                         sagaViewModel,
                         connectViewModel,
                         accountNavHostController,
-                        // accountViewModel
                     )
                     HorizontalDivider(
                         modifier = Modifier
@@ -161,7 +156,6 @@ fun MainNavContent(
     sagaViewModel: SagaViewModel,
     connectViewModel: ConnectViewModel,
     accountNavHostController: NavHostController,
-    // accountViewModel: AccountViewModel,
 ) {
 
     if (isTablet()) {
@@ -176,7 +170,6 @@ fun MainNavContent(
     when (currentDestination) {
         AppDestinations.CONNECT -> ConnectScreen(
             connectViewModel,
-            // accountViewModel
         )
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,

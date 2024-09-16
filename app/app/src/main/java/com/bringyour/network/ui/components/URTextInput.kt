@@ -129,7 +129,7 @@ fun URTextInput(
                 Spacer(modifier = Modifier.height(8.dp))
             }
             HorizontalDivider(
-                color = TextFaint,
+                color = if (enabled) TextFaint else Color.Transparent,
                 thickness = 1.dp,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
