@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
+import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.wallet.SagaViewModel
 import com.bringyour.network.ui.wallet.WalletViewModel
@@ -23,6 +24,7 @@ fun AccountNavHost(
     navController: NavHostController,
     accountViewModel: AccountViewModel = hiltViewModel(),
     walletViewModel: WalletViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
 
     NavHost(
@@ -53,7 +55,8 @@ fun AccountNavHost(
         ) }
         composable("profile") { ProfileScreen(
             navController,
-            accountViewModel
+            accountViewModel,
+            profileViewModel
         ) }
         composable("settings") { SettingsScreen(
             navController,
