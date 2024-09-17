@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,9 +21,12 @@ import com.bringyour.network.ui.login.LoginPassword
 import com.bringyour.network.ui.login.LoginPasswordReset
 import com.bringyour.network.ui.login.LoginPasswordResetAfterSend
 import com.bringyour.network.ui.login.LoginVerify
+import com.bringyour.network.ui.login.LoginViewModel
 
 @Composable
-fun LoginNavHost() {
+fun LoginNavHost(
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
 
     val navController = rememberNavController()
 
@@ -56,7 +60,8 @@ fun LoginNavHost() {
 
             composable("login-initial") {
                 LoginInitial(
-                    navController = navController
+                    navController,
+                    loginViewModel
                 )
             }
 
