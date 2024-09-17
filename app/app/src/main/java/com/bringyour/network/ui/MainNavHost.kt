@@ -31,6 +31,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
@@ -54,6 +55,7 @@ enum class AppDestinations(
 fun MainNavHost(
     connectViewModel: ConnectViewModel,
     sagaViewModel: SagaViewModel,
+    animateIn: Boolean,
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -145,6 +147,11 @@ fun MainNavHost(
 
         }
     }
+
+    // when navigating from login -> main
+    WelcomeAnimatedOverlay(
+        animateIn
+    )
 
     FullScreenOverlay()
 

@@ -66,6 +66,7 @@ class LoginActivity : AppCompatActivity() {
 
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+                    intent.putExtra("ANIMATE_IN", true)
                     startActivity(intent)
                     finish()
                 } else {
