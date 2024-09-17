@@ -51,8 +51,7 @@ class WalletViewModel @Inject constructor(
     var isRemovingWallet by mutableStateOf(false)
         private set
 
-    var wallets by mutableStateOf(listOf<AccountWallet>())
-        private set
+    val wallets = mutableListOf<AccountWallet>()
 
     var payouts by mutableStateOf(listOf<AccountPayment>())
         private set
@@ -114,23 +113,15 @@ class WalletViewModel @Inject constructor(
 
             byDevice?.api?.walletCircleInit { result, error ->
                 viewModelScope.launch {
-                    Log.i("WalletViewModel", "inside run blocking")
                     if (error != null) {
                         Log.i("WalletViewModel", "error is ${error?.message}")
                     }
-                    Log.i("WalletViewModel", "result is $result")
 
                     val userToken = result.userToken.userToken
                     val encryptionKey = result.userToken.encryptionKey
                     val challengeId = result.challengeId
 
-                    Log.i("WalletViewModel", "userToken: $userToken")
-                    Log.i("WalletViewModel", "encryptionKey: $encryptionKey")
-                    Log.i("WalletViewModel", "challengeId: $challengeId")
-
                     circleWalletSdk?.let { walletSdk ->
-
-                        Log.i("WalletViewModel", "inside wallet sdk")
 
                         onExecute(
                             walletSdk,
@@ -167,7 +158,8 @@ class WalletViewModel @Inject constructor(
 
             val prevWalletCount = wallets.count()
 
-            wallets = updatedWallets
+            wallets.clear()
+            wallets.addAll(updatedWallets)
 
             if (prevWalletCount <= 0 && n > 0) {
                 isInitializingFirstWallet = false
@@ -228,6 +220,9 @@ class WalletViewModel @Inject constructor(
 
         walletVc?.let { vc ->
             vc.addAccountWalletsListener {
+
+                Log.i("WalletViewModel", "account wallets listener hit")
+
                 updateWallets()
             }
         }
