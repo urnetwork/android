@@ -1,5 +1,6 @@
 package com.bringyour.network.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -81,7 +82,9 @@ fun MainNavHost(
     Box(
         modifier = Modifier
             .fillMaxSize()
-             .systemBarsPadding()
+            .background(Black)
+            .padding(top = 36.dp)
+             // .systemBarsPadding()
              // .windowInsetsPadding(WindowInsets.systemBars)
     ) {
 
