@@ -86,6 +86,7 @@ class ProfileViewModel @Inject constructor(
         localState?.parseByJwt { jwt, _ ->
             viewModelScope.launch {
                 networkName = jwt?.networkName
+                networkNameTextFieldValue = TextFieldValue(networkName ?: "")
             }
         }
 
