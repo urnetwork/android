@@ -105,6 +105,13 @@ fun ConnectMainContent(
 
             launch {
                 delay(5000)
+
+                if (disconnectBtnVisible) {
+                    disconnectBtnVisible = false
+                }
+
+                delay(250)
+
                 // ensure still connecting
                 if (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET) {
                     cancelBtnVisible = true
