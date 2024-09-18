@@ -211,8 +211,8 @@ fun GridCanvas(
     size: Dp,
     updatedStatus: ConnectStatus
 ) {
-    val density = LocalDensity.current.density
-    val pointSize = (size.value / (grid?.width ?: 0)) * density
+    val localDensityCurrent = LocalDensity.current
+    val pointSize = (size.value / (grid?.width ?: 0)) * localDensityCurrent.density
     val padding = 1f
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     // this is hacky, but we need it for LaunchedEffect to process
@@ -226,31 +226,68 @@ fun GridCanvas(
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val animatedPoints = remember { mutableStateListOf<AnimatedProviderGridPoint>() }
 
+    val canvasSizePx = with(localDensityCurrent) { size.times(1).toPx() }
+
     val connectedBigPoints = remember {
         listOf(
             AnimatedGridPoint(
-                initialOffset = Offset(-size.value, 0f),
-                targetOffset = Offset(size.value, 0f),
+                initialOffset = Offset(
+                    canvasSizePx.times(.5f),
+                    canvasSizePx.times(1.5f)
+                ),
+                targetOffset = Offset(
+                    canvasSizePx.times(.5f),
+                    // canvasSizePx,
+                    canvasSizePx.times(0.95f)
+                ),
                 color = Red
             ),
             AnimatedGridPoint(
-                initialOffset = Offset(size.value, size.value.times(4)),
-                targetOffset = Offset(size.value, size.value.times(2.25.toFloat())),
+                initialOffset = Offset(
+                    canvasSizePx.times(0.95f),
+                    canvasSizePx.times(1.5f)
+                )
+                ,
+                targetOffset = Offset(
+                    canvasSizePx.times(0.95f),
+                    canvasSizePx.times(0.85f)
+                ),
                 color = Pink
             ),
             AnimatedGridPoint(
-                initialOffset = Offset(size.value.times(4), size.value),
-                targetOffset = Offset(size.value.times(2.25.toFloat()), size.value),
+                initialOffset = Offset(
+                    canvasSizePx.times(1.5f),
+                    canvasSizePx.times(0.15f)
+                ),
+                targetOffset = Offset(
+                    canvasSizePx.times(.85f),
+                    canvasSizePx.times(0.15f)
+                ),
                 color = Green
             ),
             AnimatedGridPoint(
-                initialOffset = Offset(size.value.times(4), size.value.times(4)),
-                targetOffset = Offset(size.value.times(2.25.toFloat()), size.value.times(2.25.toFloat())),
+                initialOffset = with(localDensityCurrent) {
+                    Offset(
+                        -canvasSizePx,
+                        canvasSizePx.times(0.15f)
+                        // canvasSizePx.times(0.15f)
+                    )
+                },
+                targetOffset = Offset(
+                    canvasSizePx.times(0.25f),
+                    canvasSizePx.times(0.15f)
+                ),
                 color = Yellow
             ),
             AnimatedGridPoint(
-                initialOffset = Offset(-size.value.times(2), size.value),
-                targetOffset = Offset(0f, size.value),
+                initialOffset = Offset(
+                    -canvasSizePx.times(1.5f),
+                    canvasSizePx.times(.5f)
+                ),
+                targetOffset = Offset(
+                    canvasSizePx.times(0.05f),
+                    canvasSizePx.times(.5f)
+                ),
                 color = BlueLight
             ),
         )
