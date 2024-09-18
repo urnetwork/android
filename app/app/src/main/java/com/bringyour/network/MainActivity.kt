@@ -103,10 +103,7 @@ class MainActivity: AppCompatActivity() {
         // this is so overlays don't get cut by top bar and bottom drawer
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // for testing
-        val animateIn = true
-
-        // val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
+        val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
 
         setContent {
             URNetworkTheme {

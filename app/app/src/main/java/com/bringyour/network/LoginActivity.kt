@@ -68,6 +68,7 @@ class LoginActivity : AppCompatActivity() {
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
                     intent.putExtra("ANIMATE_IN", true)
                     startActivity(intent)
+                    overridePendingTransition(0, 0)
                     finish()
                 } else {
                     callback(getString(R.string.login_client_error))

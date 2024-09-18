@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.login
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,10 +52,12 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +73,8 @@ fun LoginPassword(
     var password by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var isContentVisible by remember { mutableStateOf(true) }
 
     val login = {
         inProgress = true
@@ -98,6 +105,14 @@ fun LoginPassword(
 
                         inProgress = true
 
+                        isContentVisible = false
+
+                        delay(500)
+
+                        welcomeOverlayVisible = true
+
+                        delay(500)
+
                         loginActivity?.authClientAndFinish { error ->
                             inProgress = false
                             loginError = error
@@ -111,111 +126,121 @@ fun LoginPassword(
         }
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+    AnimatedVisibility(
+        visible = isContentVisible,
+        enter = EnterTransition.None,
+        exit = fadeOut()
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Black
+                    ),
+                    actions = {},
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("It's nice to", style = MaterialTheme.typography.headlineLarge)
+                Text("see you again", style = MaterialTheme.typography.headlineLarge)
+
+                Spacer(modifier = Modifier.height(64.dp))
+
+                URTextInput(
+                    value = user,
+                    onValueChange = { newValue ->
+                        user = newValue
+                    },
+                    placeholder = "Enter your phone number or email",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Done
+                    ),
+                    label = "Email or phone"
+                )
+
+                URTextInput(
+                    value = password,
+                    onValueChange = { newValue ->
+                        password = newValue
+                    },
+                    placeholder = "*****************",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Done
+                    ),
+                    isPassword = true,
+                    label = "Password"
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(
+                    onClick = {
+                        login()
+                    },
+                    enabled = !inProgress
+                ) { buttonTextStyle ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Continue", style = buttonTextStyle)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Right Arrow",
+                            modifier = Modifier.size(16.dp),
+                            tint = if (!inProgress) Color.White else Color.Gray
+                        )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Black
-                ),
-                actions = {},
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("It's nice to", style = MaterialTheme.typography.headlineLarge)
-            Text("see you again", style = MaterialTheme.typography.headlineLarge)
+                }
 
-            Spacer(modifier = Modifier.height(64.dp))
+                if (loginError != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("$loginError")
+                }
 
-            URTextInput(
-                value = user,
-                onValueChange = { newValue ->
-                    user = newValue
-                },
-                placeholder = "Enter your phone number or email",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
-                ),
-                label = "Email or phone"
-            )
+                Spacer(modifier = Modifier.height(16.dp))
 
-            URTextInput(
-                value = password,
-                onValueChange = { newValue ->
-                    password = newValue
-                },
-                placeholder = "*****************",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
-                ),
-                isPassword = true,
-                label = "Password"
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            URButton(
-                onClick = {
-                    login()
-                },
-                enabled = !inProgress
-            ) { buttonTextStyle ->
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Continue", style = buttonTextStyle)
+                    Text("Forget your password?")
                     Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Right Arrow",
-                        modifier = Modifier.size(16.dp),
-                        tint = if (!inProgress) Color.White else Color.Gray
+                    ClickableText(
+                        text = AnnotatedString("Reset it."),
+                        onClick = {
+                            navController.navigate("reset-password/${userAuth}")
+                        },
+                        style = TextStyle(
+                            color = BlueMedium,
+                            fontSize = 16.sp
+                        )
                     )
                 }
             }
-
-            if (loginError != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("$loginError")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Forget your password?")
-                Spacer(modifier = Modifier.width(4.dp))
-                ClickableText(
-                    text = AnnotatedString("Reset it."),
-                    onClick = {
-                        navController.navigate("reset-password/${userAuth}")
-                    },
-                    style = TextStyle(
-                        color = BlueMedium,
-                        fontSize = 16.sp
-                    )
-                )
-            }
         }
     }
+
+    WelcomeAnimatedOverlayLogin(
+        isVisible = welcomeOverlayVisible
+    )
 
 }
 
