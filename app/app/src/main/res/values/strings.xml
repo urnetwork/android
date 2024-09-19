@@ -15,4 +15,6 @@
 
     <string name="terms">A one-time message to establish your identity will be sent to you. Message and data rates may apply. I agree to the <a href="https://bringyour.com/terms">BringYour terms</a>. Learn about how we use and protect your data in our <a href="https://bringyour.com/privacy">Privacy Policy</a></string>
     <string name="terms_jwt">I agree to the <a href="https://bringyour.com/terms">BringYour terms</a>. Learn about how we use and protect your data in our <a href="https://bringyour.com/privacy">Privacy Policy</a></string>
+
+
 </resources>

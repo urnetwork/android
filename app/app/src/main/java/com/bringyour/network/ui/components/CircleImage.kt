@@ -47,7 +47,7 @@ fun CircleImage(
 fun CircleImagePreview() {
     URNetworkTheme {
         CircleImage(
-            imageResourceId = R.drawable.ic_account_active_512,
+            imageResourceId = R.mipmap.ic_launcher,
             size = 40.dp,
             backgroundColor = Red400
         )
