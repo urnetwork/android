@@ -292,7 +292,7 @@ class WalletViewModel @Inject constructor(
 
     init {
 
-        byDevice = byDeviceManager.getByDevice()
+        byDevice = byDeviceManager.byDevice
 
         walletVc = byDevice?.openWalletViewController()
 
@@ -313,7 +313,7 @@ class WalletViewModel @Inject constructor(
         super.onCleared()
 
         walletVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
+            byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 

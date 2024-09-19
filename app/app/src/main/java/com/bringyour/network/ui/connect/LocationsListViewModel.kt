@@ -83,7 +83,7 @@ class LocationsListViewModel @Inject constructor(
 
     init {
 
-        val byDevice = byDeviceManager.getByDevice()
+        val byDevice = byDeviceManager.byDevice
         locationsVc = byDevice?.openLocationsViewController()
 
         addFilteredLocationsListener()
@@ -100,7 +100,7 @@ class LocationsListViewModel @Inject constructor(
         subs.clear()
 
         locationsVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
+            byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 }

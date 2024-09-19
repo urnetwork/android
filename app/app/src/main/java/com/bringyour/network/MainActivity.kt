@@ -119,13 +119,13 @@ class MainActivity: AppCompatActivity() {
 
         lifecycleScope.launch {
             connectViewModel.connectStatus.collect { status ->
-                if (status == ConnectStatus.DESTINATION_SET && app.isVpnRequestStart()) {
-                    app.setProvideMode(ProvideModePublic)
+                if (status == ConnectStatus.DESTINATION_SET && app.vpnRequestStart) {
+                    app.byDeviceManager.provideMode = ProvideModePublic
                     requestPermissionsThenStartVpnServiceWithRestart()
                 }
 
                 if (status == ConnectStatus.DISCONNECTED) {
-                    app.setProvideMode(ProvideModeNone)
+                    app.byDeviceManager.provideMode = ProvideModeNone
                 }
             }
         }

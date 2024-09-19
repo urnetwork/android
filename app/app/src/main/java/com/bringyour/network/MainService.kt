@@ -77,7 +77,7 @@ class MainService : VpnService() {
                 if (intent.getStringExtra("source") != "app") {
                     // this was started with always-on mode
                     // turn off local routing
-                    app.setRouteLocal(false)
+                    app.byDeviceManager.routeLocal = false
                 }
 
                 app.router?.let { router ->

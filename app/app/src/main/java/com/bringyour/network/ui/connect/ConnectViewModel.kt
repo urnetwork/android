@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation
-import com.bringyour.client.ConnectViewControllerV0
+import com.bringyour.client.ConnectViewController
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.client.Sub
 // import com.bringyour.network.AsyncLocalStateManager
@@ -30,7 +30,7 @@ class ConnectViewModel @Inject constructor(
     private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
-    private var connectVc: ConnectViewControllerV0? = null
+    private var connectVc: ConnectViewController? = null
 
     private val subs = mutableListOf<Sub>()
 
@@ -56,7 +56,7 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
-    private fun addListener(listener: (ConnectViewControllerV0) -> Sub) {
+    private fun addListener(listener: (ConnectViewController) -> Sub) {
         connectVc?.let {
             subs.add(listener(it))
         }
@@ -137,24 +137,26 @@ class ConnectViewModel @Inject constructor(
     val disconnect: () -> Unit = {
         connectVc?.disconnect()
 
-        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
-        networkSpace?.asyncLocalState?.let { asyncLocalState ->
-            viewModelScope.launch {
-                asyncLocalState.localState().connectLocation = null
-            }
-        }
+//        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+//        networkSpace?.asyncLocalState?.let { asyncLocalState ->
+//            viewModelScope.launch {
+//                asyncLocalState.localState.connectLocation = null
+//            }
+//        }
 
     }
 
     val cancelConnection: () -> Unit = {
-        connectVc?.cancelConnection()
+        connectVc?.disconnect()
     }
 
     init {
 
-        val byDevice = byDeviceManager.getByDevice()
-        connectVc = byDevice?.openConnectViewControllerV0()
+        val byDevice = byDeviceManager.byDevice
+        connectVc = byDevice?.openConnectViewController()
         connectVc?.start()
+
+//        connectVc = byDeviceManager.connectVc
 
         updateConnectionStatus()
 
@@ -163,12 +165,12 @@ class ConnectViewModel @Inject constructor(
         addSelectedLocationListener()
         addWindowEventSizeListener()
 
-        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
-        networkSpace?.asyncLocalState?.let { asyncLocalState ->
-            viewModelScope.launch {
-                asyncLocalState.localState().connectLocation?.let(connect)
-            }
-        }
+//        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+//        networkSpace?.asyncLocalState?.let { asyncLocalState ->
+//            viewModelScope.launch {
+//                asyncLocalState.localState.connectLocation?.let(connect)
+//            }
+//        }
     }
 
     override fun onCleared() {
@@ -179,9 +181,9 @@ class ConnectViewModel @Inject constructor(
         }
         subs.clear()
 
-        connectVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
-        }
+//        connectVc?.let {
+//            byDeviceManager.getByDevice()?.closeViewController(it)
+//        }
 
         viewModelScope.cancel()
     }
