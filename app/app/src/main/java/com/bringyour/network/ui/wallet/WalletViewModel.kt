@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
@@ -17,7 +18,9 @@ import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -218,34 +221,40 @@ class WalletViewModel @Inject constructor(
 
     val addAccountWalletsListener = {
 
-        walletVc?.let { vc ->
-            vc.addAccountWalletsListener {
+        viewModelScope.launch {
+            walletVc?.let { vc ->
+                vc.addAccountWalletsListener {
 
-                Log.i("WalletViewModel", "account wallets listener hit")
+                    Log.i("WalletViewModel", "account wallets listener hit")
 
-                updateWallets()
+                    updateWallets()
+                }
             }
         }
 
     }
 
     val addExternalWalletProcessingListener = {
-        walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
+        viewModelScope.launch {
+            walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
 
-            if (isProcessingExternalWallet && !isProcessing) {
-                closeExternalWalletModal()
+                if (isProcessingExternalWallet && !isProcessing) {
+                    closeExternalWalletModal()
+                }
+
+                isProcessingExternalWallet = isProcessing
             }
-
-            isProcessingExternalWallet = isProcessing
         }
     }
 
     val addPayoutWalletListener = {
-        walletVc?.addPayoutWalletListener { id ->
-            payoutWalletId = id
+        viewModelScope.launch {
+            walletVc?.addPayoutWalletListener { id ->
+                payoutWalletId = id
 
-            if (isSettingPayoutWallet) {
-                isSettingPayoutWallet = false
+                if (isSettingPayoutWallet) {
+                    isSettingPayoutWallet = false
+                }
             }
         }
     }
@@ -270,8 +279,10 @@ class WalletViewModel @Inject constructor(
     }
 
     val addPayoutsListener = {
-        walletVc?.addPayoutWalletListener {
-            getPayouts()
+        viewModelScope.launch {
+            walletVc?.addPayoutWalletListener {
+                getPayouts()
+            }
         }
     }
 
@@ -285,28 +296,39 @@ class WalletViewModel @Inject constructor(
     }
 
     val addIsRemovingWalletListener = {
-        walletVc?.addIsRemovingWalletListener { isRemoving ->
-            isRemovingWallet = isRemoving
+        viewModelScope.launch {
+            walletVc?.addIsRemovingWalletListener { isRemoving ->
+                isRemovingWallet = isRemoving
+            }
+        }
+    }
+
+    private suspend fun startWalletVc() {
+        withContext(Dispatchers.IO) {
+            walletVc?.start()
         }
     }
 
     init {
 
+        viewModelScope.launch {
+            circleWalletSdk = circleWalletManager.getWalletSdk()
+        }
+
         byDevice = byDeviceManager.getByDevice()
 
         walletVc = byDevice?.openWalletViewController()
 
-        circleWalletSdk = circleWalletManager.getWalletSdk()
-
         updateNextPayoutDateStr()
-
         addAccountWalletsListener()
         addExternalWalletProcessingListener()
         addPayoutWalletListener()
         addPayoutsListener()
         addIsRemovingWalletListener()
 
-        walletVc?.start()
+        viewModelScope.launch {
+            startWalletVc()
+        }
     }
 
     override fun onCleared() {

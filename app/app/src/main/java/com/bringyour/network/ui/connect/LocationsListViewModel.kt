@@ -4,12 +4,16 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bringyour.client.Client.LocationTypeCountry
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.LocationsViewController
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -81,6 +85,12 @@ class LocationsListViewModel @Inject constructor(
 
     }
 
+    private suspend fun startLocationsVc() {
+        withContext(Dispatchers.IO) {
+            locationsVc?.start()
+        }
+    }
+
     init {
 
         val byDevice = byDeviceManager.getByDevice()
@@ -88,7 +98,9 @@ class LocationsListViewModel @Inject constructor(
 
         addFilteredLocationsListener()
 
-        locationsVc?.start()
+        viewModelScope.launch {
+            startLocationsVc()
+        }
     }
 
     override fun onCleared() {
