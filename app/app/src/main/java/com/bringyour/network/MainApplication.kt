@@ -89,6 +89,8 @@ class MainApplication : Application() {
     var vpnRequestStart: Boolean = false
         private set
 
+    var vpnRequestStartListener: (() -> Unit)? = null
+
     // FIXME remove these bools and just query the device directly
 //    private var provideEnabled: Boolean = false
 //    private var connectEnabled: Boolean = false
@@ -489,6 +491,7 @@ class MainApplication : Application() {
                 // prepare returns an intent when the user must grant additional permissions
                 // the ui will check `vpnRequestStart` and start again when the permissions have been set up
                 vpnRequestStart = true
+                vpnRequestStartListener?.let { it() }
             } else {
                 // important: start the vpn service in the application context
 
@@ -516,6 +519,8 @@ class MainApplication : Application() {
         } catch (e: Exception) {
             Log.i(TAG, "Error trying to communicate with the vpn service to start: ${e.message}")
             vpnRequestStart = true
+            // do not request start here
+            // that could lead to a loop
         }
     }
 

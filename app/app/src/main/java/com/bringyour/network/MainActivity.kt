@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity: AppCompatActivity() {
-    private var app : MainApplication? = null
 
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
@@ -37,7 +36,7 @@ class MainActivity: AppCompatActivity() {
     private val sagaViewModel: SagaViewModel by viewModels()
 
     private fun prepareVpnService() {
-        val app = app ?: return
+        val app = application as MainApplication
         val intent = VpnService.prepare(this)
         if (intent != null) {
             vpnLauncher?.launch(intent)
@@ -78,10 +77,8 @@ class MainActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        app = application as MainApplication
-
         // immutable shadow
-        val app = app ?: return
+        val app = application as MainApplication
 
         val sender = ActivityResultSender(this)
         sagaViewModel.setSender(sender)
@@ -116,12 +113,35 @@ class MainActivity: AppCompatActivity() {
                 )
             }
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
+
+        val app = application as MainApplication
+
+        // do this once at start
         lifecycleScope.launch {
             if (app.vpnRequestStart) {
                 requestPermissionsThenStartVpnServiceWithRestart()
             }
         }
+
+        app.vpnRequestStartListener = {
+            lifecycleScope.launch {
+                if (app.vpnRequestStart) {
+                    requestPermissionsThenStartVpnServiceWithRestart()
+                }
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        val app = application as MainApplication
+
+        app.vpnRequestStartListener = null
     }
 
     private fun setTransparentStatusBar() {
