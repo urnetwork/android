@@ -72,7 +72,8 @@ fun AccountScreen(
             loginMode = accountViewModel.loginMode,
             navController = navController,
             scaffoldState = scaffoldState,
-            scope = scope
+            scope = scope,
+            networkName = accountViewModel.networkName
         )
     }
 
@@ -85,6 +86,7 @@ fun AccountScreenContent(
     navController: NavHostController,
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope,
+    networkName: String?
 ) {
 
     val context = LocalContext.current
@@ -105,7 +107,11 @@ fun AccountScreenContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Account", style = MaterialTheme.typography.headlineSmall)
-            AccountSwitcher(loginMode = loginMode)
+            AccountSwitcher(
+                loginMode = loginMode,
+                networkName = networkName
+
+            )
         }
 
         Spacer(modifier = Modifier.height(28.dp))
@@ -311,6 +317,7 @@ private fun AccountAuthenticatedPreview() {
                 navController = navController,
                 scaffoldState = scaffoldState,
                 scope = scope,
+                networkName = "ur_network"
             )
         }
     }
@@ -343,6 +350,7 @@ private fun AccountGuestPreview() {
                 navController = navController,
                 scaffoldState = scaffoldState,
                 scope = scope,
+                networkName = "ur_network"
             )
         }
     }

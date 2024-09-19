@@ -137,7 +137,10 @@ fun ConnectMainContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                AccountSwitcher(loginMode)
+                AccountSwitcher(
+                    loginMode,
+                    networkName
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))

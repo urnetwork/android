@@ -101,7 +101,6 @@ class LoginViewModel @Inject constructor(): ViewModel() {
         args.authJwtType = "google"
 
         api?.authLogin(args) { result, err ->
-            // runBlocking(Dispatchers.Main.immediate) {
             viewModelScope.launch {
                 googleAuthInProgress = false
 
