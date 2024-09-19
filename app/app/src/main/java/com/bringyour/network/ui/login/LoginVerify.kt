@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.login
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,8 +32,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.AuthVerifyArgs
 import com.bringyour.client.AuthVerifySendArgs
 import com.bringyour.network.LoginActivity
@@ -39,15 +40,16 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URCodeInput
 import com.bringyour.network.ui.components.URSnackBar
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 @Composable
 fun LoginVerify(
     userAuth: String,
-    navController: NavController
 ) {
 
     val context = LocalContext.current
@@ -67,6 +69,10 @@ fun LoginVerify(
     }
     var verifyInProgress by remember { mutableStateOf(false) }
     var verifyError by remember { mutableStateOf<String?>(null) }
+
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var isContentVisible by remember { mutableStateOf(true) }
+
 
     val resendCode = {
 
@@ -111,6 +117,14 @@ fun LoginVerify(
 
                     verifyInProgress = true
 
+                    isContentVisible = false
+
+                    delay(500)
+
+                    welcomeOverlayVisible = true
+
+                    delay(500)
+
                     loginActivity?.authClientAndFinish { error ->
                         verifyInProgress = false
 
@@ -137,100 +151,109 @@ fun LoginVerify(
 
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
+    AnimatedVisibility(
+        visible = isContentVisible,
+        enter = EnterTransition.None,
+        exit = fadeOut()
     ) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
 
-            Text("You've got mail", style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                "Tell us who you really are. Enter the code we",
-                color = TextMuted
-            )
-            Text(
-                "sent you to verify your identity.",
-                color = TextMuted
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            URCodeInput(
-                value = code,
-                onValueChange = { newCode ->
-                    code = newCode
-                },
-                codeLength = codeLength,
-                enabled = !verifyInProgress
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                Text("You've got mail", style = MaterialTheme.typography.headlineLarge)
+                Spacer(modifier = Modifier.height(32.dp))
                 Text(
-                    "Don't see it?",
+                    "Tell us who you really are. Enter the code we",
                     color = TextMuted
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                ClickableText(
-                    text = AnnotatedString("Resend code"),
-                    onClick = {
-                        if (resendBtnEnabled) {
-                            resendCode()
-                        }
+                Text(
+                    "sent you to verify your identity.",
+                    color = TextMuted
+                )
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                URCodeInput(
+                    value = code,
+                    onValueChange = { newCode ->
+                        code = newCode
                     },
-                    style = TextStyle(
-                        color = if (resendBtnEnabled) Color.White else TextMuted,
-                        fontSize = 16.sp
-                    ),
+                    codeLength = codeLength,
+                    enabled = !verifyInProgress
+                )
 
+                Spacer(modifier = Modifier.height(40.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Don't see it?",
+                        color = TextMuted
                     )
-            }
-        }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    ClickableText(
+                        text = AnnotatedString("Resend code"),
+                        onClick = {
+                            if (resendBtnEnabled) {
+                                resendCode()
+                            }
+                        },
+                        style = TextStyle(
+                            color = if (resendBtnEnabled) Color.White else TextMuted,
+                            fontSize = 16.sp
+                        ),
 
-        URSnackBar(
-            type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
-            isVisible = verifyError != null,
-            onDismiss = {
-                if (verifyError != null) {
-                    verifyError = null
-                }
-                if (resendError != null) {
-                    resendError = null
-                }
-                if (markResendAsSent) {
-                    markResendAsSent = false
+                        )
                 }
             }
-        ) {
-            if (markResendAsSent) {
-                Column() {
-                    Text("Verification email sent to $userAuth")
+
+            URSnackBar(
+                type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
+                isVisible = verifyError != null,
+                onDismiss = {
+                    if (verifyError != null) {
+                        verifyError = null
+                    }
+                    if (resendError != null) {
+                        resendError = null
+                    }
+                    if (markResendAsSent) {
+                        markResendAsSent = false
+                    }
                 }
-            } else {
-                Column() {
-                    Text("Something went wrong.")
-                    Text("Please wait a few minutes and try again.")
+            ) {
+                if (markResendAsSent) {
+                    Column() {
+                        Text("Verification email sent to $userAuth")
+                    }
+                } else {
+                    Column() {
+                        Text("Something went wrong.")
+                        Text("Please wait a few minutes and try again.")
+                    }
                 }
             }
         }
     }
+
+    WelcomeAnimatedOverlayLogin(
+        isVisible = welcomeOverlayVisible
+    )
 }
 
 @Preview
 @Composable
 fun LoginVerifyPreview() {
-
-    val navController = rememberNavController()
 
     URNetworkTheme {
         Scaffold(
@@ -243,7 +266,6 @@ fun LoginVerifyPreview() {
             ) {
                 LoginVerify(
                     userAuth = "hello@ur.io",
-                    navController
                 )
             }
         }

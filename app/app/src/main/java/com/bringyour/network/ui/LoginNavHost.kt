@@ -114,7 +114,6 @@ fun LoginNavHost(
 
                 LoginVerify(
                     userAuth,
-                    navController
                 )
             }
 

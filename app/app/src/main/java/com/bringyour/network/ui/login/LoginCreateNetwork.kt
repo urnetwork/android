@@ -2,6 +2,9 @@ package com.bringyour.network.ui.login
 
 import android.util.Log
 import android.util.Patterns
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +48,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -114,6 +118,8 @@ fun LoginCreateNetwork(
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var isContentVisible by remember { mutableStateOf(true) }
 
     val isBtnEnabled by remember {
         derivedStateOf {
@@ -213,6 +219,14 @@ fun LoginCreateNetwork(
 
                     inProgress = true
 
+                    isContentVisible = false
+
+                    delay(500)
+
+                    welcomeOverlayVisible = true
+
+                    delay(500)
+
                     loginActivity?.authClientAndFinish { error ->
                         inProgress = false
 
@@ -243,124 +257,136 @@ fun LoginCreateNetwork(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    AnimatedVisibility(
+        visible = isContentVisible,
+        enter = EnterTransition.None,
+        exit = fadeOut()
     ) {
 
-        Row {
-           Text("Join", style = MaterialTheme.typography.headlineLarge)
-        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        Row {
-            Text("URnetwork", style = MaterialTheme.typography.headlineLarge)
-        }
+            Row {
+                Text("Join", style = MaterialTheme.typography.headlineLarge)
+            }
 
-        Spacer(modifier = Modifier.height(48.dp))
+            Row {
+                Text("URnetwork", style = MaterialTheme.typography.headlineLarge)
+            }
 
-        URTextInput(
-            label = "Name",
-            value = userName,
-            onValueChange = { newValue ->
-                userName = newValue
-            },
-            placeholder = "Your name",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-        )
+            Spacer(modifier = Modifier.height(48.dp))
 
-        if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
             URTextInput(
-                label = "Email or phone",
-                value = emailOrPhone,
+                label = "Name",
+                value = userName,
                 onValueChange = { newValue ->
-                    val filteredText = newValue.text.filter { it != ' ' }
-                    val filteredTextFieldValue = newValue.copy(text = filteredText)
-                    emailOrPhone = filteredTextFieldValue
+                    userName = newValue
                 },
-                placeholder = "Enter your phone number or email",
+                placeholder = "Your name",
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
             )
-        }
 
-        URTextInput(
-            label = "Network name",
-            value = networkName,
-            onValueChange = { newValue ->
-                val originalCursorPosition = newValue.selection.start
-
-                val filteredText = networkNameInputFilter(newValue.text)
-                val cursorOffset = newValue.text.length - filteredText.length
-                val newCursorPosition = (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
-
-                networkName = newValue.copy(
-                    text = filteredText,
-                    selection = TextRange(newCursorPosition)
+            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                URTextInput(
+                    label = "Email or phone",
+                    value = emailOrPhone,
+                    onValueChange = { newValue ->
+                        val filteredText = newValue.text.filter { it != ' ' }
+                        val filteredTextFieldValue = newValue.copy(text = filteredText)
+                        emailOrPhone = filteredTextFieldValue
+                    },
+                    placeholder = "Enter your phone number or email",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
                 )
-                checkNetworkName()
-            },
-            placeholder = "Your network name",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-            isValidating = isValidatingNetworkName,
-            isValid = networkNameErrorMsg == null,
-            supportingText = networkNameErrorMsg ?: "Network names must be 6 characters or more"
-        )
-
-        if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+            }
 
             URTextInput(
-                label = "Password",
-                value = userPassword,
+                label = "Network name",
+                value = networkName,
                 onValueChange = { newValue ->
-                    userPassword = newValue
+                    val originalCursorPosition = newValue.selection.start
+
+                    val filteredText = networkNameInputFilter(newValue.text)
+                    val cursorOffset = newValue.text.length - filteredText.length
+                    val newCursorPosition =
+                        (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
+
+                    networkName = newValue.copy(
+                        text = filteredText,
+                        selection = TextRange(newCursorPosition)
+                    )
+                    checkNetworkName()
                 },
+                placeholder = "Your network name",
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
                 ),
-                isPassword = true,
-                supportingText = "Password must be at least 12 characters"
+                isValidating = isValidatingNetworkName,
+                isValid = networkNameErrorMsg == null,
+                supportingText = networkNameErrorMsg ?: "Network names must be 6 characters or more"
             )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
 
-        TermsCheckbox(
-            checked = termsAgreed,
-            onCheckChanged = { it ->
-                termsAgreed = it
+                URTextInput(
+                    label = "Password",
+                    value = userPassword,
+                    onValueChange = { newValue ->
+                        userPassword = newValue
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    isPassword = true,
+                    supportingText = "Password must be at least 12 characters"
+                )
             }
-        )
 
-        Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        URButton(
-            onClick = {
-                createNetwork()
-            },
-            enabled = isBtnEnabled
-        ) { buttonTextStyle ->
-            Text("Continue", style = buttonTextStyle)
-            Spacer(modifier = Modifier.width(4.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Right Arrow",
-                modifier = Modifier.size(16.dp),
-                tint = if (isBtnEnabled) Color.White else Color.Gray
+            TermsCheckbox(
+                checked = termsAgreed,
+                onCheckChanged = { it ->
+                    termsAgreed = it
+                }
             )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            URButton(
+                onClick = {
+                    createNetwork()
+                },
+                enabled = isBtnEnabled
+            ) { buttonTextStyle ->
+                Text("Continue", style = buttonTextStyle)
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Right Arrow",
+                    modifier = Modifier.size(16.dp),
+                    tint = if (isBtnEnabled) Color.White else Color.Gray
+                )
+            }
         }
     }
+
+    WelcomeAnimatedOverlayLogin(
+        isVisible = welcomeOverlayVisible
+    )
 }
 
 @Preview

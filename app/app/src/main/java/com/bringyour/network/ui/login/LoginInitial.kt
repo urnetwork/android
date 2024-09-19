@@ -31,8 +31,15 @@ import androidx.compose.ui.res.painterResource
 import com.bringyour.network.ui.theme.TextMuted
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -52,7 +59,12 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable()
 fun LoginInitial(
@@ -107,6 +119,9 @@ fun LoginInitial(
     val loginActivity = context as? LoginActivity
     val overlayVc = application?.overlayVc
 
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var isContentVisible by remember { mutableStateOf(true) }
+
     val guestModeStr = buildAnnotatedString {
         append("Commitment issues? ")
 
@@ -139,16 +154,29 @@ fun LoginInitial(
         .requestEmail()
         .build()
     val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOpts)
+    val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     val onLoginGoogle: (AuthLoginResult) -> Unit = { result ->
-        application?.login(result.network.byJwt)
 
-        loginActivity?.authClientAndFinish { error ->
+        coroutineScope.launch {
+            application?.login(result.network.byJwt)
 
-            setGoogleAuthInProgress(false)
+            isContentVisible = false
 
-            setLoginError(error)
+            delay(500)
+
+            welcomeOverlayVisible = true
+
+            delay(500)
+
+            loginActivity?.authClientAndFinish { error ->
+
+                setGoogleAuthInProgress(false)
+
+                setLoginError(error)
+            }
         }
+
     }
 
     val onNetworkCreateGoogle: (
@@ -175,117 +203,130 @@ fun LoginInitial(
             )
 
         } catch (e: ApiException) {
+            Log.i("LoginInitial", "error with google sign in: ${e}")
             setLoginError("Error signing in with Google")
         }
     }
 
-    Scaffold { innerPadding ->
+    AnimatedVisibility(
+        visible = isContentVisible,
+        enter = EnterTransition.None,
+        exit = fadeOut()
+    ) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding) // need to debug why this is 0
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Scaffold { innerPadding ->
 
-            OnboardingCarousel()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding) // need to debug why this is 0
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-            Spacer(modifier = Modifier.height(64.dp))
+                OnboardingCarousel()
 
-            URTextInput(
-                value = userAuth,
-                onValueChange = {
-                    setUserAuth(it)
-                },
-                placeholder = "Enter your phone number or email",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
-                ),
-                label = "Email or phone"
-            )
+                Spacer(modifier = Modifier.height(64.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+                URTextInput(
+                    value = userAuth,
+                    onValueChange = {
+                        setUserAuth(it)
+                    },
+                    placeholder = "Enter your phone number or email",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Done
+                    ),
+                    label = "Email or phone"
+                )
 
-            URButton(
-                onClick = {
-                    login(
-                        context,
-                        application?.api,
-                        onLogin,
-                        onNewNetwork,
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(
+                    onClick = {
+                        login(
+                            context,
+                            application?.api,
+                            onLogin,
+                            onNewNetwork,
+                        )
+                    },
+                    enabled = !userAuthInProgress && isValidUserAuth
+                ) { buttonTextStyle ->
+                    Text("Get Started", style = buttonTextStyle)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    "or",
+                    color = TextMuted
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(
+                    style = ButtonStyle.SECONDARY,
+                    onClick = {
+                        googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                    },
+                    enabled = !googleAuthInProgress
+                ) { buttonTextStyle ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        // todo - this looks a little blurry
+                        Image(
+                            painter = painterResource(id = R.drawable.google_login_icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text("Log in with Google", style = buttonTextStyle)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row() {
+
+                    ClickableText(
+                        text = guestModeStr,
+                        onClick = { offset ->
+                            guestModeStr.getStringAnnotations(
+                                tag = "GUEST_MODE", start = offset, end = offset
+                            ).firstOrNull()?.let {
+                                Log.i("Login Initial", "overlayVc is null? ${overlayVc == null}")
+                                overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted)
                     )
-                },
-                enabled = !userAuthInProgress && isValidUserAuth
-            ) { buttonTextStyle ->
-                Text("Get Started", style = buttonTextStyle)
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("or",
-                color = TextMuted
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                },
-                enabled = !googleAuthInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    // todo - this looks a little blurry
-                    Image(
-                        painter = painterResource(id = R.drawable.google_login_icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text("Log in with Google", style = buttonTextStyle)
+            URSnackBar(
+                type = SnackBarType.ERROR,
+                isVisible = loginError != null,
+                onDismiss = {
+                    setLoginError(null)
+                }
+            ) {
+                Column() {
+                    Text("Something went wrong.")
+                    Text("Please wait a few minutes and try again.")
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row() {
-
-                ClickableText(
-                    text = guestModeStr,
-                    onClick = { offset ->
-                        guestModeStr.getStringAnnotations(
-                            tag = "GUEST_MODE", start = offset, end = offset
-                        ).firstOrNull()?.let {
-                            Log.i("Login Initial", "overlayVc is null? ${overlayVc == null}")
-                            overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted)
-                )
-            }
         }
-        URSnackBar(
-            type = SnackBarType.ERROR,
-            isVisible = loginError != null,
-            onDismiss = {
-                setLoginError(null)
-            }
-        ) {
-            Column() {
-                Text("Something went wrong.")
-                Text("Please wait a few minutes and try again.")
-            }
-        }
-
     }
+
+    WelcomeAnimatedOverlayLogin(
+        isVisible = welcomeOverlayVisible
+    )
 }
 
 @Preview()
