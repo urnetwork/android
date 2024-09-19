@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">BringYour</string>
+    <string name="app_name">URnetwork</string>
     <string name="title_login" translatable="false">Login</string>
 
     <string name="free_free_badge">You are on the free plan</string>
