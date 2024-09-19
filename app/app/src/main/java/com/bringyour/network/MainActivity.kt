@@ -118,15 +118,8 @@ class MainActivity: AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            connectViewModel.connectStatus.collect { status ->
-                if (status == ConnectStatus.DESTINATION_SET && app.vpnRequestStart) {
-                    app.byDeviceManager.provideMode = ProvideModePublic
-                    requestPermissionsThenStartVpnServiceWithRestart()
-                }
-
-                if (status == ConnectStatus.DISCONNECTED) {
-                    app.byDeviceManager.provideMode = ProvideModeNone
-                }
+            if (app.vpnRequestStart) {
+                requestPermissionsThenStartVpnServiceWithRestart()
             }
         }
     }

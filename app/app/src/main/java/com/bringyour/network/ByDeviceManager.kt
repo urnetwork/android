@@ -30,12 +30,12 @@ class ByDeviceManager @Inject constructor() {
         }
 
 
-    var provideMode: Long
-        get() = byDevice?.provideMode!!
-        set(it) {
-            asyncLocalState?.localState?.provideMode = it
-            byDevice?.provideMode = it
-        }
+//    var provideMode: Long
+//        get() = byDevice?.provideMode!!
+//        set(it) {
+//            asyncLocalState?.localState?.provideMode = it
+//            byDevice?.provideMode = it
+//        }
 
     // note that view controllers that set location should also save the state
 //    var connectLocation: ConnectLocation?
