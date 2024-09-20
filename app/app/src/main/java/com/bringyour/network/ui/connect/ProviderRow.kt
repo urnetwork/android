@@ -32,7 +32,7 @@ import java.util.Locale
 @Composable()
 fun ProviderRow(
     location: String,
-    providerCount: Int,
+    providerCount: Int? = null,
     imageResourceId: Int? = null,
     onClick: (Int) -> Unit,
     isSelected: Boolean = false,
@@ -60,7 +60,10 @@ fun ProviderRow(
                 backgroundColor = color,
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Column {
+            Column (
+                modifier = Modifier.height(40.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Row {
                     Text(
                         location,
@@ -72,12 +75,14 @@ fun ProviderRow(
                             .weight(1f)
                     )
                 }
-                Row {
-                    Text(
-                        "${formatter.format(providerCount)} Providers",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextMuted
-                    )
+                if (providerCount != null && providerCount > 0) {
+                    Row {
+                        Text(
+                            "${formatter.format(providerCount)} Providers",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
+                        )
+                    }
                 }
             }
         }
@@ -129,6 +134,20 @@ private fun ProviderRowLongTextSelectedPreview() {
         ProviderRow(
             location = "Strong Privacy Laws and Internet Freedom lorem ipsum",
             providerCount = 1520,
+            onClick = {},
+            isSelected = true,
+            color = Red400
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ProviderRowLongTextNoProvidersPreview() {
+    URNetworkTheme {
+        ProviderRow(
+            location = "Best available provider",
+            providerCount = 0,
             onClick = {},
             isSelected = true,
             color = Red400
