@@ -1,7 +1,9 @@
 package com.bringyour.network.ui.connect
 
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,7 +25,7 @@ class LocationsListViewModel @Inject constructor(
 
     private var locationsVc: LocationsViewController? = null
 
-    var totalProviderCount = mutableIntStateOf(0)
+    var initialListLoaded by mutableStateOf(false)
         private set
 
     val connectCountries = mutableStateListOf<ConnectLocation>()
@@ -59,10 +61,12 @@ class LocationsListViewModel @Inject constructor(
                 }
             }
 
-            totalProviderCount.intValue = providerCount
+            if (!initialListLoaded) {
+                initialListLoaded = true
+            }
+
         } else {
             connectCountries.clear()
-            totalProviderCount.intValue = 0
         }
     }
 
