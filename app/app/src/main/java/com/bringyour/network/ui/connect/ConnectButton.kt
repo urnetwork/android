@@ -233,7 +233,7 @@ fun GridCanvas(
             AnimatedGridPoint(
                 initialOffset = Offset(
                     canvasSizePx.times(.5f),
-                    canvasSizePx.times(1.5f)
+                    canvasSizePx.times(2f)
                 ),
                 targetOffset = Offset(
                     canvasSizePx.times(.5f),
@@ -256,7 +256,7 @@ fun GridCanvas(
             ),
             AnimatedGridPoint(
                 initialOffset = Offset(
-                    canvasSizePx.times(1.5f),
+                    canvasSizePx.times(2f),
                     canvasSizePx.times(0.15f)
                 ),
                 targetOffset = Offset(

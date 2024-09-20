@@ -136,7 +136,11 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Profile", style = MaterialTheme.typography.headlineSmall)
-                AccountSwitcher(loginMode = loginMode)
+                AccountSwitcher(
+                    loginMode = loginMode,
+                    // todo - this should be the current network name, not the one being edited
+                    networkName = networkName.text
+                )
             }
             Spacer(modifier = Modifier.height(64.dp))
 

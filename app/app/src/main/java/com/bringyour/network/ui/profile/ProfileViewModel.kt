@@ -10,9 +10,10 @@ import com.bringyour.client.NetworkUser
 import com.bringyour.client.NetworkUserViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
-import com.bringyour.network.ui.components.LoginMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -76,6 +77,12 @@ class ProfileViewModel @Inject constructor(
         setIsEditingProfile(false)
     }
 
+    private suspend fun startNetworkUserVc() {
+        withContext(Dispatchers.IO) {
+            networkUserVc?.start()
+        }
+    }
+
     init {
 
         networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
@@ -90,10 +97,12 @@ class ProfileViewModel @Inject constructor(
             }
         }
 
-        addIsLoadingListener()
-        addNetworkUserListener()
+        viewModelScope.launch {
+            addIsLoadingListener()
+            addNetworkUserListener()
 
-        networkUserVc?.start()
+            startNetworkUserVc()
+        }
 
     }
 
