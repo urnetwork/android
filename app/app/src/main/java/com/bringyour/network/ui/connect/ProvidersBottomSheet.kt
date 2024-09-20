@@ -162,7 +162,7 @@ fun ProvidersBottomSheet(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        if (selectedLocation == null) {
+                        if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
                             ProviderRow(
                                 location = "Best available provider",
                                 onClick = {

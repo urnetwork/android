@@ -85,7 +85,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
 
-        networkUserVc = byDeviceManager.getByDevice()?.openNetworkUserViewController()
+        networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
 
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState
@@ -110,7 +110,7 @@ class ProfileViewModel @Inject constructor(
         super.onCleared()
 
         networkUserVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
+            byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 

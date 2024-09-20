@@ -56,7 +56,7 @@ class AccountViewModel @Inject constructor(
             }
         }
 
-        byDeviceManager.getByDevice().let { device ->
+        byDeviceManager.byDevice.let { device ->
             viewModelScope.launch {
                 clientId = device?.clientId()?.idStr ?: ""
             }

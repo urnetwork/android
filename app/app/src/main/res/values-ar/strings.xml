@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">URnetwork</string>
+    <string name="title_login" translatable="false">Login</string>
+
+    <string name="free_free_badge">أنت على الخطة المجانية</string>
+    <string name="free_pro_badge">الترقية إلى الخطة الاحترافية</string>
+    <string name="free_superfast_badge">الوصول إلى مزودي الخدمة والحواف فائقة السرعة</string>
+    <string name="pro_pro_badge">أنت على الخطة الاحترافية</string>
+    <string name="pro_superfast_badge">لديك إمكانية الوصول إلى مزودي الخدمة والحواف فائقة السرعة</string>
+    <string name="pro_pro_thank">شكراً لك!</string>
+
+    <string name="login_logo_description">إنترنت سريع وآمن في كل مكان تريد أن تكون فيه</string>
+    <string name="login_headline"><b>إنترنت سريع وآمن</b> أينما تريد أن تكون، مع تحكم كامل في بياناتك</string>
+
+    <string name="terms">سيتم إرسال رسالة لمرة واحدة لإثبات هويتك. قد تطبق رسوم الرسائل والبيانات. أوافق على <a href="https://bringyour.com/terms">شروط BringYour</a>. تعرف على كيفية استخدامنا وحماية بياناتك في <a href="https://bringyour.com/privacy">سياسة الخصوصية</a> الخاصة بنا</string>
+    <string name="terms_jwt">أوافق على <a href="https://bringyour.com/terms">شروط BringYour</a>. تعرف على كيفية استخدامنا وحماية بياناتك في <a href="https://bringyour.com/privacy">سياسة الخصوصية</a> الخاصة بنا</string>
+</resources>

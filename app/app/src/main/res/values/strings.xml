@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">BringYour</string>
+    <string name="app_name">URnetwork</string>
     <string name="title_login" translatable="false">Login</string>
 
     <string name="free_free_badge">You are on the free plan</string>
@@ -15,4 +15,44 @@
 
     <string name="terms">A one-time message to establish your identity will be sent to you. Message and data rates may apply. I agree to the <a href="https://bringyour.com/terms">BringYour terms</a>. Learn about how we use and protect your data in our <a href="https://bringyour.com/privacy">Privacy Policy</a></string>
     <string name="terms_jwt">I agree to the <a href="https://bringyour.com/terms">BringYour terms</a>. Learn about how we use and protect your data in our <a href="https://bringyour.com/privacy">Privacy Policy</a></string>
+
+
+
+    <string name="wallet_description">BringYour uses a USDC stablecoin self-custody wallet provided by <a href="https://circle.com">Circle</a>. BringYour can query the balance of the wallet but cannot move any funds out of the wallet. However you, as the owner, can transfer funds out to an exchange or another wallet at any time. Money earned by providing services to the network (in the provide tab) are transferred into your wallet as USDC. We use the Polygon blockchain to minimize transfer fees and maximize compatibility with exchanges.</string>
+
+    <string name="wallet_transfer_out_description">Your wallet is on the Polygon blockchain. The transfer to address must be on the Polygon blockchain. If you are depositing to an exchange, make sure you select your Polygon USDC wallet address. It is recommended to send a small test amount at first, and then send the rest after confirming the receipt of the test amount.</string>
+    <string name="wallet_transfer_out_terms">I understand this is my wallet and BringYour cannot help recover lost funds.</string>
+
+    <string name="account_legal"><a href="https://bringyour.com/privacy">Privacy Policy</a>\n\n<a href="https://bringyour.com/terms">Terms of Use</a>\n\n<a href="https://bringyour.com/vdp">Vulnerability Disclosure Policy</a>\n\n<a href="https://bringyour.com/opensource">Open Source Licenses</a>\n\nBringYour, Inc.\n2261 Market Street #5245\nSan Francisco, CA 94114 USA</string>
+
+
+
+    <string name="login_error_auth_allowed">Please login with one of: %s.</string>
+    <string name="login_error">Something went wrong. Try again.</string>
+    <string name="login_client_error">Something went wrong authenticating the client. Try again.</string>
+
+    <string name="password_length_error">Password must be at least 65 bits of entropy (at least 12 characters, mixed case, mixed alphanumeric and non-alphanumeric).</string>
+    <string name="network_name_length_error">Must be at least 6 characters. Make it longer.</string>
+    <string name="network_name_check_error">Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
+    <string name="network_create_error">Account might already exist. Please start over.</string>
+
+    <string name="verify_error">Something went wrong. Try again.</string>
+    <string name="verify_description">We sent a code to %s. Please enter it below.</string>
+
+    <string name="login_password_description">Log in using %s</string>
+    <string name="login_password_error">Error</string>
+
+    <string name="create_network_error">Something went wrong. Try again.</string>
+    <string name="create_network_auth_jwt_summary">%s will be the primary login.</string>
+
+    <string name="password_reset_help">You may need to check your spam folder or unblock no-reply@bringyour.com</string>
+    <string name="password_reset_after_send_description">Reset link sent to %s</string>
+
+    <string name="password_reset_sent">Sent!</string>
+    <string name="password_reset_resend">Resend</string>
+    <string name="password_reset_send_error">Error</string>
+
+    <string name="verify_sent">Sent!</string>
+    <string name="verify_resend">Resend</string>
+    <string name="verify_send_error">Error</string>
 </resources>

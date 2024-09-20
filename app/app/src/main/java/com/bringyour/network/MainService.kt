@@ -77,7 +77,7 @@ class MainService : VpnService() {
                 if (intent.getStringExtra("source") != "app") {
                     // this was started with always-on mode
                     // turn off local routing
-                    app.setRouteLocal(false)
+                    app.byDeviceManager.routeLocal = false
                 }
 
                 app.router?.let { router ->
@@ -86,7 +86,7 @@ class MainService : VpnService() {
                     // blockingx
                     // establish
                     val builder = Builder()
-                    builder.setSession("BringYour")
+                    builder.setSession("URnetwork")
                     builder.setMtu(1440)
                     builder.setBlocking(true)
                     builder.addDisallowedApplication(packageName)
@@ -147,7 +147,7 @@ class MainService : VpnService() {
         intent?.getBooleanExtra("foreground", false)?.let { notification ->
             if (notification) {
                 if (!foregroundStarted) {
-                    startForegroundNotification("BringYour")
+                    startForegroundNotification("On")
                     foregroundStarted = true
                 }
                 // update the notification `NOTIFICATION_ID` and it will update the displayed notification
@@ -229,7 +229,7 @@ class MainService : VpnService() {
         }
 
         val pendingIntent: PendingIntent =
-            Intent(this, MainService::class.java).let { notificationIntent ->
+            Intent(this, MainActivity::class.java).let { notificationIntent ->
                 PendingIntent.getActivity(this, 0, notificationIntent,
                     PendingIntent.FLAG_IMMUTABLE)
             }
@@ -238,8 +238,9 @@ class MainService : VpnService() {
             .setOngoing(true)
 //                .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
             .setSmallIcon(R.drawable.ic_status)
+            .setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
             .setContentText(message)
-            .setContentTitle(message)
+            .setContentTitle(getString(R.string.app_name))
                 .setContentIntent(pendingIntent)
 //                .setTicker(message)
             .build()

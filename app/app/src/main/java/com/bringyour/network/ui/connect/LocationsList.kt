@@ -13,12 +13,13 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.ui.theme.Red400
 
 @Composable
 fun LocationsList(
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
-    onLocationSelect: (ConnectLocation) -> Unit,
+    onLocationSelect: (ConnectLocation?) -> Unit,
     selectedLocation: ConnectLocation?,
     getLocationColor: (String) -> Color,
 ) {
@@ -34,6 +35,18 @@ fun LocationsList(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
+            ProviderRow(
+                location = "Best available provider",
+                onClick = {
+                    // passing null for connect location will connect to best available
+                    onLocationSelect(null)
+                },
+                color = Red400,
+                isSelected = selectedLocation?.connectLocationId?.bestAvailable == true
+            )
         }
 
         items(promotedLocations) { location ->

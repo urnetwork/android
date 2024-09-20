@@ -50,8 +50,8 @@ class LoginActivity : AppCompatActivity() {
         val app = app ?: return
 
         val authArgs = AuthNetworkClientArgs()
-        authArgs.description = app.getDeviceDescription()
-        authArgs.deviceSpec = app.getDeviceSpec()
+        authArgs.description = app.deviceDescription
+        authArgs.deviceSpec = app.deviceSpec
 
         app.api?.authNetworkClient(authArgs) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {

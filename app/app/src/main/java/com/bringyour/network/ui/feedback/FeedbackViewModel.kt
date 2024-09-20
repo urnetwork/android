@@ -40,7 +40,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     init {
-        val byDevice = byDeviceManager.getByDevice()
+        val byDevice = byDeviceManager.byDevice
 
         feedbackVc = byDevice?.openFeedbackViewController()
 
@@ -51,7 +51,7 @@ class FeedbackViewModel @Inject constructor(
         super.onCleared()
 
         feedbackVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
+            byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 
