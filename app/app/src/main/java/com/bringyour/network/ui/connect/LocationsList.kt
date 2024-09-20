@@ -44,7 +44,8 @@ fun LocationsList(
                     // passing null for connect location will connect to best available
                     onLocationSelect(null)
                 },
-                color = Red400
+                color = Red400,
+                isSelected = selectedLocation?.connectLocationId?.bestAvailable == true
             )
         }
 
