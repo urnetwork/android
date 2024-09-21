@@ -1,6 +1,6 @@
 package com.bringyour.network.ui
 
-import androidx.compose.animation.core.tween
+import  androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -51,7 +51,10 @@ fun AccountNavHost(
     ) {
         composable("account") { AccountScreen(
             navController,
-            accountViewModel
+            accountViewModel,
+            totalPayoutAmount = walletViewModel.totalPayoutAmount,
+            totalPayoutAmountInitialized = walletViewModel.totalPayoutAmountInitialized,
+            walletCount = walletViewModel.wallets.size
         ) }
         composable("profile") { ProfileScreen(
             navController,

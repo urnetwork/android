@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +55,9 @@ import kotlinx.coroutines.launch
 fun AccountScreen(
     navController: NavHostController,
     accountViewModel: AccountViewModel,
+    totalPayoutAmount: Double,
+    totalPayoutAmountInitialized: Boolean,
+    walletCount: Int
 ) {
 
     val scope = rememberCoroutineScope()
@@ -73,7 +78,10 @@ fun AccountScreen(
             navController = navController,
             scaffoldState = scaffoldState,
             scope = scope,
-            networkName = accountViewModel.networkName
+            networkName = accountViewModel.networkName,
+            totalPayoutAmount = totalPayoutAmount,
+            totalPayoutAmountInitialized = totalPayoutAmountInitialized,
+            walletCount = walletCount
         )
     }
 
@@ -86,7 +94,10 @@ fun AccountScreenContent(
     navController: NavHostController,
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope,
-    networkName: String?
+    networkName: String?,
+    totalPayoutAmount: Double,
+    totalPayoutAmountInitialized: Boolean,
+    walletCount: Int
 ) {
 
     val context = LocalContext.current
@@ -200,36 +211,59 @@ fun AccountScreenContent(
                             )
                         )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.Bottom
-                            ) {
-                                Text("0",
-                                    style = MaterialTheme.typography.headlineMedium
-                                )
+                        Row() {
+                            if (totalPayoutAmountInitialized) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(42.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.Bottom
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.Bottom,
+                                    ) {
 
-                                Spacer(modifier = Modifier.width(6.dp))
+                                        Text(if (totalPayoutAmount <= 0) "0" else totalPayoutAmount.toString(),
+                                            style = MaterialTheme.typography.headlineMedium
+                                        )
 
-                                Text("USDC",
-                                    modifier = Modifier.offset(y = -8.dp),
-                                    style = TextStyle(
-                                        color = TextMuted
+                                        Spacer(modifier = Modifier.width(6.dp))
+
+                                        Text("USDC",
+                                            modifier = Modifier.offset(y = -8.dp),
+                                            style = TextStyle(
+                                                color = TextMuted
+                                            )
+                                        )
+                                    }
+
+                                    if (walletCount <= 0) {
+                                        ClickableText(
+                                            modifier = Modifier.offset(y = -8.dp),
+                                            text = AnnotatedString("Set up wallet"),
+                                            onClick = {},
+                                            style = TextStyle(
+                                                color = BlueMedium
+                                            )
+                                        )
+                                    }
+                                }
+                            } else {
+                                Row(
+                                    modifier = Modifier.height(42.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .width(16.dp)
+                                            .height(16.dp),
+                                        color = TextMuted,
+                                        trackColor = TextFaint,
+                                        strokeWidth = 2.dp
                                     )
-                                )
+                                }
                             }
-                            ClickableText(
-                                modifier = Modifier.offset(y = -8.dp),
-                                text = AnnotatedString("Set up wallet"),
-                                onClick = {},
-                                style = TextStyle(
-                                    color = BlueMedium
-                                )
-                            )
                         }
                     }
                 }
@@ -317,7 +351,10 @@ private fun AccountAuthenticatedPreview() {
                 navController = navController,
                 scaffoldState = scaffoldState,
                 scope = scope,
-                networkName = "ur_network"
+                networkName = "ur_network",
+                totalPayoutAmount = 120.12387,
+                totalPayoutAmountInitialized = true,
+                walletCount = 2
             )
         }
     }
@@ -350,7 +387,46 @@ private fun AccountGuestPreview() {
                 navController = navController,
                 scaffoldState = scaffoldState,
                 scope = scope,
-                networkName = "ur_network"
+                networkName = "ur_network",
+                totalPayoutAmount = 0.0,
+                totalPayoutAmountInitialized = true,
+                walletCount = 0
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun AccountGuestNoWalletPreview() {
+
+    val navController = rememberNavController()
+
+    val scope = rememberCoroutineScope()
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        )
+    )
+
+    URNetworkTheme {
+
+        UpgradePlanBottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            scope = scope
+        ) {
+            AccountScreenContent(
+                loginMode = LoginMode.Guest,
+                navController = navController,
+                scaffoldState = scaffoldState,
+                scope = scope,
+                networkName = "ur_network",
+                totalPayoutAmount = 0.0,
+                totalPayoutAmountInitialized = false,
+                walletCount = 0
             )
         }
     }
