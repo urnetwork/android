@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -80,8 +79,6 @@ class ConnectViewModel @Inject constructor(
                     val updatedGridPoints = vc.providerGridPointList
                     val n = updatedGridPoints.len()
 
-                    Log.i("ConnectViewModel", "provider grid point changed: $n new points")
-
                     if (n <= 0) {
                         providerGridPoints.clear()
                     } else {
@@ -110,7 +107,6 @@ class ConnectViewModel @Inject constructor(
             vc.connectionStatus?.let { status ->
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
                     viewModelScope.launch {
-                        Log.i("ConnectViewModel", "connect status changed: $statusFromStr")
                         _connectStatus.value = statusFromStr
 
                         if (statusFromStr == ConnectStatus.DISCONNECTED) {
