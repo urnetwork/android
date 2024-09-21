@@ -84,9 +84,7 @@ fun ConnectButton(
 
     LaunchedEffect(updatedStatus) {
 
-        if (currentStatus == ConnectStatus.CONNECTED && updatedStatus == ConnectStatus.DISCONNECTED) {
-
-            delay(500)
+        if (updatedStatus == ConnectStatus.DISCONNECTED) {
             disconnectedVisible = true
 
         }
@@ -325,15 +323,21 @@ fun GridCanvas(
                     } else if (existingPoint.state != newState) {
 
                         // Update point state and animate accordingly
-                        if (newState == ProviderPointState.REMOVED) {
+                        if (newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED) {
+
+                            existingPoint.color.animateTo(
+                                targetColor,
+                                animationSpec = tween(durationMillis = 500)
+                            )
+
+                            delay(1000)
+
                             // Remove point
                             existingPoint.radius.animateTo(0f)
                             existingPoint.color.animateTo(
                                 Color.Transparent,
                                 animationSpec = tween(durationMillis = 500)
                             )
-                            delay(500)
-                            animatedPoints.remove(existingPoint)
                         } else {
                             // Otherwise update to the new state
                             existingPoint.color.animateTo(
@@ -350,65 +354,65 @@ fun GridCanvas(
 
     LaunchedEffect(updatedStatus) {
 
-        // update to connected state
-        // animate big dots in
+       // update to connected state
+       // animate big dots in
         if (updatedStatus == ConnectStatus.CONNECTED && (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET)) {
 
-            shuffledPoints.clear()
-            shuffledPoints.addAll(connectedBigPoints.shuffled())
+           shuffledPoints.clear()
+           shuffledPoints.addAll(connectedBigPoints.shuffled())
 
-            val firstHalf = shuffledPoints.take(connectedBigPoints.size / 2)
-            val secondHalf = shuffledPoints.drop(connectedBigPoints.size / 2)
+           val firstHalf = shuffledPoints.take(connectedBigPoints.size / 2)
+           val secondHalf = shuffledPoints.drop(connectedBigPoints.size / 2)
 
-            delay(500)
+           delay(500)
 
-            animatedPoints.forEach { point ->
-                launch {
-                    point.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 1000))
-                }
-            }
+           animatedPoints.forEach { point ->
+               launch {
+                   point.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 1000))
+               }
+           }
 
-            delay(1000)
+           delay(1000)
 
-            // animate in the first half
-            firstHalf.forEach { point ->
-                launch {
-                    point.center.snapTo(point.initialOffset)
-                    point.center.animateTo(point.targetOffset)
-                }
-            }
+           // animate in the first half
+           firstHalf.forEach { point ->
+               launch {
+                   point.center.snapTo(point.initialOffset)
+                   point.center.animateTo(point.targetOffset)
+               }
+           }
 
-            delay(1000)
+           delay(1000)
 
-            // animate in the second half
-            secondHalf.forEach { point ->
-                launch {
-                    point.center.snapTo(point.initialOffset)
-                    point.center.animateTo(point.targetOffset)
-                }
-            }
-
-        }
-
-        // we went from connected to reconnecting
-        // animate the big dots out
-        if (currentStatus == ConnectStatus.CONNECTED && (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET)) {
-
-            shuffledPoints.forEach { point ->
-                launch {
-                    point.center.animateTo(point.initialOffset)
-                }
-            }
-
-            delay(100)
-
-            animatedPoints.forEach { point ->
-                launch {
-                    point.radius.animateTo(pointSize / 2 - padding / 2)
-                }
-            }
+           // animate in the second half
+           secondHalf.forEach { point ->
+               launch {
+                   point.center.snapTo(point.initialOffset)
+                   point.center.animateTo(point.targetOffset)
+               }
+           }
 
         }
+
+       // we went from connected to reconnecting
+       // animate the big dots out
+       if (currentStatus == ConnectStatus.CONNECTED && (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET)) {
+
+           shuffledPoints.forEach { point ->
+               launch {
+                   point.center.animateTo(point.initialOffset)
+               }
+           }
+
+           delay(100)
+
+           animatedPoints.forEach { point ->
+               launch {
+                   point.radius.animateTo(pointSize / 2 - padding / 2)
+               }
+           }
+
+       }
 
         //
         // disconnect

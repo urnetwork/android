@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -77,18 +76,27 @@ class ConnectViewModel @Inject constructor(
             vc.addProviderGridPointListener {
                 viewModelScope.launch {
 
-                    val providerGridPointList = vc.providerGridPointList
-                    val updatedPoints = mutableListOf<ProviderGridPoint>()
-                    val n = providerGridPointList.len()
+                    val updatedGridPoints = vc.providerGridPointList
+                    val n = updatedGridPoints.len()
 
-                    providerGridPoints.clear()
+                    if (n <= 0) {
+                        providerGridPoints.clear()
+                    } else {
+                        for (i in 0 until n) {
+                            val updatedPoint = updatedGridPoints.get(i)
 
-                    for (i in 0 until n) {
-                        updatedPoints.add(providerGridPointList.get(i))
+                            val existingPointIndex = providerGridPoints.indexOfFirst { item -> item.clientId == updatedPoint.clientId}
+
+                            if (existingPointIndex == -1) {
+                                providerGridPoints.add(updatedPoint)
+                            } else {
+                                // remove out of state item
+                                providerGridPoints.removeAt(existingPointIndex)
+                                // add updated item
+                                providerGridPoints.add(updatedPoint)
+                            }
+                        }
                     }
-
-                    providerGridPoints.addAll(updatedPoints)
-
                 }
             }
         }
