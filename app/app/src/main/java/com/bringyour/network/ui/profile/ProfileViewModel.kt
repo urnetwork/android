@@ -93,7 +93,10 @@ class ProfileViewModel @Inject constructor(
 
         addIsLoadingListener()
         addNetworkUserListener()
-        networkUserVc?.start()
+
+        viewModelScope.launch {
+            networkUserVc?.start()
+        }
 
     }
 

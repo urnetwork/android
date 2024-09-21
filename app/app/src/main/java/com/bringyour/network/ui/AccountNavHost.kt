@@ -51,7 +51,10 @@ fun AccountNavHost(
     ) {
         composable("account") { AccountScreen(
             navController,
-            accountViewModel
+            accountViewModel,
+            totalPayoutAmount = walletViewModel.totalPayoutAmount,
+            totalPayoutAmountInitialized = walletViewModel.totalPayoutAmountInitialized,
+            walletCount = walletViewModel.wallets.size
         ) }
         composable("profile") { ProfileScreen(
             navController,

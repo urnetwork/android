@@ -96,7 +96,9 @@ class LocationsListViewModel @Inject constructor(
 
         addFilteredLocationsListener()
 
-        locationsVc?.start()
+        viewModelScope.launch {
+            locationsVc?.start()
+        }
     }
 
     override fun onCleared() {
