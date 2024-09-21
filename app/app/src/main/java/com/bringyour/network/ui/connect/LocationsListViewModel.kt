@@ -89,12 +89,6 @@ class LocationsListViewModel @Inject constructor(
 
     }
 
-    private suspend fun startLocationsVc() {
-        withContext(Dispatchers.IO) {
-            locationsVc?.start()
-        }
-    }
-
     init {
 
         val byDevice = byDeviceManager.byDevice
@@ -102,9 +96,7 @@ class LocationsListViewModel @Inject constructor(
 
         addFilteredLocationsListener()
 
-        viewModelScope.launch {
-            startLocationsVc()
-        }
+        locationsVc?.start()
     }
 
     override fun onCleared() {

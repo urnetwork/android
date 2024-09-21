@@ -77,12 +77,6 @@ class ProfileViewModel @Inject constructor(
         setIsEditingProfile(false)
     }
 
-    private suspend fun startNetworkUserVc() {
-        withContext(Dispatchers.IO) {
-            networkUserVc?.start()
-        }
-    }
-
     init {
 
         networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
@@ -97,12 +91,9 @@ class ProfileViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch {
-            addIsLoadingListener()
-            addNetworkUserListener()
-
-            startNetworkUserVc()
-        }
+        addIsLoadingListener()
+        addNetworkUserListener()
+        networkUserVc?.start()
 
     }
 

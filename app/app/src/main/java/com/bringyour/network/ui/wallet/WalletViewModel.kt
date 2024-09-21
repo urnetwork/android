@@ -224,9 +224,6 @@ class WalletViewModel @Inject constructor(
         viewModelScope.launch {
             walletVc?.let { vc ->
                 vc.addAccountWalletsListener {
-
-                    Log.i("WalletViewModel", "account wallets listener hit")
-
                     updateWallets()
                 }
             }
@@ -270,7 +267,6 @@ class WalletViewModel @Inject constructor(
             for (i in 0 until n) {
                 val payout = result.get(i)
                 updatedPayouts.add(payout)
-
             }
 
             payouts = updatedPayouts
@@ -280,7 +276,7 @@ class WalletViewModel @Inject constructor(
 
     val addPayoutsListener = {
         viewModelScope.launch {
-            walletVc?.addPayoutWalletListener {
+            walletVc?.addPaymentsListener {
                 getPayouts()
             }
         }
@@ -303,12 +299,6 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    private suspend fun startWalletVc() {
-        withContext(Dispatchers.IO) {
-            walletVc?.start()
-        }
-    }
-
     init {
 
         viewModelScope.launch {
@@ -327,9 +317,7 @@ class WalletViewModel @Inject constructor(
         addPayoutsListener()
         addIsRemovingWalletListener()
 
-        viewModelScope.launch {
-            startWalletVc()
-        }
+        walletVc?.start()
     }
 
     override fun onCleared() {
