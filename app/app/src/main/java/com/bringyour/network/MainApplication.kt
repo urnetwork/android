@@ -62,6 +62,7 @@ class MainApplication : Application() {
 
 //    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
+    var deviceProvidePausedSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
     var router: Router? = null
@@ -299,6 +300,8 @@ class MainApplication : Application() {
         router = null
         deviceProvideSub?.close()
         deviceProvideSub = null
+        deviceProvidePausedSub?.close()
+        deviceProvidePausedSub = null
         deviceConnectSub?.close()
         deviceConnectSub = null
 
@@ -376,6 +379,11 @@ class MainApplication : Application() {
                 updateVpnService()
             }
         }
+        deviceProvidePausedSub = byDevice?.addProvidePausedChangeListener {
+            runBlocking(Dispatchers.Main.immediate) {
+                updateVpnService()
+            }
+        }
         deviceConnectSub = byDevice?.addConnectChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
@@ -426,12 +434,14 @@ class MainApplication : Application() {
         val byDevice = byDevice ?: return
 
         val provideEnabled = byDevice.provideEnabled
+        val providePaused = byDevice.providePaused
         val connectEnabled = byDevice.connectEnabled
         val routeLocal = byDevice.routeLocal
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()
-            if (provideEnabled) {
+            // if provide paused, keep the vpn on but do not keep the locks
+            if (provideEnabled && !providePaused) {
                 if (wakeLock == null) {
                     wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
                         newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "bringyour::provide").apply {
