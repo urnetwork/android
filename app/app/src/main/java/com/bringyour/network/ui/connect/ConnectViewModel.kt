@@ -77,18 +77,29 @@ class ConnectViewModel @Inject constructor(
             vc.addProviderGridPointListener {
                 viewModelScope.launch {
 
-                    val providerGridPointList = vc.providerGridPointList
-                    val updatedPoints = mutableListOf<ProviderGridPoint>()
-                    val n = providerGridPointList.len()
+                    val updatedGridPoints = vc.providerGridPointList
+                    val n = updatedGridPoints.len()
 
-                    providerGridPoints.clear()
+                    Log.i("ConnectViewModel", "provider grid point changed: $n new points")
 
-                    for (i in 0 until n) {
-                        updatedPoints.add(providerGridPointList.get(i))
+                    if (n <= 0) {
+                        providerGridPoints.clear()
+                    } else {
+                        for (i in 0 until n) {
+                            val updatedPoint = updatedGridPoints.get(i)
+
+                            val existingPointIndex = providerGridPoints.indexOfFirst { item -> item.clientId == updatedPoint.clientId}
+
+                            if (existingPointIndex == -1) {
+                                providerGridPoints.add(updatedPoint)
+                            } else {
+                                // remove out of state item
+                                providerGridPoints.removeAt(existingPointIndex)
+                                // add updated item
+                                providerGridPoints.add(updatedPoint)
+                            }
+                        }
                     }
-
-                    providerGridPoints.addAll(updatedPoints)
-
                 }
             }
         }
@@ -99,6 +110,7 @@ class ConnectViewModel @Inject constructor(
             vc.connectionStatus?.let { status ->
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
                     viewModelScope.launch {
+                        Log.i("ConnectViewModel", "connect status changed: $statusFromStr")
                         _connectStatus.value = statusFromStr
 
                         if (statusFromStr == ConnectStatus.DISCONNECTED) {

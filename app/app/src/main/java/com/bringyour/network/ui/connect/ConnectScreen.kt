@@ -58,10 +58,8 @@ fun ConnectScreen(
             connectStatus = connectStatus,
             selectedLocation = connectViewModel.selectedLocation,
             networkName = accountViewModel.networkName,
-            // networkName = networkName,
             connect = connectViewModel.connect,
             disconnect = connectViewModel.disconnect,
-            cancelConnection = connectViewModel.cancelConnection,
             providerGridPoints = connectViewModel.providerGridPoints,
             windowCurrentSize = connectViewModel.windowCurrentSize,
             grid = connectViewModel.grid,
@@ -80,13 +78,12 @@ fun ConnectMainContent(
     windowCurrentSize: Int,
     connect: (ConnectLocation?) -> Unit,
     disconnect: () -> Unit?,
-    cancelConnection: () -> Unit?,
     loginMode: LoginMode,
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
-    var cancelBtnVisible by remember { mutableStateOf(false) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
+    var cancelBtnVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(connectStatus) {
 
@@ -94,29 +91,30 @@ fun ConnectMainContent(
 
         if (connectStatus == ConnectStatus.CONNECTED) {
             launch {
-                cancelBtnVisible = false
 
-                delay(2000)
+                if (cancelBtnVisible) {
+                    cancelBtnVisible = false
+                    delay(2500)
+                }
+
                 disconnectBtnVisible = true
             }
         }
 
         if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.DESTINATION_SET) {
 
-            launch {
-                delay(5000)
+            // only show cancel button if status is from disconnected -> connecting/destination set
+            // if status is connected -> connecting (it's reconnecting), we can just keep displaying
+            // the disconnect button.
+            if (!disconnectBtnVisible) {
 
-                if (disconnectBtnVisible) {
-                    disconnectBtnVisible = false
-                }
-
-                delay(250)
-
-                // ensure still connecting
-                if (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET) {
+                launch {
+                    delay(2000)
                     cancelBtnVisible = true
                 }
+
             }
+
         }
 
         if (connectStatus == ConnectStatus.DISCONNECTED) {
@@ -208,8 +206,7 @@ fun ConnectMainContent(
                 ) {
                     URButton(
                         onClick = {
-                            // todo - handle canceling
-                            cancelConnection()
+                            disconnect()
                         },
                         style = ButtonStyle.OUTLINE,
                     ) { buttonTextStyle ->
@@ -235,7 +232,6 @@ private fun ConnectMainContentPreview() {
             networkName = "my_network",
             connect = {},
             disconnect = {},
-            cancelConnection = {},
             grid = null,
             providerGridPoints = listOf(),
             windowCurrentSize = 16,
