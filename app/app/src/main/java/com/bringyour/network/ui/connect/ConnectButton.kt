@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -54,6 +55,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.bringyour.client.ConnectGrid
+import com.bringyour.client.Id
+import com.bringyour.client.Time
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
@@ -74,7 +77,7 @@ import kotlinx.coroutines.launch
 fun ConnectButton(
     onClick: () -> Unit,
     grid: ConnectGrid?,
-    providerGridPoints: List<ProviderGridPoint>,
+    providerGridPoints: Map<Id, ProviderGridPoint>,
     updatedStatus: ConnectStatus,
 ) {
 
@@ -143,7 +146,7 @@ fun ConnectButton(
 @Composable
 private fun ConnectingButtonContent(
     grid: ConnectGrid?,
-    providerGridPoints: List<ProviderGridPoint>,
+    providerGridPoints: Map<Id, ProviderGridPoint>,
     status: ConnectStatus
 ) {
 
@@ -195,9 +198,11 @@ data class AnimatedGridPoint(
 )
 
 data class AnimatedProviderGridPoint(
+    val clientId: Id,
     val x: Int,
     val y: Int,
     var state: ProviderPointState,
+    var endTime: Time?,
     val radius: Animatable<Float, AnimationVector1D> = Animatable(0f),
     val color: Animatable<Color, AnimationVector4D> = Animatable(Color.Transparent)
 )
@@ -205,7 +210,7 @@ data class AnimatedProviderGridPoint(
 @Composable
 fun GridCanvas(
     grid: ConnectGrid?,
-    providerGridPoints: List<ProviderGridPoint>,
+    providerGridPoints: Map<Id, ProviderGridPoint>,
     size: Dp,
     updatedStatus: ConnectStatus
 ) {
@@ -217,12 +222,12 @@ fun GridCanvas(
     // changes in the providerGridPoints list
     val derivedState = remember(providerGridPoints) {
         derivedStateOf {
-            providerGridPoints.map { it.x to it.y to it.state }
+            providerGridPoints.values.map { it.clientId to it.x to it.y to it.state }
         }
     }
 
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    val animatedPoints = remember { mutableStateListOf<AnimatedProviderGridPoint>() }
+    val animatedPoints = remember { mutableStateMapOf<Id, AnimatedProviderGridPoint>() }
 
     val canvasSizePx = with(localDensityCurrent) { size.times(1).toPx() }
 
@@ -299,10 +304,20 @@ fun GridCanvas(
 
         coroutineScope {
 
-            providerGridPoints.forEach { point ->
+            val removeAnimatedClientIds = mutableListOf<Id>()
+            for (clientId in animatedPoints.keys) {
+                if (!providerGridPoints.containsKey(clientId)) {
+                    removeAnimatedClientIds.add(clientId)
+                }
+            }
+            for (clientId in removeAnimatedClientIds) {
+                animatedPoints.remove(clientId)
+            }
+
+            providerGridPoints.values.forEach { point ->
 
                 launch {
-                    val existingPoint = animatedPoints.find { it.x == point.x && it.y == point.y }
+                    val existingPoint = animatedPoints[point.clientId]
                     val newState = ProviderPointState.fromString(point.state)
 
                     val targetColor = when (newState) {
@@ -310,42 +325,61 @@ fun GridCanvas(
                         ProviderPointState.EVALUATION_FAILED -> Red
                         ProviderPointState.NOT_ADDED -> TextFaint
                         ProviderPointState.ADDED -> Green
-                        ProviderPointState.REMOVED -> TextFaint
+                        ProviderPointState.REMOVED -> Red
                         else -> Color.Transparent
                     }
 
                     if (existingPoint == null) {
                         // Adding a new point
-                        val newPoint = AnimatedProviderGridPoint(point.x, point.y, newState!!)
-                        animatedPoints.add(newPoint)
+                        val newPoint = AnimatedProviderGridPoint(point.clientId, point.x, point.y, newState!!, point.endTime)
+                        animatedPoints[point.clientId] = newPoint
                         newPoint.color.snapTo(targetColor)
                         newPoint.radius.animateTo(pointSize / 2 - padding / 2)
-                    } else if (existingPoint.state != newState) {
+                    } else if (existingPoint.state != newState || existingPoint.endTime != point.endTime) {
 
-                        // Update point state and animate accordingly
-                        if (newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED) {
+                        existingPoint.state = newState!!
+                        existingPoint.endTime = point.endTime
 
-                            existingPoint.color.animateTo(
-                                targetColor,
-                                animationSpec = tween(durationMillis = 500)
+                        existingPoint.endTime?.let { endTime ->
+                            existingPoint.color.snapTo(
+                                targetColor
                             )
-
-                            delay(1000)
 
                             // Remove point
-                            existingPoint.radius.animateTo(0f)
+//                            existingPoint.radius.animateTo(0f)
                             existingPoint.color.animateTo(
                                 Color.Transparent,
-                                animationSpec = tween(durationMillis = 500)
+                                animationSpec = tween(durationMillis = endTime.millisUntil())
                             )
-                        } else {
+                        } ?: run {
                             // Otherwise update to the new state
                             existingPoint.color.animateTo(
                                 targetColor,
                                 animationSpec = tween(durationMillis = 500)
                             )
-                            existingPoint.state = newState!!
+
+//                            existingPoint.radius.animateTo(pointSize / 2 - padding / 2)
                         }
+
+                        // Update point state and animate accordingly
+//                        if (existingPoint.endTime) {
+//
+//                            existingPoint.color.animateTo(
+//                                targetColor,
+//                                animationSpec = tween(durationMillis = 500)
+//                            )
+//
+//                            delay(1000)
+//
+//                            // Remove point
+//                            existingPoint.radius.animateTo(0f)
+//                            existingPoint.color.animateTo(
+//                                Color.Transparent,
+//                                animationSpec = tween(durationMillis = 500)
+//                            )
+//                        } else {
+//
+//                        }
                     }
                 }
             }
@@ -366,11 +400,12 @@ fun GridCanvas(
 
            delay(500)
 
-           animatedPoints.forEach { point ->
-               launch {
-                   point.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 1000))
-               }
-           }
+            // FIXME the color needs to be restored when the points are shown again
+//           animatedPoints.values.forEach { point ->
+//               launch {
+//                   point.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 1000))
+//               }
+//           }
 
            delay(1000)
 
@@ -406,7 +441,7 @@ fun GridCanvas(
 
            delay(100)
 
-           animatedPoints.forEach { point ->
+           animatedPoints.values.forEach { point ->
                launch {
                    point.radius.animateTo(pointSize / 2 - padding / 2)
                }
@@ -421,7 +456,7 @@ fun GridCanvas(
             Log.i("ConnectButton", "setting to disconnected")
 
             // remove all provider grid points
-            animatedPoints.forEach { point ->
+            animatedPoints.values.forEach { point ->
                 launch {
                     point.radius.snapTo(0f)
                 }
@@ -477,7 +512,7 @@ fun GridCanvas(
 
     Canvas(modifier = Modifier.size(size)) {
         // our provider grid
-        animatedPoints.forEach { point ->
+        animatedPoints.values.forEach { point ->
             drawCircle(
                 color = point.color.value,
                 radius = point.radius.value,
@@ -596,7 +631,7 @@ private fun ConnectButtonDisconnectedPreview() {
         ConnectButton(
             onClick = {},
             updatedStatus = ConnectStatus.DISCONNECTED,
-            providerGridPoints = listOf(),
+            providerGridPoints = mapOf(),
             grid = null
         )
     }
@@ -609,7 +644,7 @@ private fun ConnectButtonConnectedPreview() {
         ConnectButton(
             onClick = {},
             updatedStatus = ConnectStatus.CONNECTED,
-            providerGridPoints = listOf(),
+            providerGridPoints = mapOf(),
             grid = null
         )
     }

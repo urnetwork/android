@@ -3,6 +3,7 @@ package com.bringyour.network.ui.connect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.ConnectViewController
+import com.bringyour.client.Id
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
@@ -40,7 +42,9 @@ class ConnectViewModel @Inject constructor(
     var windowCurrentSize by mutableIntStateOf(0)
         private set
 
-    val providerGridPoints = mutableStateListOf<ProviderGridPoint>()
+//    val providerGridPoints = mutableStateListOf<ProviderGridPoint>()
+    var providerGridPoints by mutableStateOf<Map<Id, ProviderGridPoint>>(mapOf())
+        private set
 
     var grid by mutableStateOf<ConnectGrid?>(null)
         private set
@@ -59,46 +63,43 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
-    private val addWindowEventSizeListener = {
+//    private val addWindowEventSizeListener = {
+//
+//        addListener { vc ->
+//            vc.addWindowSizeListener {
+//                viewModelScope.launch {
+//                    windowCurrentSize = vc.grid?.windowCurrentSize ?: 0
+//                }
+//            }
+//        }
+//    }
 
+    private val addGridListener = {
         addListener { vc ->
-            vc.addWindowEventSizeListener {
+            vc.addGridListener {
                 viewModelScope.launch {
-                    windowCurrentSize = vc.windowCurrentSize
-                    grid = vc.grid
+                    updateGrid()
+
                 }
             }
         }
     }
 
-    private val addProviderGridPointChangedListener = {
-        addListener { vc ->
-            vc.addProviderGridPointListener {
-                viewModelScope.launch {
+    private fun updateGrid() {
+        grid = connectVc?.grid
+        grid?.let {
+            windowCurrentSize = it.windowCurrentSize
 
-                    val updatedGridPoints = vc.providerGridPointList
-                    val n = updatedGridPoints.len()
-
-                    if (n <= 0) {
-                        providerGridPoints.clear()
-                    } else {
-                        for (i in 0 until n) {
-                            val updatedPoint = updatedGridPoints.get(i)
-
-                            val existingPointIndex = providerGridPoints.indexOfFirst { item -> item.clientId == updatedPoint.clientId}
-
-                            if (existingPointIndex == -1) {
-                                providerGridPoints.add(updatedPoint)
-                            } else {
-                                // remove out of state item
-                                providerGridPoints.removeAt(existingPointIndex)
-                                // add updated item
-                                providerGridPoints.add(updatedPoint)
-                            }
-                        }
-                    }
-                }
+            val updateProviderGridPointsList = it.providerGridPointList
+            val updateProviderGridPoints = mutableMapOf<Id, ProviderGridPoint>()
+            for (i in 0 until updateProviderGridPointsList.len()) {
+                val point = updateProviderGridPointsList.get(i)
+                updateProviderGridPoints[point.clientId] = point
             }
+            providerGridPoints = updateProviderGridPoints
+        } ?: run {
+            windowCurrentSize = 0
+            providerGridPoints = mapOf()
         }
     }
 
@@ -109,9 +110,9 @@ class ConnectViewModel @Inject constructor(
                     viewModelScope.launch {
                         _connectStatus.value = statusFromStr
 
-                        if (statusFromStr == ConnectStatus.DISCONNECTED) {
-                            windowCurrentSize = 0
-                        }
+//                        if (statusFromStr == ConnectStatus.DISCONNECTED) {
+//                            windowCurrentSize = 0
+//                        }
                     }
                 }
             }
@@ -154,13 +155,18 @@ class ConnectViewModel @Inject constructor(
         val byDevice = byDeviceManager.byDevice
         connectVc = byDevice?.openConnectViewController()
 
-        updateConnectionStatus()
 
-        addProviderGridPointChangedListener()
-        addConnectionStatusListener()
+//        addProviderGridPointChangedListener()
+
         addSelectedLocationListener()
-        addWindowEventSizeListener()
+        addGridListener()
+        addConnectionStatusListener()
+//        addWindowEventSizeListener()
+
+
         updateSelectedLocation()
+        updateGrid()
+        updateConnectionStatus()
     }
 
     override fun onCleared() {
