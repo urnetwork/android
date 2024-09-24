@@ -11,9 +11,7 @@ import com.bringyour.client.NetworkUserViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -29,6 +27,9 @@ class ProfileViewModel @Inject constructor(
         private set
 
     var isEditingProfile by mutableStateOf(false)
+        private set
+
+    var isUpdatingProfile by mutableStateOf(false)
         private set
 
     var networkUser by mutableStateOf<NetworkUser?>(null)
@@ -49,10 +50,16 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    val addNetworkUserListener = {
+    private val addNetworkUserListener = {
         networkUserVc?.addNetworkUserListener {
             networkUser = networkUserVc?.networkUser
             setNameTextFieldValue(TextFieldValue(networkUser?.userName ?: ""))
+        }
+    }
+
+    private val addIsUpdatingListener = {
+        networkUserVc?.addIsUpdatingListener { isUpdating ->
+            isUpdatingProfile = isUpdating
         }
     }
 
@@ -93,6 +100,7 @@ class ProfileViewModel @Inject constructor(
 
         addIsLoadingListener()
         addNetworkUserListener()
+        addIsUpdatingListener()
 
         viewModelScope.launch {
             networkUserVc?.start()
