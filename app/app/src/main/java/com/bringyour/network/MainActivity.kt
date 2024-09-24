@@ -32,7 +32,6 @@ class MainActivity: AppCompatActivity() {
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
-    private val connectViewModel: ConnectViewModel by viewModels()
     private val sagaViewModel: SagaViewModel by viewModels()
 
     private fun prepareVpnService() {
@@ -42,11 +41,7 @@ class MainActivity: AppCompatActivity() {
             vpnLauncher?.launch(intent)
         } else {
 //            onActivityResult(ActivityResult(RESULT_OK, null))
-            app.startVpnService(
-//                onStart = {
-//                    // connectViewModel.setConnectionStatus(ConnectStatus.CONNECTED)
-//                }
-            )
+            app.startVpnService()
         }
     }
 
@@ -108,7 +103,6 @@ class MainActivity: AppCompatActivity() {
         setContent {
             URNetworkTheme {
                 MainNavHost(
-                    connectViewModel,
                     sagaViewModel
                 )
             }

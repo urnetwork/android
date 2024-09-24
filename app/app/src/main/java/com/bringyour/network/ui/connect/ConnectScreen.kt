@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.Id
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
@@ -63,7 +64,9 @@ fun ConnectScreen(
             providerGridPoints = connectViewModel.providerGridPoints,
             windowCurrentSize = connectViewModel.windowCurrentSize,
             grid = connectViewModel.grid,
-            loginMode = accountViewModel.loginMode
+            loginMode = accountViewModel.loginMode,
+            animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints
         )
     }
 }
@@ -74,11 +77,13 @@ fun ConnectMainContent(
     selectedLocation: ConnectLocation?,
     networkName: String?,
     grid: ConnectGrid?,
-    providerGridPoints: List<ProviderGridPoint>,
+    providerGridPoints: Map<Id, ProviderGridPoint>,
     windowCurrentSize: Int,
     connect: (ConnectLocation?) -> Unit,
     disconnect: () -> Unit?,
     loginMode: LoginMode,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -157,6 +162,8 @@ fun ConnectMainContent(
                     updatedStatus = connectStatus,
                     providerGridPoints = providerGridPoints,
                     grid = grid,
+                    animatedSuccessPoints = animatedSuccessPoints,
+                    shuffleSuccessPoints = shuffleSuccessPoints
                 )
             }
 
@@ -233,9 +240,11 @@ private fun ConnectMainContentPreview() {
             connect = {},
             disconnect = {},
             grid = null,
-            providerGridPoints = listOf(),
+            providerGridPoints = mapOf(),
             windowCurrentSize = 16,
-            loginMode = LoginMode.Authenticated
+            loginMode = LoginMode.Authenticated,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {}
         )
     }
 }

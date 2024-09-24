@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -54,6 +55,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.bringyour.client.ConnectGrid
+import com.bringyour.client.Id
+import com.bringyour.client.Time
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
@@ -74,8 +77,10 @@ import kotlinx.coroutines.launch
 fun ConnectButton(
     onClick: () -> Unit,
     grid: ConnectGrid?,
-    providerGridPoints: List<ProviderGridPoint>,
+    providerGridPoints: Map<Id, ProviderGridPoint>,
     updatedStatus: ConnectStatus,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -123,7 +128,9 @@ fun ConnectButton(
             ConnectingButtonContent(
                 providerGridPoints = providerGridPoints,
                 grid = grid,
-                status = updatedStatus
+                status = updatedStatus,
+                animatedSuccessPoints = animatedSuccessPoints,
+                shuffleSuccessPoints = shuffleSuccessPoints
             )
 
         }
@@ -143,8 +150,10 @@ fun ConnectButton(
 @Composable
 private fun ConnectingButtonContent(
     grid: ConnectGrid?,
-    providerGridPoints: List<ProviderGridPoint>,
-    status: ConnectStatus
+    providerGridPoints: Map<Id, ProviderGridPoint>,
+    status: ConnectStatus,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
 
     var globeVisible by remember { mutableStateOf(false) }
@@ -181,23 +190,19 @@ private fun ConnectingButtonContent(
             size = 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
             providerGridPoints = providerGridPoints,
             grid = grid,
-            updatedStatus = status
+            updatedStatus = status,
+            animatedSuccessPoints = animatedSuccessPoints,
+            shuffleSuccessPoints = shuffleSuccessPoints
         )
     }
 }
 
-data class AnimatedGridPoint(
-    val initialOffset: Offset,
-    val targetOffset: Offset,
-    val center: Animatable<Offset, AnimationVector2D> = Animatable(Offset(-500f, 0f), Offset.VectorConverter),
-    val color: Color,
-    val radius: Float = 300f
-)
-
 data class AnimatedProviderGridPoint(
+    val clientId: Id,
     val x: Int,
     val y: Int,
     var state: ProviderPointState,
+    var endTime: Time?,
     val radius: Animatable<Float, AnimationVector1D> = Animatable(0f),
     val color: Animatable<Color, AnimationVector4D> = Animatable(Color.Transparent)
 )
@@ -205,9 +210,11 @@ data class AnimatedProviderGridPoint(
 @Composable
 fun GridCanvas(
     grid: ConnectGrid?,
-    providerGridPoints: List<ProviderGridPoint>,
+    providerGridPoints: Map<Id, ProviderGridPoint>,
     size: Dp,
-    updatedStatus: ConnectStatus
+    updatedStatus: ConnectStatus,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
     val localDensityCurrent = LocalDensity.current
     val pointSize = (size.value / (grid?.width ?: 0)) * localDensityCurrent.density
@@ -217,81 +224,12 @@ fun GridCanvas(
     // changes in the providerGridPoints list
     val derivedState = remember(providerGridPoints) {
         derivedStateOf {
-            providerGridPoints.map { it.x to it.y to it.state }
+            providerGridPoints.values.map { it.clientId to it.x to it.y to it.state }
         }
     }
 
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    val animatedPoints = remember { mutableStateListOf<AnimatedProviderGridPoint>() }
-
-    val canvasSizePx = with(localDensityCurrent) { size.times(1).toPx() }
-
-    val connectedBigPoints = remember {
-        listOf(
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    canvasSizePx.times(.5f),
-                    canvasSizePx.times(2f)
-                ),
-                targetOffset = Offset(
-                    canvasSizePx.times(.5f),
-                    // canvasSizePx,
-                    canvasSizePx.times(0.95f)
-                ),
-                color = Red
-            ),
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    canvasSizePx.times(0.95f),
-                    canvasSizePx.times(1.5f)
-                )
-                ,
-                targetOffset = Offset(
-                    canvasSizePx.times(0.95f),
-                    canvasSizePx.times(0.85f)
-                ),
-                color = Pink
-            ),
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    canvasSizePx.times(2f),
-                    canvasSizePx.times(0.15f)
-                ),
-                targetOffset = Offset(
-                    canvasSizePx.times(.85f),
-                    canvasSizePx.times(0.15f)
-                ),
-                color = Green
-            ),
-            AnimatedGridPoint(
-                initialOffset = with(localDensityCurrent) {
-                    Offset(
-                        -canvasSizePx,
-                        canvasSizePx.times(0.15f)
-                        // canvasSizePx.times(0.15f)
-                    )
-                },
-                targetOffset = Offset(
-                    canvasSizePx.times(0.25f),
-                    canvasSizePx.times(0.15f)
-                ),
-                color = Yellow
-            ),
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    -canvasSizePx.times(1.5f),
-                    canvasSizePx.times(.5f)
-                ),
-                targetOffset = Offset(
-                    canvasSizePx.times(0.05f),
-                    canvasSizePx.times(.5f)
-                ),
-                color = BlueLight
-            ),
-        )
-    }
-
-    val shuffledPoints = remember { mutableStateListOf<AnimatedGridPoint>() }
+    val animatedPoints = remember { mutableStateMapOf<Id, AnimatedProviderGridPoint>() }
 
     var isInFocus by remember { mutableStateOf(true) }
 
@@ -299,10 +237,20 @@ fun GridCanvas(
 
         coroutineScope {
 
-            providerGridPoints.forEach { point ->
+            val removeAnimatedClientIds = mutableListOf<Id>()
+            for (clientId in animatedPoints.keys) {
+                if (!providerGridPoints.containsKey(clientId)) {
+                    removeAnimatedClientIds.add(clientId)
+                }
+            }
+            for (clientId in removeAnimatedClientIds) {
+                animatedPoints.remove(clientId)
+            }
+
+            providerGridPoints.values.forEach { point ->
 
                 launch {
-                    val existingPoint = animatedPoints.find { it.x == point.x && it.y == point.y }
+                    val existingPoint = animatedPoints[point.clientId]
                     val newState = ProviderPointState.fromString(point.state)
 
                     val targetColor = when (newState) {
@@ -310,42 +258,61 @@ fun GridCanvas(
                         ProviderPointState.EVALUATION_FAILED -> Red
                         ProviderPointState.NOT_ADDED -> TextFaint
                         ProviderPointState.ADDED -> Green
-                        ProviderPointState.REMOVED -> TextFaint
+                        ProviderPointState.REMOVED -> Red
                         else -> Color.Transparent
                     }
 
                     if (existingPoint == null) {
                         // Adding a new point
-                        val newPoint = AnimatedProviderGridPoint(point.x, point.y, newState!!)
-                        animatedPoints.add(newPoint)
+                        val newPoint = AnimatedProviderGridPoint(point.clientId, point.x, point.y, newState!!, point.endTime)
+                        animatedPoints[point.clientId] = newPoint
                         newPoint.color.snapTo(targetColor)
                         newPoint.radius.animateTo(pointSize / 2 - padding / 2)
-                    } else if (existingPoint.state != newState) {
+                    } else if (existingPoint.state != newState || existingPoint.endTime != point.endTime) {
 
-                        // Update point state and animate accordingly
-                        if (newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED) {
+                        existingPoint.state = newState!!
+                        existingPoint.endTime = point.endTime
 
-                            existingPoint.color.animateTo(
-                                targetColor,
-                                animationSpec = tween(durationMillis = 500)
+                        existingPoint.endTime?.let { endTime ->
+                            existingPoint.color.snapTo(
+                                targetColor
                             )
-
-                            delay(1000)
 
                             // Remove point
-                            existingPoint.radius.animateTo(0f)
+//                            existingPoint.radius.animateTo(0f)
                             existingPoint.color.animateTo(
                                 Color.Transparent,
-                                animationSpec = tween(durationMillis = 500)
+                                animationSpec = tween(durationMillis = endTime.millisUntil())
                             )
-                        } else {
+                        } ?: run {
                             // Otherwise update to the new state
                             existingPoint.color.animateTo(
                                 targetColor,
                                 animationSpec = tween(durationMillis = 500)
                             )
-                            existingPoint.state = newState!!
+
+//                            existingPoint.radius.animateTo(pointSize / 2 - padding / 2)
                         }
+
+                        // Update point state and animate accordingly
+//                        if (existingPoint.endTime) {
+//
+//                            existingPoint.color.animateTo(
+//                                targetColor,
+//                                animationSpec = tween(durationMillis = 500)
+//                            )
+//
+//                            delay(1000)
+//
+//                            // Remove point
+//                            existingPoint.radius.animateTo(0f)
+//                            existingPoint.color.animateTo(
+//                                Color.Transparent,
+//                                animationSpec = tween(durationMillis = 500)
+//                            )
+//                        } else {
+//
+//                        }
                     }
                 }
             }
@@ -354,23 +321,36 @@ fun GridCanvas(
 
     LaunchedEffect(updatedStatus) {
 
+        // when navigating between screens,
+        // if connected, snap to state
+        if (currentStatus == null && updatedStatus == ConnectStatus.CONNECTED) {
+
+            animatedSuccessPoints.forEach { point ->
+                launch {
+                    point.center.snapTo(point.targetOffset)
+                }
+            }
+        }
+
        // update to connected state
        // animate big dots in
         if (updatedStatus == ConnectStatus.CONNECTED && (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET)) {
 
-           shuffledPoints.clear()
-           shuffledPoints.addAll(connectedBigPoints.shuffled())
+//            animatedSuccessPoints.clear()
+//           shuffledPoints.addAll(connectedBigPoints.shuffled())
+            shuffleSuccessPoints()
 
-           val firstHalf = shuffledPoints.take(connectedBigPoints.size / 2)
-           val secondHalf = shuffledPoints.drop(connectedBigPoints.size / 2)
+           val firstHalf = animatedSuccessPoints.take(animatedSuccessPoints.size / 2)
+           val secondHalf = animatedSuccessPoints.drop(animatedSuccessPoints.size / 2)
 
            delay(500)
 
-           animatedPoints.forEach { point ->
-               launch {
-                   point.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 1000))
-               }
-           }
+            // FIXME the color needs to be restored when the points are shown again
+//           animatedPoints.values.forEach { point ->
+//               launch {
+//                   point.color.animateTo(Color.Transparent, animationSpec = tween(durationMillis = 1000))
+//               }
+//           }
 
            delay(1000)
 
@@ -398,7 +378,7 @@ fun GridCanvas(
        // animate the big dots out
        if (currentStatus == ConnectStatus.CONNECTED && (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET)) {
 
-           shuffledPoints.forEach { point ->
+           animatedSuccessPoints.forEach { point ->
                launch {
                    point.center.animateTo(point.initialOffset)
                }
@@ -406,7 +386,7 @@ fun GridCanvas(
 
            delay(100)
 
-           animatedPoints.forEach { point ->
+           animatedPoints.values.forEach { point ->
                launch {
                    point.radius.animateTo(pointSize / 2 - padding / 2)
                }
@@ -421,14 +401,14 @@ fun GridCanvas(
             Log.i("ConnectButton", "setting to disconnected")
 
             // remove all provider grid points
-            animatedPoints.forEach { point ->
+            animatedPoints.values.forEach { point ->
                 launch {
                     point.radius.snapTo(0f)
                 }
             }
 
             // pull out the large dots
-            shuffledPoints.forEach{ point ->
+            animatedSuccessPoints.forEach{ point ->
                 launch {
                     point.center.animateTo(point.initialOffset)
                 }
@@ -477,7 +457,7 @@ fun GridCanvas(
 
     Canvas(modifier = Modifier.size(size)) {
         // our provider grid
-        animatedPoints.forEach { point ->
+        animatedPoints.values.forEach { point ->
             drawCircle(
                 color = point.color.value,
                 radius = point.radius.value,
@@ -489,7 +469,7 @@ fun GridCanvas(
         }
 
         // the overlaying big dots on connection success
-        shuffledPoints.forEach { point ->
+        animatedSuccessPoints.forEach { point ->
             drawCircle(
                 color = point.color,
                 radius = point.radius,
@@ -596,8 +576,10 @@ private fun ConnectButtonDisconnectedPreview() {
         ConnectButton(
             onClick = {},
             updatedStatus = ConnectStatus.DISCONNECTED,
-            providerGridPoints = listOf(),
-            grid = null
+            providerGridPoints = mapOf(),
+            grid = null,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {}
         )
     }
 }
@@ -609,8 +591,10 @@ private fun ConnectButtonConnectedPreview() {
         ConnectButton(
             onClick = {},
             updatedStatus = ConnectStatus.CONNECTED,
-            providerGridPoints = listOf(),
-            grid = null
+            providerGridPoints = mapOf(),
+            grid = null,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {}
         )
     }
 }
