@@ -79,6 +79,8 @@ fun ConnectButton(
     grid: ConnectGrid?,
     providerGridPoints: Map<Id, ProviderGridPoint>,
     updatedStatus: ConnectStatus,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -126,7 +128,9 @@ fun ConnectButton(
             ConnectingButtonContent(
                 providerGridPoints = providerGridPoints,
                 grid = grid,
-                status = updatedStatus
+                status = updatedStatus,
+                animatedSuccessPoints = animatedSuccessPoints,
+                shuffleSuccessPoints = shuffleSuccessPoints
             )
 
         }
@@ -147,7 +151,9 @@ fun ConnectButton(
 private fun ConnectingButtonContent(
     grid: ConnectGrid?,
     providerGridPoints: Map<Id, ProviderGridPoint>,
-    status: ConnectStatus
+    status: ConnectStatus,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
 
     var globeVisible by remember { mutableStateOf(false) }
@@ -184,18 +190,12 @@ private fun ConnectingButtonContent(
             size = 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
             providerGridPoints = providerGridPoints,
             grid = grid,
-            updatedStatus = status
+            updatedStatus = status,
+            animatedSuccessPoints = animatedSuccessPoints,
+            shuffleSuccessPoints = shuffleSuccessPoints
         )
     }
 }
-
-data class AnimatedGridPoint(
-    val initialOffset: Offset,
-    val targetOffset: Offset,
-    val center: Animatable<Offset, AnimationVector2D> = Animatable(Offset(-500f, 0f), Offset.VectorConverter),
-    val color: Color,
-    val radius: Float = 300f
-)
 
 data class AnimatedProviderGridPoint(
     val clientId: Id,
@@ -212,7 +212,9 @@ fun GridCanvas(
     grid: ConnectGrid?,
     providerGridPoints: Map<Id, ProviderGridPoint>,
     size: Dp,
-    updatedStatus: ConnectStatus
+    updatedStatus: ConnectStatus,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
     val localDensityCurrent = LocalDensity.current
     val pointSize = (size.value / (grid?.width ?: 0)) * localDensityCurrent.density
@@ -228,75 +230,6 @@ fun GridCanvas(
 
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val animatedPoints = remember { mutableStateMapOf<Id, AnimatedProviderGridPoint>() }
-
-    val canvasSizePx = with(localDensityCurrent) { size.times(1).toPx() }
-
-    val connectedBigPoints = remember {
-        listOf(
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    canvasSizePx.times(.5f),
-                    canvasSizePx.times(2f)
-                ),
-                targetOffset = Offset(
-                    canvasSizePx.times(.5f),
-                    // canvasSizePx,
-                    canvasSizePx.times(0.95f)
-                ),
-                color = Red
-            ),
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    canvasSizePx.times(0.95f),
-                    canvasSizePx.times(1.5f)
-                )
-                ,
-                targetOffset = Offset(
-                    canvasSizePx.times(0.95f),
-                    canvasSizePx.times(0.85f)
-                ),
-                color = Pink
-            ),
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    canvasSizePx.times(2f),
-                    canvasSizePx.times(0.15f)
-                ),
-                targetOffset = Offset(
-                    canvasSizePx.times(.85f),
-                    canvasSizePx.times(0.15f)
-                ),
-                color = Green
-            ),
-            AnimatedGridPoint(
-                initialOffset = with(localDensityCurrent) {
-                    Offset(
-                        -canvasSizePx,
-                        canvasSizePx.times(0.15f)
-                        // canvasSizePx.times(0.15f)
-                    )
-                },
-                targetOffset = Offset(
-                    canvasSizePx.times(0.25f),
-                    canvasSizePx.times(0.15f)
-                ),
-                color = Yellow
-            ),
-            AnimatedGridPoint(
-                initialOffset = Offset(
-                    -canvasSizePx.times(1.5f),
-                    canvasSizePx.times(.5f)
-                ),
-                targetOffset = Offset(
-                    canvasSizePx.times(0.05f),
-                    canvasSizePx.times(.5f)
-                ),
-                color = BlueLight
-            ),
-        )
-    }
-
-    val shuffledPoints = remember { mutableStateListOf<AnimatedGridPoint>() }
 
     var isInFocus by remember { mutableStateOf(true) }
 
@@ -388,15 +321,27 @@ fun GridCanvas(
 
     LaunchedEffect(updatedStatus) {
 
+        // when navigating between screens,
+        // if connected, snap to state
+        if (currentStatus == null && updatedStatus == ConnectStatus.CONNECTED) {
+
+            animatedSuccessPoints.forEach { point ->
+                launch {
+                    point.center.snapTo(point.targetOffset)
+                }
+            }
+        }
+
        // update to connected state
        // animate big dots in
         if (updatedStatus == ConnectStatus.CONNECTED && (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET)) {
 
-           shuffledPoints.clear()
-           shuffledPoints.addAll(connectedBigPoints.shuffled())
+//            animatedSuccessPoints.clear()
+//           shuffledPoints.addAll(connectedBigPoints.shuffled())
+            shuffleSuccessPoints()
 
-           val firstHalf = shuffledPoints.take(connectedBigPoints.size / 2)
-           val secondHalf = shuffledPoints.drop(connectedBigPoints.size / 2)
+           val firstHalf = animatedSuccessPoints.take(animatedSuccessPoints.size / 2)
+           val secondHalf = animatedSuccessPoints.drop(animatedSuccessPoints.size / 2)
 
            delay(500)
 
@@ -433,7 +378,7 @@ fun GridCanvas(
        // animate the big dots out
        if (currentStatus == ConnectStatus.CONNECTED && (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET)) {
 
-           shuffledPoints.forEach { point ->
+           animatedSuccessPoints.forEach { point ->
                launch {
                    point.center.animateTo(point.initialOffset)
                }
@@ -463,7 +408,7 @@ fun GridCanvas(
             }
 
             // pull out the large dots
-            shuffledPoints.forEach{ point ->
+            animatedSuccessPoints.forEach{ point ->
                 launch {
                     point.center.animateTo(point.initialOffset)
                 }
@@ -524,7 +469,7 @@ fun GridCanvas(
         }
 
         // the overlaying big dots on connection success
-        shuffledPoints.forEach { point ->
+        animatedSuccessPoints.forEach { point ->
             drawCircle(
                 color = point.color,
                 radius = point.radius,
@@ -632,7 +577,9 @@ private fun ConnectButtonDisconnectedPreview() {
             onClick = {},
             updatedStatus = ConnectStatus.DISCONNECTED,
             providerGridPoints = mapOf(),
-            grid = null
+            grid = null,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {}
         )
     }
 }
@@ -645,7 +592,9 @@ private fun ConnectButtonConnectedPreview() {
             onClick = {},
             updatedStatus = ConnectStatus.CONNECTED,
             providerGridPoints = mapOf(),
-            grid = null
+            grid = null,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {}
         )
     }
 }
