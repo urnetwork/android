@@ -64,7 +64,9 @@ fun ConnectScreen(
             providerGridPoints = connectViewModel.providerGridPoints,
             windowCurrentSize = connectViewModel.windowCurrentSize,
             grid = connectViewModel.grid,
-            loginMode = accountViewModel.loginMode
+            loginMode = accountViewModel.loginMode,
+            animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints
         )
     }
 }
@@ -80,6 +82,8 @@ fun ConnectMainContent(
     connect: (ConnectLocation?) -> Unit,
     disconnect: () -> Unit?,
     loginMode: LoginMode,
+    animatedSuccessPoints: List<AnimatedSuccessPoint>,
+    shuffleSuccessPoints: () -> Unit
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -158,6 +162,8 @@ fun ConnectMainContent(
                     updatedStatus = connectStatus,
                     providerGridPoints = providerGridPoints,
                     grid = grid,
+                    animatedSuccessPoints = animatedSuccessPoints,
+                    shuffleSuccessPoints = shuffleSuccessPoints
                 )
             }
 
@@ -236,7 +242,9 @@ private fun ConnectMainContentPreview() {
             grid = null,
             providerGridPoints = mapOf(),
             windowCurrentSize = 16,
-            loginMode = LoginMode.Authenticated
+            loginMode = LoginMode.Authenticated,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {}
         )
     }
 }
