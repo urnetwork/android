@@ -95,7 +95,8 @@ fun WalletsScreen(
         isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet,
         setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
-        payouts = walletViewModel.payouts
+        payouts = walletViewModel.payouts,
+        isRemovingWallet = walletViewModel.isRemovingWallet
     )
 
 }
@@ -124,7 +125,8 @@ fun WalletsScreen(
     wallets: List<AccountWallet>,
     setCircleWalletInProgress: (Boolean) -> Unit,
     setInitializingFirstWallet: (Boolean) -> Unit,
-    payouts: List<AccountPayment>
+    payouts: List<AccountPayment>,
+    isRemovingWallet: Boolean
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -406,32 +408,48 @@ fun WalletsScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(124.dp)
-                    ) {
-
-                        item {
-                            Spacer(modifier = Modifier.width(16.dp))
-                        }
-
-                        items(wallets) { wallet ->
-
-                            WalletCard(
-                                isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
-                                blockchain = Blockchain.fromString(wallet.blockchain),
-                                isPayoutWallet = wallet.walletId.equals(payoutWalletId),
-                                walletAddress = wallet.walletAddress,
-                                walletId = wallet.walletId,
-                                navController = walletNavController
+                    if (isRemovingWallet) {
+                        Row(
+                            modifier = Modifier
+                                .height(124.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(24.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
                             )
+                        }
+                    } else {
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(124.dp)
+                        ) {
 
-                            Spacer(modifier = Modifier.width(16.dp))
+                            item {
+                                Spacer(modifier = Modifier.width(16.dp))
+                            }
+
+                            items(wallets) { wallet ->
+
+                                WalletCard(
+                                    isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
+                                    blockchain = Blockchain.fromString(wallet.blockchain),
+                                    isPayoutWallet = wallet.walletId.equals(payoutWalletId),
+                                    walletAddress = wallet.walletAddress,
+                                    walletId = wallet.walletId,
+                                    navController = walletNavController
+                                )
+
+                                Spacer(modifier = Modifier.width(16.dp))
+
+                            }
+
 
                         }
-
-
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
@@ -557,7 +575,8 @@ private fun WalletScreenPreview() {
             isInitializingFirstWallet = false,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
-            payouts = listOf()
+            payouts = listOf(),
+            isRemovingWallet = false,
         )
     }
 }
@@ -592,7 +611,8 @@ private fun WalletScreenSagaPreview() {
             isInitializingFirstWallet = false,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
-            payouts = listOf()
+            payouts = listOf(),
+            isRemovingWallet = false,
         )
     }
 }
@@ -627,7 +647,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             isInitializingFirstWallet = false,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
-            payouts = listOf()
+            payouts = listOf(),
+            isRemovingWallet = false,
         )
     }
 }
@@ -662,7 +683,44 @@ private fun WalletScreenInitializingWalletPreview() {
             isInitializingFirstWallet = true,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
-            payouts = listOf()
+            payouts = listOf(),
+            isRemovingWallet = false,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun WalletScreenRemovingWalletPreview() {
+
+    val parentNavController = rememberNavController()
+    val walletNavController = rememberNavController()
+
+    URNetworkTheme {
+        WalletsScreen(
+            parentNavController,
+            walletNavController,
+            isSolanaSaga = false,
+            getSolanaAddress = {},
+            nextPayoutDate = "Jan 1",
+            addExternalWalletModalVisible = false,
+            openModal = {},
+            closeModal = {},
+            createCircleWallet = {},
+            circleWalletInProgress = false,
+            wallets = listOf(),
+            externalWalletAddress = TextFieldValue(""),
+            setExternalWalletAddress = {},
+            walletValidationState = WalletValidationState(),
+            createExternalWallet = {},
+            isProcessingExternalWallet = false,
+            payoutWalletId = null,
+            setExternalWalletAddressIsValid = { _, _ -> },
+            isInitializingFirstWallet = true,
+            setCircleWalletInProgress = {},
+            setInitializingFirstWallet = {},
+            payouts = listOf(),
+            isRemovingWallet = true,
         )
     }
 }

@@ -83,7 +83,7 @@ class WalletViewModel @Inject constructor(
     }
 
     val openRemoveWalletModal = {
-        addExternalWalletModalVisible = true
+        removeWalletModalVisible = true
     }
 
     val closeRemoveWalletModal = {
