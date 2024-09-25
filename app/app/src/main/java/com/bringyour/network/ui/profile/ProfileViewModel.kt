@@ -18,13 +18,13 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val byDeviceManager: ByDeviceManager,
-    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
+    // private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
     var networkUserVc: NetworkUserViewController? = null
 
-    var isNetworkUserLoading by mutableStateOf(false)
-        private set
+//    var isNetworkUserLoading by mutableStateOf(false)
+//        private set
 
     var isEditingProfile by mutableStateOf(false)
         private set
@@ -32,11 +32,10 @@ class ProfileViewModel @Inject constructor(
     var isUpdatingProfile by mutableStateOf(false)
         private set
 
-    var networkUser by mutableStateOf<NetworkUser?>(null)
-        private set
+    private var networkUser by mutableStateOf<NetworkUser?>(null)
 
-    var networkName by mutableStateOf<String?>(null)
-        private set
+//    var networkName by mutableStateOf<String?>(null)
+//        private set
 
     var nameTextFieldValue by mutableStateOf(TextFieldValue())
         private set
@@ -44,18 +43,24 @@ class ProfileViewModel @Inject constructor(
     var networkNameTextFieldValue by mutableStateOf(TextFieldValue())
         private set
 
-    val addIsLoadingListener = {
-        networkUserVc?.addIsLoadingListener { isLoading ->
-            isNetworkUserLoading = isLoading
-        }
-    }
+    var networkNameIsValid by mutableStateOf(false)
+        private set
 
-    private val addNetworkUserListener = {
-        networkUserVc?.addNetworkUserListener {
-            networkUser = networkUserVc?.networkUser
-            setNameTextFieldValue(TextFieldValue(networkUser?.userName ?: ""))
-        }
-    }
+    var nameIsValid by mutableStateOf(false)
+        private set
+
+//    val addIsLoadingListener = {
+//        networkUserVc?.addIsLoadingListener { isLoading ->
+//            isNetworkUserLoading = isLoading
+//        }
+//    }
+
+//    private val addNetworkUserListener = {
+//        networkUserVc?.addNetworkUserListener {
+//            networkUser = networkUserVc?.networkUser
+//            setNameTextFieldValue(TextFieldValue(networkUser?.userName ?: ""))
+//        }
+//    }
 
     private val addIsUpdatingListener = {
         networkUserVc?.addIsUpdatingListener { isUpdating ->
@@ -65,46 +70,56 @@ class ProfileViewModel @Inject constructor(
 
     val setNetworkNameTextFieldValue: (TextFieldValue) -> Unit = {
         networkNameTextFieldValue = it
+        validateNetworkName(networkNameTextFieldValue.text)
     }
 
     val setNameTextFieldValue: (TextFieldValue) -> Unit = {
         nameTextFieldValue = it
+        validateName(nameTextFieldValue.text)
     }
 
     val setIsEditingProfile: (Boolean) -> Unit = {
         isEditingProfile = it
     }
 
-    val updateProfile = {
+    val validateNetworkName: (String) -> Unit = { nn ->
 
+        // todo - validate && check availability of network name
+
+        networkNameIsValid = true
+
+    }
+
+    val validateName: (String) -> Unit = { nn ->
+
+        nameIsValid = nn.length < 100
+
+    }
+
+    val updateProfile = {
+        if (networkNameIsValid && nameIsValid) {
+            networkUserVc?.updateNetworkUser(networkNameTextFieldValue.text, nameTextFieldValue.text)
+        }
     }
 
     val cancelEdits = {
         setNameTextFieldValue(TextFieldValue(networkUser?.userName ?: ""))
+        setNetworkNameTextFieldValue(TextFieldValue(networkUser?.networkName ?: ""))
         setIsEditingProfile(false)
+    }
+
+    val initNetworkUser: (NetworkUser?) -> Unit = { nu ->
+        networkUser = nu
+
+        setNameTextFieldValue(TextFieldValue(nu?.userName ?: ""))
+        setNetworkNameTextFieldValue(TextFieldValue(nu?.networkName ?: ""))
     }
 
     init {
 
         networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
 
-        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
-        val localState = networkSpace?.asyncLocalState
-
-        localState?.parseByJwt { jwt, _ ->
-            viewModelScope.launch {
-                networkName = jwt?.networkName
-                networkNameTextFieldValue = TextFieldValue(networkName ?: "")
-            }
-        }
-
-        addIsLoadingListener()
-        addNetworkUserListener()
         addIsUpdatingListener()
-
-        viewModelScope.launch {
-            networkUserVc?.start()
-        }
 
     }
 

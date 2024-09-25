@@ -58,7 +58,7 @@ fun ConnectScreen(
         ConnectMainContent(
             connectStatus = connectStatus,
             selectedLocation = connectViewModel.selectedLocation,
-            networkName = accountViewModel.networkName,
+            networkName = accountViewModel.networkUser?.networkName,
             connect = connectViewModel.connect,
             disconnect = connectViewModel.disconnect,
             providerGridPoints = connectViewModel.providerGridPoints,

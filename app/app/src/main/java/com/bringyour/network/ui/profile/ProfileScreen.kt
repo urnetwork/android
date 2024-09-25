@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.client.NetworkUser
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
@@ -54,6 +56,10 @@ fun ProfileScreen(
     resetPasswordViewModel: ResetPasswordViewModel = hiltViewModel()
 ) {
 
+    LaunchedEffect(Unit) {
+        profileViewModel.initNetworkUser(accountViewModel.networkUser)
+    }
+
     ProfileScreen(
         navController = navController,
         loginMode = accountViewModel.loginMode,
@@ -63,15 +69,20 @@ fun ProfileScreen(
         markPasswordResetAsSent = resetPasswordViewModel.markPasswordResetAsSent,
         setPasswordResetError = resetPasswordViewModel.setPasswordResetError,
         setMarkPasswordResetAsSent = resetPasswordViewModel.setMarkPasswordResetAsSent,
-        networkName = profileViewModel.networkNameTextFieldValue,
+        networkName = accountViewModel.networkUser?.networkName ?: "",
+        networkNameTextFieldValue = profileViewModel.networkNameTextFieldValue,
         setNetworkName = profileViewModel.setNetworkNameTextFieldValue,
-        name = profileViewModel.nameTextFieldValue,
+        nameTextFieldValue = profileViewModel.nameTextFieldValue,
         setName = profileViewModel.setNameTextFieldValue,
-        userAuth = profileViewModel.networkUser?.userAuth,
+        userAuth = accountViewModel.networkUser?.userAuth,
         isEditingProfile = profileViewModel.isEditingProfile,
         setIsEditingProfile = profileViewModel.setIsEditingProfile,
         cancelEdits = profileViewModel.cancelEdits,
-        updateProfile = profileViewModel.updateProfile
+        updateProfile = profileViewModel.updateProfile,
+        isUpdating = profileViewModel.isUpdatingProfile,
+        nameIsValid = profileViewModel.nameIsValid,
+        networkNameIsValid = profileViewModel.networkNameIsValid
+        // networkUser = accountViewModel.networkUser
     )
 
 }
@@ -87,15 +98,20 @@ fun ProfileScreen(
     markPasswordResetAsSent: Boolean,
     setPasswordResetError: (String?) -> Unit,
     setMarkPasswordResetAsSent: (Boolean) -> Unit,
-    networkName: TextFieldValue,
+    networkName: String,
+    networkNameTextFieldValue: TextFieldValue,
     setNetworkName: (TextFieldValue) -> Unit,
-    name: TextFieldValue,
+    nameTextFieldValue: TextFieldValue,
     setName: (TextFieldValue) -> Unit,
     userAuth: String?,
     isEditingProfile: Boolean,
     setIsEditingProfile: (Boolean) -> Unit,
     cancelEdits: () -> Unit,
-    updateProfile: () -> Unit
+    updateProfile: () -> Unit,
+    isUpdating: Boolean,
+    nameIsValid: Boolean,
+    networkNameIsValid: Boolean
+    // networkUser: NetworkUser?
 ) {
 
     val resendBtnEnabled by remember {
@@ -139,26 +155,26 @@ fun ProfileScreen(
                 AccountSwitcher(
                     loginMode = loginMode,
                     // todo - this should be the current network name, not the one being edited
-                    networkName = networkName.text
+                    networkName = networkName
                 )
             }
             Spacer(modifier = Modifier.height(64.dp))
 
             URTextInput(
-                value = name,
+                value = nameTextFieldValue,
                 onValueChange = {
                     setName(it)
                 },
-                enabled = isEditingProfile,
+                enabled = isEditingProfile && !isUpdating,
                 label = "Name"
             )
 
             URTextInput(
-                value = networkName,
+                value = networkNameTextFieldValue,
                 onValueChange = {
                     setNetworkName(it)
                 },
-                enabled = isEditingProfile,
+                enabled = isEditingProfile && !isUpdating,
                 label = "Network name"
             )
 
@@ -263,14 +279,18 @@ fun ProfileScreenPreview() {
             setPasswordResetError = {},
             setMarkPasswordResetAsSent = {},
             userAuth = "hello@bringyour.com",
-            networkName = TextFieldValue("my_network"),
+            networkName = "my_network",
+            networkNameTextFieldValue = TextFieldValue("my_network"),
             setNetworkName = {},
-            name = TextFieldValue("Lorem Ipsum"),
+            nameTextFieldValue = TextFieldValue("Lorem Ipsum"),
             setName = {},
             isEditingProfile = false,
             setIsEditingProfile = {},
             cancelEdits = {},
-            updateProfile = {}
+            updateProfile = {},
+            isUpdating = false,
+            nameIsValid = true,
+            networkNameIsValid = true
         )
     }
 }
@@ -290,14 +310,18 @@ fun ProfileScreenEditingPreview() {
             setPasswordResetError = {},
             setMarkPasswordResetAsSent = {},
             userAuth = "hello@bringyour.com",
-            networkName = TextFieldValue("my_network"),
+            networkName = "my_network",
+            networkNameTextFieldValue = TextFieldValue("my_network"),
             setNetworkName = {},
-            name = TextFieldValue("Lorem Ipsum"),
+            nameTextFieldValue = TextFieldValue("Lorem Ipsum"),
             setName = {},
             isEditingProfile = true,
             setIsEditingProfile = {},
             cancelEdits = {},
-            updateProfile = {}
+            updateProfile = {},
+            isUpdating = false,
+            nameIsValid = true,
+            networkNameIsValid = true
         )
     }
 }

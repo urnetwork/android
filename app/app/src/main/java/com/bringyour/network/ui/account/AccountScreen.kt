@@ -78,7 +78,7 @@ fun AccountScreen(
             navController = navController,
             scaffoldState = scaffoldState,
             scope = scope,
-            networkName = accountViewModel.networkName,
+            networkName = accountViewModel.networkUser?.networkName,
             totalPayoutAmount = totalPayoutAmount,
             totalPayoutAmountInitialized = totalPayoutAmountInitialized,
             walletCount = walletCount
