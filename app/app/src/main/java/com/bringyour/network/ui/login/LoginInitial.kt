@@ -33,6 +33,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.LaunchedEffect
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -144,11 +145,13 @@ fun LoginInitial(
         application?.login(result.network.byJwt)
 
         loginActivity?.authClientAndFinish { error ->
-
-            setGoogleAuthInProgress(false)
-
             setLoginError(error)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        googleSignInClient.signOut()
+        setGoogleAuthInProgress(false)
     }
 
     val onNetworkCreateGoogle: (
