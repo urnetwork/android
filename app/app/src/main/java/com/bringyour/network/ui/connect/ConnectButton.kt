@@ -220,13 +220,6 @@ fun GridCanvas(
     val pointSize = (size.value / (grid?.width ?: 0)) * localDensityCurrent.density
     val padding = 1f
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
-    // this is hacky, but we need it for LaunchedEffect to process
-    // changes in the providerGridPoints list
-    val derivedState = remember(providerGridPoints) {
-        derivedStateOf {
-            providerGridPoints.values.map { it.clientId to it.x to it.y to it.state }
-        }
-    }
 
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val animatedPoints = remember { mutableStateMapOf<Id, AnimatedProviderGridPoint>() }
@@ -423,7 +416,7 @@ fun GridCanvas(
     // Update points with animations
     // we have to check isInFocus because the app will not draw new points
     // if this is trigged when the app is in the background
-    LaunchedEffect(derivedState.value, isInFocus) {
+    LaunchedEffect(providerGridPoints, isInFocus) {
 
         if (isInFocus) {
             updateAnimatedPoints()
