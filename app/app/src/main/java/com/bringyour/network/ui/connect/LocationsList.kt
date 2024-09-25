@@ -19,6 +19,7 @@ import com.bringyour.network.ui.theme.Red400
 fun LocationsList(
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
+    devices: List<ConnectLocation>,
     onLocationSelect: (ConnectLocation?) -> Unit,
     selectedLocation: ConnectLocation?,
     getLocationColor: (String) -> Color,
@@ -26,63 +27,93 @@ fun LocationsList(
 
     LazyColumn {
 
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text("Promoted Locations")
+        if (promotedLocations.isNotEmpty()) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text("Promoted Locations")
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        item {
-            ProviderRow(
-                location = "Best available provider",
-                onClick = {
-                    // passing null for connect location will connect to best available
-                    onLocationSelect(null)
-                },
-                color = Red400,
-                isSelected = selectedLocation?.connectLocationId?.bestAvailable == true
-            )
-        }
-
-        items(promotedLocations) { location ->
-            ProviderRow(
-                location = location.name,
-                providerCount = location.providerCount,
-                onClick = {
-                    onLocationSelect(location)
-                },
-                isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                color = getLocationColor(location.connectLocationId.toString())
-            )
-        }
-
-        item {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text("Countries")
+            item {
+                ProviderRow(
+                    location = "Best available provider",
+                    onClick = {
+                        // passing null for connect location will connect to best available
+                        onLocationSelect(null)
+                    },
+                    color = Red400,
+                    isSelected = selectedLocation?.connectLocationId?.bestAvailable == true
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            items(promotedLocations) { location ->
+                ProviderRow(
+                    location = location.name,
+                    providerCount = location.providerCount,
+                    onClick = {
+                        onLocationSelect(location)
+                    },
+                    isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                    color = getLocationColor(location.connectLocationId.toString())
+                )
+            }
         }
 
-        items(connectCountries) { country ->
-            ProviderRow(
-                location = country.name,
-                providerCount = country.providerCount,
-                onClick = {
-                    onLocationSelect(country)
-                },
-                isSelected = selectedLocation?.connectLocationId == country.connectLocationId,
-                color = getLocationColor(country.countryCode)
-            )
+        if (connectCountries.isNotEmpty()) {
+            item {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text("Countries")
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            items(connectCountries) { country ->
+                ProviderRow(
+                    location = country.name,
+                    providerCount = country.providerCount,
+                    onClick = {
+                        onLocationSelect(country)
+                    },
+                    isSelected = selectedLocation?.connectLocationId == country.connectLocationId,
+                    color = getLocationColor(country.countryCode)
+                )
+            }
+        }
+
+        if (devices.isNotEmpty()) {
+            item {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text("Devices")
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            items(devices) { device ->
+                ProviderRow(
+                    location = device.name,
+                    providerCount = device.providerCount,
+                    onClick = {
+                        onLocationSelect(device)
+                    },
+                    isSelected = selectedLocation?.connectLocationId == device.connectLocationId,
+                    color = getLocationColor(device.connectLocationId.toString())
+                )
+            }
         }
     }
 }
