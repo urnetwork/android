@@ -13,9 +13,7 @@ import com.bringyour.client.LocationsViewController
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +29,8 @@ class LocationsListViewModel @Inject constructor(
     val connectCountries = mutableStateListOf<ConnectLocation>()
 
     val promotedLocations = mutableStateListOf<ConnectLocation>()
+
+    val devices = mutableStateListOf<ConnectLocation>()
 
     private val subs = mutableListOf<Sub>()
 
@@ -48,6 +48,7 @@ class LocationsListViewModel @Inject constructor(
 
             connectCountries.clear()
             promotedLocations.clear()
+            devices.clear()
 
             locations.forEach { location ->
                 providerCount += location.providerCount
@@ -59,6 +60,11 @@ class LocationsListViewModel @Inject constructor(
                 if (location.locationType == LocationTypeCountry) {
                     connectCountries.add(location)
                 }
+
+                if (location.isDevice) {
+                    devices.add(location)
+                }
+
             }
 
             if (!initialListLoaded) {

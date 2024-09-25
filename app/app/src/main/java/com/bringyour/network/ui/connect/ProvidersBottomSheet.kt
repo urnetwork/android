@@ -69,6 +69,7 @@ fun ProvidersBottomSheet(
         selectedLocation = selectedLocation,
         connectCountries = locationsViewModel.connectCountries,
         promotedLocations = locationsViewModel.promotedLocations,
+        devices = locationsViewModel.devices,
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
         locationsLoaded = locationsViewModel.initialListLoaded,
@@ -85,6 +86,7 @@ fun ProvidersBottomSheet(
     selectedLocation: ConnectLocation?,
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
+    devices: List<ConnectLocation>,
     getLocationColor: (String) -> Color,
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
@@ -212,6 +214,7 @@ fun ProvidersBottomSheet(
                                 connectCountries = connectCountries,
                                 getLocationColor = getLocationColor,
                                 selectedLocation = selectedLocation,
+                                devices = devices
                             )
                         } else {
                             Column(
@@ -253,6 +256,7 @@ private fun PreviewBottomSheet() {
             selectedLocation = null,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            devices = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
@@ -284,6 +288,7 @@ private fun PreviewBottomSheetExpanded() {
             selectedLocation = null,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            devices = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
