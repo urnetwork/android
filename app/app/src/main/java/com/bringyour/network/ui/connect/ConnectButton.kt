@@ -55,6 +55,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.bringyour.client.ConnectGrid
+import com.bringyour.client.ConnectLocation
 import com.bringyour.client.Id
 import com.bringyour.client.Time
 import com.bringyour.client.ProviderGridPoint
@@ -327,7 +328,7 @@ fun GridCanvas(
 
        // update to connected state
        // animate big dots in
-        if (updatedStatus == ConnectStatus.CONNECTED && (currentStatus == ConnectStatus.CONNECTING || currentStatus == ConnectStatus.DESTINATION_SET)) {
+        else if (updatedStatus == ConnectStatus.CONNECTED) {
 
 //            animatedSuccessPoints.clear()
 //           shuffledPoints.addAll(connectedBigPoints.shuffled())
@@ -369,7 +370,7 @@ fun GridCanvas(
 
        // we went from connected to reconnecting
        // animate the big dots out
-       if (currentStatus == ConnectStatus.CONNECTED && (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET)) {
+       else if (updatedStatus == ConnectStatus.CONNECTING) {
 
            animatedSuccessPoints.forEach { point ->
                launch {
@@ -385,12 +386,27 @@ fun GridCanvas(
                }
            }
 
-       }
+        }
+
+
+//        else if (updatedStatus == ConnectStatus.DESTINATION_SET) {
+//            Log.i("ConnectButton", "setting to destination set")
+//
+//            // remove all provider grid points
+//            animatedPoints.values.forEach { point ->
+//                launch {
+//                    point.radius.snapTo(0f)
+//                }
+//            }
+//
+//            delay(500)
+//        }
+
 
         //
         // disconnect
         //
-        if (updatedStatus == ConnectStatus.DISCONNECTED && currentStatus != ConnectStatus.DISCONNECTED) {
+        if (updatedStatus == ConnectStatus.DISCONNECTED) {
             Log.i("ConnectButton", "setting to disconnected")
 
             // remove all provider grid points

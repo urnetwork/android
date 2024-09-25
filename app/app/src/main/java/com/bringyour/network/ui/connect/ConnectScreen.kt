@@ -88,7 +88,7 @@ fun ConnectMainContent(
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
-    var cancelBtnVisible by remember { mutableStateOf(false) }
+//    var cancelBtnVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(connectStatus) {
 
@@ -97,33 +97,40 @@ fun ConnectMainContent(
         if (connectStatus == ConnectStatus.CONNECTED) {
             launch {
 
-                if (cancelBtnVisible) {
-                    cancelBtnVisible = false
-                    delay(2500)
-                }
+//                if (cancelBtnVisible) {
+//                    cancelBtnVisible = false
+//                    delay(2500)
+//                }
 
                 disconnectBtnVisible = true
             }
         }
 
-        if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.DESTINATION_SET) {
+        else if (connectStatus == ConnectStatus.CONNECTING) {
 
             // only show cancel button if status is from disconnected -> connecting/destination set
             // if status is connected -> connecting (it's reconnecting), we can just keep displaying
             // the disconnect button.
-            if (!disconnectBtnVisible) {
+//            if (!disconnectBtnVisible) {
+//
+//                launch {
+//                    delay(2000)
+//                    cancelBtnVisible = true
+//                }
+//
+//            }
 
-                launch {
-                    delay(2000)
-                    cancelBtnVisible = true
-                }
-
-            }
+            disconnectBtnVisible = true
 
         }
 
-        if (connectStatus == ConnectStatus.DISCONNECTED) {
-            cancelBtnVisible = false
+        else if (connectStatus == ConnectStatus.DESTINATION_SET) {
+//            cancelBtnVisible = true
+            disconnectBtnVisible = true
+        }
+
+        else if (connectStatus == ConnectStatus.DISCONNECTED) {
+//            cancelBtnVisible = false
             disconnectBtnVisible = false
         }
 
@@ -205,7 +212,7 @@ fun ConnectMainContent(
 
                 }
 
-
+/*
                 AnimatedVisibility(
                     visible = cancelBtnVisible,
                     enter = fadeIn(),
@@ -224,6 +231,7 @@ fun ConnectMainContent(
                         )
                     }
                 }
+ */
             }
         }
     }
