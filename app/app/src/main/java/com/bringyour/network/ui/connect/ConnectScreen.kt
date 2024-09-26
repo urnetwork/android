@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +38,7 @@ import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,7 +68,8 @@ fun ConnectScreen(
             grid = connectViewModel.grid,
             loginMode = accountViewModel.loginMode,
             animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints
+            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+            getStateColor = connectViewModel.getStateColor
         )
     }
 }
@@ -83,12 +86,13 @@ fun ConnectMainContent(
     disconnect: () -> Unit?,
     loginMode: LoginMode,
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
-    shuffleSuccessPoints: () -> Unit
+    shuffleSuccessPoints: () -> Unit,
+    getStateColor: (ProviderPointState?) -> Color
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
-    var cancelBtnVisible by remember { mutableStateOf(false) }
+//    var cancelBtnVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(connectStatus) {
 
@@ -97,33 +101,40 @@ fun ConnectMainContent(
         if (connectStatus == ConnectStatus.CONNECTED) {
             launch {
 
-                if (cancelBtnVisible) {
-                    cancelBtnVisible = false
-                    delay(2500)
-                }
+//                if (cancelBtnVisible) {
+//                    cancelBtnVisible = false
+//                    delay(2500)
+//                }
 
                 disconnectBtnVisible = true
             }
         }
 
-        if (connectStatus == ConnectStatus.CONNECTING || connectStatus == ConnectStatus.DESTINATION_SET) {
+        else if (connectStatus == ConnectStatus.CONNECTING) {
 
             // only show cancel button if status is from disconnected -> connecting/destination set
             // if status is connected -> connecting (it's reconnecting), we can just keep displaying
             // the disconnect button.
-            if (!disconnectBtnVisible) {
+//            if (!disconnectBtnVisible) {
+//
+//                launch {
+//                    delay(2000)
+//                    cancelBtnVisible = true
+//                }
+//
+//            }
 
-                launch {
-                    delay(2000)
-                    cancelBtnVisible = true
-                }
-
-            }
+            disconnectBtnVisible = true
 
         }
 
-        if (connectStatus == ConnectStatus.DISCONNECTED) {
-            cancelBtnVisible = false
+        else if (connectStatus == ConnectStatus.DESTINATION_SET) {
+//            cancelBtnVisible = true
+            disconnectBtnVisible = true
+        }
+
+        else if (connectStatus == ConnectStatus.DISCONNECTED) {
+//            cancelBtnVisible = false
             disconnectBtnVisible = false
         }
 
@@ -163,7 +174,8 @@ fun ConnectMainContent(
                     providerGridPoints = providerGridPoints,
                     grid = grid,
                     animatedSuccessPoints = animatedSuccessPoints,
-                    shuffleSuccessPoints = shuffleSuccessPoints
+                    shuffleSuccessPoints = shuffleSuccessPoints,
+                    getStateColor = getStateColor
                 )
             }
 
@@ -205,7 +217,7 @@ fun ConnectMainContent(
 
                 }
 
-
+/*
                 AnimatedVisibility(
                     visible = cancelBtnVisible,
                     enter = fadeIn(),
@@ -224,6 +236,7 @@ fun ConnectMainContent(
                         )
                     }
                 }
+ */
             }
         }
     }
@@ -232,6 +245,8 @@ fun ConnectMainContent(
 @Preview
 @Composable
 private fun ConnectMainContentPreview() {
+    val mockGetStateColor: (ProviderPointState?) -> Color = { Red }
+
     URNetworkTheme {
         ConnectMainContent(
             connectStatus = ConnectStatus.DISCONNECTED,
@@ -244,7 +259,8 @@ private fun ConnectMainContentPreview() {
             windowCurrentSize = 16,
             loginMode = LoginMode.Authenticated,
             animatedSuccessPoints = listOf(),
-            shuffleSuccessPoints = {}
+            shuffleSuccessPoints = {},
+            getStateColor = mockGetStateColor
         )
     }
 }
