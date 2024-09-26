@@ -173,7 +173,8 @@ class ConnectViewModel @Inject constructor(
     }
 
     private fun updateGrid() {
-        grid = connectVc?.grid
+        val grid = connectVc?.grid
+        this.grid = grid
         grid?.let {
             windowCurrentSize = it.windowCurrentSize
 
