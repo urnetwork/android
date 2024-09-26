@@ -105,7 +105,8 @@ class MainActivity: AppCompatActivity() {
         setContent {
             URNetworkTheme {
                 MainNavHost(
-                    sagaViewModel
+                    sagaViewModel,
+                    animateIn
                 )
             }
         }

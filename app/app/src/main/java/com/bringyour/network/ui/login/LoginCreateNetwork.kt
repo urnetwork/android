@@ -271,141 +271,146 @@ fun LoginCreateNetwork(
         exit = fadeOut()
     ) {
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Black
-                ),
-                actions = {},
-            )
-        }
-    ) { innerPadding ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Row {
-                Text("Join", style = MaterialTheme.typography.headlineLarge)
-            }
-
-            Row {
-                Text("URnetwork", style = MaterialTheme.typography.headlineLarge)
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            URTextInput(
-                label = "Name",
-                value = userName,
-                onValueChange = { newValue ->
-                    userName = newValue
-                },
-                placeholder = "Your name",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-            )
-
-            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
-                URTextInput(
-                    label = "Email or phone",
-                    value = emailOrPhone,
-                    onValueChange = { newValue ->
-                        val filteredText = newValue.text.filter { it != ' ' }
-                        val filteredTextFieldValue = newValue.copy(text = filteredText)
-                        emailOrPhone = filteredTextFieldValue
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+                            )
+                        }
                     },
-                    placeholder = "Enter your phone number or email",
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Black
+                    ),
+                    actions = {},
+                )
+            }
+        ) { innerPadding ->
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Row {
+                    Text("Join", style = MaterialTheme.typography.headlineLarge)
+                }
+
+                Row {
+                    Text("URnetwork", style = MaterialTheme.typography.headlineLarge)
+                }
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                URTextInput(
+                    label = "Name",
+                    value = userName,
+                    onValueChange = { newValue ->
+                        userName = newValue
+                    },
+                    placeholder = "Your name",
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
                 )
-            }
 
-            URTextInput(
-                label = "Network name",
-                value = networkName,
-                onValueChange = { newValue ->
-                    val originalCursorPosition = newValue.selection.start
-
-                    val filteredText = networkNameInputFilter(newValue.text)
-                    val cursorOffset = newValue.text.length - filteredText.length
-                    val newCursorPosition =
-                        (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
-
-                    networkName = newValue.copy(
-                        text = filteredText,
-                        selection = TextRange(newCursorPosition)
+                if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                    URTextInput(
+                        label = "Email or phone",
+                        value = emailOrPhone,
+                        onValueChange = { newValue ->
+                            val filteredText = newValue.text.filter { it != ' ' }
+                            val filteredTextFieldValue = newValue.copy(text = filteredText)
+                            emailOrPhone = filteredTextFieldValue
+                        },
+                        placeholder = "Enter your phone number or email",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
                     )
-                    checkNetworkName()
-                },
-                placeholder = "Your network name",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                isValidating = isValidatingNetworkName,
-                isValid = networkNameErrorMsg == null,
-                supportingText = networkNameErrorMsg ?: "Network names must be 6 characters or more"
-            )
-
-            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                }
 
                 URTextInput(
-                    label = "Password",
-                    value = userPassword,
+                    label = "Network name",
+                    value = networkName,
                     onValueChange = { newValue ->
-                        userPassword = newValue
+                        val originalCursorPosition = newValue.selection.start
+
+                        val filteredText = networkNameInputFilter(newValue.text)
+                        val cursorOffset = newValue.text.length - filteredText.length
+                        val newCursorPosition =
+                            (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
+
+                        networkName = newValue.copy(
+                            text = filteredText,
+                            selection = TextRange(newCursorPosition)
+                        )
+                        checkNetworkName()
                     },
+                    placeholder = "Your network name",
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
                     ),
-                    isPassword = true,
-                    supportingText = "Password must be at least 12 characters"
+                    isValidating = isValidatingNetworkName,
+                    isValid = networkNameErrorMsg == null,
+                    supportingText = networkNameErrorMsg
+                        ?: "Network names must be 6 characters or more"
                 )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
 
-            TermsCheckbox(
-                checked = termsAgreed,
-                onCheckChanged = { it ->
-                    termsAgreed = it
+                    URTextInput(
+                        label = "Password",
+                        value = userPassword,
+                        onValueChange = { newValue ->
+                            userPassword = newValue
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        isPassword = true,
+                        supportingText = "Password must be at least 12 characters"
+                    )
                 }
-            )
 
-            Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            URButton(
-                onClick = {
-                    createNetwork()
-                },
-                enabled = isBtnEnabled
-            ) { buttonTextStyle ->
-                Text("Continue", style = buttonTextStyle)
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Right Arrow",
-                    modifier = Modifier.size(16.dp),
-                    tint = if (isBtnEnabled) Color.White else Color.Gray
+                TermsCheckbox(
+                    checked = termsAgreed,
+                    onCheckChanged = { it ->
+                        termsAgreed = it
+                    }
                 )
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                URButton(
+                    onClick = {
+                        createNetwork()
+                    },
+                    enabled = isBtnEnabled
+                ) { buttonTextStyle ->
+                    Text("Continue", style = buttonTextStyle)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Right Arrow",
+                        modifier = Modifier.size(16.dp),
+                        tint = if (isBtnEnabled) Color.White else Color.Gray
+                    )
+                }
             }
         }
     }
