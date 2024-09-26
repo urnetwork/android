@@ -73,6 +73,7 @@ import com.bringyour.network.ui.theme.ppNeueBitBold
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 @Composable
 fun ConnectButton(
@@ -250,7 +251,7 @@ fun GridCanvas(
                     val targetColor = when (newState) {
                         ProviderPointState.IN_EVALUATION -> Yellow
                         ProviderPointState.EVALUATION_FAILED -> Red
-                        ProviderPointState.NOT_ADDED -> TextFaint
+                        ProviderPointState.NOT_ADDED -> Red
                         ProviderPointState.ADDED -> Green
                         ProviderPointState.REMOVED -> Red
                         else -> Color.Transparent
@@ -276,7 +277,7 @@ fun GridCanvas(
 //                            existingPoint.radius.animateTo(0f)
                             existingPoint.color.animateTo(
                                 Color.Transparent,
-                                animationSpec = tween(durationMillis = endTime.millisUntil())
+                                animationSpec = tween(durationMillis = max(endTime.millisUntil(), 0))
                             )
                         } ?: run {
                             // Otherwise update to the new state
