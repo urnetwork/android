@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +38,7 @@ import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,7 +68,8 @@ fun ConnectScreen(
             grid = connectViewModel.grid,
             loginMode = accountViewModel.loginMode,
             animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints
+            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+            getStateColor = connectViewModel.getStateColor
         )
     }
 }
@@ -83,7 +86,8 @@ fun ConnectMainContent(
     disconnect: () -> Unit?,
     loginMode: LoginMode,
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
-    shuffleSuccessPoints: () -> Unit
+    shuffleSuccessPoints: () -> Unit,
+    getStateColor: (ProviderPointState?) -> Color
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -170,7 +174,8 @@ fun ConnectMainContent(
                     providerGridPoints = providerGridPoints,
                     grid = grid,
                     animatedSuccessPoints = animatedSuccessPoints,
-                    shuffleSuccessPoints = shuffleSuccessPoints
+                    shuffleSuccessPoints = shuffleSuccessPoints,
+                    getStateColor = getStateColor
                 )
             }
 
@@ -240,6 +245,8 @@ fun ConnectMainContent(
 @Preview
 @Composable
 private fun ConnectMainContentPreview() {
+    val mockGetStateColor: (ProviderPointState?) -> Color = { Red }
+
     URNetworkTheme {
         ConnectMainContent(
             connectStatus = ConnectStatus.DISCONNECTED,
@@ -252,7 +259,8 @@ private fun ConnectMainContentPreview() {
             windowCurrentSize = 16,
             loginMode = LoginMode.Authenticated,
             animatedSuccessPoints = listOf(),
-            shuffleSuccessPoints = {}
+            shuffleSuccessPoints = {},
+            getStateColor = mockGetStateColor
         )
     }
 }
