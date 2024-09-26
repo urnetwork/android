@@ -234,6 +234,35 @@ fun GridCanvas(
 
     var isInFocus by remember { mutableStateOf(true) }
 
+    val animateProviderPoint: suspend (AnimatedProviderGridPoint) -> Unit = { point ->
+
+        val targetColor = getStateColor(point.state)
+
+        point.endTime?.let { endTime ->
+            point.color.animateTo(
+                getStateColor(point.state)
+            )
+
+            // Remove point
+            point.radius.animateTo(0f)
+            //                            existingPoint.color.animateTo(
+            //                                Color.Transparent,
+            //                                animationSpec = tween(durationMillis = endTime.millisUntil())
+            //                            )
+        } ?: run {
+            // Otherwise update to the new state
+
+
+            point.color.animateTo(
+                targetColor,
+                animationSpec = tween(durationMillis = 500)
+            )
+            // existingPoint.radius.animateTo(pointSize / 2 - padding / 2)
+
+        }
+
+    }
+
     val updateAnimatedPoints: suspend () -> Unit = {
 
         coroutineScope {
@@ -258,7 +287,13 @@ fun GridCanvas(
 
                     if (existingPoint == null) {
                         // Adding a new point
-                        val newPoint = AnimatedProviderGridPoint(point.clientId, point.x, point.y, newState!!, point.endTime)
+                        val newPoint = AnimatedProviderGridPoint(
+                            point.clientId,
+                            point.x,
+                            point.y,
+                            newState!!,
+                            point.endTime
+                        )
                         animatedPoints[point.clientId] = newPoint
 
                         if (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET) {
@@ -277,56 +312,9 @@ fun GridCanvas(
                         // only animate while connecting
                         if (updatedStatus == ConnectStatus.CONNECTING || updatedStatus == ConnectStatus.DESTINATION_SET) {
 
-                            existingPoint.endTime?.let { endTime ->
-                                existingPoint.color.animateTo(
-                                    targetColor
-                                )
+                            animateProviderPoint(existingPoint)
 
-                                // Remove point
-                                existingPoint.radius.animateTo(0f)
-                                //                            existingPoint.color.animateTo(
-                                //                                Color.Transparent,
-                                //                                animationSpec = tween(durationMillis = endTime.millisUntil())
-                                //                            )
-                            } ?: run {
-                                // Otherwise update to the new state
-
-
-                                existingPoint.color.animateTo(
-                                    targetColor,
-                                    animationSpec = tween(durationMillis = 500)
-                                )
-                                // existingPoint.radius.animateTo(pointSize / 2 - padding / 2)
-
-                            }
                         }
-
-//                        // the exception is, if the state is connected
-//                        if (updatedStatus == ConnectStatus.CONNECTED && newState == ProviderPointState.ADDED) {
-//                            existingPoint.color.animateTo(
-//                                targetColor
-//                            )
-//                        }
-
-                        // Update point state and animate accordingly
-//                        if (existingPoint.endTime) {
-//
-//                            existingPoint.color.animateTo(
-//                                targetColor,
-//                                animationSpec = tween(durationMillis = 500)
-//                            )
-//
-//                            delay(1000)
-//
-//                            // Remove point
-//                            existingPoint.radius.animateTo(0f)
-//                            existingPoint.color.animateTo(
-//                                Color.Transparent,
-//                                animationSpec = tween(durationMillis = 500)
-//                            )
-//                        } else {
-//
-//                        }
                     }
                 }
             }
@@ -364,7 +352,7 @@ fun GridCanvas(
             // big success points
             animatedPoints.values.forEach { point ->
                 launch {
-                    point.color.animateTo(getStateColor(point.state), animationSpec = tween(durationMillis = 1000))
+                    animateProviderPoint(point)
                 }
             }
 
