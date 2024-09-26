@@ -2,11 +2,15 @@ package com.bringyour.network.ui.wallet
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
@@ -17,7 +21,9 @@ import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,6 +62,12 @@ class WalletViewModel @Inject constructor(
     var payouts by mutableStateOf(listOf<AccountPayment>())
         private set
 
+    var totalPayoutAmount by mutableDoubleStateOf(0.0)
+        private set
+
+    var totalPayoutAmountInitialized by mutableStateOf(false)
+        private set
+
     val updateNextPayoutDateStr = {
         walletVc?.let { vc ->
             nextPayoutDateStr = vc.nextPayoutDate
@@ -71,7 +83,7 @@ class WalletViewModel @Inject constructor(
     }
 
     val openRemoveWalletModal = {
-        addExternalWalletModalVisible = true
+        removeWalletModalVisible = true
     }
 
     val closeRemoveWalletModal = {
@@ -218,34 +230,37 @@ class WalletViewModel @Inject constructor(
 
     val addAccountWalletsListener = {
 
-        walletVc?.let { vc ->
-            vc.addAccountWalletsListener {
-
-                Log.i("WalletViewModel", "account wallets listener hit")
-
-                updateWallets()
+        viewModelScope.launch {
+            walletVc?.let { vc ->
+                vc.addAccountWalletsListener {
+                    updateWallets()
+                }
             }
         }
 
     }
 
     val addExternalWalletProcessingListener = {
-        walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
+        viewModelScope.launch {
+            walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
 
-            if (isProcessingExternalWallet && !isProcessing) {
-                closeExternalWalletModal()
+                if (isProcessingExternalWallet && !isProcessing) {
+                    closeExternalWalletModal()
+                }
+
+                isProcessingExternalWallet = isProcessing
             }
-
-            isProcessingExternalWallet = isProcessing
         }
     }
 
     val addPayoutWalletListener = {
-        walletVc?.addPayoutWalletListener { id ->
-            payoutWalletId = id
+        viewModelScope.launch {
+            walletVc?.addPayoutWalletListener { id ->
+                payoutWalletId = id
 
-            if (isSettingPayoutWallet) {
-                isSettingPayoutWallet = false
+                if (isSettingPayoutWallet) {
+                    isSettingPayoutWallet = false
+                }
             }
         }
     }
@@ -258,20 +273,29 @@ class WalletViewModel @Inject constructor(
 
             val updatedPayouts = mutableListOf<AccountPayment>()
 
+            var totalPayoutsUsdc: Double = 0.0
+
             for (i in 0 until n) {
                 val payout = result.get(i)
                 updatedPayouts.add(payout)
 
+                totalPayoutsUsdc += String.format("%.4f", payout.tokenAmount).toDouble()
             }
 
             payouts = updatedPayouts
+            totalPayoutAmount = totalPayoutsUsdc
+            if (!totalPayoutAmountInitialized) {
+                totalPayoutAmountInitialized = true
+            }
         }
 
     }
 
     val addPayoutsListener = {
-        walletVc?.addPayoutWalletListener {
-            getPayouts()
+        viewModelScope.launch {
+            walletVc?.addPaymentsListener {
+                getPayouts()
+            }
         }
     }
 
@@ -285,35 +309,41 @@ class WalletViewModel @Inject constructor(
     }
 
     val addIsRemovingWalletListener = {
-        walletVc?.addIsRemovingWalletListener { isRemoving ->
-            isRemovingWallet = isRemoving
+        viewModelScope.launch {
+            walletVc?.addIsRemovingWalletListener { isRemoving ->
+                isRemovingWallet = isRemoving
+            }
         }
     }
 
     init {
 
-        byDevice = byDeviceManager.getByDevice()
+        viewModelScope.launch {
+            circleWalletSdk = circleWalletManager.getWalletSdk()
+        }
+
+        byDevice = byDeviceManager.byDevice
+
 
         walletVc = byDevice?.openWalletViewController()
 
-        circleWalletSdk = circleWalletManager.getWalletSdk()
-
         updateNextPayoutDateStr()
-
         addAccountWalletsListener()
         addExternalWalletProcessingListener()
         addPayoutWalletListener()
         addPayoutsListener()
         addIsRemovingWalletListener()
 
-        walletVc?.start()
+        viewModelScope.launch {
+            walletVc?.start()
+        }
     }
 
     override fun onCleared() {
         super.onCleared()
 
         walletVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
+            byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 

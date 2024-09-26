@@ -11,7 +11,7 @@ class StartReceiver : BroadcastReceiver() {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_MY_PACKAGE_UNSUSPENDED -> {
                 val app = context.applicationContext as MainApplication
-                if (app.isVpnRequestStart()) {
+                if (app.vpnRequestStart) {
                     app.startVpnService()
                 }
             }

@@ -49,10 +49,20 @@ class MainApplication : Application() {
 //    val platformUrl = "wss://connect.bringyour.com"
 //    val apiUrl = "https://api.bringyour.com"
 
+
+    val deviceDescription = "New device"
+
+    val deviceSpec get() = if (32 <= Build.VERSION.SDK_INT) {
+        "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
+    } else {
+        "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
+    }
+
     var networkSpaceSub: Sub? = null
 
-    var byDevice: BringYourDevice? = null
+//    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
+    var deviceProvidePausedSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
     var router: Router? = null
@@ -77,7 +87,11 @@ class MainApplication : Application() {
     @Inject
     lateinit var networkSpaceManagerProvider: NetworkSpaceManagerProvider
 
-    private var vpnRequestStart: Boolean = false
+    var vpnRequestStart: Boolean = false
+        private set
+
+    var vpnRequestStartListener: (() -> Unit)? = null
+
     // FIXME remove these bools and just query the device directly
 //    private var provideEnabled: Boolean = false
 //    private var connectEnabled: Boolean = false
@@ -85,10 +99,14 @@ class MainApplication : Application() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
 
+    val byDevice get() = byDeviceManager.byDevice
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
 //    val apiUrl get() = networkSpace?.apiUrl
 //    val platformUrl get() = networkSpace?.platformUrl
+
+
+
 
 
     override fun onCreate() {
@@ -149,7 +167,7 @@ class MainApplication : Application() {
             initCircleWallet()
         }
 
-        asyncLocalState?.localState()?.let { localState ->
+        asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt?.let { byClientJwt ->
                 if (byClientJwt == "") {
                     // missing one or both of jwt or client jwt
@@ -238,12 +256,12 @@ class MainApplication : Application() {
 
 
     fun login(byJwt: String) {
-        asyncLocalState?.localState()?.byJwt = byJwt
+        asyncLocalState?.localState?.byJwt = byJwt
         api?.setByJwt(byJwt)
     }
 
     fun loginClient(byClientJwt: String) {
-        asyncLocalState?.localState()?.let { localState ->
+        asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt = byClientJwt
 
             val instanceId = localState.instanceId!!
@@ -259,7 +277,7 @@ class MainApplication : Application() {
         stop()
 
         // note this clears the clientJwt also
-        asyncLocalState?.localState()?.logout()
+        asyncLocalState?.localState?.logout()
         api?.byJwt = null
     }
 
@@ -282,14 +300,16 @@ class MainApplication : Application() {
         router = null
         deviceProvideSub?.close()
         deviceProvideSub = null
+        deviceProvidePausedSub?.close()
+        deviceProvidePausedSub = null
         deviceConnectSub?.close()
         deviceConnectSub = null
 
 //        provideEnabled = false
 //        connectEnabled = false
 
-        byDevice?.close()
-        byDevice = null
+//        byDevice?.close()
+//        byDevice = null
         byDeviceManager.clearByDevice()
 
         accountVc?.close()
@@ -306,12 +326,14 @@ class MainApplication : Application() {
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
             instanceId,
+            routeLocal,
             provideMode,
-            getDeviceDescription(),
-            getDeviceSpec()
+            connectLocation,
+            deviceDescription,
+            deviceSpec
         )
 
-        byDevice = byDeviceManager.getByDevice()
+//        byDevice = byDeviceManager.getByDevice()
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -325,18 +347,24 @@ class MainApplication : Application() {
         }
 
         // connectVc = byDevice?.openConnectViewController()
+//        devicesVc = byDevice?.openDevicesViewController()
+//        accountVc = byDevice?.openAccountViewController()
+
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
+        overlayVc = byDevice?.openOverlayViewController()
 
+//        byDevice?.providePaused = true
+//        byDevice?.routeLocal = routeLocal
+//        byDevice?.provideMode = provideMode
 
-        byDevice?.providePaused = true
-        byDevice?.routeLocal = routeLocal
-        byDevice?.provideMode = provideMode
-
-
+//
 //        connectLocation?.let {
-//            connectVc?.connect(it)
+//            byDeviceManager.connectVc?.connect(it)
 //        }
+
+
+
 
 
         deviceRouteLocalSub = byDevice?.addRouteLocalChangeListener {
@@ -351,6 +379,11 @@ class MainApplication : Application() {
                 updateVpnService()
             }
         }
+        deviceProvidePausedSub = byDevice?.addProvidePausedChangeListener {
+            runBlocking(Dispatchers.Main.immediate) {
+                updateVpnService()
+            }
+        }
         deviceConnectSub = byDevice?.addConnectChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
@@ -360,9 +393,6 @@ class MainApplication : Application() {
 
         router = Router(byDevice!!)
 
-        devicesVc = byDevice?.openDevicesViewController()
-        accountVc = byDevice?.openAccountViewController()
-        overlayVc = byDevice?.openOverlayViewController()
 
         addNetworkCallback()
 
@@ -404,12 +434,14 @@ class MainApplication : Application() {
         val byDevice = byDevice ?: return
 
         val provideEnabled = byDevice.provideEnabled
+        val providePaused = byDevice.providePaused
         val connectEnabled = byDevice.connectEnabled
         val routeLocal = byDevice.routeLocal
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()
-            if (provideEnabled) {
+            // if provide paused, keep the vpn on but do not keep the locks
+            if (provideEnabled && !providePaused) {
                 if (wakeLock == null) {
                     wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
                         newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "bringyour::provide").apply {
@@ -469,6 +501,7 @@ class MainApplication : Application() {
                 // prepare returns an intent when the user must grant additional permissions
                 // the ui will check `vpnRequestStart` and start again when the permissions have been set up
                 vpnRequestStart = true
+                vpnRequestStartListener?.let { it() }
             } else {
                 // important: start the vpn service in the application context
 
@@ -496,6 +529,8 @@ class MainApplication : Application() {
         } catch (e: Exception) {
             Log.i(TAG, "Error trying to communicate with the vpn service to start: ${e.message}")
             vpnRequestStart = true
+            // do not request start here
+            // that could lead to a loop
         }
     }
 
@@ -517,41 +552,19 @@ class MainApplication : Application() {
 
     }
 
-    fun getDeviceDescription(): String {
-        return "New device"
-    }
 
-    fun getDeviceSpec(): String {
-        if (32 <= Build.VERSION.SDK_INT) {
-            return "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
-        } else {
-            return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
-        }
-    }
+//    fun setRouteLocal(routeLocal: Boolean) {
+//        // store the setting in local storage
+//        asyncLocalState?.localState()?.routeLocal = routeLocal
+//        byDevice?.routeLocal = routeLocal
+//    }
 
-    fun setProvideMode(provideMode: Long) {
-        // store the setting in local storage
-        asyncLocalState?.localState()?.provideMode = provideMode
-        byDevice?.provideMode = provideMode
+//    fun isRouteLocal(): Boolean {
+//        return asyncLocalState?.localState()?.routeLocal!!
+//    }
 
-    }
-
-    fun getProvideMode(): Long {
-        return asyncLocalState?.localState()?.provideMode!!
-    }
-
-    fun setRouteLocal(routeLocal: Boolean) {
-        // store the setting in local storage
-        asyncLocalState?.localState()?.routeLocal = routeLocal
-        byDevice?.routeLocal = routeLocal
-    }
-
-    fun isRouteLocal(): Boolean {
-        return asyncLocalState?.localState()?.routeLocal!!
-    }
-
-    fun isVpnRequestStart(): Boolean {
-        return vpnRequestStart
-    }
+//    fun isVpnRequestStart(): Boolean {
+//        return vpnRequestStart
+//    }
 
 }

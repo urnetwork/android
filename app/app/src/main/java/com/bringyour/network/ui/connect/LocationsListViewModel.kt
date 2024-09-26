@@ -1,15 +1,19 @@
 package com.bringyour.network.ui.connect
 
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bringyour.client.Client.LocationTypeCountry
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.LocationsViewController
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,12 +23,14 @@ class LocationsListViewModel @Inject constructor(
 
     private var locationsVc: LocationsViewController? = null
 
-    var totalProviderCount = mutableIntStateOf(0)
+    var initialListLoaded by mutableStateOf(false)
         private set
 
     val connectCountries = mutableStateListOf<ConnectLocation>()
 
     val promotedLocations = mutableStateListOf<ConnectLocation>()
+
+    val devices = mutableStateListOf<ConnectLocation>()
 
     private val subs = mutableListOf<Sub>()
 
@@ -42,6 +48,7 @@ class LocationsListViewModel @Inject constructor(
 
             connectCountries.clear()
             promotedLocations.clear()
+            devices.clear()
 
             locations.forEach { location ->
                 providerCount += location.providerCount
@@ -53,12 +60,19 @@ class LocationsListViewModel @Inject constructor(
                 if (location.locationType == LocationTypeCountry) {
                     connectCountries.add(location)
                 }
+
+                if (location.isDevice) {
+                    devices.add(location)
+                }
+
             }
 
-            totalProviderCount.intValue = providerCount
+            if (!initialListLoaded) {
+                initialListLoaded = true
+            }
+
         } else {
             connectCountries.clear()
-            totalProviderCount.intValue = 0
         }
     }
 
@@ -83,12 +97,14 @@ class LocationsListViewModel @Inject constructor(
 
     init {
 
-        val byDevice = byDeviceManager.getByDevice()
+        val byDevice = byDeviceManager.byDevice
         locationsVc = byDevice?.openLocationsViewController()
 
         addFilteredLocationsListener()
 
-        locationsVc?.start()
+        viewModelScope.launch {
+            locationsVc?.start()
+        }
     }
 
     override fun onCleared() {
@@ -100,7 +116,7 @@ class LocationsListViewModel @Inject constructor(
         subs.clear()
 
         locationsVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
+            byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 }

@@ -24,8 +24,6 @@ fun ConnectStatusIndicator(
     windowCurrentSize: Int,
 ) {
 
-    Log.i("ConnectStatusIndicator", "network name is: $networkName")
-
     val text = when(status) {
         ConnectStatus.CONNECTED -> "Connected to $windowCurrentSize providers"
         ConnectStatus.CONNECTING -> "Connecting to providers..."

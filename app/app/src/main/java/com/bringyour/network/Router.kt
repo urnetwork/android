@@ -4,7 +4,6 @@ import android.os.ParcelFileDescriptor
 import android.util.Log
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.ReceivePacket
-import com.bringyour.network.Router.Companion.WRITE_TIMEOUT_MILLIS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
@@ -19,7 +18,7 @@ import kotlin.concurrent.withLock
 
 class Router(val byDevice: BringYourDevice, val reconnect: () -> Unit = {}) {
     companion object {
-        val WRITE_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(5L)
+//        val WRITE_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(5L)
     }
 
     val clientIpv4: String? = "169.254.2.1"
@@ -48,30 +47,31 @@ class Router(val byDevice: BringYourDevice, val reconnect: () -> Unit = {}) {
 
             try {
                 val receivePacket = ReceivePacket {
-                    val endTime = System.currentTimeMillis() + WRITE_TIMEOUT_MILLIS
+//                    val endTime = System.currentTimeMillis() + WRITE_TIMEOUT_MILLIS
                     writeLock.withLock {
-                        while (active) {
-                            while (active && fos == null && System.currentTimeMillis() < endTime) {
-                                Log.i("Router", String.format("write(%d) waiting for pfd", it.size))
-                                val timeout = endTime - System.currentTimeMillis()
-                                if (0 < timeout) {
-                                    writeCondition.await(timeout, TimeUnit.MILLISECONDS)
-                                }
-                            }
-                            if (!active) {
-                                break
-                            }
-                            if (endTime <= System.currentTimeMillis()) {
-                                Log.i("Router", "Receive packet dropped.")
-                                break
-                            }
+
+                        if (active && fos != null) {
+//                            while (active && fos == null && System.currentTimeMillis() < endTime) {
+//                                Log.i("Router", String.format("write(%d) waiting for pfd", it.size))
+//                                val timeout = endTime - System.currentTimeMillis()
+//                                if (0 < timeout) {
+//                                    writeCondition.await(timeout, TimeUnit.MILLISECONDS)
+//                                }
+//                            }
+//                            if (!active) {
+//                                break
+//                            }
+//                            if (endTime <= System.currentTimeMillis()) {
+//                                Log.i("Router", "Receive packet dropped.")
+//                                break
+//                            }
 
                             try {
 
 //                                Log.i("Router", "write(${it.size})")
                                 fos!!.write(it)
 
-                                break
+//                                break
                             } catch (_: IOException) {
                                 try {
                                     fos!!.close()

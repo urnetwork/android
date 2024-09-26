@@ -30,7 +30,7 @@ class ResetPasswordViewModel @Inject constructor(
         val args = AuthPasswordResetArgs()
         args.userAuth = userAuth.trim()
 
-        val byDevice = byDeviceManager.getByDevice()
+        val byDevice = byDeviceManager.byDevice
         byDevice?.api?.authPasswordReset(args) { _, err ->
             viewModelScope.launch {
                 isSendingResetPassLink = false

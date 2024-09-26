@@ -10,9 +10,10 @@ import com.bringyour.client.NetworkUser
 import com.bringyour.client.NetworkUserViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
-import com.bringyour.network.ui.components.LoginMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -78,7 +79,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
 
-        networkUserVc = byDeviceManager.getByDevice()?.openNetworkUserViewController()
+        networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
 
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState
@@ -93,7 +94,9 @@ class ProfileViewModel @Inject constructor(
         addIsLoadingListener()
         addNetworkUserListener()
 
-        networkUserVc?.start()
+        viewModelScope.launch {
+            networkUserVc?.start()
+        }
 
     }
 
@@ -101,7 +104,7 @@ class ProfileViewModel @Inject constructor(
         super.onCleared()
 
         networkUserVc?.let {
-            byDeviceManager.getByDevice()?.closeViewController(it)
+            byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 

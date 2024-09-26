@@ -3,6 +3,7 @@
     <style name="Theme.BringYour" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/by_background</item>
     </style>
 
     <style name="BringYourActionBar"
@@ -14,8 +15,4 @@
         <item name="colorControlNormal">@color/white</item>
     </style>
 
-    <style name="ProvideSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
-        <item name="thumbTint">@color/provide_switch_thumb_color_list</item>
-        <item name="trackTint">@color/provide_switch_track_color_list</item>
-    </style>
 </resources>

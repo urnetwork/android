@@ -1,5 +1,6 @@
 package com.bringyour.network.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -19,14 +19,17 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
@@ -35,6 +38,7 @@ import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.wallet.SagaViewModel
@@ -53,7 +57,6 @@ enum class AppDestinations(
 
 @Composable
 fun MainNavHost(
-    connectViewModel: ConnectViewModel,
     sagaViewModel: SagaViewModel,
     animateIn: Boolean,
 ) {
@@ -83,7 +86,9 @@ fun MainNavHost(
     Box(
         modifier = Modifier
             .fillMaxSize()
-             .systemBarsPadding()
+            .background(Black)
+            .padding(top = 36.dp)
+             // .systemBarsPadding()
              // .windowInsetsPadding(WindowInsets.systemBars)
     ) {
 
@@ -117,7 +122,6 @@ fun MainNavHost(
                     MainNavContent(
                         currentDestination,
                         sagaViewModel,
-                        connectViewModel,
                         accountNavHostController,
                     )
                 }
@@ -130,7 +134,6 @@ fun MainNavHost(
                     MainNavContent(
                         currentDestination,
                         sagaViewModel,
-                        connectViewModel,
                         accountNavHostController,
                     )
                     HorizontalDivider(
@@ -161,9 +164,17 @@ fun MainNavHost(
 fun MainNavContent(
     currentDestination: AppDestinations,
     sagaViewModel: SagaViewModel,
-    connectViewModel: ConnectViewModel,
     accountNavHostController: NavHostController,
+    connectViewModel: ConnectViewModel = hiltViewModel(),
+    planViewModel: PlanViewModel = hiltViewModel()
 ) {
+
+    val localDensityCurrent = LocalDensity.current
+    val canvasSizePx = with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
+
+    LaunchedEffect(Unit) {
+        connectViewModel.initSuccessPoints(canvasSizePx)
+    }
 
     if (isTablet()) {
         VerticalDivider(
@@ -180,7 +191,8 @@ fun MainNavContent(
         )
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,
-            accountNavHostController
+            accountNavHostController,
+            planViewModel
         )
         AppDestinations.SUPPORT -> FeedbackScreen()
     }

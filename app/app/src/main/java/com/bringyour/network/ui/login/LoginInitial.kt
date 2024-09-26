@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -158,6 +159,7 @@ fun LoginInitial(
 
     val onLoginGoogle: (AuthLoginResult) -> Unit = { result ->
 
+
         coroutineScope.launch {
             application?.login(result.network.byJwt)
 
@@ -171,12 +173,16 @@ fun LoginInitial(
 
             loginActivity?.authClientAndFinish { error ->
 
-                setGoogleAuthInProgress(false)
-
                 setLoginError(error)
             }
+
         }
 
+    }
+
+    LaunchedEffect(Unit) {
+        googleSignInClient.signOut()
+        setGoogleAuthInProgress(false)
     }
 
     val onNetworkCreateGoogle: (

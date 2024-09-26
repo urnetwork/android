@@ -2,6 +2,7 @@ package com.bringyour.network.ui.connect
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
@@ -64,11 +67,12 @@ fun ProvidersBottomSheet(
     ProvidersBottomSheet(
         scaffoldState = scaffoldState,
         selectedLocation = selectedLocation,
-        totalProviderCount = locationsViewModel.totalProviderCount.intValue,
         connectCountries = locationsViewModel.connectCountries,
         promotedLocations = locationsViewModel.promotedLocations,
+        devices = locationsViewModel.devices,
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
+        locationsLoaded = locationsViewModel.initialListLoaded,
         connect = connect
     ) { innerPadding ->
         content(innerPadding)
@@ -80,12 +84,13 @@ fun ProvidersBottomSheet(
 fun ProvidersBottomSheet(
     scaffoldState: BottomSheetScaffoldState,
     selectedLocation: ConnectLocation?,
-    totalProviderCount: Int,
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
+    devices: List<ConnectLocation>,
     getLocationColor: (String) -> Color,
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
+    locationsLoaded: Boolean,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -108,6 +113,7 @@ fun ProvidersBottomSheet(
         sheetPeekHeight = 92.dp,
         sheetDragHandle = {},
         sheetContent = {
+
             Box(
                 modifier = Modifier
                     .then(
@@ -131,82 +137,105 @@ fun ProvidersBottomSheet(
                         )
                     )
             ) {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .background(color = Black)
-                        .padding(horizontal = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
 
-                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Surface(
-                        color = TextFaint,
-                        shape = MaterialTheme.shapes.extraLarge
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .background(color = Black)
+                            .padding(horizontal = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Box(
-                            Modifier
-                                .size(
-                                    width = 48.dp,
-                                    height = 4.dp
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Surface(
+                            color = TextFaint,
+                            shape = MaterialTheme.shapes.extraLarge
+                        ) {
+                            Box(
+                                Modifier
+                                    .size(
+                                        width = 48.dp,
+                                        height = 4.dp
+                                    )
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
+                            ProviderRow(
+                                location = "Best available provider",
+                                onClick = {
+                                    // passing null for connect location will connect to best available
+                                    connect(null)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                },
+                                color = Red400
+                            )
+                        } else {
+
+                            val key = if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
+                            else selectedLocation.countryCode
+
+                            ProviderRow(
+                                location = selectedLocation.name,
+                                providerCount = selectedLocation.providerCount,
+                                onClick = {
+                                    connect(selectedLocation)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                },
+                                color = getLocationColor(key)
+                            )
+                        }
+
+                        if (locationsLoaded) {
+                            URSearchInput(
+                                value = searchQuery,
+                                onValueChange = { query ->
+                                    if (query.text != searchQuery.text) {
+                                        searchQuery = query
+                                        filterLocations(searchQuery.text)
+                                    }
+                                },
+                                placeholder = "Search for all locations",
+                                keyboardController
+                            )
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            LocationsList(
+                                onLocationSelect = { location ->
+                                    connect(location)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                },
+                                promotedLocations = promotedLocations,
+                                connectCountries = connectCountries,
+                                getLocationColor = getLocationColor,
+                                selectedLocation = selectedLocation,
+                                devices = devices
+                            )
+                        } else {
+                            Column(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(color = Black)
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(24.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                                 )
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    if (selectedLocation == null) {
-                        ProviderRow(
-                            location = "Best available provider",
-                            /* todo -
-                                save totalProviderCount locally
-                                then on load, animate the number up or down depending on count fetched
-                            */
-                            providerCount = totalProviderCount,
-                            onClick = {
-                                // todo - query bestAvailable
-                            },
-                            color = Red400
-                        )
-                    } else {
-
-                        val key = if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
-                        else selectedLocation.countryCode
-
-                        ProviderRow(
-                            location = selectedLocation.name,
-                            providerCount = selectedLocation.providerCount,
-                            onClick = {},
-                            color = getLocationColor(key)
-                        )
-                    }
-
-                    URSearchInput(
-                        value = searchQuery,
-                        onValueChange = { query ->
-                            if (query.text != searchQuery.text) {
-                                searchQuery = query
-                                filterLocations(searchQuery.text)
                             }
-                        },
-                        placeholder = "Search for all locations",
-                        keyboardController
-                    )
+                        }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    }
 
-                    LocationsList(
-                        onLocationSelect = { location ->
-                            connect(location)
-                            scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                        },
-                        promotedLocations = promotedLocations,
-                        connectCountries = connectCountries,
-                        getLocationColor = getLocationColor,
-                        selectedLocation = selectedLocation,
-                    )
-                }
+
             }
         }
     ) { innerPadding ->
@@ -225,13 +254,14 @@ private fun PreviewBottomSheet() {
             scaffoldState = scaffoldState,
             connect = {},
             selectedLocation = null,
-            totalProviderCount = 100,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            devices = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
-            filterLocations = { _ -> }
+            filterLocations = { _ -> },
+            locationsLoaded = true
             // connectVc = connectVc,
 
         ) {
@@ -256,13 +286,14 @@ private fun PreviewBottomSheetExpanded() {
             scaffoldState = scaffoldState,
             connect = {},
             selectedLocation = null,
-            totalProviderCount = 100,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            devices = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
-            filterLocations = { _ -> }
+            filterLocations = { _ -> },
+            locationsLoaded = true
             // connectVc = connectVc,
 
         ) {

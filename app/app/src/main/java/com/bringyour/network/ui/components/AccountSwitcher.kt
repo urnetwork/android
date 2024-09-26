@@ -52,8 +52,6 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 enum class LoginMode {
     Guest, Authenticated
@@ -61,7 +59,8 @@ enum class LoginMode {
 
 @Composable
 fun AccountSwitcher(
-    loginMode: LoginMode
+    loginMode: LoginMode,
+    networkName: String?
 ) {
 
     val context = LocalContext.current
@@ -95,7 +94,8 @@ fun AccountSwitcher(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
                     context = context,
-                    overlayVc = overlayVc
+                    overlayVc = overlayVc,
+                    networkName = networkName
                 )
             }
         }
@@ -191,28 +191,14 @@ fun AuthenticatedPopup(
     onDismiss: () -> Unit,
     context: Context?,
     application: MainApplication?,
-    overlayVc: OverlayViewController?
+    overlayVc: OverlayViewController?,
+    networkName: String?
 ) {
-
-    var networkName by remember { mutableStateOf("") }
-    val populateNetworkName = {
-        application?.asyncLocalState?.parseByJwt { byJwt, ok ->
-            runBlocking(Dispatchers.Main.immediate) {
-                if (ok) {
-                    networkName = byJwt.networkName
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        populateNetworkName()
-    }
 
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
         PopupActionRow(
             iconResourceId = R.drawable.main_nav_user_filled,
-            text = networkName,
+            text = networkName ?: "",
             onClick = {},
             isSelected = true,
         )
@@ -281,7 +267,10 @@ fun PopupActionRow(
 @Composable
 fun AccountSwitcherGuestPreview() {
     URNetworkTheme {
-        AccountSwitcher(loginMode = LoginMode.Guest)
+        AccountSwitcher(
+            loginMode = LoginMode.Guest,
+            networkName = "ur_network"
+        )
     }
 }
 
@@ -289,7 +278,10 @@ fun AccountSwitcherGuestPreview() {
 @Composable
 fun AccountSwitcherAuthenticatedPreview() {
     URNetworkTheme {
-        AccountSwitcher(loginMode = LoginMode.Authenticated)
+        AccountSwitcher(
+            loginMode = LoginMode.Authenticated,
+            networkName = "ur_network"
+        )
     }
 }
 

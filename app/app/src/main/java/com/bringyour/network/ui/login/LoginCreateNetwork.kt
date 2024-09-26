@@ -18,10 +18,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -49,6 +54,7 @@ import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -83,6 +89,7 @@ sealed class LoginCreateNetworkParams(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginCreateNetwork(
     params: LoginCreateNetworkParams,
@@ -257,15 +264,34 @@ fun LoginCreateNetwork(
         }
     }
 
+
     AnimatedVisibility(
         visible = isContentVisible,
         enter = EnterTransition.None,
         exit = fadeOut()
     ) {
 
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Black
+                ),
+                actions = {},
+            )
+        }
+    ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
