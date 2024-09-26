@@ -24,6 +24,7 @@ import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
+import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.Yellow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
@@ -150,17 +151,6 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
-//    private val addWindowEventSizeListener = {
-//
-//        addListener { vc ->
-//            vc.addWindowSizeListener {
-//                viewModelScope.launch {
-//                    windowCurrentSize = vc.grid?.windowCurrentSize ?: 0
-//                }
-//            }
-//        }
-//    }
-
     private val addGridListener = {
         addListener { vc ->
             vc.addGridListener {
@@ -188,6 +178,17 @@ class ConnectViewModel @Inject constructor(
         } ?: run {
             windowCurrentSize = 0
             providerGridPoints = mapOf()
+        }
+    }
+
+    val getStateColor: (ProviderPointState?) -> Color = { state ->
+        when (state) {
+            ProviderPointState.IN_EVALUATION -> Yellow
+            ProviderPointState.EVALUATION_FAILED -> Red
+            ProviderPointState.NOT_ADDED -> TextFaint
+            ProviderPointState.ADDED -> Green
+            ProviderPointState.REMOVED -> Red
+            else -> Color.Transparent
         }
     }
 
