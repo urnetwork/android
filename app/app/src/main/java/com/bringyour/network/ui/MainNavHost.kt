@@ -37,6 +37,7 @@ import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.wallet.SagaViewModel
@@ -158,6 +159,7 @@ fun MainNavContent(
     sagaViewModel: SagaViewModel,
     accountNavHostController: NavHostController,
     connectViewModel: ConnectViewModel = hiltViewModel(),
+    planViewModel: PlanViewModel = hiltViewModel()
 ) {
 
     val localDensityCurrent = LocalDensity.current
@@ -182,7 +184,8 @@ fun MainNavContent(
         )
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,
-            accountNavHostController
+            accountNavHostController,
+            planViewModel
         )
         AppDestinations.SUPPORT -> FeedbackScreen()
     }

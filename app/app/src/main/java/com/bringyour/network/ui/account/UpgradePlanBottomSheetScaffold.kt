@@ -1,6 +1,9 @@
 package com.bringyour.network.ui.account
 
+import android.content.Context
+import android.content.res.Resources
 import android.util.Log
+import android.view.LayoutInflater
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,28 +29,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClientStateListener
@@ -64,11 +56,11 @@ import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
-import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.utils.isTablet
 import kotlinx.coroutines.CoroutineScope
@@ -81,7 +73,7 @@ import kotlinx.coroutines.withContext
 fun UpgradePlanBottomSheetScaffold(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope,
-    planViewModel: PlanViewModel = hiltViewModel(),
+    planViewModel: PlanViewModel,
     content: @Composable (PaddingValues) -> Unit,
 ) {
 
@@ -413,25 +405,3 @@ fun UpgradePlanBottomSheetScaffold(
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-private fun UpgradePlanModalBottomSheetPreview() {
-
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            SheetValue.Expanded
-        )
-    )
-    val scope = rememberCoroutineScope()
-
-    URNetworkTheme {
-        UpgradePlanBottomSheetScaffold(
-            scaffoldState = scaffoldState,
-            scope = scope
-        ) {
-            Text("Hello world")
-        }
-    }
-}
