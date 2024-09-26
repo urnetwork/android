@@ -261,7 +261,7 @@ fun GridCanvas(
                         val newPoint = AnimatedProviderGridPoint(point.clientId, point.x, point.y, newState!!, point.endTime)
                         animatedPoints[point.clientId] = newPoint
                         newPoint.color.snapTo(targetColor)
-                        newPoint.radius.animateTo(pointSize / 2 - padding / 2)
+                        newPoint.radius.snapTo(pointSize / 2 - padding / 2)
                     } else if (existingPoint.state != newState || existingPoint.endTime != point.endTime) {
 
                         existingPoint.state = newState!!
@@ -379,12 +379,12 @@ fun GridCanvas(
            }
 
            delay(100)
-
-           animatedPoints.values.forEach { point ->
-               launch {
-                   point.radius.animateTo(pointSize / 2 - padding / 2)
-               }
-           }
+//
+//           animatedPoints.values.forEach { point ->
+//               launch {
+//                   point.radius.animateTo(pointSize / 2 - padding / 2)
+//               }
+//           }
 
         }
 
@@ -410,11 +410,11 @@ fun GridCanvas(
             Log.i("ConnectButton", "setting to disconnected")
 
             // remove all provider grid points
-            animatedPoints.values.forEach { point ->
-                launch {
-                    point.radius.snapTo(0f)
-                }
-            }
+//            animatedPoints.values.forEach { point ->
+//                launch {
+//                    point.radius.snapTo(0f)
+//                }
+//            }
 
             // pull out the large dots
             animatedSuccessPoints.forEach{ point ->
