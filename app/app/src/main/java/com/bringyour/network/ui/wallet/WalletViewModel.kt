@@ -199,8 +199,12 @@ class WalletViewModel @Inject constructor(
             wallets.clear()
             wallets.addAll(updatedWallets)
 
-            if (prevWalletCount <= 0 && n > 0) {
-                isInitializingFirstWallet = false
+            if (prevWalletCount <= 0 && n > 0 && isInitializingFirstWallet) {
+                setInitializingFirstWallet(false)
+            }
+
+            if (prevWalletCount != wallets.size && circleWalletInProgress) {
+                setCircleWalletInProgress(false)
             }
 
         }
@@ -327,7 +331,7 @@ class WalletViewModel @Inject constructor(
 
     val setPayoutWallet: (Id) -> Unit = { walletId ->
         isSettingPayoutWallet = true
-        walletVc?.setPayoutWallet(walletId)
+        walletVc?.updatePayoutWallet(walletId)
     }
 
     val removeWallet: (Id) -> Unit = { id ->
@@ -340,6 +344,11 @@ class WalletViewModel @Inject constructor(
                 isRemovingWallet = isRemoving
             }
         }
+    }
+
+    val pollWallets = {
+        walletVc?.setIsPollingPayoutWallet(true)
+        walletVc?.setIsPollingAccountWallets(true)
     }
 
     init {

@@ -97,7 +97,7 @@ fun WalletsScreen(
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
         payouts = walletViewModel.payouts,
         isRemovingWallet = walletViewModel.isRemovingWallet,
-        updateWallets = walletViewModel.updateWallets
+        pollWallets = walletViewModel.pollWallets
     )
 
 }
@@ -128,7 +128,7 @@ fun WalletsScreen(
     setInitializingFirstWallet: (Boolean) -> Unit,
     payouts: List<AccountPayment>,
     isRemovingWallet: Boolean,
-    updateWallets: () -> Unit?
+    pollWallets: () -> Unit?
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -224,9 +224,7 @@ fun WalletsScreen(
                             )
                         }
 
-                        setCircleWalletInProgress(false)
-                        setInitializingFirstWallet(false)
-                        updateWallets()
+                        pollWallets()
                     }
                 }
             )
@@ -575,7 +573,7 @@ private fun WalletScreenPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            updateWallets = {}
+            pollWallets = {}
         )
     }
 }
@@ -612,7 +610,7 @@ private fun WalletScreenSagaPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            updateWallets = {}
+            pollWallets = {}
         )
     }
 }
@@ -649,7 +647,7 @@ private fun WalletScreenExternalWalletModalPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            updateWallets = {}
+            pollWallets = {}
         )
     }
 }
@@ -686,7 +684,7 @@ private fun WalletScreenInitializingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            updateWallets = {}
+            pollWallets = {}
         )
     }
 }
@@ -723,7 +721,7 @@ private fun WalletScreenRemovingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = true,
-            updateWallets = {}
+            pollWallets = {}
         )
     }
 }
