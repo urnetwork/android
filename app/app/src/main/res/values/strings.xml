@@ -3,6 +3,15 @@
     <string name="app_name">URnetwork</string>
     <string name="title_login" translatable="false">Login</string>
 
+    <!-- Circle Wallet Transfer Screen -->
+    <string name="circle_transfer_topbar_title">Transfer USDC</string>
+    <string name="circle_transfer_header">Transfer to external wallet</string>
+    <string name="circle_transfer_fee_coverage">URnetwork covers your transfer fees.</string>
+    <string name="transfer">Transfer</string>
+
+    <!-- General -->
+    <string name="cancel">Cancel</string>
+
     <string name="free_free_badge">You are on the free plan</string>
     <string name="free_pro_badge">Upgrade to the pro plan</string>
     <string name="free_superfast_badge">Access superfast providers and edges</string>

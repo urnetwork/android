@@ -1,19 +1,14 @@
 package com.bringyour.network.ui.connect
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,22 +32,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.Red400
-import com.bringyour.network.ui.theme.TextFaint
 import kotlinx.coroutines.launch
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.ConnectLocation
+import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.utils.isTablet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,129 +107,107 @@ fun ProvidersBottomSheet(
         sheetDragHandle = {},
         sheetContent = {
 
-            Box(
-                modifier = Modifier
-                    .then(
-                        if (isTablet()) {
-                            Modifier.fillMaxWidth()
-                        } else {
-                            Modifier
-                                .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
-                                .fillMaxHeight()
-                        }
-                    )
-                    .offset(y = 1.dp)
-                    .border(
-                        1.dp,
-                        MainBorderBase,
-                        shape = RoundedCornerShape(
-                            topStart = 12.dp,
-                            topEnd = 12.dp,
-                            bottomEnd = 0.dp,
-                            bottomStart = 0.dp
-                        )
-                    )
-            ) {
+            BottomSheetContentContainer {
 
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .background(color = Black)
+                        .padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .background(color = Black)
-                            .padding(horizontal = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Surface(
+                        color = TextFaint,
+                        shape = MaterialTheme.shapes.extraLarge
                     ) {
+                        Box(
+                            Modifier
+                                .size(
+                                    width = 48.dp,
+                                    height = 4.dp
+                                )
+                        )
+                    }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                        Surface(
-                            color = TextFaint,
-                            shape = MaterialTheme.shapes.extraLarge
-                        ) {
-                            Box(
-                                Modifier
-                                    .size(
-                                        width = 48.dp,
-                                        height = 4.dp
-                                    )
-                            )
-                        }
+                    if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
+                        ProviderRow(
+                            location = "Best available provider",
+                            onClick = {
+                                // passing null for connect location will connect to best available
+                                connect(null)
+                                scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                            },
+                            color = Red400
+                        )
+                    } else {
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
-                            ProviderRow(
-                                location = "Best available provider",
-                                onClick = {
-                                    // passing null for connect location will connect to best available
-                                    connect(null)
-                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                                },
-                                color = Red400
-                            )
-                        } else {
-
-                            val key = if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
+                        val key =
+                            if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
                             else selectedLocation.countryCode
 
-                            ProviderRow(
-                                location = selectedLocation.name,
-                                providerCount = selectedLocation.providerCount,
-                                onClick = {
-                                    connect(selectedLocation)
-                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                                },
-                                color = getLocationColor(key)
-                            )
-                        }
-
-                        if (locationsLoaded) {
-                            URSearchInput(
-                                value = searchQuery,
-                                onValueChange = { query ->
-                                    if (query.text != searchQuery.text) {
-                                        searchQuery = query
-                                        filterLocations(searchQuery.text)
-                                    }
-                                },
-                                placeholder = "Search for all locations",
-                                keyboardController
-                            )
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            LocationsList(
-                                onLocationSelect = { location ->
-                                    connect(location)
-                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                                },
-                                promotedLocations = promotedLocations,
-                                connectCountries = connectCountries,
-                                getLocationColor = getLocationColor,
-                                selectedLocation = selectedLocation,
-                                devices = devices
-                            )
-                        } else {
-                            Column(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color = Black)
-                                    .padding(horizontal = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(24.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
-                            }
-                        }
-
+                        ProviderRow(
+                            location = selectedLocation.name,
+                            providerCount = selectedLocation.providerCount,
+                            onClick = {
+                                connect(selectedLocation)
+                                scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                            },
+                            color = getLocationColor(key)
+                        )
                     }
+
+                    if (locationsLoaded) {
+                        URSearchInput(
+                            value = searchQuery,
+                            onValueChange = { query ->
+                                if (query.text != searchQuery.text) {
+                                    searchQuery = query
+                                    filterLocations(searchQuery.text)
+                                }
+                            },
+                            placeholder = "Search for all locations",
+                            keyboardController
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        LocationsList(
+                            onLocationSelect = { location ->
+                                connect(location)
+                                scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                            },
+                            promotedLocations = promotedLocations,
+                            connectCountries = connectCountries,
+                            getLocationColor = getLocationColor,
+                            selectedLocation = selectedLocation,
+                            devices = devices
+                        )
+                    } else {
+                        Column(
+                            Modifier
+                                .fillMaxSize()
+                                .background(color = Black)
+                                .padding(horizontal = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(24.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+                }
 
 
             }
+
         }
     ) { innerPadding ->
         content(innerPadding)

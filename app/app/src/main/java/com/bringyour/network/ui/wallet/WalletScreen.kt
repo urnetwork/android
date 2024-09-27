@@ -2,6 +2,7 @@ package com.bringyour.network.ui.wallet
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -50,6 +51,22 @@ import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextMuted
 
+data class WalletParams(
+    val navController: NavController,
+    val walletId: Id?,
+    val walletAddress: String?,
+    val isPayoutWallet: Boolean,
+    val blockchain: Blockchain?,
+    val isCircleWallet: Boolean,
+    val payouts: List<AccountPayment>,
+    val setPayoutWallet: (Id) -> Unit,
+    val isSettingPayoutWallet: Boolean,
+    val removeWallet: (Id) -> Unit,
+    val isRemovingWallet: Boolean,
+    val removeWalletModalVisible: Boolean,
+    val closeRemoveWalletModal: () -> Unit,
+    val openRemoveWalletModal: () -> Unit
+)
 
 @Composable
 fun WalletScreen(
@@ -95,9 +112,46 @@ fun WalletScreen(
     isRemovingWallet: Boolean,
     removeWalletModalVisible: Boolean,
     closeRemoveWalletModal: () -> Unit,
-    openRemoveWalletModal: () -> Unit,
+    openRemoveWalletModal: () -> Unit
 ) {
 
+    if (isCircleWallet) {
+        CircleWallet()
+    } else {
+        ExternalWalletScaffold(
+            navController
+        ) {
+            WalletScreenContent(
+                navController = navController,
+                walletId = walletId,
+                walletAddress = walletAddress,
+                isPayoutWallet = isPayoutWallet,
+                blockchain = blockchain,
+                isCircleWallet = false,
+                payouts = payouts,
+                setPayoutWallet = setPayoutWallet,
+                isSettingPayoutWallet = isSettingPayoutWallet,
+                removeWallet = removeWallet,
+                isRemovingWallet = isRemovingWallet,
+                removeWalletModalVisible = removeWalletModalVisible,
+                closeRemoveWalletModal = closeRemoveWalletModal,
+                openRemoveWalletModal = openRemoveWalletModal
+            )
+        }
+    }
+}
+
+@Composable
+fun CircleWallet() {
+    
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExternalWalletScaffold(
+    navController: NavController,
+    content: @Composable (PaddingValues) -> Unit,
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -119,184 +173,206 @@ fun WalletScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
+
+        content(innerPadding)
+
+    }
+}
+
+@Composable
+fun WalletScreenContent(
+    navController: NavController,
+    walletId: Id?,
+    walletAddress: String?,
+    isPayoutWallet: Boolean,
+    blockchain: Blockchain?,
+    isCircleWallet: Boolean,
+    payouts: List<AccountPayment>,
+    setPayoutWallet: (Id) -> Unit,
+    isSettingPayoutWallet: Boolean,
+    removeWallet: (Id) -> Unit,
+    isRemovingWallet: Boolean,
+    removeWalletModalVisible: Boolean,
+    closeRemoveWalletModal: () -> Unit,
+    openRemoveWalletModal: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            // .padding(innerPadding)
+            .padding(16.dp)
+    ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
         ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            WalletChainIcon(
+                blockchain = blockchain,
+                isCircleWallet = isCircleWallet
+            )
 
-                WalletChainIcon(
-                    blockchain = blockchain,
-                    isCircleWallet = isCircleWallet
-                )
+            Spacer(modifier = Modifier.width(16.dp))
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column {
-                    Text(
-                        if (isCircleWallet) "Circle Wallet" else
-                            "${blockchain.toString().lowercase().capitalize()} Wallet",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        "***${walletAddress?.takeLast(7)}",
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            fontFamily = ppNeueBitBold
-                        )
-                    )
-
-                }
-
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            if (!isPayoutWallet) {
-                URButton(
-                    onClick = {
-                        if (walletId != null) {
-                            setPayoutWallet(walletId)
-                        }
-                    },
-                    enabled = !isSettingPayoutWallet && walletId != null
-                ) { buttonTextStyle ->
-                    Text(
-                        "Make default",
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            if (!isCircleWallet) {
-                URButton(
-                    onClick = {
-                        openRemoveWalletModal()
-                    },
-                    style = ButtonStyle.OUTLINE,
-                    enabled = !removeWalletModalVisible
-                ) { buttonTextStyle ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Remove",
-                            style = buttonTextStyle
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-            }
-
-
-            if (payouts.isNotEmpty()) {
-
+            Column {
                 Text(
-                    "Earnings",
-                    style = MaterialTheme.typography.bodyLarge
+                    if (isCircleWallet) "Circle Wallet" else
+                        "${blockchain.toString().lowercase().capitalize()} Wallet",
+                    style = MaterialTheme.typography.headlineSmall
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                LazyColumn {
+                Text(
+                    "***${walletAddress?.takeLast(7)}",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontFamily = ppNeueBitBold
+                    )
+                )
 
-                    items(payouts) { payout ->
+            }
 
-                        PayoutRow(
-                            walletAddress = walletAddress ?: "",
-                            completeTime = payout.completeTime.format("Jan 2"),
-                            amountUsd = payout.tokenAmount
-                        )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (!isPayoutWallet) {
+            URButton(
+                onClick = {
+                    if (walletId != null) {
+                        setPayoutWallet(walletId)
                     }
-                }
-
-            } else {
-                NoPayoutsFound()
+                },
+                enabled = !isSettingPayoutWallet && walletId != null
+            ) { buttonTextStyle ->
+                Text(
+                    "Make default",
+                    style = buttonTextStyle
+                )
             }
         }
 
-        URDialog(
-            visible = removeWalletModalVisible,
-            onDismiss = { closeRemoveWalletModal() }
-        ) {
-            Column() {
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (!isCircleWallet) {
+            URButton(
+                onClick = {
+                    openRemoveWalletModal()
+                },
+                style = ButtonStyle.OUTLINE,
+                enabled = !removeWalletModalVisible
+            ) { buttonTextStyle ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_warning),
-                        contentDescription = "",
-                        tint = Red
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     Text(
-                        "Remove wallet?",
-                        style = MaterialTheme.typography.bodyLarge
+                        "Remove",
+                        style = buttonTextStyle
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    "Are you sure you want to delete this wallet? If this is your default wallet, we’ll hold you have set another wallet as default.",
-                    style = MaterialTheme.typography.bodyMedium
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+
+
+        if (payouts.isNotEmpty()) {
+
+            Text(
+                "Earnings",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn {
+
+                items(payouts) { payout ->
+
+                    PayoutRow(
+                        walletAddress = walletAddress ?: "",
+                        completeTime = payout.completeTime.format("Jan 2"),
+                        amountUsd = payout.tokenAmount
+                    )
+                }
+            }
+
+        } else {
+            NoPayoutsFound()
+        }
+    }
+
+    URDialog(
+        visible = removeWalletModalVisible,
+        onDismiss = { closeRemoveWalletModal() }
+    ) {
+        Column() {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_warning),
+                    contentDescription = "",
+                    tint = Red
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    ClickableText(
-                        text = AnnotatedString(
-                            "Cancel",
-                            spanStyle = SpanStyle(
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    "Remove wallet?",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "Are you sure you want to delete this wallet? If this is your default wallet, we’ll hold you have set another wallet as default.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                ClickableText(
+                    text = AnnotatedString(
+                        "Cancel",
+                        spanStyle = SpanStyle(
+                            color = BlueMedium,
+                            fontSize = 14.sp
+                        )
+                    ),
+                    onClick = {
+                        closeRemoveWalletModal()
+                    },
+                )
+
+                Spacer(modifier = Modifier.width(32.dp))
+
+                ClickableText(
+                    text = AnnotatedString(
+                        "Remove wallet",
+                        spanStyle = if (!isRemovingWallet && walletId != null)
+                            SpanStyle(
                                 color = BlueMedium,
                                 fontSize = 14.sp
+                            ) else
+                            SpanStyle(
+                                color = TextMuted,
+                                fontSize = 14.sp
                             )
-                        ),
-                        onClick = {
+                    ),
+                    onClick = {
+                        if (walletId != null) {
+                            removeWallet(walletId)
                             closeRemoveWalletModal()
-                        },
-                        )
-
-                    Spacer(modifier = Modifier.width(32.dp))
-
-                    ClickableText(
-                        text = AnnotatedString(
-                            "Remove wallet",
-                            spanStyle = if (!isRemovingWallet && walletId != null)
-                                SpanStyle(
-                                    color = BlueMedium,
-                                    fontSize = 14.sp
-                                ) else
-                                SpanStyle(
-                                    color = TextMuted,
-                                    fontSize = 14.sp
-                                )
-                        ),
-                        onClick = {
-                            if (walletId != null) {
-                                removeWallet(walletId)
-                                closeRemoveWalletModal()
-                                navController.popBackStack()
-                            }
-                        },
-                    )
-                }
+                            navController.popBackStack()
+                        }
+                    },
+                )
             }
         }
     }

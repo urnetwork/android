@@ -1,24 +1,16 @@
 package com.bringyour.network.ui.account
 
-import android.content.Context
-import android.content.res.Resources
 import android.util.Log
-import android.view.LayoutInflater
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -29,15 +21,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.billingclient.api.BillingClient
@@ -54,13 +51,14 @@ import com.bringyour.client.SubscriptionCreatePaymentIdArgs
 import com.bringyour.client.SubscriptionCreatePaymentIdResult
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.utils.isTablet
 import kotlinx.coroutines.CoroutineScope
@@ -252,30 +250,28 @@ fun UpgradePlanBottomSheetScaffold(
         sheetPeekHeight = 0.dp,
         sheetDragHandle = {},
         sheetContent = {
-            Box(
-                modifier = Modifier
-                    .then(
-                        if (isTablet()) {
-                            Modifier.fillMaxWidth()
-                        } else {
-                            Modifier
-                                .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
-                                .fillMaxHeight()
-                        }
-                    )
-                    .offset(y = 1.dp)
-                    .border(
-                        1.dp,
-                        MainBorderBase,
-                        shape = RoundedCornerShape(
-                            topStart = 12.dp,
-                            topEnd = 12.dp,
-                            bottomEnd = 0.dp,
-                            bottomStart = 0.dp
-                        )
-                    )
-            ) {
+            UpgradePlanSheetContent(
+                scope = scope,
+                scaffoldState = scaffoldState,
+                upgrade = upgrade
+            )
+        }) { innerPadding ->
+        content(innerPadding)
+    }
+}
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun UpgradePlanSheetContent(
+    scope: CoroutineScope,
+    scaffoldState: BottomSheetScaffoldState,
+    upgrade: () -> Unit
+) {
+    BottomSheetContentContainer {
+
+        Scaffold(
+            topBar = {
                 CenterAlignedTopAppBar(
                     title = {
                         Text("Upgrade Subscription", style = TopBarTitleTextStyle)
@@ -299,109 +295,129 @@ fun UpgradePlanBottomSheetScaffold(
                         }
                     },
                 )
+            }
+        ) { innerPadding ->
+            val colModifier = Modifier
 
-                val colModifier = Modifier
+            if (!isTablet()) {
+                colModifier.fillMaxSize()
+            }
 
-                if (!isTablet()) {
-                    colModifier.fillMaxSize()
-                }
+            Column(
+                modifier = colModifier
+                    .background(color = Black)
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+                // horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                Column(
-                    modifier = colModifier
-                        .background(color = Black)
-                        // .padding(innerPadding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                    // horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column {
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                    Column {
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "Become a",
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                            Text(
-                                "$5/month",
-                                style = TextStyle(
-                                    fontSize = 24.sp,
-                                    fontFamily = gravityCondensedFamily,
-                                    color = TextMuted
-                                )
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                "URnetwork",
-                                style = MaterialTheme.typography.headlineLarge
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                "Supporter",
-                                style = MaterialTheme.typography.headlineLarge
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            "Support us in building a new kind of network that gives instead of takes.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = TextMuted
+                            "Become a",
+                            style = MaterialTheme.typography.headlineMedium
                         )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         Text(
-                            "You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = TextMuted
+                            "$5/month",
+                            style = TextStyle(
+                                fontSize = 24.sp,
+                                fontFamily = gravityCondensedFamily,
+                                color = TextMuted
+                            )
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(64.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Column {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            URButton(onClick = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            "URnetwork",
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                    }
 
-                                // todo - process plan upgrade
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                                upgrade()
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            "Supporter",
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        "Support us in building a new kind of network that gives instead of takes.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextMuted
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        "You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextMuted
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(64.dp))
+
+                Column {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        URButton(onClick = {
+
+                            // todo - process plan upgrade
+
+                            upgrade()
 
 //                                scope.launch {
 //                                    scaffoldState.bottomSheetState.hide()
 //                                }
 
 
-                            }) { buttonTextStyle ->
-                                Text("Join the movement", style = buttonTextStyle)
-                            }
+                        }) { buttonTextStyle ->
+                            Text("Join the movement", style = buttonTextStyle)
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-
             }
-        }) { innerPadding ->
-        content(innerPadding)
+        }
+
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun UpgradePlanSheetContentPreview() {
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            SheetValue.Expanded
+        )
+    )
+    val scope = rememberCoroutineScope()
+
+    URNetworkTheme {
+        UpgradePlanSheetContent(
+            scope = scope,
+            scaffoldState = scaffoldState,
+            upgrade = {}
+        )
+    }
+}
