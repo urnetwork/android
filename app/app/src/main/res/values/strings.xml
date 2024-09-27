@@ -9,6 +9,12 @@
     <string name="circle_transfer_fee_coverage">URnetwork covers your transfer fees.</string>
     <string name="transfer">Transfer</string>
 
+    <!-- Wallet Screen -->
+    <string name="balance">Balance</string>
+    <string name="transfer_funds">Transfer Funds</string>
+    <string name="no_payouts_found">No payouts found for this wallet</string>
+    <string name="earnings">Earnings</string>
+
     <!-- General -->
     <string name="cancel">Cancel</string>
 

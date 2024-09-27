@@ -13,12 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,32 +67,17 @@ fun CircleTransferSheet(
     walletBalance: Float,
     sendToAddress: TextFieldValue,
     setSendToAddress: (TextFieldValue) -> Unit,
-    content: @Composable () -> Unit
 ) {
 
-    BottomSheetScaffold(
+    CircleTransferSheetContent(
         scaffoldState = scaffoldState,
-        sheetShape = RoundedCornerShape(
-            0.dp,
-        ),
-        sheetContainerColor = Black,
-        sheetContentColor = Black,
-        sheetPeekHeight = 0.dp,
-        sheetDragHandle = {},
-        sheetContent = {
-            CircleTransferSheetContent(
-                scaffoldState = scaffoldState,
-                scope = scope,
-                transferAmountTextFieldValue = transferAmountTextFieldValue,
-                setTransferAmountFieldValue = setTransferAmountFieldValue,
-                walletBalance = walletBalance,
-                sendToAddress = sendToAddress,
-                setSendToAddress = setSendToAddress
-            )
-        }
-    ) {
-        content()
-    }
+        scope = scope,
+        transferAmountTextFieldValue = transferAmountTextFieldValue,
+        setTransferAmountFieldValue = setTransferAmountFieldValue,
+        walletBalance = walletBalance,
+        sendToAddress = sendToAddress,
+        setSendToAddress = setSendToAddress
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -261,7 +244,9 @@ fun CircleTransferSheetContent(
                 // action buttons
                 Column {
                     URButton(
-                        onClick = {}
+                        onClick = {
+
+                        }
                     ) { buttonTextStyle ->
                         Text(
                             stringResource(id = R.string.transfer),

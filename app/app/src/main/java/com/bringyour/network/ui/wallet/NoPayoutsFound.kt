@@ -10,8 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.R
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -29,7 +31,7 @@ fun NoPayoutsFound() {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            "No payouts found for this wallet",
+            stringResource(id = R.string.no_payouts_found),
             color = TextMuted,
             style = MaterialTheme.typography.bodyMedium
         )
