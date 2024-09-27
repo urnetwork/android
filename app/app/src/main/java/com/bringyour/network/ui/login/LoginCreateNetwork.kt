@@ -336,7 +336,8 @@ fun LoginCreateNetwork(
                 placeholder = "Your network name",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
+                    imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
+                        ImeAction.Next else ImeAction.Done
                 ),
                 isValidating = isValidatingNetworkName,
                 isValid = networkNameErrorMsg == null,

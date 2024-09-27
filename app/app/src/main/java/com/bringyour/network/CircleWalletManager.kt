@@ -12,7 +12,8 @@ import javax.inject.Singleton
 @Singleton
 class CircleWalletManager @Inject constructor() {
 
-    private var circleWalletSdk: WalletSdk? = null
+    var circleWalletSdk: WalletSdk? = null
+        private set
 
     fun init(
         applicationContext: Context,
@@ -46,10 +47,6 @@ class CircleWalletManager @Inject constructor() {
         WalletSdk.setViewSetterProvider(setterProvider)
 
         circleWalletSdk = WalletSdk
-    }
-
-    val getWalletSdk = {
-        circleWalletSdk
     }
 
 }

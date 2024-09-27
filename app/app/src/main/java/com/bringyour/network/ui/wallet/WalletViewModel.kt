@@ -3,27 +3,23 @@ package com.bringyour.network.ui.wallet
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.BringYourDevice
+import com.bringyour.client.CircleWalletInfo
 import com.bringyour.client.Id
 import com.bringyour.client.ValidateAddressCallback
 import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -66,6 +62,9 @@ class WalletViewModel @Inject constructor(
         private set
 
     var totalPayoutAmountInitialized by mutableStateOf(false)
+        private set
+
+    var circleWalletInfo by mutableStateOf<CircleWalletInfo?>(null)
         private set
 
     val updateNextPayoutDateStr = {
@@ -126,7 +125,9 @@ class WalletViewModel @Inject constructor(
             byDevice?.api?.walletCircleInit { result, error ->
                 viewModelScope.launch {
                     if (error != null) {
-                        Log.i("WalletViewModel", "error is ${error?.message}")
+                        Log.i("WalletViewModel", "error is ${error.message}")
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
                     }
 
                     val userToken = result.userToken.userToken
@@ -141,6 +142,7 @@ class WalletViewModel @Inject constructor(
                             encryptionKey,
                             challengeId
                         )
+
                     }
                 }
             }
@@ -155,17 +157,39 @@ class WalletViewModel @Inject constructor(
         isInitializingFirstWallet = isInitializing
     }
 
+    private val fetchCircleWalletInfo = {
+        byDevice?.api?.subscriptionBalance { result, error ->
+            viewModelScope.launch {
+                circleWalletInfo = result.walletInfo
+                Log.i("WalletViewModel", "wallet info: $circleWalletInfo")
+            }
+        }
+    }
+
     private val updateWallets = {
 
         walletVc?.let { vc ->
+
             val result = vc.wallets
             val n = result.len()
 
             val updatedWallets = mutableListOf<AccountWallet>()
 
+            var circleWalletExists = false
+
             for (i in 0 until n) {
                 val wallet = result.get(i)
                 updatedWallets.add(wallet)
+                if (!wallet.circleWalletId.isNullOrEmpty()) {
+                    circleWalletExists = true
+                    Log.i("WalletViewModel", "circle wallet exists")
+                } else {
+                    Log.i("WalletViewModel", "no circle wallet found")
+                }
+            }
+
+            if (circleWalletExists) {
+                fetchCircleWalletInfo()
             }
 
             val prevWalletCount = wallets.count()
@@ -318,9 +342,7 @@ class WalletViewModel @Inject constructor(
 
     init {
 
-        viewModelScope.launch {
-            circleWalletSdk = circleWalletManager.getWalletSdk()
-        }
+        circleWalletSdk = circleWalletManager.circleWalletSdk
 
         byDevice = byDeviceManager.byDevice
 
@@ -337,6 +359,10 @@ class WalletViewModel @Inject constructor(
         viewModelScope.launch {
             walletVc?.start()
         }
+
+        getPayouts()
+
+        // updateWallets()
     }
 
     override fun onCleared() {
