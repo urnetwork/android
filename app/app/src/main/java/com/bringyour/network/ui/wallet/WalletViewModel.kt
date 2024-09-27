@@ -128,6 +128,8 @@ class WalletViewModel @Inject constructor(
                         Log.i("WalletViewModel", "error is ${error.message}")
                         setCircleWalletInProgress(false)
                         setInitializingFirstWallet(false)
+                        // todo display error
+                        return@launch
                     }
 
                     val userToken = result.userToken.userToken
@@ -166,7 +168,7 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    private val updateWallets = {
+    val updateWallets = {
 
         walletVc?.let { vc ->
 
