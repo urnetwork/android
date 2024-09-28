@@ -1,15 +1,22 @@
 package com.bringyour.network.utils
 
-import android.content.res.Configuration
+import android.app.Activity
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun isTablet(): Boolean {
-    val configuration = LocalConfiguration.current
-    return if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        configuration.screenWidthDp > 840
-    } else {
-        configuration.screenWidthDp > 600
-    }
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
+
+    return windowSizeClass?.widthSizeClass?.let {
+        it > WindowWidthSizeClass.Medium
+    } ?: false
 }
