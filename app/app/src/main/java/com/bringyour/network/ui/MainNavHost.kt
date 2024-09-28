@@ -16,8 +16,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
@@ -81,6 +85,15 @@ fun MainNavHost(
         navigationBarContainerColor = Black,
     )
 
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val navSuiteLayoutType = with(adaptiveInfo) {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
+            NavigationSuiteType.NavigationBar
+        } else {
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -94,6 +107,7 @@ fun MainNavHost(
             containerColor = Black,
             contentColor = Black,
             navigationSuiteColors = customColors,
+            layoutType = navSuiteLayoutType,
             navigationSuiteItems = {
                 AppDestinations.entries.forEach { screen ->
                     item(
