@@ -38,10 +38,23 @@
     <string name="sent">Sent!</string>
 
     <!-- Login verify -->
-    <string name="login_verify_header">You've got mail</string>
+    <string name="login_verify_header">You\'ve got mail</string>
     <string name="login_verify_details">Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
-    <string name="dont_see_it">Don't see it?</string>
+    <string name="dont_see_it">Don\'t see it?</string>
     <string name="resend_verify_code">Resend code</string>
+
+    <!-- Wallets Screen -->
+    <string name="connect_external_wallet">Connect External Wallet</string>
+    <string name="connect_external_wallet_supported_chains">USDC addresses on Solana and Polygon are currently supported.</string>
+    <string name="wallet_address_label">Wallet address</string>
+    <string name="wallet_address_placeholder">Copy and paste here</string>
+    <string name="total_payouts">total payouts</string>
+
+
+
+    <!-- Setup wallet -->
+    <string name="share_with_others">You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.</string>
+    <string name="start_earning">To start earning, connect your cryptocurrency wallet to URnetwork or set one up with Circle.</string>
 
     <!-- Circle Wallet Transfer Screen -->
     <string name="circle_transfer_topbar_title">Transfer USDC</string>
@@ -50,11 +63,20 @@
     <string name="transfer">Transfer</string>
     <string name="insufficient_funds">Insufficient funds</string>
 
+    <!-- Account Screen -->
+    <string name="account">Account</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="wallet">Wallet</string>
+    <string name="refer_and_earn">Refer and earn</string>
+    <string name="set_up_wallet">Set up wallet</string>
+
     <!-- Wallet Screen -->
     <string name="balance">Balance</string>
     <string name="transfer_funds">Transfer Funds</string>
     <string name="no_payouts_found">No payouts found for this wallet</string>
     <string name="earnings">Earnings</string>
+    <string name="make_default">Make default</string>
 
     <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Transfer Submitted</string>
@@ -62,6 +84,8 @@
 
     <!-- General -->
     <string name="cancel">Cancel</string>
+    <string name="connect">Connect</string>
+    <string name="remove">Remove</string>
 
     <string name="free_free_badge">You are on the free plan</string>
     <string name="free_pro_badge">Upgrade to the pro plan</string>

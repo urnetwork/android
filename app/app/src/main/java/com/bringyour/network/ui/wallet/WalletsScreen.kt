@@ -2,6 +2,7 @@ package com.bringyour.network.ui.wallet
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -59,6 +59,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.Id
 import com.bringyour.network.R
@@ -471,12 +472,12 @@ fun WalletsScreen(
         ) {
             Column() {
                 Text(
-                    "Connect External Wallet",
+                    stringResource(id = R.string.connect_external_wallet),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "USDC addresses on Solana and Polygon are currently supported.",
+                    stringResource(id = R.string.connect_external_wallet_supported_chains),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -485,8 +486,8 @@ fun WalletsScreen(
                     onValueChange = { newValue ->
                         setExternalWalletAddress(newValue)
                                     },
-                    label = "Wallet Address",
-                    placeholder = "Copy and paste here",
+                    label = stringResource(id = R.string.wallet_address_label),
+                    placeholder = stringResource(id = R.string.wallet_address_placeholder),
                     maxLines = 2
                 )
 
@@ -498,26 +499,25 @@ fun WalletsScreen(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    ClickableText(
+                    Text(
                         text = AnnotatedString(
-                            "Cancel",
+                            stringResource(id = R.string.cancel),
                             spanStyle = SpanStyle(
                                 color = BlueMedium,
                                 fontSize = 14.sp
                             )
                         ),
-                        onClick = {
+                        modifier = Modifier.clickable {
                             closeModal()
                             setExternalWalletAddress(TextFieldValue(""))
-                                  },
-
+                        },
                     )
 
                     Spacer(modifier = Modifier.width(32.dp))
 
-                    ClickableText(
+                    Text(
                         text = AnnotatedString(
-                            "Connect",
+                            stringResource(id = R.string.connect),
                             spanStyle = if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet)
                                 SpanStyle(
                                     color = BlueMedium,
@@ -528,8 +528,7 @@ fun WalletsScreen(
                                     fontSize = 14.sp
                                 )
                         ),
-                        onClick = {
-                            // todo - validate and add external wallet
+                        modifier = Modifier.clickable {
                             if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
                                 createExternalWallet()
                             }
