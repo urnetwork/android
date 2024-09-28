@@ -44,7 +44,21 @@ class WalletViewModel @Inject constructor(
     var circleWalletInProgress by mutableStateOf(false)
         private set
 
-    var isInitializingFirstWallet by mutableStateOf(false)
+    /**
+     * Display a loading indicator when first loading wallets
+     */
+    var initializingWallets by mutableStateOf(true)
+        private set
+
+    val setInitializingWallets: (Boolean) -> Unit = { isInitializing ->
+        initializingWallets = isInitializing
+    }
+
+    /**
+     * Used when in the process of creating the users first wallet.
+     * This creates a loading state between SetupWallet and WalletsList
+     */
+    var initializingFirstWallet by mutableStateOf(false)
         private set
 
     var isSettingPayoutWallet by mutableStateOf(false)
@@ -155,7 +169,7 @@ class WalletViewModel @Inject constructor(
     }
 
     val setInitializingFirstWallet: (Boolean) -> Unit = { isInitializing ->
-        isInitializingFirstWallet = isInitializing
+        initializingFirstWallet = isInitializing
     }
 
     private val fetchCircleWalletInfo = {
@@ -202,7 +216,11 @@ class WalletViewModel @Inject constructor(
             wallets.clear()
             wallets.addAll(updatedWallets)
 
-            if (prevWalletCount <= 0 && n > 0 && isInitializingFirstWallet) {
+            if (initializingWallets) {
+                setInitializingWallets(false)
+            }
+
+            if (prevWalletCount <= 0 && n > 0 && initializingFirstWallet) {
                 setInitializingFirstWallet(false)
             }
 
@@ -248,7 +266,7 @@ class WalletViewModel @Inject constructor(
         }
 
         if (wallets.isEmpty()) {
-            isInitializingFirstWallet = true
+            initializingFirstWallet = true
         }
 
         if (chain != "") {
