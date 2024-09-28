@@ -33,11 +33,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -135,8 +137,11 @@ fun LoginPassword(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("It's nice to", style = MaterialTheme.typography.headlineLarge)
-            Text("see you again", style = MaterialTheme.typography.headlineLarge)
+
+            Text(
+                stringResource(id = R.string.login_password_header),
+                style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+            )
 
             Spacer(modifier = Modifier.height(64.dp))
 
@@ -145,12 +150,12 @@ fun LoginPassword(
                 onValueChange = { newValue ->
                     user = newValue
                 },
-                placeholder = "Enter your phone number or email",
+                placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Done
                 ),
-                label = "Email or phone"
+                label = stringResource(id = R.string.user_auth_label)
             )
 
             URTextInput(
@@ -164,7 +169,7 @@ fun LoginPassword(
                     imeAction = ImeAction.Done
                 ),
                 isPassword = true,
-                label = "Password"
+                label = stringResource(id = R.string.password_label)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -178,7 +183,7 @@ fun LoginPassword(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Continue", style = buttonTextStyle)
+                    Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -201,10 +206,10 @@ fun LoginPassword(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Forget your password?")
+                Text(stringResource(id = R.string.forgot_password))
                 Spacer(modifier = Modifier.width(4.dp))
                 ClickableText(
-                    text = AnnotatedString("Reset it."),
+                    text = AnnotatedString(stringResource(id = R.string.reset_it)),
                     onClick = {
                         navController.navigate("reset-password/${userAuth}")
                     },

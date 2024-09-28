@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -156,7 +157,6 @@ fun LoginCreateNetwork(
         debounceJob?.cancel()
         debounceJob = coroutineScope.launch {
             delay(1000L)
-            Log.i("LoginCreateNetwork", "checking network name")
             isValidatingNetworkName = true
 
             loginVc?.networkCheck(networkName.text) { result, err ->
@@ -287,12 +287,12 @@ fun LoginCreateNetwork(
             Spacer(modifier = Modifier.height(48.dp))
 
             URTextInput(
-                label = "Name",
+                label = stringResource(id = R.string.name_label),
                 value = userName,
                 onValueChange = { newValue ->
                     userName = newValue
                 },
-                placeholder = "Your name",
+                placeholder = stringResource(id = R.string.name_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -301,14 +301,14 @@ fun LoginCreateNetwork(
 
             if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
                 URTextInput(
-                    label = "Email or phone",
+                    label = stringResource(id = R.string.user_auth_label),
                     value = emailOrPhone,
                     onValueChange = { newValue ->
                         val filteredText = newValue.text.filter { it != ' ' }
                         val filteredTextFieldValue = newValue.copy(text = filteredText)
                         emailOrPhone = filteredTextFieldValue
                     },
-                    placeholder = "Enter your phone number or email",
+                    placeholder = stringResource(id = R.string.user_auth_placeholder),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
@@ -317,7 +317,7 @@ fun LoginCreateNetwork(
             }
 
             URTextInput(
-                label = "Network name",
+                label = stringResource(id = R.string.network_name_label),
                 value = networkName,
                 onValueChange = { newValue ->
                     val originalCursorPosition = newValue.selection.start
@@ -333,7 +333,7 @@ fun LoginCreateNetwork(
                     )
                     checkNetworkName()
                 },
-                placeholder = "Your network name",
+                placeholder = stringResource(id = R.string.network_name_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
@@ -341,13 +341,13 @@ fun LoginCreateNetwork(
                 ),
                 isValidating = isValidatingNetworkName,
                 isValid = networkNameErrorMsg == null,
-                supportingText = networkNameErrorMsg ?: "Network names must be 6 characters or more"
+                supportingText = networkNameErrorMsg ?: stringResource(id = R.string.network_name_support_txt)
             )
 
             if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
 
                 URTextInput(
-                    label = "Password",
+                    label = stringResource(id = R.string.password_label),
                     value = userPassword,
                     onValueChange = { newValue ->
                         userPassword = newValue
@@ -357,7 +357,7 @@ fun LoginCreateNetwork(
                         imeAction = ImeAction.Done
                     ),
                     isPassword = true,
-                    supportingText = "Password must be at least 12 characters"
+                    supportingText = stringResource(id = R.string.password_support_txt)
                 )
             }
 
@@ -378,7 +378,7 @@ fun LoginCreateNetwork(
                 },
                 enabled = isBtnEnabled
             ) { buttonTextStyle ->
-                Text("Continue", style = buttonTextStyle)
+                Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,

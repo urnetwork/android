@@ -56,8 +56,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
-import com.bringyour.client.CircleWalletInfo
-import com.bringyour.client.Client
 import com.bringyour.client.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URDialog
@@ -334,7 +332,7 @@ fun CircleWalletScreenContent(
                     enabled = !isSettingPayoutWallet && walletId != null
                 ) { buttonTextStyle ->
                     Text(
-                        "Make default",
+                        stringResource(id = R.string.make_default),
                         style = buttonTextStyle
                     )
                 }
@@ -598,7 +596,7 @@ fun ExternalWalletScreenContent(
                     enabled = !isSettingPayoutWallet && walletId != null
                 ) { buttonTextStyle ->
                     Text(
-                        "Make default",
+                        stringResource(id = R.string.make_default),
                         style = buttonTextStyle
                     )
                 }
@@ -618,7 +616,7 @@ fun ExternalWalletScreenContent(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        "Remove",
+                        stringResource(id = R.string.remove),
                         style = buttonTextStyle
                     )
                 }
@@ -694,7 +692,7 @@ private fun WalletScreenIsPayoutPreview() {
             walletId = null,
             walletAddress = "0x000000000000000",
             isPayoutWallet = true,
-            isCircleWallet = true,
+            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
             payouts = listOf(),
             setPayoutWallet = {},
@@ -721,7 +719,7 @@ private fun WalletScreenRemoveWalletPreview() {
             walletId = null,
             walletAddress = "0x000000000000000",
             isPayoutWallet = true,
-            isCircleWallet = true,
+            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
             payouts = listOf(),
             setPayoutWallet = {},

@@ -2,6 +2,7 @@ package com.bringyour.network.ui.account
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -124,7 +125,7 @@ fun AccountScreenContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Account", style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(id = R.string.account), style = MaterialTheme.typography.headlineSmall)
             AccountSwitcher(
                 loginMode = loginMode,
                 networkName = networkName
@@ -249,14 +250,18 @@ fun AccountScreenContent(
                                     }
 
                                     if (walletCount <= 0) {
-                                        ClickableText(
-                                            modifier = Modifier.offset(y = -8.dp),
-                                            text = AnnotatedString("Set up wallet"),
-                                            onClick = {},
+                                        Text(
+                                            text = stringResource(id = R.string.set_up_wallet),
+                                            modifier = Modifier
+                                                .offset(y = (-8).dp)
+                                                .clickable {
+                                                    navController.navigate("wallets")
+                                                },
                                             style = TextStyle(
                                                 color = BlueMedium
                                             )
                                         )
+
                                     }
                                 }
                             } else {
@@ -284,7 +289,7 @@ fun AccountScreenContent(
 
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_user,
-            text = "Profile",
+            text = stringResource(id = R.string.profile),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("profile")
@@ -296,7 +301,7 @@ fun AccountScreenContent(
         HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_settings,
-            text = "Settings",
+            text = stringResource(id = R.string.settings),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("settings")
@@ -308,7 +313,7 @@ fun AccountScreenContent(
         HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_wallet,
-            text = "Wallet",
+            text = stringResource(id = R.string.wallet),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("wallets")
@@ -320,7 +325,7 @@ fun AccountScreenContent(
         HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_refer,
-            text = "Refer and earn",
+            text = stringResource(id = R.string.refer_and_earn),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     overlayVc?.openOverlay(OverlayMode.Refer.toString())
