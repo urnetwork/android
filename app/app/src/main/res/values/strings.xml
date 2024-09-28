@@ -63,6 +63,9 @@
     <string name="transfer">Transfer</string>
     <string name="insufficient_funds">Insufficient funds</string>
 
+    <!-- Connect -->
+    <string name="tap_to_connect">Tap to connect</string>
+
     <!-- Account Screen -->
     <string name="account">Account</string>
     <string name="profile">Profile</string>

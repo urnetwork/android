@@ -5,9 +5,7 @@ import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.AnimationVector4D
-import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,9 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,25 +52,18 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.bringyour.client.ConnectGrid
-import com.bringyour.client.ConnectLocation
 import com.bringyour.client.Id
 import com.bringyour.client.Time
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.BlueMedium
-import com.bringyour.network.ui.theme.Green
-import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
-import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 @Composable
 fun ConnectButton(
@@ -519,7 +509,7 @@ private fun DisconnectedButtonContent() {
     ) {
 
         Text(
-            "Tap to connect",
+            stringResource(id = R.string.tap_to_connect),
             style = TextStyle(
                 fontSize = 20.sp,
                 lineHeight = 20.sp,
