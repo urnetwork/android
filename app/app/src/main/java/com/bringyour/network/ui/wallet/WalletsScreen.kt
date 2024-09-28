@@ -96,7 +96,8 @@ fun WalletsScreen(
         setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
         payouts = walletViewModel.payouts,
-        isRemovingWallet = walletViewModel.isRemovingWallet
+        isRemovingWallet = walletViewModel.isRemovingWallet,
+        pollWallets = walletViewModel.pollWallets
     )
 
 }
@@ -126,7 +127,8 @@ fun WalletsScreen(
     setCircleWalletInProgress: (Boolean) -> Unit,
     setInitializingFirstWallet: (Boolean) -> Unit,
     payouts: List<AccountPayment>,
-    isRemovingWallet: Boolean
+    isRemovingWallet: Boolean,
+    pollWallets: () -> Unit?
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -154,6 +156,8 @@ fun WalletsScreen(
                     }
 
                     override fun onError(error: Throwable): Boolean {
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
 
                         if (error is ApiError) {
                             when (error.code) {
@@ -175,18 +179,11 @@ fun WalletsScreen(
                             return true
                         }
 
-                        setCircleWalletInProgress(false)
-                        setInitializingFirstWallet(false)
-
                         // App won't handle next step, SDK will finish the Activity.
                         return false
                     }
 
                     override fun onResult(result: ExecuteResult) {
-
-                        Log.i("WalletScreen", "circle wallet on result")
-                        Log.i("WalletScreen", result.toString())
-
                         complete()
                     }
 
@@ -227,8 +224,7 @@ fun WalletsScreen(
                             )
                         }
 
-                        setCircleWalletInProgress(false)
-                        setInitializingFirstWallet(false)
+                        pollWallets()
                     }
                 }
             )
@@ -577,6 +573,7 @@ private fun WalletScreenPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {}
         )
     }
 }
@@ -613,6 +610,7 @@ private fun WalletScreenSagaPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {}
         )
     }
 }
@@ -649,6 +647,7 @@ private fun WalletScreenExternalWalletModalPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {}
         )
     }
 }
@@ -685,6 +684,7 @@ private fun WalletScreenInitializingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {}
         )
     }
 }
@@ -721,6 +721,7 @@ private fun WalletScreenRemovingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = true,
+            pollWallets = {}
         )
     }
 }

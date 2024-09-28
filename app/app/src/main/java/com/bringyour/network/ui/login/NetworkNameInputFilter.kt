@@ -14,7 +14,7 @@ fun networkNameInputFilter(input: String): String {
         if (it.isUpperCase()) it.lowercaseChar() else it
     }.filter {
         // allow only alphanumeric characters and hyphens
-        it.isLetterOrDigit() || it == '-'
+        it.isLetterOrDigit()
     }.joinToString("")
 
     return filtered

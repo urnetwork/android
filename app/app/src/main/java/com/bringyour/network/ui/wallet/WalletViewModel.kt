@@ -3,27 +3,23 @@ package com.bringyour.network.ui.wallet
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.BringYourDevice
+import com.bringyour.client.Client
 import com.bringyour.client.Id
 import com.bringyour.client.ValidateAddressCallback
 import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -67,6 +63,8 @@ class WalletViewModel @Inject constructor(
 
     var totalPayoutAmountInitialized by mutableStateOf(false)
         private set
+
+    var circleWalletBalance by mutableDoubleStateOf(0.0)
 
     val updateNextPayoutDateStr = {
         walletVc?.let { vc ->
@@ -126,7 +124,11 @@ class WalletViewModel @Inject constructor(
             byDevice?.api?.walletCircleInit { result, error ->
                 viewModelScope.launch {
                     if (error != null) {
-                        Log.i("WalletViewModel", "error is ${error?.message}")
+                        Log.i("WalletViewModel", "error is ${error.message}")
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
+                        // todo display error
+                        return@launch
                     }
 
                     val userToken = result.userToken.userToken
@@ -141,6 +143,7 @@ class WalletViewModel @Inject constructor(
                             encryptionKey,
                             challengeId
                         )
+
                     }
                 }
             }
@@ -155,17 +158,43 @@ class WalletViewModel @Inject constructor(
         isInitializingFirstWallet = isInitializing
     }
 
-    private val updateWallets = {
+    private val fetchCircleWalletInfo = {
+        byDevice?.api?.subscriptionBalance { result, _ ->
+
+            viewModelScope.launch {
+                setCircleWalletBalance(Client.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents))
+            }
+        }
+    }
+
+    val setCircleWalletBalance: (Double) -> Unit = { balance ->
+        circleWalletBalance = balance
+    }
+
+    val updateWallets = {
 
         walletVc?.let { vc ->
+
             val result = vc.wallets
             val n = result.len()
 
             val updatedWallets = mutableListOf<AccountWallet>()
 
+            var circleWalletExists = false
+
             for (i in 0 until n) {
                 val wallet = result.get(i)
                 updatedWallets.add(wallet)
+                if (!wallet.circleWalletId.isNullOrEmpty()) {
+                    circleWalletExists = true
+                    Log.i("WalletViewModel", "circle wallet exists")
+                } else {
+                    Log.i("WalletViewModel", "no circle wallet found")
+                }
+            }
+
+            if (circleWalletExists) {
+                fetchCircleWalletInfo()
             }
 
             val prevWalletCount = wallets.count()
@@ -173,8 +202,12 @@ class WalletViewModel @Inject constructor(
             wallets.clear()
             wallets.addAll(updatedWallets)
 
-            if (prevWalletCount <= 0 && n > 0) {
-                isInitializingFirstWallet = false
+            if (prevWalletCount <= 0 && n > 0 && isInitializingFirstWallet) {
+                setInitializingFirstWallet(false)
+            }
+
+            if (prevWalletCount != wallets.size && circleWalletInProgress) {
+                setCircleWalletInProgress(false)
             }
 
         }
@@ -301,7 +334,7 @@ class WalletViewModel @Inject constructor(
 
     val setPayoutWallet: (Id) -> Unit = { walletId ->
         isSettingPayoutWallet = true
-        walletVc?.setPayoutWallet(walletId)
+        walletVc?.updatePayoutWallet(walletId)
     }
 
     val removeWallet: (Id) -> Unit = { id ->
@@ -316,11 +349,14 @@ class WalletViewModel @Inject constructor(
         }
     }
 
+    val pollWallets = {
+        walletVc?.setIsPollingPayoutWallet(true)
+        walletVc?.setIsPollingAccountWallets(true)
+    }
+
     init {
 
-        viewModelScope.launch {
-            circleWalletSdk = circleWalletManager.getWalletSdk()
-        }
+        circleWalletSdk = circleWalletManager.circleWalletSdk
 
         byDevice = byDeviceManager.byDevice
 
@@ -337,6 +373,10 @@ class WalletViewModel @Inject constructor(
         viewModelScope.launch {
             walletVc?.start()
         }
+
+        getPayouts()
+
+        // updateWallets()
     }
 
     override fun onCleared() {

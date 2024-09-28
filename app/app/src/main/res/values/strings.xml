@@ -3,6 +3,26 @@
     <string name="app_name">URnetwork</string>
     <string name="title_login" translatable="false">Login</string>
 
+    <!-- Circle Wallet Transfer Screen -->
+    <string name="circle_transfer_topbar_title">Transfer USDC</string>
+    <string name="circle_transfer_header">Transfer to external wallet</string>
+    <string name="circle_transfer_fee_coverage">URnetwork covers your transfer fees.</string>
+    <string name="transfer">Transfer</string>
+    <string name="insufficient_funds">Insufficient funds</string>
+
+    <!-- Wallet Screen -->
+    <string name="balance">Balance</string>
+    <string name="transfer_funds">Transfer Funds</string>
+    <string name="no_payouts_found">No payouts found for this wallet</string>
+    <string name="earnings">Earnings</string>
+
+    <!-- Transfer Submitted Overlay -->
+    <string name="transfer_submitted">Transfer Submitted</string>
+    <string name="transfer_submitted_details">Your transfer has been initiated and will complete once the transaction is processed on chain.</string>
+
+    <!-- General -->
+    <string name="cancel">Cancel</string>
+
     <string name="free_free_badge">You are on the free plan</string>
     <string name="free_pro_badge">Upgrade to the pro plan</string>
     <string name="free_superfast_badge">Access superfast providers and edges</string>
