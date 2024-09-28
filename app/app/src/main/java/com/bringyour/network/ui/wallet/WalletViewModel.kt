@@ -187,8 +187,6 @@ class WalletViewModel @Inject constructor(
 
     val updateWallets = {
 
-        Log.i("WalletViewModel", "update wallets hit")
-
         walletVc?.let { vc ->
 
             val result = vc.wallets
