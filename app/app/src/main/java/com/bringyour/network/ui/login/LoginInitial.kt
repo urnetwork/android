@@ -1,7 +1,6 @@
 package com.bringyour.network.ui.login
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +37,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
@@ -109,7 +109,7 @@ fun LoginInitial(
     val overlayVc = application?.overlayVc
 
     val guestModeStr = buildAnnotatedString {
-        append("Commitment issues? ")
+        append(stringResource(id = R.string.commitment_issues))
 
         pushStringAnnotation(
             tag = "GUEST_MODE",
@@ -120,7 +120,7 @@ fun LoginInitial(
                 color = Color.White
             )
         ) {
-            append(" Try Guest Mode")
+            append(" ${stringResource(id = R.string.try_guest_mode)}")
         }
         pop()
 
@@ -202,12 +202,12 @@ fun LoginInitial(
                 onValueChange = {
                     setUserAuth(it)
                 },
-                placeholder = "Enter your phone number or email",
+                placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Done
                 ),
-                label = "Email or phone"
+                label = stringResource(id = R.string.user_auth_label)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -223,7 +223,7 @@ fun LoginInitial(
                 },
                 enabled = !userAuthInProgress && isValidUserAuth
             ) { buttonTextStyle ->
-                Text("Get Started", style = buttonTextStyle)
+                Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -253,7 +253,7 @@ fun LoginInitial(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    Text("Log in with Google", style = buttonTextStyle)
+                    Text(stringResource(id = R.string.google_auth_btn_text), style = buttonTextStyle)
                 }
             }
 
@@ -267,7 +267,6 @@ fun LoginInitial(
                         guestModeStr.getStringAnnotations(
                             tag = "GUEST_MODE", start = offset, end = offset
                         ).firstOrNull()?.let {
-                            Log.i("Login Initial", "overlayVc is null? ${overlayVc == null}")
                             overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
                         }
                     },

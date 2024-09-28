@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.AuthPasswordResetArgs
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
@@ -115,19 +117,19 @@ fun LoginPasswordResetAfterSend(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Reset link sent", style = MaterialTheme.typography.headlineLarge)
+            Text(stringResource(id = R.string.reset_link_sent), style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.height(64.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
             ) {
                 Text(
-                    "Reset link sent to $userAuth",
+                    "${stringResource(id = R.string.reset_link_sent_to)} $userAuth",
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "You may need to check your spam folder or unblock no-reply@bringyour.com",
+                stringResource(id = R.string.check_junk_mail),
                 style = TextStyle(
                     fontSize = 12.sp,
                     color = TextMuted
@@ -145,7 +147,7 @@ fun LoginPasswordResetAfterSend(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        if (markAsSent) "Sent!" else "Resend Link",
+                        if (markAsSent) stringResource(id = R.string.sent) else stringResource(id = R.string.resend_reset_link),
                         style = buttonTextStyle
                     )
                 }
