@@ -93,14 +93,14 @@ fun WalletsScreen(
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
         payoutWalletId = walletViewModel.payoutWalletId,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
-        isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet,
+        isInitializingFirstWallet = walletViewModel.initializingFirstWallet,
         setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
         payouts = walletViewModel.payouts,
         isRemovingWallet = walletViewModel.isRemovingWallet,
-        pollWallets = walletViewModel.pollWallets
+        pollWallets = walletViewModel.pollWallets,
+        initializingWallets = walletViewModel.initializingWallets
     )
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,7 +129,8 @@ fun WalletsScreen(
     setInitializingFirstWallet: (Boolean) -> Unit,
     payouts: List<AccountPayment>,
     isRemovingWallet: Boolean,
-    pollWallets: () -> Unit?
+    pollWallets: () -> Unit?,
+    initializingWallets: Boolean
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -334,132 +335,147 @@ fun WalletsScreen(
 
             } else {
 
-                if (wallets.isEmpty()) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        SetupWallet(
-                            initCircleWallet = initCircleWallet,
-                            circleWalletInProgress = circleWalletInProgress,
-                            isSolanaSaga = isSolanaSaga,
-                            getSolanaAddress = getSolanaAddress,
-                            openModal = openModal,
-                            connectSaga = { address ->
-
-                                Log.i("WalletsScreen", "Solana address is: $address")
-                                if (!address.isNullOrEmpty()) {
-                                    setExternalWalletAddress(TextFieldValue(address))
-                                    // since this is taken directly from the saga,
-                                    // we can mark this as true without calling our API to validate
-                                    setExternalWalletAddressIsValid("SOL", true)
-                                    createExternalWallet()
-                                }
-                            }
-                        )
-                    }
-                } else {
+                if (initializingWallets) {
 
                     Row(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row {
-                            Text(
-                                "Wallets",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.width(2.dp))
-
-                            InfoIconWithOverlay() {
-                                Column() {
-                                    Text(
-                                        "Solana and Polygon wallets are currently supported",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = BlueLight
-                                    )
-                                }
-                            }
-                        }
-
-                        IconButton(
-                            onClick = { openModal() },
-                            modifier = Modifier
-                                .background(
-                                    color = MainTintedBackgroundBase,
-                                    shape = CircleShape
-                                )
-                                .width(26.dp)
-                                .height(26.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.plus_icon),
-                                contentDescription = "Add wallet",
-                                tint = TextMuted,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(24.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    if (isRemovingWallet) {
-                        Row(
-                            modifier = Modifier
-                                .height(124.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                } else {
+                    if (wallets.isEmpty()) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(24.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            SetupWallet(
+                                initCircleWallet = initCircleWallet,
+                                circleWalletInProgress = circleWalletInProgress,
+                                isSolanaSaga = isSolanaSaga,
+                                getSolanaAddress = getSolanaAddress,
+                                openModal = openModal,
+                                connectSaga = { address ->
+
+                                    Log.i("WalletsScreen", "Solana address is: $address")
+                                    if (!address.isNullOrEmpty()) {
+                                        setExternalWalletAddress(TextFieldValue(address))
+                                        // since this is taken directly from the saga,
+                                        // we can mark this as true without calling our API to validate
+                                        setExternalWalletAddressIsValid("SOL", true)
+                                        createExternalWallet()
+                                    }
+                                }
                             )
                         }
                     } else {
-                        LazyRow(
+
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(124.dp)
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-
-                            item {
-                                Spacer(modifier = Modifier.width(16.dp))
-                            }
-
-                            items(wallets) { wallet ->
-
-                                WalletCard(
-                                    isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
-                                    blockchain = Blockchain.fromString(wallet.blockchain),
-                                    isPayoutWallet = wallet.walletId.equals(payoutWalletId),
-                                    walletAddress = wallet.walletAddress,
-                                    walletId = wallet.walletId,
-                                    navController = walletNavController
+                            Row {
+                                Text(
+                                    "Wallets",
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
+                                Spacer(modifier = Modifier.width(2.dp))
 
-                                Spacer(modifier = Modifier.width(16.dp))
-
+                                InfoIconWithOverlay() {
+                                    Column() {
+                                        Text(
+                                            "Solana and Polygon wallets are currently supported",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = BlueLight
+                                        )
+                                    }
+                                }
                             }
 
-
+                            IconButton(
+                                onClick = { openModal() },
+                                modifier = Modifier
+                                    .background(
+                                        color = MainTintedBackgroundBase,
+                                        shape = CircleShape
+                                    )
+                                    .width(26.dp)
+                                    .height(26.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.plus_icon),
+                                    contentDescription = "Add wallet",
+                                    tint = TextMuted,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        if (isRemovingWallet) {
+                            Row(
+                                modifier = Modifier
+                                    .height(124.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(24.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        } else {
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(124.dp)
+                            ) {
+
+                                item {
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                }
+
+                                items(wallets) { wallet ->
+
+                                    WalletCard(
+                                        isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
+                                        blockchain = Blockchain.fromString(wallet.blockchain),
+                                        isPayoutWallet = wallet.walletId.equals(payoutWalletId),
+                                        walletAddress = wallet.walletAddress,
+                                        walletId = wallet.walletId,
+                                        navController = walletNavController
+                                    )
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
+                                }
+
+
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            WalletsPayoutsList(
+                                payouts,
+                                wallets
+                            )
+                        }
+
                     }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        WalletsPayoutsList(
-                            payouts,
-                            wallets
-                        )
-                    }
-
                 }
 
             }
@@ -572,7 +588,8 @@ private fun WalletScreenPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {}
+            pollWallets = {},
+            initializingWallets = false
         )
     }
 }
@@ -609,7 +626,8 @@ private fun WalletScreenSagaPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {}
+            pollWallets = {},
+            initializingWallets = false
         )
     }
 }
@@ -646,7 +664,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {}
+            pollWallets = {},
+            initializingWallets = false
         )
     }
 }
@@ -683,7 +702,8 @@ private fun WalletScreenInitializingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {}
+            pollWallets = {},
+            initializingWallets = false
         )
     }
 }
@@ -720,7 +740,8 @@ private fun WalletScreenRemovingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = true,
-            pollWallets = {}
+            pollWallets = {},
+            initializingWallets = false
         )
     }
 }
