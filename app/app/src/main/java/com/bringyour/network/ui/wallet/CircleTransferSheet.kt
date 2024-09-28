@@ -34,19 +34,29 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import circle.programmablewallet.sdk.api.ApiError
+import circle.programmablewallet.sdk.api.Callback
+import circle.programmablewallet.sdk.api.ExecuteWarning
+import circle.programmablewallet.sdk.result.ExecuteResult
+import circle.programmablewallet.sdk.result.ExecuteResultStatus
+import com.bringyour.network.MainActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
@@ -63,10 +73,18 @@ fun CircleTransferSheet(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope,
     transferAmountTextFieldValue: TextFieldValue,
-    setTransferAmountFieldValue: (TextFieldValue) -> Unit,
-    walletBalance: Float,
+    setTransferAmountFieldValue: (TextFieldValue, Double) -> Unit,
+    walletBalance: Double,
+    setCircleWalletBalance: (Double) -> Unit,
     sendToAddress: TextFieldValue,
     setSendToAddress: (TextFieldValue) -> Unit,
+    isSendToAddressValidating: Boolean,
+    isSendToAddressValid: Boolean,
+    setTransferError: (String?) -> Unit,
+    setTransferInProgress: (Boolean) -> Unit,
+    transfer: (OnWalletExecute) -> Unit,
+    transferInProgress: Boolean,
+    transferAmountValid: Boolean,
 ) {
 
     CircleTransferSheetContent(
@@ -75,8 +93,16 @@ fun CircleTransferSheet(
         transferAmountTextFieldValue = transferAmountTextFieldValue,
         setTransferAmountFieldValue = setTransferAmountFieldValue,
         walletBalance = walletBalance,
+        setCircleWalletBalance = setCircleWalletBalance,
         sendToAddress = sendToAddress,
-        setSendToAddress = setSendToAddress
+        setSendToAddress = setSendToAddress,
+        isSendToAddressValid = isSendToAddressValid,
+        isSendToAddressValidating = isSendToAddressValidating,
+        setTransferError = setTransferError,
+        setTransferInProgress = setTransferInProgress,
+        transfer = transfer,
+        transferInProgress = transferInProgress,
+        transferAmountValid = transferAmountValid
     )
 }
 
@@ -86,19 +112,112 @@ fun CircleTransferSheetContent(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope,
     transferAmountTextFieldValue: TextFieldValue,
-    setTransferAmountFieldValue: (TextFieldValue) -> Unit,
-    walletBalance: Float,
+    setTransferAmountFieldValue: (TextFieldValue, Double) -> Unit,
+    walletBalance: Double,
+    setCircleWalletBalance: (Double) -> Unit,
     sendToAddress: TextFieldValue,
     setSendToAddress: (TextFieldValue) -> Unit,
+    isSendToAddressValidating: Boolean,
+    isSendToAddressValid: Boolean,
+    setTransferError: (String?) -> Unit,
+    setTransferInProgress: (Boolean) -> Unit,
+    transfer: (OnWalletExecute) -> Unit,
+    transferInProgress: Boolean,
+    transferAmountValid: Boolean,
 ) {
+
+    val context = LocalContext.current
+    val activity = context as? MainActivity
+    val application = context.applicationContext as? MainApplication
+    val overlayVc = application?.overlayVc
     
-    val inputTextStyle = TextStyle(
+    val amountInputTextStyle = TextStyle(
         fontSize = 24.sp,
-        // color = if (enabled) Color.White else TextMuted,
         color = Color.White,
         textAlign = TextAlign.Center,
         fontFamily = ppNeueMontreal
     )
+
+    val transferUsdc = {
+
+        val onWalletExecute: OnWalletExecute = { walletSdk, userToken, encryptionKey, challengeId ->
+
+            walletSdk.execute(
+                activity,
+                userToken,
+                encryptionKey,
+                arrayOf(challengeId),
+                object : Callback<ExecuteResult> {
+                    override fun onWarning(
+                        warning: ExecuteWarning,
+                        result: ExecuteResult?
+                    ): Boolean {
+                        when (result?.status) {
+                            ExecuteResultStatus.COMPLETE,
+                            ExecuteResultStatus.IN_PROGRESS,
+                            ExecuteResultStatus.PENDING -> complete(true)
+
+                            else -> complete(false)
+                        }
+                        // FIXME toast
+                        return false
+                    }
+
+                    override fun onError(error: Throwable): Boolean {
+                        setTransferError(error.message)
+                        setTransferInProgress(false)
+
+                        if (error is ApiError) {
+                            when (error.code) {
+                                ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
+                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
+                                ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
+                                ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched -> {
+                                }
+
+                                ApiError.ErrorCode.networkError -> {
+                                    // FIXME toast
+                                }
+
+                                else -> {
+                                    // FIXME toast
+                                }
+                            }
+                            // App will handle next step, SDK will keep the Activity.
+                            return true
+                        }
+                        // App won't handle next step, SDK will finish the Activity.
+                        return false
+                    }
+
+                    override fun onResult(result: ExecuteResult) {
+
+                        // success
+                        complete(true)
+                    }
+
+                    fun complete(success: Boolean) {
+
+                        if (success) {
+                            scope.launch {
+                                overlayVc?.openOverlay(OverlayMode.TransferSubmitted.toString())
+                                scaffoldState.bottomSheetState.hide()
+                            }
+
+                            setCircleWalletBalance(walletBalance - transferAmountTextFieldValue.text.toDouble())
+
+                            setTransferInProgress(false)
+
+                            setTransferAmountFieldValue(TextFieldValue(""), walletBalance)
+                        }
+                    }
+                }
+            )
+        }
+
+        transfer(onWalletExecute)
+
+    }
 
     BottomSheetContentContainer {
         Scaffold(
@@ -167,7 +286,7 @@ fun CircleTransferSheetContent(
                         Text(
                             "Max",
                             modifier = Modifier.clickable {
-                                setTransferAmountFieldValue(TextFieldValue(walletBalance.toString()))
+                                setTransferAmountFieldValue(TextFieldValue(walletBalance.toString()), walletBalance)
                             },
                             style = MaterialTheme.typography.bodyLarge,
                             color = BlueMedium
@@ -188,18 +307,21 @@ fun CircleTransferSheetContent(
                                 BasicTextField(
                                     value = transferAmountTextFieldValue,
                                     onValueChange = {
-                                        setTransferAmountFieldValue(it)
+                                        setTransferAmountFieldValue(it, walletBalance)
                                     },
-                                    singleLine = true,
-                                    modifier = Modifier.width(IntrinsicSize.Min),
-                                    textStyle = inputTextStyle,
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    modifier = Modifier
+                                        .width(IntrinsicSize.Min),
+                                    textStyle = amountInputTextStyle,
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done
+                                    ),
                                 )
 
                                 if (transferAmountTextFieldValue.text.isEmpty()) {
                                     Text(
                                         "0",
-                                        style = inputTextStyle
+                                        style = amountInputTextStyle
                                     )
                                 }
                             }
@@ -208,7 +330,7 @@ fun CircleTransferSheetContent(
 
                             Text(
                                 "USDC",
-                                style = inputTextStyle,
+                                style = amountInputTextStyle,
                                 color = TextMuted
                             )
                         }
@@ -237,7 +359,12 @@ fun CircleTransferSheetContent(
                         },
                         label = "To",
                         placeholder = "Wallet address",
-                        maxLines = 2
+                        isValidating = isSendToAddressValidating,
+                        isValid = isSendToAddressValid,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done
+                        )
                     )
                 }
 
@@ -245,11 +372,14 @@ fun CircleTransferSheetContent(
                 Column {
                     URButton(
                         onClick = {
-
-                        }
+                            transferUsdc()
+                        },
+                        enabled = isSendToAddressValid && transferAmountValid,
+                        isProcessing = transferInProgress
                     ) { buttonTextStyle ->
                         Text(
-                            stringResource(id = R.string.transfer),
+                            if (transferAmountValid) stringResource(id = R.string.transfer)
+                                else stringResource(id = R.string.insufficient_funds),
                             style = buttonTextStyle
                         )
                     }
@@ -262,7 +392,8 @@ fun CircleTransferSheetContent(
                                 scaffoldState.bottomSheetState.hide()
                             }
                         },
-                        style = ButtonStyle.OUTLINE
+                        style = ButtonStyle.OUTLINE,
+                        enabled = !transferInProgress
                     ) { buttonTextStyle ->
 
                         Row(
@@ -283,10 +414,12 @@ fun CircleTransferSheetContent(
     }
 }
 
+private val mockSetTransferAmountFieldValue: (TextFieldValue, Double) -> Unit = { _, _ -> }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-private fun CircleTransferSheetPreview() {
+private fun CircleTransferSheetInvalidAddressPreview() {
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
             SheetValue.Expanded
@@ -299,11 +432,85 @@ private fun CircleTransferSheetPreview() {
         CircleTransferSheetContent(
             scaffoldState = scaffoldState,
             scope = scope,
-            transferAmountTextFieldValue = TextFieldValue(""),
-            setTransferAmountFieldValue = {},
-            walletBalance = 3.1295674f,
-            sendToAddress = TextFieldValue(""),
-            setSendToAddress = {}
+            transferAmountTextFieldValue = TextFieldValue("1.00"),
+            setTransferAmountFieldValue = mockSetTransferAmountFieldValue,
+            walletBalance = 3.12,
+            setCircleWalletBalance = {},
+            sendToAddress = TextFieldValue("abcd"),
+            setSendToAddress = {},
+            isSendToAddressValidating = false,
+            isSendToAddressValid = false,
+            setTransferError = {},
+            setTransferInProgress = {},
+            transfer = {},
+            transferInProgress = false,
+            transferAmountValid = true
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun CircleTransferSheetSendAmountPreview() {
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            SheetValue.Expanded
+        )
+    )
+
+    val scope = rememberCoroutineScope()
+
+    URNetworkTheme {
+        CircleTransferSheetContent(
+            scaffoldState = scaffoldState,
+            scope = scope,
+            transferAmountTextFieldValue = TextFieldValue("3.12"),
+            setTransferAmountFieldValue = mockSetTransferAmountFieldValue,
+            walletBalance = 3.12,
+            setCircleWalletBalance = {},
+            sendToAddress = TextFieldValue("0x35eeb71e1d098d53f0b0bb6cfeae0e3b0c4028b9"),
+            setSendToAddress = {},
+            isSendToAddressValidating = true,
+            isSendToAddressValid = true,
+            setTransferError = {},
+            setTransferInProgress = {},
+            transfer = {},
+            transferInProgress = false,
+            transferAmountValid = true
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun CircleTransferSheetSendAmountInvalidPreview() {
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            SheetValue.Expanded
+        )
+    )
+
+    val scope = rememberCoroutineScope()
+
+    URNetworkTheme {
+        CircleTransferSheetContent(
+            scaffoldState = scaffoldState,
+            scope = scope,
+            transferAmountTextFieldValue = TextFieldValue("5"),
+            setTransferAmountFieldValue = mockSetTransferAmountFieldValue,
+            walletBalance = 3.12,
+            setCircleWalletBalance = {},
+            sendToAddress = TextFieldValue("0x35eeb71e1d098d53f0b0bb6cfeae0e3b0c4028b9"),
+            setSendToAddress = {},
+            isSendToAddressValidating = true,
+            isSendToAddressValid = true,
+            setTransferError = {},
+            setTransferInProgress = {},
+            transfer = {},
+            transferInProgress = false,
+            transferAmountValid = false
         )
     }
 }

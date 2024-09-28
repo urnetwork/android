@@ -27,13 +27,13 @@
     <color name="circlepw_tag_following_text">#0073C3</color>
     <color name="circlepw_divider">#F0EFEF</color>
 
-<!--    <color name="circlepw_pin_dot_base">@color/text_muted</color>-->
-<!--    <color name="circlepw_pin_dot_base_boarder">@color/text_muted</color>-->
-<!--    <color name="circlepw_pin_dot_activated">@color/text_muted</color>-->
+<!--    <color name="circlepw_pin_dot_base">@color/almost_white</color>-->
+<!--    <color name="circlepw_pin_dot_base_boarder">#707070</color>-->
+<!--    <color name="circlepw_pin_dot_activated">#3D3D3D</color>-->
 
-    <color name="circlepw_pin_dot_base">@color/almost_white</color>
+    <color name="circlepw_pin_dot_base">#3D3D3D</color>
     <color name="circlepw_pin_dot_base_boarder">#707070</color>
-    <color name="circlepw_pin_dot_activated">#3D3D3D</color>
+    <color name="circlepw_pin_dot_activated">@color/almost_white</color>
 
     <color name="circlepw_background">@color/black</color>
     <color name="circlepw_security_confirm_main_bg">#E9EEFE</color>

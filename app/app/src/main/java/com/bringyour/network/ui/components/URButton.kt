@@ -1,12 +1,16 @@
 package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -36,6 +40,7 @@ fun URButton(
     style: ButtonStyle = ButtonStyle.PRIMARY,
     enabled: Boolean = true,
     borderColor: Color? = null,
+    isProcessing: Boolean = false,
     content: @Composable (TextStyle) -> Unit,
 ) {
 
@@ -57,27 +62,39 @@ fun URButton(
     val baseModifier = when(style) {
         ButtonStyle.PRIMARY -> Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
         ButtonStyle.SECONDARY -> Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
         ButtonStyle.OUTLINE -> when(enabled) {
             true -> Modifier
                 .border(1.dp, borderColor ?: TextFaint, RoundedCornerShape(100))
-                .defaultMinSize(minHeight = 48.dp)
             false -> Modifier
-                .defaultMinSize(minHeight = 48.dp)
         }
     }
 
     return Button(
         onClick = onClick,
         colors = buttonColors,
-        modifier = baseModifier,
-        enabled = enabled
-    ) {
+        modifier = baseModifier.then(
+            Modifier.defaultMinSize(minHeight = 48.dp)
+        ),
+        enabled = enabled,
 
-        content(buttonTextStyle)
+    ) {
+        if (!isProcessing) {
+            content(buttonTextStyle)
+        } else {
+            Column {
+                // Spacer(modifier = Modifier.height(8.dp))
+
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .width(24.dp)
+                        .height(24.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = TextMuted,
+                )
+            }
+        }
     }
 }
 
@@ -87,6 +104,19 @@ private fun PrimaryButtonPreview() {
     URNetworkTheme {
         URButton(
             onClick = {},
+        ) { buttonTextStyle ->
+            Text("Get Started", style = buttonTextStyle)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PrimaryButtonIsProcessingPreview() {
+    URNetworkTheme {
+        URButton(
+            onClick = {},
+            isProcessing = true
         ) { buttonTextStyle ->
             Text("Get Started", style = buttonTextStyle)
         }

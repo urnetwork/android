@@ -12,7 +12,7 @@ import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.BringYourDevice
-import com.bringyour.client.CircleWalletInfo
+import com.bringyour.client.Client
 import com.bringyour.client.Id
 import com.bringyour.client.ValidateAddressCallback
 import com.bringyour.client.WalletViewController
@@ -64,8 +64,7 @@ class WalletViewModel @Inject constructor(
     var totalPayoutAmountInitialized by mutableStateOf(false)
         private set
 
-    var circleWalletInfo by mutableStateOf<CircleWalletInfo?>(null)
-        private set
+    var circleWalletBalance by mutableDoubleStateOf(0.0)
 
     val updateNextPayoutDateStr = {
         walletVc?.let { vc ->
@@ -160,12 +159,16 @@ class WalletViewModel @Inject constructor(
     }
 
     private val fetchCircleWalletInfo = {
-        byDevice?.api?.subscriptionBalance { result, error ->
+        byDevice?.api?.subscriptionBalance { result, _ ->
+
             viewModelScope.launch {
-                circleWalletInfo = result.walletInfo
-                Log.i("WalletViewModel", "wallet info: $circleWalletInfo")
+                setCircleWalletBalance(Client.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents))
             }
         }
+    }
+
+    val setCircleWalletBalance: (Double) -> Unit = { balance ->
+        circleWalletBalance = balance
     }
 
     val updateWallets = {

@@ -188,7 +188,6 @@ fun UpgradePlanBottomSheetScaffold(
     }
 
     val upgrade = {
-        Log.i("Upgrade", "start")
         setInProgress(true)
         setChangePlanError(null)
 

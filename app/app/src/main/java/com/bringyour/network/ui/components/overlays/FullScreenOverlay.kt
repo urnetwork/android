@@ -158,6 +158,7 @@ fun FullScreenOverlay() {
         )
     }
 
+    // Plan upgrade
     AnimatedVisibility(
         visible = overlayMode == OverlayMode.Upgrade,
         enter = enterTransition,
@@ -165,6 +166,20 @@ fun FullScreenOverlay() {
     ) {
 
         PlanUpgradedOverlay(
+            onDismiss = {
+                overlayMode = null
+            }
+        )
+    }
+
+    // Circle transfer submitted
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.TransferSubmitted,
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+
+        TransferSubmittedOverlay(
             onDismiss = {
                 overlayMode = null
             }
