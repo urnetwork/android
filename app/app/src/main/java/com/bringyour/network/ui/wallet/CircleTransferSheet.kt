@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -30,11 +31,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -137,6 +140,14 @@ fun CircleTransferSheetContent(
         textAlign = TextAlign.Center,
         fontFamily = ppNeueMontreal
     )
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
+        if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
+            keyboardController?.hide()
+        }
+    }
 
     val transferUsdc = {
 
@@ -316,6 +327,11 @@ fun CircleTransferSheetContent(
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Done
                                     ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            keyboardController?.hide()
+                                        }
+                                    )
                                 )
 
                                 if (transferAmountTextFieldValue.text.isEmpty()) {
@@ -360,11 +376,12 @@ fun CircleTransferSheetContent(
                         label = "To",
                         placeholder = "Wallet address",
                         isValidating = isSendToAddressValidating,
-                        isValid = isSendToAddressValid,
+                        isValid = isSendToAddressValid || sendToAddress.text.isEmpty(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Done
-                        )
+                        ),
+                        keyboardController = keyboardController
                     )
                 }
 

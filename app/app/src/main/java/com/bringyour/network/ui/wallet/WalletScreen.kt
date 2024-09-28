@@ -52,6 +52,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
@@ -259,6 +260,8 @@ fun CircleWalletScaffold(
             walletBalance = walletBalance,
             scaffoldState = scaffoldState,
             scope = scope,
+            setSendToAddress = circleViewModel.setSendToAddress,
+            setTransferAmountFieldValue = circleViewModel.setTransferAmount
         )
     }
 }
@@ -282,6 +285,8 @@ fun CircleWalletScreenContent(
     walletBalance: Double,
     scope: CoroutineScope,
     scaffoldState: BottomSheetScaffoldState,
+    setSendToAddress: (TextFieldValue) -> Unit,
+    setTransferAmountFieldValue: (TextFieldValue, Double) -> Unit,
 ) {
     WalletContentScaffold(navController) {
         innerPadding ->
@@ -382,6 +387,8 @@ fun CircleWalletScreenContent(
                 onClick = {
                     scope.launch {
                         scaffoldState.bottomSheetState.expand()
+                        setSendToAddress(TextFieldValue(""))
+                        setTransferAmountFieldValue(TextFieldValue(""), walletBalance)
                     }
                 }
             ) { buttonTextStyle ->

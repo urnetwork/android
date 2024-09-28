@@ -42,8 +42,19 @@ class CircleTransferViewModel @Inject constructor(
             transferAmountTextFieldValue = tfv
         }
 
-        if (transferAmountTextFieldValue.text.toDouble() > walletBalance) {
-            setTransferAmountValid(false)
+        val inputText = transferAmountTextFieldValue.text
+
+        if (inputText.isNotEmpty()) {
+            try {
+                val inputAmount = inputText.toDouble()
+                if (inputAmount > walletBalance) {
+                    setTransferAmountValid(false)
+                } else {
+                    setTransferAmountValid(true)
+                }
+            } catch (e: NumberFormatException) {
+                setTransferAmountValid(false)
+            }
         } else {
             setTransferAmountValid(true)
         }
