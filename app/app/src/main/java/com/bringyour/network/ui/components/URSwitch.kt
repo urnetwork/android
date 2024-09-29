@@ -19,12 +19,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Blue400
+import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 // credit to https://stackoverflow.com/a/70567213/3703043
 @Composable
 fun URSwitch(
     checked: Boolean,
+    enabled: Boolean = true,
     toggle: () -> Unit
 ) {
     val width = 36.dp
@@ -42,9 +44,19 @@ fun URSwitch(
         label = ""
     )
 
-    val backgroundColor by animateColorAsState(
-        targetValue = if (checked) Blue400 else Color.Transparent, label = ""
-    )
+    val targetBackgroundColor = when {
+        checked && enabled -> Blue400
+        checked && !enabled -> TextFaint
+        else -> Color.Transparent
+    }
+
+    val backgroundColor by animateColorAsState(targetValue = targetBackgroundColor, label = "")
+
+    val thumbColor = when {
+        checked -> Black
+        !checked && !enabled -> TextFaint
+        else -> Blue400
+    }
 
     Canvas(
         modifier = Modifier
@@ -65,14 +77,14 @@ fun URSwitch(
 
         // Track
         drawRoundRect(
-            color = Blue400,
+            color = if (enabled) Blue400 else TextFaint,
             cornerRadius = CornerRadius(x = 10.dp.toPx(), y = 10.dp.toPx()),
             style = Stroke(width = strokeWidth.toPx()),
         )
 
         // Thumb
         drawCircle(
-            color = if (checked) Black else Blue400,
+            color = thumbColor,
             radius = thumbRadius.toPx(),
             center = Offset(
                 x = animatePosition.value,
@@ -100,6 +112,30 @@ fun URSwitchUncheckedPreview() {
         URSwitch(
             checked = false,
             toggle = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun URSwitchUncheckedDisabledPreview() {
+    URNetworkTheme {
+        URSwitch(
+            checked = false,
+            toggle = {},
+            enabled = false
+        )
+    }
+}
+
+@Preview
+@Composable
+fun URSwitchCheckedDisabledPreview() {
+    URNetworkTheme {
+        URSwitch(
+            checked = true,
+            toggle = {},
+            enabled = false
         )
     }
 }

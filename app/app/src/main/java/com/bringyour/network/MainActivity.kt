@@ -15,11 +15,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.bringyour.client.Client.ProvideModeNone
-import com.bringyour.client.Client.ProvideModePublic
 import com.bringyour.network.ui.MainNavHost
-import com.bringyour.network.ui.connect.ConnectStatus
-import com.bringyour.network.ui.connect.ConnectViewModel
+import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.SagaViewModel
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
@@ -29,10 +26,14 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity: AppCompatActivity() {
 
+    var requestPermissionLauncherAndStart : ActivityResultLauncher<String>? = null
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
+
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
     private val sagaViewModel: SagaViewModel by viewModels()
+
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     private fun prepareVpnService() {
         val app = application as MainApplication
@@ -59,7 +60,7 @@ class MainActivity: AppCompatActivity() {
                 if (hasForegroundPermissions) {
                     prepareVpnService()
                 } else {
-                    requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    requestPermissionLauncherAndStart?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                 }
             } else {
                 prepareVpnService()
@@ -78,13 +79,24 @@ class MainActivity: AppCompatActivity() {
         val sender = ActivityResultSender(this)
         sagaViewModel.setSender(sender)
 
-        requestPermissionLauncher =
+        requestPermissionLauncherAndStart =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
-            ) { _ ->
+            ) { isGranted ->
                 // the vpn service can start with degraded options if not granted
                 prepareVpnService()
+                settingsViewModel.onPermissionResult(isGranted)
+                settingsViewModel.resetPermissionRequest()
             }
+
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            // the vpn service can start with degraded options if not granted
+            // prepareVpnService()
+            settingsViewModel.onPermissionResult(isGranted)
+            settingsViewModel.resetPermissionRequest()
+        }
 
         vpnLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -103,16 +115,19 @@ class MainActivity: AppCompatActivity() {
         setContent {
             URNetworkTheme {
                 MainNavHost(
-                    sagaViewModel
+                    sagaViewModel,
+                    settingsViewModel
                 )
             }
         }
+
     }
 
     override fun onStart() {
         super.onStart()
 
         val app = application as MainApplication
+        val activity = this
 
         // do this once at start
         lifecycleScope.launch {
@@ -125,6 +140,29 @@ class MainActivity: AppCompatActivity() {
             lifecycleScope.launch {
                 if (app.vpnRequestStart) {
                     requestPermissionsThenStartVpnServiceWithRestart()
+                }
+            }
+        }
+
+        settingsViewModel.checkPermissionStatus(this)
+
+        // Observe the requestPermission state
+        lifecycleScope.launch {
+            settingsViewModel.requestPermission.collect { shouldRequest ->
+                if (shouldRequest) {
+                    // Check if the permission is already granted
+                    if (ContextCompat.checkSelfPermission(
+                            activity,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        settingsViewModel.onPermissionResult(true)
+                    } else {
+                        // Request the permission
+                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                            requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
                 }
             }
         }
@@ -144,6 +182,6 @@ class MainActivity: AppCompatActivity() {
         window.statusBarColor = Color.Transparent.toArgb()
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController?.isAppearanceLightStatusBars = false
+        windowInsetsController.isAppearanceLightStatusBars = false
     }
 }

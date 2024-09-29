@@ -85,10 +85,27 @@
     <string name="transfer_submitted">Transfer Submitted</string>
     <string name="transfer_submitted_details">Your transfer has been initiated and will complete once the transaction is processed on chain.</string>
 
+    <!-- Settings -->
+    <string name="unlock_supporter_tooltip">Unlock even faster speeds and first dibs on new features.</string>
+    <string name="become_supporter">Become a supporter</string>
+    <string name="client_id_label">Client ID</string>
+    <string name="share_label">Share URnetwork</string>
+    <string name="notifications_label">Notifications</string>
+    <string name="receive_notifications">Receive connection notifications</string>
+    <string name="connectivity_label">Connectivity</string>
+    <string name="allow_local_connections">Allow local connections</string>
+    <string name="stay_in_touch">Stay in touch</string>
+    <string name="send_product_updates">Send me product updates</string>
+    <string name="join_community_discord">Join the community on</string>
+    <string name="update_notification_settings">Update notifications permissions in your Android Settings</string>
+
+
     <!-- General -->
     <string name="cancel">Cancel</string>
     <string name="connect">Connect</string>
     <string name="remove">Remove</string>
+    <string name="plan">Plan</string>
+    <string name="change">Change</string>
 
     <string name="free_free_badge">You are on the free plan</string>
     <string name="free_pro_badge">Upgrade to the pro plan</string>
