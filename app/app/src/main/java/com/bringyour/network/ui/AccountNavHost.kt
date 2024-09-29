@@ -15,6 +15,7 @@ import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
+import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.wallet.SagaViewModel
 import com.bringyour.network.ui.wallet.WalletViewModel
@@ -24,6 +25,7 @@ fun AccountNavHost(
     sagaViewModel: SagaViewModel,
     navController: NavHostController,
     planViewModel: PlanViewModel,
+    settingsViewModel: SettingsViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
     walletViewModel: WalletViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
@@ -66,7 +68,9 @@ fun AccountNavHost(
         ) }
         composable("settings") { SettingsScreen(
             navController,
-            accountViewModel
+            accountViewModel,
+            planViewModel,
+            settingsViewModel
         ) }
         
         composable("wallets") {

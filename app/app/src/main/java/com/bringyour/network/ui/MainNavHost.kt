@@ -41,6 +41,7 @@ import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
+import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
@@ -61,6 +62,7 @@ enum class AppDestinations(
 @Composable
 fun MainNavHost(
     sagaViewModel: SagaViewModel,
+    settingsViewModel: SettingsViewModel,
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -135,6 +137,7 @@ fun MainNavHost(
                         currentDestination,
                         sagaViewModel,
                         accountNavHostController,
+                        settingsViewModel
                     )
                 }
 
@@ -147,6 +150,7 @@ fun MainNavHost(
                         currentDestination,
                         sagaViewModel,
                         accountNavHostController,
+                        settingsViewModel
                     )
                     HorizontalDivider(
                         modifier = Modifier
@@ -172,6 +176,7 @@ fun MainNavContent(
     currentDestination: AppDestinations,
     sagaViewModel: SagaViewModel,
     accountNavHostController: NavHostController,
+    settingsViewModel: SettingsViewModel,
     connectViewModel: ConnectViewModel = hiltViewModel(),
     planViewModel: PlanViewModel = hiltViewModel()
 ) {
@@ -199,7 +204,8 @@ fun MainNavContent(
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,
             accountNavHostController,
-            planViewModel
+            planViewModel,
+            settingsViewModel
         )
         AppDestinations.SUPPORT -> FeedbackScreen()
     }

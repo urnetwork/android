@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -24,19 +23,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,18 +59,59 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
+import com.bringyour.network.ui.account.UpgradePlanBottomSheetScaffold
+import com.bringyour.network.ui.shared.viewmodels.Plan
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     navController: NavController,
     accountViewModel: AccountViewModel,
+    planViewModel: PlanViewModel,
+    settingsViewModel: SettingsViewModel
 ) {
 
-    SettingsScreen(
-        navController,
-        clientId = accountViewModel.clientId
-    )
+    val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
+
+    if (planViewModel.currentPlan == Plan.Basic) {
+        val scope = rememberCoroutineScope()
+
+        val scaffoldState = rememberBottomSheetScaffoldState(
+            bottomSheetState = rememberStandardBottomSheetState(
+                initialValue = SheetValue.Hidden,
+                skipHiddenState = false
+            )
+        )
+
+        UpgradePlanBottomSheetScaffold(
+            scaffoldState = scaffoldState,
+            scope = scope,
+            planViewModel = planViewModel
+        ) {
+            SettingsScreen(
+                navController,
+                clientId = accountViewModel.clientId,
+                currentPlan = planViewModel.currentPlan,
+                notificationsAllowed = notificationsAllowed,
+                requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
+                notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
+                allowProductUpdates = settingsViewModel.allowProductUpdates,
+                updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates
+            )
+        }
+    } else {
+        SettingsScreen(
+            navController,
+            clientId = accountViewModel.clientId,
+            currentPlan = planViewModel.currentPlan,
+            notificationsAllowed = notificationsAllowed,
+            requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
+            notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
+            allowProductUpdates = settingsViewModel.allowProductUpdates,
+            updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,13 +119,16 @@ fun SettingsScreen(
 fun SettingsScreen(
     navController: NavController,
     clientId: String,
+    currentPlan: Plan,
+    notificationsAllowed: Boolean,
+    notificationsPermanentlyDenied: Boolean,
+    requestAllowNotifications: () -> Unit,
+    allowProductUpdates: Boolean,
+    updateAllowProductUpdates: (Boolean) -> Unit
 ) {
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
-    var enableConnectionNotifications by remember { mutableStateOf(true) }
-    var enableProductUpdates by remember { mutableStateOf(true) }
-    var allowLocalConnections by remember { mutableStateOf(true) }
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
@@ -92,7 +137,10 @@ fun SettingsScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Settings", style = TopBarTitleTextStyle)
+                    Text(
+                        stringResource(id = R.string.settings),
+                        style = TopBarTitleTextStyle
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -116,11 +164,11 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Settings", style = MaterialTheme.typography.headlineSmall)
+                Text(stringResource(id = R.string.settings), style = MaterialTheme.typography.headlineSmall)
             }
             Spacer(modifier = Modifier.height(64.dp))
 
-            URTextInputLabel(text = "Plan")
+            URTextInputLabel(text = stringResource(id = R.string.plan))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -129,63 +177,73 @@ fun SettingsScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     Text(
-                        "URnetwork member",
+                        if (currentPlan == Plan.Basic) "Basic" else "Supporter",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
 
-                    Spacer(modifier = Modifier.width(2.dp))
 
-                    InfoIconWithOverlay() {
-                        Column() {
+                    if (currentPlan == Plan.Basic) {
+                        Spacer(modifier = Modifier.width(2.dp))
 
-                            Text(
-                                "Unlock even faster speeds and first dibs on new features.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = BlueLight
-                            )
+                        InfoIconWithOverlay() {
+                            Column() {
 
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        // todo - navigate to premium user flow
-                                    },
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
                                 Text(
-                                    "Become a supporter",
-                                    style = TextStyle(
-                                        fontSize = 12.sp,
-                                        lineHeight = 20.sp,
-                                        fontWeight = FontWeight(700),
-                                        color = BlueLight,
+                                    stringResource(id = R.string.unlock_supporter_tooltip),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = BlueLight
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            // todo - navigate to premium user flow
+                                        },
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        stringResource(id = R.string.become_supporter),
+                                        style = TextStyle(
+                                            fontSize = 12.sp,
+                                            lineHeight = 20.sp,
+                                            fontWeight = FontWeight(700),
+                                            color = BlueLight,
+                                        )
                                     )
-                                )
-                                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = "Right Arrow",
-                                    tint = BlueLight,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = "Right Arrow",
+                                        tint = BlueLight,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
+
                 }
-                ClickableText(
-                    text = AnnotatedString("Change"),
-                    onClick = {},
-                    style = TextStyle(
-                        color = BlueMedium
+
+                if (currentPlan == Plan.Basic) {
+                    Text(
+                        stringResource(id = R.string.change),
+                        style = TextStyle(
+                            color = BlueMedium
+                        ),
+                        modifier = Modifier.clickable {  }
                     )
-                )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            URTextInputLabel(text = "Client ID")
+            URTextInputLabel(
+                text = stringResource(id = R.string.client_id_label)
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -217,7 +275,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            URTextInputLabel(text = "Share URnetwork")
+            URTextInputLabel(text = stringResource(id = R.string.share_label))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -256,7 +314,8 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            URTextInputLabel(text = "Notifications")
+            // allow notifications
+            URTextInputLabel(text = stringResource(id = R.string.notifications_label))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -264,45 +323,29 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Receive connection notifications",
+                    stringResource(id = R.string.receive_notifications),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
 
                 URSwitch(
-                    checked = enableConnectionNotifications,
+                    checked = notificationsAllowed,
+                    enabled = !notificationsAllowed && !notificationsPermanentlyDenied,
                     toggle = {
-                        enableConnectionNotifications = !enableConnectionNotifications
+                        requestAllowNotifications()
                     },
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                if (notificationsPermanentlyDenied || notificationsAllowed) stringResource(id = R.string.update_notification_settings) else "",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
 
-            URTextInputLabel(text = "Connectivity")
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Allow local connections",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+            Spacer(modifier = Modifier.height(24.dp))
 
-                URSwitch(
-                    checked = enableConnectionNotifications,
-                    toggle = {
-                        enableConnectionNotifications = !enableConnectionNotifications
-                    },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            URTextInputLabel(text = "Stay in touch")
+            URTextInputLabel(text = stringResource(id = R.string.stay_in_touch))
 
             Row(
                 modifier = Modifier
@@ -311,15 +354,15 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Send me product updates",
+                    stringResource(id = R.string.send_product_updates),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
 
                 URSwitch(
-                    checked = enableProductUpdates,
+                    checked = allowProductUpdates,
                     toggle = {
-                        enableProductUpdates = !enableProductUpdates
+                        updateAllowProductUpdates(!allowProductUpdates)
                     },
                 )
             }
@@ -337,7 +380,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Join the community on",
+                        stringResource(id = R.string.join_community_discord),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
@@ -372,7 +415,67 @@ fun SettingsScreenPreview() {
     URNetworkTheme {
         SettingsScreen(
             navController,
-            clientId = "0000abc0-1111-0000-a123-000000abc000"
+            clientId = "0000abc0-1111-0000-a123-000000abc000",
+            currentPlan = Plan.Basic,
+            notificationsAllowed = true,
+            notificationsPermanentlyDenied = false,
+            requestAllowNotifications = {},
+            allowProductUpdates = true,
+            updateAllowProductUpdates = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SettingsScreenSupporterPreview() {
+    val navController = rememberNavController()
+    URNetworkTheme {
+        SettingsScreen(
+            navController,
+            clientId = "0000abc0-1111-0000-a123-000000abc000",
+            currentPlan = Plan.Supporter,
+            notificationsAllowed = true,
+            notificationsPermanentlyDenied = false,
+            requestAllowNotifications = {},
+            allowProductUpdates = true,
+            updateAllowProductUpdates = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SettingsScreenNotificationsDisabledPreview() {
+    val navController = rememberNavController()
+    URNetworkTheme {
+        SettingsScreen(
+            navController,
+            clientId = "0000abc0-1111-0000-a123-000000abc000",
+            currentPlan = Plan.Supporter,
+            notificationsAllowed = false,
+            notificationsPermanentlyDenied = true,
+            requestAllowNotifications = {},
+            allowProductUpdates = true,
+            updateAllowProductUpdates = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SettingsScreenNotificationsAllowedPreview() {
+    val navController = rememberNavController()
+    URNetworkTheme {
+        SettingsScreen(
+            navController,
+            clientId = "0000abc0-1111-0000-a123-000000abc000",
+            currentPlan = Plan.Supporter,
+            notificationsAllowed = false,
+            notificationsPermanentlyDenied = false,
+            requestAllowNotifications = {},
+            allowProductUpdates = false,
+            updateAllowProductUpdates = {}
         )
     }
 }
