@@ -30,11 +30,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -99,7 +95,9 @@ fun SettingsScreen(
                 currentPlan = planViewModel.currentPlan,
                 notificationsAllowed = notificationsAllowed,
                 requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
-                notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied
+                notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
+                allowProductUpdates = settingsViewModel.allowProductUpdates,
+                updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates
             )
         }
     } else {
@@ -109,7 +107,9 @@ fun SettingsScreen(
             currentPlan = planViewModel.currentPlan,
             notificationsAllowed = notificationsAllowed,
             requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
-            notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied
+            notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
+            allowProductUpdates = settingsViewModel.allowProductUpdates,
+            updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates
         )
     }
 }
@@ -123,17 +123,15 @@ fun SettingsScreen(
     notificationsAllowed: Boolean,
     notificationsPermanentlyDenied: Boolean,
     requestAllowNotifications: () -> Unit,
+    allowProductUpdates: Boolean,
+    updateAllowProductUpdates: (Boolean) -> Unit
 ) {
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
-    var enableConnectionNotifications by remember { mutableStateOf(true) }
-    var enableProductUpdates by remember { mutableStateOf(true) }
-    var allowLocalConnections by remember { mutableStateOf(true) }
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
-
 
     Scaffold(
         topBar = {
@@ -347,29 +345,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            URTextInputLabel(text = stringResource(id = R.string.connectivity_label))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(id = R.string.allow_local_connections),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
-
-                URSwitch(
-                    checked = enableConnectionNotifications,
-                    toggle = {
-                        enableConnectionNotifications = !enableConnectionNotifications
-                    },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             URTextInputLabel(text = stringResource(id = R.string.stay_in_touch))
 
             Row(
@@ -385,9 +360,9 @@ fun SettingsScreen(
                 )
 
                 URSwitch(
-                    checked = enableProductUpdates,
+                    checked = allowProductUpdates,
                     toggle = {
-                        enableProductUpdates = !enableProductUpdates
+                        updateAllowProductUpdates(!allowProductUpdates)
                     },
                 )
             }
@@ -444,7 +419,9 @@ fun SettingsScreenPreview() {
             currentPlan = Plan.Basic,
             notificationsAllowed = true,
             notificationsPermanentlyDenied = false,
-            requestAllowNotifications = {}
+            requestAllowNotifications = {},
+            allowProductUpdates = true,
+            updateAllowProductUpdates = {}
         )
     }
 }
@@ -460,7 +437,9 @@ fun SettingsScreenSupporterPreview() {
             currentPlan = Plan.Supporter,
             notificationsAllowed = true,
             notificationsPermanentlyDenied = false,
-            requestAllowNotifications = {}
+            requestAllowNotifications = {},
+            allowProductUpdates = true,
+            updateAllowProductUpdates = {}
         )
     }
 }
@@ -476,7 +455,9 @@ fun SettingsScreenNotificationsDisabledPreview() {
             currentPlan = Plan.Supporter,
             notificationsAllowed = false,
             notificationsPermanentlyDenied = true,
-            requestAllowNotifications = {}
+            requestAllowNotifications = {},
+            allowProductUpdates = true,
+            updateAllowProductUpdates = {}
         )
     }
 }
@@ -492,7 +473,9 @@ fun SettingsScreenNotificationsAllowedPreview() {
             currentPlan = Plan.Supporter,
             notificationsAllowed = false,
             notificationsPermanentlyDenied = false,
-            requestAllowNotifications = {}
+            requestAllowNotifications = {},
+            allowProductUpdates = false,
+            updateAllowProductUpdates = {}
         )
     }
 }

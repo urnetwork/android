@@ -9,16 +9,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.bringyour.client.AccountPreferencesViewController
+import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    private val byDeviceManager: ByDeviceManager,
     @ApplicationContext private val context: Context
 ): ViewModel() {
+
+    private var accountPreferencesVc: AccountPreferencesViewController? = null
 
     private val _permissionGranted = MutableStateFlow(false)
     val permissionGranted: StateFlow<Boolean> = _permissionGranted
@@ -30,6 +37,13 @@ class SettingsViewModel @Inject constructor(
 
     val setNotificationsPermanentlyDenied: (Boolean) -> Unit = { pd ->
         notificationsPermanentlyDenied = pd
+    }
+
+    var allowProductUpdates by mutableStateOf(false)
+        private set
+
+    val setAllowProductUpdates: (Boolean) -> Unit = { allow ->
+        allowProductUpdates = allow
     }
 
     fun onPermissionResult(isGranted: Boolean) {
@@ -63,6 +77,28 @@ class SettingsViewModel @Inject constructor(
             setNotificationsPermanentlyDenied(!shouldShowRationale)
 
         }
+    }
+
+    val addAllowProductUpdatesListener = {
+        viewModelScope.launch {
+            accountPreferencesVc?.let { vc ->
+                vc.addAllowProductUpdatesListener {
+                    setAllowProductUpdates(vc.allowProductUpdates)
+                }
+            }
+        }
+    }
+
+    val updateAllowProductUpdates: (Boolean) -> Unit = { allow ->
+        accountPreferencesVc?.updateAllowProductUpdates(allow)
+    }
+
+    init {
+        accountPreferencesVc = byDeviceManager.byDevice?.openAccountPreferencesViewController()
+
+        addAllowProductUpdatesListener()
+
+        accountPreferencesVc?.start()
     }
 
 }
