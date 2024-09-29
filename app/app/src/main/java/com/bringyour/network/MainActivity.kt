@@ -79,6 +79,7 @@ class MainActivity: AppCompatActivity() {
         val sender = ActivityResultSender(this)
         sagaViewModel.setSender(sender)
 
+        // used when connecting
         requestPermissionLauncherAndStart =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
@@ -89,11 +90,10 @@ class MainActivity: AppCompatActivity() {
                 settingsViewModel.resetPermissionRequest()
             }
 
+        // used in settings
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
-            // the vpn service can start with degraded options if not granted
-            // prepareVpnService()
             settingsViewModel.onPermissionResult(isGranted)
             settingsViewModel.resetPermissionRequest()
         }
