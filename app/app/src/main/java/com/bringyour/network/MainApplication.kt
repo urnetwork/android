@@ -27,8 +27,10 @@ import com.bringyour.client.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.LocalState
 import com.bringyour.client.NetworkSpace
 import com.bringyour.client.NetworkSpaceManager
+import com.bringyour.client.ProvideSecretKeyList
 import com.bringyour.client.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -157,11 +159,7 @@ class MainApplication : Application() {
                     localState.logout()
                 } else {
                     // the device wraps the api and sets the jwt
-                    val instanceId = localState.instanceId!!
-                    val routeLocal = localState.routeLocal
-                    val provideMode = localState.provideMode
-                    val connectLocation = localState.connectLocation
-                    initDevice(byClientJwt, instanceId, routeLocal, provideMode, connectLocation)
+                    initDevice(byClientJwt, localState)
                 }
             }
         }
@@ -246,12 +244,9 @@ class MainApplication : Application() {
         asyncLocalState?.localState()?.let { localState ->
             localState.byClientJwt = byClientJwt
 
-            val instanceId = localState.instanceId!!
-            val routeLocal = localState.routeLocal
-            val provideMode = localState.provideMode
-            val connectLocation = localState.connectLocation
 
-            initDevice(byClientJwt, instanceId, routeLocal, provideMode, connectLocation)
+
+            initDevice(byClientJwt, localState)
         }
     }
 
@@ -296,7 +291,12 @@ class MainApplication : Application() {
     }
 
 
-    private fun initDevice(byClientJwt: String, instanceId: Id, routeLocal: Boolean, provideMode: Long, connectLocation: ConnectLocation?) {
+    private fun initDevice(byClientJwt: String, localState: LocalState) {
+        val instanceId = localState.instanceId!!
+        val routeLocal = localState.routeLocal
+        val provideMode = localState.provideMode
+        val connectLocation = localState.connectLocation
+
         byDevice = Client.newBringYourDeviceWithDefaults(
             networkSpace,
             byClientJwt,
@@ -309,6 +309,12 @@ class MainApplication : Application() {
 //        provideEnabled = false
 //        connectEnabled = false
 
+        localState.provideSecretKeys?.let {
+            byDevice?.loadProvideSecretKeys(it)
+        } ?: run {
+            byDevice?.initProvideSecretKeys()
+            localState.provideSecretKeys = byDevice?.provideSecretKeys
+        }
 
 
         router = Router(byDevice!!) {
@@ -550,7 +556,6 @@ class MainApplication : Application() {
         // store the setting in local storage
         asyncLocalState?.localState()?.provideMode = provideMode
         byDevice?.provideMode = provideMode
-
     }
 
     fun getProvideMode(): Long {
