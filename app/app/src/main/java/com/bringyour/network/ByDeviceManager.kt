@@ -53,14 +53,17 @@ class ByDeviceManager @Inject constructor() {
         // byApi: BringYourApi?,
         networkSpace: NetworkSpace?,
         byClientJwt: String,
-        instanceId: Id,
-        routeLocal: Boolean,
-        provideMode: Long,
-        connectLocation: ConnectLocation?,
         deviceDescription: String,
         deviceSpec: String
     ) {
         byDevice?.close()  // Ensure old instance is cleaned up
+
+        val localState = networkSpace!!.asyncLocalState.localState!!
+        val instanceId = localState.instanceId!!
+        val routeLocal = localState.routeLocal
+        val provideMode = localState.provideMode
+        val connectLocation = localState.connectLocation
+
         byDevice = Client.newBringYourDeviceWithDefaults(
             networkSpace,
             byClientJwt,
@@ -69,6 +72,14 @@ class ByDeviceManager @Inject constructor() {
             getAppVersion(),
             instanceId
         )
+
+        localState.provideSecretKeys?.let {
+            byDevice?.loadProvideSecretKeys(it)
+        } ?: run {
+            byDevice?.initProvideSecretKeys()
+            localState.provideSecretKeys = byDevice?.provideSecretKeys
+        }
+
         byDevice?.providePaused = true
         byDevice?.routeLocal = routeLocal
         byDevice?.provideMode = provideMode

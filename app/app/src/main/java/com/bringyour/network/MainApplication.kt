@@ -26,7 +26,10 @@ import com.bringyour.network.ui.account.CircleViewSetterProvider
 import com.bringyour.client.OverlayViewController
 import dagger.hilt.android.HiltAndroidApp
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.LocalState
 import com.bringyour.client.NetworkSpace
+import com.bringyour.client.NetworkSpaceManager
+import com.bringyour.client.ProvideSecretKeyList
 import com.bringyour.client.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -175,11 +178,7 @@ class MainApplication : Application() {
                     localState.logout()
                 } else {
                     // the device wraps the api and sets the jwt
-                    val instanceId = localState.instanceId!!
-                    val routeLocal = localState.routeLocal
-                    val provideMode = localState.provideMode
-                    val connectLocation = localState.connectLocation
-                    initDevice(byClientJwt, instanceId, routeLocal, provideMode, connectLocation)
+                    initDevice(byClientJwt)
                 }
             }
         }
@@ -263,13 +262,7 @@ class MainApplication : Application() {
     fun loginClient(byClientJwt: String) {
         asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt = byClientJwt
-
-            val instanceId = localState.instanceId!!
-            val routeLocal = localState.routeLocal
-            val provideMode = localState.provideMode
-            val connectLocation = localState.connectLocation
-
-            initDevice(byClientJwt, instanceId, routeLocal, provideMode, connectLocation)
+            initDevice(byClientJwt)
         }
     }
 
@@ -319,26 +312,13 @@ class MainApplication : Application() {
         loginVc = null
     }
 
-
-   private fun initDevice(byClientJwt: String, instanceId: Id, routeLocal: Boolean, provideMode: Long, connectLocation: ConnectLocation?) {
-
+    private fun initDevice(byClientJwt: String) {
         byDeviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
-            instanceId,
-            routeLocal,
-            provideMode,
-            connectLocation,
             deviceDescription,
             deviceSpec
         )
-
-//        byDevice = byDeviceManager.getByDevice()
-
-//        provideEnabled = false
-//        connectEnabled = false
-
-
 
         router = Router(byDevice!!) {
             runBlocking(Dispatchers.Main.immediate) {
@@ -551,20 +531,4 @@ class MainApplication : Application() {
 
 
     }
-
-
-//    fun setRouteLocal(routeLocal: Boolean) {
-//        // store the setting in local storage
-//        asyncLocalState?.localState()?.routeLocal = routeLocal
-//        byDevice?.routeLocal = routeLocal
-//    }
-
-//    fun isRouteLocal(): Boolean {
-//        return asyncLocalState?.localState()?.routeLocal!!
-//    }
-
-//    fun isVpnRequestStart(): Boolean {
-//        return vpnRequestStart
-//    }
-
 }
