@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -28,7 +27,6 @@ fun ConnectStatusIndicator(
         ConnectStatus.CONNECTED -> "Connected to $windowCurrentSize providers"
         ConnectStatus.CONNECTING -> "Connecting to providers..."
         ConnectStatus.DESTINATION_SET -> "Connecting to providers..."
-        ConnectStatus.CANCELING -> "Canceling connection..."
         ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
         else "ready to connect"
     }
@@ -37,7 +35,6 @@ fun ConnectStatusIndicator(
         ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
         ConnectStatus.CONNECTING -> R.drawable.circle_indicator_yellow
         ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
-        ConnectStatus.CANCELING -> R.drawable.circle_indicator_yellow
         ConnectStatus.DISCONNECTED -> R.drawable.circle_indicator_blue
     }
 
@@ -45,7 +42,6 @@ fun ConnectStatusIndicator(
         ConnectStatus.CONNECTED -> "Connected"
         ConnectStatus.CONNECTING -> "Connecting"
         ConnectStatus.DESTINATION_SET -> "Connecting"
-        ConnectStatus.CANCELING -> "Canceling"
         ConnectStatus.DISCONNECTED -> "Disconnected"
     }
 
