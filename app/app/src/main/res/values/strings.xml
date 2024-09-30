@@ -66,6 +66,15 @@
     <!-- Connect -->
     <string name="tap_to_connect">Tap to connect</string>
 
+    <!-- Locations List -->
+    <string name="promoted_locations">Promoted Locations</string>
+    <string name="best_available_provider">Best available provider</string>
+    <string name="countries">Countries</string>
+    <string name="devices">Devices</string>
+    <string name="search_placeholder">Search for all locations</string>
+    <string name="check_internet">Check your internet connection</string>
+    <string name="no_providers_found">We could not find any providers.</string>
+
     <!-- Account Screen -->
     <string name="account">Account</string>
     <string name="profile">Profile</string>
@@ -98,6 +107,7 @@
     <string name="send_product_updates">Send me product updates</string>
     <string name="join_community_discord">Join the community on</string>
     <string name="update_notification_settings">Update notifications permissions in your Android Settings</string>
+
 
 
     <!-- General -->

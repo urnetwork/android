@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ import com.bringyour.network.ui.theme.Red400
 import kotlinx.coroutines.launch
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.ConnectLocation
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
@@ -66,7 +68,9 @@ fun ProvidersBottomSheet(
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
         locationsLoaded = locationsViewModel.initialListLoaded,
-        connect = connect
+        connect = connect,
+        isRefreshing =  locationsViewModel.isRefreshing,
+        setIsRefreshing = locationsViewModel.setIsRefreshing
     ) { innerPadding ->
         content(innerPadding)
     }
@@ -84,6 +88,8 @@ fun ProvidersBottomSheet(
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
     locationsLoaded: Boolean,
+    isRefreshing: Boolean,
+    setIsRefreshing: (Boolean) -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -170,7 +176,7 @@ fun ProvidersBottomSheet(
                                     filterLocations(searchQuery.text)
                                 }
                             },
-                            placeholder = "Search for all locations",
+                            placeholder = stringResource(id = R.string.search_placeholder),
                             keyboardController
                         )
 
@@ -185,7 +191,12 @@ fun ProvidersBottomSheet(
                             connectCountries = connectCountries,
                             getLocationColor = getLocationColor,
                             selectedLocation = selectedLocation,
-                            devices = devices
+                            devices = devices,
+                            isRefreshing = isRefreshing,
+                            onRefresh = {
+                                setIsRefreshing(true)
+                                filterLocations("")
+                            }
                         )
                     } else {
                         Column(
@@ -232,7 +243,9 @@ private fun PreviewBottomSheet() {
                 BlueMedium
             },
             filterLocations = { _ -> },
-            locationsLoaded = true
+            locationsLoaded = true,
+            isRefreshing = false,
+            setIsRefreshing = {}
             // connectVc = connectVc,
 
         ) {
@@ -264,7 +277,9 @@ private fun PreviewBottomSheetExpanded() {
                 BlueMedium
             },
             filterLocations = { _ -> },
-            locationsLoaded = true
+            locationsLoaded = true,
+            isRefreshing = false,
+            setIsRefreshing = {}
             // connectVc = connectVc,
 
         ) {
