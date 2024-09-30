@@ -26,6 +26,13 @@ class LocationsListViewModel @Inject constructor(
     var initialListLoaded by mutableStateOf(false)
         private set
 
+    var isRefreshing by mutableStateOf(false)
+        private set
+
+    val setIsRefreshing: (Boolean) -> Unit = { ir ->
+        isRefreshing = ir
+    }
+
     val connectCountries = mutableStateListOf<ConnectLocation>()
 
     val promotedLocations = mutableStateListOf<ConnectLocation>()
@@ -69,6 +76,10 @@ class LocationsListViewModel @Inject constructor(
 
             if (!initialListLoaded) {
                 initialListLoaded = true
+            }
+
+            if (isRefreshing) {
+                setIsRefreshing(false)
             }
 
         } else {
