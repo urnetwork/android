@@ -37,6 +37,7 @@ import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -46,6 +47,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
+    promptReviewViewModel: PromptReviewViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
@@ -68,7 +70,8 @@ fun ConnectScreen(
             loginMode = accountViewModel.loginMode,
             animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
             shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-            getStateColor = connectViewModel.getStateColor
+            getStateColor = connectViewModel.getStateColor,
+            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview
         )
     }
 }
@@ -86,54 +89,38 @@ fun ConnectMainContent(
     loginMode: LoginMode,
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
-    getStateColor: (ProviderPointState?) -> Color
+    getStateColor: (ProviderPointState?) -> Color,
+    checkTriggerPromptReview: () -> Unit
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
-//    var cancelBtnVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(connectStatus) {
 
         currentStatus = connectStatus
 
+        when(connectStatus) {
+            ConnectStatus.CONNECTED -> disconnectBtnVisible = true
+            ConnectStatus.CONNECTING -> disconnectBtnVisible = true
+            ConnectStatus.DESTINATION_SET -> disconnectBtnVisible = true
+            ConnectStatus.DISCONNECTED -> disconnectBtnVisible = false
+
+        }
+
         if (connectStatus == ConnectStatus.CONNECTED) {
-            launch {
-
-//                if (cancelBtnVisible) {
-//                    cancelBtnVisible = false
-//                    delay(2500)
-//                }
-
                 disconnectBtnVisible = true
-            }
         }
 
         else if (connectStatus == ConnectStatus.CONNECTING) {
-
-            // only show cancel button if status is from disconnected -> connecting/destination set
-            // if status is connected -> connecting (it's reconnecting), we can just keep displaying
-            // the disconnect button.
-//            if (!disconnectBtnVisible) {
-//
-//                launch {
-//                    delay(2000)
-//                    cancelBtnVisible = true
-//                }
-//
-//            }
-
             disconnectBtnVisible = true
-
         }
 
         else if (connectStatus == ConnectStatus.DESTINATION_SET) {
-//            cancelBtnVisible = true
             disconnectBtnVisible = true
         }
 
         else if (connectStatus == ConnectStatus.DISCONNECTED) {
-//            cancelBtnVisible = false
             disconnectBtnVisible = false
         }
 
@@ -167,6 +154,7 @@ fun ConnectMainContent(
                     onClick = {
                         if (connectStatus == ConnectStatus.DISCONNECTED) {
                             connect(selectedLocation)
+                            checkTriggerPromptReview()
                         }
                     },
                     updatedStatus = connectStatus,
@@ -204,6 +192,7 @@ fun ConnectMainContent(
                     URButton(
                         onClick = {
                             disconnect()
+                            checkTriggerPromptReview()
                         },
                         style = ButtonStyle.OUTLINE
                     ) { buttonTextStyle ->
@@ -215,27 +204,6 @@ fun ConnectMainContent(
                     }
 
                 }
-
-/*
-                AnimatedVisibility(
-                    visible = cancelBtnVisible,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    URButton(
-                        onClick = {
-                            disconnect()
-                        },
-                        style = ButtonStyle.OUTLINE,
-                    ) { buttonTextStyle ->
-                        Text(
-                            "Cancel",
-                            style = buttonTextStyle,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-                }
- */
             }
         }
     }
@@ -259,7 +227,8 @@ private fun ConnectMainContentPreview() {
             loginMode = LoginMode.Authenticated,
             animatedSuccessPoints = listOf(),
             shuffleSuccessPoints = {},
-            getStateColor = mockGetStateColor
+            getStateColor = mockGetStateColor,
+            checkTriggerPromptReview = {}
         )
     }
 }

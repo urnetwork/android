@@ -43,6 +43,7 @@ import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.wallet.SagaViewModel
@@ -63,6 +64,7 @@ enum class AppDestinations(
 fun MainNavHost(
     sagaViewModel: SagaViewModel,
     settingsViewModel: SettingsViewModel,
+    promptReviewViewModel: PromptReviewViewModel
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -137,7 +139,8 @@ fun MainNavHost(
                         currentDestination,
                         sagaViewModel,
                         accountNavHostController,
-                        settingsViewModel
+                        settingsViewModel,
+                        promptReviewViewModel
                     )
                 }
 
@@ -150,7 +153,8 @@ fun MainNavHost(
                         currentDestination,
                         sagaViewModel,
                         accountNavHostController,
-                        settingsViewModel
+                        settingsViewModel,
+                        promptReviewViewModel
                     )
                     HorizontalDivider(
                         modifier = Modifier
@@ -177,6 +181,7 @@ fun MainNavContent(
     sagaViewModel: SagaViewModel,
     accountNavHostController: NavHostController,
     settingsViewModel: SettingsViewModel,
+    promptReviewViewModel: PromptReviewViewModel,
     connectViewModel: ConnectViewModel = hiltViewModel(),
     planViewModel: PlanViewModel = hiltViewModel()
 ) {
@@ -200,6 +205,7 @@ fun MainNavContent(
     when (currentDestination) {
         AppDestinations.CONNECT -> ConnectScreen(
             connectViewModel,
+            promptReviewViewModel
         )
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,

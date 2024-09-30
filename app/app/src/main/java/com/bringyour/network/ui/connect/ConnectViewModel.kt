@@ -235,10 +235,6 @@ class ConnectViewModel @Inject constructor(
         connectVc?.disconnect()
     }
 
-    val cancelConnection: () -> Unit = {
-        connectVc?.disconnect()
-    }
-
     init {
 
         val byDevice = byDeviceManager.byDevice
@@ -278,8 +274,7 @@ enum class ConnectStatus {
     DISCONNECTED,
     CONNECTING,
     DESTINATION_SET,
-    CONNECTED,
-    CANCELING;
+    CONNECTED;
 
     companion object {
         fun fromString(value: String): ConnectStatus? {
@@ -288,7 +283,6 @@ enum class ConnectStatus {
                 "CONNECTING" -> CONNECTING
                 "DESTINATION_SET" -> DESTINATION_SET
                 "CONNECTED" -> CONNECTED
-                "CANCELING" -> CANCELING
                 else -> null
             }
         }
@@ -299,7 +293,6 @@ enum class ConnectStatus {
                 CONNECTING -> "CONNECTING"
                 DESTINATION_SET -> "DESTINATION_SET"
                 CONNECTED -> "CONNECTED"
-                CANCELING -> "CANCELING"
             }
         }
     }

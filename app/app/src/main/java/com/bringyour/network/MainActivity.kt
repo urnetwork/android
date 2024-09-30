@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,8 +18,14 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.SagaViewModel
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -32,8 +39,9 @@ class MainActivity: AppCompatActivity() {
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
     private val sagaViewModel: SagaViewModel by viewModels()
-
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private val promptReviewViewModel: PromptReviewViewModel by viewModels()
+    private var reviewManager: ReviewManager? = null
 
     private fun prepareVpnService() {
         val app = application as MainApplication
@@ -79,6 +87,9 @@ class MainActivity: AppCompatActivity() {
         val sender = ActivityResultSender(this)
         sagaViewModel.setSender(sender)
 
+        reviewManager = ReviewManagerFactory.create(this)
+
+
         // used when connecting
         requestPermissionLauncherAndStart =
             registerForActivityResult(
@@ -116,7 +127,8 @@ class MainActivity: AppCompatActivity() {
             URNetworkTheme {
                 MainNavHost(
                     sagaViewModel,
-                    settingsViewModel
+                    settingsViewModel,
+                    promptReviewViewModel
                 )
             }
         }
@@ -166,6 +178,26 @@ class MainActivity: AppCompatActivity() {
                 }
             }
         }
+
+        // watch for review prompt
+        lifecycleScope.launch {
+            promptReviewViewModel.promptReview.collect { prompt ->
+                if (prompt) {
+                    val request = reviewManager?.requestReviewFlow()
+                    request?.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            // We got the ReviewInfo object
+                            val reviewInfo = task.result
+                            launchReviewFlow(reviewInfo)
+                        } else {
+                            // There was some problem, log or handle the error code.
+                            @ReviewErrorCode val reviewErrorCode = (task.getException() as ReviewException).errorCode
+                            Log.i("MainActivity", "error prompting review -> code: $reviewErrorCode")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onStop() {
@@ -174,6 +206,18 @@ class MainActivity: AppCompatActivity() {
         val app = application as MainApplication
 
         app.vpnRequestStartListener = null
+    }
+
+    private fun launchReviewFlow(reviewInfo: ReviewInfo) {
+
+        val flow = reviewManager?.launchReviewFlow(this, reviewInfo)
+        flow?.addOnCompleteListener { _ ->
+            // The flow has finished. The API does not indicate whether the user
+            // reviewed or not, or even whether the review dialog was shown. Thus, no
+            // matter the result, we continue our app flow.
+            promptReviewViewModel.resetPromptReview()
+        }
+
     }
 
     private fun setTransparentStatusBar() {
