@@ -171,4 +171,48 @@
     <string name="verify_error">Что-то пошло не так. Попробуйте снова.</string>
     <string name="create_network_error">Что-то пошло не так. Попробуйте снова.</string>
     <string name="verify_send_error">Ошибка</string>
+
+    <string name="circlepw_show_pin">Показать PIN-код</string>
+    <string name="circlepw_hide_pin">Скрыть PIN-код</string>
+    <string name="circlepw_continue">Продолжить</string>
+    <string name="circlepw_next">Далее</string>
+    <string name="circlepw_question_label">Вопрос:</string>
+    <string name="circlepw_answer_label">Ответ:</string>
+    <string name="circlepw_hint_label">Подсказка:</string>
+    <string name="circlepw_hint_tag">Подсказка</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">Подтвердить</string>
+    <string name="circlepw_pin_remain_attemps_template">У вас осталось %s попыток.</string>
+    <string name="circlepw_pin_lock_period_template">Вы исчерпали все попытки ввода PIN-кода. Пожалуйста, подождите %s мин., чтобы повторить попытку позже.</string>
+    <string name="circlepw_answer_remain_attemps_template">У вас осталось %s попыток.</string>
+    <string name="circlepw_answer_lock_period_template">Пожалуйста, подождите %s мин., чтобы повторить попытку позже.</string>
+
+    <string name="circlepw_enter_pincode_subhead">Дайте нам знать, если это действительно вы.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">Забыли PIN-код?</string>
+
+    <string name="circlepw_new_pincode_subhead">Ваш PIN-код не может содержать повторяющиеся (например, 000000) или последовательные (например, 123456) цифры.</string>
+    <string name="circlepw_confirm_pincode_headline">Повторно введите PIN-код для подтверждения</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">Это единственный способ восстановить доступ к кошельку, если вы забудете свой PIN-код. Выберите 2 контрольных вопроса и предоставьте ответы для восстановления доступа.</string>
+
+    <string name="circlepw_security_questions_title">Способ восстановления</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">Выберите один вопрос</string>
+    <string name="circlepw_security_questions_answer_header">Укажите ответ</string>
+    <string name="circlepw_security_questions_answer_placeholder">Введите свой ответ здесь</string>
+    <string name="circlepw_security_questions_answer_hint_header">Укажите подсказку к ответу (необязательно)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Введите свою подсказку здесь</string>
+
+    <string name="circlepw_select_question_title">Выберите один вопрос</string>
+    <string name="circlepw_security_summary_title">Сводка</string>
+
+    <string name="circlepw_security_confirm_title">Подтверждение</string>
+    <string name="circlepw_security_confirm_headline">Храните свои вопросы в безопасности</string>
+    <string name="circlepw_security_confirm_input_headline">Введите «I agree», чтобы продолжить:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Введите «I agree» здесь</string>
+    <string name="circlepw_security_confirm_input_match">Согласен</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">Введите свой ответ здесь</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Введите свой ответ здесь</string>
 </resources>

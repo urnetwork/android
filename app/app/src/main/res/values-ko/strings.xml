@@ -171,4 +171,48 @@
     <string name="verify_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="create_network_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="verify_send_error">오류</string>
+
+    <string name="circlepw_show_pin">PIN 표시</string>
+    <string name="circlepw_hide_pin">PIN 숨기기</string>
+    <string name="circlepw_continue">계속</string>
+    <string name="circlepw_next">다음</string>
+    <string name="circlepw_question_label">질문:</string>
+    <string name="circlepw_answer_label">답변:</string>
+    <string name="circlepw_hint_label">힌트:</string>
+    <string name="circlepw_hint_tag">힌트</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">확인</string>
+    <string name="circlepw_pin_remain_attemps_template">%s 번의 시도가 남았습니다.</string>
+    <string name="circlepw_pin_lock_period_template">PIN 시도 횟수를 모두 사용했습니다. %s 분 후에 다시 시도하십시오.</string>
+    <string name="circlepw_answer_remain_attemps_template">%s 번의 시도가 남았습니다.</string>
+    <string name="circlepw_answer_lock_period_template">%s 분 후에 다시 시도하십시오.</string>
+
+    <string name="circlepw_enter_pincode_subhead">본인 확인을 위해 PIN을 입력해주세요.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">PIN을 잊으셨나요?</string>
+
+    <string name="circlepw_new_pincode_subhead">PIN에 반복되는 숫자(예: 000000) 또는 연속된 숫자(예: 123456)를 사용할 수 없습니다.</string>
+    <string name="circlepw_confirm_pincode_headline">확인을 위해 PIN을 다시 입력하십시오</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">PIN을 잊어버린 경우 지갑 액세스를 복구하는 유일한 방법입니다. 액세스 복구를 위해 2개의 보안 질문을 선택하고 답변을 제공하십시오.</string>
+
+    <string name="circlepw_security_questions_title">복구 방법</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">질문 하나를 선택하십시오</string>
+    <string name="circlepw_security_questions_answer_header">답변을 제공하십시오</string>
+    <string name="circlepw_security_questions_answer_placeholder">여기에 답변을 입력하십시오</string>
+    <string name="circlepw_security_questions_answer_hint_header">답변 힌트를 제공하십시오 (선택 사항)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">여기에 힌트를 입력하십시오</string>
+
+    <string name="circlepw_select_question_title">질문 하나를 선택하십시오</string>
+    <string name="circlepw_security_summary_title">요약</string>
+
+    <string name="circlepw_security_confirm_title">확인</string>
+    <string name="circlepw_security_confirm_headline">질문을 안전하게 보관하십시오</string>
+    <string name="circlepw_security_confirm_input_headline">계속하려면 "I agree"를 입력하십시오:</string>
+    <string name="circlepw_security_confirm_input_placeholder">여기에 "I agree"를 입력하십시오</string>
+    <string name="circlepw_security_confirm_input_match">동의합니다</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">여기에 답변을 입력하십시오</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">여기에 답변을 입력하십시오</string>
 </resources>

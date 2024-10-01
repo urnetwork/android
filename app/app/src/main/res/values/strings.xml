@@ -155,7 +155,7 @@
     <string name="feedback_header">Get in touch</string>
     <string name="feedback_label">Feedback box</string>
     <string name="feedback_placeholder">Tell us how you really feel</string>
-    
+
     <!-- Call to action -->
     <string name="cancel">Cancel</string>
     <string name="connect">Connect</string>

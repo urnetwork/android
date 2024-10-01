@@ -148,4 +148,48 @@
     <string name="verify_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
     <string name="create_network_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
     <string name="verify_send_error">Σφάλμα</string>
+
+    <string name="circlepw_show_pin">Εμφάνιση PIN</string>
+    <string name="circlepw_hide_pin">Απόκρυψη PIN</string>
+    <string name="circlepw_continue">Συνέχεια</string>
+    <string name="circlepw_next">Επόμενο</string>
+    <string name="circlepw_question_label">Ερώτηση:</string>
+    <string name="circlepw_answer_label">Απάντηση:</string>
+    <string name="circlepw_hint_label">Υπόδειξη:</string>
+    <string name="circlepw_hint_tag">Υπόδειξη</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">Επιβεβαίωση</string>
+    <string name="circlepw_pin_remain_attemps_template">Έχετε %s προσπάθειες.</string>
+    <string name="circlepw_pin_lock_period_template">Έχετε χρησιμοποιήσει όλες τις προσπάθειες PIN. Περιμένετε %s λεπτά για να προσπαθήσετε ξανά αργότερα.</string>
+    <string name="circlepw_answer_remain_attemps_template">Έχετε %s προσπάθειες.</string>
+    <string name="circlepw_answer_lock_period_template">Περιμένετε %s λεπτά για να προσπαθήσετε ξανά αργότερα.</string>
+
+    <string name="circlepw_enter_pincode_subhead">Επιβεβαιώστε την ταυτότητά σας.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">Ξεχάσατε το PIN;</string>
+
+    <string name="circlepw_new_pincode_subhead">Ο κωδικός PIN δεν μπορεί να έχει επαναλαμβανόμενους (π.χ. 000000) ή διαδοχικούς (π.χ. 123456) αριθμούς.</string>
+    <string name="circlepw_confirm_pincode_headline">Εισαγάγετε ξανά τον κωδικό PIN για επιβεβαίωση</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">Αυτός είναι ο μόνος τρόπος για να ανακτήσετε την πρόσβαση στο πορτοφόλι σας εάν ξεχάσετε τον κωδικό PIN. Επιλέξτε 2 ερωτήσεις ασφαλείας και δώστε απαντήσεις για ανάκτηση πρόσβασης.</string>
+
+    <string name="circlepw_security_questions_title">Μέθοδος ανάκτησης</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">Επιλέξτε μία ερώτηση</string>
+    <string name="circlepw_security_questions_answer_header">Δώστε μια απάντηση</string>
+    <string name="circlepw_security_questions_answer_placeholder">Πληκτρολογήστε την απάντησή σας εδώ</string>
+    <string name="circlepw_security_questions_answer_hint_header">Δώστε μια υπόδειξη απάντησης (προαιρετικό)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Πληκτρολογήστε την υπόδειξή σας εδώ</string>
+
+    <string name="circlepw_select_question_title">Επιλέξτε μία ερώτηση</string>
+    <string name="circlepw_security_summary_title">Σύνοψη</string>
+
+    <string name="circlepw_security_confirm_title">Επιβεβαίωση</string>
+    <string name="circlepw_security_confirm_headline">Κρατήστε τις ερωτήσεις σας ασφαλείς</string>
+    <string name="circlepw_security_confirm_input_headline">Πληκτρολογήστε \"I agree\" για να συνεχίσετε:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Πληκτρολογήστε \"I agree\" εδώ</string>
+    <string name="circlepw_security_confirm_input_match">Συμφωνώ</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">Εισαγάγετε την απάντησή σας εδώ</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Πληκτρολογήστε την απάντησή σας εδώ</string>
 </resources>

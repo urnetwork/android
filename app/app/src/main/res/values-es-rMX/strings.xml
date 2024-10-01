@@ -149,4 +149,48 @@
     <string name="verify_error">Algo salió mal. Inténtalo de nuevo.</string>
     <string name="create_network_error">Algo salió mal. Inténtalo de nuevo.</string>
     <string name="verify_send_error">Error</string>
+
+    <string name="circlepw_show_pin">Mostrar PIN</string>
+    <string name="circlepw_hide_pin">Ocultar PIN</string>
+    <string name="circlepw_continue">Continuar</string>
+    <string name="circlepw_next">Siguiente</string>
+    <string name="circlepw_question_label">Pregunta:</string>
+    <string name="circlepw_answer_label">Respuesta:</string>
+    <string name="circlepw_hint_label">Pista:</string>
+    <string name="circlepw_hint_tag">Pista</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">Confirmar</string>
+    <string name="circlepw_pin_remain_attemps_template">Te quedan %s intentos.</string>
+    <string name="circlepw_pin_lock_period_template">Has agotado todos los intentos de PIN. Espera %s minutos para volver a intentarlo más tarde.</string>
+    <string name="circlepw_answer_remain_attemps_template">Te quedan %s intentos.</string>
+    <string name="circlepw_answer_lock_period_template">Espera %s minutos para volver a intentarlo más tarde.</string>
+
+    <string name="circlepw_enter_pincode_subhead">Confírmanos si realmente eres tú.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">¿Olvidaste tu PIN?</string>
+
+    <string name="circlepw_new_pincode_subhead">Tu PIN no puede tener números repetidos (ej. 000000) o consecutivos (ej. 123456).</string>
+    <string name="circlepw_confirm_pincode_headline">Vuelve a introducir tu PIN para confirmar</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">Esta es la única forma de recuperar el acceso a la cartera si olvidas tu PIN. Elige 2 preguntas de seguridad y proporciona respuestas para la recuperación de acceso.</string>
+
+    <string name="circlepw_security_questions_title">Método de recuperación</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">Selecciona una pregunta</string>
+    <string name="circlepw_security_questions_answer_header">Introduce una respuesta</string>
+    <string name="circlepw_security_questions_answer_placeholder">Escribe tu respuesta aquí</string>
+    <string name="circlepw_security_questions_answer_hint_header">Introduce una pista para la respuesta (opcional)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Escribe tu pista aquí</string>
+
+    <string name="circlepw_select_question_title">Selecciona una pregunta</string>
+    <string name="circlepw_security_summary_title">Resumen</string>
+
+    <string name="circlepw_security_confirm_title">Confirmación</string>
+    <string name="circlepw_security_confirm_headline">Mantén tus preguntas seguras</string>
+    <string name="circlepw_security_confirm_input_headline">Escribe \"I agree\" para continuar:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Escribe \"I agree\" aquí</string>
+    <string name="circlepw_security_confirm_input_match">Estoy de acuerdo</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">Introduce tu respuesta aquí</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Escribe tu respuesta aquí</string>
 </resources>

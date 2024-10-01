@@ -171,4 +171,48 @@
     <string name="verify_error">Coś poszło nie tak. Spróbuj ponownie.</string>
     <string name="create_network_error">Coś poszło nie tak. Spróbuj ponownie.</string>
     <string name="verify_send_error">Błąd</string>
+
+    <string name="circlepw_show_pin">Pokaż PIN</string>
+    <string name="circlepw_hide_pin">Ukryj PIN</string>
+    <string name="circlepw_continue">Kontynuuj</string>
+    <string name="circlepw_next">Dalej</string>
+    <string name="circlepw_question_label">Pytanie:</string>
+    <string name="circlepw_answer_label">Odpowiedź:</string>
+    <string name="circlepw_hint_label">Wskazówka:</string>
+    <string name="circlepw_hint_tag">Wskazówka</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">Potwierdź</string>
+    <string name="circlepw_pin_remain_attemps_template">Pozostało %s prób.</string>
+    <string name="circlepw_pin_lock_period_template">Wykorzystałeś wszystkie próby PIN. Odczekaj %s min, aby spróbować ponownie później.</string>
+    <string name="circlepw_answer_remain_attemps_template">Pozostało %s prób.</string>
+    <string name="circlepw_answer_lock_period_template">Odczekaj %s min, aby spróbować ponownie później.</string>
+
+    <string name="circlepw_enter_pincode_subhead">Daj nam znać, jeśli to naprawdę ty.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">Zapomniałeś PIN?</string>
+
+    <string name="circlepw_new_pincode_subhead">Twój PIN nie może zawierać powtarzających się (np. 000000) ani kolejnych (np. 123456) cyfr.</string>
+    <string name="circlepw_confirm_pincode_headline">Wprowadź ponownie swój PIN, aby potwierdzić</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">To jedyny sposób na odzyskanie dostępu do portfela w przypadku zapomnienia kodu PIN. Wybierz 2 pytania zabezpieczające i podaj odpowiedzi, aby odzyskać dostęp.</string>
+
+    <string name="circlepw_security_questions_title">Metoda odzyskiwania</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">Wybierz jedno pytanie</string>
+    <string name="circlepw_security_questions_answer_header">Podaj odpowiedź</string>
+    <string name="circlepw_security_questions_answer_placeholder">Wpisz tutaj swoją odpowiedź</string>
+    <string name="circlepw_security_questions_answer_hint_header">Podaj wskazówkę do odpowiedzi (opcjonalnie)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Wpisz tutaj swoją wskazówkę</string>
+
+    <string name="circlepw_select_question_title">Wybierz jedno pytanie</string>
+    <string name="circlepw_security_summary_title">Podsumowanie</string>
+
+    <string name="circlepw_security_confirm_title">Potwierdzenie</string>
+    <string name="circlepw_security_confirm_headline">Zachowaj swoje pytania w bezpiecznym miejscu</string>
+    <string name="circlepw_security_confirm_input_headline">Wpisz \"I agree\", aby kontynuować:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Wpisz \"I agree\" tutaj</string>
+    <string name="circlepw_security_confirm_input_match">Zgadzam się</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">Wprowadź swoją odpowiedź tutaj</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Wpisz tutaj swoją odpowiedź</string>
 </resources>

@@ -149,4 +149,48 @@
     <string name="verify_error">出了些问题。再试一次。</string>
     <string name="create_network_error">出了些问题。再试一次。</string>
     <string name="verify_send_error">错误</string>
+
+    <string name="circlepw_show_pin">显示 PIN 码</string>
+    <string name="circlepw_hide_pin">隐藏 PIN 码</string>
+    <string name="circlepw_continue">继续</string>
+    <string name="circlepw_next">下一步</string>
+    <string name="circlepw_question_label">问题：</string>
+    <string name="circlepw_answer_label">答案：</string>
+    <string name="circlepw_hint_label">提示：</string>
+    <string name="circlepw_hint_tag">提示</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">确认</string>
+    <string name="circlepw_pin_remain_attemps_template">您还有 %s 次尝试机会。</string>
+    <string name="circlepw_pin_lock_period_template">您已用尽所有 PIN 码尝试次数。请等待 %s 分钟后再试。</string>
+    <string name="circlepw_answer_remain_attemps_template">您还有 %s 次尝试机会。</string>
+    <string name="circlepw_answer_lock_period_template">请等待 %s 分钟后再试。</string>
+
+    <string name="circlepw_enter_pincode_subhead">请告诉我们是否真的是您本人。</string>
+    <string name="circlepw_enter_pincode_forgot_pin">忘记 PIN 码？</string>
+
+    <string name="circlepw_new_pincode_subhead">您的 PIN 码不能包含重复的数字（例如 000000）或连续的数字（例如 123456）。</string>
+    <string name="circlepw_confirm_pincode_headline">重新输入您的 PIN 码进行确认</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">如果您忘记了 PIN 码，这是恢复钱包访问权限的唯一方法。选择 2 个安全问题并提供答案以恢复访问权限。</string>
+
+    <string name="circlepw_security_questions_title">恢复方法</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">选择一个问题</string>
+    <string name="circlepw_security_questions_answer_header">提供答案</string>
+    <string name="circlepw_security_questions_answer_placeholder">在此处键入您的答案</string>
+    <string name="circlepw_security_questions_answer_hint_header">提供答案提示（可选）</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">在此处键入您的提示</string>
+
+    <string name="circlepw_select_question_title">选择一个问题</string>
+    <string name="circlepw_security_summary_title">摘要</string>
+
+    <string name="circlepw_security_confirm_title">确认</string>
+    <string name="circlepw_security_confirm_headline">确保您的问题安全</string>
+    <string name="circlepw_security_confirm_input_headline">键入“I agree”继续：</string>
+    <string name="circlepw_security_confirm_input_placeholder">在此处键入“I agree”</string>
+    <string name="circlepw_security_confirm_input_match">我同意</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">在此处输入您的答案</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">在此处键入您的答案</string>
 </resources>

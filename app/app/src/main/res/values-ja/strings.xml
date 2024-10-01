@@ -171,4 +171,48 @@
     <string name="verify_error">エラーが発生しました。もう一度お試しください。</string>
     <string name="create_network_error">エラーが発生しました。もう一度お試しください。</string>
     <string name="verify_send_error">エラー</string>
+
+    <string name="circlepw_show_pin">PINを表示</string>
+    <string name="circlepw_hide_pin">PINを非表示</string>
+    <string name="circlepw_continue">続行</string>
+    <string name="circlepw_next">次へ</string>
+    <string name="circlepw_question_label">質問：</string>
+    <string name="circlepw_answer_label">回答：</string>
+    <string name="circlepw_hint_label">ヒント：</string>
+    <string name="circlepw_hint_tag">ヒント</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">確認</string>
+    <string name="circlepw_pin_remain_attemps_template">%s 回の試行が残っています。</string>
+    <string name="circlepw_pin_lock_period_template">PINの試行回数が上限に達しました。%s 分後に再試行してください。</string>
+    <string name="circlepw_answer_remain_attemps_template">%s 回の試行が残っています。</string>
+    <string name="circlepw_answer_lock_period_template">%s 分後に再試行してください。</string>
+
+    <string name="circlepw_enter_pincode_subhead">本人確認をお願いします。</string>
+    <string name="circlepw_enter_pincode_forgot_pin">PINをお忘れですか？</string>
+
+    <string name="circlepw_new_pincode_subhead">PINに同じ数字を繰り返したり (例：000000)、連続した数字 (例：123456) を使用することはできません。</string>
+    <string name="circlepw_confirm_pincode_headline">確認のため、PINを再入力してください</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">PINを忘れた場合にウォレットへのアクセスを回復する唯一の方法は、セキュリティ質問を設定することです。アクセス回復のために、2つのセキュリティ質問を選択し、回答を登録してください。</string>
+
+    <string name="circlepw_security_questions_title">回復方法</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">質問を1つ選択してください</string>
+    <string name="circlepw_security_questions_answer_header">回答を入力してください</string>
+    <string name="circlepw_security_questions_answer_placeholder">ここに回答を入力してください</string>
+    <string name="circlepw_security_questions_answer_hint_header">回答のヒントを入力してください（オプション）</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">ここにヒントを入力してください</string>
+
+    <string name="circlepw_select_question_title">質問を1つ選択してください</string>
+    <string name="circlepw_security_summary_title">概要</string>
+
+    <string name="circlepw_security_confirm_title">確認</string>
+    <string name="circlepw_security_confirm_headline">セキュリティ質問は安全に保管してください</string>
+    <string name="circlepw_security_confirm_input_headline">続行するには「I agree」と入力してください：</string>
+    <string name="circlepw_security_confirm_input_placeholder">ここに「I agree」と入力してください</string>
+    <string name="circlepw_security_confirm_input_match">同意します</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">ここに回答を入力してください</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">ここに回答を入力してください</string>
 </resources>
