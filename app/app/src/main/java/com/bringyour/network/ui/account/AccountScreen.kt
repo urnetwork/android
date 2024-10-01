@@ -150,7 +150,7 @@ fun AccountScreenContent(
                 Box() {
                     Column {
                         Text(
-                            "Member",
+                            stringResource(id = R.string.member),
                             style = TextStyle(
                                 color = TextMuted
                             )
@@ -164,38 +164,41 @@ fun AccountScreenContent(
                         ) {
 
                             if (loginMode == LoginMode.Guest) {
-                                Text("Guest",
+                                Text(
+                                    stringResource(id = R.string.guest),
                                     style = MaterialTheme.typography.headlineMedium
                                 )
                             } else {
 
-                                Text(if (currentPlan == Plan.Supporter) "Supporter" else "Free",
+                                Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
                                     style = MaterialTheme.typography.headlineMedium
                                 )
                             }
 
                             if (loginMode == LoginMode.Guest) {
-                                ClickableText(
-                                    modifier = Modifier.offset(y = (-8).dp),
-                                    text = AnnotatedString("Create account"),
-                                    onClick = {
-                                        application?.logout()
-                                    },
+                                Text(
+                                    stringResource(id = R.string.create_account),
                                     style = TextStyle(
                                         color = BlueMedium
-                                    )
+                                    ),
+                                    modifier = Modifier
+                                        .offset(y = (-8).dp)
+                                        .clickable {
+                                            application?.logout()
+                                        }
                                 )
                             } else {
 
                                 if (currentPlan == Plan.Basic) {
-                                    ClickableText(
-                                        modifier = Modifier.offset(y = (-8).dp),
-                                        text = AnnotatedString("Change"),
-                                        onClick = {
-                                            scope.launch {
-                                                scaffoldState.bottomSheetState.expand()
-                                            }
-                                        },
+                                    Text(
+                                        stringResource(id = R.string.change),
+                                        modifier = Modifier
+                                            .offset(y = (-8).dp)
+                                            .clickable {
+                                                scope.launch {
+                                                    scaffoldState.bottomSheetState.expand()
+                                                }
+                                            },
                                         style = TextStyle(
                                             color = BlueMedium
                                         )

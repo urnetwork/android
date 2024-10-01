@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,7 @@ import com.bringyour.client.SubscriptionCreatePaymentIdArgs
 import com.bringyour.client.SubscriptionCreatePaymentIdResult
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
@@ -273,7 +275,10 @@ private fun UpgradePlanSheetContent(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        Text("Upgrade Subscription", style = TopBarTitleTextStyle)
+                        Text(
+                            stringResource(id = R.string.upgrade_subscription),
+                            style = TopBarTitleTextStyle
+                        )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Black
@@ -309,7 +314,6 @@ private fun UpgradePlanSheetContent(
                     .padding(horizontal = 16.dp)
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
-                // horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 Column {
@@ -359,7 +363,7 @@ private fun UpgradePlanSheetContent(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "Support us in building a new kind of network that gives instead of takes.",
+                        stringResource(id = R.string.support_us),
                         style = MaterialTheme.typography.bodyLarge,
                         color = TextMuted
                     )
@@ -367,7 +371,7 @@ private fun UpgradePlanSheetContent(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.",
+                        stringResource(id = R.string.unlock_speed),
                         style = MaterialTheme.typography.bodyLarge,
                         color = TextMuted
                     )
@@ -389,7 +393,10 @@ private fun UpgradePlanSheetContent(
 
 
                         }) { buttonTextStyle ->
-                            Text("Join the movement", style = buttonTextStyle)
+                            Text(
+                                stringResource(id = R.string.join_the_movement),
+                                style = buttonTextStyle
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))

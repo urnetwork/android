@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.wallet
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,13 +60,15 @@ fun SetupWallet(
                             connectSaga(address)
                         }
                     },
-                    // style = ButtonStyle.OUTLINE
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Connect Saga wallet", style = buttonTextStyle)
+                        Text(
+                            stringResource(id = R.string.connect_saga_wallet),
+                            style = buttonTextStyle
+                        )
                     }
                 }
 
@@ -83,7 +84,7 @@ fun SetupWallet(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Connect external wallet", style = buttonTextStyle)
+                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
                     }
                 }
 
@@ -98,7 +99,7 @@ fun SetupWallet(
                     },
                     enabled = !circleWalletInProgress
                 ) { buttonTextStyle ->
-                    Text("Set up Circle Wallet", style = buttonTextStyle)
+                    Text(stringResource(id = R.string.setup_circle_wallet), style = buttonTextStyle)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -113,7 +114,7 @@ fun SetupWallet(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Connect external wallet", style = buttonTextStyle)
+                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
                     }
                 }
 

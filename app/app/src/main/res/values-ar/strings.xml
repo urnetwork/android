@@ -1,19 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_login">تسجيل الدخول</string>
 
-    <string name="app_name">URnetwork</string>
-    <string name="title_login" translatable="false">Login</string>
+    <string name="user_auth_label">البريد الإلكتروني أو الهاتف</string>
+    <string name="user_auth_placeholder">أدخل رقم هاتفك أو بريدك الإلكتروني</string>
+    <string name="get_started">البدء</string>
+    <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
+    <string name="commitment_issues">مشاكل في الالتزام؟ </string>
+    <string name="try_guest_mode"> جرب وضع الضيف</string>
 
-    <string name="free_free_badge">أنت على الخطة المجانية</string>
-    <string name="free_pro_badge">الترقية إلى الخطة الاحترافية</string>
-    <string name="free_superfast_badge">الوصول إلى مزودي الخدمة والحواف فائقة السرعة</string>
-    <string name="pro_pro_badge">أنت على الخطة الاحترافية</string>
-    <string name="pro_superfast_badge">لديك إمكانية الوصول إلى مزودي الخدمة والحواف فائقة السرعة</string>
-    <string name="pro_pro_thank">شكراً لك!</string>
+    <string name="name_label">الاسم</string>
+    <string name="name_placeholder">اسمك</string>
+    <string name="network_name_label">اسم الشبكة</string>
+    <string name="network_name_placeholder">اسم شبكتك</string>
+    <string name="network_name_support_txt">يجب أن تتكون أسماء الشبكات من 6 أحرف أو أكثر</string>
+    <string name="password_label">كلمة المرور</string>
+    <string name="password_support_txt">يجب أن تتكون كلمة المرور من 12 حرفًا على الأقل</string>
+    <string name="continue_txt">متابعة</string>
 
-    <string name="login_logo_description">إنترنت سريع وآمن في كل مكان تريد أن تكون فيه</string>
-    <string name="login_headline"><b>إنترنت سريع وآمن</b> أينما تريد أن تكون، مع تحكم كامل في بياناتك</string>
+    <string name="login_password_header">من الجيد\nرؤيتك مرة أخرى</string>
+    <string name="forget_password">هل نسيت كلمة مرورك؟</string>
+    <string name="reset_it">إعادة تعيينها</string>
 
-    <string name="terms">سيتم إرسال رسالة لمرة واحدة لإثبات هويتك. قد تطبق رسوم الرسائل والبيانات. أوافق على <a href="https://bringyour.com/terms">شروط BringYour</a>. تعرف على كيفية استخدامنا وحماية بياناتك في <a href="https://bringyour.com/privacy">سياسة الخصوصية</a> الخاصة بنا</string>
-    <string name="terms_jwt">أوافق على <a href="https://bringyour.com/terms">شروط BringYour</a>. تعرف على كيفية استخدامنا وحماية بياناتك في <a href="https://bringyour.com/privacy">سياسة الخصوصية</a> الخاصة بنا</string>
+    <string name="forgot_password">هل نسيت كلمة مرورك؟</string>
+    <string name="check_junk_mail">قد تحتاج إلى التحقق من مجلد البريد العشوائي أو إلغاء حظر no-reply@ur.io</string>
+    <string name="send_reset_link">إرسال رابط إعادة التعيين</string>
+
+    <string name="reset_link_sent">تم إرسال رابط إعادة التعيين</string>
+    <string name="reset_link_sent_to">تم إرسال رابط إعادة التعيين إلى </string>
+    <string name="resend_reset_link">إعادة إرسال الرابط</string>
+    <string name="sent">تم الإرسال!</string>
+
+    <string name="login_verify_header">لديك بريد إلكتروني</string>
+    <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
+    <string name="dont_see_it">ألا تراه؟</string>
+    <string name="resend_verify_code">إعادة إرسال الرمز</string>
+
+    <string name="connect_external_wallet">ربط محفظة خارجية</string>
+    <string name="connect_external_wallet_supported_chains">عناوين USDC على Solana و Polygon مدعومة حاليًا.</string>
+    <string name="wallet_address_label">عنوان المحفظة</string>
+    <string name="wallet_address_placeholder">انسخ والصق هنا</string>
+    <string name="total_payouts">إجمالي المدفوعات</string>
+    <string name="wallets">محافظ</string>
+    <string name="add_wallet">إضافة محفظة</string>
+
+    <string name="setup_circle_wallet">إعداد محفظة Circle</string>
+    <string name="connect_saga_wallet">ربط محفظة Saga</string>
+
+    <string name="something_went_wrong">حدث خطأ ما.</string>
+    <string name="please_wait">يرجى الانتظار بضع دقائق وحاول مرة أخرى.</string>
+    <string name="change_password">تغيير كلمة المرور</string>
+    <string name="edit_profile">تعديل الملف الشخصي</string>
+    <string name="save">حفظ</string>
+
+    <string name="share_with_others">أنت تشارك مع الآخرين، ونحن نشارك معك. اكسب حصة من الإيرادات عندما تقدم بيانات للآخرين على الشبكة.</string>
+    <string name="start_earning">للبدء في الربح، اربط محفظة العملات المشفرة الخاصة بك بـ URnetwork أو قم بإعداد واحدة باستخدام Circle.</string>
+
+    <string name="circle_transfer_topbar_title">تحويل USDC</string>
+    <string name="circle_transfer_header">التحويل إلى محفظة خارجية</string>
+    <string name="circle_transfer_fee_coverage">URnetwork تغطي رسوم التحويل الخاصة بك.</string>
+    <string name="transfer">تحويل</string>
+    <string name="insufficient_funds">رصيد غير كافٍ</string>
+
+    <string name="tap_to_connect">انقر للاتصال</string>
+
+    <string name="promoted_locations">المواقع المميزة</string>
+    <string name="best_available_provider">أفضل مزود متاح</string>
+    <string name="countries">الدول</string>
+    <string name="devices">الأجهزة</string>
+    <string name="search_placeholder">البحث في جميع المواقع</string>
+    <string name="check_internet">تحقق من اتصال الإنترنت</string>
+    <string name="no_providers_found">لم نعثر على أي مزود.</string>
+
+    <string name="account">الحساب</string>
+    <string name="profile">الملف الشخصي</string>
+    <string name="settings">الإعدادات</string>
+    <string name="wallet">المحفظة</string>
+    <string name="refer_and_earn">الإحالة والربح</string>
+    <string name="set_up_wallet">إعداد المحفظة</string>
+    <string name="guest">ضيف</string>
+    <string name="supporter">داعم</string>
+    <string name="free">مجاني</string>
+    <string name="create_account">إنشاء حساب</string>
+    <string name="member">عضو</string>
+
+    <string name="upgrade_subscription">ترقية الاشتراك</string>
+    <string name="support_us">ادعمنا في بناء نوع جديد من الشبكات التي تعطي بدلاً من أن تأخذ.</string>
+    <string name="unlock_speed">ستفتح سرعات أعلى وستحصل على أولوية الوصول إلى ميزات جديدة مثل تدابير قوية لمكافحة الرقابة والتحكم في البيانات.</string>
+    <string name="join_the_movement">انضم إلى الحركة</string>
+
+    <string name="in_guest_mode">أنت في وضع الضيف</string>
+    <string name="start_earning_join">للبدء في الربح، انضم إلى الشبكة</string>
+
+    <string name="refer_friends_header">إحالة الأصدقاء</string>
+    <string name="refer_friends_detail">المزيد من الاتصالات يساعد مجتمعنا على البقاء مجهول الهوية (ويساعدك على كسب المال!)</string>
+
+    <string name="balance">الرصيد</string>
+    <string name="transfer_funds">تحويل الأموال</string>
+    <string name="no_payouts_found">لم يتم العثور على مدفوعات لهذه المحفظة</string>
+    <string name="earnings">الأرباح</string>
+    <string name="make_default">جعل الافتراضي</string>
+    <string name="payout_wallets">محافظ الدفع</string>
+    <string name="chains_supported">محافظ Solana و Polygon مدعومة حاليًا</string>
+
+    <string name="transfer_submitted">تم تقديم التحويل</string>
+    <string name="transfer_submitted_details">تمت تهيئة عملية التحويل الخاصة بك وسيتم الانتهاء منها بمجرد معالجة المعاملة على السلسلة.</string>
+
+    <string name="see_world_content">شاهد كل\nمحتوى\nالعالم</string>
+    <string name="see_world_content_description">شاهد كل محتوى العالم مع URnetwork</string>
+    <string name="stay_private_description">ابق خاصًا ومجهول الهوية تمامًا مع URnetwork</string>
+    <string name="stay_private">ابق\nخاصًا\nومجهول الهو\nتمامًا</string>
+    <string name="build_right_description">ابنِ الإنترنت بالطريقة الصحيحة مع URnetwork</string>
+    <string name="build_right">ابنِ\nالإنترنت\nبالطريقة الصحيحة</string>
+    <string name="with_urnetwork">مع URnetwork</string>
+
+    <string name="unlock_supporter_tooltip">افتح سرعات أعلى واحصل على أولوية الوصول إلى الميزات الجديدة.</string>
+    <string name="become_supporter">كن داعمًا</string>
+    <string name="client_id_label">معرف العميل</string>
+    <string name="share_label">مشاركة URNetwork</string>
+    <string name="notifications_label">الإشعارات</string>
+    <string name="receive_notifications">تلقي إشعارات الاتصال</string>
+    <string name="connectivity_label">الاتصال</string>
+    <string name="allow_local_connections">السماح بالاتصالات المحلية</string>
+    <string name="stay_in_touch">البقاء على اتصال</string>
+    <string name="send_product_updates">إرسال تحديثات المنتج لي</string>
+    <string name="join_community_discord">انضم إلى المجتمع على</string>
+    <string name="update_notification_settings">تحديث أذونات الإشعارات في إعدادات Android</string>
+
+    <string name="feedback_header">تواصل معنا</string>
+    <string name="feedback_label">مربع التعليقات</string>
+    <string name="feedback_placeholder">أخبرنا برأيك</string>
+
+    <string name="cancel">ألغِ</string>
+    <string name="connect">اربط</string>
+    <string name="remove">أزل</string>
+    <string name="plan">خطة</string>
+    <string name="change">غيّر</string>
+    <string name="share">شارك</string>
+    <string name="copy">انسخ</string>
+    <string name="send">أرسل</string>
+
+    <string name="login_error_auth_allowed">يرجى تسجيل الدخول باستخدام أحد: %s.</string>
+    <string name="login_error">حدث خطأ ما. حاول مجددا.</string>
+    <string name="login_client_error">حدث خطأ ما أثناء مصادقة العميل. حاول مجددا.</string>
+    <string name="network_name_check_error">غير متوفر. يجب أن يكون 3 أحرف على الأقل مختلفة عن شبكة موجودة. اجعلها فريدة أو أطول.</string>
+    <string name="verify_error">حدث خطأ ما. حاول مجددا.</string>
+    <string name="create_network_error">حدث خطأ ما. حاول مجددا.</string>
+    <string name="verify_send_error">خطأ</string>
+    <string name="circlepw_show_pin">إظهار PIN</string>
+    <string name="circlepw_hide_pin">إخفاء PIN</string>
+    <string name="circlepw_continue">استمر</string>
+    <string name="circlepw_next">التالي</string>
+    <string name="circlepw_question_label">سؤال:</string>
+    <string name="circlepw_answer_label">إجابة:</string>
+    <string name="circlepw_hint_label">تلميح:</string>
+    <string name="circlepw_hint_tag">تلميح:</string>
+    <string name="circlepw_confirm">تأكيد</string>
+    <string name="circlepw_pin_remain_attemps_template">لديك %s محاولات متبقية.</string>
+    <string name="circlepw_pin_lock_period_template">لقد استنفدت جميع محاولات إدخال PIN. يرجى الانتظار لمدة %s دقيقة لإعادة المحاولة لاحقًا.</string>
+    <string name="circlepw_answer_remain_attemps_template">لديك %s محاولات متبقية.</string>
+    <string name="circlepw_answer_lock_period_template">يرجى الانتظار لمدة %s دقيقة لإعادة المحاولة لاحقًا.</string>
+    <string name="circlepw_enter_pincode_subhead">أخبرنا إذا كنت أنت حقًا.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">هل نسيت رقم التعريف الشخصي؟</string>
+    <string name="circlepw_new_pincode_subhead">لا يمكن أن يحتوي رقم التعريف الشخصي (PIN) على أرقام مكررة (مثل 000000) أو متتالية (مثل 123456).</string>
+    <string name="circlepw_confirm_pincode_headline">أعد إدخال رقم التعريف الشخصي (PIN) للتأكيد</string>
+    <string name="circlepw_security_intros_description">هذه هي الطريقة الوحيدة لاستعادة الوصول إلى المحفظة إذا نسيت رقم التعريف الشخصي (PIN). اختر سؤالين أمنيين وقم بتوفير إجابات لاستعادة الوصول.</string>
+    <string name="circlepw_security_questions_title">طريقة الاسترداد</string>
+    <string name="circlepw_security_questions_question_placeholder">حدد سؤالًا واحدًا</string>
+    <string name="circlepw_security_questions_answer_header">قدم إجابة</string>
+    <string name="circlepw_security_questions_answer_placeholder">اكتب إجابتك هنا</string>
+    <string name="circlepw_security_questions_answer_hint_header">"قدم تلميحًا للإجابة (اختياري) "</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">"اكتب تلميحك هنا "</string>
+    <string name="circlepw_select_question_title">حدد سؤالًا واحدًا</string>
+    <string name="circlepw_security_summary_title">ملخص</string>
+    <string name="circlepw_security_confirm_title">تأكيد</string>
+    <string name="circlepw_security_confirm_headline">حافظ على أسئلتك آمنة</string>
+    <string name="circlepw_security_confirm_input_match">أنا موافق</string>
+    <string name="circlepw_recover_pincode_answer_input_header">أدخل إجابتك هنا</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">اكتب إجابتك هنا</string>
 </resources>

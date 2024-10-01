@@ -22,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -34,43 +36,46 @@ fun OnboardingCarousel() {
         // slide 1
         OnboardingSlide(
             painterResourceId = R.drawable.onboarding_carousel_1,
-            contentDescription = "See all the world's content with URnetwork"
+            contentDescription = stringResource(id = R.string.see_world_content_description)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("See all the", style = MaterialTheme.typography.headlineLarge)
-                Text("world's content", style = MaterialTheme.typography.headlineLarge)
-                Text("with URnetwork", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    stringResource(id = R.string.see_world_content),
+                    style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+                )
+                Text(stringResource(id = R.string.with_urnetwork), style = MaterialTheme.typography.headlineMedium)
             }
         },
         // slide 2
         OnboardingSlide(
             painterResourceId = R.drawable.onboarding_carousel_2,
-            contentDescription = "Stay completely private and anonymous with URnetwork"
+            contentDescription = stringResource(id = R.string.stay_private_description)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Stay ", style = MaterialTheme.typography.headlineLarge)
-                Text("completely", style = MaterialTheme.typography.headlineLarge)
-                Text("private and", style = MaterialTheme.typography.headlineLarge)
-                Text("anonymous", style = MaterialTheme.typography.headlineLarge)
-                Text("with URnetwork", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    stringResource(id = R.string.stay_private),
+                    style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+                )
+                Text(stringResource(id = R.string.with_urnetwork), style = MaterialTheme.typography.headlineMedium)
             }
         },
         // slide 3
         OnboardingSlide(
             painterResourceId = R.drawable.onboarding_carousel_3,
-            contentDescription = "See all the world's content with URnetwork"
+            contentDescription = stringResource(id = R.string.build_right_description)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Build the", style = MaterialTheme.typography.headlineLarge)
-                Text("internet the", style = MaterialTheme.typography.headlineLarge)
-                Text("right way", style = MaterialTheme.typography.headlineLarge)
-                Text("with URnetwork", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    stringResource(R.string.build_right),
+                    style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+                )
+                Text(stringResource(id = R.string.with_urnetwork), style = MaterialTheme.typography.headlineMedium)
             }
         }
     )
