@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,7 +89,7 @@ fun ReferOverlay(
 
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    "Refer friends",
+                    stringResource(id = R.string.refer_friends_header),
                     style = MaterialTheme.typography.headlineLarge,
                     color = Black
                 )
@@ -96,7 +97,7 @@ fun ReferOverlay(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "More connections help our community stay anonymous (and help you earn!)",
+                    stringResource(id = R.string.refer_friends_detail),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Black
                 )
@@ -133,11 +134,11 @@ fun ReferOverlay(
                                 .padding(end = 8.dp)
                         )
 
-                        ClickableText(
-                            onClick = {
+                        Text(
+                            stringResource(id = R.string.copy),
+                            modifier = Modifier.clickable {
                                 clipboardManager.setText(AnnotatedString(referralCode))
                             },
-                            text = AnnotatedString("Copy"),
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = BlueMedium
                             ),
@@ -158,7 +159,10 @@ fun ReferOverlay(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Share", style = textStyle)
+                        Text(
+                            stringResource(id = R.string.share),
+                            style = textStyle
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             painter = painterResource(id = R.drawable.icon_share),

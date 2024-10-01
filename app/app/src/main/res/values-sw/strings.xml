@@ -1,4 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">URnetwork</string>
+    <string name="app_name" translatable="false">URnetwork</string>
+    <string name="title_login">Ingia</string>
+
+    <string name="user_auth_label">Barua pepe au simu</string>
+    <string name="user_auth_placeholder">Weka nambari yako ya simu au barua pepe</string>
+    <string name="get_started">Anza</string>
+    <string name="google_auth_btn_text">Ingia ukitumia Google</string>
+    <string name="commitment_issues">Masuala ya kujitolea?</string>
+    <string name="try_guest_mode"> Jaribu Hali ya Mgeni</string>
+
+    <string name="name_label">Jina</string>
+    <string name="name_placeholder">Jina lako</string>
+    <string name="network_name_label">Jina la mtandao</string>
+    <string name="network_name_placeholder">Jina la mtandao wako</string>
+    <string name="network_name_support_txt">Majina ya mtandao lazima yawe na herufi 6 au zaidi</string>
+    <string name="password_label">Nenosiri</string>
+    <string name="password_support_txt">Nenosiri lazima liwe na angalau herufi 12</string>
+    <string name="continue_txt">Endelea</string>
+
+    <string name="login_password_header">Ni vizuri\n kukuona tena</string>
+    <string name="forget_password">Umesahau nenosiri lako?</string>
+    <string name="reset_it">Weka upya</string>
+
+    <string name="forgot_password">Umesahau nenosiri lako?</string>
+    <string name="check_junk_mail">Unaweza kuhitaji kuangalia folda yako ya barua taka au uondoe kizuizi no-reply@ur.io</string>
+    <string name="send_reset_link">Tuma Kiungo cha Kuweka Upya</string>
+
+    <string name="reset_link_sent">Kiungo cha kuweka upya kimetumwa</string>
+    <string name="reset_link_sent_to">Kiungo cha kuweka upya kimetumwa kwa</string>
+    <string name="resend_reset_link">Tuma tena kiungo</string>
+    <string name="sent">Kimetumwa!</string>
+
+    <string name="login_verify_header">Umepata barua</string>
+    <string name="login_verify_details">Tuambie wewe ni nani hasa. Weka msimbo ambao tume\nkutumia ili kuthibitisha utambulisho wako.</string>
+    <string name="dont_see_it">Hauoni?</string>
+    <string name="resend_verify_code">Tuma tena msimbo</string>
+
+    <string name="connect_external_wallet">Unganisha pochi ya nje</string>
+    <string name="connect_external_wallet_supported_chains">Anwani za USDC kwenye Solana na Polygon kwa sasa zinatumika.</string>
+    <string name="wallet_address_label">Anwani ya pochi</string>
+    <string name="wallet_address_placeholder">Nakili na ubandike hapa</string>
+    <string name="total_payouts">malipo ya jumla</string>
+    <string name="wallets">Pochi</string>
+    <string name="add_wallet">Ongeza pochi</string>
+
+    <string name="setup_circle_wallet">Sanidi Pochi ya Circle</string>
+    <string name="connect_saga_wallet">Unganisha pochi ya Saga</string>
+
+    <string name="something_went_wrong">Kuna kitu kilienda vibaya.</string>
+    <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>
+    <string name="change_password">Badilisha Nenosiri</string>
+    <string name="edit_profile">Hariri Wasifu</string>
+    <string name="save">Hifadhi</string>
+
+    <string name="share_with_others">Unashiriki na wengine, tunashiriki nawe. Pata sehemu ya mapato unapompa data wengine kwenye mtandao.</string>
+    <string name="start_earning">Ili kuanza kupata, unganisha pochi yako ya cryptocurrency kwa URnetwork au usanidi moja na Circle.</string>
+
+    <string name="circle_transfer_topbar_title">Hamisha USDC</string>
+    <string name="circle_transfer_header">Hamisha kwa pochi ya nje</string>
+    <string name="circle_transfer_fee_coverage">URnetwork inashughulikia ada zako za uhamisho.</string>
+    <string name="transfer">Hamisha</string>
+    <string name="insufficient_funds">Fedha haitoshi</string>
+
+    <string name="tap_to_connect">Gusa ili kuunganisha</string>
+
+    <string name="promoted_locations">Maeneo Yaliyopendekezwa</string>
+    <string name="best_available_provider">Mtoa huduma bora zaidi anayepatikana</string>
+    <string name="countries">Nchi</string>
+    <string name="devices">Vifaa</string>
+    <string name="search_placeholder">Tafuta maeneo yote</string>
+    <string name="check_internet">Angalia muunganisho wako wa intaneti</string>
+    <string name="no_providers_found">Hatukupata watoa huduma wowote.</string>
+
+    <string name="account">Akaunti</string>
+    <string name="profile">Wasifu</string>
+    <string name="settings">Mipangilio</string>
+    <string name="wallet">Pochi</string>
+    <string name="refer_and_earn">Rejelea na upate</string>
+    <string name="set_up_wallet">Sanidi pochi</string>
+    <string name="guest">Mgeni</string>
+    <string name="supporter">Msaidizi</string>
+    <string name="free">Bure</string>
+    <string name="create_account">Unda akaunti</string>
+    <string name="member">Mwanachama</string>
+
+    <string name="plan">Mpango</string>
+    <string name="upgrade_subscription">Boresha Usajili</string>
+    <string name="support_us">Tuunge mkono katika kujenga aina mpya ya mtandao ambayo hutoa badala ya kuchukua.</string>
+    <string name="unlock_speed">Utafungua kasi ya haraka zaidi, na dibs za kwanza kwenye vipengele vipya kama vile hatua thabiti za kupambana na udhibiti na udhibiti wa data.</string>
+    <string name="join_the_movement">Jiunge na harakati</string>
+
+    <string name="in_guest_mode">Uko katika hali ya mgeni</string>
+    <string name="start_earning_join">Ili kuanza kupata, jiunge na mtandao</string>
+
+    <string name="refer_friends_header">Rejelea marafiki</string>
+    <string name="refer_friends_detail">Miunganisho zaidi husaidia jumuiya yetu kubaki bila majina (na kukusaidia kupata!)</string>
+
+    <string name="balance">Mizani</string>
+    <string name="transfer_funds">Hamisha Fedha</string>
+    <string name="no_payouts_found">Hakuna malipo yaliyopatikana kwa pochi hii</string>
+    <string name="earnings">Mapato</string>
+    <string name="make_default">Fanya chaguo-msingi</string>
+    <string name="payout_wallets">Pochi za Malipo</string>
+    <string name="chains_supported">Pochi za Solana na Polygon kwa sasa zinatumika</string>
+
+    <string name="transfer_submitted">Uhamisho Umewasilishwa</string>
+    <string name="transfer_submitted_details">Uhamisho wako umeanza na utakamilika mara tu muamala utakapochakatwa kwenye mnyororo.</string>
+
+    <string name="see_world_content">Tazama yote\nmaudhui ya dunia</string>
+    <string name="see_world_content_description">Tazama maudhui yote ya dunia ukitumia URnetwork</string>
+    <string name="stay_private_description">Kaa faragha kabisa na bila majina ukitumia URnetwork</string>
+    <string name="stay_private">Kaa\nkabisa\nfaragha na\nbila majina</string>
+    <string name="build_right_description">Jenga mtandao kwa njia sahihi ukitumia URnetwork</string>
+    <string name="build_right">Jenga\nmtandao\nkwa njia sahihi</string>
+    <string name="with_urnetwork">na URnetwork</string>
+
+    <string name="unlock_supporter_tooltip">Fungua kasi ya haraka zaidi na upate vipengele vipya kwanza.</string>
+    <string name="become_supporter">Kuwa msaidizi</string>
+    <string name="client_id_label">Kitambulisho cha Mteja</string>
+    <string name="share_label">Shiriki URnetwork</string>
+    <string name="notifications_label">Arifa</string>
+    <string name="receive_notifications">Pokea arifa za muunganisho</string>
+
+    <string name="connectivity_label">Muunganisho</string>
+    <string name="allow_local_connections">Ruhusu miunganisho ya ndani</string>
+    <string name="stay_in_touch">Kaa nasi</string>
+    <string name="send_product_updates">Nitumie masasisho ya bidhaa</string>
+    <string name="join_community_discord">Jiunge na jumuiya kwenye</string>
+    <string name="update_notification_settings">Sasisha ruhusa za arifa katika Mipangilio yako ya Android</string>
+
+    <string name="feedback_header">Wasiliana nasi</string>
+    <string name="feedback_label">Kisanduku cha maoni</string>
+    <string name="feedback_placeholder">Tuambie unavyohisi</string>
+
+    <string name="cancel">Ghairi</string>
+    <string name="connect">Unganisha</string>
+    <string name="remove">Ondoa</string>
+    <string name="change">Badili</string>
+    <string name="share">Shiriki</string>
+    <string name="copy">Nakala</string>
+    <string name="send">Tuma</string>
+
+    <string name="login_error_auth_allowed">Tafadhali ingia ukitumia mojawapo ya: %s.</string>
+    <string name="login_error">Kuna kitu kilienda vibaya. Jaribu tena.</string>
+    <string name="login_client_error">Kuna kitu kilienda vibaya wakati wa kuthibitisha mteja. Jaribu tena.</string>
+    <string name="network_name_check_error">Haipatikani. Lazima iwe na angalau herufi 3 tofauti na mtandao uliopo. Ifanye iwe ya kipekee au ndefu zaidi.</string>
+    <string name="verify_error">Kuna kitu kilienda vibaya. Jaribu tena.</string>
+    <string name="create_network_error">Kuna kitu kilienda vibaya. Jaribu tena.</string>
+    <string name="verify_send_error">Hitilafu</string>
 </resources>

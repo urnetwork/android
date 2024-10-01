@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.R
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
@@ -111,7 +114,10 @@ fun ProfileScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Profile", style = TopBarTitleTextStyle)
+                    Text(
+                        stringResource(id = R.string.profile),
+                        style = TopBarTitleTextStyle
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -135,7 +141,10 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Profile", style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    stringResource(id = R.string.profile),
+                    style = MaterialTheme.typography.headlineSmall
+                )
                 AccountSwitcher(
                     loginMode = loginMode,
                     // todo - this should be the current network name, not the one being edited
@@ -150,7 +159,7 @@ fun ProfileScreen(
                     setName(it)
                 },
                 enabled = isEditingProfile,
-                label = "Name"
+                label = stringResource(id = R.string.name_label)
             )
 
             URTextInput(
@@ -159,15 +168,15 @@ fun ProfileScreen(
                     setNetworkName(it)
                 },
                 enabled = isEditingProfile,
-                label = "Network name"
+                label = stringResource(id = R.string.network_name_label)
             )
 
             if (isEditingProfile) {
 
                 Row {
-                    ClickableText(
-                        text = AnnotatedString("Cancel"),
-                        onClick = {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        modifier = Modifier.clickable {
                             cancelEdits()
                         },
                         style = TextStyle(
@@ -177,9 +186,9 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.width(24.dp))
 
-                    ClickableText(
-                        text = AnnotatedString("Save"),
-                        onClick = {
+                    Text(
+                        stringResource(id = R.string.save),
+                        modifier = Modifier.clickable {
                             updateProfile()
                         },
                         style = TextStyle(
@@ -189,9 +198,9 @@ fun ProfileScreen(
                 }
 
             } else {
-                ClickableText(
-                    text = AnnotatedString("Edit profile"),
-                    onClick = {
+                Text(
+                    stringResource(id = R.string.edit_profile),
+                    modifier = Modifier.clickable {
                         setIsEditingProfile(true)
                     },
                     style = TextStyle(
@@ -206,13 +215,13 @@ fun ProfileScreen(
                 value = TextFieldValue(""),
                 onValueChange = {},
                 enabled = false,
-                label = "Password",
+                label = stringResource(id = R.string.password_label),
                 isPassword = true,
             )
 
-            ClickableText(
-                text = AnnotatedString("Change Password"),
-                onClick = {
+            Text(
+                stringResource(id = R.string.change_password),
+                modifier = Modifier.clickable {
                     if (resendBtnEnabled && userAuth != null) {
                         sendResetLink(userAuth)
                     }
@@ -240,8 +249,8 @@ fun ProfileScreen(
                 }
             } else {
                 Column() {
-                    Text("Something went wrong.")
-                    Text("Please wait a few minutes and try again.")
+                    Text(stringResource(id = R.string.something_went_wrong))
+                    Text(stringResource(id = R.string.please_wait))
                 }
             }
         }

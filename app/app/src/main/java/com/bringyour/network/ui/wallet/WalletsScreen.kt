@@ -239,7 +239,10 @@ fun WalletsScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Payout Wallets", style = TopBarTitleTextStyle)
+                    Text(
+                        stringResource(id = R.string.payout_wallets),
+                        style = TopBarTitleTextStyle
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { accountNavController.popBackStack() }) {
@@ -383,7 +386,7 @@ fun WalletsScreen(
                         ) {
                             Row {
                                 Text(
-                                    "Wallets",
+                                    stringResource(id = R.string.wallets),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(modifier = Modifier.width(2.dp))
@@ -391,7 +394,7 @@ fun WalletsScreen(
                                 InfoIconWithOverlay() {
                                     Column() {
                                         Text(
-                                            "Solana and Polygon wallets are currently supported",
+                                            stringResource(id = R.string.chains_supported),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = BlueLight
                                         )
@@ -411,7 +414,7 @@ fun WalletsScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.plus_icon),
-                                    contentDescription = "Add wallet",
+                                    contentDescription = stringResource(id = R.string.add_wallet),
                                     tint = TextMuted,
                                     modifier = Modifier.size(18.dp)
                                 )

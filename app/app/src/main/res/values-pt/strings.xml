@@ -1,4 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">URnetwork</string>
+    <string name="app_name" translatable="false">URnetwork</string>
+    <string name="title_login">Entrar</string>
+
+    <string name="user_auth_label">E-mail ou telefone</string>
+    <string name="user_auth_placeholder">Digite seu número de telefone ou e-mail</string>
+    <string name="get_started">Começar</string>
+    <string name="google_auth_btn_text">Entrar com o Google</string>
+    <string name="commitment_issues">Problemas de compromisso?</string>
+    <string name="try_guest_mode"> Experimentar o Modo Convidado</string>
+
+    <string name="name_label">Nome</string>
+    <string name="name_placeholder">Seu nome</string>
+    <string name="network_name_label">Nome da rede</string>
+    <string name="network_name_placeholder">Nome da sua rede</string>
+    <string name="network_name_support_txt">Os nomes de rede devem ter 6 caracteres ou mais</string>
+    <string name="password_label">Senha</string>
+    <string name="password_support_txt">A senha deve ter pelo menos 12 caracteres</string>
+    <string name="continue_txt">Continuar</string>
+
+    <string name="login_password_header">É bom\nvê-lo novamente</string>
+    <string name="forget_password">Esqueceu sua senha?</string>
+    <string name="reset_it">Redefini-la</string>
+
+    <string name="forgot_password">Esqueceu sua senha?</string>
+    <string name="check_junk_mail">Pode ser necessário verificar sua pasta de spam ou desbloquear no-reply@ur.io</string>
+    <string name="send_reset_link">Enviar link de redefinição</string>
+
+    <string name="reset_link_sent">Link de redefinição enviado</string>
+    <string name="reset_link_sent_to">Link de redefinição enviado para</string>
+    <string name="resend_reset_link">Reenviar link</string>
+    <string name="sent">Enviado!</string>
+
+    <string name="login_verify_header">Você tem um e-mail</string>
+    <string name="login_verify_details">Diga-nos quem você realmente é. Digite o código que\nenviamos para você verificar sua identidade.</string>
+    <string name="dont_see_it">Não está vendo?</string>
+    <string name="resend_verify_code">Reenviar código</string>
+
+    <string name="connect_external_wallet">Conectar carteira externa</string>
+    <string name="connect_external_wallet_supported_chains">Endereços USDC em Solana e Polygon são compatíveis no momento.</string>
+    <string name="wallet_address_label">Endereço da carteira</string>
+    <string name="wallet_address_placeholder">Copie e cole aqui</string>
+    <string name="total_payouts">pagamentos totais</string>
+    <string name="wallets">Carteiras</string>
+    <string name="add_wallet">Adicionar carteira</string>
+
+    <string name="setup_circle_wallet">Configurar Carteira Circle</string>
+    <string name="connect_saga_wallet">Conectar carteira Saga</string>
+
+    <string name="something_went_wrong">Algo deu errado.</string>
+    <string name="please_wait">Aguarde alguns minutos e tente novamente.</string>
+    <string name="change_password">Alterar senha</string>
+    <string name="edit_profile">Editar perfil</string>
+    <string name="save">Salvar</string>
+
+    <string name="share_with_others">Você compartilha com outras pessoas, nós compartilhamos com você. Ganhe uma parte da receita quando fornecer dados para outras pessoas na rede.</string>
+    <string name="start_earning">Para começar a ganhar, conecte sua carteira de criptomoedas à URnetwork ou configure uma com a Circle.</string>
+
+    <string name="circle_transfer_topbar_title">Transferir USDC</string>
+    <string name="circle_transfer_header">Transferir para carteira externa</string>
+    <string name="circle_transfer_fee_coverage">A URnetwork cobre suas taxas de transferência.</string>
+    <string name="transfer">Transferir</string>
+    <string name="insufficient_funds">Fundos insuficientes</string>
+
+    <string name="tap_to_connect">Toque para conectar</string>
+
+    <string name="promoted_locations">Locais promovidos</string>
+    <string name="best_available_provider">Melhor provedor disponível</string>
+    <string name="countries">Países</string>
+    <string name="devices">Dispositivos</string>
+    <string name="search_placeholder">Pesquisar todos os locais</string>
+    <string name="check_internet">Verifique sua conexão de internet</string>
+    <string name="no_providers_found">Não encontramos nenhum provedor.</string>
+
+    <string name="account">Conta</string>
+    <string name="profile">Perfil</string>
+    <string name="settings">Configurações</string>
+    <string name="wallet">Carteira</string>
+    <string name="refer_and_earn">Indique e ganhe</string>
+    <string name="set_up_wallet">Configurar carteira</string>
+    <string name="guest">Convidado</string>
+    <string name="supporter">Apoiador</string>
+    <string name="free">Grátis</string>
+    <string name="create_account">Criar conta</string>
+    <string name="member">Membro</string>
+
+    <string name="plan">Plano</string>
+    <string name="upgrade_subscription">Atualizar assinatura</string>
+    <string name="support_us">Apoie-nos na construção de um novo tipo de rede que dá em vez de receber.</string>
+    <string name="unlock_speed">Você desbloqueará velocidades ainda mais rápidas e terá acesso antecipado a novos recursos como medidas robustas anti-censura e controle de dados.</string>
+    <string name="join_the_movement">Junte-se ao movimento</string>
+
+    <string name="in_guest_mode">Você está no modo convidado</string>
+    <string name="start_earning_join">Para começar a ganhar, entre na rede</string>
+
+    <string name="refer_friends_header">Indicar amigos</string>
+    <string name="refer_friends_detail">Mais conexões ajudam nossa comunidade a permanecer anônima (e ajudam você a ganhar!)</string>
+
+    <string name="balance">Saldo</string>
+    <string name="transfer_funds">Transferir fundos</string>
+    <string name="no_payouts_found">Nenhum pagamento encontrado para esta carteira</string>
+    <string name="earnings">Ganhos</string>
+    <string name="make_default">Tornar padrão</string>
+    <string name="payout_wallets">Carteiras de pagamento</string>
+    <string name="chains_supported">Carteiras Solana e Polygon são compatíveis no momento</string>
+
+    <string name="transfer_submitted">Transferência enviada</string>
+    <string name="transfer_submitted_details">Sua transferência foi iniciada e será concluída assim que a transação for processada na cadeia.</string>
+
+    <string name="see_world_content">Ver todo o\nconteúdo do mundo</string>
+    <string name="see_world_content_description">Ver todo o conteúdo do mundo com a URnetwork</string>
+    <string name="stay_private_description">Permanecer completamente privado e anônimo com a URnetwork</string>
+    <string name="stay_private">Permanecer\ncompletamente\nprivado e\nanônimo</string>
+    <string name="build_right_description">Construir a internet da maneira certa com a URnetwork</string>
+    <string name="build_right">Construir a\ninternet da\nmaneira certa</string>
+    <string name="with_urnetwork">com a URnetwork</string>
+
+    <string name="unlock_supporter_tooltip">Desbloquear velocidades ainda mais rápidas e ter acesso antecipado a novos recursos.</string>
+    <string name="become_supporter">Tornar-se um apoiador</string>
+    <string name="client_id_label">ID do cliente</string>
+    <string name="share_label">Compartilhar URnetwork</string>
+    <string name="notifications_label">Notificações</string>
+    <string name="receive_notifications">Receber notificações de conexão</string>
+    <string name="connectivity_label">Conectividade</string>
+    <string name="allow_local_connections">Permitir conexões locais</string>
+    <string name="stay_in_touch">Manter contato</string>
+    <string name="send_product_updates">Enviar atualizações de produtos</string>
+    <string name="join_community_discord">Junte-se à comunidade no</string>
+    <string name="update_notification_settings">Atualizar permissões de notificações nas Configurações do Android</string>
+
+    <string name="feedback_header">Entrar em contato</string>
+    <string name="feedback_label">Caixa de feedback</string>
+    <string name="feedback_placeholder">Diga-nos como você realmente se sente</string>
+
+    <string name="cancel">Cancele</string>
+    <string name="connect">Conecte</string>
+    <string name="remove">Remova</string>
+    <string name="change">Altere</string>
+    <string name="share">Compartilhe</string>
+    <string name="copy">Copie</string>
+    <string name="send">Envie</string>
+
+    <string name="login_error_auth_allowed">Faça login com uma das seguintes opções: %s.</string>
+    <string name="login_error">Algo deu errado. Tente novamente.</string>
+    <string name="login_client_error">Algo deu errado ao autenticar o cliente. Tente novamente.</string>
+    <string name="network_name_check_error">Não disponível. Deve ter pelo menos 3 caracteres diferentes de uma rede existente. Torne-o exclusivo ou mais longo.</string>
+    <string name="verify_error">Algo deu errado. Tente novamente.</string>
+    <string name="create_network_error">Algo deu errado. Tente novamente.</string>
+    <string name="verify_send_error">Erro</string>
 </resources>
