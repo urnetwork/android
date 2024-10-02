@@ -133,8 +133,11 @@ fun LoginPasswordReset(
                 placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Go
                 ),
+                onGo = {
+                    sendResetLink()
+                },
                 label = stringResource(id = R.string.user_auth_label)
             )
 

@@ -44,6 +44,8 @@ fun URTextInput(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onSend: () -> Unit = {},
+    onDone: () -> Unit = {},
+    onGo: () -> Unit = {},
     placeholder: String = "",
     label: String?,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -92,6 +94,14 @@ fun URTextInput(
                         keyboardActions = KeyboardActions(
                             onSend = {
                                 onSend()
+                                keyboardController?.hide()
+                            },
+                            onDone = {
+                                onDone()
+                                keyboardController?.hide()
+                            },
+                            onGo = {
+                                onGo()
                                 keyboardController?.hide()
                             }
                         ),
