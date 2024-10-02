@@ -140,7 +140,9 @@ fun LoginNavHost(
             }
         }
 
-        FullScreenOverlay()
+        FullScreenOverlay(
+            referralCodeViewModel = null
+        )
     }
 
 }

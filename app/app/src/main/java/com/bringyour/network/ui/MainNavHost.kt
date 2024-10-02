@@ -44,6 +44,7 @@ import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
+import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.wallet.SagaViewModel
@@ -64,7 +65,8 @@ enum class AppDestinations(
 fun MainNavHost(
     sagaViewModel: SagaViewModel,
     settingsViewModel: SettingsViewModel,
-    promptReviewViewModel: PromptReviewViewModel
+    promptReviewViewModel: PromptReviewViewModel,
+    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel()
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -171,7 +173,9 @@ fun MainNavHost(
         }
     }
 
-    FullScreenOverlay()
+    FullScreenOverlay(
+        referralCodeViewModel
+    )
 
 }
 
