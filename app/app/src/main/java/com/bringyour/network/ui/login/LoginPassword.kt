@@ -153,7 +153,7 @@ fun LoginPassword(
                 placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
                 label = stringResource(id = R.string.user_auth_label)
             )
@@ -166,10 +166,13 @@ fun LoginPassword(
                 placeholder = "*****************",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Go
                 ),
                 isPassword = true,
-                label = stringResource(id = R.string.password_label)
+                label = stringResource(id = R.string.password_label),
+                onGo = {
+                    login()
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
