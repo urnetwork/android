@@ -67,6 +67,8 @@ fun ProvidersBottomSheet(
         selectedLocation = selectedLocation,
         connectCountries = locationsViewModel.connectCountries,
         promotedLocations = locationsViewModel.promotedLocations,
+        cities = locationsViewModel.cities,
+        regions = locationsViewModel.regions,
         devices = locationsViewModel.devices,
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
@@ -84,6 +86,8 @@ fun ProvidersBottomSheet(
     selectedLocation: ConnectLocation?,
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
+    cities: List<ConnectLocation>,
+    regions: List<ConnectLocation>,
     devices: List<ConnectLocation>,
     getLocationColor: (String) -> Color,
     filterLocations: (String) -> Unit,
@@ -166,6 +170,20 @@ fun ProvidersBottomSheet(
                         )
                     }
 
+                    URSearchInput(
+                        value = searchQuery,
+                        onValueChange = { query ->
+                            if (query.text != searchQuery.text) {
+                                searchQuery = query
+                                filterLocations(searchQuery.text)
+                            }
+                        },
+                        placeholder = stringResource(id = R.string.search_placeholder),
+                        keyboardController
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     when(fetchLocationsState) {
                         FetchLocationsState.Loading -> {
                             Column(
@@ -184,19 +202,6 @@ fun ProvidersBottomSheet(
                             }
                         }
                         FetchLocationsState.Loaded -> {
-                            URSearchInput(
-                                value = searchQuery,
-                                onValueChange = { query ->
-                                    if (query.text != searchQuery.text) {
-                                        searchQuery = query
-                                        filterLocations(searchQuery.text)
-                                    }
-                                },
-                                placeholder = stringResource(id = R.string.search_placeholder),
-                                keyboardController
-                            )
-
-                            Spacer(modifier = Modifier.height(24.dp))
 
                             LocationsList(
                                 onLocationSelect = { location ->
@@ -205,6 +210,8 @@ fun ProvidersBottomSheet(
                                 },
                                 promotedLocations = promotedLocations,
                                 connectCountries = connectCountries,
+                                cities = cities,
+                                regions = regions,
                                 getLocationColor = getLocationColor,
                                 selectedLocation = selectedLocation,
                                 devices = devices,
@@ -243,6 +250,8 @@ private fun PreviewBottomSheet() {
             selectedLocation = null,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            cities = listOf<ConnectLocation>(),
+            regions = listOf<ConnectLocation>(),
             devices = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
@@ -273,6 +282,8 @@ private fun PreviewBottomSheetExpanded() {
             selectedLocation = null,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            cities = listOf<ConnectLocation>(),
+            regions = listOf<ConnectLocation>(),
             devices = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
