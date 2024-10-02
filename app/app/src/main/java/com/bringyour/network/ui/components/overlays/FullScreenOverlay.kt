@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.bringyour.client.Sub
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -55,7 +56,9 @@ enum class OverlayMode {
 }
 
 @Composable
-fun FullScreenOverlay() {
+fun FullScreenOverlay(
+    referralCodeViewModel: ReferralCodeViewModel?
+) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
@@ -109,11 +112,14 @@ fun FullScreenOverlay() {
         exit = exitTransition,
     ) {
 
-        ReferOverlay(
-            onDismiss = {
-                overlayMode = null
-            }
-        )
+        if (referralCodeViewModel != null) {
+            ReferOverlay(
+                referralCodeViewModel = referralCodeViewModel,
+                onDismiss = {
+                    overlayMode = null
+                }
+            )
+        }
     }
 
     // Feedback submitted overlay

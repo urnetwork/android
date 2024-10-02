@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,11 +46,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green300
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
@@ -57,14 +61,27 @@ import com.google.zxing.common.BitMatrix
 
 @Composable
 fun ReferOverlay(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    referralCodeViewModel: ReferralCodeViewModel
+) {
+
+    ReferOverlay(
+        onDismiss,
+        referralLink = referralCodeViewModel.referralLink
+    )
+}
+
+@Composable
+fun ReferOverlay(
+    onDismiss: () -> Unit,
+    referralLink: String?
 ) {
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
 
     // todo - fetch network referral code
-    val referralCode = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+    // val referralCode = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
 
     OverlayBackground(
         onDismiss = { onDismiss() },
@@ -103,47 +120,60 @@ fun ReferOverlay(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                QRCodeWithImage(
-                    text = referralCode,
-                    imageResId = R.drawable.qr_code_center
-                )
+                if (referralLink != null) {
 
-                Spacer(modifier = Modifier.height(16.dp))
 
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(size = 24.dp)
-                        )
-                        .padding(16.dp)
 
-                ) {
-                    Row(
+                    QRCodeWithImage(
+                        text = referralLink,
+                        imageResId = R.drawable.qr_code_center
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            referralCode,
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 8.dp)
-                        )
+                            .background(
+                                Color.White,
+                                shape = RoundedCornerShape(size = 24.dp)
+                            )
+                            .padding(16.dp)
 
-                        Text(
-                            stringResource(id = R.string.copy),
-                            modifier = Modifier.clickable {
-                                clipboardManager.setText(AnnotatedString(referralCode))
-                            },
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = BlueMedium
-                            ),
-                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                referralLink,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 8.dp)
+                            )
+
+                            Text(
+                                stringResource(id = R.string.copy),
+                                modifier = Modifier.clickable {
+                                    clipboardManager.setText(AnnotatedString(referralLink))
+                                },
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = BlueMedium
+                                ),
+                            )
+                        }
                     }
+                } else {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .width(24.dp)
+                            .height(24.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = TextMuted,
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -151,7 +181,7 @@ fun ReferOverlay(
                 URButton(onClick = {
                     val shareIntent = Intent().apply {
                         action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, referralCode)
+                        putExtra(Intent.EXTRA_TEXT, referralLink)
                         type = "text/plain"
                     }
                     context.startActivity(Intent.createChooser(shareIntent, null))
@@ -317,7 +347,8 @@ fun trimWhiteSpace(bitmap: Bitmap): Bitmap {
 private fun ReferOverlayPreview() {
     URNetworkTheme {
         ReferOverlay(
-            onDismiss = {}
+            onDismiss = {},
+            referralLink = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
         )
     }
 }
