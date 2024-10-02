@@ -1,9 +1,6 @@
 package com.bringyour.network.ui.connect
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +10,9 @@ import com.bringyour.client.LocationsViewController
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,15 +23,8 @@ class LocationsListViewModel @Inject constructor(
 
     private var locationsVc: LocationsViewController? = null
 
-    var initialListLoaded by mutableStateOf(false)
-        private set
-
-    var isRefreshing by mutableStateOf(false)
-        private set
-
-    val setIsRefreshing: (Boolean) -> Unit = { ir ->
-        isRefreshing = ir
-    }
+    private val _locationsState = MutableStateFlow(FetchLocationsState.Loading)
+    val locationsState: StateFlow<FetchLocationsState> = _locationsState.asStateFlow()
 
     val connectCountries = mutableStateListOf<ConnectLocation>()
 
@@ -41,7 +34,7 @@ class LocationsListViewModel @Inject constructor(
 
     private val subs = mutableListOf<Sub>()
 
-    val getLocations = {
+    private val getLocations = {
         val exportedLocations = locationsVc?.locations
         if (exportedLocations != null) {
             val locations = mutableListOf<ConnectLocation>()
@@ -74,12 +67,8 @@ class LocationsListViewModel @Inject constructor(
 
             }
 
-            if (!initialListLoaded) {
-                initialListLoaded = true
-            }
-
-            if (isRefreshing) {
-                setIsRefreshing(false)
+            if (_locationsState.value != FetchLocationsState.Loaded) {
+                setLocationsState(FetchLocationsState.Loaded)
             }
 
         } else {
@@ -89,6 +78,9 @@ class LocationsListViewModel @Inject constructor(
 
     val filterLocations:(String) -> Unit = { search ->
         locationsVc?.filterLocations(search)
+        if (_locationsState.value != FetchLocationsState.Loading) {
+            setLocationsState(FetchLocationsState.Loading)
+        }
     }
 
     val getLocationColor: (String) -> Color = { color ->
@@ -106,12 +98,29 @@ class LocationsListViewModel @Inject constructor(
 
     }
 
+    private val setLocationsState: (FetchLocationsState) -> Unit = { state ->
+        _locationsState.value = state
+    }
+
+    private val addFetchLocationsErrorListener = {
+
+        locationsVc?.let { vc ->
+            vc.addFilteredLocationsErrorListener { errorExists ->
+                if (errorExists) {
+                    setLocationsState(FetchLocationsState.Error)
+                }
+            }
+        }
+
+    }
+
     init {
 
         val byDevice = byDeviceManager.byDevice
         locationsVc = byDevice?.openLocationsViewController()
 
         addFilteredLocationsListener()
+        addFetchLocationsErrorListener()
 
         viewModelScope.launch {
             locationsVc?.start()
@@ -130,4 +139,10 @@ class LocationsListViewModel @Inject constructor(
             byDeviceManager.byDevice?.closeViewController(it)
         }
     }
+}
+
+enum class FetchLocationsState {
+    Loading,
+    Loaded,
+    Error
 }

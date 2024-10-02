@@ -24,6 +24,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +60,8 @@ fun ProvidersBottomSheet(
     content: @Composable (PaddingValues) -> Unit,
 ) {
 
+    val fetchLocationsState by remember { locationsViewModel.locationsState }.collectAsState()
+
     ProvidersBottomSheet(
         scaffoldState = scaffoldState,
         selectedLocation = selectedLocation,
@@ -67,10 +70,8 @@ fun ProvidersBottomSheet(
         devices = locationsViewModel.devices,
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
-        locationsLoaded = locationsViewModel.initialListLoaded,
+        fetchLocationsState = fetchLocationsState,
         connect = connect,
-        isRefreshing =  locationsViewModel.isRefreshing,
-        setIsRefreshing = locationsViewModel.setIsRefreshing
     ) { innerPadding ->
         content(innerPadding)
     }
@@ -87,9 +88,7 @@ fun ProvidersBottomSheet(
     getLocationColor: (String) -> Color,
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
-    locationsLoaded: Boolean,
-    isRefreshing: Boolean,
-    setIsRefreshing: (Boolean) -> Unit,
+    fetchLocationsState: FetchLocationsState,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -167,58 +166,64 @@ fun ProvidersBottomSheet(
                         )
                     }
 
-                    if (locationsLoaded) {
-                        URSearchInput(
-                            value = searchQuery,
-                            onValueChange = { query ->
-                                if (query.text != searchQuery.text) {
-                                    searchQuery = query
-                                    filterLocations(searchQuery.text)
-                                }
-                            },
-                            placeholder = stringResource(id = R.string.search_placeholder),
-                            keyboardController
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        LocationsList(
-                            onLocationSelect = { location ->
-                                connect(location)
-                                scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                            },
-                            promotedLocations = promotedLocations,
-                            connectCountries = connectCountries,
-                            getLocationColor = getLocationColor,
-                            selectedLocation = selectedLocation,
-                            devices = devices,
-                            isRefreshing = isRefreshing,
-                            onRefresh = {
-                                setIsRefreshing(true)
-                                filterLocations("")
+                    when(fetchLocationsState) {
+                        FetchLocationsState.Loading -> {
+                            Column(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(color = Black)
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(24.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
                             }
-                        )
-                    } else {
-                        Column(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color = Black)
-                                .padding(horizontal = 16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(24.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        }
+                        FetchLocationsState.Loaded -> {
+                            URSearchInput(
+                                value = searchQuery,
+                                onValueChange = { query ->
+                                    if (query.text != searchQuery.text) {
+                                        searchQuery = query
+                                        filterLocations(searchQuery.text)
+                                    }
+                                },
+                                placeholder = stringResource(id = R.string.search_placeholder),
+                                keyboardController
+                            )
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            LocationsList(
+                                onLocationSelect = { location ->
+                                    connect(location)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                },
+                                promotedLocations = promotedLocations,
+                                connectCountries = connectCountries,
+                                getLocationColor = getLocationColor,
+                                selectedLocation = selectedLocation,
+                                devices = devices,
+                                onRefresh = {
+                                    filterLocations("")
+                                },
+                                searchQuery = searchQuery.text
+                            )
+                        }
+                        FetchLocationsState.Error -> {
+                            FetchLocationsError(
+                                onRefresh = {
+                                    filterLocations("")
+                                }
                             )
                         }
                     }
                 }
-
-
             }
-
         }
     ) { innerPadding ->
         content(innerPadding)
@@ -243,11 +248,7 @@ private fun PreviewBottomSheet() {
                 BlueMedium
             },
             filterLocations = { _ -> },
-            locationsLoaded = true,
-            isRefreshing = false,
-            setIsRefreshing = {}
-            // connectVc = connectVc,
-
+            fetchLocationsState = FetchLocationsState.Loaded,
         ) {
             Text("Hello world")
         }
@@ -277,11 +278,7 @@ private fun PreviewBottomSheetExpanded() {
                 BlueMedium
             },
             filterLocations = { _ -> },
-            locationsLoaded = true,
-            isRefreshing = false,
-            setIsRefreshing = {}
-            // connectVc = connectVc,
-
+            fetchLocationsState = FetchLocationsState.Loaded,
         ) {
             Text("Hello world")
         }
