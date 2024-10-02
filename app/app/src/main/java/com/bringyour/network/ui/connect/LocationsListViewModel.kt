@@ -4,7 +4,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bringyour.client.Client.LocationTypeCity
 import com.bringyour.client.Client.LocationTypeCountry
+import com.bringyour.client.Client.LocationTypeRegion
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.LocationsViewController
 import com.bringyour.client.Sub
@@ -32,6 +34,10 @@ class LocationsListViewModel @Inject constructor(
 
     val devices = mutableStateListOf<ConnectLocation>()
 
+    val regions = mutableStateListOf<ConnectLocation>()
+
+    val cities = mutableStateListOf<ConnectLocation>()
+
     private val subs = mutableListOf<Sub>()
 
     private val getLocations = {
@@ -49,6 +55,8 @@ class LocationsListViewModel @Inject constructor(
             connectCountries.clear()
             promotedLocations.clear()
             devices.clear()
+            cities.clear()
+            regions.clear()
 
             locations.forEach { location ->
                 providerCount += location.providerCount
@@ -59,6 +67,14 @@ class LocationsListViewModel @Inject constructor(
 
                 if (location.locationType == LocationTypeCountry) {
                     connectCountries.add(location)
+                }
+
+                if (location.locationType == LocationTypeCity) {
+                    cities.add(location)
+                }
+
+                if (location.locationType == LocationTypeRegion) {
+                    regions.add(location)
                 }
 
                 if (location.isDevice) {

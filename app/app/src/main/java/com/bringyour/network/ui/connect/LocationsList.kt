@@ -22,6 +22,8 @@ fun LocationsList(
     searchQuery: String,
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
+    cities: List<ConnectLocation>,
+    regions: List<ConnectLocation>,
     devices: List<ConnectLocation>,
     onLocationSelect: (ConnectLocation?) -> Unit,
     selectedLocation: ConnectLocation?,
@@ -29,13 +31,28 @@ fun LocationsList(
     onRefresh: () -> Unit,
 ) {
 
-    if (promotedLocations.isEmpty() && connectCountries.isEmpty() && devices.isEmpty() && searchQuery.isEmpty()) {
-        FetchLocationsError(
-            onRefresh = onRefresh
-        )
-    } else if (promotedLocations.isEmpty() && connectCountries.isEmpty() && devices.isEmpty() && searchQuery.isNotEmpty()) {
-        // searching but no results found!
-        NoLocationsFound()
+    if (
+        promotedLocations.isEmpty() &&
+        connectCountries.isEmpty() &&
+        devices.isEmpty() &&
+        regions.isEmpty() &&
+        cities.isEmpty() &&
+        searchQuery.isEmpty()) {
+        // there has probably been an uncaught error
+        // everything is empty, including search
+            FetchLocationsError(
+                onRefresh = onRefresh
+            )
+    } else if (
+        promotedLocations.isEmpty() &&
+        connectCountries.isEmpty() &&
+        devices.isEmpty() &&
+        regions.isEmpty() &&
+        cities.isEmpty() &&
+        searchQuery.isNotEmpty()
+        ) {
+            // searching but no results found!
+            NoLocationsFound()
     } else {
         // success
         LazyColumn {
@@ -89,15 +106,65 @@ fun LocationsList(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                items(connectCountries) { country ->
+                items(connectCountries) { location ->
                     ProviderRow(
-                        location = country.name,
-                        providerCount = country.providerCount,
+                        location = location.name,
+                        providerCount = location.providerCount,
                         onClick = {
-                            onLocationSelect(country)
+                            onLocationSelect(location)
                         },
-                        isSelected = selectedLocation?.connectLocationId == country.connectLocationId,
-                        color = getLocationColor(country.countryCode)
+                        isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                        color = getLocationColor(location.countryCode)
+                    )
+                }
+            }
+
+            if (regions.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(stringResource(id = R.string.regions))
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                items(regions) { location ->
+                    ProviderRow(
+                        location = location.name,
+                        providerCount = location.providerCount,
+                        onClick = {
+                            onLocationSelect(location)
+                        },
+                        isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                        color = getLocationColor(location.connectLocationId.toString())
+                    )
+                }
+            }
+
+            if (cities.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(stringResource(id = R.string.cities))
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                items(cities) { location ->
+                    ProviderRow(
+                        location = location.name,
+                        providerCount = location.providerCount,
+                        onClick = {
+                            onLocationSelect(location)
+                        },
+                        isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                        color = getLocationColor(location.connectLocationId.toString())
                     )
                 }
             }
@@ -115,15 +182,15 @@ fun LocationsList(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                items(devices) { device ->
+                items(devices) { location ->
                     ProviderRow(
-                        location = device.name,
-                        providerCount = device.providerCount,
+                        location = location.name,
+                        providerCount = location.providerCount,
                         onClick = {
-                            onLocationSelect(device)
+                            onLocationSelect(location)
                         },
-                        isSelected = selectedLocation?.connectLocationId == device.connectLocationId,
-                        color = getLocationColor(device.connectLocationId.toString())
+                        isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                        color = getLocationColor(location.connectLocationId.toString())
                     )
                 }
             }
