@@ -44,16 +44,14 @@ fun LocationsList(
 
     val state = rememberPullToRefreshState()
 
-    PullToRefreshBox(
-        state = state,
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
-    ) {
+    if (promotedLocations.isEmpty() && connectCountries.isEmpty() && devices.isEmpty()) {
+        PullToRefreshBox(
+            state = state,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+        ) {
 
-        LazyColumn {
-
-            if (promotedLocations.isEmpty() && connectCountries.isEmpty() && devices.isEmpty()) {
-
+            LazyColumn {
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -85,95 +83,96 @@ fun LocationsList(
                         }
                     }
                 }
-
-            } else {
-                if (promotedLocations.isNotEmpty()) {
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Text(stringResource(id = R.string.promoted_locations))
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    } else {
+        LazyColumn {
+            if (promotedLocations.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(stringResource(id = R.string.promoted_locations))
                     }
 
-                    item {
-                        ProviderRow(
-                            location = stringResource(id = R.string.best_available_provider),
-                            onClick = {
-                                // passing null for connect location will connect to best available
-                                onLocationSelect(null)
-                            },
-                            color = Red400,
-                            isSelected = selectedLocation?.connectLocationId?.bestAvailable == true
-                        )
-                    }
-
-                    items(promotedLocations) { location ->
-                        ProviderRow(
-                            location = location.name,
-                            providerCount = location.providerCount,
-                            onClick = {
-                                onLocationSelect(location)
-                            },
-                            isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                            color = getLocationColor(location.connectLocationId.toString())
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                if (connectCountries.isNotEmpty()) {
-                    item {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Text(stringResource(id = R.string.countries))
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-
-                    items(connectCountries) { country ->
-                        ProviderRow(
-                            location = country.name,
-                            providerCount = country.providerCount,
-                            onClick = {
-                                onLocationSelect(country)
-                            },
-                            isSelected = selectedLocation?.connectLocationId == country.connectLocationId,
-                            color = getLocationColor(country.countryCode)
-                        )
-                    }
+                item {
+                    ProviderRow(
+                        location = stringResource(id = R.string.best_available_provider),
+                        onClick = {
+                            // passing null for connect location will connect to best available
+                            onLocationSelect(null)
+                        },
+                        color = Red400,
+                        isSelected = selectedLocation?.connectLocationId?.bestAvailable == true
+                    )
                 }
 
-                if (devices.isNotEmpty()) {
-                    item {
+                items(promotedLocations) { location ->
+                    ProviderRow(
+                        location = location.name,
+                        providerCount = location.providerCount,
+                        onClick = {
+                            onLocationSelect(location)
+                        },
+                        isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                        color = getLocationColor(location.connectLocationId.toString())
+                    )
+                }
+            }
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Text(stringResource(id = R.string.devices))
-                        }
+            if (connectCountries.isNotEmpty()) {
+                item {
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(stringResource(id = R.string.countries))
                     }
 
-                    items(devices) { device ->
-                        ProviderRow(
-                            location = device.name,
-                            providerCount = device.providerCount,
-                            onClick = {
-                                onLocationSelect(device)
-                            },
-                            isSelected = selectedLocation?.connectLocationId == device.connectLocationId,
-                            color = getLocationColor(device.connectLocationId.toString())
-                        )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                items(connectCountries) { country ->
+                    ProviderRow(
+                        location = country.name,
+                        providerCount = country.providerCount,
+                        onClick = {
+                            onLocationSelect(country)
+                        },
+                        isSelected = selectedLocation?.connectLocationId == country.connectLocationId,
+                        color = getLocationColor(country.countryCode)
+                    )
+                }
+            }
+
+            if (devices.isNotEmpty()) {
+                item {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(stringResource(id = R.string.devices))
                     }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                items(devices) { device ->
+                    ProviderRow(
+                        location = device.name,
+                        providerCount = device.providerCount,
+                        onClick = {
+                            onLocationSelect(device)
+                        },
+                        isSelected = selectedLocation?.connectLocationId == device.connectLocationId,
+                        color = getLocationColor(device.connectLocationId.toString())
+                    )
                 }
             }
         }
