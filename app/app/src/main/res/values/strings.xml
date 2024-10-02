@@ -85,6 +85,7 @@
     <string name="search_placeholder">Search for all locations</string>
     <string name="check_internet">Check your internet connection</string>
     <string name="no_providers_found">We could not find any providers.</string>
+    <string name="tap_to_refetch">Tap to try and fetch location.</string>
 
     <!-- Account Screen -->
     <string name="account">Account</string>
