@@ -29,6 +29,13 @@ class ByDeviceManager @Inject constructor() {
             byDevice?.routeLocal = it
         }
 
+    var canShowRatingDialog: Boolean
+        get() = byDevice?.canShowRatingDialog!!
+        set(it) {
+            asyncLocalState?.localState?.canShowRatingDialog = it
+            byDevice?.canShowRatingDialog = it
+        }
+
 
 //    var provideMode: Long
 //        get() = byDevice?.provideMode!!
@@ -63,6 +70,7 @@ class ByDeviceManager @Inject constructor() {
         val routeLocal = localState.routeLocal
         val provideMode = localState.provideMode
         val connectLocation = localState.connectLocation
+        val canShowRatingDialog = localState.canShowRatingDialog
 
         byDevice = Client.newBringYourDeviceWithDefaults(
             networkSpace,
@@ -84,6 +92,7 @@ class ByDeviceManager @Inject constructor() {
         byDevice?.routeLocal = routeLocal
         byDevice?.provideMode = provideMode
         byDevice?.connectLocation = connectLocation
+        byDevice?.canShowRatingDialog = canShowRatingDialog
 
 //        connectVc = byDevice?.openConnectViewControllerV0()
     }
