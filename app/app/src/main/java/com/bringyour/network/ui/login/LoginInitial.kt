@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import com.bringyour.network.ui.theme.TextMuted
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.LaunchedEffect
@@ -188,7 +189,8 @@ fun LoginInitial(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding) // need to debug why this is 0
-                .padding(16.dp),
+                .padding(16.dp)
+                .imePadding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

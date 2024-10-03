@@ -52,6 +52,7 @@ fun ConnectScreen(
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
+    val networkUser by accountViewModel.networkUser.collectAsState()
 
     ProvidersBottomSheet(
         scaffoldState,
@@ -61,7 +62,7 @@ fun ConnectScreen(
         ConnectMainContent(
             connectStatus = connectStatus,
             selectedLocation = connectViewModel.selectedLocation,
-            networkName = accountViewModel.networkUser?.networkName,
+            networkName = networkUser?.networkName,
             connect = connectViewModel.connect,
             disconnect = connectViewModel.disconnect,
             providerGridPoints = connectViewModel.providerGridPoints,

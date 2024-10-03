@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.connect
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -28,7 +31,7 @@ fun ConnectStatusIndicator(
         ConnectStatus.CONNECTING -> "Connecting to providers..."
         ConnectStatus.DESTINATION_SET -> "Connecting to providers..."
         ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
-        else "ready to connect"
+        else ""
     }
 
     val indicatorId = when(status) {
@@ -45,21 +48,27 @@ fun ConnectStatusIndicator(
         ConnectStatus.DISCONNECTED -> "Disconnected"
     }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+    AnimatedVisibility(
+        visible = text.isNotEmpty(),
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
 
-        Image(
-            painter = painterResource(id = indicatorId),
-            contentDescription = indicatorDescription,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Spacer(modifier = Modifier.width(8.dp))
+            Image(
+                painter = painterResource(id = indicatorId),
+                contentDescription = indicatorDescription,
+            )
 
-        Text(text)
+            Spacer(modifier = Modifier.width(8.dp))
 
+            Text(text)
+        }
     }
 }
 

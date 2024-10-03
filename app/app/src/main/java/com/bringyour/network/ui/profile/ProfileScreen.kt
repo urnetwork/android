@@ -7,9 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -21,15 +22,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,11 +52,15 @@ import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -59,8 +71,21 @@ fun ProfileScreen(
     resetPasswordViewModel: ResetPasswordViewModel = hiltViewModel()
 ) {
 
-    LaunchedEffect(Unit) {
-        profileViewModel.initNetworkUser(accountViewModel.networkUser)
+    val networkUser by accountViewModel.networkUser.collectAsState()
+
+    DisposableEffect(Unit) {
+        val updateSuccessSub = profileViewModel.updateSuccessSub {
+            accountViewModel.refreshNetworkUser()
+            profileViewModel.setIsEditingProfile(false)
+        }
+
+        onDispose {
+            updateSuccessSub?.close()
+        }
+    }
+
+    LaunchedEffect(networkUser) {
+        profileViewModel.setNetworkUser(networkUser)
     }
 
     ProfileScreen(
@@ -72,20 +97,22 @@ fun ProfileScreen(
         markPasswordResetAsSent = resetPasswordViewModel.markPasswordResetAsSent,
         setPasswordResetError = resetPasswordViewModel.setPasswordResetError,
         setMarkPasswordResetAsSent = resetPasswordViewModel.setMarkPasswordResetAsSent,
-        networkName = accountViewModel.networkUser?.networkName ?: "",
+        networkName = networkUser?.networkName ?: "",
         networkNameTextFieldValue = profileViewModel.networkNameTextFieldValue,
         setNetworkName = profileViewModel.setNetworkNameTextFieldValue,
         nameTextFieldValue = profileViewModel.nameTextFieldValue,
         setName = profileViewModel.setNameTextFieldValue,
-        userAuth = accountViewModel.networkUser?.userAuth,
+        userAuth = networkUser?.userAuth,
         isEditingProfile = profileViewModel.isEditingProfile,
         setIsEditingProfile = profileViewModel.setIsEditingProfile,
         cancelEdits = profileViewModel.cancelEdits,
         updateProfile = profileViewModel.updateProfile,
         isUpdating = profileViewModel.isUpdatingProfile,
-        nameIsValid = profileViewModel.nameIsValid,
-        networkNameIsValid = profileViewModel.networkNameIsValid
-        // networkUser = accountViewModel.networkUser
+        networkNameIsValid = profileViewModel.networkNameIsValid,
+        networkNameIsValidating = profileViewModel.isValidatingNetworkName,
+        validateNetworkName = profileViewModel.validateNetworkName,
+        errorUpdatingProfile = profileViewModel.errorUpdatingProfile,
+        setErrorUpdatingProfile = profileViewModel.setErrorUpdatingProfile
     )
 
 }
@@ -112,9 +139,11 @@ fun ProfileScreen(
     cancelEdits: () -> Unit,
     updateProfile: () -> Unit,
     isUpdating: Boolean,
-    nameIsValid: Boolean,
-    networkNameIsValid: Boolean
-    // networkUser: NetworkUser?
+    validateNetworkName: (String) -> Unit,
+    networkNameIsValid: Boolean,
+    networkNameIsValidating: Boolean,
+    errorUpdatingProfile: Boolean,
+    setErrorUpdatingProfile: (Boolean) -> Unit
 ) {
 
     val resendBtnEnabled by remember {
@@ -125,6 +154,9 @@ fun ProfileScreen(
                     !markPasswordResetAsSent
         }
     }
+
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -151,6 +183,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
+                .imePadding()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -175,16 +208,33 @@ fun ProfileScreen(
                     setName(it)
                 },
                 enabled = isEditingProfile && !isUpdating,
-                label = stringResource(id = R.string.name_label)
+                label = stringResource(id = R.string.name_label),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
             )
 
             URTextInput(
                 value = networkNameTextFieldValue,
                 onValueChange = {
                     setNetworkName(it)
+
+                    debounceJob?.cancel()
+                    debounceJob = coroutineScope.launch {
+                        delay(500L)
+                        validateNetworkName(it.text)
+                    }
+
                 },
                 enabled = isEditingProfile && !isUpdating,
-                label = stringResource(id = R.string.network_name_label)
+                label = stringResource(id = R.string.network_name_label),
+                isValidating = networkNameIsValidating,
+                isValid = networkNameIsValid,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
             )
 
             if (isEditingProfile) {
@@ -270,6 +320,45 @@ fun ProfileScreen(
                 }
             }
         }
+
+        URSnackBar(
+            type = if (markPasswordResetAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
+            isVisible = markPasswordResetAsSent || passwordResetError != null,
+            onDismiss = {
+                if (passwordResetError != null) {
+                    setPasswordResetError(null)
+                }
+                if (markPasswordResetAsSent) {
+                    setMarkPasswordResetAsSent(false)
+                }
+            }
+        ) {
+            if (markPasswordResetAsSent) {
+                Column() {
+                    Text("Verification email sent to $userAuth")
+                }
+            } else {
+                Column() {
+                    Text(stringResource(id = R.string.something_went_wrong))
+                    Text(stringResource(id = R.string.please_wait))
+                }
+            }
+        }
+    }
+    URSnackBar(
+        type = SnackBarType.ERROR,
+        isVisible = errorUpdatingProfile,
+        onDismiss = {
+            if (errorUpdatingProfile) {
+                setErrorUpdatingProfile(false)
+            }
+        }
+    ) {
+
+        Column() {
+            Text(stringResource(id = R.string.something_went_wrong))
+            Text(stringResource(id = R.string.please_wait))
+        }
     }
 }
 
@@ -298,8 +387,11 @@ fun ProfileScreenPreview() {
             cancelEdits = {},
             updateProfile = {},
             isUpdating = false,
-            nameIsValid = true,
-            networkNameIsValid = true
+            networkNameIsValid = true,
+            networkNameIsValidating = false,
+            validateNetworkName = {},
+            errorUpdatingProfile = false,
+            setErrorUpdatingProfile = {}
         )
     }
 }
@@ -329,8 +421,45 @@ fun ProfileScreenEditingPreview() {
             cancelEdits = {},
             updateProfile = {},
             isUpdating = false,
-            nameIsValid = true,
-            networkNameIsValid = true
+            networkNameIsValid = false,
+            networkNameIsValidating = false,
+            validateNetworkName = {},
+            errorUpdatingProfile = false,
+            setErrorUpdatingProfile = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ProfileScreenErrorUpdatingPreview() {
+    val navController = rememberNavController()
+    URNetworkTheme {
+        ProfileScreen(
+            navController,
+            loginMode = LoginMode.Authenticated,
+            isSendingResetPassLink = false,
+            sendResetLink = {},
+            passwordResetError = null,
+            markPasswordResetAsSent = false,
+            setPasswordResetError = {},
+            setMarkPasswordResetAsSent = {},
+            userAuth = "hello@bringyour.com",
+            networkName = "my_network",
+            networkNameTextFieldValue = TextFieldValue("my_network"),
+            setNetworkName = {},
+            nameTextFieldValue = TextFieldValue("Lorem Ipsum"),
+            setName = {},
+            isEditingProfile = false,
+            setIsEditingProfile = {},
+            cancelEdits = {},
+            updateProfile = {},
+            isUpdating = false,
+            networkNameIsValid = true,
+            networkNameIsValidating = false,
+            validateNetworkName = {},
+            errorUpdatingProfile = true,
+            setErrorUpdatingProfile = {}
         )
     }
 }

@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.client.NetworkUser
@@ -13,6 +12,9 @@ import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.ui.components.LoginMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +25,7 @@ class AccountViewModel @Inject constructor(
     private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
-    var networkUserVc: NetworkUserViewController? = null
+    private var networkUserVc: NetworkUserViewController? = null
 
     var loginMode by mutableStateOf<LoginMode>(LoginMode.Guest)
         private set
@@ -33,20 +35,11 @@ class AccountViewModel @Inject constructor(
         loginMode = mode
     }
 
-//    var networkName by mutableStateOf<String?>(null)
-//        private set
-
-//    private val setNetworkName: (String) -> Unit = { name ->
-//        Log.i("AccountViewModel", "setting network name to $name")
-//        networkName = name
-//        Log.i("AccountViewModel", "networkName is $networkName")
-//    }
-
-    var networkUser by mutableStateOf<NetworkUser?>(null)
-        private set
+    private val _networkUser = MutableStateFlow<NetworkUser?>(null)
+    val networkUser: StateFlow<NetworkUser?> = _networkUser.asStateFlow()
 
     private val setNetworkUser: (NetworkUser?) -> Unit = { nu ->
-        networkUser = nu
+        _networkUser.value = nu
     }
 
     private val addNetworkUserListener = {
@@ -61,6 +54,10 @@ class AccountViewModel @Inject constructor(
     val upgradePlan = {}
 
     val getCurrentPlan = {}
+
+    val refreshNetworkUser: () -> Unit = {
+        networkUserVc?.fetchNetworkUser()
+    }
 
     init {
 
@@ -84,9 +81,7 @@ class AccountViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch {
-            networkUserVc?.start()
-        }
+        networkUserVc?.start()
 
     }
 
