@@ -88,6 +88,7 @@
     <string name="tap_to_refetch">Tap to try and fetch location.</string>
     <string name="cities">Cities</string>
     <string name="regions">Regions</string>
+    <string name="top_matches">Top Matches</string>
 
     <!-- Account Screen -->
     <string name="account">Account</string>

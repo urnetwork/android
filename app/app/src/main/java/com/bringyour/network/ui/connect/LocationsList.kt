@@ -25,6 +25,7 @@ fun LocationsList(
     cities: List<ConnectLocation>,
     regions: List<ConnectLocation>,
     devices: List<ConnectLocation>,
+    bestSearchMatches: List<ConnectLocation>,
     onLocationSelect: (ConnectLocation?) -> Unit,
     selectedLocation: ConnectLocation?,
     getLocationColor: (String) -> Color,
@@ -56,7 +57,10 @@ fun LocationsList(
     } else {
         // success
         LazyColumn {
-            if (promotedLocations.isNotEmpty()) {
+
+
+
+            if (promotedLocations.isNotEmpty() && searchQuery.isEmpty()) {
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -81,6 +85,32 @@ fun LocationsList(
                 }
 
                 items(promotedLocations) { location ->
+                    ProviderRow(
+                        location = location.name,
+                        providerCount = location.providerCount,
+                        onClick = {
+                            onLocationSelect(location)
+                        },
+                        isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                        color = getLocationColor(location.connectLocationId.toString())
+                    )
+                }
+            }
+
+            if (searchQuery.isNotEmpty() && bestSearchMatches.isNotEmpty()) {
+                item {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(stringResource(id = R.string.top_matches))
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                items(bestSearchMatches) { location ->
                     ProviderRow(
                         location = location.name,
                         providerCount = location.providerCount,
