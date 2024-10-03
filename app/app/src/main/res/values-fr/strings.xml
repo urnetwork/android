@@ -73,7 +73,7 @@
     <string name="search_placeholder">Rechercher tous les emplacements</string>
     <string name="check_internet">Vérifiez votre connexion Internet</string>
     <string name="no_providers_found">Nous n\'avons trouvé aucun fournisseur.</string>
-    <string name="tap_to_refetch">Appuyez pour essayer de récupérer l'emplacement.</string>
+    <string name="tap_to_refetch">Appuyez pour essayer de récupérer l\'emplacement.</string>
     <string name="cities">Villes</string>
     <string name="regions">Régions</string>
     <string name="top_matches">Meilleures correspondances</string>
