@@ -70,9 +70,12 @@ fun ProvidersBottomSheet(
         cities = locationsViewModel.cities,
         regions = locationsViewModel.regions,
         devices = locationsViewModel.devices,
+        bestSearchMatches = locationsViewModel.bestSearchMatches,
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
         fetchLocationsState = fetchLocationsState,
+        searchQuery = locationsViewModel.searchQuery,
+        setSearchQuery = locationsViewModel.setSearchQuery,
         connect = connect,
     ) { innerPadding ->
         content(innerPadding)
@@ -89,14 +92,16 @@ fun ProvidersBottomSheet(
     cities: List<ConnectLocation>,
     regions: List<ConnectLocation>,
     devices: List<ConnectLocation>,
+    bestSearchMatches: List<ConnectLocation>,
     getLocationColor: (String) -> Color,
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
     fetchLocationsState: FetchLocationsState,
+    searchQuery: TextFieldValue,
+    setSearchQuery: (TextFieldValue) -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
@@ -174,8 +179,7 @@ fun ProvidersBottomSheet(
                         value = searchQuery,
                         onValueChange = { query ->
                             if (query.text != searchQuery.text) {
-                                searchQuery = query
-                                filterLocations(searchQuery.text)
+                                setSearchQuery(query)
                             }
                         },
                         placeholder = stringResource(id = R.string.search_placeholder),
@@ -212,6 +216,7 @@ fun ProvidersBottomSheet(
                                 connectCountries = connectCountries,
                                 cities = cities,
                                 regions = regions,
+                                bestSearchMatches = bestSearchMatches,
                                 getLocationColor = getLocationColor,
                                 selectedLocation = selectedLocation,
                                 devices = devices,
@@ -253,11 +258,14 @@ private fun PreviewBottomSheet() {
             cities = listOf<ConnectLocation>(),
             regions = listOf<ConnectLocation>(),
             devices = listOf<ConnectLocation>(),
+            bestSearchMatches = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
             filterLocations = { _ -> },
             fetchLocationsState = FetchLocationsState.Loaded,
+            searchQuery = TextFieldValue(""),
+            setSearchQuery = {}
         ) {
             Text("Hello world")
         }
@@ -285,11 +293,14 @@ private fun PreviewBottomSheetExpanded() {
             cities = listOf<ConnectLocation>(),
             regions = listOf<ConnectLocation>(),
             devices = listOf<ConnectLocation>(),
+            bestSearchMatches = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
             filterLocations = { _ -> },
             fetchLocationsState = FetchLocationsState.Loaded,
+            searchQuery = TextFieldValue(""),
+            setSearchQuery = {}
         ) {
             Text("Hello world")
         }
