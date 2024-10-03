@@ -2,6 +2,7 @@ package com.bringyour.network.ui.wallet
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,13 +11,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -58,7 +57,9 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.Id
 import com.bringyour.network.R
@@ -73,12 +74,15 @@ fun WalletsScreen(
     walletViewModel: WalletViewModel,
 ) {
 
+    LaunchedEffect(Unit) {
+        walletViewModel.fetchTransferStats()
+    }
+
     WalletsScreen(
         accountNavController,
         walletNavController,
         isSolanaSaga = sagaViewModel.isSolanaSaga,
         getSolanaAddress = sagaViewModel.getSagaWalletAddress,
-        nextPayoutDate = walletViewModel.nextPayoutDateStr,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
@@ -92,13 +96,15 @@ fun WalletsScreen(
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
         payoutWalletId = walletViewModel.payoutWalletId,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
-        isInitializingFirstWallet = walletViewModel.isInitializingFirstWallet,
+        isInitializingFirstWallet = walletViewModel.initializingFirstWallet,
         setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
         payouts = walletViewModel.payouts,
-        isRemovingWallet = walletViewModel.isRemovingWallet
+        isRemovingWallet = walletViewModel.isRemovingWallet,
+        pollWallets = walletViewModel.pollWallets,
+        initializingWallets = walletViewModel.initializingWallets,
+        unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount
     )
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,7 +114,6 @@ fun WalletsScreen(
     walletNavController: NavController,
     isSolanaSaga: Boolean,
     getSolanaAddress: ((String?) -> Unit) -> Unit,
-    nextPayoutDate: String,
     addExternalWalletModalVisible: Boolean,
     openModal: () -> Unit,
     closeModal: () -> Unit,
@@ -126,14 +131,14 @@ fun WalletsScreen(
     setCircleWalletInProgress: (Boolean) -> Unit,
     setInitializingFirstWallet: (Boolean) -> Unit,
     payouts: List<AccountPayment>,
-    isRemovingWallet: Boolean
+    isRemovingWallet: Boolean,
+    pollWallets: () -> Unit?,
+    initializingWallets: Boolean,
+    unpaidMegaByteCount: String
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
     val app = context.applicationContext as? MainApplication
-
-    // todo - populate this with real data
-    val estimatedPayoutAmount = "0.25"
 
     val initCircleWallet = {
 
@@ -154,6 +159,8 @@ fun WalletsScreen(
                     }
 
                     override fun onError(error: Throwable): Boolean {
+                        setCircleWalletInProgress(false)
+                        setInitializingFirstWallet(false)
 
                         if (error is ApiError) {
                             when (error.code) {
@@ -175,18 +182,11 @@ fun WalletsScreen(
                             return true
                         }
 
-                        setCircleWalletInProgress(false)
-                        setInitializingFirstWallet(false)
-
                         // App won't handle next step, SDK will finish the Activity.
                         return false
                     }
 
                     override fun onResult(result: ExecuteResult) {
-
-                        Log.i("WalletScreen", "circle wallet on result")
-                        Log.i("WalletScreen", result.toString())
-
                         complete()
                     }
 
@@ -227,8 +227,7 @@ fun WalletsScreen(
                             )
                         }
 
-                        setCircleWalletInProgress(false)
-                        setInitializingFirstWallet(false)
+                        pollWallets()
                     }
                 }
             )
@@ -241,7 +240,10 @@ fun WalletsScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Payout Wallets", style = TopBarTitleTextStyle)
+                    Text(
+                        stringResource(id = R.string.payout_wallets),
+                        style = TopBarTitleTextStyle
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { accountNavController.popBackStack() }) {
@@ -258,7 +260,6 @@ fun WalletsScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                // .padding(16.dp)
                 .fillMaxSize(),
         ) {
             Column(
@@ -288,7 +289,7 @@ fun WalletsScreen(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            "Estimated on $nextPayoutDate",
+                            stringResource(id = R.string.unpaid_mb),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
@@ -296,24 +297,23 @@ fun WalletsScreen(
                             verticalAlignment = Alignment.Bottom
                         ) {
                             Text(
-                                estimatedPayoutAmount,
+                                unpaidMegaByteCount,
                                 style = HeadingLargeCondensed
                             )
 
                             Spacer(modifier = Modifier.width(2.dp))
-
-                            // this is really hacky, but setting line-height isn't being acknowledged
-                            Box(
-                                modifier = Modifier.offset(y = -(11).dp)
-                            ) {
-                                Text(
-                                    "USDC",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = TextMuted
-                                )
-                            }
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    Text(
+                        stringResource(id = R.string.payouts_amount_threshold),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -337,132 +337,147 @@ fun WalletsScreen(
 
             } else {
 
-                if (wallets.isEmpty()) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        SetupWallet(
-                            initCircleWallet = initCircleWallet,
-                            circleWalletInProgress = circleWalletInProgress,
-                            isSolanaSaga = isSolanaSaga,
-                            getSolanaAddress = getSolanaAddress,
-                            openModal = openModal,
-                            connectSaga = { address ->
-
-                                Log.i("WalletsScreen", "Solana address is: $address")
-                                if (!address.isNullOrEmpty()) {
-                                    setExternalWalletAddress(TextFieldValue(address))
-                                    // since this is taken directly from the saga,
-                                    // we can mark this as true without calling our API to validate
-                                    setExternalWalletAddressIsValid("SOL", true)
-                                    createExternalWallet()
-                                }
-                            }
-                        )
-                    }
-                } else {
+                if (initializingWallets) {
 
                     Row(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row {
-                            Text(
-                                "Wallets",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.width(2.dp))
-
-                            InfoIconWithOverlay() {
-                                Column() {
-                                    Text(
-                                        "Solana and Polygon wallets are currently supported",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = BlueLight
-                                    )
-                                }
-                            }
-                        }
-
-                        IconButton(
-                            onClick = { openModal() },
-                            modifier = Modifier
-                                .background(
-                                    color = MainTintedBackgroundBase,
-                                    shape = CircleShape
-                                )
-                                .width(26.dp)
-                                .height(26.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.plus_icon),
-                                contentDescription = "Add wallet",
-                                tint = TextMuted,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(24.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    if (isRemovingWallet) {
-                        Row(
-                            modifier = Modifier
-                                .height(124.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                } else {
+                    if (wallets.isEmpty()) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(24.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            SetupWallet(
+                                initCircleWallet = initCircleWallet,
+                                circleWalletInProgress = circleWalletInProgress,
+                                isSolanaSaga = isSolanaSaga,
+                                getSolanaAddress = getSolanaAddress,
+                                openModal = openModal,
+                                connectSaga = { address ->
+
+                                    Log.i("WalletsScreen", "Solana address is: $address")
+                                    if (!address.isNullOrEmpty()) {
+                                        setExternalWalletAddress(TextFieldValue(address))
+                                        // since this is taken directly from the saga,
+                                        // we can mark this as true without calling our API to validate
+                                        setExternalWalletAddressIsValid("SOL", true)
+                                        createExternalWallet()
+                                    }
+                                }
                             )
                         }
                     } else {
-                        LazyRow(
+
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(124.dp)
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-
-                            item {
-                                Spacer(modifier = Modifier.width(16.dp))
-                            }
-
-                            items(wallets) { wallet ->
-
-                                WalletCard(
-                                    isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
-                                    blockchain = Blockchain.fromString(wallet.blockchain),
-                                    isPayoutWallet = wallet.walletId.equals(payoutWalletId),
-                                    walletAddress = wallet.walletAddress,
-                                    walletId = wallet.walletId,
-                                    navController = walletNavController
+                            Row {
+                                Text(
+                                    stringResource(id = R.string.wallets),
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
+                                Spacer(modifier = Modifier.width(2.dp))
 
-                                Spacer(modifier = Modifier.width(16.dp))
-
+                                InfoIconWithOverlay() {
+                                    Column() {
+                                        Text(
+                                            stringResource(id = R.string.chains_supported),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = BlueLight
+                                        )
+                                    }
+                                }
                             }
 
-
+                            IconButton(
+                                onClick = { openModal() },
+                                modifier = Modifier
+                                    .background(
+                                        color = MainTintedBackgroundBase,
+                                        shape = CircleShape
+                                    )
+                                    .width(26.dp)
+                                    .height(26.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.plus_icon),
+                                    contentDescription = stringResource(id = R.string.add_wallet),
+                                    tint = TextMuted,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        if (isRemovingWallet) {
+                            Row(
+                                modifier = Modifier
+                                    .height(124.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(24.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        } else {
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(124.dp)
+                            ) {
+
+                                item {
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                }
+
+                                items(wallets) { wallet ->
+
+                                    WalletCard(
+                                        isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
+                                        blockchain = Blockchain.fromString(wallet.blockchain),
+                                        isPayoutWallet = wallet.walletId.equals(payoutWalletId),
+                                        walletAddress = wallet.walletAddress,
+                                        walletId = wallet.walletId,
+                                        navController = walletNavController
+                                    )
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
+                                }
+
+
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            WalletsPayoutsList(
+                                payouts,
+                                wallets
+                            )
+                        }
+
                     }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        WalletsPayoutsList(
-                            payouts,
-                            wallets
-                        )
-                    }
-
                 }
 
             }
@@ -475,12 +490,12 @@ fun WalletsScreen(
         ) {
             Column() {
                 Text(
-                    "Connect External Wallet",
+                    stringResource(id = R.string.connect_external_wallet),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "USDC addresses on Solana and Polygon are currently supported.",
+                    stringResource(id = R.string.connect_external_wallet_supported_chains),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -489,8 +504,8 @@ fun WalletsScreen(
                     onValueChange = { newValue ->
                         setExternalWalletAddress(newValue)
                                     },
-                    label = "Wallet Address",
-                    placeholder = "Copy and paste here",
+                    label = stringResource(id = R.string.wallet_address_label),
+                    placeholder = stringResource(id = R.string.wallet_address_placeholder),
                     maxLines = 2
                 )
 
@@ -502,26 +517,25 @@ fun WalletsScreen(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    ClickableText(
+                    Text(
                         text = AnnotatedString(
-                            "Cancel",
+                            stringResource(id = R.string.cancel),
                             spanStyle = SpanStyle(
                                 color = BlueMedium,
                                 fontSize = 14.sp
                             )
                         ),
-                        onClick = {
+                        modifier = Modifier.clickable {
                             closeModal()
                             setExternalWalletAddress(TextFieldValue(""))
-                                  },
-
+                        },
                     )
 
                     Spacer(modifier = Modifier.width(32.dp))
 
-                    ClickableText(
+                    Text(
                         text = AnnotatedString(
-                            "Connect",
+                            stringResource(id = R.string.connect),
                             spanStyle = if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet)
                                 SpanStyle(
                                     color = BlueMedium,
@@ -532,8 +546,7 @@ fun WalletsScreen(
                                     fontSize = 14.sp
                                 )
                         ),
-                        onClick = {
-                            // todo - validate and add external wallet
+                        modifier = Modifier.clickable {
                             if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
                                 createExternalWallet()
                             }
@@ -558,7 +571,6 @@ private fun WalletScreenPreview() {
             walletNavController,
             isSolanaSaga = false,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -577,6 +589,9 @@ private fun WalletScreenPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {},
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -594,7 +609,6 @@ private fun WalletScreenSagaPreview() {
             walletNavController,
             isSolanaSaga = true,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -613,6 +627,9 @@ private fun WalletScreenSagaPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {},
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -630,7 +647,6 @@ private fun WalletScreenExternalWalletModalPreview() {
             walletNavController,
             isSolanaSaga = true,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = true,
             openModal = {},
             closeModal = {},
@@ -649,6 +665,9 @@ private fun WalletScreenExternalWalletModalPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {},
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -666,7 +685,6 @@ private fun WalletScreenInitializingWalletPreview() {
             walletNavController,
             isSolanaSaga = false,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -685,6 +703,9 @@ private fun WalletScreenInitializingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
+            pollWallets = {},
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -702,7 +723,6 @@ private fun WalletScreenRemovingWalletPreview() {
             walletNavController,
             isSolanaSaga = false,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -721,6 +741,9 @@ private fun WalletScreenRemovingWalletPreview() {
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = true,
+            pollWallets = {},
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }

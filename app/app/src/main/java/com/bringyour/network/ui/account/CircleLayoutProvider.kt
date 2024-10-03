@@ -21,7 +21,7 @@ class CircleLayoutProvider(val context: Context) : LayoutProvider() {
     }
 
     private fun getHeadingColors(): Int {
-        return context.getColor(R.color.by_electric_blue)
+        return context.getColor(R.color.blue)
     }
 
     override fun getTextConfigs(key: TextsKey): Array<TextConfig?>? {

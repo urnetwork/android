@@ -114,7 +114,7 @@ fun InfoPopup(
 
 @Preview(showBackground = true)
 @Composable
-fun InfoIconWithOverlayPreview() {
+private fun InfoIconWithOverlayPreview() {
     URNetworkTheme {
         InfoIconWithOverlay() {
             Text("This is some information.")
@@ -124,7 +124,7 @@ fun InfoIconWithOverlayPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun InfoPopupPreview() {
+private fun InfoPopupPreview() {
     URNetworkTheme {
         InfoPopup(
             onDismiss = {}

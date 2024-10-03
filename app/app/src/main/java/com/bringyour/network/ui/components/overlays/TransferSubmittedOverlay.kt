@@ -15,70 +15,80 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.Blue200
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.theme.Yellow
 
 @Composable
-fun GuestModeOverlay(
+fun TransferSubmittedOverlay(
     onDismiss: () -> Unit
 ) {
-
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-
     OverlayBackground(
         onDismiss = { onDismiss() },
-        bgImageResourceId = R.drawable.overlay_guest_mode_bg
+        bgImageResourceId = R.drawable.overlay_transfer_submitted_bg
     ) {
-        Box(modifier = Modifier
-            .background(
-                Blue200,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .fillMaxWidth()
-            .padding(24.dp)
-        ) {
-            Column() {
+        Box(
+            modifier = Modifier
+                .background(
+                    Yellow,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .fillMaxWidth()
+                .padding(24.dp)
 
-                Icon(painter = painterResource(id = R.drawable.globe_filled), contentDescription = "URnetwork globe filled")
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+
+                Icon(
+                    painter = painterResource(id = R.drawable.globe_filled),
+                    contentDescription = "URnetwork globe filled"
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    stringResource(id = R.string.in_guest_mode),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Black
-                )
-
-                Text(
-                    stringResource(id = R.string.start_earning_join),
+                    stringResource(id = R.string.transfer_submitted),
                     style = MaterialTheme.typography.headlineLarge,
                     color = Black
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    stringResource(id = R.string.transfer_submitted_details),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Black
+                )
+
 
                 Spacer(modifier = Modifier.height(128.dp))
 
                 URButton(
                     onClick = {
-                        application?.logout()
+                        onDismiss()
                     },
-                    style = ButtonStyle.OUTLINE
+                    style = ButtonStyle.OUTLINE,
+                    borderColor = Black
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text(stringResource(id = R.string.create_account), style = buttonTextStyle, color = Black)
+                        Text(
+                            "Close",
+                            style = buttonTextStyle,
+                            color = Black
+                        )
                     }
                 }
             }
@@ -88,9 +98,9 @@ fun GuestModeOverlay(
 
 @Preview
 @Composable
-private fun GuestModeOverlayPreview() {
+private fun TransferSubmittedOverlayPreview() {
     URNetworkTheme {
-        GuestModeOverlay(
+        TransferSubmittedOverlay(
             onDismiss = {}
         )
     }

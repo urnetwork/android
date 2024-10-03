@@ -16,8 +16,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,11 +35,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
+import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
+import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.wallet.SagaViewModel
@@ -56,6 +64,9 @@ enum class AppDestinations(
 @Composable
 fun MainNavHost(
     sagaViewModel: SagaViewModel,
+    settingsViewModel: SettingsViewModel,
+    promptReviewViewModel: PromptReviewViewModel,
+    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel()
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -80,6 +91,15 @@ fun MainNavHost(
         navigationBarContainerColor = Black,
     )
 
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val navSuiteLayoutType = with(adaptiveInfo) {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
+            NavigationSuiteType.NavigationBar
+        } else {
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -93,6 +113,7 @@ fun MainNavHost(
             containerColor = Black,
             contentColor = Black,
             navigationSuiteColors = customColors,
+            layoutType = navSuiteLayoutType,
             navigationSuiteItems = {
                 AppDestinations.entries.forEach { screen ->
                     item(
@@ -120,6 +141,8 @@ fun MainNavHost(
                         currentDestination,
                         sagaViewModel,
                         accountNavHostController,
+                        settingsViewModel,
+                        promptReviewViewModel
                     )
                 }
 
@@ -132,6 +155,8 @@ fun MainNavHost(
                         currentDestination,
                         sagaViewModel,
                         accountNavHostController,
+                        settingsViewModel,
+                        promptReviewViewModel
                     )
                     HorizontalDivider(
                         modifier = Modifier
@@ -148,7 +173,9 @@ fun MainNavHost(
         }
     }
 
-    FullScreenOverlay()
+    FullScreenOverlay(
+        referralCodeViewModel
+    )
 
 }
 
@@ -157,7 +184,10 @@ fun MainNavContent(
     currentDestination: AppDestinations,
     sagaViewModel: SagaViewModel,
     accountNavHostController: NavHostController,
+    settingsViewModel: SettingsViewModel,
+    promptReviewViewModel: PromptReviewViewModel,
     connectViewModel: ConnectViewModel = hiltViewModel(),
+    planViewModel: PlanViewModel = hiltViewModel()
 ) {
 
     val localDensityCurrent = LocalDensity.current
@@ -179,10 +209,13 @@ fun MainNavContent(
     when (currentDestination) {
         AppDestinations.CONNECT -> ConnectScreen(
             connectViewModel,
+            promptReviewViewModel
         )
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,
-            accountNavHostController
+            accountNavHostController,
+            planViewModel,
+            settingsViewModel
         )
         AppDestinations.SUPPORT -> FeedbackScreen()
     }

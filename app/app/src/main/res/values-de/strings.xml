@@ -1,4 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">URnetwork</string>
+    <string name="title_login">Anmeldung</string>
+    <string name="user_auth_label">E-Mail oder Telefon</string>
+    <string name="user_auth_placeholder">Gib deine Telefonnummer oder E-Mail-Adresse ein</string>
+    <string name="get_started">Loslegen</string>
+    <string name="google_auth_btn_text">Mit Google anmelden</string>
+    <string name="commitment_issues">Bindungsprobleme? </string>
+    <string name="try_guest_mode"> Gastmodus testen</string>
+
+    <string name="name_label">Name</string>
+    <string name="name_placeholder">Dein Name</string>
+    <string name="network_name_label">Netzwerkname</string>
+    <string name="network_name_placeholder">Dein Netzwerkname</string>
+    <string name="network_name_support_txt">Netzwerknamen müssen mindestens 6 Zeichen lang sein</string>
+    <string name="password_label">Passwort</string>
+    <string name="password_support_txt">Das Passwort muss mindestens 12 Zeichen lang sein</string>
+    <string name="continue_txt">Weiter</string>
+
+    <string name="login_password_header">Schön, dich\nwiederzusehen</string>
+    <string name="forget_password">Passwort vergessen?</string>
+    <string name="reset_it">Zurücksetzen</string>
+
+    <string name="forgot_password">Passwort vergessen?</string>
+    <string name="check_junk_mail">Möglicherweise musst du deinen Spam-Ordner überprüfen oder no-reply@ur.io entsperren</string>
+    <string name="send_reset_link">Link zum Zurücksetzen senden</string>
+
+    <string name="reset_link_sent">Link zum Zurücksetzen gesendet</string>
+    <string name="reset_link_sent_to">Link zum Zurücksetzen gesendet an </string>
+    <string name="resend_reset_link">Link erneut senden</string>
+    <string name="sent">Gesendet!</string>
+
+    <string name="login_verify_header">Du hast eine E-Mail</string>
+    <string name="login_verify_details">Sag uns, wer du wirklich bist. Gib den Code ein, den wir dir\ngesendet haben, um deine Identität zu überprüfen.</string>
+    <string name="dont_see_it">Siehst du ihn nicht?</string>
+    <string name="resend_verify_code">Code erneut senden</string>
+
+    <string name="connect_external_wallet">Externe Wallet verbinden</string>
+    <string name="connect_external_wallet_supported_chains">USDC-Adressen auf Solana und Polygon werden derzeit unterstützt.</string>
+    <string name="wallet_address_label">Wallet-Adresse</string>
+    <string name="wallet_address_placeholder">Hier kopieren und einfügen</string>
+    <string name="total_payouts">Gesamtauszahlungen</string>
+    <string name="wallets">Wallets</string>
+    <string name="add_wallet">Wallet hinzufügen</string>
+
+    <string name="setup_circle_wallet">Circle Wallet einrichten</string>
+    <string name="connect_saga_wallet">Saga Wallet verbinden</string>
+
+    <string name="something_went_wrong">Etwas ist schiefgelaufen.</string>
+    <string name="please_wait">Bitte warte ein paar Minuten und versuche es erneut.</string>
+
+    <string name="change_password">Passwort ändern</string>
+    <string name="edit_profile">Profil bearbeiten</string>
+    <string name="save">Speichern</string>
+
+    <string name="share_with_others">Du teilst mit anderen, wir teilen mit dir. Verdiene einen Teil der Einnahmen, wenn du Daten an andere im Netzwerk weitergibst.</string>
+    <string name="start_earning">Um mit dem Verdienen zu beginnen, verbinde deine Kryptowährungs-Wallet mit URnetzwerk oder richte eine mit Circle ein.</string>
+
+    <string name="circle_transfer_topbar_title">USDC überweisen</string>
+    <string name="circle_transfer_header">An eine externe Wallet überweisen</string>
+    <string name="circle_transfer_fee_coverage">URnetzwerk übernimmt deine Überweisungsgebühren.</string>
+    <string name="transfer">Überweisen</string>
+    <string name="insufficient_funds">Unzureichende Mittel</string>
+
+    <string name="tap_to_connect">Zum Verbinden tippen</string>
+
+    <string name="promoted_locations">Beworbene Standorte</string>
+    <string name="best_available_provider">Bester verfügbarer Anbieter</string>
+    <string name="countries">Länder</string>
+    <string name="devices">Geräte</string>
+    <string name="search_placeholder">Alle Standorte durchsuchen</string>
+    <string name="check_internet">Überprüfe deine Internetverbindung</string>
+    <string name="no_providers_found">Wir haben keine Anbieter gefunden.</string>
+
+    <string name="account">Konto</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Einstellungen</string>
+    <string name="wallet">Wallet</string>
+    <string name="refer_and_earn">Werben und verdienen</string>
+
+    <string name="set_up_wallet">Wallet einrichten</string>
+
+    <string name="guest">Gast</string>
+    <string name="supporter">Unterstützer</string>
+    <string name="free">Kostenlos</string>
+    <string name="create_account">Konto erstellen</string>
+    <string name="member">Mitglied</string>
+
+    <string name="upgrade_subscription">Abonnement upgraden</string>
+    <string name="support_us">Unterstütze uns beim Aufbau eines neuen Netzwerktyps, der gibt, anstatt zu nehmen.</string>
+    <string name="unlock_speed">Du schaltest noch schnellere Geschwindigkeiten frei und erhältst vorrangigen Zugriff auf neue Funktionen wie robuste Anti-Zensur-Maßnahmen und Datenkontrolle.</string>
+    <string name="join_the_movement">Der Bewegung beitreten</string>
+
+    <string name="in_guest_mode">Du befindest dich im Gastmodus</string>
+    <string name="start_earning_join">Um mit dem Verdienen zu beginnen, trete dem Netzwerk bei</string>
+
+    <string name="refer_friends_header">Freunde werben</string>
+    <string name="refer_friends_detail">Mehr Verbindungen helfen unserer Community, anonym zu bleiben (und helfen dir, Geld zu verdienen!)</string>
+
+    <string name="balance">Guthaben</string>
+    <string name="transfer_funds">Geld überweisen</string>
+    <string name="no_payouts_found">Keine Auszahlungen für diese Wallet gefunden</string>
+    <string name="earnings">Einnahmen</string>
+    <string name="make_default">Als Standard festlegen</string>
+    <string name="payout_wallets">Auszahlungs-Wallets</string>
+    <string name="chains_supported">Solana- und Polygon-Wallets werden derzeit unterstützt</string>
+
+    <string name="transfer_submitted">Überweisung übermittelt</string>
+    <string name="transfer_submitted_details">Deine Überweisung wurde eingeleitet und wird abgeschlossen, sobald die Transaktion in der Chain verarbeitet wurde.</string>
+
+    <string name="see_world_content">Sieh alle\nInhalte\nder Welt</string>
+    <string name="see_world_content_description">Sieh alle Inhalte der Welt mit URnetzwerk</string>
+    <string name="stay_private_description">Bleib absolut privat und anonym mit URnetzwerk</string>
+    <string name="stay_private">Bleib\nabsolut\nprivat und\nanonym</string>
+    <string name="build_right_description">Bau das Internet richtig auf mit URnetzwerk</string>
+    <string name="build_right">Bau das\nInternet\nrichtig auf</string>
+    <string name="with_urnetwork">mit URnetzwerk</string>
+
+    <string name="unlock_supporter_tooltip">Schalte noch schnellere Geschwindigkeiten frei und erhalte vorrangigen Zugriff auf neue Funktionen.</string>
+    <string name="become_supporter">Unterstützer werden</string>
+    <string name="client_id_label">Client-ID</string>
+    <string name="share_label">URnetzwerk teilen</string>
+    <string name="notifications_label">Benachrichtigungen</string>
+    <string name="receive_notifications">Verbindungsbenachrichtigungen erhalten</string>
+    <string name="connectivity_label">Konnektivität</string>
+    <string name="allow_local_connections">Lokale Verbindungen zulassen</string>
+    <string name="stay_in_touch">In Kontakt bleiben</string>
+    <string name="send_product_updates">Sende mir Produkt-Updates</string>
+    <string name="join_community_discord">Tritt der Community bei auf</string>
+    <string name="update_notification_settings">Benachrichtigungsberechtigungen in deinen Android-Einstellungen aktualisieren</string>
+
+    <string name="feedback_header">Kontakt aufnehmen</string>
+    <string name="feedback_label">Feedback-Feld</string>
+    <string name="feedback_placeholder">Sag uns, was du wirklich denkst</string>
+
+    <string name="cancel">Brich ab</string>
+    <string name="connect">Verbinde</string>
+    <string name="remove">Entferne</string>
+    <string name="plan">Planen</string>
+    <string name="change">Ändere</string>
+    <string name="share">Teile</string>
+    <string name="copy">Kopiere</string>
+    <string name="send">Sende</string>
+
+    <string name="login_error_auth_allowed">Bitte melde dich mit einem der folgenden an: %s.</string>
+    <string name="login_error">Etwas ist schiefgelaufen. Versuche es erneut.</string>
+    <string name="login_client_error">Beim Authentifizieren des Clients ist ein Fehler aufgetreten. Versuche es erneut.</string>
+    <string name="network_name_check_error">Nicht verfügbar. Muss mindestens 3 Zeichen von einem bestehenden Netzwerk abweichen. Mach es einzigartig oder länger.</string>
+    <string name="verify_error">Etwas ist schiefgelaufen. Versuche es erneut.</string>
+    <string name="create_network_error">Etwas ist schiefgelaufen. Versuche es erneut.</string>
+    <string name="verify_send_error">Fehler</string>
+    <string name="circlepw_show_pin">PIN anzeigen</string>
+    <string name="circlepw_hide_pin">PIN verbergen</string>
+    <string name="circlepw_continue">Fortsetzen</string>
+    <string name="circlepw_next">Weiter</string>
+    <string name="circlepw_question_label">Frage:</string>
+    <string name="circlepw_answer_label">Antwort:</string>
+    <string name="circlepw_hint_label">Hinweis:</string>
+    <string name="circlepw_hint_tag">Hinweis:</string>
+    <string name="circlepw_confirm">Bestätigen</string>
+    <string name="circlepw_pin_remain_attemps_template">Sie haben noch %s Versuche übrig.</string>
+    <string name="circlepw_pin_lock_period_template">Sie haben alle PIN-Versuche aufgebraucht. Bitte warten Sie %s Minuten, um es später erneut zu versuchen.</string>
+    <string name="circlepw_answer_remain_attemps_template">Sie haben noch %s Versuche übrig.</string>
+    <string name="circlepw_answer_lock_period_template">Bitte warten Sie %s Minuten, um es später erneut zu versuchen.</string>
+    <string name="circlepw_enter_pincode_subhead">Lassen Sie uns wissen, ob Sie es wirklich sind.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">PIN vergessen?</string>
+    <string name="circlepw_new_pincode_subhead">Ihre PIN darf keine sich wiederholenden (z. B. 000000) oder aufeinanderfolgenden (z. B. 123456) Zahlen enthalten.</string>
+    <string name="circlepw_confirm_pincode_headline">Geben Sie Ihre PIN erneut ein, um sie zu bestätigen</string>
+    <string name="circlepw_security_intros_description">Dies ist die einzige Möglichkeit, den Zugriff auf die Wallet wiederherzustellen, wenn Sie Ihre PIN vergessen haben. Wählen Sie 2 Sicherheitsfragen und geben Sie Antworten zur Wiederherstellung des Zugriffs an.</string>
+    <string name="circlepw_security_questions_title">Wiederherstellungsmethode</string>
+    <string name="circlepw_security_questions_question_placeholder">Wählen Sie eine Frage aus</string>
+    <string name="circlepw_security_questions_answer_header">Geben Sie eine Antwort an</string>
+    <string name="circlepw_security_questions_answer_placeholder">Geben Sie Ihre Antwort hier ein</string>
+    <string name="circlepw_security_questions_answer_hint_header">Geben Sie einen Tipp für die Antwort an (optional)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Geben Sie Ihren Tipp hier ein</string>
+    <string name="circlepw_select_question_title">Wählen Sie eine Frage aus</string>
+    <string name="circlepw_security_summary_title">Zusammenfassung</string>
+    <string name="circlepw_security_confirm_title">Bestätigung</string>
+    <string name="circlepw_security_confirm_headline">Bewahren Sie Ihre Fragen sicher auf</string>
+    <string name="circlepw_security_confirm_input_headline">Geben Sie \"I agree\" ein, um fortzufahren:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Geben Sie hier \"I agree\" ein</string>
+    <string name="circlepw_security_confirm_input_match">Ich stimme zu</string>
+    <string name="circlepw_recover_pincode_answer_input_header">Geben Sie Ihre Antwort hier ein</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Geben Sie Ihre Antwort hier ein</string>
+
 </resources>

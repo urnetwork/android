@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.wallet
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,16 +7,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 
 @Composable
@@ -37,7 +35,7 @@ fun SetupWallet(
 
         Column {
             Text(
-                "You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.",
+                stringResource(id = R.string.share_with_others),
                 style = MaterialTheme.typography.bodyLarge,
                 color = TextMuted
             )
@@ -45,7 +43,7 @@ fun SetupWallet(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                "To start earning, connect your cryptocurrency wallet to URnetwork or set one up with Circle.",
+                stringResource(id = R.string.start_earning),
                 style = MaterialTheme.typography.bodyLarge,
                 color = TextMuted
             )
@@ -59,17 +57,18 @@ fun SetupWallet(
                 URButton(
                     onClick = {
                         getSolanaAddress { address ->
-                            Log.i("WalletScreen", "Connected Solana address is $address")
                             connectSaga(address)
                         }
                     },
-                    // style = ButtonStyle.OUTLINE
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Connect Saga wallet", style = buttonTextStyle)
+                        Text(
+                            stringResource(id = R.string.connect_saga_wallet),
+                            style = buttonTextStyle
+                        )
                     }
                 }
 
@@ -85,7 +84,7 @@ fun SetupWallet(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Connect external wallet", style = buttonTextStyle)
+                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
                     }
                 }
 
@@ -100,7 +99,7 @@ fun SetupWallet(
                     },
                     enabled = !circleWalletInProgress
                 ) { buttonTextStyle ->
-                    Text("Set up Circle Wallet", style = buttonTextStyle)
+                    Text(stringResource(id = R.string.setup_circle_wallet), style = buttonTextStyle)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -115,7 +114,7 @@ fun SetupWallet(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Connect external wallet", style = buttonTextStyle)
+                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
                     }
                 }
 

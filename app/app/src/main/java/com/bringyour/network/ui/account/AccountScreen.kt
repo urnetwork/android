@@ -2,6 +2,7 @@ package com.bringyour.network.ui.account
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +44,8 @@ import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.Plan
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
@@ -55,6 +59,7 @@ import kotlinx.coroutines.launch
 fun AccountScreen(
     navController: NavHostController,
     accountViewModel: AccountViewModel,
+    planViewModel: PlanViewModel,
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
     walletCount: Int
@@ -71,7 +76,8 @@ fun AccountScreen(
 
     UpgradePlanBottomSheetScaffold(
         scaffoldState = scaffoldState,
-        scope = scope
+        scope = scope,
+        planViewModel = planViewModel
     ) {
         AccountScreenContent(
             loginMode = accountViewModel.loginMode,
@@ -81,7 +87,8 @@ fun AccountScreen(
             networkName = accountViewModel.networkUser?.networkName,
             totalPayoutAmount = totalPayoutAmount,
             totalPayoutAmountInitialized = totalPayoutAmountInitialized,
-            walletCount = walletCount
+            walletCount = walletCount,
+            currentPlan = planViewModel.currentPlan
         )
     }
 
@@ -97,7 +104,8 @@ fun AccountScreenContent(
     networkName: String?,
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
-    walletCount: Int
+    walletCount: Int,
+    currentPlan: Plan
 ) {
 
     val context = LocalContext.current
@@ -117,7 +125,7 @@ fun AccountScreenContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Account", style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(id = R.string.account), style = MaterialTheme.typography.headlineSmall)
             AccountSwitcher(
                 loginMode = loginMode,
                 networkName = networkName
@@ -142,7 +150,7 @@ fun AccountScreenContent(
                 Box() {
                     Column {
                         Text(
-                            "Member",
+                            stringResource(id = R.string.member),
                             style = TextStyle(
                                 color = TextMuted
                             )
@@ -156,40 +164,46 @@ fun AccountScreenContent(
                         ) {
 
                             if (loginMode == LoginMode.Guest) {
-                                Text("Guest",
+                                Text(
+                                    stringResource(id = R.string.guest),
                                     style = MaterialTheme.typography.headlineMedium
                                 )
                             } else {
-                                Text("Free",
+
+                                Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
                                     style = MaterialTheme.typography.headlineMedium
                                 )
                             }
 
                             if (loginMode == LoginMode.Guest) {
-                                ClickableText(
-                                    modifier = Modifier.offset(y = (-8).dp),
-                                    text = AnnotatedString("Create account"),
-                                    onClick = {
-                                        application?.logout()
-                                    },
+                                Text(
+                                    stringResource(id = R.string.create_account),
                                     style = TextStyle(
                                         color = BlueMedium
-                                    )
+                                    ),
+                                    modifier = Modifier
+                                        .offset(y = (-8).dp)
+                                        .clickable {
+                                            application?.logout()
+                                        }
                                 )
                             } else {
-                                ClickableText(
-                                    modifier = Modifier.offset(y = (-8).dp),
-                                    text = AnnotatedString("Change"),
-                                    onClick = {
-                                        Log.i("AccountScreen", "expanding bottom sheet")
-                                        scope.launch {
-                                            scaffoldState.bottomSheetState.expand()
-                                        }
-                                    },
-                                    style = TextStyle(
-                                        color = BlueMedium
+
+                                if (currentPlan == Plan.Basic) {
+                                    Text(
+                                        stringResource(id = R.string.change),
+                                        modifier = Modifier
+                                            .offset(y = (-8).dp)
+                                            .clickable {
+                                                scope.launch {
+                                                    scaffoldState.bottomSheetState.expand()
+                                                }
+                                            },
+                                        style = TextStyle(
+                                            color = BlueMedium
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
@@ -205,7 +219,7 @@ fun AccountScreenContent(
                 Box() {
                     Column {
                         Text(
-                            "Earnings",
+                            stringResource(id = R.string.earnings),
                             style = TextStyle(
                                 color = TextMuted
                             )
@@ -239,14 +253,18 @@ fun AccountScreenContent(
                                     }
 
                                     if (walletCount <= 0) {
-                                        ClickableText(
-                                            modifier = Modifier.offset(y = -8.dp),
-                                            text = AnnotatedString("Set up wallet"),
-                                            onClick = {},
+                                        Text(
+                                            text = stringResource(id = R.string.set_up_wallet),
+                                            modifier = Modifier
+                                                .offset(y = (-8).dp)
+                                                .clickable {
+                                                    navController.navigate("wallets")
+                                                },
                                             style = TextStyle(
                                                 color = BlueMedium
                                             )
                                         )
+
                                     }
                                 }
                             } else {
@@ -274,7 +292,7 @@ fun AccountScreenContent(
 
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_user,
-            text = "Profile",
+            text = stringResource(id = R.string.profile),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("profile")
@@ -286,7 +304,7 @@ fun AccountScreenContent(
         HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_settings,
-            text = "Settings",
+            text = stringResource(id = R.string.settings),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("settings")
@@ -298,7 +316,7 @@ fun AccountScreenContent(
         HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_wallet,
-            text = "Wallet",
+            text = stringResource(id = R.string.wallet),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("wallets")
@@ -310,7 +328,7 @@ fun AccountScreenContent(
         HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_refer,
-            text = "Refer and earn",
+            text = stringResource(id = R.string.refer_and_earn),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
                     overlayVc?.openOverlay(OverlayMode.Refer.toString())
@@ -327,7 +345,7 @@ fun AccountScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-private fun AccountAuthenticatedPreview() {
+private fun AccountSupporterAuthenticatedPreview() {
 
     val navController = rememberNavController()
 
@@ -342,21 +360,51 @@ private fun AccountAuthenticatedPreview() {
 
     URNetworkTheme {
 
-        UpgradePlanBottomSheetScaffold(
+        AccountScreenContent(
+            loginMode = LoginMode.Authenticated,
+            navController = navController,
             scaffoldState = scaffoldState,
-            scope = scope
-        ) {
-            AccountScreenContent(
-                loginMode = LoginMode.Authenticated,
-                navController = navController,
-                scaffoldState = scaffoldState,
-                scope = scope,
-                networkName = "ur_network",
-                totalPayoutAmount = 120.12387,
-                totalPayoutAmountInitialized = true,
-                walletCount = 2
-            )
-        }
+            scope = scope,
+            networkName = "ur_network",
+            totalPayoutAmount = 120.12387,
+            totalPayoutAmountInitialized = true,
+            walletCount = 2,
+            currentPlan = Plan.Supporter
+        )
+
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun AccountBasicAuthenticatedPreview() {
+
+    val navController = rememberNavController()
+
+    val scope = rememberCoroutineScope()
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        )
+    )
+
+    URNetworkTheme {
+
+        AccountScreenContent(
+            loginMode = LoginMode.Authenticated,
+            navController = navController,
+            scaffoldState = scaffoldState,
+            scope = scope,
+            networkName = "ur_network",
+            totalPayoutAmount = 120.12387,
+            totalPayoutAmountInitialized = true,
+            walletCount = 2,
+            currentPlan = Plan.Basic
+        )
+
     }
 }
 
@@ -378,21 +426,17 @@ private fun AccountGuestPreview() {
 
     URNetworkTheme {
 
-        UpgradePlanBottomSheetScaffold(
+        AccountScreenContent(
+            loginMode = LoginMode.Guest,
+            navController = navController,
             scaffoldState = scaffoldState,
-            scope = scope
-        ) {
-            AccountScreenContent(
-                loginMode = LoginMode.Guest,
-                navController = navController,
-                scaffoldState = scaffoldState,
-                scope = scope,
-                networkName = "ur_network",
-                totalPayoutAmount = 0.0,
-                totalPayoutAmountInitialized = true,
-                walletCount = 0
-            )
-        }
+            scope = scope,
+            networkName = "ur_network",
+            totalPayoutAmount = 0.0,
+            totalPayoutAmountInitialized = true,
+            walletCount = 0,
+            currentPlan = Plan.Basic
+        )
     }
 }
 
@@ -413,21 +457,16 @@ private fun AccountGuestNoWalletPreview() {
     )
 
     URNetworkTheme {
-
-        UpgradePlanBottomSheetScaffold(
+        AccountScreenContent(
+            loginMode = LoginMode.Guest,
+            navController = navController,
             scaffoldState = scaffoldState,
-            scope = scope
-        ) {
-            AccountScreenContent(
-                loginMode = LoginMode.Guest,
-                navController = navController,
-                scaffoldState = scaffoldState,
-                scope = scope,
-                networkName = "ur_network",
-                totalPayoutAmount = 0.0,
-                totalPayoutAmountInitialized = false,
-                walletCount = 0
-            )
-        }
+            scope = scope,
+            networkName = "ur_network",
+            totalPayoutAmount = 0.0,
+            totalPayoutAmountInitialized = false,
+            walletCount = 0,
+            currentPlan = Plan.Basic
+        )
     }
 }

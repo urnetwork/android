@@ -94,7 +94,7 @@ class LoginViewModel @Inject constructor(): ViewModel() {
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit = { ctx, api, account, onLogin, onCreateNetwork ->
 
-        googleAuthInProgress = true
+        setGoogleAuthInProgress(true)
 
         val args = AuthLoginArgs()
         args.authJwt = account.idToken
@@ -102,17 +102,19 @@ class LoginViewModel @Inject constructor(): ViewModel() {
 
         api?.authLogin(args) { result, err ->
             viewModelScope.launch {
-                googleAuthInProgress = false
+                // googleAuthInProgress = false
 
                 if (err != null) {
                     setLoginError(err.message)
+                    setGoogleAuthInProgress(false)
                 } else if (result.error != null) {
                     setLoginError(result.error.message)
+                    setGoogleAuthInProgress(false)
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     setLoginError(null)
 
                     onLogin(result)
-                    googleAuthInProgress = true
+                    // googleAuthInProgress = true
 
                 } else if (result.authAllowed != null) {
                     val authAllowed = mutableListOf<String>()
@@ -121,6 +123,7 @@ class LoginViewModel @Inject constructor(): ViewModel() {
                     }
 
                     setLoginError(ctx.getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
+                    setGoogleAuthInProgress(false)
                 } else {
                     setLoginError(null)
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -33,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLinkText
 import com.bringyour.network.ui.components.URTextInput
@@ -92,7 +94,10 @@ fun FeedbackScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text("Get in touch", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                stringResource(id = R.string.feedback_header),
+                style = MaterialTheme.typography.headlineSmall
+            )
 
             Spacer(modifier = Modifier.height(64.dp))
 
@@ -113,8 +118,8 @@ fun FeedbackScreen(
                 onValueChange = { newValue ->
                     setFeedbackMsg(newValue)
                 },
-                label = "Feedback box",
-                placeholder = "Tell us how you really feel",
+                label = stringResource(id = R.string.feedback_label),
+                placeholder = stringResource(id = R.string.feedback_placeholder),
                 maxLines = 5,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -133,7 +138,10 @@ fun FeedbackScreen(
             enabled = isBtnEnabled
         ) { buttonTextStyle ->
             Row {
-                Text("Send", style = buttonTextStyle)
+                Text(
+                    stringResource(id = R.string.send),
+                    style = buttonTextStyle
+                )
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,

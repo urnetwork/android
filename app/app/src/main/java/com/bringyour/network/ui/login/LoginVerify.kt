@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -149,14 +150,10 @@ fun LoginVerify(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Text("You've got mail", style = MaterialTheme.typography.headlineLarge)
+            Text(stringResource(id = R.string.login_verify_header), style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                "Tell us who you really are. Enter the code we",
-                color = TextMuted
-            )
-            Text(
-                "sent you to verify your identity.",
+                stringResource(id = R.string.login_verify_details),
                 color = TextMuted
             )
 
@@ -177,12 +174,12 @@ fun LoginVerify(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Don't see it?",
+                    stringResource(id = R.string.dont_see_it),
                     color = TextMuted
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 ClickableText(
-                    text = AnnotatedString("Resend code"),
+                    text = AnnotatedString(stringResource(id = R.string.resend_verify_code)),
                     onClick = {
                         if (resendBtnEnabled) {
                             resendCode()
@@ -218,8 +215,8 @@ fun LoginVerify(
                 }
             } else {
                 Column() {
-                    Text("Something went wrong.")
-                    Text("Please wait a few minutes and try again.")
+                    Text(stringResource(id = R.string.something_went_wrong))
+                    Text(stringResource(id = R.string.please_wait))
                 }
             }
         }

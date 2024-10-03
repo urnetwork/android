@@ -1,11 +1,16 @@
 package com.bringyour.network.ui.wallet
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,22 +39,33 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.AccountWallet
 import com.bringyour.client.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URDialog
-import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.HeadingLargeCondensed
+import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextMuted
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun WalletScreen(
@@ -75,11 +91,12 @@ fun WalletScreen(
         isRemovingWallet = walletViewModel.isRemovingWallet,
         removeWalletModalVisible = walletViewModel.removeWalletModalVisible,
         openRemoveWalletModal = walletViewModel.openRemoveWalletModal,
-        closeRemoveWalletModal = walletViewModel.closeRemoveWalletModal
+        closeRemoveWalletModal = walletViewModel.closeRemoveWalletModal,
+        circleWalletBalance = walletViewModel.circleWalletBalance,
+        setCircleWalletBalance = walletViewModel.setCircleWalletBalance
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletScreen(
     navController: NavController,
@@ -96,8 +113,53 @@ fun WalletScreen(
     removeWalletModalVisible: Boolean,
     closeRemoveWalletModal: () -> Unit,
     openRemoveWalletModal: () -> Unit,
+    circleWalletBalance: Double,
+    setCircleWalletBalance: (Double) -> Unit,
 ) {
 
+    if (isCircleWallet) {
+        CircleWalletScaffold(
+            navController,
+            walletId = walletId,
+            walletAddress = walletAddress,
+            isPayoutWallet = isPayoutWallet,
+            blockchain = blockchain,
+            payouts = payouts,
+            setPayoutWallet = setPayoutWallet,
+            isSettingPayoutWallet = isSettingPayoutWallet,
+            removeWallet = removeWallet,
+            isRemovingWallet = isRemovingWallet,
+            removeWalletModalVisible = removeWalletModalVisible,
+            closeRemoveWalletModal = closeRemoveWalletModal,
+            walletBalance = circleWalletBalance,
+            setCircleWalletBalance = setCircleWalletBalance
+        )
+    } else {
+        ExternalWalletScreenContent(
+            navController = navController,
+            walletId = walletId,
+            walletAddress = walletAddress,
+            isPayoutWallet = isPayoutWallet,
+            blockchain = blockchain,
+            payouts = payouts,
+            setPayoutWallet = setPayoutWallet,
+            isSettingPayoutWallet = isSettingPayoutWallet,
+            removeWallet = removeWallet,
+            isRemovingWallet = isRemovingWallet,
+            removeWalletModalVisible = removeWalletModalVisible,
+            closeRemoveWalletModal = closeRemoveWalletModal,
+            openRemoveWalletModal = openRemoveWalletModal,
+        )
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WalletContentScaffold(
+    navController: NavController,
+    content: @Composable (PaddingValues) -> Unit,
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -119,10 +181,118 @@ fun WalletScreen(
             )
         }
     ) { innerPadding ->
+        content(innerPadding)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CircleWalletScaffold(
+    navController: NavController,
+    walletId: Id?,
+    walletAddress: String?,
+    isPayoutWallet: Boolean,
+    blockchain: Blockchain?,
+    payouts: List<AccountPayment>,
+    setPayoutWallet: (Id) -> Unit,
+    isSettingPayoutWallet: Boolean,
+    removeWallet: (Id) -> Unit,
+    isRemovingWallet: Boolean,
+    removeWalletModalVisible: Boolean,
+    closeRemoveWalletModal: () -> Unit,
+    walletBalance: Double,
+    setCircleWalletBalance: (Double) -> Unit,
+    circleViewModel: CircleTransferViewModel = hiltViewModel()
+) {
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        ),
+    )
+    val scope = rememberCoroutineScope()
+
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetShape = RoundedCornerShape(
+            0.dp,
+        ),
+        sheetContainerColor = Black,
+        sheetContentColor = Black,
+        sheetPeekHeight = 0.dp,
+        sheetDragHandle = {},
+        sheetContent = {
+            CircleTransferSheet(
+                scaffoldState = scaffoldState,
+                scope = scope,
+                transferAmountTextFieldValue = circleViewModel.transferAmountTextFieldValue,
+                setTransferAmountFieldValue = circleViewModel.setTransferAmount,
+                sendToAddress = circleViewModel.sendToAddress,
+                setSendToAddress = circleViewModel.setSendToAddress,
+                walletBalance = walletBalance,
+                isSendToAddressValid = circleViewModel.isSendToAddressValid,
+                isSendToAddressValidating = circleViewModel.isSendToAddressValidating,
+                setTransferError = circleViewModel.setTransferError,
+                setTransferInProgress = circleViewModel.setTransferInProgress,
+                transfer = circleViewModel.transfer,
+                setCircleWalletBalance = setCircleWalletBalance,
+                transferInProgress = circleViewModel.transferInProgress,
+                transferAmountValid = circleViewModel.transferAmountValid
+            )
+        }
+    ) {
+        CircleWalletScreenContent(
+            navController = navController,
+            walletId = walletId,
+            walletAddress = walletAddress,
+            isPayoutWallet = isPayoutWallet,
+            blockchain = blockchain,
+            isCircleWallet = true,
+            payouts = payouts,
+            setPayoutWallet = setPayoutWallet,
+            isSettingPayoutWallet = isSettingPayoutWallet,
+            removeWallet = removeWallet,
+            isRemovingWallet = isRemovingWallet,
+            removeWalletModalVisible = removeWalletModalVisible,
+            closeRemoveWalletModal = closeRemoveWalletModal,
+            walletBalance = walletBalance,
+            scaffoldState = scaffoldState,
+            scope = scope,
+            setSendToAddress = circleViewModel.setSendToAddress,
+            setTransferAmountFieldValue = circleViewModel.setTransferAmount
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CircleWalletScreenContent(
+    navController: NavController,
+    walletId: Id?,
+    walletAddress: String?,
+    isPayoutWallet: Boolean,
+    blockchain: Blockchain?,
+    isCircleWallet: Boolean,
+    payouts: List<AccountPayment>,
+    setPayoutWallet: (Id) -> Unit,
+    isSettingPayoutWallet: Boolean,
+    removeWallet: (Id) -> Unit,
+    isRemovingWallet: Boolean,
+    removeWalletModalVisible: Boolean,
+    closeRemoveWalletModal: () -> Unit,
+    walletBalance: Double,
+    scope: CoroutineScope,
+    scaffoldState: BottomSheetScaffoldState,
+    setSendToAddress: (TextFieldValue) -> Unit,
+    setTransferAmountFieldValue: (TextFieldValue, Double) -> Unit,
+) {
+    WalletContentScaffold(navController) {
+        innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
+                .fillMaxSize()
         ) {
 
             Row(
@@ -138,20 +308,13 @@ fun WalletScreen(
 
                 Column {
                     Text(
-                        if (isCircleWallet) "Circle Wallet" else
-                            "${blockchain.toString().lowercase().capitalize()} Wallet",
+                        "Circle Wallet",
                         style = MaterialTheme.typography.headlineSmall
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        "***${walletAddress?.takeLast(7)}",
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            fontFamily = ppNeueBitBold
-                        )
-                    )
+                    MaskedWalletAddress(walletAddress)
 
                 }
 
@@ -169,7 +332,7 @@ fun WalletScreen(
                     enabled = !isSettingPayoutWallet && walletId != null
                 ) { buttonTextStyle ->
                     Text(
-                        "Make default",
+                        stringResource(id = R.string.make_default),
                         style = buttonTextStyle
                     )
                 }
@@ -177,129 +340,317 @@ fun WalletScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (!isCircleWallet) {
-                URButton(
-                    onClick = {
-                        openRemoveWalletModal()
-                    },
-                    style = ButtonStyle.OUTLINE,
-                    enabled = !removeWalletModalVisible
-                ) { buttonTextStyle ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+            // circle wallet balance
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .background(MainTintedBackgroundBase, shape = RoundedCornerShape(8.dp))
+                    .padding(
+                        start = 16.dp,
+                        top = 16.dp,
+                        bottom = 10.dp, // accounting for line-height issue
+                        end = 16.dp
+                    )
+            ) {
+                Text(
+                    stringResource(id = R.string.balance),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+                Row(
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text(
+                        String.format("%.2f", walletBalance),
+                        style = HeadingLargeCondensed
+                    )
+
+                    Spacer(modifier = Modifier.width(2.dp))
+
+                    // this is really hacky, but setting line-height isn't being acknowledged
+                    Box(
+                        modifier = Modifier.offset(y = -(11).dp)
                     ) {
                         Text(
-                            "Remove",
-                            style = buttonTextStyle
+                            "USDC",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(32.dp))
             }
 
+            Spacer(modifier = Modifier.height(32.dp))
 
-            if (payouts.isNotEmpty()) {
-
-                Text(
-                    "Earnings",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                LazyColumn {
-
-                    items(payouts) { payout ->
-
-                        PayoutRow(
-                            walletAddress = walletAddress ?: "",
-                            completeTime = payout.completeTime.format("Jan 2"),
-                            amountUsd = payout.tokenAmount
-                        )
+            URButton(
+                onClick = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.expand()
+                        setSendToAddress(TextFieldValue(""))
+                        setTransferAmountFieldValue(TextFieldValue(""), walletBalance)
                     }
                 }
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = R.string.transfer_funds),
+                    style = buttonTextStyle
+                )
+            }
 
-            } else {
-                NoPayoutsFound()
+            Spacer(modifier = Modifier.height(32.dp))
+
+            PayoutsList(
+                payouts,
+                walletAddress
+            )
+        }
+    }
+
+    RemoveWalletDialog(
+        navController,
+        removeWalletModalVisible,
+        closeRemoveWalletModal,
+        walletId,
+        removeWallet,
+        isRemovingWallet
+    )
+}
+
+@Composable
+fun PayoutsList(
+    payouts: List<AccountPayment>,
+    walletAddress: String?,
+) {
+    if (payouts.isNotEmpty()) {
+
+        Text(
+            stringResource(id = R.string.earnings),
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn {
+
+            items(payouts) { payout ->
+
+                PayoutRow(
+                    walletAddress = walletAddress ?: "",
+                    completeTime = payout.completeTime.format("Jan 2"),
+                    amountUsd = payout.tokenAmount
+                )
             }
         }
 
-        URDialog(
-            visible = removeWalletModalVisible,
-            onDismiss = { closeRemoveWalletModal() }
-        ) {
-            Column() {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+    } else {
+        NoPayoutsFound()
+    }
+}
 
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_warning),
-                        contentDescription = "",
-                        tint = Red
-                    )
+@Composable
+fun RemoveWalletDialog(
+    navController: NavController,
+    removeWalletModalVisible: Boolean,
+    closeRemoveWalletModal: () -> Unit,
+    walletId: Id?,
+    removeWallet: (Id) -> Unit,
+    isRemovingWallet: Boolean
+) {
+    URDialog(
+        visible = removeWalletModalVisible,
+        onDismiss = { closeRemoveWalletModal() }
+    ) {
+        Column() {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        "Remove wallet?",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    "Are you sure you want to delete this wallet? If this is your default wallet, we’ll hold you have set another wallet as default.",
-                    style = MaterialTheme.typography.bodyMedium
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_warning),
+                    contentDescription = "",
+                    tint = Red
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    ClickableText(
-                        text = AnnotatedString(
-                            "Cancel",
-                            spanStyle = SpanStyle(
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    "Remove wallet?",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "Are you sure you want to delete this wallet? If this is your default wallet, we’ll hold you have set another wallet as default.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                ClickableText(
+                    text = AnnotatedString(
+                        "Cancel",
+                        spanStyle = SpanStyle(
+                            color = BlueMedium,
+                            fontSize = 14.sp
+                        )
+                    ),
+                    onClick = {
+                        closeRemoveWalletModal()
+                    },
+                )
+
+                Spacer(modifier = Modifier.width(32.dp))
+
+                ClickableText(
+                    text = AnnotatedString(
+                        "Remove wallet",
+                        spanStyle = if (!isRemovingWallet && walletId != null)
+                            SpanStyle(
                                 color = BlueMedium,
                                 fontSize = 14.sp
+                            ) else
+                            SpanStyle(
+                                color = TextMuted,
+                                fontSize = 14.sp
                             )
-                        ),
-                        onClick = {
+                    ),
+                    onClick = {
+                        if (walletId != null) {
+                            removeWallet(walletId)
                             closeRemoveWalletModal()
-                        },
-                        )
-
-                    Spacer(modifier = Modifier.width(32.dp))
-
-                    ClickableText(
-                        text = AnnotatedString(
-                            "Remove wallet",
-                            spanStyle = if (!isRemovingWallet && walletId != null)
-                                SpanStyle(
-                                    color = BlueMedium,
-                                    fontSize = 14.sp
-                                ) else
-                                SpanStyle(
-                                    color = TextMuted,
-                                    fontSize = 14.sp
-                                )
-                        ),
-                        onClick = {
-                            if (walletId != null) {
-                                removeWallet(walletId)
-                                closeRemoveWalletModal()
-                                navController.popBackStack()
-                            }
-                        },
-                    )
-                }
+                            navController.popBackStack()
+                        }
+                    },
+                )
             }
         }
     }
+}
+
+@Composable
+fun ExternalWalletScreenContent(
+    navController: NavController,
+    walletId: Id?,
+    walletAddress: String?,
+    isPayoutWallet: Boolean,
+    blockchain: Blockchain?,
+    payouts: List<AccountPayment>,
+    setPayoutWallet: (Id) -> Unit,
+    isSettingPayoutWallet: Boolean,
+    removeWallet: (Id) -> Unit,
+    isRemovingWallet: Boolean,
+    removeWalletModalVisible: Boolean,
+    closeRemoveWalletModal: () -> Unit,
+    openRemoveWalletModal: () -> Unit,
+) {
+
+    WalletContentScaffold(
+        navController
+    ) { innerPadding ->
+
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxSize()
+        ) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                WalletChainIcon(
+                    blockchain = blockchain,
+                    isCircleWallet = false
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text(
+                        "${blockchain.toString().lowercase().capitalize()} Wallet",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    MaskedWalletAddress(walletAddress)
+
+                }
+
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (!isPayoutWallet) {
+                URButton(
+                    onClick = {
+                        if (walletId != null) {
+                            setPayoutWallet(walletId)
+                        }
+                    },
+                    enabled = !isSettingPayoutWallet && walletId != null
+                ) { buttonTextStyle ->
+                    Text(
+                        stringResource(id = R.string.make_default),
+                        style = buttonTextStyle
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            URButton(
+                onClick = {
+                    openRemoveWalletModal()
+                },
+                style = ButtonStyle.OUTLINE,
+                enabled = !removeWalletModalVisible
+            ) { buttonTextStyle ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        stringResource(id = R.string.remove),
+                        style = buttonTextStyle
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+
+            PayoutsList(
+                payouts,
+                walletAddress
+            )
+        }
+    }
+
+    RemoveWalletDialog(
+        navController,
+        removeWalletModalVisible,
+        closeRemoveWalletModal,
+        walletId,
+        removeWallet,
+        isRemovingWallet
+    )
+}
+
+@Composable
+fun MaskedWalletAddress(
+    walletAddress: String?
+) {
+    Text(
+        "***${walletAddress?.takeLast(7)}",
+        style = TextStyle(
+            fontSize = 20.sp,
+            fontFamily = ppNeueBitBold
+        )
+    )
 }
 
 @Preview
@@ -322,7 +673,9 @@ private fun WalletScreenPreview() {
             isRemovingWallet = false,
             removeWalletModalVisible = false,
             openRemoveWalletModal = {},
-            closeRemoveWalletModal = {}
+            closeRemoveWalletModal = {},
+            circleWalletBalance = 1.1,
+            setCircleWalletBalance = {}
         )
     }
 }
@@ -339,7 +692,7 @@ private fun WalletScreenIsPayoutPreview() {
             walletId = null,
             walletAddress = "0x000000000000000",
             isPayoutWallet = true,
-            isCircleWallet = true,
+            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
             payouts = listOf(),
             setPayoutWallet = {},
@@ -348,7 +701,9 @@ private fun WalletScreenIsPayoutPreview() {
             isRemovingWallet = false,
             removeWalletModalVisible = false,
             openRemoveWalletModal = {},
-            closeRemoveWalletModal = {}
+            closeRemoveWalletModal = {},
+            circleWalletBalance = 1.1,
+            setCircleWalletBalance = {}
         )
     }
 }
@@ -364,7 +719,7 @@ private fun WalletScreenRemoveWalletPreview() {
             walletId = null,
             walletAddress = "0x000000000000000",
             isPayoutWallet = true,
-            isCircleWallet = true,
+            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
             payouts = listOf(),
             setPayoutWallet = {},
@@ -373,7 +728,9 @@ private fun WalletScreenRemoveWalletPreview() {
             isRemovingWallet = false,
             removeWalletModalVisible = true,
             openRemoveWalletModal = {},
-            closeRemoveWalletModal = {}
+            closeRemoveWalletModal = {},
+            circleWalletBalance = 1.1,
+            setCircleWalletBalance = {}
         )
     }
 }

@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +46,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.AuthPasswordResetArgs
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
@@ -120,7 +122,7 @@ fun LoginPasswordReset(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Text("Forgot your password?", style = MaterialTheme.typography.headlineLarge)
+            Text(stringResource(id = R.string.forgot_password), style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.height(64.dp))
 
             URTextInput(
@@ -128,17 +130,20 @@ fun LoginPasswordReset(
                 onValueChange = { newValue ->
                     user = newValue
                 },
-                placeholder = "",
+                placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Go
                 ),
-                label = "Enter your email or phone"
+                onGo = {
+                    sendResetLink()
+                },
+                label = stringResource(id = R.string.user_auth_label)
             )
 
 
             Text(
-                "You may need to check your spam folder or unblock no-reply@bringyour.com",
+                stringResource(id = R.string.check_junk_mail),
                 style = TextStyle(
                     fontSize = 12.sp,
                     color = TextMuted
@@ -156,7 +161,7 @@ fun LoginPasswordReset(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Send Reset Link", style = buttonTextStyle)
+                    Text(stringResource(id = R.string.send_reset_link), style = buttonTextStyle)
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,

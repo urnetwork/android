@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,13 +16,16 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.bringyour.client.Client.ProvideModeNone
-import com.bringyour.client.Client.ProvideModePublic
 import com.bringyour.network.ui.MainNavHost
-import com.bringyour.network.ui.connect.ConnectStatus
-import com.bringyour.network.ui.connect.ConnectViewModel
+import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.SagaViewModel
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -29,10 +33,15 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity: AppCompatActivity() {
 
+    var requestPermissionLauncherAndStart : ActivityResultLauncher<String>? = null
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
+
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
     private val sagaViewModel: SagaViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val promptReviewViewModel: PromptReviewViewModel by viewModels()
+    private var reviewManager: ReviewManager? = null
 
     private fun prepareVpnService() {
         val app = application as MainApplication
@@ -59,7 +68,7 @@ class MainActivity: AppCompatActivity() {
                 if (hasForegroundPermissions) {
                     prepareVpnService()
                 } else {
-                    requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    requestPermissionLauncherAndStart?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                 }
             } else {
                 prepareVpnService()
@@ -78,13 +87,27 @@ class MainActivity: AppCompatActivity() {
         val sender = ActivityResultSender(this)
         sagaViewModel.setSender(sender)
 
-        requestPermissionLauncher =
+        reviewManager = ReviewManagerFactory.create(this)
+
+
+        // used when connecting
+        requestPermissionLauncherAndStart =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
-            ) { _ ->
+            ) { isGranted ->
                 // the vpn service can start with degraded options if not granted
                 prepareVpnService()
+                settingsViewModel.onPermissionResult(isGranted)
+                settingsViewModel.resetPermissionRequest()
             }
+
+        // used in settings
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            settingsViewModel.onPermissionResult(isGranted)
+            settingsViewModel.resetPermissionRequest()
+        }
 
         vpnLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -103,16 +126,20 @@ class MainActivity: AppCompatActivity() {
         setContent {
             URNetworkTheme {
                 MainNavHost(
-                    sagaViewModel
+                    sagaViewModel,
+                    settingsViewModel,
+                    promptReviewViewModel
                 )
             }
         }
+
     }
 
     override fun onStart() {
         super.onStart()
 
         val app = application as MainApplication
+        val activity = this
 
         // do this once at start
         lifecycleScope.launch {
@@ -128,6 +155,49 @@ class MainActivity: AppCompatActivity() {
                 }
             }
         }
+
+        settingsViewModel.checkPermissionStatus(this)
+
+        // Observe the requestPermission state
+        lifecycleScope.launch {
+            settingsViewModel.requestPermission.collect { shouldRequest ->
+                if (shouldRequest) {
+                    // Check if the permission is already granted
+                    if (ContextCompat.checkSelfPermission(
+                            activity,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        settingsViewModel.onPermissionResult(true)
+                    } else {
+                        // Request the permission
+                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                            requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+                }
+            }
+        }
+
+        // watch for review prompt
+        lifecycleScope.launch {
+            promptReviewViewModel.promptReview.collect { prompt ->
+                if (prompt) {
+                    val request = reviewManager?.requestReviewFlow()
+                    request?.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            // We got the ReviewInfo object
+                            val reviewInfo = task.result
+                            launchReviewFlow(reviewInfo)
+                        } else {
+                            // There was some problem, log or handle the error code.
+                            @ReviewErrorCode val reviewErrorCode = (task.getException() as ReviewException).errorCode
+                            Log.i("MainActivity", "error prompting review -> code: $reviewErrorCode")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onStop() {
@@ -138,12 +208,24 @@ class MainActivity: AppCompatActivity() {
         app.vpnRequestStartListener = null
     }
 
+    private fun launchReviewFlow(reviewInfo: ReviewInfo) {
+
+        val flow = reviewManager?.launchReviewFlow(this, reviewInfo)
+        flow?.addOnCompleteListener { _ ->
+            // The flow has finished. The API does not indicate whether the user
+            // reviewed or not, or even whether the review dialog was shown. Thus, no
+            // matter the result, we continue our app flow.
+            promptReviewViewModel.resetPromptReview()
+        }
+
+    }
+
     private fun setTransparentStatusBar() {
         val window = window
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.Transparent.toArgb()
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController?.isAppearanceLightStatusBars = false
+        windowInsetsController.isAppearanceLightStatusBars = false
     }
 }
