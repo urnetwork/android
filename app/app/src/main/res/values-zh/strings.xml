@@ -72,6 +72,10 @@
     <string name="search_placeholder">搜索所有地点</string>
     <string name="check_internet">检查您的互联网连接</string>
     <string name="no_providers_found">我们找不到任何提供商。</string>
+    <string name="tap_to_refetch">点击重试获取位置信息</string>
+    <string name="cities">城市</string>
+    <string name="regions">地区</string>
+    <string name="top_matches">最佳匹配</string>
 
     <string name="account">帐户</string>
     <string name="profile">个人资料</string>

@@ -72,6 +72,10 @@
     <string name="search_placeholder">Tafuta maeneo yote</string>
     <string name="check_internet">Angalia muunganisho wako wa intaneti</string>
     <string name="no_providers_found">Hatukupata watoa huduma wowote.</string>
+    <string name="tap_to_refetch">Gusa ili kujaribu kupata eneo.</string>
+    <string name="cities">Miji</string>
+    <string name="regions">Mikoa</string>
+    <string name="top_matches">Milinganisho Bora</string>
 
     <string name="account">Akaunti</string>
     <string name="profile">Wasifu</string>

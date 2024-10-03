@@ -85,6 +85,10 @@
     <string name="search_placeholder">Szukaj wszystkich lokalizacji</string>
     <string name="check_internet">Sprawdź połączenie internetowe</string>
     <string name="no_providers_found">Nie znaleziono żadnych dostawców.</string>
+    <string name="tap_to_refetch">Dotknij, aby spróbować pobrać lokalizację.</string>
+    <string name="cities">Miasta</string>
+    <string name="regions">Regiony</string>
+    <string name="top_matches">Najlepsze dopasowania</string>
 
     <!-- Ekran konta -->
     <string name="account">Konto</string>

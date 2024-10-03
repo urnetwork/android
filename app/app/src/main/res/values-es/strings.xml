@@ -71,6 +71,10 @@
     <string name="search_placeholder">Buscar en todas las ubicaciones</string>
     <string name="check_internet">Comprueba tu conexión a Internet</string>
     <string name="no_providers_found">No hemos encontrado ningún proveedor.</string>
+    <string name="tap_to_refetch">Toque para intentar obtener la ubicación.</string>
+    <string name="cities">Ciudades</string>
+    <string name="regions">Regiones</string>
+    <string name="top_matches">Mejores coincidencias</string>
 
     <string name="account">Cuenta</string>
     <string name="profile">Perfil</string>

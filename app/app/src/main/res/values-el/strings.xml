@@ -71,6 +71,10 @@
     <string name="search_placeholder">Αναζήτηση σε όλες τις τοποθεσίες</string>
     <string name="check_internet">Ελέγξτε τη σύνδεση στο διαδίκτυο</string>
     <string name="no_providers_found">Δεν βρέθηκαν πάροχοι.</string>
+    <string name="tap_to_refetch">Πατήστε για να προσπαθήσετε να εντοπίσετε την τοποθεσία.</string>
+    <string name="cities">Πόλεις</string>
+    <string name="regions">Περιοχές</string>
+    <string name="top_matches">Κορυφαίες αντιστοιχίες</string>
 
     <string name="account">Λογαριασμός</string>
     <string name="profile">Προφίλ</string>

@@ -72,6 +72,10 @@
     <string name="search_placeholder">Pesquisar todos os locais</string>
     <string name="check_internet">Verifique sua conexão de internet</string>
     <string name="no_providers_found">Não encontramos nenhum provedor.</string>
+    <string name="tap_to_refetch">Toque para tentar obter a localização.</string>
+    <string name="cities">Cidades</string>
+    <string name="regions">Regiões</string>
+    <string name="top_matches">Melhores correspondências</string>
 
     <string name="account">Conta</string>
     <string name="profile">Perfil</string>
