@@ -71,6 +71,10 @@
     <string name="search_placeholder">البحث في جميع المواقع</string>
     <string name="check_internet">تحقق من اتصال الإنترنت</string>
     <string name="no_providers_found">لم نعثر على أي مزود.</string>
+    <string name="tap_to_refetch">انقر للمحاولة وجلب الموقع</string>
+    <string name="cities">المدن</string>
+    <string name="regions">المناطق</string>
+    <string name="top_matches">أفضل التطابقات</string>
 
     <string name="account">الحساب</string>
     <string name="profile">الملف الشخصي</string>

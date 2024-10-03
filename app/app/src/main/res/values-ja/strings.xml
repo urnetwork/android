@@ -85,6 +85,10 @@
     <string name="search_placeholder">全てのロケーションを検索</string>
     <string name="check_internet">インターネット接続を確認してください</string>
     <string name="no_providers_found">プロバイダーが見つかりませんでした。</string>
+    <string name="tap_to_refetch">タップして位置情報を取得します。</string>
+    <string name="cities">都市</string>
+    <string name="regions">地域</string>
+    <string name="top_matches">トップマッチ</string>
 
     <!-- アカウント画面 -->
     <string name="account">アカウント</string>

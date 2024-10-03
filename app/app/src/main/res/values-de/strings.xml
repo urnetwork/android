@@ -71,6 +71,10 @@
     <string name="search_placeholder">Alle Standorte durchsuchen</string>
     <string name="check_internet">Überprüfe deine Internetverbindung</string>
     <string name="no_providers_found">Wir haben keine Anbieter gefunden.</string>
+    <string name="tap_to_refetch">Tippen, um den Standort erneut zu ermitteln.</string>
+    <string name="cities">Städte</string>
+    <string name="regions">Regionen</string>
+    <string name="top_matches">Beste Übereinstimmungen</string>
 
     <string name="account">Konto</string>
     <string name="profile">Profil</string>

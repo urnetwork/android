@@ -85,6 +85,10 @@
     <string name="search_placeholder">Поиск всех локаций</string>
     <string name="check_internet">Проверьте подключение к интернету</string>
     <string name="no_providers_found">Провайдеры не найдены.</string>
+    <string name="tap_to_refetch">Нажмите, чтобы попытаться определить местоположение.</string>
+    <string name="cities">Города</string>
+    <string name="regions">Регионы</string>
+    <string name="top_matches">Наиболее подходящие</string>
 
     <!-- Экран аккаунта -->
     <string name="account">Аккаунт</string>

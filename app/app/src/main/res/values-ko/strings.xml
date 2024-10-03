@@ -85,6 +85,10 @@
     <string name="search_placeholder">모든 위치 검색</string>
     <string name="check_internet">인터넷 연결을 확인하세요</string>
     <string name="no_providers_found">제공자를 찾을 수 없습니다.</string>
+    <string name="tap_to_refetch">위치를 가져오려면 탭하세요.</string>
+    <string name="cities">도시</string>
+    <string name="regions">지역</string>
+    <string name="top_matches">최고 일치 항목</string>
 
     <!-- 계정 화면 -->
     <string name="account">계정</string>

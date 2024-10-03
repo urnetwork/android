@@ -72,6 +72,10 @@
     <string name="search_placeholder">सभी स्थानों पर खोजें</string>
     <string name="check_internet">अपना इंटरनेट कनेक्शन जांचें</string>
     <string name="no_providers_found">हमें कोई प्रदाता नहीं मिला।</string>
+    <string name="tap_to_refetch">स्थान लाने के लिए टैप करें.</string>
+    <string name="cities">शहर</string>
+    <string name="regions">क्षेत्र</string>
+    <string name="top_matches">सबसे अच्छे मिलान</string>
 
     <string name="account">खाता</string>
     <string name="profile">प्रोफ़ाइल</string>
