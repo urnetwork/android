@@ -312,6 +312,7 @@ class MainApplication : Application() {
         loginVc = null
     }
 
+
     private fun initDevice(byClientJwt: String) {
         byDeviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
