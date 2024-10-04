@@ -49,6 +49,8 @@ import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,6 +105,7 @@ fun ProvidersBottomSheet(
 ) {
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -180,6 +183,13 @@ fun ProvidersBottomSheet(
                         onValueChange = { query ->
                             if (query.text != searchQuery.text) {
                                 setSearchQuery(query)
+
+                                debounceJob?.cancel()
+                                debounceJob = scope.launch {
+                                    delay(500L)
+                                    filterLocations(query.text)
+                                }
+
                             }
                         },
                         placeholder = stringResource(id = R.string.search_placeholder),
