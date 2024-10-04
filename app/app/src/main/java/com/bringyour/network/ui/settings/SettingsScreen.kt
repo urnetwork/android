@@ -74,8 +74,9 @@ fun SettingsScreen(
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
+    val currentPlan = planViewModel.currentPlan.collectAsState().value
 
-    if (planViewModel.currentPlan == Plan.Basic) {
+    if (currentPlan == Plan.Basic) {
         val scope = rememberCoroutineScope()
 
         val scaffoldState = rememberBottomSheetScaffoldState(
@@ -93,7 +94,7 @@ fun SettingsScreen(
             SettingsScreen(
                 navController,
                 clientId = accountViewModel.clientId,
-                currentPlan = planViewModel.currentPlan,
+                currentPlan = currentPlan,
                 notificationsAllowed = notificationsAllowed,
                 requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
                 notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
@@ -105,7 +106,7 @@ fun SettingsScreen(
         SettingsScreen(
             navController,
             clientId = accountViewModel.clientId,
-            currentPlan = planViewModel.currentPlan,
+            currentPlan = currentPlan,
             notificationsAllowed = notificationsAllowed,
             requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
             notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,

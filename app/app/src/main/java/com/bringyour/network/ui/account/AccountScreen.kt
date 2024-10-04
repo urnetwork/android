@@ -74,6 +74,7 @@ fun AccountScreen(
     )
 
     val networkUser by accountViewModel.networkUser.collectAsState()
+    val currentPlan by planViewModel.currentPlan.collectAsState()
 
     UpgradePlanBottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -89,7 +90,7 @@ fun AccountScreen(
             totalPayoutAmount = totalPayoutAmount,
             totalPayoutAmountInitialized = totalPayoutAmountInitialized,
             walletCount = walletCount,
-            currentPlan = planViewModel.currentPlan
+            currentPlan = currentPlan
         )
     }
 
