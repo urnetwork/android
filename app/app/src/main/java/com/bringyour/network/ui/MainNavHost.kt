@@ -66,6 +66,7 @@ fun MainNavHost(
     sagaViewModel: SagaViewModel,
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
+    planViewModel: PlanViewModel,
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel()
 ) {
 
@@ -142,7 +143,8 @@ fun MainNavHost(
                         sagaViewModel,
                         accountNavHostController,
                         settingsViewModel,
-                        promptReviewViewModel
+                        promptReviewViewModel,
+                        planViewModel
                     )
                 }
 
@@ -156,7 +158,8 @@ fun MainNavHost(
                         sagaViewModel,
                         accountNavHostController,
                         settingsViewModel,
-                        promptReviewViewModel
+                        promptReviewViewModel,
+                        planViewModel
                     )
                     HorizontalDivider(
                         modifier = Modifier
@@ -186,8 +189,8 @@ fun MainNavContent(
     accountNavHostController: NavHostController,
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
+    planViewModel: PlanViewModel,
     connectViewModel: ConnectViewModel = hiltViewModel(),
-    planViewModel: PlanViewModel = hiltViewModel()
 ) {
 
     val localDensityCurrent = LocalDensity.current
