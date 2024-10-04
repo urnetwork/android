@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -133,7 +134,8 @@ fun LoginPassword(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .imePadding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -153,7 +155,7 @@ fun LoginPassword(
                 placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
                 label = stringResource(id = R.string.user_auth_label)
             )
@@ -166,10 +168,13 @@ fun LoginPassword(
                 placeholder = "*****************",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Go
                 ),
                 isPassword = true,
-                label = stringResource(id = R.string.password_label)
+                label = stringResource(id = R.string.password_label),
+                onGo = {
+                    login()
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

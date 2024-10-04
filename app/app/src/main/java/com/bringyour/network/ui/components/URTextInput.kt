@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
@@ -44,6 +45,8 @@ fun URTextInput(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onSend: () -> Unit = {},
+    onDone: () -> Unit = {},
+    onGo: () -> Unit = {},
     placeholder: String = "",
     label: String?,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -78,7 +81,8 @@ fun URTextInput(
                         modifier = Modifier
                             // .fillMaxWidth()
                             .weight(1f)
-                            .background(Color.Transparent),
+                            .background(Color.Transparent)
+                            .imePadding(),
                         decorationBox = { innerTextField ->
                             if (value.text.isEmpty()) {
                                 Text(
@@ -92,6 +96,14 @@ fun URTextInput(
                         keyboardActions = KeyboardActions(
                             onSend = {
                                 onSend()
+                                keyboardController?.hide()
+                            },
+                            onDone = {
+                                onDone()
+                                keyboardController?.hide()
+                            },
+                            onGo = {
+                                onGo()
                                 keyboardController?.hide()
                             }
                         ),

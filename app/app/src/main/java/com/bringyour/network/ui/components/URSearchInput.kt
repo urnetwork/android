@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +14,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -44,6 +47,7 @@ fun URSearchInput(
 ) {
     Box(
         modifier = Modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(MainTintedBackgroundBase)
             .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -51,7 +55,8 @@ fun URSearchInput(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         ) {
             Icon(
                 imageVector = Icons.Filled.Search,
@@ -65,15 +70,16 @@ fun URSearchInput(
                 value = value,
                 onValueChange = onValueChange,
                 cursorBrush = SolidColor(Blue500),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f),
                 textStyle = TextStyle(color = Color.LightGray),
                 decorationBox = { innerTextField ->
-                if (value.text.isEmpty()) {
-                    Text(
-                        text = placeholder,
-                        style = TextStyle(color = TextFaint)
-                    )
-                }
+                    if (value.text.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            style = TextStyle(color = TextFaint)
+                        )
+                    }
                     innerTextField()
                 },
                 keyboardOptions = KeyboardOptions(
@@ -86,6 +92,16 @@ fun URSearchInput(
                     }
                 )
             )
+            
+            if (value.text.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "Clear text",
+                    modifier = Modifier
+                        .clickable { onValueChange(TextFieldValue("")) },
+                    tint = TextMuted
+                )
+            }
         }
     }
 }

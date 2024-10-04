@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import com.bringyour.network.ui.theme.TextMuted
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.LaunchedEffect
@@ -188,7 +189,8 @@ fun LoginInitial(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding) // need to debug why this is 0
-                .padding(16.dp),
+                .padding(16.dp)
+                .imePadding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -205,8 +207,16 @@ fun LoginInitial(
                 placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Go
                 ),
+                onGo = {
+                    login(
+                        context,
+                        application?.api,
+                        onLogin,
+                        onNewNetwork,
+                    )
+                },
                 label = stringResource(id = R.string.user_auth_label)
             )
 
@@ -282,8 +292,8 @@ fun LoginInitial(
             }
         ) {
             Column() {
-                Text("Something went wrong.")
-                Text("Please wait a few minutes and try again.")
+                Text(stringResource(id = R.string.something_went_wrong))
+                Text(stringResource(id = R.string.please_wait))
             }
         }
 

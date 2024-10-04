@@ -1,4 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">URnetwork</string>
+    <string name="app_name" translatable="false">URnetwork</string>
+    <string name="title_login">Вход</string>
+
+    <!-- Начальный экран входа -->
+    <string name="user_auth_label">Электронная почта или телефон</string>
+    <string name="user_auth_placeholder">Введите номер телефона или адрес электронной почты</string>
+    <string name="get_started">Начать</string>
+    <string name="google_auth_btn_text">Войти через Google</string>
+    <string name="commitment_issues">Не хотите обязательств? </string>
+    <string name="try_guest_mode"> Попробуйте гостевой режим</string>
+
+    <!-- Форма создания сети -->
+    <string name="name_label">Имя</string>
+    <string name="name_placeholder">Ваше имя</string>
+    <string name="network_name_label">Название сети</string>
+    <string name="network_name_placeholder">Название вашей сети</string>
+    <string name="network_name_support_txt">Название сети должно содержать не менее 6 символов</string>
+    <string name="password_label">Пароль</string>
+    <string name="password_support_txt">Пароль должен содержать не менее 12 символов</string>
+    <string name="continue_txt">Продолжить</string>
+
+    <!-- Пароль для входа -->
+    <string name="login_password_header">Рады видеть\nвас снова</string>
+    <string name="forget_password">Забыли пароль?</string>
+    <string name="reset_it">Сбросить его</string>
+
+    <!-- Забыли пароль -->
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="check_junk_mail">Возможно, вам нужно проверить папку со спамом или разблокировать no-reply@ur.io</string>
+    <string name="send_reset_link">Отправить ссылку для сброса</string>
+
+    <!-- Ссылка для сброса отправлена -->
+    <string name="reset_link_sent">Ссылка для сброса отправлена</string>
+    <string name="reset_link_sent_to">Ссылка для сброса отправлена на </string>
+    <string name="resend_reset_link">Отправить ссылку повторно</string>
+    <string name="sent">Отправлено!</string>
+
+    <!-- Проверка входа -->
+    <string name="login_verify_header">У вас есть сообщение</string>
+    <string name="login_verify_details">Подтвердите, кто вы. Введите код, который мы\nвам отправили, чтобы подтвердить вашу личность.</string>
+    <string name="dont_see_it">Не видите его?</string>
+    <string name="resend_verify_code">Отправить код повторно</string>
+
+    <!-- Экран кошельков -->
+    <string name="connect_external_wallet">Подключить внешний кошелек</string>
+    <string name="connect_external_wallet_supported_chains">В настоящее время поддерживаются адреса USDC на Solana и Polygon.</string>
+    <string name="wallet_address_label">Адрес кошелька</string>
+    <string name="wallet_address_placeholder">Скопируйте и вставьте сюда</string>
+    <string name="total_payouts">общие выплаты</string>
+    <string name="wallets">Кошельки</string>
+    <string name="add_wallet">Добавить кошелек</string>
+
+    <!-- Настройка кошелька -->
+    <string name="setup_circle_wallet">Настроить кошелек Circle</string>
+    <string name="connect_saga_wallet">Подключить кошелек Saga</string>
+
+    <!-- Профиль -->
+    <string name="something_went_wrong">Что-то пошло не так.</string>
+    <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="edit_profile">Редактировать профиль</string>
+    <string name="save">Сохранить</string>
+
+    <!-- Настройка кошелька -->
+    <string name="share_with_others">Вы делитесь с другими, мы делимся с вами. Зарабатывайте часть дохода, когда предоставляете данные другим в сети.</string>
+    <string name="start_earning">Чтобы начать зарабатывать, подключите свой криптовалютный кошелек к URnetwork или настройте его с помощью Circle.</string>
+
+    <!-- Экран перевода Circle Wallet -->
+    <string name="circle_transfer_topbar_title">Перевести USDC</string>
+    <string name="circle_transfer_header">Перевод на внешний кошелек</string>
+    <string name="circle_transfer_fee_coverage">URnetwork покрывает ваши комиссии за перевод.</string>
+    <string name="transfer">Перевести</string>
+    <string name="insufficient_funds">Недостаточно средств</string>
+
+    <!-- Подключение -->
+    <string name="tap_to_connect">Нажмите, чтобы подключиться</string>
+
+    <!-- Список локаций -->
+    <string name="promoted_locations">Продвигаемые локации</string>
+    <string name="best_available_provider">Лучший доступный провайдер</string>
+    <string name="countries">Страны</string>
+    <string name="devices">Устройства</string>
+    <string name="search_placeholder">Поиск всех локаций</string>
+    <string name="check_internet">Проверьте подключение к интернету</string>
+    <string name="no_providers_found">Провайдеры не найдены.</string>
+    <string name="tap_to_refetch">Нажмите, чтобы попытаться определить местоположение.</string>
+    <string name="cities">Города</string>
+    <string name="regions">Регионы</string>
+    <string name="top_matches">Наиболее подходящие</string>
+
+    <!-- Экран аккаунта -->
+    <string name="account">Аккаунт</string>
+    <string name="profile">Профиль</string>
+    <string name="settings">Настройки</string>
+    <string name="wallet">Кошелек</string>
+    <string name="refer_and_earn">Пригласить и заработать</string>
+    <string name="set_up_wallet">Настроить кошелек</string>
+    <string name="guest">Гость</string>
+    <string name="supporter">Поддерживающий</string>
+    <string name="free">Бесплатный</string>
+    <string name="create_account">Создать аккаунт</string>
+    <string name="member">Участник</string>
+
+    <!-- Оверлей обновления подписки -->
+    <string name="plan">План</string>
+    <string name="upgrade_subscription">Обновить подписку</string>
+    <string name="support_us">Поддержите нас в создании нового типа сети, которая дает, а не забирает.</string>
+    <string name="unlock_speed">Вы разблокируете еще более высокую скорость и первыми получите доступ к новым функциям, таким как надежные меры против цензуры и контроль данных.</string>
+    <string name="join_the_movement">Присоединяйтесь к движению</string>
+
+    <!-- Оверлей гостевого режима -->
+    <string name="in_guest_mode">Вы в гостевом режиме</string>
+    <string name="start_earning_join">Чтобы начать зарабатывать, присоединитесь к сети</string>
+
+    <!-- Оверлей приглашения -->
+    <string name="refer_friends_header">Пригласить друзей</string>
+    <string name="refer_friends_detail">Больше связей помогают нашему сообществу оставаться анонимным (и помогают вам зарабатывать!)</string>
+
+    <!-- Экран кошелька -->
+    <string name="balance">Баланс</string>
+    <string name="transfer_funds">Перевести средства</string>
+    <string name="no_payouts_found">Для этого кошелька не найдено выплат</string>
+    <string name="earnings">Заработок</string>
+    <string name="make_default">Сделать по умолчанию</string>
+    <string name="payout_wallets">Кошельки для выплат</string>
+    <string name="chains_supported">В настоящее время поддерживаются кошельки Solana и Polygon</string>
+
+    <!-- Оверлей отправленного перевода -->
+    <string name="transfer_submitted">Перевод отправлен</string>
+    <string name="transfer_submitted_details">Ваш перевод инициирован и будет завершен после обработки транзакции в блокчейне.</string>
+
+    <!-- Карусель онбординга -->
+    <string name="see_world_content">Смотрите весь\nконтент мира</string>
+    <string name="see_world_content_description">Смотрите весь контент мира с URnetwork</string>
+    <string name="stay_private_description">Оставайтесь полностью приватными и анонимными с URnetwork</string>
+    <string name="stay_private">Оставайтесь\nполностью\nприватными и\nанонимными</string>
+    <string name="build_right_description">Создавайте интернет правильным образом с URnetwork</string>
+    <string name="build_right">Создавайте\nинтернет\nправильным\nобразом</string>
+    <string name="with_urnetwork">с URnetwork</string>
+
+    <!-- Настройки -->
+    <string name="unlock_supporter_tooltip">Разблокируйте еще более высокую скорость и первыми получите доступ к новым функциям.</string>
+    <string name="become_supporter">Стать поддерживающим</string>
+    <string name="client_id_label">ID клиента</string>
+    <string name="share_label">Поделиться URnetwork</string>
+    <string name="notifications_label">Уведомления</string>
+    <string name="receive_notifications">Получать уведомления о подключениях</string>
+    <string name="connectivity_label">Подключение</string>
+    <string name="allow_local_connections">Разрешить локальные подключения</string>
+    <string name="stay_in_touch">Оставайтесь на связи</string>
+    <string name="send_product_updates">Отправлять мне обновления продукта</string>
+    <string name="join_community_discord">Присоединяйтесь к сообществу в</string>
+    <string name="update_notification_settings">Обновите разрешения уведомлений в настройках Android</string>
+
+    <!-- Экран обратной связи -->
+    <string name="feedback_header">Связаться с нами</string>
+    <string name="feedback_label">Поле для обратной связи</string>
+    <string name="feedback_placeholder">Расскажите нам, что вы действительно думаете</string>
+
+    <!-- Призыв к действию -->
+    <string name="cancel">Отмена</string>
+    <string name="connect">Подключиться</string>
+    <string name="remove">Удалить</string>
+    <string name="change">Изменить</string>
+    <string name="share">Поделиться</string>
+    <string name="copy">Копировать</string>
+    <string name="send">Отправить</string>
+
+    <string name="login_error_auth_allowed">Пожалуйста, войдите с помощью одного из: %s.</string>
+    <string name="login_error">Что-то пошло не так. Попробуйте снова.</string>
+    <string name="login_client_error">Что-то пошло не так при аутентификации клиента. Попробуйте снова.</string>
+    <string name="network_name_check_error">Недоступно. Должно отличаться от существующей сети как минимум на 3 символа. Сделайте его уникальным или длиннее.</string>
+    <string name="verify_error">Что-то пошло не так. Попробуйте снова.</string>
+    <string name="create_network_error">Что-то пошло не так. Попробуйте снова.</string>
+    <string name="verify_send_error">Ошибка</string>
+
+    <string name="circlepw_show_pin">Показать PIN-код</string>
+    <string name="circlepw_hide_pin">Скрыть PIN-код</string>
+    <string name="circlepw_continue">Продолжить</string>
+    <string name="circlepw_next">Далее</string>
+    <string name="circlepw_question_label">Вопрос:</string>
+    <string name="circlepw_answer_label">Ответ:</string>
+    <string name="circlepw_hint_label">Подсказка:</string>
+    <string name="circlepw_hint_tag">Подсказка</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">Подтвердить</string>
+    <string name="circlepw_pin_remain_attemps_template">У вас осталось %s попыток.</string>
+    <string name="circlepw_pin_lock_period_template">Вы исчерпали все попытки ввода PIN-кода. Пожалуйста, подождите %s мин., чтобы повторить попытку позже.</string>
+    <string name="circlepw_answer_remain_attemps_template">У вас осталось %s попыток.</string>
+    <string name="circlepw_answer_lock_period_template">Пожалуйста, подождите %s мин., чтобы повторить попытку позже.</string>
+
+    <string name="circlepw_enter_pincode_subhead">Дайте нам знать, если это действительно вы.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">Забыли PIN-код?</string>
+
+    <string name="circlepw_new_pincode_subhead">Ваш PIN-код не может содержать повторяющиеся (например, 000000) или последовательные (например, 123456) цифры.</string>
+    <string name="circlepw_confirm_pincode_headline">Повторно введите PIN-код для подтверждения</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">Это единственный способ восстановить доступ к кошельку, если вы забудете свой PIN-код. Выберите 2 контрольных вопроса и предоставьте ответы для восстановления доступа.</string>
+
+    <string name="circlepw_security_questions_title">Способ восстановления</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">Выберите один вопрос</string>
+    <string name="circlepw_security_questions_answer_header">Укажите ответ</string>
+    <string name="circlepw_security_questions_answer_placeholder">Введите свой ответ здесь</string>
+    <string name="circlepw_security_questions_answer_hint_header">Укажите подсказку к ответу (необязательно)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Введите свою подсказку здесь</string>
+
+    <string name="circlepw_select_question_title">Выберите один вопрос</string>
+    <string name="circlepw_security_summary_title">Сводка</string>
+
+    <string name="circlepw_security_confirm_title">Подтверждение</string>
+    <string name="circlepw_security_confirm_headline">Храните свои вопросы в безопасности</string>
+    <string name="circlepw_security_confirm_input_headline">Введите «I agree», чтобы продолжить:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Введите «I agree» здесь</string>
+    <string name="circlepw_security_confirm_input_match">Согласен</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">Введите свой ответ здесь</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Введите свой ответ здесь</string>
 </resources>

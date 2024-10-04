@@ -1,4 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">URnetwork</string>
+    <string name="title_login">Σύνδεση</string>
+
+    <string name="user_auth_label">Email ή τηλέφωνο</string>
+    <string name="user_auth_placeholder">Εισαγάγετε τον αριθμό τηλεφώνου ή το email σας</string>
+    <string name="get_started">Ξεκίνα</string>
+    <string name="google_auth_btn_text">Συνδέσου με Google</string>
+    <string name="commitment_issues">Προβλήματα δέσμευσης;</string>
+    <string name="try_guest_mode">Δοκιμάστε τη λειτουργία επισκέπτη</string>
+
+    <string name="name_label">Όνομα</string>
+    <string name="name_placeholder">Το όνομά σας</string>
+    <string name="network_name_label">Όνομα δικτύου</string>
+    <string name="network_name_placeholder">Το όνομα του δικτύου σας</string>
+    <string name="network_name_support_txt">Τα ονόματα δικτύου πρέπει να έχουν τουλάχιστον 6 χαρακτήρες</string>
+    <string name="password_label">Κωδικός πρόσβασης</string>
+    <string name="password_support_txt">Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 12 χαρακτήρες</string>
+    <string name="continue_txt">Συνέχεια</string>
+
+    <string name="login_password_header">Χάρηκα που σε\nξαναβλέπω</string>
+    <string name="forget_password">Ξέχασες τον κωδικό σου;</string>
+    <string name="reset_it">Επαναφορά</string>
+
+    <string name="forgot_password">Ξέχασες τον κωδικό σου;</string>
+    <string name="check_junk_mail">Μπορεί να χρειαστεί να ελέγξετε τον φάκελο ανεπιθύμητης αλληλογραφίας ή να ξεμπλοκάρετε το no-reply@ur.io</string>
+    <string name="send_reset_link">Αποστολή συνδέσμου επαναφοράς</string>
+
+    <string name="reset_link_sent">Ο σύνδεσμος επαναφοράς στάλθηκε</string>
+    <string name="reset_link_sent_to">Ο σύνδεσμος επαναφοράς στάλθηκε στο</string>
+    <string name="resend_reset_link">Επανάληψη αποστολής συνδέσμου</string>
+    <string name="sent">Στάλθηκε!</string>
+
+    <string name="login_verify_header">Έχετε ένα email</string>
+    <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
+    <string name="dont_see_it">Δεν το βλέπεις;</string>
+    <string name="resend_verify_code">Επανάληψη αποστολής κωδικού</string>
+
+    <string name="connect_external_wallet">Σύνδεση εξωτερικού πορτοφολιού</string>
+    <string name="connect_external_wallet_supported_chains">Οι διευθύνσεις USDC σε Solana και Polygon υποστηρίζονται αυτήν τη στιγμή.</string>
+    <string name="wallet_address_label">Διεύθυνση πορτοφολιού</string>
+    <string name="wallet_address_placeholder">Αντιγράψτε και επικολλήστε εδώ</string>
+    <string name="total_payouts">συνολικές πληρωμές</string>
+    <string name="wallets">Πορτοφόλια</string>
+    <string name="add_wallet">Προσθήκη πορτοφολιού</string>
+
+    <string name="setup_circle_wallet">Ρύθμιση πορτοφολιού Circle</string>
+    <string name="connect_saga_wallet">Σύνδεση πορτοφολιού Saga</string>
+
+    <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
+    <string name="please_wait">Περιμένετε λίγα λεπτά και προσπαθήστε ξανά.</string>
+    <string name="change_password">Αλλαγή κωδικού πρόσβασης</string>
+    <string name="edit_profile">Επεξεργασία προφίλ</string>
+    <string name="save">Αποθήκευση</string>
+
+    <string name="share_with_others">Μοιράζεστε με άλλους, μοιραζόμαστε μαζί σας. Κερδίστε ένα μερίδιο εσόδων όταν παρέχετε δεδομένα σε άλλους στο δίκτυο.</string>
+    <string name="start_earning">Για να ξεκινήσετε να κερδίζετε, συνδέστε το πορτοφόλι κρυπτονομισμάτων σας στο URδίκτυο ή ρυθμίστε ένα με το Circle.</string>
+
+    <string name="circle_transfer_topbar_title">Μεταφορά USDC</string>
+    <string name="circle_transfer_header">Μεταφορά σε εξωτερικό πορτοφόλι</string>
+    <string name="circle_transfer_fee_coverage">Το URδίκτυο καλύπτει τα έξοδα μεταφοράς σας.</string>
+    <string name="transfer">Μεταφορά</string>
+    <string name="insufficient_funds">Ανεπαρκή κεφάλαια</string>
+
+    <string name="tap_to_connect">Πατήστε για σύνδεση</string>
+
+    <string name="promoted_locations">Προωθούμενες τοποθεσίες</string>
+    <string name="best_available_provider">Καλύτερος διαθέσιμος πάροχος</string>
+    <string name="countries">Χώρες</string>
+    <string name="devices">Συσκευές</string>
+    <string name="search_placeholder">Αναζήτηση σε όλες τις τοποθεσίες</string>
+    <string name="check_internet">Ελέγξτε τη σύνδεση στο διαδίκτυο</string>
+    <string name="no_providers_found">Δεν βρέθηκαν πάροχοι.</string>
+    <string name="tap_to_refetch">Πατήστε για να προσπαθήσετε να εντοπίσετε την τοποθεσία.</string>
+    <string name="cities">Πόλεις</string>
+    <string name="regions">Περιοχές</string>
+    <string name="top_matches">Κορυφαίες αντιστοιχίες</string>
+
+    <string name="account">Λογαριασμός</string>
+    <string name="profile">Προφίλ</string>
+    <string name="settings">Ρυθμίσεις</string>
+    <string name="wallet">Πορτοφόλι</string>
+    <string name="refer_and_earn">Παραπομπή και κέρδη</string>
+    <string name="set_up_wallet">Ρύθμιση πορτοφολιού</string>
+    <string name="guest">Επισκέπτης</string>
+    <string name="supporter">Υποστηρικτής</string>
+    <string name="free">Δωρεάν</string>
+    <string name="create_account">Δημιουργία λογαριασμού</string>
+    <string name="member">Μέλος</string>
+
+    <string name="upgrade_subscription">Αναβάθμιση Συνδρομής</string>
+    <string name="support_us">Υποστηρίξτε μας στην οικοδόμηση ενός νέου τύπου δικτύου που δίνει αντί να παίρνει.</string>
+    <string name="unlock_speed">Θα ξεκλειδώσετε ακόμη πιο γρήγορες ταχύτητες και θα έχετε προτεραιότητα σε νέες δυνατότητες όπως ισχυρά μέτρα κατά της λογοκρισίας και έλεγχο δεδομένων.</string>
+    <string name="join_the_movement">Γίνετε μέλος του κινήματος</string>
+
+    <string name="in_guest_mode">Είστε σε λειτουργία επισκέπτη</string>
+    <string name="start_earning_join">Για να ξεκινήσετε να κερδίζετε, γίνετε μέλος του δικτύου</string>
+
+    <string name="refer_friends_header">Προσκαλέστε φίλους</string>
+    <string name="refer_friends_detail">Περισσότερες συνδέσεις βοηθούν την κοινότητά μας να παραμένει ανώνυμη (και σας βοηθούν να κερδίσετε χρήματα!)</string>
+
+    <string name="balance">Υπόλοιπο</string>
+    <string name="transfer_funds">Μεταφορά χρημάτων</string>
+    <string name="no_payouts_found">Δεν βρέθηκαν πληρωμές για αυτό το πορτοφόλι</string>
+    <string name="earnings">Κέρδη</string>
+    <string name="make_default">Ορισμός ως προεπιλογή</string>
+    <string name="payout_wallets">Πορτοφόλια πληρωμής</string>
+    <string name="chains_supported">Τα πορτοφόλια Solana και Polygon υποστηρίζονται αυτήν τη στιγμή</string>
+
+    <string name="transfer_submitted">Υποβλήθηκε η μεταφορά</string>
+    <string name="transfer_submitted_details">Η μεταφορά σας ξεκίνησε και θα ολοκληρωθεί μόλις η συναλλαγή υποβληθεί σε επεξεργασία στην αλυσίδα.</string>
+
+    <string name="see_world_content">Δείτε όλο\nτο περιεχόμενο\nτου κόσμου</string>
+    <string name="see_world_content_description">Δείτε όλο το περιεχόμενο του κόσμου με το URδίκτυο</string>
+    <string name="stay_private_description">Παραμείνετε εντελώς ιδιωτικοί και ανώνυμοι με το URδίκτυο</string>
+    <string name="stay_private">Παραμείνετε\nεντελώς\nιδιωτικοί και\nανώνυμοι</string>
+    <string name="build_right_description">Δημιουργήστε το Διαδίκτυο με τον σωστό τρόπο με το URδίκτυο</string>
+    <string name="build_right">Δημιουργήστε\nτο Διαδίκτυο\nμε τον σωστό τρόπο</string>
+    <string name="with_urnetwork">με το URδίκτυο</string>
+
+    <string name="unlock_supporter_tooltip">Ξεκλειδώστε ακόμη μεγαλύτερες ταχύτητες και αποκτήστε πρώιμη πρόσβαση σε νέες δυνατότητες.</string>
+    <string name="become_supporter">Γίνετε υποστηρικτής</string>
+    <string name="client_id_label">Αναγνωριστικό πελάτη</string>
+    <string name="share_label">Κοινή χρήση URδικτύου</string>
+    <string name="notifications_label">Ειδοποιήσεις</string>
+    <string name="receive_notifications">Λήψη ειδοποιήσεων σύνδεσης</string>
+    <string name="connectivity_label">Συνδεσιμότητα</string>
+    <string name="allow_local_connections">Να επιτρέπονται οι τοπικές συνδέσεις</string>
+    <string name="stay_in_touch">Μείνετε σε επαφή</string>
+    <string name="send_product_updates">Στείλτε μου ενημερώσεις προϊόντων</string>
+    <string name="join_community_discord">Γίνετε μέλος της κοινότητας στο</string>
+    <string name="update_notification_settings">Ενημέρωση δικαιωμάτων ειδοποιήσεων στις Ρυθμίσεις Android</string>
+
+    <string name="feedback_header">Επικοινωνήστε</string>
+    <string name="feedback_label">Κουτί σχολίων</string>
+    <string name="feedback_placeholder">Πείτε μας πώς νιώθετε πραγματικά</string>
+
+    <string name="plan">Σχέδιο</string>
+
+    <string name="cancel">Ακύρωση</string>
+    <string name="connect">Σύνδεση</string>
+    <string name="remove">Αφαίρεση</string>
+    <string name="change">Αλλαγή</string>
+    <string name="share">Κοινή χρήση</string>
+    <string name="copy">Αντιγραφή</string>
+    <string name="send">Αποστολή</string>
+
+    <string name="login_error_auth_allowed">Συνδεθείτε με ένα από τα εξής: %s.</string>
+    <string name="login_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
+    <string name="login_client_error">Παρουσιάστηκε σφάλμα κατά την επαλήθευση ταυτότητας του πελάτη. Δοκιμάστε ξανά.</string>
+    <string name="network_name_check_error">Μη διαθέσιμο. Πρέπει να είναι τουλάχιστον 3 χαρακτήρες διαφορετικοί από ένα υπάρχον δίκτυο. Κάντε το μοναδικό ή μεγαλύτερο.</string>
+    <string name="verify_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
+    <string name="create_network_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
+    <string name="verify_send_error">Σφάλμα</string>
+
+    <string name="circlepw_show_pin">Εμφάνιση PIN</string>
+    <string name="circlepw_hide_pin">Απόκρυψη PIN</string>
+    <string name="circlepw_continue">Συνέχεια</string>
+    <string name="circlepw_next">Επόμενο</string>
+    <string name="circlepw_question_label">Ερώτηση:</string>
+    <string name="circlepw_answer_label">Απάντηση:</string>
+    <string name="circlepw_hint_label">Υπόδειξη:</string>
+    <string name="circlepw_hint_tag">Υπόδειξη</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">Επιβεβαίωση</string>
+    <string name="circlepw_pin_remain_attemps_template">Έχετε %s προσπάθειες.</string>
+    <string name="circlepw_pin_lock_period_template">Έχετε χρησιμοποιήσει όλες τις προσπάθειες PIN. Περιμένετε %s λεπτά για να προσπαθήσετε ξανά αργότερα.</string>
+    <string name="circlepw_answer_remain_attemps_template">Έχετε %s προσπάθειες.</string>
+    <string name="circlepw_answer_lock_period_template">Περιμένετε %s λεπτά για να προσπαθήσετε ξανά αργότερα.</string>
+
+    <string name="circlepw_enter_pincode_subhead">Επιβεβαιώστε την ταυτότητά σας.</string>
+    <string name="circlepw_enter_pincode_forgot_pin">Ξεχάσατε το PIN;</string>
+
+    <string name="circlepw_new_pincode_subhead">Ο κωδικός PIN δεν μπορεί να έχει επαναλαμβανόμενους (π.χ. 000000) ή διαδοχικούς (π.χ. 123456) αριθμούς.</string>
+    <string name="circlepw_confirm_pincode_headline">Εισαγάγετε ξανά τον κωδικό PIN για επιβεβαίωση</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">Αυτός είναι ο μόνος τρόπος για να ανακτήσετε την πρόσβαση στο πορτοφόλι σας εάν ξεχάσετε τον κωδικό PIN. Επιλέξτε 2 ερωτήσεις ασφαλείας και δώστε απαντήσεις για ανάκτηση πρόσβασης.</string>
+
+    <string name="circlepw_security_questions_title">Μέθοδος ανάκτησης</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">Επιλέξτε μία ερώτηση</string>
+    <string name="circlepw_security_questions_answer_header">Δώστε μια απάντηση</string>
+    <string name="circlepw_security_questions_answer_placeholder">Πληκτρολογήστε την απάντησή σας εδώ</string>
+    <string name="circlepw_security_questions_answer_hint_header">Δώστε μια υπόδειξη απάντησης (προαιρετικό)</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">Πληκτρολογήστε την υπόδειξή σας εδώ</string>
+
+    <string name="circlepw_select_question_title">Επιλέξτε μία ερώτηση</string>
+    <string name="circlepw_security_summary_title">Σύνοψη</string>
+
+    <string name="circlepw_security_confirm_title">Επιβεβαίωση</string>
+    <string name="circlepw_security_confirm_headline">Κρατήστε τις ερωτήσεις σας ασφαλείς</string>
+    <string name="circlepw_security_confirm_input_headline">Πληκτρολογήστε \"I agree\" για να συνεχίσετε:</string>
+    <string name="circlepw_security_confirm_input_placeholder">Πληκτρολογήστε \"I agree\" εδώ</string>
+    <string name="circlepw_security_confirm_input_match">Συμφωνώ</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">Εισαγάγετε την απάντησή σας εδώ</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">Πληκτρολογήστε την απάντησή σας εδώ</string>
 </resources>

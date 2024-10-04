@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.NetworkCreateArgs
@@ -58,6 +61,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import androidx.compose.runtime.collectAsState
 
 // Base class with common parameters
 open class CommonLoginParams(
@@ -86,124 +90,104 @@ sealed class LoginCreateNetworkParams(
     )
 }
 
+@Composable
+fun LoginCreateNetwork(
+    params: LoginCreateNetworkParams,
+    navController: NavController,
+    loginCreateNetworkViewModel: LoginCreateNetworkViewModel = hiltViewModel()
+) {
+
+    LoginCreateNetwork(
+       params,
+       navController,
+       validateNetworkName = loginCreateNetworkViewModel.validateNetworkName,
+       isValidatingNetworkName = loginCreateNetworkViewModel.isValidatingNetworkName,
+       emailOrPhone = loginCreateNetworkViewModel.emailOrPhone,
+       setEmailOrPhone = loginCreateNetworkViewModel.setEmailOrPhone,
+       username = loginCreateNetworkViewModel.username,
+       setUsername = loginCreateNetworkViewModel.setUsername,
+       networkName = loginCreateNetworkViewModel.networkName,
+       setNetworkName = loginCreateNetworkViewModel.setNetworkName,
+       networkNameErrorExists = loginCreateNetworkViewModel.networkNameErrorExists,
+       password = loginCreateNetworkViewModel.password,
+       setPassword = loginCreateNetworkViewModel.setPassword,
+       termsAgreed = loginCreateNetworkViewModel.termsAgreed,
+       setTermsAgreed = loginCreateNetworkViewModel.setTermsAgreed,
+       createNetworkArgs = loginCreateNetworkViewModel.createNetworkArgs
+   )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginCreateNetwork(
     params: LoginCreateNetworkParams,
     navController: NavController,
+    networkName: TextFieldValue,
+    setNetworkName: (TextFieldValue) -> Unit,
+    validateNetworkName: (String) -> Unit,
+    isValidatingNetworkName: Boolean,
+    emailOrPhone: TextFieldValue,
+    setEmailOrPhone: (TextFieldValue) -> Unit,
+    username: TextFieldValue,
+    setUsername: (TextFieldValue) -> Unit,
+    password: TextFieldValue,
+    setPassword: (TextFieldValue) -> Unit,
+    networkNameErrorExists: Boolean,
+    termsAgreed: Boolean,
+    setTermsAgreed: (Boolean) -> Unit,
+    createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs
 ) {
-
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-    val loginVc = application?.loginVc
     val loginActivity = context as? LoginActivity
-    var emailOrPhone by remember { mutableStateOf(TextFieldValue()) }
-    var userPassword by remember { mutableStateOf(TextFieldValue()) }
-    var userName by remember { mutableStateOf(TextFieldValue()) }
 
     when(params) {
         is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-            emailOrPhone = TextFieldValue(params.userAuth)
+            setEmailOrPhone(TextFieldValue(params.userAuth))
         }
         is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-            userName = TextFieldValue(params.userName)
+            setUsername(TextFieldValue(params.userName))
         }
     }
 
-    var termsAgreed by remember { mutableStateOf(false) }
+    var isBtnEnabled by remember { mutableStateOf(false) }
+
     var inProgress by remember { mutableStateOf(false) }
+
+    LaunchedEffect(inProgress, params, networkName.text, username.text, password.text, termsAgreed) {
+        isBtnEnabled  = when(params) {
+            is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
+                !inProgress &&
+                        (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
+                                Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
+                        (networkName.text.length >= 6) &&
+                        (password.text.length >= 12) &&
+                        (username.text.isNotEmpty()) &&
+                        !isValidatingNetworkName &&
+                        !networkNameErrorExists &&
+                        termsAgreed
+            }
+            is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
+                !inProgress &&
+                        (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
+                        (networkName.text.length >= 6) &&
+                        (params.authJwt.isNotEmpty()) &&
+                        (params.authJwtType.isNotEmpty()) &&
+                        (username.text.isNotEmpty()) &&
+                        !isValidatingNetworkName &&
+                        !networkNameErrorExists &&
+                        termsAgreed
+            }
+        }
+    }
+
     var createNetworkError by remember { mutableStateOf<String?>(null) }
 
-    // handling network name + validation
-    var networkName by remember { mutableStateOf(TextFieldValue()) }
-    var isValidatingNetworkName by remember { mutableStateOf(false) }
-    var networkNameAvailable by remember { mutableStateOf(false) }
-    var networkNameErrorMsg by remember { mutableStateOf<String?>(null) }
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
-
-    val isBtnEnabled by remember {
-        derivedStateOf {
-            when(params) {
-                is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-                    !inProgress &&
-                            (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
-                                    Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
-                            (networkName.text.length >= 6) &&
-                            (userPassword.text.length >= 12) &&
-                            (userName.text.isNotEmpty()) &&
-                            !isValidatingNetworkName &&
-                            networkNameErrorMsg.isNullOrBlank() &&
-                            termsAgreed
-                }
-                is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-                    !inProgress &&
-                            (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
-                            (networkName.text.length >= 6) &&
-                            (params.authJwt.isNotEmpty()) &&
-                            (params.authJwtType.isNotEmpty()) &&
-                            (userName.text.isNotEmpty()) &&
-                            !isValidatingNetworkName &&
-                            networkNameErrorMsg.isNullOrBlank() &&
-                            termsAgreed
-                }
-            }
-        }
-    }
-
-    val checkNetworkName = {
-
-        debounceJob?.cancel()
-        debounceJob = coroutineScope.launch {
-            delay(1000L)
-            isValidatingNetworkName = true
-
-            loginVc?.networkCheck(networkName.text) { result, err ->
-                runBlocking(Dispatchers.Main.immediate) {
-
-                    if (err == null) {
-                        if (result.available) {
-                            networkNameAvailable = true
-                            networkNameErrorMsg = null
-                        } else {
-                            networkNameAvailable = false
-                            networkNameErrorMsg = context.getString(R.string.network_name_check_error)
-                        }
-                    } else {
-                        networkNameAvailable = false
-                        networkNameErrorMsg = context.getString(R.string.network_name_check_error)
-                    }
-
-                    isValidatingNetworkName = false
-                }
-            }
-        }
-    }
-
-    val createNetworkArgs = {
-        val args = NetworkCreateArgs()
-
-        args.userName = userName.text.trim()
-        args.networkName = networkName.text
-        args.terms = termsAgreed
-
-        when(params) {
-            is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-                args.userAuth = emailOrPhone.text.trim()
-                args.password = userPassword.text
-            }
-            is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-                args.authJwt = params.authJwt
-                args.authJwtType = params.authJwtType
-            }
-        }
-
-        args
-    }
-
     val createNetwork = {
-        val args = createNetworkArgs()
+        val args = createNetworkArgs(params)
 
         application?.api?.networkCreate(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
@@ -271,7 +255,8 @@ fun LoginCreateNetwork(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .imePadding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -288,9 +273,9 @@ fun LoginCreateNetwork(
 
             URTextInput(
                 label = stringResource(id = R.string.name_label),
-                value = userName,
+                value = username,
                 onValueChange = { newValue ->
-                    userName = newValue
+                    setUsername(newValue)
                 },
                 placeholder = stringResource(id = R.string.name_placeholder),
                 keyboardOptions = KeyboardOptions(
@@ -306,7 +291,8 @@ fun LoginCreateNetwork(
                     onValueChange = { newValue ->
                         val filteredText = newValue.text.filter { it != ' ' }
                         val filteredTextFieldValue = newValue.copy(text = filteredText)
-                        emailOrPhone = filteredTextFieldValue
+                        setEmailOrPhone(filteredTextFieldValue)
+
                     },
                     placeholder = stringResource(id = R.string.user_auth_placeholder),
                     keyboardOptions = KeyboardOptions(
@@ -327,11 +313,18 @@ fun LoginCreateNetwork(
                     val newCursorPosition =
                         (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
 
-                    networkName = newValue.copy(
+                    val newNetworkName = newValue.copy(
                         text = filteredText,
                         selection = TextRange(newCursorPosition)
                     )
-                    checkNetworkName()
+
+                    setNetworkName(newNetworkName)
+
+                    debounceJob?.cancel()
+                    debounceJob = coroutineScope.launch {
+                        delay(500L)
+                        validateNetworkName(newNetworkName.text)
+                    }
                 },
                 placeholder = stringResource(id = R.string.network_name_placeholder),
                 keyboardOptions = KeyboardOptions(
@@ -340,18 +333,16 @@ fun LoginCreateNetwork(
                         ImeAction.Next else ImeAction.Done
                 ),
                 isValidating = isValidatingNetworkName,
-                isValid = networkNameErrorMsg == null,
-                supportingText = networkNameErrorMsg ?: stringResource(id = R.string.network_name_support_txt)
+                isValid = !networkNameErrorExists,
+                supportingText = if (networkNameErrorExists) stringResource(id = R.string.network_name_support_txt) else ""
             )
 
             if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
 
                 URTextInput(
                     label = stringResource(id = R.string.password_label),
-                    value = userPassword,
-                    onValueChange = { newValue ->
-                        userPassword = newValue
-                    },
+                    value = password,
+                    onValueChange = setPassword,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
@@ -365,9 +356,7 @@ fun LoginCreateNetwork(
 
             TermsCheckbox(
                 checked = termsAgreed,
-                onCheckChanged = { it ->
-                    termsAgreed = it
-                }
+                onCheckChanged = setTermsAgreed
             )
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -401,6 +390,10 @@ private fun LoginNetworkCreatePreview() {
 
     val navController = rememberNavController()
 
+    val mockCreateNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs = {
+        NetworkCreateArgs()
+    }
+
     URNetworkTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize()
@@ -412,7 +405,21 @@ private fun LoginNetworkCreatePreview() {
             ) {
                 LoginCreateNetwork(
                     params,
-                    navController
+                    navController,
+                    validateNetworkName = {},
+                    isValidatingNetworkName = false,
+                    emailOrPhone = TextFieldValue("hello@ur.io"),
+                    setEmailOrPhone = {},
+                    username = TextFieldValue(""),
+                    setUsername = {},
+                    networkName = TextFieldValue("hello-world"),
+                    setNetworkName = {},
+                    networkNameErrorExists = false,
+                    password = TextFieldValue("abcdefghijk"),
+                    setPassword = {},
+                    termsAgreed = false,
+                    setTermsAgreed = {},
+                    createNetworkArgs = mockCreateNetworkArgs
                 )
             }
         }

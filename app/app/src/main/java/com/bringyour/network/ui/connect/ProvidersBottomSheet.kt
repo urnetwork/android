@@ -24,6 +24,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,18 +60,23 @@ fun ProvidersBottomSheet(
     content: @Composable (PaddingValues) -> Unit,
 ) {
 
+    val fetchLocationsState by remember { locationsViewModel.locationsState }.collectAsState()
+
     ProvidersBottomSheet(
         scaffoldState = scaffoldState,
         selectedLocation = selectedLocation,
         connectCountries = locationsViewModel.connectCountries,
         promotedLocations = locationsViewModel.promotedLocations,
+        cities = locationsViewModel.cities,
+        regions = locationsViewModel.regions,
         devices = locationsViewModel.devices,
+        bestSearchMatches = locationsViewModel.bestSearchMatches,
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
-        locationsLoaded = locationsViewModel.initialListLoaded,
+        fetchLocationsState = fetchLocationsState,
+        searchQuery = locationsViewModel.searchQuery,
+        setSearchQuery = locationsViewModel.setSearchQuery,
         connect = connect,
-        isRefreshing =  locationsViewModel.isRefreshing,
-        setIsRefreshing = locationsViewModel.setIsRefreshing
     ) { innerPadding ->
         content(innerPadding)
     }
@@ -83,17 +89,19 @@ fun ProvidersBottomSheet(
     selectedLocation: ConnectLocation?,
     connectCountries: List<ConnectLocation>,
     promotedLocations: List<ConnectLocation>,
+    cities: List<ConnectLocation>,
+    regions: List<ConnectLocation>,
     devices: List<ConnectLocation>,
+    bestSearchMatches: List<ConnectLocation>,
     getLocationColor: (String) -> Color,
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
-    locationsLoaded: Boolean,
-    isRefreshing: Boolean,
-    setIsRefreshing: (Boolean) -> Unit,
+    fetchLocationsState: FetchLocationsState,
+    searchQuery: TextFieldValue,
+    setSearchQuery: (TextFieldValue) -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
@@ -167,58 +175,67 @@ fun ProvidersBottomSheet(
                         )
                     }
 
-                    if (locationsLoaded) {
-                        URSearchInput(
-                            value = searchQuery,
-                            onValueChange = { query ->
-                                if (query.text != searchQuery.text) {
-                                    searchQuery = query
-                                    filterLocations(searchQuery.text)
-                                }
-                            },
-                            placeholder = stringResource(id = R.string.search_placeholder),
-                            keyboardController
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        LocationsList(
-                            onLocationSelect = { location ->
-                                connect(location)
-                                scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                            },
-                            promotedLocations = promotedLocations,
-                            connectCountries = connectCountries,
-                            getLocationColor = getLocationColor,
-                            selectedLocation = selectedLocation,
-                            devices = devices,
-                            isRefreshing = isRefreshing,
-                            onRefresh = {
-                                setIsRefreshing(true)
-                                filterLocations("")
+                    URSearchInput(
+                        value = searchQuery,
+                        onValueChange = { query ->
+                            if (query.text != searchQuery.text) {
+                                setSearchQuery(query)
                             }
-                        )
-                    } else {
-                        Column(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color = Black)
-                                .padding(horizontal = 16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(24.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        },
+                        placeholder = stringResource(id = R.string.search_placeholder),
+                        keyboardController
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    when(fetchLocationsState) {
+                        FetchLocationsState.Loading -> {
+                            Column(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(color = Black)
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(24.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                        FetchLocationsState.Loaded -> {
+
+                            LocationsList(
+                                onLocationSelect = { location ->
+                                    connect(location)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                },
+                                promotedLocations = promotedLocations,
+                                connectCountries = connectCountries,
+                                cities = cities,
+                                regions = regions,
+                                bestSearchMatches = bestSearchMatches,
+                                getLocationColor = getLocationColor,
+                                selectedLocation = selectedLocation,
+                                devices = devices,
+                                onRefresh = {
+                                    filterLocations("")
+                                },
+                                searchQuery = searchQuery.text
+                            )
+                        }
+                        FetchLocationsState.Error -> {
+                            FetchLocationsError(
+                                onRefresh = {
+                                    filterLocations("")
+                                }
                             )
                         }
                     }
                 }
-
-
             }
-
         }
     ) { innerPadding ->
         content(innerPadding)
@@ -238,16 +255,17 @@ private fun PreviewBottomSheet() {
             selectedLocation = null,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            cities = listOf<ConnectLocation>(),
+            regions = listOf<ConnectLocation>(),
             devices = listOf<ConnectLocation>(),
+            bestSearchMatches = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
             filterLocations = { _ -> },
-            locationsLoaded = true,
-            isRefreshing = false,
-            setIsRefreshing = {}
-            // connectVc = connectVc,
-
+            fetchLocationsState = FetchLocationsState.Loaded,
+            searchQuery = TextFieldValue(""),
+            setSearchQuery = {}
         ) {
             Text("Hello world")
         }
@@ -272,16 +290,17 @@ private fun PreviewBottomSheetExpanded() {
             selectedLocation = null,
             connectCountries = listOf<ConnectLocation>(),
             promotedLocations = listOf<ConnectLocation>(),
+            cities = listOf<ConnectLocation>(),
+            regions = listOf<ConnectLocation>(),
             devices = listOf<ConnectLocation>(),
+            bestSearchMatches = listOf<ConnectLocation>(),
             getLocationColor = { _ ->
                 BlueMedium
             },
             filterLocations = { _ -> },
-            locationsLoaded = true,
-            isRefreshing = false,
-            setIsRefreshing = {}
-            // connectVc = connectVc,
-
+            fetchLocationsState = FetchLocationsState.Loaded,
+            searchQuery = TextFieldValue(""),
+            setSearchQuery = {}
         ) {
             Text("Hello world")
         }

@@ -44,6 +44,7 @@ import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
+import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.wallet.SagaViewModel
@@ -64,7 +65,9 @@ enum class AppDestinations(
 fun MainNavHost(
     sagaViewModel: SagaViewModel,
     settingsViewModel: SettingsViewModel,
-    promptReviewViewModel: PromptReviewViewModel
+    promptReviewViewModel: PromptReviewViewModel,
+    planViewModel: PlanViewModel,
+    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel()
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -140,7 +143,8 @@ fun MainNavHost(
                         sagaViewModel,
                         accountNavHostController,
                         settingsViewModel,
-                        promptReviewViewModel
+                        promptReviewViewModel,
+                        planViewModel
                     )
                 }
 
@@ -154,7 +158,8 @@ fun MainNavHost(
                         sagaViewModel,
                         accountNavHostController,
                         settingsViewModel,
-                        promptReviewViewModel
+                        promptReviewViewModel,
+                        planViewModel
                     )
                     HorizontalDivider(
                         modifier = Modifier
@@ -171,7 +176,9 @@ fun MainNavHost(
         }
     }
 
-    FullScreenOverlay()
+    FullScreenOverlay(
+        referralCodeViewModel
+    )
 
 }
 
@@ -182,8 +189,8 @@ fun MainNavContent(
     accountNavHostController: NavHostController,
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
+    planViewModel: PlanViewModel,
     connectViewModel: ConnectViewModel = hiltViewModel(),
-    planViewModel: PlanViewModel = hiltViewModel()
 ) {
 
     val localDensityCurrent = LocalDensity.current

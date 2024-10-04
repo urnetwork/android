@@ -41,7 +41,6 @@ import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +51,7 @@ fun ConnectScreen(
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val scaffoldState = rememberBottomSheetScaffoldState()
+    val networkUser by accountViewModel.networkUser.collectAsState()
 
     ProvidersBottomSheet(
         scaffoldState,
@@ -61,7 +61,7 @@ fun ConnectScreen(
         ConnectMainContent(
             connectStatus = connectStatus,
             selectedLocation = connectViewModel.selectedLocation,
-            networkName = accountViewModel.networkName,
+            networkName = networkUser?.networkName,
             connect = connectViewModel.connect,
             disconnect = connectViewModel.disconnect,
             providerGridPoints = connectViewModel.providerGridPoints,

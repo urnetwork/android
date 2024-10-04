@@ -1,8 +1,10 @@
 package com.bringyour.network.ui.wallet
 
+import android.icu.util.Calendar
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
@@ -44,6 +46,9 @@ class WalletViewModel @Inject constructor(
     var circleWalletInProgress by mutableStateOf(false)
         private set
 
+    var unpaidMegaByteCount by mutableStateOf("")
+        private set
+
     /**
      * Display a loading indicator when first loading wallets
      */
@@ -80,10 +85,17 @@ class WalletViewModel @Inject constructor(
 
     var circleWalletBalance by mutableDoubleStateOf(0.0)
 
+    private var fetchBytesLastCheckedHour by mutableIntStateOf(0)
+
     val updateNextPayoutDateStr = {
         walletVc?.let { vc ->
             nextPayoutDateStr = vc.nextPayoutDate
         }
+    }
+
+    val getCurrentHour:() -> Int = {
+        val calendar = Calendar.getInstance()
+        calendar.get(Calendar.HOUR_OF_DAY)
     }
 
     val openExternalWalletModal = {
@@ -372,6 +384,21 @@ class WalletViewModel @Inject constructor(
         walletVc?.setIsPollingAccountWallets(true)
     }
 
+    // checking since transfer_escrow_sweep is run once an hour
+    val fetchTransferStats = {
+        val currentHour = getCurrentHour()
+        if (fetchBytesLastCheckedHour != currentHour) {
+            walletVc?.fetchTransferStats()
+            fetchBytesLastCheckedHour = currentHour
+        }
+    }
+
+    val addUnpaidByteCountListener = {
+        walletVc?.addUnpaidByteCountListener{ ubc ->
+            unpaidMegaByteCount = String.format("%.4f", ubc / (1024.0 * 1024.0))
+        }
+    }
+
     init {
 
         circleWalletSdk = circleWalletManager.circleWalletSdk
@@ -387,6 +414,7 @@ class WalletViewModel @Inject constructor(
         addPayoutWalletListener()
         addPayoutsListener()
         addIsRemovingWalletListener()
+        addUnpaidByteCountListener()
 
         viewModelScope.launch {
             walletVc?.start()

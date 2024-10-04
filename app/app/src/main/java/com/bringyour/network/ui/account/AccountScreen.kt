@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.account
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,13 +24,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -74,6 +73,9 @@ fun AccountScreen(
         )
     )
 
+    val networkUser by accountViewModel.networkUser.collectAsState()
+    val currentPlan by planViewModel.currentPlan.collectAsState()
+
     UpgradePlanBottomSheetScaffold(
         scaffoldState = scaffoldState,
         scope = scope,
@@ -84,11 +86,11 @@ fun AccountScreen(
             navController = navController,
             scaffoldState = scaffoldState,
             scope = scope,
-            networkName = accountViewModel.networkName,
+            networkName = networkUser?.networkName,
             totalPayoutAmount = totalPayoutAmount,
             totalPayoutAmountInitialized = totalPayoutAmountInitialized,
             walletCount = walletCount,
-            currentPlan = planViewModel.currentPlan
+            currentPlan = currentPlan
         )
     }
 
@@ -150,7 +152,7 @@ fun AccountScreenContent(
                 Box() {
                     Column {
                         Text(
-                            "Member",
+                            stringResource(id = R.string.member),
                             style = TextStyle(
                                 color = TextMuted
                             )
@@ -164,38 +166,41 @@ fun AccountScreenContent(
                         ) {
 
                             if (loginMode == LoginMode.Guest) {
-                                Text("Guest",
+                                Text(
+                                    stringResource(id = R.string.guest),
                                     style = MaterialTheme.typography.headlineMedium
                                 )
                             } else {
 
-                                Text(if (currentPlan == Plan.Supporter) "Supporter" else "Free",
+                                Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
                                     style = MaterialTheme.typography.headlineMedium
                                 )
                             }
 
                             if (loginMode == LoginMode.Guest) {
-                                ClickableText(
-                                    modifier = Modifier.offset(y = (-8).dp),
-                                    text = AnnotatedString("Create account"),
-                                    onClick = {
-                                        application?.logout()
-                                    },
+                                Text(
+                                    stringResource(id = R.string.create_account),
                                     style = TextStyle(
                                         color = BlueMedium
-                                    )
+                                    ),
+                                    modifier = Modifier
+                                        .offset(y = (-8).dp)
+                                        .clickable {
+                                            application?.logout()
+                                        }
                                 )
                             } else {
 
                                 if (currentPlan == Plan.Basic) {
-                                    ClickableText(
-                                        modifier = Modifier.offset(y = (-8).dp),
-                                        text = AnnotatedString("Change"),
-                                        onClick = {
-                                            scope.launch {
-                                                scaffoldState.bottomSheetState.expand()
-                                            }
-                                        },
+                                    Text(
+                                        stringResource(id = R.string.change),
+                                        modifier = Modifier
+                                            .offset(y = (-8).dp)
+                                            .clickable {
+                                                scope.launch {
+                                                    scaffoldState.bottomSheetState.expand()
+                                                }
+                                            },
                                         style = TextStyle(
                                             color = BlueMedium
                                         )

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -58,6 +57,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.bringyour.client.AccountPayment
@@ -74,12 +74,15 @@ fun WalletsScreen(
     walletViewModel: WalletViewModel,
 ) {
 
+    LaunchedEffect(Unit) {
+        walletViewModel.fetchTransferStats()
+    }
+
     WalletsScreen(
         accountNavController,
         walletNavController,
         isSolanaSaga = sagaViewModel.isSolanaSaga,
         getSolanaAddress = sagaViewModel.getSagaWalletAddress,
-        nextPayoutDate = walletViewModel.nextPayoutDateStr,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
@@ -99,7 +102,8 @@ fun WalletsScreen(
         payouts = walletViewModel.payouts,
         isRemovingWallet = walletViewModel.isRemovingWallet,
         pollWallets = walletViewModel.pollWallets,
-        initializingWallets = walletViewModel.initializingWallets
+        initializingWallets = walletViewModel.initializingWallets,
+        unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount
     )
 }
 
@@ -110,7 +114,6 @@ fun WalletsScreen(
     walletNavController: NavController,
     isSolanaSaga: Boolean,
     getSolanaAddress: ((String?) -> Unit) -> Unit,
-    nextPayoutDate: String,
     addExternalWalletModalVisible: Boolean,
     openModal: () -> Unit,
     closeModal: () -> Unit,
@@ -130,14 +133,12 @@ fun WalletsScreen(
     payouts: List<AccountPayment>,
     isRemovingWallet: Boolean,
     pollWallets: () -> Unit?,
-    initializingWallets: Boolean
+    initializingWallets: Boolean,
+    unpaidMegaByteCount: String
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
     val app = context.applicationContext as? MainApplication
-
-    // todo - populate this with real data
-    val estimatedPayoutAmount = "0.25"
 
     val initCircleWallet = {
 
@@ -239,7 +240,10 @@ fun WalletsScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Payout Wallets", style = TopBarTitleTextStyle)
+                    Text(
+                        stringResource(id = R.string.payout_wallets),
+                        style = TopBarTitleTextStyle
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { accountNavController.popBackStack() }) {
@@ -256,7 +260,6 @@ fun WalletsScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                // .padding(16.dp)
                 .fillMaxSize(),
         ) {
             Column(
@@ -286,7 +289,7 @@ fun WalletsScreen(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            "Estimated on $nextPayoutDate",
+                            stringResource(id = R.string.unpaid_mb),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
@@ -294,24 +297,23 @@ fun WalletsScreen(
                             verticalAlignment = Alignment.Bottom
                         ) {
                             Text(
-                                estimatedPayoutAmount,
+                                unpaidMegaByteCount,
                                 style = HeadingLargeCondensed
                             )
 
                             Spacer(modifier = Modifier.width(2.dp))
-
-                            // this is really hacky, but setting line-height isn't being acknowledged
-                            Box(
-                                modifier = Modifier.offset(y = -(11).dp)
-                            ) {
-                                Text(
-                                    "USDC",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = TextMuted
-                                )
-                            }
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    Text(
+                        stringResource(id = R.string.payouts_amount_threshold),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -383,7 +385,7 @@ fun WalletsScreen(
                         ) {
                             Row {
                                 Text(
-                                    "Wallets",
+                                    stringResource(id = R.string.wallets),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(modifier = Modifier.width(2.dp))
@@ -391,7 +393,7 @@ fun WalletsScreen(
                                 InfoIconWithOverlay() {
                                     Column() {
                                         Text(
-                                            "Solana and Polygon wallets are currently supported",
+                                            stringResource(id = R.string.chains_supported),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = BlueLight
                                         )
@@ -411,7 +413,7 @@ fun WalletsScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.plus_icon),
-                                    contentDescription = "Add wallet",
+                                    contentDescription = stringResource(id = R.string.add_wallet),
                                     tint = TextMuted,
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -569,7 +571,6 @@ private fun WalletScreenPreview() {
             walletNavController,
             isSolanaSaga = false,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -589,7 +590,8 @@ private fun WalletScreenPreview() {
             payouts = listOf(),
             isRemovingWallet = false,
             pollWallets = {},
-            initializingWallets = false
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -607,7 +609,6 @@ private fun WalletScreenSagaPreview() {
             walletNavController,
             isSolanaSaga = true,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -627,7 +628,8 @@ private fun WalletScreenSagaPreview() {
             payouts = listOf(),
             isRemovingWallet = false,
             pollWallets = {},
-            initializingWallets = false
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -645,7 +647,6 @@ private fun WalletScreenExternalWalletModalPreview() {
             walletNavController,
             isSolanaSaga = true,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = true,
             openModal = {},
             closeModal = {},
@@ -665,7 +666,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             payouts = listOf(),
             isRemovingWallet = false,
             pollWallets = {},
-            initializingWallets = false
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -683,7 +685,6 @@ private fun WalletScreenInitializingWalletPreview() {
             walletNavController,
             isSolanaSaga = false,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -703,7 +704,8 @@ private fun WalletScreenInitializingWalletPreview() {
             payouts = listOf(),
             isRemovingWallet = false,
             pollWallets = {},
-            initializingWallets = false
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
@@ -721,7 +723,6 @@ private fun WalletScreenRemovingWalletPreview() {
             walletNavController,
             isSolanaSaga = false,
             getSolanaAddress = {},
-            nextPayoutDate = "Jan 1",
             addExternalWalletModalVisible = false,
             openModal = {},
             closeModal = {},
@@ -741,7 +742,8 @@ private fun WalletScreenRemovingWalletPreview() {
             payouts = listOf(),
             isRemovingWallet = true,
             pollWallets = {},
-            initializingWallets = false
+            initializingWallets = false,
+            unpaidMegaByteCount = "124.64"
         )
     }
 }
