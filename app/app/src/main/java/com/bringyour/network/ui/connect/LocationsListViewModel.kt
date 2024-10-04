@@ -41,6 +41,9 @@ class LocationsListViewModel @Inject constructor(
 
     val setSearchQuery: (TextFieldValue) -> Unit = {
         searchQuery = it
+        if (_locationsState.value != FetchLocationsState.Loading) {
+            setLocationsState(FetchLocationsState.Loading)
+        }
     }
 
     val devices = mutableStateListOf<ConnectLocation>()
