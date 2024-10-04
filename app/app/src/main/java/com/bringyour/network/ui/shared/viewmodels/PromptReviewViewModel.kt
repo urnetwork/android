@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.shared.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,9 @@ class PromptReviewViewModel @Inject constructor(
     val promptReview: StateFlow<Boolean> = _promptReview
 
     val checkTriggerPromptReview = {
+        Log.i("PromptReviewViewModel", "check trigger prompt review")
         if (byDeviceManager.byDevice?.stats?.userSuccess == true) {
+            Log.i("PromptReviewViewModel", "prompt the review")
             _promptReview.value = true
         }
     }
