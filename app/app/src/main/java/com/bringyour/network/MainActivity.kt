@@ -2,126 +2,67 @@ package com.bringyour.network
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.VpnService
-import android.opengl.GLSurfaceView
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
+import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.ColorInt
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.bringyour.network.databinding.ActivityMainBinding
-import com.bringyour.client.support.GLSurfaceViewBinder
-import com.bringyour.client.StatusViewController
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.ProductDetailsResult
+import com.android.billingclient.api.QueryProductDetailsParams
+import com.android.billingclient.api.queryProductDetails
+import com.bringyour.client.SubscriptionCreatePaymentIdArgs
+import com.bringyour.client.SubscriptionCreatePaymentIdResult
+import com.bringyour.network.ui.MainNavHost
+import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
+import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.wallet.SagaViewModel
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+@AndroidEntryPoint
+class MainActivity: AppCompatActivity() {
 
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityMainBinding
-
-
-    private var app : MainApplication? = null
-
-    private var statusVc : StatusViewController? = null
-
-
+    var requestPermissionLauncherAndStart : ActivityResultLauncher<String>? = null
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
+
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private val sagaViewModel: SagaViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val promptReviewViewModel: PromptReviewViewModel by viewModels()
+    private val planViewModel: PlanViewModel by viewModels()
+    private var reviewManager: ReviewManager? = null
 
-        app = application as MainApplication
-
-        // immutable shadow
-        val app = app ?: return
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-
-        setSupportActionBar(findViewById(R.id.action_bar))
-
-        val navView: BottomNavigationView = binding.navView
-        // the tint occludes the drawable icons
-        navView.itemIconTintList = null
-
-
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.navigation_connect,
-                R.id.navigation_provide,
-                R.id.navigation_devices,
-                R.id.navigation_account
-            )
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
-
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setLogo(R.drawable.logo_by_white_2)
-        supportActionBar?.setDisplayUseLogoEnabled(true)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-
-
-        // fixme use a custom view to show up/down statistics and hot linpath spark
-        // setCustomView
-
-
-//        com.bringyour.network.goclient.client.
-
-        statusVc = app.byDevice?.openStatusViewController()
-
-
-        // match the action bar background
-        val colorPrimaryTypedValue = TypedValue()
-        theme.resolveAttribute(R.attr.colorPrimary, colorPrimaryTypedValue, true)
-        @ColorInt val colorPrimary = colorPrimaryTypedValue.data
-        statusVc?.setBackgroundColor(
-            Color.red(colorPrimary) / 255f,
-            Color.green(colorPrimary) / 255f,
-            Color.blue(colorPrimary) / 255f
-        )
-
-        /*
-        supportActionBar?.setCustomView(R.layout.view_status)
-        supportActionBar?.setDisplayShowCustomEnabled(true)
-//
-        val view = supportActionBar?.customView?.findViewById(R.id.status_surface) as GLSurfaceView
-        // overlapping gl surfaces will draw on each other. The status should always be on top
-        view.setZOrderOnTop(true)
-        GLSurfaceViewBinder.bind("status_surface", view, statusVc!!)
-*/
-
-        requestPermissionLauncher =
-            registerForActivityResult(
-                ActivityResultContracts.RequestPermission()
-            ) { _ ->
-                // the vpn service can start with degraded options if not granted
-                prepareVpnService()
-            }
-
-        vpnLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-//            Log.i("Main","ACTIVITY RESULT")
-            if (result.resultCode == RESULT_OK) {
-                app.startVpnService()
-            }
+    private fun prepareVpnService() {
+        val app = application as MainApplication
+        val intent = VpnService.prepare(this)
+        if (intent != null) {
+            vpnLauncher?.launch(intent)
+        } else {
+//            onActivityResult(ActivityResult(RESULT_OK, null))
+            app.startVpnService()
         }
     }
 
@@ -139,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 if (hasForegroundPermissions) {
                     prepareVpnService()
                 } else {
-                    requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    requestPermissionLauncherAndStart?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                 }
             } else {
                 prepareVpnService()
@@ -149,52 +90,249 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // call this on tap connect or tap provide
-    private fun prepareVpnService() {
-        val app = app ?: return
-        val intent = VpnService.prepare(this)
-        if (intent != null) {
-            vpnLauncher?.launch(intent)
-        } else {
-//            onActivityResult(ActivityResult(RESULT_OK, null))
-            app.startVpnService()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // immutable shadow
+        val app = application as MainApplication
+
+        val sender = ActivityResultSender(this)
+        sagaViewModel.setSender(sender)
+
+        reviewManager = ReviewManagerFactory.create(this)
+
+        // used when connecting
+        requestPermissionLauncherAndStart =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted ->
+                // the vpn service can start with degraded options if not granted
+                prepareVpnService()
+                settingsViewModel.onPermissionResult(isGranted)
+                settingsViewModel.resetPermissionRequest()
+            }
+
+        // used in settings
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            settingsViewModel.onPermissionResult(isGranted)
+            settingsViewModel.resetPermissionRequest()
+        }
+
+        vpnLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                app.startVpnService()
+            }
+        }
+
+        // this is so overlays don't get cut by top bar and bottom drawer
+        // WindowCompat.setDecorFitsSystemWindows(window, false)
+        setTransparentStatusBar()
+
+        // setStatusBarColor(color = Color.Transparent.toArgb(), false)
+
+        setContent {
+            URNetworkTheme {
+                MainNavHost(
+                    sagaViewModel,
+                    settingsViewModel,
+                    promptReviewViewModel,
+                    planViewModel
+                )
+            }
+        }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        val app = application as MainApplication
+        val activity = this
+
+        // do this once at start
+        lifecycleScope.launch {
+            if (app.vpnRequestStart) {
+                requestPermissionsThenStartVpnServiceWithRestart()
+            }
+        }
+
+        app.vpnRequestStartListener = {
+            lifecycleScope.launch {
+                if (app.vpnRequestStart) {
+                    requestPermissionsThenStartVpnServiceWithRestart()
+                }
+            }
+        }
+
+        settingsViewModel.checkPermissionStatus(this)
+
+        // Observe the requestPermission state
+        lifecycleScope.launch {
+            settingsViewModel.requestPermission.collect { shouldRequest ->
+                if (shouldRequest) {
+                    // Check if the permission is already granted
+                    if (ContextCompat.checkSelfPermission(
+                            activity,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        settingsViewModel.onPermissionResult(true)
+                    } else {
+                        // Request the permission
+                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                            requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+                }
+            }
+        }
+
+        // watch for review prompt
+        lifecycleScope.launch {
+            promptReviewViewModel.promptReview.collect { prompt ->
+                if (prompt) {
+                    val request = reviewManager?.requestReviewFlow()
+                    request?.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            // We got the ReviewInfo object
+                            val reviewInfo = task.result
+                            launchReviewFlow(reviewInfo)
+                        } else {
+                            // There was some problem, log or handle the error code.
+                            @ReviewErrorCode val reviewErrorCode = (task.getException() as ReviewException).errorCode
+                            Log.i("MainActivity", "error prompting review -> code: $reviewErrorCode")
+                        }
+                    }
+                }
+            }
+        }
+
+        // for upgrading plan
+        lifecycleScope.launch {
+            planViewModel.requestPlanUpgrade.collect {
+                upgradePlan()
+            }
+        }
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        val app = application as MainApplication
+
+        app.vpnRequestStartListener = null
+    }
+
+    private fun launchReviewFlow(reviewInfo: ReviewInfo) {
+
+        val flow = reviewManager?.launchReviewFlow(this, reviewInfo)
+        flow?.addOnCompleteListener { _ ->
+            // The flow has finished. The API does not indicate whether the user
+            // reviewed or not, or even whether the review dialog was shown. Thus, no
+            // matter the result, we continue our app flow.
+            promptReviewViewModel.resetPromptReview()
+        }
+
+    }
+
+    private fun setTransparentStatusBar() {
+        val window = window
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.Transparent.toArgb()
+
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false
+    }
+
+    private suspend fun upgradePlan() {
+
+        Log.i("MainActivity", "upgrade plan hit")
+
+        val app = application as MainApplication
+
+        val billingClient = planViewModel.billingClient.value
+
+        val activity = this
+
+        val params = QueryProductDetailsParams.newBuilder()
+
+        val productList = listOf(
+            QueryProductDetailsParams.Product.newBuilder()
+                .setProductId("supporter")
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build(),
+        )
+
+        params.setProductList(productList)
+
+        val productDetailsResult: ProductDetailsResult? = withContext(Dispatchers.IO) {
+            billingClient?.queryProductDetails(params.build())
+        }
+
+        // Process the result.
+
+        // An activity reference from which the billing flow will be launched.
+        // val activity : Activity = ...;
+
+        // FIXME find the product details that correspond to the selected plan
+
+        val productDetails = productDetailsResult?.productDetailsList?.find { productDetails: ProductDetails ->
+            productDetails.productId == "supporter"
+        }
+
+        Log.i("MainActivity", "FOUND PRODUCT DETAILS $productDetails")
+
+        if (productDetails == null) {
+
+            planViewModel.setChangePlanError("Product not found.")
+
+            return
+        }
+
+        // just choose the first offer
+        val offer = productDetails.subscriptionOfferDetails?.first()
+
+        if (offer == null) {
+
+            planViewModel.setChangePlanError("Offer not found.")
+
+            return
+        }
+
+        val productDetailsParamsList = listOf(
+            BillingFlowParams.ProductDetailsParams.newBuilder()
+                // retrieve a value for "productDetails" by calling queryProductDetailsAsync()
+                .setProductDetails(productDetails)
+                // to get an offer token, call ProductDetails.subscriptionOfferDetails()
+                // for a list of offers that are available to the user
+                .setOfferToken(offer.offerToken)
+                .build()
+        )
+
+        val subscriptionCreatePaymentIdResult: SubscriptionCreatePaymentIdResult? = withContext(
+            Dispatchers.IO) {
+            app.api?.subscriptionCreatePaymentIdSync(SubscriptionCreatePaymentIdArgs())
+        }
+
+        val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
+            .setProductDetailsParamsList(productDetailsParamsList)
+
+        subscriptionCreatePaymentIdResult?.subscriptionPaymentId?.string()?.let {
+            buildingFlowParamsBuilder.setObfuscatedAccountId(it)
+        }
+
+        val billingFlowParams = buildingFlowParamsBuilder.build()
+
+        // Launch the billing flow
+
+        activity.let { a ->
+            val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
+            Log.i("MainActivity", "billing result: $billingResult")
         }
     }
-
-/*
-    override fun onResume() {
-        super.onResume()
-
-        val app = app ?: return
-
-        if (app.isVpnRequestStart()) {
-            // user might need to grant permissions
-            requestPermissionsThenStartVpnServiceWithRestart(false)
-        }
-    }
-
- */
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        val app = app ?: return
-
-        app.byDevice?.closeViewController(statusVc)
-        statusVc = null
-//        statusVc?.close()
-    }
-
-//    fun onVpnLauncherActivityResult(result: ActivityResult) {
-//        Log.i("Main","ACTIVITY RESULT")
-//        if (result.resultCode == RESULT_OK) {
-//
-//
-//
-//
-//        }
-//    }
-
 }
-
-

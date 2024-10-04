@@ -14,18 +14,17 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.core.content.ContextCompat
-import circle.programmablewallet.sdk.WalletSdk
-import circle.programmablewallet.sdk.presentation.SecurityQuestion
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.client.AccountViewController
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
-import com.bringyour.client.ConnectViewController
 import com.bringyour.client.DevicesViewController
 import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
+import com.bringyour.client.OverlayViewController
+import dagger.hilt.android.HiltAndroidApp
 import com.bringyour.client.ConnectLocation
 import com.bringyour.client.LocalState
 import com.bringyour.client.NetworkSpace
@@ -34,7 +33,9 @@ import com.bringyour.client.ProvideSecretKeyList
 import com.bringyour.client.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
+@HiltAndroidApp
 class MainApplication : Application() {
 
     // FIXME
@@ -51,16 +52,22 @@ class MainApplication : Application() {
 //    val platformUrl = "wss://connect.bringyour.com"
 //    val apiUrl = "https://api.bringyour.com"
 
-    var networkSpaceManager: NetworkSpaceManager? = null
-    var networkSpaceSub: Sub? = null
-    var networkSpace: NetworkSpace? = null
 
-    var byDevice: BringYourDevice? = null
+    val deviceDescription = "New device"
+
+    val deviceSpec get() = if (32 <= Build.VERSION.SDK_INT) {
+        "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
+    } else {
+        "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
+    }
+
+    var networkSpaceSub: Sub? = null
+
+//    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
+    var deviceProvidePausedSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
-//    var byApi: BringYourApi? = null
-//    var asyncLocalState: AsyncLocalState? = null
     var router: Router? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
@@ -68,38 +75,53 @@ class MainApplication : Application() {
 
     // use one set of view controllers across the entire app
     var loginVc: LoginViewController? = null
-    var connectVc: ConnectViewController? = null
     var devicesVc: DevicesViewController? = null
     var accountVc: AccountViewController? = null
+    var overlayVc: OverlayViewController? = null
 
     var hasBiometric: Boolean = false
 
-    private var vpnRequestStart: Boolean = false
+    @Inject
+    lateinit var byDeviceManager: ByDeviceManager
+
+    @Inject
+    lateinit var circleWalletManager: CircleWalletManager
+
+    @Inject
+    lateinit var networkSpaceManagerProvider: NetworkSpaceManagerProvider
+
+    var vpnRequestStart: Boolean = false
+        private set
+
+    var vpnRequestStartListener: (() -> Unit)? = null
+
     // FIXME remove these bools and just query the device directly
 //    private var provideEnabled: Boolean = false
 //    private var connectEnabled: Boolean = false
 
-
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
 
-
-    val api get() = networkSpace?.api
-    val asyncLocalState get() = networkSpace?.asyncLocalState
+    val byDevice get() = byDeviceManager.byDevice
+    val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
+    val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
 //    val apiUrl get() = networkSpace?.apiUrl
 //    val platformUrl get() = networkSpace?.platformUrl
+
+
+
 
 
     override fun onCreate() {
         super.onCreate()
 
-        networkSpaceManager = Client.newNetworkSpaceManager(filesDir.absolutePath)
+        networkSpaceManagerProvider.init(filesDir.absolutePath)
 
-        val networkSpaceManager = this.networkSpaceManager ?: return
+        val networkSpaceManager = networkSpaceManagerProvider.getNetworkSpaceManager()
 
         val key = Client.newNetworkSpaceKey(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
-        val bundleNetworkSpaceExists = networkSpaceManager.getNetworkSpace(key) != null
-        val bundleNetworkSpace = networkSpaceManager.updateNetworkSpace(key) { values ->
+        val bundleNetworkSpaceExists = networkSpaceManager?.getNetworkSpace(key) != null
+        val bundleNetworkSpace = networkSpaceManager?.updateNetworkSpace(key) { values ->
             // migrate specific bundled fields to the latest from the build
             values.envSecret = BuildConfig.BRINGYOUR_BUNDLE_ENV_SECRET
             values.bundled = true
@@ -116,13 +138,13 @@ class MainApplication : Application() {
             values.wallet = BuildConfig.BRINGYOUR_BUNDLE_WALLET
         }
 
-        if (!bundleNetworkSpaceExists || networkSpaceManager.activeNetworkSpace == null) {
+        if (!bundleNetworkSpaceExists || networkSpaceManager?.activeNetworkSpace == null) {
             // switch to the bundled network space when first created
             // this is important when migrating from an older bundle to a newer bundle
-            networkSpaceManager.activeNetworkSpace = bundleNetworkSpace
+            networkSpaceManager?.activeNetworkSpace = bundleNetworkSpace
         }
 
-        networkSpaceSub = networkSpaceManager.addActiveNetworkSpaceChangeListener { networkSpace ->
+        networkSpaceSub = networkSpaceManager?.addActiveNetworkSpaceChangeListener { networkSpace ->
             runBlocking(Dispatchers.Main.immediate) {
                 updateActiveNetworkSpace(networkSpace)
 
@@ -133,17 +155,14 @@ class MainApplication : Application() {
             }
         }
 
-        updateActiveNetworkSpace(networkSpaceManager.activeNetworkSpace!!)
+        updateActiveNetworkSpace(networkSpaceManager?.activeNetworkSpace!!)
     }
 
 
-    fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
+    private fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
         stop()
 
-        this.networkSpace = networkSpace
-        // use sync mode for the local state
-//        asyncLocalState = networkSpace.asyncLocalState
-//        byApi = networkSpace.byApi
+        networkSpaceManagerProvider.setNetworkSpace(networkSpace)
 
         loginVc = Client.newLoginViewController(api)
 
@@ -151,7 +170,7 @@ class MainApplication : Application() {
             initCircleWallet()
         }
 
-        asyncLocalState?.localState()?.let { localState ->
+        asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt?.let { byClientJwt ->
                 if (byClientJwt == "") {
                     // missing one or both of jwt or client jwt
@@ -159,7 +178,7 @@ class MainApplication : Application() {
                     localState.logout()
                 } else {
                     // the device wraps the api and sets the jwt
-                    initDevice(byClientJwt, localState)
+                    initDevice(byClientJwt)
                 }
             }
         }
@@ -167,7 +186,7 @@ class MainApplication : Application() {
 
     }
 
-    fun addNetworkCallback() {
+    private fun addNetworkCallback() {
         removeNetworkCallback()
 
         networkCallback = object : ConnectivityManager.NetworkCallback() {
@@ -236,17 +255,14 @@ class MainApplication : Application() {
 
 
     fun login(byJwt: String) {
-        asyncLocalState?.localState()?.byJwt = byJwt
+        asyncLocalState?.localState?.byJwt = byJwt
         api?.setByJwt(byJwt)
     }
 
     fun loginClient(byClientJwt: String) {
-        asyncLocalState?.localState()?.let { localState ->
+        asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt = byClientJwt
-
-
-
-            initDevice(byClientJwt, localState)
+            initDevice(byClientJwt)
         }
     }
 
@@ -254,7 +270,7 @@ class MainApplication : Application() {
         stop()
 
         // note this clears the clientJwt also
-        asyncLocalState?.localState()?.logout()
+        asyncLocalState?.localState?.logout()
         api?.byJwt = null
     }
 
@@ -263,26 +279,32 @@ class MainApplication : Application() {
 
         removeNetworkCallback()
 
-        connectVc?.let {
-            byDevice?.closeViewController(it)
-        }
-        connectVc = null
         devicesVc?.let {
             byDevice?.closeViewController(it)
         }
         devicesVc = null
 
+        overlayVc?.let {
+            byDevice?.closeViewController(it)
+        }
+        overlayVc = null
 
         router?.close()
         router = null
         deviceProvideSub?.close()
         deviceProvideSub = null
+        deviceProvidePausedSub?.close()
+        deviceProvidePausedSub = null
         deviceConnectSub?.close()
         deviceConnectSub = null
-        byDevice?.close()
-        byDevice = null
+
 //        provideEnabled = false
 //        connectEnabled = false
+
+//        byDevice?.close()
+//        byDevice = null
+        byDeviceManager.clearByDevice()
+
         accountVc?.close()
         accountVc = null
 
@@ -291,31 +313,13 @@ class MainApplication : Application() {
     }
 
 
-    private fun initDevice(byClientJwt: String, localState: LocalState) {
-        val instanceId = localState.instanceId!!
-        val routeLocal = localState.routeLocal
-        val provideMode = localState.provideMode
-        val connectLocation = localState.connectLocation
-
-        byDevice = Client.newBringYourDeviceWithDefaults(
-            networkSpace,
+    private fun initDevice(byClientJwt: String) {
+        byDeviceManager.initDevice(
+            networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
-//            platformUrl,
-            getDeviceDescription(),
-            getDeviceSpec(),
-            getAppVersion(),
-            instanceId
+            deviceDescription,
+            deviceSpec
         )
-//        provideEnabled = false
-//        connectEnabled = false
-
-        localState.provideSecretKeys?.let {
-            byDevice?.loadProvideSecretKeys(it)
-        } ?: run {
-            byDevice?.initProvideSecretKeys()
-            localState.provideSecretKeys = byDevice?.provideSecretKeys
-        }
-
 
         router = Router(byDevice!!) {
             runBlocking(Dispatchers.Main.immediate) {
@@ -323,19 +327,25 @@ class MainApplication : Application() {
             }
         }
 
-        connectVc = byDevice?.openConnectViewController()
+        // connectVc = byDevice?.openConnectViewController()
+//        devicesVc = byDevice?.openDevicesViewController()
+//        accountVc = byDevice?.openAccountViewController()
+
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
+        overlayVc = byDevice?.openOverlayViewController()
+
+//        byDevice?.providePaused = true
+//        byDevice?.routeLocal = routeLocal
+//        byDevice?.provideMode = provideMode
+
+//
+//        connectLocation?.let {
+//            byDeviceManager.connectVc?.connect(it)
+//        }
 
 
-        byDevice?.providePaused = true
-        byDevice?.routeLocal = routeLocal
-        byDevice?.provideMode = provideMode
 
-
-        connectLocation?.let {
-            connectVc?.connect(it)
-        }
 
 
         deviceRouteLocalSub = byDevice?.addRouteLocalChangeListener {
@@ -350,6 +360,11 @@ class MainApplication : Application() {
                 updateVpnService()
             }
         }
+        deviceProvidePausedSub = byDevice?.addProvidePausedChangeListener {
+            runBlocking(Dispatchers.Main.immediate) {
+                updateVpnService()
+            }
+        }
         deviceConnectSub = byDevice?.addConnectChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
@@ -357,10 +372,14 @@ class MainApplication : Application() {
             }
         }
 
+        router = Router(byDevice!!)
+
 
         addNetworkCallback()
 
         updateVpnService()
+
+        // return byDevice
     }
 
 
@@ -368,7 +387,6 @@ class MainApplication : Application() {
     private fun initCircleWallet() {
         val applicationContext = applicationContext ?: return
 
-        val endpoint = applicationContext.getString(R.string.circle_endpoint)
         val addId = applicationContext.getString(R.string.circle_app_id)
 
         val settingsManagement = SettingsManagement()
@@ -380,51 +398,31 @@ class MainApplication : Application() {
                     BiometricManager.Authenticators.BIOMETRIC_STRONG)
 
         settingsManagement.isEnableBiometricsPin = hasBiometric //Set "true" to enable, "false" to disable
+        val layoutProvider = CircleLayoutProvider(applicationContext)
+        val viewSetterProvider = CircleViewSetterProvider(applicationContext)
 
-        WalletSdk.init(
+        circleWalletManager.init(
             applicationContext,
-            WalletSdk.Configuration(endpoint, addId, settingsManagement)
+            addId,
+            settingsManagement,
+            layoutProvider,
+            viewSetterProvider
         )
 
-        WalletSdk.setSecurityQuestions(
-            arrayOf(
-                SecurityQuestion("What is your favorite color?"),
-                SecurityQuestion("What is your favorite shape?"),
-                SecurityQuestion("What is your favorite animal?"),
-                SecurityQuestion("What is your favorite place?"),
-                SecurityQuestion("What is your favorite material?"),
-                SecurityQuestion("What is your favorite sound?"),
-                SecurityQuestion("What would you explore in space?"),
-                SecurityQuestion("Pick a word, any word."),
-                SecurityQuestion("Pick a date, any date.", SecurityQuestion.InputType.datePicker),
-            ))
-
-        /*
-        WalletSdk.addEventListener { event: ExecuteEvent ->
-            // FIXME show a toast with the message
-        }
-         */
-
-        WalletSdk.setLayoutProvider(CircleLayoutProvider(applicationContext))
-        WalletSdk.setViewSetterProvider(CircleViewSetterProvider(applicationContext))
     }
-
-
-//    fun requestStartVpnService() {
-//        vpnRequestStart = true
-//    }
-
 
     private fun updateVpnService() {
         val byDevice = byDevice ?: return
 
         val provideEnabled = byDevice.provideEnabled
+        val providePaused = byDevice.providePaused
         val connectEnabled = byDevice.connectEnabled
         val routeLocal = byDevice.routeLocal
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()
-            if (provideEnabled) {
+            // if provide paused, keep the vpn on but do not keep the locks
+            if (provideEnabled && !providePaused) {
                 if (wakeLock == null) {
                     wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
                         newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "bringyour::provide").apply {
@@ -434,7 +432,6 @@ class MainApplication : Application() {
 
                 }
                 if (wifiLock == null) {
-
 
                     wifiLock = (getSystemService(WIFI_SERVICE) as WifiManager).run {
                         val wifiLockMode: Int
@@ -485,6 +482,7 @@ class MainApplication : Application() {
                 // prepare returns an intent when the user must grant additional permissions
                 // the ui will check `vpnRequestStart` and start again when the permissions have been set up
                 vpnRequestStart = true
+                vpnRequestStartListener?.let { it() }
             } else {
                 // important: start the vpn service in the application context
 
@@ -512,10 +510,12 @@ class MainApplication : Application() {
         } catch (e: Exception) {
             Log.i(TAG, "Error trying to communicate with the vpn service to start: ${e.message}")
             vpnRequestStart = true
+            // do not request start here
+            // that could lead to a loop
         }
     }
 
-    fun stopVpnService() {
+    private fun stopVpnService() {
         vpnRequestStart = false
 
         val vpnIntent = Intent(this, MainService::class.java)
@@ -532,64 +532,4 @@ class MainApplication : Application() {
 
 
     }
-
-
-
-
-    fun getDeviceDescription(): String {
-        return "New device"
-    }
-
-    fun getDeviceSpec(): String {
-        if (32 <= Build.VERSION.SDK_INT) {
-            return "${Build.VERSION.RELEASE_OR_CODENAME} ${Build.FINGERPRINT}"
-        } else {
-            return "${Build.VERSION.RELEASE} ${Build.FINGERPRINT}"
-        }
-    }
-
-    fun getAppVersion(): String {
-        return BuildConfig.VERSION_NAME
-    }
-
-    fun setProvideMode(provideMode: Long) {
-        // store the setting in local storage
-        asyncLocalState?.localState()?.provideMode = provideMode
-        byDevice?.provideMode = provideMode
-    }
-
-    fun getProvideMode(): Long {
-        return asyncLocalState?.localState()?.provideMode!!
-    }
-
-    fun setRouteLocal(routeLocal: Boolean) {
-        // store the setting in local storage
-        asyncLocalState?.localState()?.routeLocal = routeLocal
-        byDevice?.routeLocal = routeLocal
-    }
-
-    fun isRouteLocal(): Boolean {
-        return asyncLocalState?.localState()?.routeLocal!!
-    }
-
-    fun isVpnRequestStart(): Boolean {
-        return vpnRequestStart
-    }
-
-    fun setConnectLocation(connectLocation: ConnectLocation?) {
-        // save connect location
-        asyncLocalState?.localState()?.connectLocation = connectLocation
-        if (connectLocation == null) {
-            connectVc?.disconnect()
-        } else {
-            connectVc?.connect(connectLocation)
-        }
-    }
-
-    fun getConnectLocation(): ConnectLocation? {
-        return connectVc?.activeLocation
-    }
-
-
-
 }

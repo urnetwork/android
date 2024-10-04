@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">URnetwork</string>
+    <string name="title_login">ログイン</string>
+
+    <!-- ログイン初期画面 -->
+    <string name="user_auth_label">メールアドレスまたは電話番号</string>
+    <string name="user_auth_placeholder">電話番号またはメールアドレスを入力してください</string>
+    <string name="get_started">始める</string>
+    <string name="google_auth_btn_text">Googleでログイン</string>
+    <string name="commitment_issues">やることを決めかねていますか？ </string>
+    <string name="try_guest_mode"> ゲストモードを試す</string>
+
+    <!-- ネットワーク作成フォーム -->
+    <string name="name_label">名前</string>
+    <string name="name_placeholder">あなたの名前</string>
+    <string name="network_name_label">ネットワーク名</string>
+    <string name="network_name_placeholder">あなたのネットワーク名</string>
+    <string name="network_name_support_txt">ネットワーク名は6文字以上である必要があります</string>
+    <string name="password_label">パスワード</string>
+    <string name="password_support_txt">パスワードは12文字以上である必要があります</string>
+    <string name="continue_txt">続ける</string>
+
+    <!-- ログインパスワード -->
+    <string name="login_password_header">お帰りなさい</string>
+    <string name="forget_password">パスワードをお忘れですか？</string>
+    <string name="reset_it">リセットする</string>
+
+    <!-- パスワードを忘れた場合 -->
+    <string name="forgot_password">パスワードをお忘れですか？</string>
+    <string name="check_junk_mail">迷惑メールフォルダを確認するか、no-reply@ur.ioのブロックを解除する必要がある場合があります</string>
+    <string name="send_reset_link">リセットリンクを送信</string>
+
+    <!-- リセットリンク送信済み -->
+    <string name="reset_link_sent">リセットリンクを送信しました</string>
+    <string name="reset_link_sent_to">リセットリンクを次のアドレスに送信しました：</string>
+    <string name="resend_reset_link">リンクを再送信</string>
+    <string name="sent">送信済み！</string>
+
+    <!-- ログイン確認 -->
+    <string name="login_verify_header">メールが届いています</string>
+    <string name="login_verify_details">本人確認のために、送信したコードを入力してください。</string>
+    <string name="dont_see_it">メールが見つかりませんか？</string>
+    <string name="resend_verify_code">コードを再送信</string>
+
+    <!-- ウォレット画面 -->
+    <string name="connect_external_wallet">外部ウォレットを接続</string>
+    <string name="connect_external_wallet_supported_chains">現在、SolanaとPolygonのUSDCアドレスがサポートされています。</string>
+    <string name="wallet_address_label">ウォレットアドレス</string>
+    <string name="wallet_address_placeholder">ここにコピーして貼り付けてください</string>
+    <string name="total_payouts">総支払額</string>
+    <string name="wallets">ウォレット</string>
+    <string name="add_wallet">ウォレットを追加</string>
+
+    <!-- ウォレットのセットアップ -->
+    <string name="setup_circle_wallet">Circleウォレットをセットアップ</string>
+    <string name="connect_saga_wallet">Sagaウォレットを接続</string>
+
+    <!-- プロフィール -->
+    <string name="something_went_wrong">エラーが発生しました。</string>
+    <string name="please_wait">しばらく待ってから再試行してください。</string>
+    <string name="change_password">パスワードを変更</string>
+    <string name="edit_profile">プロフィールを編集</string>
+    <string name="save">保存</string>
+
+    <!-- ウォレットのセットアップ -->
+    <string name="share_with_others">あなたが他の人と共有すれば、私たちもあなたと共有します。ネットワーク内の他の人にデータを提供すると、収益の一部を獲得できます。</string>
+    <string name="start_earning">収益を得始めるには、暗号通貨ウォレットをURnetworkに接続するか、Circleでセットアップしてください。</string>
+
+    <!-- Circleウォレット送金画面 -->
+    <string name="circle_transfer_topbar_title">USDC送金</string>
+    <string name="circle_transfer_header">外部ウォレットへ送金</string>
+    <string name="circle_transfer_fee_coverage">URnetworkが送金手数料を負担します。</string>
+    <string name="transfer">送金</string>
+    <string name="insufficient_funds">残高不足</string>
+
+    <!-- 接続 -->
+    <string name="tap_to_connect">タップして接続</string>
+
+    <!-- ロケーションリスト -->
+    <string name="promoted_locations">プロモーションロケーション</string>
+    <string name="best_available_provider">最適な利用可能プロバイダー</string>
+    <string name="countries">国</string>
+    <string name="devices">デバイス</string>
+    <string name="search_placeholder">全てのロケーションを検索</string>
+    <string name="check_internet">インターネット接続を確認してください</string>
+    <string name="no_providers_found">プロバイダーが見つかりませんでした。</string>
+    <string name="tap_to_refetch">タップして位置情報を取得します。</string>
+    <string name="cities">都市</string>
+    <string name="regions">地域</string>
+    <string name="top_matches">トップマッチ</string>
+
+    <!-- アカウント画面 -->
+    <string name="account">アカウント</string>
+    <string name="profile">プロフィール</string>
+    <string name="settings">設定</string>
+    <string name="wallet">ウォレット</string>
+    <string name="refer_and_earn">紹介して稼ぐ</string>
+    <string name="set_up_wallet">ウォレットをセットアップ</string>
+    <string name="guest">ゲスト</string>
+    <string name="supporter">サポーター</string>
+    <string name="free">無料</string>
+    <string name="create_account">アカウントを作成</string>
+    <string name="member">メンバー</string>
+
+    <!-- サブスクリプションアップグレードオーバーレイ -->
+    <string name="plan">プラン</string>
+    <string name="upgrade_subscription">サブスクリプションをアップグレード</string>
+    <string name="support_us">奪うのではなく与える新しい種類のネットワークの構築を支援してください。</string>
+    <string name="unlock_speed">さらに高速な速度と、強力な検閲対策や制御データなどの新機能への優先アクセスがロック解除されます。</string>
+    <string name="join_the_movement">ムーブメントに参加する</string>
+
+    <!-- ゲストモードオーバーレイ -->
+    <string name="in_guest_mode">ゲストモードです</string>
+    <string name="start_earning_join">収益を得始めるには、ネットワークに参加してください</string>
+
+    <!-- 紹介オーバーレイ -->
+    <string name="refer_friends_header">友達を紹介する</string>
+    <string name="refer_friends_detail">より多くの接続はコミュニティの匿名性を保つのに役立ちます（そしてあなたの収益にも！）</string>
+
+    <!-- ウォレット画面 -->
+    <string name="balance">残高</string>
+    <string name="transfer_funds">資金を送金</string>
+    <string name="no_payouts_found">このウォレットの支払いが見つかりません</string>
+    <string name="earnings">収益</string>
+    <string name="make_default">デフォルトに設定</string>
+    <string name="payout_wallets">支払いウォレット</string>
+    <string name="chains_supported">現在、SolanaとPolygonのウォレットがサポートされています</string>
+
+    <!-- 送金完了オーバーレイ -->
+    <string name="transfer_submitted">送金が完了しました</string>
+    <string name="transfer_submitted_details">送金が開始されました。チェーン上で取引が処理されると完了します。</string>
+
+    <!-- オンボーディングカルーセル -->
+    <string name="see_world_content">世界中のコンテンツを\n見る</string>
+    <string name="see_world_content_description">URnetworkで世界中のコンテンツを見る</string>
+    <string name="stay_private_description">URnetworkで完全にプライベートで匿名性を保つ</string>
+    <string name="stay_private">完全に\nプライベートで\n匿名性を\n保つ</string>
+    <string name="build_right_description">URnetworkで正しい方法でインターネットを構築する</string>
+    <string name="build_right">正しい方法で\nインターネットを\n構築する</string>
+    <string name="with_urnetwork">URnetworkで</string>
+
+    <!-- 設定 -->
+    <string name="unlock_supporter_tooltip">さらに高速な速度と新機能への優先アクセスをアンロックします。</string>
+    <string name="become_supporter">サポーターになる</string>
+    <string name="client_id_label">クライアントID</string>
+    <string name="share_label">URnetworkを共有</string>
+    <string name="notifications_label">通知</string>
+    <string name="receive_notifications">接続通知を受け取る</string>
+    <string name="connectivity_label">接続性</string>
+    <string name="allow_local_connections">ローカル接続を許可</string>
+    <string name="stay_in_touch">連絡を取り合う</string>
+    <string name="send_product_updates">製品のアップデートを送信する</string>
+    <string name="join_community_discord">コミュニティに参加する：</string>
+    <string name="update_notification_settings">Android設定で通知の権限を更新する</string>
+
+    <!-- フィードバック画面 -->
+    <string name="feedback_header">お問い合わせ</string>
+    <string name="feedback_label">フィードバックボックス</string>
+    <string name="feedback_placeholder">本音をお聞かせください</string>
+
+    <!-- アクションの呼びかけ -->
+    <string name="cancel">キャンセル</string>
+    <string name="connect">接続</string>
+    <string name="remove">削除</string>
+    <string name="change">変更</string>
+    <string name="share">共有</string>
+    <string name="copy">コピー</string>
+    <string name="send">送信</string>
+
+    <string name="login_error_auth_allowed">以下のいずれかでログインしてください：%s</string>
+    <string name="login_error">エラーが発生しました。もう一度お試しください。</string>
+    <string name="login_client_error">クライアントの認証中にエラーが発生しました。もう一度お試しください。</string>
+    <string name="network_name_check_error">利用できません。既存のネットワークとは少なくとも3文字異なる必要があります。ユニークにするか、長くしてください。</string>
+    <string name="verify_error">エラーが発生しました。もう一度お試しください。</string>
+    <string name="create_network_error">エラーが発生しました。もう一度お試しください。</string>
+    <string name="verify_send_error">エラー</string>
+
+    <string name="circlepw_show_pin">PINを表示</string>
+    <string name="circlepw_hide_pin">PINを非表示</string>
+    <string name="circlepw_continue">続行</string>
+    <string name="circlepw_next">次へ</string>
+    <string name="circlepw_question_label">質問：</string>
+    <string name="circlepw_answer_label">回答：</string>
+    <string name="circlepw_hint_label">ヒント：</string>
+    <string name="circlepw_hint_tag">ヒント</string>
+    <string name="circlepw_empty"></string>
+    <string name="circlepw_empty_placeholder">-</string>
+    <string name="circlepw_confirm">確認</string>
+    <string name="circlepw_pin_remain_attemps_template">%s 回の試行が残っています。</string>
+    <string name="circlepw_pin_lock_period_template">PINの試行回数が上限に達しました。%s 分後に再試行してください。</string>
+    <string name="circlepw_answer_remain_attemps_template">%s 回の試行が残っています。</string>
+    <string name="circlepw_answer_lock_period_template">%s 分後に再試行してください。</string>
+
+    <string name="circlepw_enter_pincode_subhead">本人確認をお願いします。</string>
+    <string name="circlepw_enter_pincode_forgot_pin">PINをお忘れですか？</string>
+
+    <string name="circlepw_new_pincode_subhead">PINに同じ数字を繰り返したり (例：000000)、連続した数字 (例：123456) を使用することはできません。</string>
+    <string name="circlepw_confirm_pincode_headline">確認のため、PINを再入力してください</string>
+    <string name="circlepw_confirm_pincode_subhead"></string>
+    <string name="circlepw_security_intros_description">PINを忘れた場合にウォレットへのアクセスを回復する唯一の方法は、セキュリティ質問を設定することです。アクセス回復のために、2つのセキュリティ質問を選択し、回答を登録してください。</string>
+
+    <string name="circlepw_security_questions_title">回復方法</string>
+    <string name="circlepw_security_questions_required_mark">*</string>
+    <string name="circlepw_security_questions_question_placeholder">質問を1つ選択してください</string>
+    <string name="circlepw_security_questions_answer_header">回答を入力してください</string>
+    <string name="circlepw_security_questions_answer_placeholder">ここに回答を入力してください</string>
+    <string name="circlepw_security_questions_answer_hint_header">回答のヒントを入力してください（オプション）</string>
+    <string name="circlepw_security_questions_answer_hint_placeholder">ここにヒントを入力してください</string>
+
+    <string name="circlepw_select_question_title">質問を1つ選択してください</string>
+    <string name="circlepw_security_summary_title">概要</string>
+
+    <string name="circlepw_security_confirm_title">確認</string>
+    <string name="circlepw_security_confirm_headline">セキュリティ質問は安全に保管してください</string>
+    <string name="circlepw_security_confirm_input_headline">続行するには「I agree」と入力してください：</string>
+    <string name="circlepw_security_confirm_input_placeholder">ここに「I agree」と入力してください</string>
+    <string name="circlepw_security_confirm_input_match">同意します</string>
+
+    <string name="circlepw_recover_pincode_answer_input_header">ここに回答を入力してください</string>
+    <string name="circlepw_recover_pincode_answer_input_placeholder">ここに回答を入力してください</string>
+</resources>
