@@ -50,36 +50,59 @@ class PlanViewModel @Inject constructor(
     private val _billingClient = MutableStateFlow<BillingClient?>(null)
     val billingClient: StateFlow<BillingClient?> = _billingClient.asStateFlow()
 
-    val initBillingClient: () -> Unit = {
+    val upgrade: () -> Unit = {
+        setInProgress(true)
+        setChangePlanError(null)
 
+        createBillingClientConnection {
+            if (_billingClient.value != null) {
+                _billingClient.value?.startConnection(object : BillingClientStateListener {
+                    override fun onBillingSetupFinished(billingResult: BillingResult) {
+
+                        Log.i("Upgrade", "billing result ${billingResult.responseCode}")
+
+                        if (billingResult.responseCode == BillingResponseCode.OK) {
+
+                            viewModelScope.launch {
+                                _requestPlanUpgrade.emit(Unit)
+                            }
+
+
+                        } else {
+                            // show error message of billing error
+                            // FIXME show error
+
+                            setChangePlanError("Billing error: ${billingResult.responseCode} ${billingResult.debugMessage}")
+
+                            setInProgress(false)
+                            _billingClient.value?.endConnection()
+                        }
+                    }
+
+                    override fun onBillingServiceDisconnected() {
+                        // Try to restart the connection on the next request to
+                        // Google Play by calling the startConnection() method.
+
+                        setChangePlanError("Billing error: Disconnected")
+                        setInProgress(false)
+                        _billingClient.value?.endConnection()
+                    }
+                })
+            }
+        }
+    }
+
+    val createBillingClientConnection: (() -> Unit) -> Unit = { onConnection ->
         val pul = initPurchasesUpdatedListener()
+
+        if (_billingClient.value != null) {
+            _billingClient.value?.endConnection()
+        }
 
         _billingClient.value = BillingClient.newBuilder(context)
             .setListener(pul)
             .enablePendingPurchases()
             .build()
-
-
-        _billingClient.value?.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                if (billingResult.responseCode ==  BillingResponseCode.OK) {
-                    // The BillingClient is ready. You can query purchases here.
-                    fetchPurchases()
-                }
-            }
-            override fun onBillingServiceDisconnected() {
-                // Try to restart the connection on the next request to
-                // Google Play by calling the startConnection() method.
-            }
-        })
-
-    }
-
-    val upgrade: () -> Unit = {
-        setInProgress(true)
-        setChangePlanError(null)
-
-        Log.i("Upgrade", "billingClient is $billingClient")
 
         _billingClient.value?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
@@ -87,20 +110,7 @@ class PlanViewModel @Inject constructor(
                 Log.i("Upgrade", "billing result ${billingResult.responseCode}")
 
                 if (billingResult.responseCode == BillingResponseCode.OK) {
-
-                    viewModelScope.launch {
-                        _requestPlanUpgrade.emit(Unit)
-                    }
-
-
-                } else {
-                    // show error message of billing error
-                    // FIXME show error
-
-                    setChangePlanError("Billing error: ${billingResult.responseCode} ${billingResult.debugMessage}")
-
-                    setInProgress(false)
-                    _billingClient.value?.endConnection()
+                    onConnection()
                 }
             }
 
@@ -113,7 +123,6 @@ class PlanViewModel @Inject constructor(
                 _billingClient.value?.endConnection()
             }
         })
-
     }
 
     var changePlanError by mutableStateOf<String?>(null)
@@ -161,40 +170,37 @@ class PlanViewModel @Inject constructor(
         isLoadingCurrentPlan = isLoading
     }
 
-    // fun fetchPurchases(params: BillingClient.QueryPurchasesParams) {
     val fetchPurchases = {
 
-        if (_billingClient.value != null) {
-            setIsLoadingCurrentPlan(true)
+        createBillingClientConnection {
+            if (_billingClient.value != null) {
+                setIsLoadingCurrentPlan(true)
 
-            val params = QueryPurchasesParams.newBuilder()
-                .setProductType(ProductType.SUBS)
+                val params = QueryPurchasesParams.newBuilder()
+                    .setProductType(ProductType.SUBS)
 
-            viewModelScope.launch {
-                val purchasesResult = _billingClient.value?.queryPurchasesAsync(params.build())
+                viewModelScope.launch {
+                    val purchasesResult = _billingClient.value?.queryPurchasesAsync(params.build())
 
-                purchasesResult?.purchasesList?.forEach { purchase ->
-                    Log.i("PlanViewModel", "$purchase")
-                }
-
-                if (purchasesResult?.purchasesList != null) {
-                    Log.i("PlanViewModel", "is supporter? ${isSupporter(purchasesResult.purchasesList)}")
-
-                    if (isSupporter(purchasesResult.purchasesList)) {
-                        setCurrentPlan(Plan.Supporter)
-                    } else {
-                        setCurrentPlan(Plan.Basic)
+                    purchasesResult?.purchasesList?.forEach { purchase ->
+                        Log.i("PlanViewModel", "$purchase")
                     }
 
+                    if (purchasesResult?.purchasesList != null) {
+
+                        if (isSupporter(purchasesResult.purchasesList)) {
+                            setCurrentPlan(Plan.Supporter)
+                        } else {
+                            setCurrentPlan(Plan.Basic)
+                        }
+
+                    }
+
+                    setIsLoadingCurrentPlan(false)
+
                 }
 
-                setIsLoadingCurrentPlan(false)
-
-                // do i need to end the connection here?
-                _billingClient.value?.endConnection()
-
             }
-
         }
     }
 
@@ -220,7 +226,7 @@ class PlanViewModel @Inject constructor(
     }
 
     init {
-        initBillingClient()
+        fetchPurchases()
     }
 
 }
