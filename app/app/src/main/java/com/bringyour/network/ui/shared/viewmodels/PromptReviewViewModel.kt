@@ -16,13 +16,14 @@ class PromptReviewViewModel @Inject constructor(
     val promptReview: StateFlow<Boolean> = _promptReview
 
     val checkTriggerPromptReview = {
-        if (byDeviceManager.byDevice?.stats?.userSuccess == true) {
+        if (byDeviceManager.byDevice?.shouldShowRatingDialog == true) {
             _promptReview.value = true
         }
     }
 
     val resetPromptReview = {
         _promptReview.value = false
+        byDeviceManager.canShowRatingDialog = false
     }
 
 }
