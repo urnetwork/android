@@ -18,7 +18,7 @@ class PromptReviewViewModel @Inject constructor(
 
     val checkTriggerPromptReview = {
         Log.i("PromptReviewViewModel", "check trigger prompt review")
-        if (byDeviceManager.byDevice?.stats?.userSuccess == true) {
+        if (byDeviceManager.byDevice?.shouldShowRatingDialog == true) {
             Log.i("PromptReviewViewModel", "prompt the review")
             _promptReview.value = true
         }
@@ -26,6 +26,7 @@ class PromptReviewViewModel @Inject constructor(
 
     val resetPromptReview = {
         _promptReview.value = false
+        byDeviceManager.canShowRatingDialog = false
     }
 
 }
