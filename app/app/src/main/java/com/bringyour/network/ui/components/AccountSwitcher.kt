@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
-import com.bringyour.client.OverlayViewController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
@@ -150,8 +149,6 @@ fun GuestPopup(
     context: Context?,
     application: MainApplication?,
     launchOverlay: (OverlayMode) -> Unit
-    // overlayVc: OverlayViewController?,
-
 ) {
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
         PopupActionRow(
