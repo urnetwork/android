@@ -36,14 +36,14 @@ class LocationsListViewModel @Inject constructor(
 
     val promotedLocations = mutableStateListOf<ConnectLocation>()
 
-    var searchQuery by mutableStateOf(TextFieldValue(""))
+    var searchQueryTextFieldValue by mutableStateOf(TextFieldValue(""))
         private set
 
-    val setSearchQuery: (TextFieldValue) -> Unit = {
-        searchQuery = it
-        if (_locationsState.value != FetchLocationsState.Loading) {
-            setLocationsState(FetchLocationsState.Loading)
-        }
+    var currentSearchQuery by mutableStateOf("")
+        private set
+
+    val setSearchQueryTextFieldValue: (TextFieldValue) -> Unit = {
+        searchQueryTextFieldValue = it
     }
 
     val devices = mutableStateListOf<ConnectLocation>()
@@ -80,7 +80,7 @@ class LocationsListViewModel @Inject constructor(
                 providerCount += location.providerCount
 
                 // if we have search matches, these will be grouped at the top
-                if (searchQuery.text.isNotEmpty() && location.matchDistance == 0) {
+                if (currentSearchQuery.isNotEmpty() && location.matchDistance == 0) {
                     bestSearchMatches.add(location)
                     // avoid repeating them in other groups
                     return@forEach
@@ -95,7 +95,7 @@ class LocationsListViewModel @Inject constructor(
                 }
 
                 // only display these groups when searching
-                if (searchQuery.text.isNotEmpty()) {
+                if (currentSearchQuery.isNotEmpty()) {
                     if (location.locationType == LocationTypeCity) {
                         cities.add(location)
                     }
@@ -122,10 +122,17 @@ class LocationsListViewModel @Inject constructor(
 
     val filterLocations:(String) -> Unit = { search ->
 
-        locationsVc?.filterLocations(search)
-        if (_locationsState.value != FetchLocationsState.Loading) {
-            setLocationsState(FetchLocationsState.Loading)
+        if (search != currentSearchQuery) {
+
+            currentSearchQuery = search
+
+            locationsVc?.filterLocations(search)
+            if (_locationsState.value != FetchLocationsState.Loading) {
+                setLocationsState(FetchLocationsState.Loading)
+            }
+
         }
+
     }
 
     val getLocationColor: (String) -> Color = { color ->

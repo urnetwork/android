@@ -26,10 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,8 +47,6 @@ import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,8 +72,9 @@ fun ProvidersBottomSheet(
         getLocationColor = locationsViewModel.getLocationColor,
         filterLocations = locationsViewModel.filterLocations,
         fetchLocationsState = fetchLocationsState,
-        searchQuery = locationsViewModel.searchQuery,
-        setSearchQuery = locationsViewModel.setSearchQuery,
+        searchQueryTextFieldValue = locationsViewModel.searchQueryTextFieldValue,
+        setSearchQueryTextFieldValue = locationsViewModel.setSearchQueryTextFieldValue,
+        currentSearchQuery = locationsViewModel.currentSearchQuery,
         connect = connect,
     ) { innerPadding ->
         content(innerPadding)
@@ -99,13 +96,13 @@ fun ProvidersBottomSheet(
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
     fetchLocationsState: FetchLocationsState,
-    searchQuery: TextFieldValue,
-    setSearchQuery: (TextFieldValue) -> Unit,
+    searchQueryTextFieldValue: TextFieldValue,
+    setSearchQueryTextFieldValue: (TextFieldValue) -> Unit,
+    currentSearchQuery: String,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
-    var debounceJob by remember { mutableStateOf<Job?>(null) }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -179,21 +176,21 @@ fun ProvidersBottomSheet(
                     }
 
                     URSearchInput(
-                        value = searchQuery,
+                        value = searchQueryTextFieldValue,
                         onValueChange = { query ->
-                            if (query.text != searchQuery.text) {
-                                setSearchQuery(query)
-
-                                debounceJob?.cancel()
-                                debounceJob = scope.launch {
-                                    delay(500L)
-                                    filterLocations(query.text)
-                                }
-
+                            if (query.text != searchQueryTextFieldValue.text) {
+                                setSearchQueryTextFieldValue(query)
                             }
                         },
+                        onSearch = {
+                            filterLocations(searchQueryTextFieldValue.text)
+                        },
                         placeholder = stringResource(id = R.string.search_placeholder),
-                        keyboardController
+                        keyboardController = keyboardController,
+                        onClear = {
+                            setSearchQueryTextFieldValue(TextFieldValue(""))
+                            filterLocations("")
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -233,7 +230,7 @@ fun ProvidersBottomSheet(
                                 onRefresh = {
                                     filterLocations("")
                                 },
-                                searchQuery = searchQuery.text
+                                searchQuery = currentSearchQuery
                             )
                         }
                         FetchLocationsState.Error -> {
@@ -274,8 +271,9 @@ private fun PreviewBottomSheet() {
             },
             filterLocations = { _ -> },
             fetchLocationsState = FetchLocationsState.Loaded,
-            searchQuery = TextFieldValue(""),
-            setSearchQuery = {}
+            searchQueryTextFieldValue = TextFieldValue(""),
+            setSearchQueryTextFieldValue = {},
+            currentSearchQuery = ""
         ) {
             Text("Hello world")
         }
@@ -309,8 +307,9 @@ private fun PreviewBottomSheetExpanded() {
             },
             filterLocations = { _ -> },
             fetchLocationsState = FetchLocationsState.Loaded,
-            searchQuery = TextFieldValue(""),
-            setSearchQuery = {}
+            searchQueryTextFieldValue = TextFieldValue(""),
+            setSearchQueryTextFieldValue = {},
+            currentSearchQuery = ""
         ) {
             Text("Hello world")
         }

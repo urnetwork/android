@@ -43,7 +43,9 @@ fun URSearchInput(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     placeholder: String = "",
-    keyboardController: SoftwareKeyboardController?
+    keyboardController: SoftwareKeyboardController?,
+    onSearch: () -> Unit = {},
+    onClear: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -88,6 +90,7 @@ fun URSearchInput(
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
+                        onSearch()
                         keyboardController?.hide()
                     }
                 )
@@ -98,7 +101,10 @@ fun URSearchInput(
                     imageVector = Icons.Default.Clear,
                     contentDescription = "Clear text",
                     modifier = Modifier
-                        .clickable { onValueChange(TextFieldValue("")) },
+                        .clickable {
+                            onClear()
+                            keyboardController?.hide()
+                                   },
                     tint = TextMuted
                 )
             }
@@ -113,7 +119,8 @@ fun URSearchInputPreview() {
         URSearchInput(
             value = TextFieldValue("Hello world"),
             onValueChange = {},
-            keyboardController = LocalSoftwareKeyboardController.current
+            keyboardController = LocalSoftwareKeyboardController.current,
+            onClear = {}
         )
     }
 }
@@ -126,7 +133,8 @@ fun URSearchInputEmptyPreview() {
             value = TextFieldValue(""),
             onValueChange = {},
             placeholder = "Search for all locations",
-            keyboardController = LocalSoftwareKeyboardController.current
+            keyboardController = LocalSoftwareKeyboardController.current,
+            onClear = {}
         )
     }
 }
