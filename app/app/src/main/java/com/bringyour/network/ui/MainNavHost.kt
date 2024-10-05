@@ -42,6 +42,7 @@ import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
@@ -67,7 +68,8 @@ fun MainNavHost(
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
-    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel()
+    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
+    overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
@@ -144,7 +146,8 @@ fun MainNavHost(
                         accountNavHostController,
                         settingsViewModel,
                         promptReviewViewModel,
-                        planViewModel
+                        planViewModel,
+                        overlayViewModel
                     )
                 }
 
@@ -159,7 +162,8 @@ fun MainNavHost(
                         accountNavHostController,
                         settingsViewModel,
                         promptReviewViewModel,
-                        planViewModel
+                        planViewModel,
+                        overlayViewModel
                     )
                     HorizontalDivider(
                         modifier = Modifier
@@ -177,7 +181,8 @@ fun MainNavHost(
     }
 
     FullScreenOverlay(
-        referralCodeViewModel
+        overlayViewModel,
+        referralCodeViewModel,
     )
 
 }
@@ -190,6 +195,7 @@ fun MainNavContent(
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
+    overlayViewModel: OverlayViewModel,
     connectViewModel: ConnectViewModel = hiltViewModel(),
 ) {
 
@@ -212,15 +218,19 @@ fun MainNavContent(
     when (currentDestination) {
         AppDestinations.CONNECT -> ConnectScreen(
             connectViewModel,
-            promptReviewViewModel
+            promptReviewViewModel,
+            overlayViewModel
         )
         AppDestinations.ACCOUNT -> AccountNavHost(
             sagaViewModel,
             accountNavHostController,
             planViewModel,
-            settingsViewModel
+            settingsViewModel,
+            overlayViewModel = overlayViewModel
         )
-        AppDestinations.SUPPORT -> FeedbackScreen()
+        AppDestinations.SUPPORT -> FeedbackScreen(
+            overlayViewModel = overlayViewModel
+        )
     }
 
 }

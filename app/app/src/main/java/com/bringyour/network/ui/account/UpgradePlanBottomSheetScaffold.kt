@@ -44,6 +44,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
@@ -60,15 +61,12 @@ fun UpgradePlanBottomSheetScaffold(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope,
     planViewModel: PlanViewModel,
+    overlayViewModel: OverlayViewModel,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-    val overlayVc = application?.overlayVc
-
     LaunchedEffect(Unit) {
         planViewModel.onUpgradeSuccess.collect {
-            overlayVc?.openOverlay(OverlayMode.Upgrade.toString())
+            overlayViewModel.launch(OverlayMode.Upgrade)
             scaffoldState.bottomSheetState.hide()
         }
     }

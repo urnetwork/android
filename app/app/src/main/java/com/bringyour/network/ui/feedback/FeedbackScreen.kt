@@ -20,9 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,19 +38,22 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLinkText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
 fun FeedbackScreen(
     feedbackViewModel: FeedbackViewModel = hiltViewModel(),
+    overlayViewModel: OverlayViewModel,
 ) {
 
     FeedbackScreen(
         isSending = feedbackViewModel.isSendingFeedback,
         feedbackMsg = feedbackViewModel.feedbackMsg,
         setFeedbackMsg = feedbackViewModel.setFeedbackMsg,
-        sendFeedback = feedbackViewModel.sendFeedback
+        sendFeedback = feedbackViewModel.sendFeedback,
+        launchOverlay = overlayViewModel.launch
     )
 
 }
@@ -62,12 +63,9 @@ fun FeedbackScreen(
     isSending: Boolean,
     feedbackMsg: TextFieldValue,
     setFeedbackMsg: (TextFieldValue) -> Unit,
-    sendFeedback: () -> Unit
+    sendFeedback: () -> Unit,
+    launchOverlay: (OverlayMode) -> Unit
 ) {
-
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-    val overlayVc = application?.overlayVc
 
     val isBtnEnabled by remember {
         derivedStateOf {
@@ -80,7 +78,7 @@ fun FeedbackScreen(
 
             sendFeedback()
 
-            overlayVc?.openOverlay(OverlayMode.FeedbackSubmitted.toString())
+            launchOverlay(OverlayMode.FeedbackSubmitted)
 
             setFeedbackMsg(TextFieldValue())
 
@@ -167,7 +165,8 @@ private fun FeedbackScreenPreview() {
             isSending = false,
             feedbackMsg = TextFieldValue(),
             setFeedbackMsg = {},
-            sendFeedback = {}
+            sendFeedback = {},
+            launchOverlay = {}
         )
     }
 

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components.overlays
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +53,10 @@ fun OnboardingGuestModeOverlay(
     var createNetworkError by remember { mutableStateOf<String?>(null) }
 
     val createGuestNetwork = {
+
+        Log.i("OnboardingGuestModeOverlay", "created guest network")
+        Log.i("OnboardingGuestModeOverlay", "terms agreed? $termsAgreed")
+
         if (termsAgreed) {
             val args = NetworkCreateArgs()
             args.terms = termsAgreed
@@ -59,14 +64,21 @@ fun OnboardingGuestModeOverlay(
 
             application?.api?.networkCreate(args) { result, err ->
                 runBlocking(Dispatchers.Main.immediate) {
+
+                    Log.i("OnboardingGuestModeOverlay", "inside of response")
+
                     inProgress = false
 
                     if (err != null) {
+                        Log.i("OnboardingGuestModeOverlay", "error ${err.message}")
                         createNetworkError = err.message
                     } else if (result.error != null) {
+                        Log.i("OnboardingGuestModeOverlay", "error ${result.error.message}")
                         createNetworkError = result.error.message
                     } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                         createNetworkError = null
+
+                        Log.i("OnboardingGuestModeOverlay", "should be logging in")
 
                         application.login(result.network.byJwt)
 
@@ -74,6 +86,9 @@ fun OnboardingGuestModeOverlay(
 
                         loginActivity?.authClientAndFinish { error ->
                             inProgress = false
+
+                            Log.i("OnboardingGuestModeOverlay", "inside authClientAndFinish: error is: $error")
+
                             createNetworkError = error
                             if (error == null) {
                                 onDismiss()

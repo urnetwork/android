@@ -88,6 +88,7 @@ fun CircleTransferSheet(
     transfer: (OnWalletExecute) -> Unit,
     transferInProgress: Boolean,
     transferAmountValid: Boolean,
+    launchOverlay: (OverlayMode) -> Unit
 ) {
 
     CircleTransferSheetContent(
@@ -105,7 +106,8 @@ fun CircleTransferSheet(
         setTransferInProgress = setTransferInProgress,
         transfer = transfer,
         transferInProgress = transferInProgress,
-        transferAmountValid = transferAmountValid
+        transferAmountValid = transferAmountValid,
+        launchOverlay = launchOverlay
     )
 }
 
@@ -127,12 +129,11 @@ fun CircleTransferSheetContent(
     transfer: (OnWalletExecute) -> Unit,
     transferInProgress: Boolean,
     transferAmountValid: Boolean,
+    launchOverlay: (OverlayMode) -> Unit
 ) {
 
     val context = LocalContext.current
     val activity = context as? MainActivity
-    val application = context.applicationContext as? MainApplication
-    val overlayVc = application?.overlayVc
     
     val amountInputTextStyle = TextStyle(
         fontSize = 24.sp,
@@ -211,7 +212,8 @@ fun CircleTransferSheetContent(
 
                         if (success) {
                             scope.launch {
-                                overlayVc?.openOverlay(OverlayMode.TransferSubmitted.toString())
+                                launchOverlay(OverlayMode.TransferSubmitted)
+                                // overlayVc?.openOverlay(OverlayMode.TransferSubmitted.toString())
                                 scaffoldState.bottomSheetState.hide()
                             }
 
@@ -461,7 +463,8 @@ private fun CircleTransferSheetInvalidAddressPreview() {
             setTransferInProgress = {},
             transfer = {},
             transferInProgress = false,
-            transferAmountValid = true
+            transferAmountValid = true,
+            launchOverlay = {}
         )
     }
 }
@@ -494,7 +497,8 @@ private fun CircleTransferSheetSendAmountPreview() {
             setTransferInProgress = {},
             transfer = {},
             transferInProgress = false,
-            transferAmountValid = true
+            transferAmountValid = true,
+            launchOverlay = {}
         )
     }
 }
@@ -527,7 +531,8 @@ private fun CircleTransferSheetSendAmountInvalidPreview() {
             setTransferInProgress = {},
             transfer = {},
             transferInProgress = false,
-            transferAmountValid = false
+            transferAmountValid = false,
+            launchOverlay = {}
         )
     }
 }

@@ -60,12 +60,13 @@ enum class LoginMode {
 @Composable
 fun AccountSwitcher(
     loginMode: LoginMode,
-    networkName: String?
+    networkName: String?,
+    launchOverlay: (OverlayMode) -> Unit
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-    val overlayVc = application?.overlayVc
+//    val overlayVc = application?.overlayVc
 
     var isOverlayVisible by remember { mutableStateOf(false) }
 
@@ -88,13 +89,13 @@ fun AccountSwitcher(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
                     context = context,
-                    overlayVc = overlayVc
+                    launchOverlay = launchOverlay
                 )
                 LoginMode.Authenticated -> AuthenticatedPopup(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
                     context = context,
-                    overlayVc = overlayVc,
+                    launchOverlay = launchOverlay,
                     networkName = networkName
                 )
             }
@@ -148,7 +149,9 @@ fun GuestPopup(
     onDismiss: () -> Unit,
     context: Context?,
     application: MainApplication?,
-    overlayVc: OverlayViewController?
+    launchOverlay: (OverlayMode) -> Unit
+    // overlayVc: OverlayViewController?,
+
 ) {
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
         PopupActionRow(
@@ -179,7 +182,7 @@ fun GuestPopup(
             iconResourceId = R.drawable.export,
             text = "Share URnetwork",
             onClick = {
-                overlayVc?.openOverlay(OverlayMode.Refer.toString())
+                launchOverlay(OverlayMode.Refer)
                 onDismiss()
             },
         )
@@ -191,7 +194,7 @@ fun AuthenticatedPopup(
     onDismiss: () -> Unit,
     context: Context?,
     application: MainApplication?,
-    overlayVc: OverlayViewController?,
+    launchOverlay: (OverlayMode) -> Unit,
     networkName: String?
 ) {
 
@@ -221,7 +224,8 @@ fun AuthenticatedPopup(
             iconResourceId = R.drawable.export,
             text = "Share URnetwork",
             onClick = {
-                overlayVc?.openOverlay(OverlayMode.Refer.toString())
+                launchOverlay(OverlayMode.Refer)
+                // overlayVc?.openOverlay(OverlayMode.Refer.toString())
                 onDismiss()
             },
         )
@@ -269,7 +273,8 @@ fun AccountSwitcherGuestPreview() {
     URNetworkTheme {
         AccountSwitcher(
             loginMode = LoginMode.Guest,
-            networkName = "ur_network"
+            networkName = "ur_network",
+            launchOverlay = {}
         )
     }
 }
@@ -280,7 +285,8 @@ fun AccountSwitcherAuthenticatedPreview() {
     URNetworkTheme {
         AccountSwitcher(
             loginMode = LoginMode.Authenticated,
-            networkName = "ur_network"
+            networkName = "ur_network",
+            launchOverlay = {}
         )
     }
 }
@@ -293,7 +299,7 @@ fun GuestPopupPreview() {
             onDismiss = {},
             application =  null,
             context = null,
-            overlayVc = null
+            launchOverlay = {}
         )
     }
 }

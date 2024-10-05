@@ -59,6 +59,8 @@ import com.bringyour.client.AccountWallet
 import com.bringyour.client.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URDialog
+import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
@@ -72,6 +74,7 @@ fun WalletScreen(
     navController: NavController,
     accountWallet: AccountWallet?,
     walletViewModel: WalletViewModel,
+    overlayViewModel: OverlayViewModel
 ) {
 
     val payoutWalletId = walletViewModel.payoutWalletId
@@ -93,7 +96,8 @@ fun WalletScreen(
         openRemoveWalletModal = walletViewModel.openRemoveWalletModal,
         closeRemoveWalletModal = walletViewModel.closeRemoveWalletModal,
         circleWalletBalance = walletViewModel.circleWalletBalance,
-        setCircleWalletBalance = walletViewModel.setCircleWalletBalance
+        setCircleWalletBalance = walletViewModel.setCircleWalletBalance,
+        launchOverlay = overlayViewModel.launch
     )
 }
 
@@ -115,6 +119,7 @@ fun WalletScreen(
     openRemoveWalletModal: () -> Unit,
     circleWalletBalance: Double,
     setCircleWalletBalance: (Double) -> Unit,
+    launchOverlay: (OverlayMode) -> Unit
 ) {
 
     if (isCircleWallet) {
@@ -132,7 +137,8 @@ fun WalletScreen(
             removeWalletModalVisible = removeWalletModalVisible,
             closeRemoveWalletModal = closeRemoveWalletModal,
             walletBalance = circleWalletBalance,
-            setCircleWalletBalance = setCircleWalletBalance
+            setCircleWalletBalance = setCircleWalletBalance,
+            launchOverlay = launchOverlay
         )
     } else {
         ExternalWalletScreenContent(
@@ -202,6 +208,7 @@ fun CircleWalletScaffold(
     closeRemoveWalletModal: () -> Unit,
     walletBalance: Double,
     setCircleWalletBalance: (Double) -> Unit,
+    launchOverlay: (OverlayMode) -> Unit,
     circleViewModel: CircleTransferViewModel = hiltViewModel()
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState(
@@ -237,7 +244,8 @@ fun CircleWalletScaffold(
                 transfer = circleViewModel.transfer,
                 setCircleWalletBalance = setCircleWalletBalance,
                 transferInProgress = circleViewModel.transferInProgress,
-                transferAmountValid = circleViewModel.transferAmountValid
+                transferAmountValid = circleViewModel.transferAmountValid,
+                launchOverlay = launchOverlay
             )
         }
     ) {
@@ -675,7 +683,8 @@ private fun WalletScreenPreview() {
             openRemoveWalletModal = {},
             closeRemoveWalletModal = {},
             circleWalletBalance = 1.1,
-            setCircleWalletBalance = {}
+            setCircleWalletBalance = {},
+            launchOverlay = {}
         )
     }
 }
@@ -703,7 +712,8 @@ private fun WalletScreenIsPayoutPreview() {
             openRemoveWalletModal = {},
             closeRemoveWalletModal = {},
             circleWalletBalance = 1.1,
-            setCircleWalletBalance = {}
+            setCircleWalletBalance = {},
+            launchOverlay = {}
         )
     }
 }
@@ -730,7 +740,8 @@ private fun WalletScreenRemoveWalletPreview() {
             openRemoveWalletModal = {},
             closeRemoveWalletModal = {},
             circleWalletBalance = 1.1,
-            setCircleWalletBalance = {}
+            setCircleWalletBalance = {},
+            launchOverlay = {}
         )
     }
 }

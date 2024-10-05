@@ -6,17 +6,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import com.bringyour.client.Sub
-import com.bringyour.network.MainApplication
+import androidx.compose.runtime.collectAsState
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 enum class OverlayMode {
     GuestMode,
@@ -25,71 +17,19 @@ enum class OverlayMode {
     FeedbackSubmitted,
     Onboarding,
     OnboardingGuestMode,
-    TransferSubmitted;
-
-    companion object {
-        fun fromString(value: String): OverlayMode? {
-            return when (value.lowercase()) {
-                "guest_mode" -> GuestMode
-                "upgrade" -> Upgrade
-                "refer" -> Refer
-                "feedback_submitted" -> FeedbackSubmitted
-                "onboarding" -> Onboarding
-                "onboarding_guest_mode" -> OnboardingGuestMode
-                "transfer_submitted" -> TransferSubmitted
-                else -> null
-            }
-        }
-    }
-
-    override fun toString(): String {
-        return when (this) {
-            GuestMode -> "guest_mode"
-            Upgrade -> "upgrade"
-            Refer -> "refer"
-            FeedbackSubmitted -> "feedback_submitted"
-            Onboarding -> "onboarding"
-            OnboardingGuestMode -> "onboarding_guest_mode"
-            TransferSubmitted -> "transfer_submitted"
-        }
-    }
+    TransferSubmitted
 }
 
 @Composable
 fun FullScreenOverlay(
+    overlayViewModel: OverlayViewModel,
     referralCodeViewModel: ReferralCodeViewModel?
 ) {
 
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-    val overlayVc = application?.overlayVc
-    val subs = remember { mutableListOf<Sub>() }
-    var overlayMode by remember { mutableStateOf<OverlayMode?>(null) }
     val enterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
     val exitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
-    val addOverlayModeListener = {
-        if (overlayVc != null) {
-            subs.add(overlayVc.addOverlayModeListener { modeStr ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    overlayMode = OverlayMode.fromString(modeStr)
-                }
-            })
-        }
-    }
-
-    DisposableEffect(Unit) {
-
-        addOverlayModeListener()
-
-        onDispose {
-            subs.forEach { sub ->
-                sub.close()
-            }
-            subs.clear()
-        }
-
-    }
+    val overlayMode = overlayViewModel.overlayModeState.collectAsState().value
 
     // Guest mode overlay
     AnimatedVisibility(
@@ -100,7 +40,8 @@ fun FullScreenOverlay(
 
         GuestModeOverlay(
             onDismiss = {
-                overlayMode = null
+                // overlayMode = null
+                overlayViewModel.launch(null)
             }
         )
     }
@@ -116,7 +57,7 @@ fun FullScreenOverlay(
             ReferOverlay(
                 referralCodeViewModel = referralCodeViewModel,
                 onDismiss = {
-                    overlayMode = null
+                    overlayViewModel.launch(null)
                 }
             )
         }
@@ -131,7 +72,7 @@ fun FullScreenOverlay(
 
         FeedbackSubmittedOverlay(
             onDismiss = {
-                overlayMode = null
+                overlayViewModel.launch(null)
             }
         )
     }
@@ -145,7 +86,7 @@ fun FullScreenOverlay(
 
         OnboardingOverlay(
             onDismiss = {
-                overlayMode = null
+                overlayViewModel.launch(null)
             }
         )
     }
@@ -159,7 +100,7 @@ fun FullScreenOverlay(
 
         OnboardingGuestModeOverlay(
             onDismiss = {
-                overlayMode = null
+                overlayViewModel.launch(null)
             }
         )
     }
@@ -173,7 +114,7 @@ fun FullScreenOverlay(
 
         PlanUpgradedOverlay(
             onDismiss = {
-                overlayMode = null
+                overlayViewModel.launch(null)
             }
         )
     }
@@ -187,7 +128,7 @@ fun FullScreenOverlay(
 
         TransferSubmittedOverlay(
             onDismiss = {
-                overlayMode = null
+                overlayViewModel.launch(null)
             }
         )
     }

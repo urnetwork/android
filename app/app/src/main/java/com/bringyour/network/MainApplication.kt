@@ -16,20 +16,13 @@ import androidx.biometric.BiometricManager
 import androidx.core.content.ContextCompat
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.client.AccountViewController
-import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
 import com.bringyour.client.DevicesViewController
-import com.bringyour.client.Id
 import com.bringyour.client.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
-import com.bringyour.client.OverlayViewController
 import dagger.hilt.android.HiltAndroidApp
-import com.bringyour.client.ConnectLocation
-import com.bringyour.client.LocalState
 import com.bringyour.client.NetworkSpace
-import com.bringyour.client.NetworkSpaceManager
-import com.bringyour.client.ProvideSecretKeyList
 import com.bringyour.client.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -77,7 +70,6 @@ class MainApplication : Application() {
     var loginVc: LoginViewController? = null
     var devicesVc: DevicesViewController? = null
     var accountVc: AccountViewController? = null
-    var overlayVc: OverlayViewController? = null
 
     var hasBiometric: Boolean = false
 
@@ -284,11 +276,6 @@ class MainApplication : Application() {
         }
         devicesVc = null
 
-        overlayVc?.let {
-            byDevice?.closeViewController(it)
-        }
-        overlayVc = null
-
         router?.close()
         router = null
         deviceProvideSub?.close()
@@ -333,7 +320,6 @@ class MainApplication : Application() {
 
         devicesVc = byDevice?.openDevicesViewController()
         accountVc = byDevice?.openAccountViewController()
-        overlayVc = byDevice?.openOverlayViewController()
 
 //        byDevice?.providePaused = true
 //        byDevice?.routeLocal = routeLocal

@@ -22,10 +22,12 @@ import com.bringyour.network.ui.login.LoginPasswordReset
 import com.bringyour.network.ui.login.LoginPasswordResetAfterSend
 import com.bringyour.network.ui.login.LoginVerify
 import com.bringyour.network.ui.login.LoginViewModel
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 
 @Composable
 fun LoginNavHost(
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
 
     val navController = rememberNavController()
@@ -61,7 +63,8 @@ fun LoginNavHost(
             composable("login-initial") {
                 LoginInitial(
                     navController,
-                    loginViewModel
+                    loginViewModel,
+                    overlayViewModel
                 )
             }
 
@@ -141,7 +144,8 @@ fun LoginNavHost(
         }
 
         FullScreenOverlay(
-            referralCodeViewModel = null
+            referralCodeViewModel = null,
+            overlayViewModel = overlayViewModel
         )
     }
 
