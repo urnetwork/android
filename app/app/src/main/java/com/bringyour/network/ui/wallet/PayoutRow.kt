@@ -31,7 +31,7 @@ import com.bringyour.network.ui.theme.Green
 @Composable
 fun PayoutRow(
     walletAddress: String,
-    completeTime: String,
+    completeTime: String?,
     amountUsd: Double
 ) {
     Row(
@@ -70,8 +70,9 @@ fun PayoutRow(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+
                 Text(
-                    completeTime,
+                    completeTime ?: "Pending",
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextMuted
                 )
@@ -98,6 +99,19 @@ private fun PayoutRowPreview() {
         PayoutRow(
             "0xb696b7a5e41c9ec487f1b81064ec487261a1c3ddbaff96d5892854c824530ca5",
             "Jan 2",
+            1.25
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PayoutRowEmptyCompleteTimePreview() {
+
+    URNetworkTheme {
+        PayoutRow(
+            "0xb696b7a5e41c9ec487f1b81064ec487261a1c3ddbaff96d5892854c824530ca5",
+            null,
             1.25
         )
     }
