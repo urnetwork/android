@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,6 +73,10 @@ fun LoginPassword(
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(Unit) {
+        inProgress = false
+    }
+
     val login = {
         inProgress = true
 
@@ -81,11 +86,12 @@ fun LoginPassword(
 
         app?.api?.authLoginWithPassword(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
-                inProgress = false
 
                 if (err != null) {
+                    inProgress = false
                     loginError = err.message
                 } else if (result.error != null) {
+                    inProgress = false
                     loginError = result.error.message
                 } else if (result.network != null) {
                     loginError = null
@@ -99,10 +105,11 @@ fun LoginPassword(
                     } else {
                         app.login(result.network.byJwt)
 
-                        inProgress = true
-
                         loginActivity?.authClientAndFinish { error ->
-                            inProgress = false
+                            if (error != null) {
+                                inProgress = false
+                            }
+
                             loginError = error
                         }
                     }
@@ -183,7 +190,8 @@ fun LoginPassword(
                 onClick = {
                     login()
                 },
-                enabled = !inProgress
+                enabled = !inProgress,
+                isProcessing = inProgress
             ) { buttonTextStyle ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically

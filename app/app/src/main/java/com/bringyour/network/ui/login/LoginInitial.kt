@@ -231,7 +231,8 @@ fun LoginInitial(
                         onNewNetwork,
                     )
                 },
-                enabled = !userAuthInProgress && isValidUserAuth
+                enabled = !userAuthInProgress && isValidUserAuth,
+                isProcessing = userAuthInProgress
             ) { buttonTextStyle ->
                 Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
             }
