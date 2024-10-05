@@ -37,6 +37,8 @@ import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Red
@@ -47,6 +49,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
     promptReviewViewModel: PromptReviewViewModel,
+    overlayViewModel: OverlayViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
@@ -71,7 +74,8 @@ fun ConnectScreen(
             animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
             shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
             getStateColor = connectViewModel.getStateColor,
-            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview
+            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
+            launchOverlay = overlayViewModel.launch
         )
     }
 }
@@ -90,7 +94,8 @@ fun ConnectMainContent(
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
     getStateColor: (ProviderPointState?) -> Color,
-    checkTriggerPromptReview: () -> Unit
+    checkTriggerPromptReview: () -> Unit,
+    launchOverlay: (OverlayMode) -> Unit,
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -139,7 +144,8 @@ fun ConnectMainContent(
             ) {
                 AccountSwitcher(
                     loginMode,
-                    networkName
+                    networkName,
+                    launchOverlay = launchOverlay
                 )
             }
 
@@ -228,7 +234,8 @@ private fun ConnectMainContentPreview() {
             animatedSuccessPoints = listOf(),
             shuffleSuccessPoints = {},
             getStateColor = mockGetStateColor,
-            checkTriggerPromptReview = {}
+            checkTriggerPromptReview = {},
+            launchOverlay = {}
         )
     }
 }

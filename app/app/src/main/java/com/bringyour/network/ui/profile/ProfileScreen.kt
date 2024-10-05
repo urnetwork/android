@@ -52,7 +52,9 @@ import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
@@ -68,6 +70,7 @@ fun ProfileScreen(
     navController: NavController,
     accountViewModel: AccountViewModel,
     profileViewModel: ProfileViewModel,
+    overlayViewModel: OverlayViewModel,
     resetPasswordViewModel: ResetPasswordViewModel = hiltViewModel()
 ) {
 
@@ -112,7 +115,8 @@ fun ProfileScreen(
         networkNameIsValidating = profileViewModel.isValidatingNetworkName,
         validateNetworkName = profileViewModel.validateNetworkName,
         errorUpdatingProfile = profileViewModel.errorUpdatingProfile,
-        setErrorUpdatingProfile = profileViewModel.setErrorUpdatingProfile
+        setErrorUpdatingProfile = profileViewModel.setErrorUpdatingProfile,
+        launchOverlay = overlayViewModel.launch
     )
 
 }
@@ -143,7 +147,8 @@ fun ProfileScreen(
     networkNameIsValid: Boolean,
     networkNameIsValidating: Boolean,
     errorUpdatingProfile: Boolean,
-    setErrorUpdatingProfile: (Boolean) -> Unit
+    setErrorUpdatingProfile: (Boolean) -> Unit,
+    launchOverlay: (OverlayMode) -> Unit
 ) {
 
     val resendBtnEnabled by remember {
@@ -197,7 +202,8 @@ fun ProfileScreen(
                 AccountSwitcher(
                     loginMode = loginMode,
                     // todo - this should be the current network name, not the one being edited
-                    networkName = networkName
+                    networkName = networkName,
+                    launchOverlay = launchOverlay
                 )
             }
             Spacer(modifier = Modifier.height(64.dp))
@@ -391,7 +397,8 @@ fun ProfileScreenPreview() {
             networkNameIsValidating = false,
             validateNetworkName = {},
             errorUpdatingProfile = false,
-            setErrorUpdatingProfile = {}
+            setErrorUpdatingProfile = {},
+            launchOverlay = {}
         )
     }
 }
@@ -425,7 +432,8 @@ fun ProfileScreenEditingPreview() {
             networkNameIsValidating = false,
             validateNetworkName = {},
             errorUpdatingProfile = false,
-            setErrorUpdatingProfile = {}
+            setErrorUpdatingProfile = {},
+            launchOverlay = {}
         )
     }
 }
@@ -459,7 +467,8 @@ fun ProfileScreenErrorUpdatingPreview() {
             networkNameIsValidating = false,
             validateNetworkName = {},
             errorUpdatingProfile = true,
-            setErrorUpdatingProfile = {}
+            setErrorUpdatingProfile = {},
+            launchOverlay = {}
         )
     }
 }

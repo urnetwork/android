@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.login
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,12 +55,14 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable()
 fun LoginInitial(
     navController: NavController,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    overlayViewModel: OverlayViewModel
 ) {
 
     LoginInitial(
@@ -73,7 +76,8 @@ fun LoginInitial(
         loginError = loginViewModel.loginError,
         setGoogleAuthInProgress = loginViewModel.setGoogleAuthInProgress,
         setLoginError = loginViewModel.setLoginError,
-        googleAuthInProgress = loginViewModel.googleAuthInProgress
+        googleAuthInProgress = loginViewModel.googleAuthInProgress,
+        launchDialog = overlayViewModel.launch
     )
 
 }
@@ -101,13 +105,16 @@ fun LoginInitial(
     loginError: String?,
     setLoginError: (String?) -> Unit,
     googleAuthInProgress: Boolean,
-    setGoogleAuthInProgress: (Boolean) -> Unit
+    setGoogleAuthInProgress: (Boolean) -> Unit,
+    launchDialog: (OverlayMode) -> Unit
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
+//    val overlayVc = application?.overlayVc
+//    Log.i("LoginInitial", "overlayVc is: $overlayVc")
+
     val loginActivity = context as? LoginActivity
-    val overlayVc = application?.overlayVc
 
     val guestModeStr = buildAnnotatedString {
         append(stringResource(id = R.string.commitment_issues))
@@ -278,7 +285,13 @@ fun LoginInitial(
                         guestModeStr.getStringAnnotations(
                             tag = "GUEST_MODE", start = offset, end = offset
                         ).firstOrNull()?.let {
-                            overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
+
+                            // Log.i("LoginInitial", "overlay VC is: $overlayVc")
+
+                            // overlayViewModel
+                            launchDialog(OverlayMode.OnboardingGuestMode)
+
+                            // overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
                         }
                     },
                     style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted)
@@ -346,7 +359,8 @@ private fun LoginInitialPreview() {
                     loginError = null,
                     setLoginError = {},
                     googleAuthInProgress = false,
-                    setGoogleAuthInProgress = {}
+                    setGoogleAuthInProgress = {},
+                    launchDialog = {}
                 )
             }
         }

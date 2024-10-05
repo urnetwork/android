@@ -43,6 +43,7 @@ import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
@@ -58,6 +59,7 @@ import kotlinx.coroutines.launch
 fun AccountScreen(
     navController: NavHostController,
     accountViewModel: AccountViewModel,
+    overlayViewModel: OverlayViewModel,
     planViewModel: PlanViewModel,
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
@@ -79,7 +81,8 @@ fun AccountScreen(
     UpgradePlanBottomSheetScaffold(
         scaffoldState = scaffoldState,
         scope = scope,
-        planViewModel = planViewModel
+        planViewModel = planViewModel,
+        overlayViewModel = overlayViewModel
     ) {
         AccountScreenContent(
             loginMode = accountViewModel.loginMode,
@@ -90,7 +93,8 @@ fun AccountScreen(
             totalPayoutAmount = totalPayoutAmount,
             totalPayoutAmountInitialized = totalPayoutAmountInitialized,
             walletCount = walletCount,
-            currentPlan = currentPlan
+            currentPlan = currentPlan,
+            launchOverlay = overlayViewModel.launch
         )
     }
 
@@ -107,12 +111,12 @@ fun AccountScreenContent(
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
     walletCount: Int,
-    currentPlan: Plan
+    currentPlan: Plan,
+    launchOverlay: (OverlayMode) -> Unit
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-    val overlayVc = application?.overlayVc
 
     Column(
         modifier = Modifier
@@ -130,8 +134,8 @@ fun AccountScreenContent(
             Text(stringResource(id = R.string.account), style = MaterialTheme.typography.headlineSmall)
             AccountSwitcher(
                 loginMode = loginMode,
-                networkName = networkName
-
+                networkName = networkName,
+                launchOverlay = launchOverlay
             )
         }
 
@@ -299,7 +303,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("profile")
                 } else {
-                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                    launchOverlay(OverlayMode.GuestMode)
                 }
             }
         )
@@ -311,7 +315,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("settings")
                 } else {
-                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                    launchOverlay(OverlayMode.GuestMode)
                 }
             }
         )
@@ -323,7 +327,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate("wallets")
                 } else {
-                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                    launchOverlay(OverlayMode.GuestMode)
                 }
             }
         )
@@ -333,9 +337,9 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.refer_and_earn),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    overlayVc?.openOverlay(OverlayMode.Refer.toString())
+                    launchOverlay(OverlayMode.Refer)
                 } else {
-                    overlayVc?.openOverlay(OverlayMode.GuestMode.toString())
+                    launchOverlay(OverlayMode.GuestMode)
                 }
             }
         )
@@ -371,7 +375,8 @@ private fun AccountSupporterAuthenticatedPreview() {
             totalPayoutAmount = 120.12387,
             totalPayoutAmountInitialized = true,
             walletCount = 2,
-            currentPlan = Plan.Supporter
+            currentPlan = Plan.Supporter,
+            launchOverlay = {}
         )
 
     }
@@ -404,7 +409,8 @@ private fun AccountBasicAuthenticatedPreview() {
             totalPayoutAmount = 120.12387,
             totalPayoutAmountInitialized = true,
             walletCount = 2,
-            currentPlan = Plan.Basic
+            currentPlan = Plan.Basic,
+            launchOverlay = {}
         )
 
     }
@@ -437,7 +443,8 @@ private fun AccountGuestPreview() {
             totalPayoutAmount = 0.0,
             totalPayoutAmountInitialized = true,
             walletCount = 0,
-            currentPlan = Plan.Basic
+            currentPlan = Plan.Basic,
+            launchOverlay = {}
         )
     }
 }
@@ -468,7 +475,8 @@ private fun AccountGuestNoWalletPreview() {
             totalPayoutAmount = 0.0,
             totalPayoutAmountInitialized = false,
             walletCount = 0,
-            currentPlan = Plan.Basic
+            currentPlan = Plan.Basic,
+            launchOverlay = {}
         )
     }
 }

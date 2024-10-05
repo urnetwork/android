@@ -61,6 +61,7 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
 import com.bringyour.network.ui.account.UpgradePlanBottomSheetScaffold
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 
@@ -70,7 +71,8 @@ fun SettingsScreen(
     navController: NavController,
     accountViewModel: AccountViewModel,
     planViewModel: PlanViewModel,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    overlayViewModel: OverlayViewModel
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
@@ -89,7 +91,8 @@ fun SettingsScreen(
         UpgradePlanBottomSheetScaffold(
             scaffoldState = scaffoldState,
             scope = scope,
-            planViewModel = planViewModel
+            planViewModel = planViewModel,
+            overlayViewModel = overlayViewModel
         ) {
             SettingsScreen(
                 navController,
