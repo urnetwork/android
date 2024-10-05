@@ -34,7 +34,7 @@ fun WalletsPayoutsList(
 
                 PayoutRow(
                     walletAddress = wallet?.walletAddress ?: "",
-                    completeTime = payout.completeTime.format("Jan 2"),
+                    completeTime = if (payout.completeTime != null) payout.completeTime.format("Jan 2") else null,
                     amountUsd = payout.tokenAmount
                 )
             }
