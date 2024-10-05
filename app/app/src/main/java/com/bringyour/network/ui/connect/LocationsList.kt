@@ -38,6 +38,7 @@ fun LocationsList(
         devices.isEmpty() &&
         regions.isEmpty() &&
         cities.isEmpty() &&
+        bestSearchMatches.isEmpty() &&
         searchQuery.isEmpty()) {
         // there has probably been an uncaught error
         // everything is empty, including search
@@ -50,6 +51,7 @@ fun LocationsList(
         devices.isEmpty() &&
         regions.isEmpty() &&
         cities.isEmpty() &&
+        bestSearchMatches.isEmpty() &&
         searchQuery.isNotEmpty()
         ) {
             // searching but no results found!
