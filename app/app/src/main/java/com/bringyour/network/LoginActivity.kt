@@ -1,6 +1,7 @@
 package com.bringyour.network
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import android.util.Log
@@ -66,7 +67,15 @@ class LoginActivity : AppCompatActivity() {
 
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+                    intent.putExtra("ANIMATE_IN", true)
                     startActivity(intent)
+
+                    if (Build.VERSION.SDK_INT >= 34) {
+                        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, 0)
+                    } else {
+                        overridePendingTransition(0, 0)
+                    }
+
                     finish()
                 } else {
                     callback(getString(R.string.login_client_error))

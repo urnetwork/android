@@ -134,13 +134,20 @@ class MainActivity: AppCompatActivity() {
 
         // setStatusBarColor(color = Color.Transparent.toArgb(), false)
 
+        val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
+
+        if (Build.VERSION.SDK_INT >= 34) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
+        }
+
         setContent {
             URNetworkTheme {
                 MainNavHost(
                     sagaViewModel,
                     settingsViewModel,
                     promptReviewViewModel,
-                    planViewModel
+                    planViewModel,
+                    animateIn
                 )
             }
         }
