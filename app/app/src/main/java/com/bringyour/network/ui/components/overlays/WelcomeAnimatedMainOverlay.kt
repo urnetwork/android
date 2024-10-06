@@ -3,6 +3,7 @@ package com.bringyour.network.ui.components.overlays
 import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -54,6 +55,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.util.lerp
 import com.bringyour.network.ui.theme.Black
 
 // import androidx.compose.ui.graphics.painterResource
@@ -107,138 +110,87 @@ fun WelcomeAnimatedMainOverlay(
     isMaskExpanded: Boolean,
     close: () -> Unit
 ) {
-
-    // var isVisible by remember { mutableStateOf(animateIn) }
-    // var maskExpanded by remember { mutableStateOf(true) }
-    // var isBodyVisible by remember { mutableStateOf(false) }
-    // val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_onboarding)
-    // val painter = painterResource(id = R.drawable.connector_globe)
-
     val vector = ImageVector.vectorResource(id = R.drawable.connect_mask)
     val painter = rememberVectorPainter(image = vector)
-//    val initialSize = 1024.dp  // Start large (1024.dp or any value you want)
-//    val finalSize = 512.dp     // Target size
 
     val configuration = LocalConfiguration.current
-    val screenWidthPx = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }
-    val screenHeightPx = with(LocalDensity.current) { configuration.screenHeightDp.dp.toPx() }
-
-    // States for animating the image and rectangles
-    var targetSize by remember { mutableStateOf(screenWidthPx * 2) } // Initial size is 2x the screen width
-    var rectSize by remember { mutableStateOf(0f) }
-
-    // Animate the image size and rectangle dimensions together
-    val animatedSize by animateFloatAsState(
-        targetValue = targetSize,
-        animationSpec = tween(durationMillis = 2000)  // Duration of the animation (2 seconds)
-    )
-
-    val animatedRectSize by animateFloatAsState(
-        targetValue = rectSize,
-        animationSpec = tween(durationMillis = 2000)  // Same animation duration for the rectangles
-    )
-
     val density = LocalDensity.current
+    val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
-    // Start the animation after some delay
+    val initialSize = screenWidthPx * 4
+    val finalSize = with(density) { 256.dp.toPx() }
+    val topOffsetFinal = with(density) { 122.dp.toPx() }
+
+    var animationStarted by remember { mutableStateOf(false) }
+    val animationProgress by animateFloatAsState(
+        targetValue = if (animationStarted) 1f else 0f,
+        animationSpec = tween(durationMillis = 1500, easing = LinearEasing)
+    )
+
     LaunchedEffect(Unit) {
-        delay(500)  // Optional: Delay the start of the animation
-        targetSize = with(density) { 512.dp.toPx() }  // Final size is 512.dp
-        rectSize = (screenWidthPx - targetSize) / 2  // Calculate rectangle width based on screen size
+        delay(500)
+        animationStarted = true
     }
 
-//    // State for animating image size
-//    var targetSize by remember { mutableStateOf(initialSize) }
-//    var rectSize by remember { mutableFloatStateOf(0f) }
-//
-//    val animatedSize by animateDpAsState(
-//        targetValue = targetSize,
-//        animationSpec = tween(durationMillis = 2000),
-//        label = ""
-//    )
-//
-//    val animatedRectSize by animateFloatAsState(
-//        targetValue = rectSize,
-//        animationSpec = tween(durationMillis = 2000),
-//        label = ""  // Same animation duration for the rectangles
-//    )
-//
-//    LaunchedEffect(Unit) {
-//        delay(500)  // Optional: Delay the start of the animation
-//        targetSize = finalSize  // Trigger animation
-//        rectSize = (size.width - finalSize) / 2
-//    }
-
-    // val animatedSizePx = with(LocalDensity.current) { animatedSize.toPx() }
+    val animatedSize = lerp(initialSize, finalSize, animationProgress)
+    val animatedTopPadding = lerp(0f, topOffsetFinal, animationProgress)
 
     AnimatedVisibility(
         visible = isVisible,
         enter = EnterTransition.None,
         exit = fadeOut(),
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .drawBehind {
-
                     drawImage(
                         image = backgroundBitmap,
                         dstSize = IntSize(size.width.toInt(), size.height.toInt())
                     )
                 }
         ) {
-
-            val topOffsetInDp = 122.dp
-//            val topOffsetInPx = with(LocalDensity.current) { topOffsetInDp.toPx() }
-
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val topOffsetInPx = with(density) { topOffsetInDp.toPx() }
-
-                // Calculate the X and Y offsets to center the image as it shrinks
                 val xOffset = (screenWidthPx - animatedSize) / 2
-                val yOffset = (screenHeightPx - animatedSize) / 2 + topOffsetInPx
 
-                // Draw the image with the animated size and centered offset
-                translate(left = xOffset, top = yOffset) {
+                // Draw the image
+                translate(left = xOffset, top = animatedTopPadding) {
                     with(painter) {
-                        draw(
-                            size = Size(
-                                animatedSize,
-                                animatedSize
-                            )
-                        )  // Use animated size for both width and height
+                        draw(size = Size(animatedSize, animatedSize))
                     }
                 }
 
-                // Draw the top rectangle, animating the height
+                // Draw the top rectangle
                 drawRect(
                     color = Black,
-                    topLeft = Offset(0f, 0f),  // Start at the top of the canvas
-                    size = Size(width = screenWidthPx, height = animatedRectSize)  // Animate height
+                    topLeft = Offset(0f, 0f),
+                    size = Size(width = screenWidthPx, height = animatedTopPadding + 1.dp.toPx())
                 )
 
-                // Draw the bottom rectangle, animating the height
+                // Draw the left rectangle
                 drawRect(
-                    color = Color.Blue,
-                    topLeft = Offset(0f, screenHeightPx - animatedRectSize),  // Start from the bottom
-                    size = Size(width = screenWidthPx, height = animatedRectSize)
+                    color = Black,
+                    topLeft = Offset(0f, animatedTopPadding),
+                    size = Size(width = ((screenWidthPx - animatedSize) / 2) + 1.dp.toPx(), height = animatedSize)
                 )
 
-                // Draw the left rectangle, animating the width
+                // Draw the right rectangle
                 drawRect(
-                    color = Color.Blue,
-                    topLeft = Offset(0f, 0f),  // Start on the left of the canvas
-                    size = Size(width = animatedRectSize, height = screenHeightPx)  // Animate width
+                    color = Black,
+                    topLeft = Offset(((screenWidthPx - animatedSize) / 2) + animatedSize - 1.dp.toPx(), animatedTopPadding),
+                    size = Size(width = ((screenWidthPx - animatedSize) / 2) + 1.dp.toPx(), height = animatedSize)
                 )
 
-                // Draw the right rectangle, animating the width
+                // Draw the bottom rectangle
+                // val bottomRectHeight = (screenHeightPx - animatedTopPadding - animatedSize) * animationProgress
                 drawRect(
-                    color = Color.Blue,
-                    topLeft = Offset(screenWidthPx - animatedRectSize, 0f),  // Start on the right side
-                    size = Size(width = animatedRectSize, height = screenHeightPx)
+                    color = Black,
+                    // topLeft = Offset(0f, screenHeightPx - bottomRectHeight),
+                    topLeft = Offset(0f, animatedTopPadding + animatedSize - 1.dp.toPx()),
+                    size = Size(width = screenWidthPx, height = screenHeightPx)
                 )
             }
 
