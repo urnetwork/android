@@ -20,11 +20,18 @@ class FeedbackViewModel @Inject constructor(
     var feedbackMsg by mutableStateOf(TextFieldValue())
         private set
 
-    var isSendingFeedback by mutableStateOf(false)
-        private set
+    private var isSendingFeedback = false
 
     val setFeedbackMsg: (TextFieldValue) -> Unit = { msg ->
         feedbackMsg = msg
+        validateIsSendEnabled()
+    }
+
+    var isSendEnabled by mutableStateOf(false)
+        private set
+
+    val validateIsSendEnabled = {
+        isSendEnabled = !isSendingFeedback && feedbackMsg.text.isNotEmpty()
     }
 
     val sendFeedback:() -> Unit = {
@@ -36,6 +43,7 @@ class FeedbackViewModel @Inject constructor(
     val addIsSendingListener = {
         feedbackVc?.addIsSendingFeedbackListener { isSending ->
             isSendingFeedback = isSending
+            validateIsSendEnabled()
         }
     }
 

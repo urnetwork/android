@@ -54,9 +54,6 @@ fun OnboardingGuestModeOverlay(
 
     val createGuestNetwork = {
 
-        Log.i("OnboardingGuestModeOverlay", "created guest network")
-        Log.i("OnboardingGuestModeOverlay", "terms agreed? $termsAgreed")
-
         if (termsAgreed) {
             val args = NetworkCreateArgs()
             args.terms = termsAgreed

@@ -18,13 +18,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,7 +29,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLinkText
@@ -49,29 +45,25 @@ fun FeedbackScreen(
 ) {
 
     FeedbackScreen(
-        isSending = feedbackViewModel.isSendingFeedback,
         feedbackMsg = feedbackViewModel.feedbackMsg,
         setFeedbackMsg = feedbackViewModel.setFeedbackMsg,
         sendFeedback = feedbackViewModel.sendFeedback,
-        launchOverlay = overlayViewModel.launch
+        launchOverlay = overlayViewModel.launch,
+        isSendEnabled = feedbackViewModel.isSendEnabled
     )
 
 }
 
 @Composable
 fun FeedbackScreen(
-    isSending: Boolean,
     feedbackMsg: TextFieldValue,
     setFeedbackMsg: (TextFieldValue) -> Unit,
     sendFeedback: () -> Unit,
-    launchOverlay: (OverlayMode) -> Unit
+    launchOverlay: (OverlayMode) -> Unit,
+    isSendEnabled: Boolean,
 ) {
 
-    val isBtnEnabled by remember {
-        derivedStateOf {
-            !isSending && feedbackMsg.text.isNotEmpty()
-        }
-    }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val submitFeedback = {
         if (feedbackMsg.text.isNotEmpty()) {
@@ -123,19 +115,21 @@ fun FeedbackScreen(
                 maxLines = 5,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Send
+                    imeAction = if (feedbackMsg.text.isNotEmpty()) ImeAction.Send else ImeAction.Done
                 ),
                 onSend = {
                     submitFeedback()
-                }
+                },
+                keyboardController = keyboardController
             )
         }
 
         URButton(
             onClick = {
                 submitFeedback()
+                keyboardController?.hide()
             },
-            enabled = isBtnEnabled
+            enabled = isSendEnabled
         ) { buttonTextStyle ->
             Row {
                 Text(
@@ -147,7 +141,7 @@ fun FeedbackScreen(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "Right Arrow",
                     modifier = Modifier.size(16.dp),
-                    tint = if (isBtnEnabled) Color.White else Color.Gray
+                    tint = if (isSendEnabled) Color.White else Color.Gray
                 )
             }
         }
@@ -162,11 +156,11 @@ private fun FeedbackScreenPreview() {
 
     URNetworkTheme {
         FeedbackScreen(
-            isSending = false,
             feedbackMsg = TextFieldValue(),
             setFeedbackMsg = {},
             sendFeedback = {},
-            launchOverlay = {}
+            launchOverlay = {},
+            isSendEnabled = true
         )
     }
 
