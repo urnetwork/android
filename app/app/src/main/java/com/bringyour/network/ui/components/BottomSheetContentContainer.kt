@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,22 +12,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.MainBorderBase
-import com.bringyour.network.utils.isTablet
 
 @Composable
 fun BottomSheetContentContainer(
     content: @Composable () -> Unit,
 ) {
-    // with(LocalDensity.current) { (thumbRadius + gapBetweenThumbAndTrackEdge).toPx() },
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
 
     Box(
         modifier = Modifier
             .then(
-                if (isTablet()) {
-                    Log.i("BottomSheetContainer", "is tablet")
+                if (screenWidth > 640.dp) {
                     Modifier.fillMaxWidth()
                 } else {
-                    Log.i("BottomSheetContainer", "is not tablet")
                     Modifier
                         .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
                         .fillMaxHeight()
