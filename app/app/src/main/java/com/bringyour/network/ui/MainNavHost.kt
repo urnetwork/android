@@ -38,6 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
@@ -68,6 +69,7 @@ fun MainNavHost(
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
+    animateIn: Boolean,
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
@@ -179,6 +181,10 @@ fun MainNavHost(
 
         }
     }
+
+    WelcomeAnimatedMainOverlay(
+        animateIn
+    )
 
     FullScreenOverlay(
         overlayViewModel,

@@ -9,6 +9,9 @@
     <string name="google_auth_btn_text">使用 Google 登录</string>
     <string name="commitment_issues">承诺问题？</string>
     <string name="try_guest_mode">尝试访客模式</string>
+    <string name="enter">进入 (Jìnrù)</string>
+    <string name="step_in">进入互联网应有的样子 (Jìnrù hùliánwǎng yīng yǒu de yàngzi)</string>
+    <string name="nicely_done">做得好! (Zuò de hǎo!)</string>A
 
     <string name="name_label">姓名</string>
     <string name="name_placeholder">您的姓名</string>

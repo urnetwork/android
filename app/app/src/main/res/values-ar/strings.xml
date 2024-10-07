@@ -8,6 +8,9 @@
     <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
     <string name="commitment_issues">مشاكل في الالتزام؟ </string>
     <string name="try_guest_mode"> جرب وضع الضيف</string>
+    <string name="enter">ادخل</string>
+    <string name="step_in">انطلق إلى الإنترنت كما ينبغي أن يكون.</string>
+    <string name="nicely_done">أحسنت</string>
 
     <string name="name_label">الاسم</string>
     <string name="name_placeholder">اسمك</string>

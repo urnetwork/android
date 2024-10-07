@@ -9,6 +9,9 @@
     <string name="google_auth_btn_text">Google से लॉग इन करें</string>
     <string name="commitment_issues">प्रतिबद्धता संबंधी समस्याएं?</string>
     <string name="try_guest_mode">गेस्ट मोड आज़माएँ</string>
+    <string name="enter">दर्ज</string>
+    <string name="step_in">इंटरनेट में कदम रखें जैसा कि यह होना चाहिए</string>
+    <string name="nicely_done">शाबाश!</string>
 
     <string name="name_label">नाम</string>
     <string name="name_placeholder">आपका नाम</string>

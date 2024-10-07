@@ -10,6 +10,9 @@
     <string name="google_auth_btn_text">Войти через Google</string>
     <string name="commitment_issues">Не хотите обязательств? </string>
     <string name="try_guest_mode"> Попробуйте гостевой режим</string>
+    <string name="enter">Войти</string>
+    <string name="step_in">Шагните в интернет таким, каким он должен быть.</string>
+    <string name="nicely_done">Отлично!</string>
 
     <!-- Форма создания сети -->
     <string name="name_label">Имя</string>

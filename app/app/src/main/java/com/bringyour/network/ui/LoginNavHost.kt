@@ -1,5 +1,6 @@
 package com.bringyour.network.ui
 
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,9 +46,7 @@ fun LoginNavHost(
             ) + fadeIn(animationSpec = tween(300)
             ) },
             exitTransition = {
-                fadeOut(
-                    animationSpec = tween(300)
-                )
+                ExitTransition.None
             },
             popEnterTransition = {
                 fadeIn(animationSpec = tween(300))

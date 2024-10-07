@@ -9,6 +9,9 @@
     <string name="google_auth_btn_text">Iniciar sesión con Google</string>
     <string name="commitment_issues">¿Problemas para comprometerte?</string>
     <string name="try_guest_mode">Probar el modo invitado</string>
+    <string name="enter">Entra</string>
+    <string name="step_in">¡Éntrale al internet como debe ser!</string>
+    <string name="nicely_done">¡Muy bien!</string>
 
     <string name="name_label">Nombre</string>
     <string name="name_placeholder">Tu nombre</string>

@@ -10,6 +10,10 @@
     <string name="google_auth_btn_text">Log in with Google</string>
     <string name="commitment_issues">Commitment issues? </string>
     <string name="try_guest_mode"> Try Guest Mode</string>
+    <string name="enter">Enter</string>
+    <string name="step_in">Step into the internet as it should be.</string>
+    <string name="nicely_done">Nicely done</string>
+
 
     <!-- Create Network Form -->
     <string name="name_label">Name</string>

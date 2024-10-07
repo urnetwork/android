@@ -10,6 +10,9 @@
     <string name="google_auth_btn_text">Zaloguj się przez Google</string>
     <string name="commitment_issues">Problemy z zobowiązaniem? </string>
     <string name="try_guest_mode"> Wypróbuj tryb gościa</string>
+    <string name="enter">Wejdź</string>
+    <string name="step_in">Wejdź do internetu, jakim powinien być.</string>
+    <string name="nicely_done">Dobrze zrobione!</string>
 
     <!-- Formularz tworzenia sieci -->
     <string name="name_label">Imię</string>

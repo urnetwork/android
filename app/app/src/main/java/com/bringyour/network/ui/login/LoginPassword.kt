@@ -1,6 +1,10 @@
 package com.bringyour.network.ui.login
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +61,7 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +77,8 @@ fun LoginPassword(
     var password by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var isContentVisible by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         inProgress = false
@@ -105,6 +112,14 @@ fun LoginPassword(
                     } else {
                         app.login(result.network.byJwt)
 
+                        isContentVisible = false
+
+                        delay(500)
+
+                        welcomeOverlayVisible = true
+
+                        delay(250)
+
                         loginActivity?.authClientAndFinish { error ->
                             if (error != null) {
                                 inProgress = false
@@ -121,119 +136,133 @@ fun LoginPassword(
         }
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+    AnimatedVisibility(
+        visible = isContentVisible,
+        enter = EnterTransition.None,
+        exit = fadeOut()
+    ) {
+
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Black
+                    ),
+                    actions = {},
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+                    .imePadding(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    stringResource(id = R.string.login_password_header),
+                    style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+                )
+
+                Spacer(modifier = Modifier.height(64.dp))
+
+                URTextInput(
+                    value = user,
+                    onValueChange = { newValue ->
+                        user = newValue
+                    },
+                    placeholder = stringResource(id = R.string.user_auth_placeholder),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    label = stringResource(id = R.string.user_auth_label)
+                )
+
+                URTextInput(
+                    value = password,
+                    onValueChange = { newValue ->
+                        password = newValue
+                    },
+                    placeholder = "*****************",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Go
+                    ),
+                    isPassword = true,
+                    label = stringResource(id = R.string.password_label),
+                    onGo = {
+                        login()
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Black
-                ),
-                actions = {},
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-                .imePadding(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+                )
 
-            Text(
-                stringResource(id = R.string.login_password_header),
-                style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
-            )
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(64.dp))
-
-            URTextInput(
-                value = user,
-                onValueChange = { newValue ->
-                    user = newValue
-                },
-                placeholder = stringResource(id = R.string.user_auth_placeholder),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                label = stringResource(id = R.string.user_auth_label)
-            )
-
-            URTextInput(
-                value = password,
-                onValueChange = { newValue ->
-                    password = newValue
-                },
-                placeholder = "*****************",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Go
-                ),
-                isPassword = true,
-                label = stringResource(id = R.string.password_label),
-                onGo = {
-                    login()
+                URButton(
+                    onClick = {
+                        login()
+                    },
+                    enabled = !inProgress,
+                    isProcessing = inProgress
+                ) { buttonTextStyle ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Right Arrow",
+                            modifier = Modifier.size(16.dp),
+                            tint = if (!inProgress) Color.White else Color.Gray
+                        )
+                    }
                 }
-            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                if (loginError != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("$loginError")
+                }
 
-            URButton(
-                onClick = {
-                    login()
-                },
-                enabled = !inProgress,
-                isProcessing = inProgress
-            ) { buttonTextStyle ->
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
+                    Text(stringResource(id = R.string.forgot_password))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Right Arrow",
-                        modifier = Modifier.size(16.dp),
-                        tint = if (!inProgress) Color.White else Color.Gray
+                    ClickableText(
+                        text = AnnotatedString(stringResource(id = R.string.reset_it)),
+                        onClick = {
+                            navController.navigate("reset-password/${userAuth}")
+                        },
+                        style = TextStyle(
+                            color = BlueMedium,
+                            fontSize = 16.sp
+                        )
                     )
                 }
-            }
-
-            if (loginError != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("$loginError")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(id = R.string.forgot_password))
-                Spacer(modifier = Modifier.width(4.dp))
-                ClickableText(
-                    text = AnnotatedString(stringResource(id = R.string.reset_it)),
-                    onClick = {
-                        navController.navigate("reset-password/${userAuth}")
-                    },
-                    style = TextStyle(
-                        color = BlueMedium,
-                        fontSize = 16.sp
-                    )
-                )
             }
         }
     }
+
+    WelcomeAnimatedOverlayLogin(
+        isVisible = welcomeOverlayVisible
+    )
 
 }
 
