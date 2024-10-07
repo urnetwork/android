@@ -20,7 +20,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.window.core.layout.WindowWidthSizeClass
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
@@ -103,20 +101,11 @@ fun MainNavHost(
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val navSuiteLayoutType = with(adaptiveInfo) {
 
-        // return configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
             NavigationSuiteType.NavigationRail
         } else {
             NavigationSuiteType.NavigationBar
         }
-
-//        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
-//            NavigationSuiteType.NavigationBar
-//        } else {
-//            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
-//        }
-
 
     }
 
@@ -203,12 +192,8 @@ fun MainNavHost(
                             .fillMaxWidth(),
                         color = MainBorderBase
                     )
-
                 }
-
             }
-
-
         }
     }
 
@@ -270,5 +255,4 @@ fun MainNavContent(
             overlayViewModel = overlayViewModel
         )
     }
-
 }
