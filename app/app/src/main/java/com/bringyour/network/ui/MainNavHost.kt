@@ -1,5 +1,6 @@
 package com.bringyour.network.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -96,13 +98,26 @@ fun MainNavHost(
         navigationBarContainerColor = Black,
     )
 
+    val configuration = LocalConfiguration.current
+
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val navSuiteLayoutType = with(adaptiveInfo) {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
-            NavigationSuiteType.NavigationBar
+
+        // return configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
+            NavigationSuiteType.NavigationRail
         } else {
-            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+            NavigationSuiteType.NavigationBar
         }
+
+//        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM) {
+//            NavigationSuiteType.NavigationBar
+//        } else {
+//            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+//        }
+
+
     }
 
     Box(
@@ -141,16 +156,30 @@ fun MainNavHost(
 
             if (isTablet()) {
 
-                Row {
-                    MainNavContent(
-                        currentDestination,
-                        sagaViewModel,
-                        accountNavHostController,
-                        settingsViewModel,
-                        promptReviewViewModel,
-                        planViewModel,
-                        overlayViewModel
-                    )
+                Column(
+                    modifier = Modifier.padding(bottom = 1.dp)
+                ) {
+                    Row {
+                        MainNavContent(
+                            currentDestination,
+                            sagaViewModel,
+                            accountNavHostController,
+                            settingsViewModel,
+                            promptReviewViewModel,
+                            planViewModel,
+                            overlayViewModel
+                        )
+                    }
+
+                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .height(1.dp)
+                                .fillMaxWidth(),
+                            color = MainBorderBase
+                        )
+                    }
+
                 }
 
             } else {
@@ -167,6 +196,7 @@ fun MainNavHost(
                         planViewModel,
                         overlayViewModel
                     )
+
                     HorizontalDivider(
                         modifier = Modifier
                             .height(1.dp)
@@ -212,7 +242,9 @@ fun MainNavContent(
         connectViewModel.initSuccessPoints(canvasSizePx)
     }
 
-    if (isTablet()) {
+    val configuration = LocalConfiguration.current
+
+    if (isTablet() && configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
         VerticalDivider(
             modifier = Modifier
                 .width(1.dp)
