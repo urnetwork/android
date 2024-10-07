@@ -12,16 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.MainBorderBase
-import com.bringyour.network.utils.isTablet
 
 @Composable
 fun BottomSheetContentContainer(
     content: @Composable () -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
     Box(
         modifier = Modifier
             .then(
-                if (isTablet()) {
+                if (screenWidth > 640.dp) {
                     Modifier.fillMaxWidth()
                 } else {
                     Modifier
