@@ -2,6 +2,9 @@ package com.bringyour.network.ui.login
 
 import android.util.Log
 import android.util.Patterns
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +65,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import androidx.compose.runtime.collectAsState
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 
 // Base class with common parameters
 open class CommonLoginParams(
@@ -151,8 +155,9 @@ fun LoginCreateNetwork(
     }
 
     var isBtnEnabled by remember { mutableStateOf(false) }
-
     var inProgress by remember { mutableStateOf(false) }
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var isContentVisible by remember { mutableStateOf(true) }
 
     LaunchedEffect(inProgress, params, networkName.text, username.text, password.text, termsAgreed) {
         isBtnEnabled  = when(params) {
@@ -204,6 +209,14 @@ fun LoginCreateNetwork(
 
                     inProgress = true
 
+                    isContentVisible = false
+
+                    delay(500)
+
+                    welcomeOverlayVisible = true
+
+                    delay(250)
+
                     loginActivity?.authClientAndFinish { error ->
                         inProgress = false
 
@@ -234,150 +247,165 @@ fun LoginCreateNetwork(
         }
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Black
-                ),
-                actions = {},
-            )
-        }
-    ) { innerPadding ->
+    AnimatedVisibility(
+        visible = isContentVisible,
+        enter = EnterTransition.None,
+        exit = fadeOut()
+    ) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-                .imePadding(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Row {
-                Text("Join", style = MaterialTheme.typography.headlineLarge)
-            }
-
-            Row {
-                Text("URnetwork", style = MaterialTheme.typography.headlineLarge)
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            URTextInput(
-                label = stringResource(id = R.string.name_label),
-                value = username,
-                onValueChange = { newValue ->
-                    setUsername(newValue)
-                },
-                placeholder = stringResource(id = R.string.name_placeholder),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-            )
-
-            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
-                URTextInput(
-                    label = stringResource(id = R.string.user_auth_label),
-                    value = emailOrPhone,
-                    onValueChange = { newValue ->
-                        val filteredText = newValue.text.filter { it != ' ' }
-                        val filteredTextFieldValue = newValue.copy(text = filteredText)
-                        setEmailOrPhone(filteredTextFieldValue)
-
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+                            )
+                        }
                     },
-                    placeholder = stringResource(id = R.string.user_auth_placeholder),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Black
+                    ),
+                    actions = {},
+                )
+            }
+        ) { innerPadding ->
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+                    .imePadding(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Row {
+                    Text("Join", style = MaterialTheme.typography.headlineLarge)
+                }
+
+                Row {
+                    Text("URnetwork", style = MaterialTheme.typography.headlineLarge)
+                }
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                URTextInput(
+                    label = stringResource(id = R.string.name_label),
+                    value = username,
+                    onValueChange = { newValue ->
+                        setUsername(newValue)
+                    },
+                    placeholder = stringResource(id = R.string.name_placeholder),
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
                 )
-            }
 
-            URTextInput(
-                label = stringResource(id = R.string.network_name_label),
-                value = networkName,
-                onValueChange = { newValue ->
-                    val originalCursorPosition = newValue.selection.start
+                if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                    URTextInput(
+                        label = stringResource(id = R.string.user_auth_label),
+                        value = emailOrPhone,
+                        onValueChange = { newValue ->
+                            val filteredText = newValue.text.filter { it != ' ' }
+                            val filteredTextFieldValue = newValue.copy(text = filteredText)
+                            setEmailOrPhone(filteredTextFieldValue)
 
-                    val filteredText = networkNameInputFilter(newValue.text)
-                    val cursorOffset = newValue.text.length - filteredText.length
-                    val newCursorPosition =
-                        (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
-
-                    val newNetworkName = newValue.copy(
-                        text = filteredText,
-                        selection = TextRange(newCursorPosition)
+                        },
+                        placeholder = stringResource(id = R.string.user_auth_placeholder),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
                     )
-
-                    setNetworkName(newNetworkName)
-
-                    debounceJob?.cancel()
-                    debounceJob = coroutineScope.launch {
-                        delay(500L)
-                        validateNetworkName(newNetworkName.text)
-                    }
-                },
-                placeholder = stringResource(id = R.string.network_name_placeholder),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
-                        ImeAction.Next else ImeAction.Done
-                ),
-                isValidating = isValidatingNetworkName,
-                isValid = !networkNameErrorExists,
-                supportingText = if (networkNameErrorExists) stringResource(id = R.string.network_name_support_txt) else ""
-            )
-
-            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                }
 
                 URTextInput(
-                    label = stringResource(id = R.string.password_label),
-                    value = password,
-                    onValueChange = setPassword,
+                    label = stringResource(id = R.string.network_name_label),
+                    value = networkName,
+                    onValueChange = { newValue ->
+                        val originalCursorPosition = newValue.selection.start
+
+                        val filteredText = networkNameInputFilter(newValue.text)
+                        val cursorOffset = newValue.text.length - filteredText.length
+                        val newCursorPosition =
+                            (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
+
+                        val newNetworkName = newValue.copy(
+                            text = filteredText,
+                            selection = TextRange(newCursorPosition)
+                        )
+
+                        setNetworkName(newNetworkName)
+
+                        debounceJob?.cancel()
+                        debounceJob = coroutineScope.launch {
+                            delay(500L)
+                            validateNetworkName(newNetworkName.text)
+                        }
+                    },
+                    placeholder = stringResource(id = R.string.network_name_placeholder),
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
+                        keyboardType = KeyboardType.Text,
+                        imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
+                            ImeAction.Next else ImeAction.Done
                     ),
-                    isPassword = true,
-                    supportingText = stringResource(id = R.string.password_support_txt)
+                    isValidating = isValidatingNetworkName,
+                    isValid = !networkNameErrorExists,
+                    supportingText = if (networkNameErrorExists) stringResource(id = R.string.network_name_support_txt) else ""
                 )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
 
-            TermsCheckbox(
-                checked = termsAgreed,
-                onCheckChanged = setTermsAgreed
-            )
+                    URTextInput(
+                        label = stringResource(id = R.string.password_label),
+                        value = password,
+                        onValueChange = setPassword,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        isPassword = true,
+                        supportingText = stringResource(id = R.string.password_support_txt)
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            URButton(
-                onClick = {
-                    createNetwork()
-                },
-                enabled = isBtnEnabled
-            ) { buttonTextStyle ->
-                Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Right Arrow",
-                    modifier = Modifier.size(16.dp),
-                    tint = if (isBtnEnabled) Color.White else Color.Gray
+                TermsCheckbox(
+                    checked = termsAgreed,
+                    onCheckChanged = setTermsAgreed
                 )
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                URButton(
+                    onClick = {
+                        createNetwork()
+                    },
+                    enabled = isBtnEnabled
+                ) { buttonTextStyle ->
+                    Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Right Arrow",
+                        modifier = Modifier.size(16.dp),
+                        tint = if (isBtnEnabled) Color.White else Color.Gray
+                    )
+                }
             }
         }
     }
+
+
+    WelcomeAnimatedOverlayLogin(
+        isVisible = welcomeOverlayVisible
+    )
 }
 
 @Preview

@@ -183,9 +183,7 @@ fun MainNavHost(
     }
 
     WelcomeAnimatedMainOverlay(
-        // animateIn
-        // using "true" for testing
-        true
+        animateIn
     )
 
     FullScreenOverlay(

@@ -10,6 +10,9 @@
     <string name="google_auth_btn_text">Googleでログイン</string>
     <string name="commitment_issues">やることを決めかねていますか？ </string>
     <string name="try_guest_mode"> ゲストモードを試す</string>
+    <string name="enter">ゴー！</string>
+    <string name="step_in">本来あるべきインターネットへ</string>
+    <string name="nicely_done">よくできました！</string>
 
     <!-- ネットワーク作成フォーム -->
     <string name="name_label">名前</string>

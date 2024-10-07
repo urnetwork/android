@@ -7,6 +7,9 @@
     <string name="google_auth_btn_text">Mit Google anmelden</string>
     <string name="commitment_issues">Bindungsprobleme? </string>
     <string name="try_guest_mode"> Gastmodus testen</string>
+    <string name="enter">Rein</string>
+    <string name="step_in">Betreten Sie das Internet, wie es sein sollte.</string>
+    <string name="nicely_done">Gut gemacht</string>
 
     <string name="name_label">Name</string>
     <string name="name_placeholder">Dein Name</string>

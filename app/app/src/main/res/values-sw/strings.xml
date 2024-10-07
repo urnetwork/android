@@ -9,6 +9,9 @@
     <string name="google_auth_btn_text">Ingia ukitumia Google</string>
     <string name="commitment_issues">Masuala ya kujitolea?</string>
     <string name="try_guest_mode"> Jaribu Hali ya Mgeni</string>
+    <string name="enter">Ingia</string>
+    <string name="step_in">Ingia kwenye mtandao jinsi unavyopaswa kuwa.</string>
+    <string name="nicely_done">Umefanya vizuri!</string>
 
     <string name="name_label">Jina</string>
     <string name="name_placeholder">Jina lako</string>

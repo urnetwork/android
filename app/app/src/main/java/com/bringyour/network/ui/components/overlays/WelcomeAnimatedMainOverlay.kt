@@ -1,10 +1,8 @@
 package com.bringyour.network.ui.components.overlays
 
-import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -27,11 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
@@ -43,23 +39,19 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.Canvas
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import com.bringyour.network.ui.theme.Black
-
-// import androidx.compose.ui.graphics.painterResource
 
 @Composable
 fun WelcomeAnimatedMainOverlay(
@@ -68,52 +60,8 @@ fun WelcomeAnimatedMainOverlay(
 
     var isVisible by remember { mutableStateOf(animateIn) }
     var isBodyVisible by remember { mutableStateOf(false) }
-    var isMaskExpanded by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect (Unit) {
-        launch {
-            delay(2000)
-
-            isMaskExpanded = false
-
-        }
-    }
-
-    val close: () -> Unit = {
-        coroutineScope.launch {
-            isBodyVisible = false
-
-            delay(1000)
-
-            isVisible = false
-
-            delay(1000)
-
-            // isClosing = false
-        }
-    }
-
-    WelcomeAnimatedMainOverlay(
-        isVisible,
-        isBodyVisible,
-        isMaskExpanded,
-        close
-    )
-
-}
-
-@Composable
-fun WelcomeAnimatedMainOverlay(
-    isVisible: Boolean,
-    isBodyVisible: Boolean,
-    isMaskExpanded: Boolean,
-    close: () -> Unit
-) {
-    val context = LocalContext.current
-    val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_onboarding)
-    val vector = ImageVector.vectorResource(id = R.drawable.connect_mask)
-    val painter = rememberVectorPainter(image = vector)
 
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
@@ -127,23 +75,72 @@ fun WelcomeAnimatedMainOverlay(
     var animationStarted by remember { mutableStateOf(false) }
     val animationProgress by animateFloatAsState(
         targetValue = if (animationStarted) 1f else 0f,
-        animationSpec = tween(durationMillis = 1500, easing = LinearEasing)
+        animationSpec = tween(durationMillis = 1500, easing = LinearEasing), label = ""
     )
+    var overlayClosed by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        delay(500)
-        animationStarted = true
+        if (!overlayClosed) {
+            delay(500)
+            animationStarted = true
+
+            delay(1500)
+            isBodyVisible = true
+        }
     }
 
     val animatedSize = lerp(initialSize, finalSize, animationProgress)
     val animatedTopPadding = lerp(0f, topOffsetFinal, animationProgress)
+
+    val close: () -> Unit = {
+        coroutineScope.launch {
+            isBodyVisible = false
+
+            delay(1000)
+
+            isVisible = false
+
+            delay(1000)
+
+            overlayClosed = true
+        }
+    }
+
+    if (!overlayClosed) {
+        WelcomeAnimatedMainOverlay(
+            isVisible,
+            isBodyVisible,
+            screenWidthPx,
+            screenHeightPx,
+            animatedSize,
+            animatedTopPadding,
+            close
+        )
+    }
+
+}
+
+@Composable
+fun WelcomeAnimatedMainOverlay(
+    isVisible: Boolean,
+    isBodyVisible: Boolean,
+    screenWidthPx: Float,
+    screenHeightPx: Float,
+    animatedSize: Float,
+    animatedTopPadding: Float,
+    close: () -> Unit
+) {
+    val context = LocalContext.current
+    val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_onboarding)
+    val vector = ImageVector.vectorResource(id = R.drawable.connect_mask)
+    val painter = rememberVectorPainter(image = vector)
 
     AnimatedVisibility(
         visible = isVisible,
         enter = EnterTransition.None,
         exit = fadeOut(),
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .drawBehind {
@@ -163,38 +160,36 @@ fun WelcomeAnimatedMainOverlay(
                     }
                 }
 
-                // Draw the top rectangle
+                // top rectangle
                 drawRect(
                     color = Black,
                     topLeft = Offset(0f, 0f),
-                    size = Size(width = screenWidthPx, height = animatedTopPadding + 1.dp.toPx())
+                    size = Size(width = screenWidthPx + 2.dp.toPx(), height = animatedTopPadding + 1.dp.toPx())
                 )
 
-                // Draw the left rectangle
+                // left rectangle
                 drawRect(
                     color = Black,
                     topLeft = Offset(0f, animatedTopPadding),
                     size = Size(width = ((screenWidthPx - animatedSize) / 2) + 1.dp.toPx(), height = animatedSize)
                 )
 
-                // Draw the right rectangle
+                // right rectangle
                 drawRect(
                     color = Black,
                     topLeft = Offset(((screenWidthPx - animatedSize) / 2) + animatedSize - 1.dp.toPx(), animatedTopPadding),
-                    size = Size(width = ((screenWidthPx - animatedSize) / 2) + 1.dp.toPx(), height = animatedSize)
+                    size = Size(width = ((screenWidthPx - animatedSize) / 2) + 2.dp.toPx(), height = animatedSize)
                 )
 
-                // Draw the bottom rectangle
-                // val bottomRectHeight = (screenHeightPx - animatedTopPadding - animatedSize) * animationProgress
+                // bottom rectangle
                 drawRect(
                     color = Black,
-                    // topLeft = Offset(0f, screenHeightPx - bottomRectHeight),
                     topLeft = Offset(0f, animatedTopPadding + animatedSize - 1.dp.toPx()),
-                    size = Size(width = screenWidthPx, height = screenHeightPx)
+                    size = Size(width = screenWidthPx + 2.dp.toPx(), height = screenHeightPx)
                 )
             }
 
-
+            // "nicely done" content
             AnimatedVisibility(
                 visible = isBodyVisible,
                 enter = fadeIn(),
@@ -207,13 +202,14 @@ fun WelcomeAnimatedMainOverlay(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(32.dp))
+                    // top padding + mask size + 32.dp of room
+                    Spacer(modifier = Modifier.height(122.dp + 256.dp + 32.dp))
                     Text(
-                        "Nicely done",
+                        stringResource(id = R.string.nicely_done),
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Text(
-                        "Step into the internet as it should be.",
+                        stringResource(id = R.string.step_in),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.headlineLarge
                     )
@@ -229,7 +225,7 @@ fun WelcomeAnimatedMainOverlay(
                                 .padding(horizontal = 48.dp),
                         ) {
                             Text(
-                                "Enter",
+                                stringResource(id = R.string.enter),
                                 style = buttonTextStyle
                             )
                         }
@@ -243,12 +239,25 @@ fun WelcomeAnimatedMainOverlay(
 @Preview
 @Composable
 private fun WelcomeAnimatedOverlayPreview() {
+
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+
+    val animatedSize = with(density) { 256.dp.toPx()}
+    val topPadding = with(density) { 122.dp.toPx()}
+
     URNetworkTheme {
         WelcomeAnimatedMainOverlay(
             isVisible = true,
-            isBodyVisible = false,
-            isMaskExpanded = false,
+            isBodyVisible = true,
+            screenWidthPx = screenWidthPx,
+            screenHeightPx = screenHeightPx,
+            animatedSize = animatedSize,
+            animatedTopPadding = topPadding,
             close = {}
         )
     }
 }
+

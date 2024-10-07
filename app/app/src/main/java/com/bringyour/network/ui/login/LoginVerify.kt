@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.login
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,9 +43,11 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URCodeInput
 import com.bringyour.network.ui.components.URSnackBar
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 @Composable
@@ -68,6 +73,8 @@ fun LoginVerify(
     }
     var verifyInProgress by remember { mutableStateOf(false) }
     var verifyError by remember { mutableStateOf<String?>(null) }
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var isContentVisible by remember { mutableStateOf(true) }
 
     val resendCode = {
 
@@ -112,6 +119,14 @@ fun LoginVerify(
 
                     verifyInProgress = true
 
+                    isContentVisible = false
+
+                    delay(500)
+
+                    welcomeOverlayVisible = true
+
+                    delay(250)
+
                     loginActivity?.authClientAndFinish { error ->
                         verifyInProgress = false
 
@@ -138,89 +153,104 @@ fun LoginVerify(
 
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
+
+    AnimatedVisibility(
+        visible = isContentVisible,
+        enter = EnterTransition.None,
+        exit = fadeOut()
     ) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
 
-            Text(stringResource(id = R.string.login_verify_header), style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                stringResource(id = R.string.login_verify_details),
-                color = TextMuted
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            URCodeInput(
-                value = code,
-                onValueChange = { newCode ->
-                    code = newCode
-                },
-                codeLength = codeLength,
-                enabled = !verifyInProgress
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 Text(
-                    stringResource(id = R.string.dont_see_it),
+                    stringResource(id = R.string.login_verify_header),
+                    style = MaterialTheme.typography.headlineLarge
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    stringResource(id = R.string.login_verify_details),
                     color = TextMuted
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                ClickableText(
-                    text = AnnotatedString(stringResource(id = R.string.resend_verify_code)),
-                    onClick = {
-                        if (resendBtnEnabled) {
-                            resendCode()
-                        }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                URCodeInput(
+                    value = code,
+                    onValueChange = { newCode ->
+                        code = newCode
                     },
-                    style = TextStyle(
-                        color = if (resendBtnEnabled) Color.White else TextMuted,
-                        fontSize = 16.sp
-                    ),
+                    codeLength = codeLength,
+                    enabled = !verifyInProgress
+                )
 
+                Spacer(modifier = Modifier.height(40.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(id = R.string.dont_see_it),
+                        color = TextMuted
                     )
-            }
-        }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    ClickableText(
+                        text = AnnotatedString(stringResource(id = R.string.resend_verify_code)),
+                        onClick = {
+                            if (resendBtnEnabled) {
+                                resendCode()
+                            }
+                        },
+                        style = TextStyle(
+                            color = if (resendBtnEnabled) Color.White else TextMuted,
+                            fontSize = 16.sp
+                        ),
 
-        URSnackBar(
-            type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
-            isVisible = verifyError != null,
-            onDismiss = {
-                if (verifyError != null) {
-                    verifyError = null
-                }
-                if (resendError != null) {
-                    resendError = null
-                }
-                if (markResendAsSent) {
-                    markResendAsSent = false
+                        )
                 }
             }
-        ) {
-            if (markResendAsSent) {
-                Column() {
-                    Text("Verification email sent to $userAuth")
+
+            URSnackBar(
+                type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
+                isVisible = verifyError != null,
+                onDismiss = {
+                    if (verifyError != null) {
+                        verifyError = null
+                    }
+                    if (resendError != null) {
+                        resendError = null
+                    }
+                    if (markResendAsSent) {
+                        markResendAsSent = false
+                    }
                 }
-            } else {
-                Column() {
-                    Text(stringResource(id = R.string.something_went_wrong))
-                    Text(stringResource(id = R.string.please_wait))
+            ) {
+                if (markResendAsSent) {
+                    Column() {
+                        Text("Verification email sent to $userAuth")
+                    }
+                } else {
+                    Column() {
+                        Text(stringResource(id = R.string.something_went_wrong))
+                        Text(stringResource(id = R.string.please_wait))
+                    }
                 }
             }
         }
     }
+
+    WelcomeAnimatedOverlayLogin(
+        isVisible = welcomeOverlayVisible
+    )
 }
 
 @Preview

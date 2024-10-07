@@ -8,6 +8,9 @@
     <string name="google_auth_btn_text">Συνδέσου με Google</string>
     <string name="commitment_issues">Προβλήματα δέσμευσης;</string>
     <string name="try_guest_mode">Δοκιμάστε τη λειτουργία επισκέπτη</string>
+    <string name="enter">Eintreten</string>
+    <string name="step_in">Betreten Sie das Internet, wie es sein sollte.</string>
+    <string name="nicely_done">Gut gemacht</string>
 
     <string name="name_label">Όνομα</string>
     <string name="name_placeholder">Το όνομά σας</string>
