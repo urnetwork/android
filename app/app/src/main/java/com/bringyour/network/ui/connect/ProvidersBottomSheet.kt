@@ -26,8 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +49,8 @@ import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,6 +107,7 @@ fun ProvidersBottomSheet(
 ) {
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -180,6 +185,12 @@ fun ProvidersBottomSheet(
                         onValueChange = { query ->
                             if (query.text != searchQueryTextFieldValue.text) {
                                 setSearchQueryTextFieldValue(query)
+
+                                debounceJob?.cancel()
+                                debounceJob = scope.launch {
+                                    delay(250L)
+                                    filterLocations(query.text)
+                                }
                             }
                         },
                         onSearch = {
