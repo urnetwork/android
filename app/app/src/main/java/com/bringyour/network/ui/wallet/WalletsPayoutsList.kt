@@ -10,12 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bringyour.client.AccountPayment
-import com.bringyour.client.AccountWallet
 
 @Composable
 fun WalletsPayoutsList(
     payouts: List<AccountPayment>,
-    wallets: List<AccountWallet>
 ) {
     if (payouts.isNotEmpty()) {
 
@@ -30,10 +28,8 @@ fun WalletsPayoutsList(
 
             items(payouts) { payout ->
 
-                val wallet = wallets.find { it.walletId == payout.walletId }
-
                 PayoutRow(
-                    walletAddress = wallet?.walletAddress ?: "",
+                    walletAddress = payout.walletAddress,
                     completeTime = if (payout.completeTime != null) payout.completeTime.format("Jan 2") else null,
                     amountUsd = payout.tokenAmount
                 )

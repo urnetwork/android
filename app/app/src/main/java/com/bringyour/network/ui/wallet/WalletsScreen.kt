@@ -473,7 +473,6 @@ fun WalletsScreen(
                         ) {
                             WalletsPayoutsList(
                                 payouts,
-                                wallets
                             )
                         }
 
