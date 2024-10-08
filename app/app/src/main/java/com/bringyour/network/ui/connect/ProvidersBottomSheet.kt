@@ -228,7 +228,7 @@ fun ProvidersBottomSheet(
                                 selectedLocation = selectedLocation,
                                 devices = devices,
                                 onRefresh = {
-                                    filterLocations("")
+                                    filterLocations(currentSearchQuery)
                                 },
                                 searchQuery = currentSearchQuery
                             )
@@ -236,7 +236,7 @@ fun ProvidersBottomSheet(
                         FetchLocationsState.Error -> {
                             FetchLocationsError(
                                 onRefresh = {
-                                    filterLocations("")
+                                    filterLocations(currentSearchQuery)
                                 }
                             )
                         }
