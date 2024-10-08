@@ -122,7 +122,12 @@ class LocationsListViewModel @Inject constructor(
 
     val filterLocations:(String) -> Unit = { search ->
 
-        if (search != currentSearchQuery) {
+        if (
+            // we don't want to re-run the same query, if we're not in an error state
+            (search != currentSearchQuery && _locationsState.value != FetchLocationsState.Error) ||
+            // but if we're in an error state, run the query
+            _locationsState.value == FetchLocationsState.Error)
+        {
 
             currentSearchQuery = search
 

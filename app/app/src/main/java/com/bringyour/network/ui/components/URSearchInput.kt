@@ -24,6 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
@@ -73,7 +76,16 @@ fun URSearchInput(
                 onValueChange = onValueChange,
                 cursorBrush = SolidColor(Blue500),
                 modifier = Modifier
-                    .weight(1f),
+                    .weight(1f)
+                    .onKeyEvent {
+
+                        if (it.key == Key.Enter) {
+                            onSearch()
+                            keyboardController?.hide()
+                        }
+
+                        false
+                    },
                 textStyle = TextStyle(color = Color.LightGray),
                 decorationBox = { innerTextField ->
                     if (value.text.isEmpty()) {
@@ -93,7 +105,8 @@ fun URSearchInput(
                         onSearch()
                         keyboardController?.hide()
                     }
-                )
+                ),
+                maxLines = 1
             )
             
             if (value.text.isNotEmpty()) {
