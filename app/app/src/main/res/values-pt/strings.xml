@@ -12,15 +12,17 @@
     <string name="enter">Entra</string>
     <string name="step_in">Acesse a internet como ela deveria ser.</string>
     <string name="nicely_done">Muito bem!</string>
+    <string name="available">Disponível</string>
 
     <string name="name_label">Nome</string>
     <string name="name_placeholder">Seu nome</string>
     <string name="network_name_label">Nome da rede</string>
     <string name="network_name_placeholder">Nome da sua rede</string>
-    <string name="network_name_support_txt">Os nomes de rede devem ter 6 caracteres ou mais</string>
+    <string name="network_name_length_error">Os nomes de rede devem ter pelo menos 6 caracteres.</string>
+    <string name="network_name_unavailable">Nome da rede indisponível.</string>
     <string name="password_label">Senha</string>
     <string name="password_support_txt">A senha deve ter pelo menos 12 caracteres</string>
-    <string name="continue_txt">Continuar</string>
+    <string name="continue_txt">Continua</string>
 
     <string name="login_password_header">É bom\nvê-lo novamente</string>
     <string name="forget_password">Esqueceu sua senha?</string>

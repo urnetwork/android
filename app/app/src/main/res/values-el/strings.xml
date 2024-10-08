@@ -8,15 +8,17 @@
     <string name="google_auth_btn_text">Συνδέσου με Google</string>
     <string name="commitment_issues">Προβλήματα δέσμευσης;</string>
     <string name="try_guest_mode">Δοκιμάστε τη λειτουργία επισκέπτη</string>
-    <string name="enter">Eintreten</string>
-    <string name="step_in">Betreten Sie das Internet, wie es sein sollte.</string>
-    <string name="nicely_done">Gut gemacht</string>
+    <string name="enter">Εισαγωγή</string>
+    <string name="step_in">Μπείτε στο διαδίκτυο όπως θα έπρεπε να είναι.</string>
+    <string name="nicely_done">Μπράβο!</string>
+    <string name="available">Διαθέσιμο</string>
 
     <string name="name_label">Όνομα</string>
     <string name="name_placeholder">Το όνομά σας</string>
     <string name="network_name_label">Όνομα δικτύου</string>
     <string name="network_name_placeholder">Το όνομα του δικτύου σας</string>
-    <string name="network_name_support_txt">Τα ονόματα δικτύου πρέπει να έχουν τουλάχιστον 6 χαρακτήρες</string>
+    <string name="network_name_length_error">Τα ονόματα δικτύου πρέπει να έχουν τουλάχιστον 6 χαρακτήρες.</string>
+    <string name="network_name_unavailable">Το όνομα δικτύου δεν είναι διαθέσιμο.</string>
     <string name="password_label">Κωδικός πρόσβασης</string>
     <string name="password_support_txt">Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 12 χαρακτήρες</string>
     <string name="continue_txt">Συνέχεια</string>

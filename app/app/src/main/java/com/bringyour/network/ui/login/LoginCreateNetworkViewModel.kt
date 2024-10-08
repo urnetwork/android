@@ -1,8 +1,10 @@
 package com.bringyour.network.ui.login
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +12,7 @@ import com.bringyour.client.Client
 import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.client.NetworkNameValidationViewController
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -73,28 +76,49 @@ class LoginCreateNetworkViewModel @Inject constructor(
         termsAgreed = ta
     }
 
+    var networkNameSupportingText by mutableStateOf("")
+        private set
+
+    val setNetworkNameSupportingText: (String) -> Unit = { msg ->
+        networkNameSupportingText = msg
+    }
+
     val validateNetworkName: (String) -> Unit = { nn ->
 
-        setIsValidatingNetworkName(true)
+        if (nn.isNotEmpty()) {
 
-        networkNameValidationVc?.networkCheck(nn) { result, err ->
-            viewModelScope.launch {
+            if (nn.length < 6) {
+                networkNameIsValid = false
+                setNetworkNameErrorExists(false)
+            } else {
+                setIsValidatingNetworkName(true)
 
-                if (err == null) {
-                    if (result.available) {
-                        networkNameIsValid = true
-                        setNetworkNameErrorExists(false)
-                    } else {
-                        networkNameIsValid = false
-                        setNetworkNameErrorExists(true)
+                networkNameValidationVc?.networkCheck(nn) { result, err ->
+                    viewModelScope.launch {
+
+                        if (err == null) {
+                            if (result.available) {
+                                Log.i("LoginCreateNetworkViewModel", "$nn is available")
+                                networkNameIsValid = true
+                                setNetworkNameErrorExists(false)
+                            } else {
+                                Log.i("LoginCreateNetworkViewModel", "$nn is unavailable")
+                                networkNameIsValid = false
+                                setNetworkNameErrorExists(true)
+                            }
+                        } else {
+                            Log.i("LoginCreateNetworkViewModel", "$nn an error occurred")
+                            networkNameIsValid = false
+                            setNetworkNameErrorExists(true)
+                        }
+
+                        setIsValidatingNetworkName(false)
                     }
-                } else {
-                    networkNameIsValid = false
-                    setNetworkNameErrorExists(true)
                 }
-
-                setIsValidatingNetworkName(false)
             }
+        } else {
+            networkNameIsValid = false
+            setNetworkNameErrorExists(false)
         }
     }
 

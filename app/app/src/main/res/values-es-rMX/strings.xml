@@ -17,10 +17,12 @@
     <string name="name_placeholder">Tu nombre</string>
     <string name="network_name_label">Nombre de la red</string>
     <string name="network_name_placeholder">El nombre de tu red</string>
-    <string name="network_name_support_txt">Los nombres de red deben tener al menos 6 caracteres</string>
+    <string name="network_name_length_error">Los nombres de red deben tener al menos 6 caracteres.</string>
+    <string name="network_name_unavailable">Nombre de red no disponible.</string>
     <string name="password_label">Contraseña</string>
     <string name="password_support_txt">La contraseña debe tener al menos 12 caracteres</string>
-    <string name="continue_txt">Continuar</string>
+    <string name="continue_txt">Continúa</string>
+    <string name="available">Disponible</string>
 
     <string name="login_password_header">Qué gusto\nverte de nuevo</string>
     <string name="forget_password">¿Olvidaste tu contraseña?</string>

@@ -11,15 +11,17 @@
     <string name="enter">ادخل</string>
     <string name="step_in">انطلق إلى الإنترنت كما ينبغي أن يكون.</string>
     <string name="nicely_done">أحسنت</string>
+    <string name="available">متاح</string>
 
     <string name="name_label">الاسم</string>
     <string name="name_placeholder">اسمك</string>
     <string name="network_name_label">اسم الشبكة</string>
     <string name="network_name_placeholder">اسم شبكتك</string>
-    <string name="network_name_support_txt">يجب أن تتكون أسماء الشبكات من 6 أحرف أو أكثر</string>
+    <string name="network_name_length_error">يجب أن تتكون أسماء الشبكات من 6 أحرف أو أكثر</string>
+    <string name="network_name_unavailable">اسم الشبكة غير متاح</string>
     <string name="password_label">كلمة المرور</string>
     <string name="password_support_txt">يجب أن تتكون كلمة المرور من 12 حرفًا على الأقل</string>
-    <string name="continue_txt">متابعة</string>
+    <string name="continue_txt">تابع</string>
 
     <string name="login_password_header">من الجيد\nرؤيتك مرة أخرى</string>
     <string name="forget_password">هل نسيت كلمة مرورك؟</string>

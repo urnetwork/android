@@ -12,12 +12,14 @@
     <string name="enter">दर्ज</string>
     <string name="step_in">इंटरनेट में कदम रखें जैसा कि यह होना चाहिए</string>
     <string name="nicely_done">शाबाश!</string>
+    <string name="available">उपलब्ध</string>
 
     <string name="name_label">नाम</string>
     <string name="name_placeholder">आपका नाम</string>
     <string name="network_name_label">नेटवर्क का नाम</string>
     <string name="network_name_placeholder">आपके नेटवर्क का नाम</string>
-    <string name="network_name_support_txt">नेटवर्क नाम कम से कम 6 वर्णों का होना चाहिए</string>
+    <string name="network_name_length_error">नेटवर्क नाम कम से कम 6 अक्षरों का होना चाहिए</string>
+    <string name="network_name_unavailable">नेटवर्क नाम उपलब्ध नहीं है</string>
     <string name="password_label">पासवर्ड</string>
     <string name="password_support_txt">पासवर्ड कम से कम 12 वर्णों का होना चाहिए</string>
     <string name="continue_txt">जारी रखें</string>

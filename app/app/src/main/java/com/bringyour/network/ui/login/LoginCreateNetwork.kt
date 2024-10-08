@@ -102,22 +102,25 @@ fun LoginCreateNetwork(
 ) {
 
     LoginCreateNetwork(
-       params,
-       navController,
-       validateNetworkName = loginCreateNetworkViewModel.validateNetworkName,
-       isValidatingNetworkName = loginCreateNetworkViewModel.isValidatingNetworkName,
-       emailOrPhone = loginCreateNetworkViewModel.emailOrPhone,
-       setEmailOrPhone = loginCreateNetworkViewModel.setEmailOrPhone,
-       username = loginCreateNetworkViewModel.username,
-       setUsername = loginCreateNetworkViewModel.setUsername,
-       networkName = loginCreateNetworkViewModel.networkName,
-       setNetworkName = loginCreateNetworkViewModel.setNetworkName,
-       networkNameErrorExists = loginCreateNetworkViewModel.networkNameErrorExists,
-       password = loginCreateNetworkViewModel.password,
-       setPassword = loginCreateNetworkViewModel.setPassword,
-       termsAgreed = loginCreateNetworkViewModel.termsAgreed,
-       setTermsAgreed = loginCreateNetworkViewModel.setTermsAgreed,
-       createNetworkArgs = loginCreateNetworkViewModel.createNetworkArgs
+        params,
+        navController,
+        validateNetworkName = loginCreateNetworkViewModel.validateNetworkName,
+        isValidatingNetworkName = loginCreateNetworkViewModel.isValidatingNetworkName,
+        emailOrPhone = loginCreateNetworkViewModel.emailOrPhone,
+        setEmailOrPhone = loginCreateNetworkViewModel.setEmailOrPhone,
+        username = loginCreateNetworkViewModel.username,
+        setUsername = loginCreateNetworkViewModel.setUsername,
+        networkName = loginCreateNetworkViewModel.networkName,
+        setNetworkName = loginCreateNetworkViewModel.setNetworkName,
+        networkNameErrorExists = loginCreateNetworkViewModel.networkNameErrorExists,
+        password = loginCreateNetworkViewModel.password,
+        setPassword = loginCreateNetworkViewModel.setPassword,
+        termsAgreed = loginCreateNetworkViewModel.termsAgreed,
+        setTermsAgreed = loginCreateNetworkViewModel.setTermsAgreed,
+        createNetworkArgs = loginCreateNetworkViewModel.createNetworkArgs,
+        networkNameIsValid = loginCreateNetworkViewModel.networkNameIsValid,
+        networkNameSupportingText = loginCreateNetworkViewModel.networkNameSupportingText,
+        setNetworkNameSupportingText = loginCreateNetworkViewModel.setNetworkNameSupportingText
    )
 }
 
@@ -139,7 +142,10 @@ fun LoginCreateNetwork(
     networkNameErrorExists: Boolean,
     termsAgreed: Boolean,
     setTermsAgreed: (Boolean) -> Unit,
-    createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs
+    networkNameIsValid: Boolean,
+    createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs,
+    setNetworkNameSupportingText: (String) -> Unit,
+    networkNameSupportingText: String
 ) {
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
@@ -170,6 +176,7 @@ fun LoginCreateNetwork(
                         (username.text.isNotEmpty()) &&
                         !isValidatingNetworkName &&
                         !networkNameErrorExists &&
+                        networkNameIsValid &&
                         termsAgreed
             }
             is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
@@ -181,6 +188,7 @@ fun LoginCreateNetwork(
                         (username.text.isNotEmpty()) &&
                         !isValidatingNetworkName &&
                         !networkNameErrorExists &&
+                        networkNameIsValid &&
                         termsAgreed
             }
         }
@@ -247,6 +255,24 @@ fun LoginCreateNetwork(
         }
     }
 
+    val networkNameUnavailable = stringResource(id = R.string.network_name_unavailable)
+    val invalidNetworkNameLength = stringResource(id = R.string.network_name_length_error)
+    val networkNameAvailable = stringResource(id = R.string.available)
+
+    LaunchedEffect(networkNameErrorExists, networkNameIsValid, networkName.text) {
+        if (networkName.text.isEmpty()) {
+            setNetworkNameSupportingText("")
+        } else if (networkName.text.length < 6) {
+            setNetworkNameSupportingText(invalidNetworkNameLength)
+        } else if (networkNameErrorExists) {
+            setNetworkNameSupportingText(networkNameUnavailable)
+        } else if (networkNameIsValid) {
+            setNetworkNameSupportingText(networkNameAvailable)
+        } else {
+            setNetworkNameSupportingText("")
+        }
+    }
+
     AnimatedVisibility(
         visible = isContentVisible,
         enter = EnterTransition.None,
@@ -277,8 +303,8 @@ fun LoginCreateNetwork(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp)
-                    .imePadding(),
+                    .padding(16.dp),
+                    // .imePadding(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -293,93 +319,101 @@ fun LoginCreateNetwork(
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                URTextInput(
-                    label = stringResource(id = R.string.name_label),
-                    value = username,
-                    onValueChange = { newValue ->
-                        setUsername(newValue)
-                    },
-                    placeholder = stringResource(id = R.string.name_placeholder),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
-                )
-
-                if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                Column(
+                    modifier = Modifier.imePadding()
+                ) {
                     URTextInput(
-                        label = stringResource(id = R.string.user_auth_label),
-                        value = emailOrPhone,
+                        label = stringResource(id = R.string.name_label),
+                        value = username,
                         onValueChange = { newValue ->
-                            val filteredText = newValue.text.filter { it != ' ' }
-                            val filteredTextFieldValue = newValue.copy(text = filteredText)
-                            setEmailOrPhone(filteredTextFieldValue)
-
+                            setUsername(newValue)
                         },
-                        placeholder = stringResource(id = R.string.user_auth_placeholder),
+                        placeholder = stringResource(id = R.string.name_placeholder),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
+                            keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
                         ),
                     )
-                }
 
-                URTextInput(
-                    label = stringResource(id = R.string.network_name_label),
-                    value = networkName,
-                    onValueChange = { newValue ->
-                        val originalCursorPosition = newValue.selection.start
+                    if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                        URTextInput(
+                            label = stringResource(id = R.string.user_auth_label),
+                            value = emailOrPhone,
+                            onValueChange = { newValue ->
+                                val filteredText = newValue.text.filter { it != ' ' }
+                                val filteredTextFieldValue = newValue.copy(text = filteredText)
+                                setEmailOrPhone(filteredTextFieldValue)
 
-                        val filteredText = networkNameInputFilter(newValue.text)
-                        val cursorOffset = newValue.text.length - filteredText.length
-                        val newCursorPosition =
-                            (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
-
-                        val newNetworkName = newValue.copy(
-                            text = filteredText,
-                            selection = TextRange(newCursorPosition)
+                            },
+                            placeholder = stringResource(id = R.string.user_auth_placeholder),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
                         )
-
-                        setNetworkName(newNetworkName)
-
-                        debounceJob?.cancel()
-                        debounceJob = coroutineScope.launch {
-                            delay(500L)
-                            validateNetworkName(newNetworkName.text)
-                        }
-                    },
-                    placeholder = stringResource(id = R.string.network_name_placeholder),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
-                            ImeAction.Next else ImeAction.Done
-                    ),
-                    isValidating = isValidatingNetworkName,
-                    isValid = !networkNameErrorExists,
-                    supportingText = if (networkNameErrorExists) stringResource(id = R.string.network_name_support_txt) else ""
-                )
-
-                if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                    }
 
                     URTextInput(
-                        label = stringResource(id = R.string.password_label),
-                        value = password,
-                        onValueChange = setPassword,
+                        label = stringResource(id = R.string.network_name_label),
+                        value = networkName,
+                        onValueChange = { newValue ->
+                            val originalCursorPosition = newValue.selection.start
+
+                            val filteredText = networkNameInputFilter(newValue.text)
+                            val cursorOffset = newValue.text.length - filteredText.length
+                            val newCursorPosition =
+                                (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
+
+                            val newNetworkName = newValue.copy(
+                                text = filteredText,
+                                selection = TextRange(newCursorPosition)
+                            )
+
+                            setNetworkName(newNetworkName)
+
+                            debounceJob?.cancel()
+                            debounceJob = coroutineScope.launch {
+                                delay(500L)
+                                validateNetworkName(newNetworkName.text)
+                            }
+                        },
+                        placeholder = stringResource(id = R.string.network_name_placeholder),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done
+                            keyboardType = KeyboardType.Text,
+                            imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
+                                ImeAction.Next else ImeAction.Done
                         ),
-                        isPassword = true,
-                        supportingText = stringResource(id = R.string.password_support_txt)
+                        isValidating = isValidatingNetworkName,
+                        isValid = !networkNameErrorExists,
+                        supportingText = networkNameSupportingText
                     )
+
+                    if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+
+                        URTextInput(
+                            label = stringResource(id = R.string.password_label),
+                            value = password,
+                            onValueChange = setPassword,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done
+                            ),
+                            isPassword = true,
+                            supportingText = stringResource(id = R.string.password_support_txt)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                TermsCheckbox(
-                    checked = termsAgreed,
-                    onCheckChanged = setTermsAgreed
-                )
+                Row {
+
+                    TermsCheckbox(
+                        checked = termsAgreed,
+                        onCheckChanged = setTermsAgreed
+                    )
+
+                }
 
                 Spacer(modifier = Modifier.height(48.dp))
 
@@ -447,7 +481,10 @@ private fun LoginNetworkCreatePreview() {
                     setPassword = {},
                     termsAgreed = false,
                     setTermsAgreed = {},
-                    createNetworkArgs = mockCreateNetworkArgs
+                    createNetworkArgs = mockCreateNetworkArgs,
+                    networkNameIsValid = true,
+                    networkNameSupportingText = "",
+                    setNetworkNameSupportingText = {}
                 )
             }
         }

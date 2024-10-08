@@ -13,13 +13,15 @@
     <string name="enter">ゴー！</string>
     <string name="step_in">本来あるべきインターネットへ</string>
     <string name="nicely_done">よくできました！</string>
+    <string name="available">利用可能</string>
 
     <!-- ネットワーク作成フォーム -->
     <string name="name_label">名前</string>
     <string name="name_placeholder">あなたの名前</string>
     <string name="network_name_label">ネットワーク名</string>
     <string name="network_name_placeholder">あなたのネットワーク名</string>
-    <string name="network_name_support_txt">ネットワーク名は6文字以上である必要があります</string>
+    <string name="network_name_length_error">ネットワーク名は6文字以上である必要があります</string>
+    <string name="network_name_unavailable">ネットワーク名を使用できません</string>
     <string name="password_label">パスワード</string>
     <string name="password_support_txt">パスワードは12文字以上である必要があります</string>
     <string name="continue_txt">続ける</string>
