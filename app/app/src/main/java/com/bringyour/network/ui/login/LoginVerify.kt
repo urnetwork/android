@@ -3,6 +3,7 @@ package com.bringyour.network.ui.login
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -203,19 +204,19 @@ fun LoginVerify(
                         color = TextMuted
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    ClickableText(
-                        text = AnnotatedString(stringResource(id = R.string.resend_verify_code)),
-                        onClick = {
-                            if (resendBtnEnabled) {
-                                resendCode()
-                            }
-                        },
+
+                    Text(
+                        stringResource(id = R.string.resend_verify_code),
                         style = TextStyle(
                             color = if (resendBtnEnabled) Color.White else TextMuted,
                             fontSize = 16.sp
                         ),
-
-                        )
+                        modifier = Modifier.clickable {
+                            if (resendBtnEnabled) {
+                                resendCode()
+                            }
+                        }
+                    )
                 }
             }
 
