@@ -251,33 +251,33 @@ fun LoginVerify(
                         )
                     }
                 }
+            }
+        }
+    }
 
-                URSnackBar(
-                    type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
-                    isVisible = verifyError != null,
-                    onDismiss = {
-                        if (verifyError != null) {
-                            verifyError = null
-                        }
-                        if (resendError != null) {
-                            resendError = null
-                        }
-                        if (markResendAsSent) {
-                            markResendAsSent = false
-                        }
-                    }
-                ) {
-                    if (markResendAsSent) {
-                        Column() {
-                            Text("Verification email sent to $userAuth")
-                        }
-                    } else {
-                        Column() {
-                            Text(stringResource(id = R.string.something_went_wrong))
-                            Text(stringResource(id = R.string.please_wait))
-                        }
-                    }
-                }
+    URSnackBar(
+        type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
+        isVisible = verifyError != null,
+        onDismiss = {
+            if (verifyError != null) {
+                verifyError = null
+            }
+            if (resendError != null) {
+                resendError = null
+            }
+            if (markResendAsSent) {
+                markResendAsSent = false
+            }
+        }
+    ) {
+        if (markResendAsSent) {
+            Column() {
+                Text("Verification email sent to $userAuth")
+            }
+        } else {
+            Column() {
+                Text(stringResource(id = R.string.something_went_wrong))
+                Text(stringResource(id = R.string.please_wait))
             }
         }
     }

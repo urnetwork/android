@@ -48,7 +48,7 @@ fun URCodeInput(
     // prevent focus infinite loop
     var shouldHandleFocusChange by remember { mutableStateOf(true) }
 
-    fun findFirstEmptyFocus() {
+    val findFirstEmptyFocus = {
         val firstEmptyIndex = value.indexOfFirst { it.isEmpty() }
 
         if (firstEmptyIndex != -1) {
@@ -56,6 +56,10 @@ fun URCodeInput(
             focusRequesters[firstEmptyIndex].requestFocus()
             shouldHandleFocusChange = true
         }
+    }
+
+    val findFirstEmptyIndex: () -> Int = {
+        value.indexOfFirst { it.isEmpty() }.takeIf { it != -1 } ?: 0
     }
 
     LaunchedEffect(value, moveFocus) {
@@ -90,6 +94,20 @@ fun URCodeInput(
                             if (newValue.isNotEmpty()) {
                                 moveFocus = true
                             }
+                        } else {
+                            // new value is greater than 1
+                            // handle paste event
+
+                            val firstEmptyIndex = findFirstEmptyIndex()
+                            val charsToPaste = newValue.take(codeLength - firstEmptyIndex)
+                            val newCode = value.toMutableList()
+
+                            for (j in charsToPaste.indices) {
+                                newCode[firstEmptyIndex + j] = charsToPaste[j].toString()
+                            }
+                            onValueChange(newCode)
+
+                            moveFocus = true
                         }
                     },
                     visualTransformation = VisualTransformation.None,
