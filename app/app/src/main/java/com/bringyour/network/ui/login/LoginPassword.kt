@@ -104,10 +104,8 @@ fun LoginPassword(
                     loginError = null
 
                     if (result.verificationRequired != null) {
-
-                        navController.navigate("verify/${userAuth}") {
-                            popUpTo("login-initial") { inclusive = false }
-                        }
+                        
+                        navController.navigate("verify/${userAuth}")
 
                     } else {
                         app.login(result.network.byJwt)

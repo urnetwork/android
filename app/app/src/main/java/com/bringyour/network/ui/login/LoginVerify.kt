@@ -14,9 +14,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -45,12 +52,14 @@ import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URCodeInput
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginVerify(
     userAuth: String,
@@ -161,88 +170,112 @@ fun LoginVerify(
         exit = fadeOut()
     ) {
 
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Black
+                    ),
+                    actions = {},
+                )
+            }
+        ) { innerPadding ->
 
-            Column(
+
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(innerPadding)
             ) {
 
-                Text(
-                    stringResource(id = R.string.login_verify_header),
-                    style = MaterialTheme.typography.headlineLarge
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    stringResource(id = R.string.login_verify_details),
-                    color = TextMuted
-                )
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                URCodeInput(
-                    value = code,
-                    onValueChange = { newCode ->
-                        code = newCode
-                    },
-                    codeLength = codeLength,
-                    enabled = !verifyInProgress
-                )
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
                     Text(
-                        stringResource(id = R.string.dont_see_it),
+                        stringResource(id = R.string.login_verify_header),
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Text(
+                        stringResource(id = R.string.login_verify_details),
                         color = TextMuted
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
 
-                    Text(
-                        stringResource(id = R.string.resend_verify_code),
-                        style = TextStyle(
-                            color = if (resendBtnEnabled) Color.White else TextMuted,
-                            fontSize = 16.sp
-                        ),
-                        modifier = Modifier.clickable {
-                            if (resendBtnEnabled) {
-                                resendCode()
-                            }
-                        }
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    URCodeInput(
+                        value = code,
+                        onValueChange = { newCode ->
+                            code = newCode
+                        },
+                        codeLength = codeLength,
+                        enabled = !verifyInProgress
                     )
-                }
-            }
 
-            URSnackBar(
-                type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
-                isVisible = verifyError != null,
-                onDismiss = {
-                    if (verifyError != null) {
-                        verifyError = null
-                    }
-                    if (resendError != null) {
-                        resendError = null
-                    }
-                    if (markResendAsSent) {
-                        markResendAsSent = false
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(id = R.string.dont_see_it),
+                            color = TextMuted
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        Text(
+                            stringResource(id = R.string.resend_verify_code),
+                            style = TextStyle(
+                                color = if (resendBtnEnabled) Color.White else TextMuted,
+                                fontSize = 16.sp
+                            ),
+                            modifier = Modifier.clickable {
+                                if (resendBtnEnabled) {
+                                    resendCode()
+                                }
+                            }
+                        )
                     }
                 }
-            ) {
-                if (markResendAsSent) {
-                    Column() {
-                        Text("Verification email sent to $userAuth")
+
+                URSnackBar(
+                    type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
+                    isVisible = verifyError != null,
+                    onDismiss = {
+                        if (verifyError != null) {
+                            verifyError = null
+                        }
+                        if (resendError != null) {
+                            resendError = null
+                        }
+                        if (markResendAsSent) {
+                            markResendAsSent = false
+                        }
                     }
-                } else {
-                    Column() {
-                        Text(stringResource(id = R.string.something_went_wrong))
-                        Text(stringResource(id = R.string.please_wait))
+                ) {
+                    if (markResendAsSent) {
+                        Column() {
+                            Text("Verification email sent to $userAuth")
+                        }
+                    } else {
+                        Column() {
+                            Text(stringResource(id = R.string.something_went_wrong))
+                            Text(stringResource(id = R.string.please_wait))
+                        }
                     }
                 }
             }
