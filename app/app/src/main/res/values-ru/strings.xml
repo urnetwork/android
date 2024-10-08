@@ -13,13 +13,15 @@
     <string name="enter">Войти</string>
     <string name="step_in">Шагните в интернет таким, каким он должен быть.</string>
     <string name="nicely_done">Отлично!</string>
+    <string name="available">Доступно</string>
 
     <!-- Форма создания сети -->
     <string name="name_label">Имя</string>
     <string name="name_placeholder">Ваше имя</string>
     <string name="network_name_label">Название сети</string>
     <string name="network_name_placeholder">Название вашей сети</string>
-    <string name="network_name_support_txt">Название сети должно содержать не менее 6 символов</string>
+    <string name="network_name_length_error">Имена сетей должны содержать не менее 6 символов.</string>
+    <string name="network_name_unavailable">Имя сети недоступно.</string>
     <string name="password_label">Пароль</string>
     <string name="password_support_txt">Пароль должен содержать не менее 12 символов</string>
     <string name="continue_txt">Продолжить</string>

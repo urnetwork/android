@@ -18,10 +18,12 @@
     <string name="name_placeholder">Votre nom</string>
     <string name="network_name_label">Nom du réseau</string>
     <string name="network_name_placeholder">Nom de votre réseau</string>
-    <string name="network_name_support_txt">Les noms de réseau doivent comporter au moins 6 caractères</string>
+    <string name="network_name_length_error">Les noms de réseau doivent comporter au moins 6 caractères.</string>
+    <string name="network_name_unavailable">Nom du réseau indisponible.</string>
     <string name="password_label">Mot de passe</string>
     <string name="password_support_txt">Le mot de passe doit comporter au moins 12 caractères</string>
-    <string name="continue_txt">Continuer</string>
+    <string name="continue_txt">Continue</string>
+    <string name="available">Disponible</string>
 
     <string name="login_password_header">C\'est agréable de\nvous revoir</string>
     <string name="forget_password">Mot de passe oublié ?</string>

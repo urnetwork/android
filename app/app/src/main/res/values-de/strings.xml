@@ -10,12 +10,14 @@
     <string name="enter">Rein</string>
     <string name="step_in">Betreten Sie das Internet, wie es sein sollte.</string>
     <string name="nicely_done">Gut gemacht</string>
+    <string name="available">Verfügbar</string>
 
     <string name="name_label">Name</string>
     <string name="name_placeholder">Dein Name</string>
     <string name="network_name_label">Netzwerkname</string>
     <string name="network_name_placeholder">Dein Netzwerkname</string>
-    <string name="network_name_support_txt">Netzwerknamen müssen mindestens 6 Zeichen lang sein</string>
+    <string name="network_name_length_error">Netzwerknamen müssen mindestens 6 Zeichen lang sein.</string>
+    <string name="network_name_unavailable">Netzwerkname nicht verfügbar.</string>
     <string name="password_label">Passwort</string>
     <string name="password_support_txt">Das Passwort muss mindestens 12 Zeichen lang sein</string>
     <string name="continue_txt">Weiter</string>

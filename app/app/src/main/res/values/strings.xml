@@ -20,10 +20,12 @@
     <string name="name_placeholder">Your name</string>
     <string name="network_name_label">Network name</string>
     <string name="network_name_placeholder">Your network name</string>
-    <string name="network_name_support_txt">Network names must be 6 characters or more</string>
+    <string name="network_name_length_error">Network names must be 6 characters or more</string>
+    <string name="network_name_unavailable">Network name unavailable</string>
     <string name="password_label">Password</string>
     <string name="password_support_txt">Password must be at least 12 characters</string>
     <string name="continue_txt">Continue</string>
+    <string name="available">Available</string>
 
     <!-- Login password -->
     <string name="login_password_header">It\'s nice to\nsee you again</string>

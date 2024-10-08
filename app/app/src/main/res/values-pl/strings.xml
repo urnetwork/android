@@ -13,13 +13,15 @@
     <string name="enter">Wejdź</string>
     <string name="step_in">Wejdź do internetu, jakim powinien być.</string>
     <string name="nicely_done">Dobrze zrobione!</string>
+    <string name="available">Dostępne</string>
 
     <!-- Formularz tworzenia sieci -->
     <string name="name_label">Imię</string>
     <string name="name_placeholder">Twoje imię</string>
     <string name="network_name_label">Nazwa sieci</string>
     <string name="network_name_placeholder">Nazwa twojej sieci</string>
-    <string name="network_name_support_txt">Nazwy sieci muszą mieć co najmniej 6 znaków</string>
+    <string name="network_name_length_error">Nazwy sieci muszą mieć co najmniej 6 znaków.</string>
+    <string name="network_name_unavailable">Nazwa sieci niedostępna.</string>
     <string name="password_label">Hasło</string>
     <string name="password_support_txt">Hasło musi mieć co najmniej 12 znaków</string>
     <string name="continue_txt">Kontynuuj</string>

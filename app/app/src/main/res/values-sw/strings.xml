@@ -12,12 +12,14 @@
     <string name="enter">Ingia</string>
     <string name="step_in">Ingia kwenye mtandao jinsi unavyopaswa kuwa.</string>
     <string name="nicely_done">Umefanya vizuri!</string>
+    <string name="available">Inapatikana</string>
 
     <string name="name_label">Jina</string>
     <string name="name_placeholder">Jina lako</string>
     <string name="network_name_label">Jina la mtandao</string>
     <string name="network_name_placeholder">Jina la mtandao wako</string>
-    <string name="network_name_support_txt">Majina ya mtandao lazima yawe na herufi 6 au zaidi</string>
+    <string name="network_name_length_error">Majina ya mtandao lazima yawe na herufi 6 au zaidi.</string>
+    <string name="network_name_unavailable">Jina la mtandao halipatikani.</string>
     <string name="password_label">Nenosiri</string>
     <string name="password_support_txt">Nenosiri lazima liwe na angalau herufi 12</string>
     <string name="continue_txt">Endelea</string>
