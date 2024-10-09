@@ -31,8 +31,10 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -74,29 +76,6 @@ import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
 
 
-enum class Route {
-    CONNECT,
-    ACCOUNT_CONTAINER,
-    ACCOUNT,
-    SUPPORT,
-    PROFILE,
-    SETTINGS,
-    WALLETS
-}
-
-enum class TopLevelScaffoldRoutes(
-    val selectedIcon: Int,
-    val unselectedIcon: Int,
-    val description: String,
-    val route: Route
-) {
-    CONNECT(R.drawable.main_nav_globe_filled, R.drawable.main_nav_globe, "Connect", route = Route.CONNECT),
-    ACCOUNT(R.drawable.main_nav_user_filled, R.drawable.main_nav_user, "Account", route = Route.ACCOUNT_CONTAINER),
-    SUPPORT(R.drawable.main_nav_chat_filled, R.drawable.main_nav_chat, "Support", route = Route.SUPPORT)
-}
-
-
-
 @Composable
 fun MainNavHost(
     sagaViewModel: SagaViewModel,
@@ -104,11 +83,15 @@ fun MainNavHost(
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     animateIn: Boolean,
+    mainNavViewModel: MainNavViewModel = hiltViewModel(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
 
-    var currentTopLevelDestination by rememberSaveable { mutableStateOf(TopLevelScaffoldRoutes.CONNECT) }
+    val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
+    val lastAccountRoute by mainNavViewModel.lastAccountRoute.collectAsState()
+
+    // var currentTopLevelDestination by rememberSaveable { mutableStateOf(TopLevelScaffoldRoutes.CONNECT) }
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -144,6 +127,8 @@ fun MainNavHost(
     }
 
     val navController = rememberNavController()
+    // var lastAccountDestination by remember { mutableStateOf("account") }
+
 
     Box(
         modifier = Modifier
@@ -164,41 +149,50 @@ fun MainNavHost(
                     item(
                         icon = {
 
-                            val iconRes = if (screen == currentTopLevelDestination) {
+                            val iconRes = if (screen == currentTopLevelRoute) {
                                 screen.selectedIcon
                             } else {
                                 screen.unselectedIcon
                             }
                             Icon(painterResource(id = iconRes), contentDescription = screen.description)
                         },
-                        selected = screen == currentTopLevelDestination,
+                        selected = screen == currentTopLevelRoute,
                         onClick = {
-//                            if (currentDestination == AppDestinations.ACCOUNT && screen == AppDestinations.ACCOUNT && accountNavHostController.currentDestination?.route != "account") {
-//                                Log.i("MainNavHost", "capture this!")
-//                                // currentDestination = screen
-//                                // walletsNavHostController.popBackStack("wallets", inclusive = true)
-//                                accountNavHostController.popBackStack("account", inclusive = false)
-//
-//                            } else {
-//                                currentDestination = screen
+
+                            Log.i("MainNavHost", "pre navController.graph.findStartDestination().route: ${navController.graph.findStartDestination().route}")
+                            Log.i("MainNavHost", "pre navController.graph.findStartDestination().parent?.route: ${navController.graph.findStartDestination().parent?.route}")
+                            Log.i("MainNavHost", "pre navController.currentBackStackEntry?.destination?.route: ${navController.currentBackStackEntry?.destination?.route}")
+                            Log.i("MainNavHost", "pre navController.currentDestination?.route: ${navController.currentDestination?.route}")
+                            Log.i("MainNavHost", "pre navController.currentDestination?.parent?.route: ${navController.currentDestination?.parent?.route}")
+                            Log.i("MainNavHost", "pre navController.currentDestination?.parent?.findStartDestination()?.route: ${navController.currentDestination?.parent?.findStartDestination()?.route}")
+
+                            navController.navigate("${screen.route}")
+
+
+
+                            Log.i("MainNavHost", "post navController.graph.findStartDestination().route: ${navController.graph.findStartDestination().route}")
+                            Log.i("MainNavHost", "post navController.graph.findStartDestination().parent?.route: ${navController.graph.findStartDestination().parent?.route}")
+                            Log.i("MainNavHost", "post navController.currentBackStackEntry?.destination?.route: ${navController.currentBackStackEntry?.destination?.route}")
+                            Log.i("MainNavHost", "post navController.currentDestination?.route: ${navController.currentDestination?.route}")
+                            Log.i("MainNavHost", "post navController.currentDestination?.parent?.route: ${navController.currentDestination?.parent?.route}")
+                            Log.i("MainNavHost", "post navController.currentDestination?.parent?.findStartDestination()?.route: ${navController.currentDestination?.parent?.findStartDestination()?.route}")
+
+
+//                            if (screen == TopLevelScaffoldRoutes.ACCOUNT && currentTopLevelRoute != TopLevelScaffoldRoutes.ACCOUNT) {
+//                                // If navigating to Account from another top-level destination,
+//                                // navigate to the last known Account destination
+//                                navController.navigate("$lastAccountRoute")
+//                            } else if (screen != TopLevelScaffoldRoutes.ACCOUNT) {
+//                                // For other top-level destinations, navigate normally
+//                                navController.navigate("${screen.route}") {
+//                                    popUpTo(navController.graph.findStartDestination().id) {
+//                                        saveState = true
+//                                    }
+//                                    launchSingleTop = true
+//                                    restoreState = true
+//                                }
 //                            }
-
-                            navController.navigate("${screen.route}") {
-                                // Pop up to the start destination of the graph to
-                                // avoid building up a large stack of destinations
-                                // on the back stack as users select items
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                // Avoid multiple copies of the same destination when
-                                // reselecting the same item
-                                launchSingleTop = true
-                                // Restore state when reselecting a previously selected item
-                                restoreState = true
-
-                                currentTopLevelDestination = screen
-                            }
-
+                            mainNavViewModel.setCurrentTopLevelRoute(screen)
                             // currentTopLevelDestination = screen
                                   },
                         colors = navItemColors,
@@ -214,7 +208,7 @@ fun MainNavHost(
                 ) {
                     Row {
                         MainNavContent(
-                            currentTopLevelDestination,
+                            currentTopLevelRoute,
                             sagaViewModel,
                             accountNavHostController,
                             settingsViewModel,
@@ -242,7 +236,7 @@ fun MainNavHost(
                     modifier = Modifier.padding(bottom = 1.dp)
                 ) {
                     MainNavContent(
-                        currentTopLevelDestination,
+                        currentTopLevelRoute,
                         sagaViewModel,
                         accountNavHostController,
                         settingsViewModel,
@@ -276,7 +270,7 @@ fun MainNavHost(
 
 @Composable
 fun MainNavContent(
-    currentTopLevelDestination: TopLevelScaffoldRoutes,
+    currentTopLevelRoute: TopLevelScaffoldRoutes,
     sagaViewModel: SagaViewModel,
     accountNavHostController: NavHostController,
     settingsViewModel: SettingsViewModel,
@@ -284,6 +278,7 @@ fun MainNavContent(
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
     navController: NavHostController,
+
     accountViewModel: AccountViewModel = hiltViewModel(),
     walletViewModel: WalletViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
@@ -356,27 +351,33 @@ fun MainNavContent(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            composable("${Route.ACCOUNT}") { AccountScreen(
-                navController,
-                accountViewModel,
-                totalPayoutAmount = walletViewModel.totalPayoutAmount,
-                totalPayoutAmountInitialized = walletViewModel.totalPayoutAmountInitialized,
-                walletCount = walletViewModel.wallets.size,
-                planViewModel = planViewModel,
-                overlayViewModel = overlayViewModel
-            ) }
+            composable("${Route.ACCOUNT}") {
+                AccountScreen(
+                    navController,
+                    accountViewModel,
+                    totalPayoutAmount = walletViewModel.totalPayoutAmount,
+                    totalPayoutAmountInitialized = walletViewModel.totalPayoutAmountInitialized,
+                    walletCount = walletViewModel.wallets.size,
+                    planViewModel = planViewModel,
+                    overlayViewModel = overlayViewModel
+                )
+
+                LaunchedEffect(Unit) {
+                    // setLastAccountRoute(Route.Account)
+                }
+            }
             composable(
                 "${Route.PROFILE}",
                 enterTransition = {
                     Log.i("MainNavHost", "navController.previousBackStackEntry?.destination?.route? ${navController.previousBackStackEntry?.destination?.route}")
-                    if (currentTopLevelDestination == TopLevelScaffoldRoutes.ACCOUNT) {
+                    if (currentTopLevelRoute == TopLevelScaffoldRoutes.ACCOUNT) {
                         nestedEnterTransition
                     } else {
                         EnterTransition.None
                     }
                 },
                 exitTransition = {
-                    if (currentTopLevelDestination == TopLevelScaffoldRoutes.ACCOUNT) {
+                    if (currentTopLevelRoute == TopLevelScaffoldRoutes.ACCOUNT) {
                         nestedExitTransition
                     } else {
                         ExitTransition.None
