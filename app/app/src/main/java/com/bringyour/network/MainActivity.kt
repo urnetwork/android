@@ -297,6 +297,7 @@ class MainActivity: AppCompatActivity() {
         if (productDetails == null) {
 
             planViewModel.setChangePlanError("Product not found.")
+            planViewModel.setInProgress(false)
 
             return
         }
@@ -307,6 +308,7 @@ class MainActivity: AppCompatActivity() {
         if (offer == null) {
 
             planViewModel.setChangePlanError("Offer not found.")
+            planViewModel.setInProgress(false)
 
             return
         }
