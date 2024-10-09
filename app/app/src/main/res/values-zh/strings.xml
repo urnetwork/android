@@ -127,8 +127,6 @@
 
     <string name="unlock_supporter_tooltip">解锁更快的速度并首先获得新功能。</string>
     <string name="become_supporter">成为支持者</string>
-    <string name="client_id_label">客户编号</string>
-    <string name="share_label">分享 URnetwork</string>
     <string name="notifications_label">通知</string>
     <string name="update_notification_settings">在您的 Android 设置中更新通知权限</string>
 

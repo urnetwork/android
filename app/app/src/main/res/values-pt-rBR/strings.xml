@@ -127,8 +127,6 @@
 
     <string name="unlock_supporter_tooltip">Desbloquear velocidades ainda mais rápidas e ter acesso antecipado a novos recursos.</string>
     <string name="become_supporter">Tornar-se um apoiador</string>
-    <string name="client_id_label">ID do cliente</string>
-    <string name="share_label">Compartilhar URnetwork</string>
     <string name="notifications_label">Notificações</string>
     <string name="receive_notifications">Receber notificações de conexão</string>
     <string name="connectivity_label">Conectividade</string>

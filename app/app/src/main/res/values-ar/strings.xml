@@ -125,8 +125,6 @@
 
     <string name="unlock_supporter_tooltip">افتح سرعات أعلى واحصل على أولوية الوصول إلى الميزات الجديدة.</string>
     <string name="become_supporter">كن داعمًا</string>
-    <string name="client_id_label">معرف العميل</string>
-    <string name="share_label">مشاركة URNetwork</string>
     <string name="notifications_label">الإشعارات</string>
     <string name="receive_notifications">تلقي إشعارات الاتصال</string>
     <string name="connectivity_label">الاتصال</string>
