@@ -24,7 +24,7 @@ fun WelcomeAnimatedOverlayLogin(
 ) {
 
     val context = LocalContext.current
-    val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_onboarding)
+    val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_onboarding_bg)
 
     val enterTransition = fadeIn()
 
