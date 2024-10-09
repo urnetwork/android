@@ -75,6 +75,7 @@ fun UpgradePlanBottomSheetScaffold(
         scaffoldState = scaffoldState,
         scope = scope,
         requestUpgrade = planViewModel.upgrade,
+        upgradeInProgress = planViewModel.inProgress,
         content = content
     )
 
@@ -86,6 +87,7 @@ fun UpgradePlanBottomSheetScaffold(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope,
     requestUpgrade: () -> Unit,
+    upgradeInProgress: Boolean,
     content: @Composable (PaddingValues) -> Unit,
 ) {
 
@@ -102,7 +104,8 @@ fun UpgradePlanBottomSheetScaffold(
             UpgradePlanSheetContent(
                 scope = scope,
                 scaffoldState = scaffoldState,
-                upgrade = requestUpgrade
+                upgrade = requestUpgrade,
+                upgradeInProgress = upgradeInProgress
             )
         }) { innerPadding ->
         content(innerPadding)
@@ -115,6 +118,7 @@ fun UpgradePlanBottomSheetScaffold(
 private fun UpgradePlanSheetContent(
     scope: CoroutineScope,
     scaffoldState: BottomSheetScaffoldState,
+    upgradeInProgress: Boolean,
     upgrade: () -> Unit
 ) {
     BottomSheetContentContainer {
@@ -229,18 +233,13 @@ private fun UpgradePlanSheetContent(
 
                 Column {
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        URButton(onClick = {
-
-                            // todo - process plan upgrade
-
-                            upgrade()
-
-//                                scope.launch {
-//                                    scaffoldState.bottomSheetState.hide()
-//                                }
-
-
-                        }) { buttonTextStyle ->
+                        URButton(
+                            onClick = {
+                                upgrade()
+                            },
+                            enabled = !upgradeInProgress,
+                            isProcessing = upgradeInProgress
+                        ) { buttonTextStyle ->
                             Text(
                                 stringResource(id = R.string.join_the_movement),
                                 style = buttonTextStyle
@@ -271,7 +270,8 @@ private fun UpgradePlanSheetContentPreview() {
         UpgradePlanSheetContent(
             scope = scope,
             scaffoldState = scaffoldState,
-            upgrade = {}
+            upgrade = {},
+            upgradeInProgress = false
         )
     }
 }
