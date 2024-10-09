@@ -35,6 +35,27 @@ class LoginViewModel @Inject constructor(): ViewModel() {
     var loginError by mutableStateOf<String?>(null)
         private set
 
+    var createGuestModeInProgress by mutableStateOf(false)
+        private set
+
+    val setCreateGuestModeInProgress: (Boolean) -> Unit = { inProgress ->
+        createGuestModeInProgress = inProgress
+    }
+
+    var guestModeLoginSuccess by mutableStateOf(false)
+        private set
+
+    val setGuestModeLoginSuccess: (Boolean) -> Unit = { success ->
+        guestModeLoginSuccess = success
+    }
+
+    var guestModeOverlayBodyVisible by mutableStateOf(true)
+        private set
+
+    val setGuestModeOverlayBodyVisible: (Boolean) -> Unit = { visible ->
+        guestModeOverlayBodyVisible = visible
+    }
+
     val login: (
         ctx: Context,
         api: BringYourApi?,

@@ -63,7 +63,6 @@ fun LoginNavHost(
                 LoginInitial(
                     navController,
                     loginViewModel,
-                    overlayViewModel
                 )
             }
 

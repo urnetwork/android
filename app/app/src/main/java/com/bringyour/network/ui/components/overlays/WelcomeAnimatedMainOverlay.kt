@@ -131,7 +131,7 @@ fun WelcomeAnimatedMainOverlay(
     close: () -> Unit
 ) {
     val context = LocalContext.current
-    val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_onboarding)
+    val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_onboarding_bg)
     val vector = ImageVector.vectorResource(id = R.drawable.connect_mask)
     val painter = rememberVectorPainter(image = vector)
 

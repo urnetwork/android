@@ -31,7 +31,7 @@ fun FullScreenOverlay(
 
     val overlayMode = overlayViewModel.overlayModeState.collectAsState().value
 
-    // Guest mode overlay
+    // You're in Guest mode overlay
     AnimatedVisibility(
         visible = overlayMode == OverlayMode.GuestMode,
         enter = enterTransition,
@@ -40,7 +40,6 @@ fun FullScreenOverlay(
 
         GuestModeOverlay(
             onDismiss = {
-                // overlayMode = null
                 overlayViewModel.launch(null)
             }
         )
@@ -85,20 +84,6 @@ fun FullScreenOverlay(
     ) {
 
         OnboardingOverlay(
-            onDismiss = {
-                overlayViewModel.launch(null)
-            }
-        )
-    }
-
-    // Onboarding guest mode overlay
-    AnimatedVisibility(
-        visible = overlayMode == OverlayMode.OnboardingGuestMode,
-        enter = enterTransition,
-        exit = exitTransition,
-    ) {
-
-        OnboardingGuestModeOverlay(
             onDismiss = {
                 overlayViewModel.launch(null)
             }

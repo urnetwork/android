@@ -33,7 +33,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
@@ -57,25 +61,24 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.AuthLoginResult
 import com.bringyour.client.BringYourApi
+import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
-import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.components.overlays.OnboardingGuestModeOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
-import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable()
 fun LoginInitial(
     navController: NavController,
     loginViewModel: LoginViewModel,
-    overlayViewModel: OverlayViewModel
 ) {
 
     LoginInitial(
@@ -90,7 +93,11 @@ fun LoginInitial(
         setGoogleAuthInProgress = loginViewModel.setGoogleAuthInProgress,
         setLoginError = loginViewModel.setLoginError,
         googleAuthInProgress = loginViewModel.googleAuthInProgress,
-        launchDialog = overlayViewModel.launch
+        setCreateGuestModeInProgress = loginViewModel.setCreateGuestModeInProgress,
+        guestModeLoginSuccess = loginViewModel.guestModeLoginSuccess,
+        setGuestModeLoginSuccess = loginViewModel.setGuestModeLoginSuccess,
+        guestModeOverlayBodyVisible = loginViewModel.guestModeOverlayBodyVisible,
+        setGuestModeOverlayBodyVisible = loginViewModel.setGuestModeOverlayBodyVisible
     )
 
 }
@@ -119,16 +126,22 @@ fun LoginInitial(
     setLoginError: (String?) -> Unit,
     googleAuthInProgress: Boolean,
     setGoogleAuthInProgress: (Boolean) -> Unit,
-    launchDialog: (OverlayMode) -> Unit
+    setCreateGuestModeInProgress: (Boolean) -> Unit,
+    guestModeLoginSuccess: Boolean,
+    setGuestModeLoginSuccess: (Boolean) -> Unit,
+    guestModeOverlayBodyVisible: Boolean,
+    setGuestModeOverlayBodyVisible: (Boolean) -> Unit,
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-//    val overlayVc = application?.overlayVc
-//    Log.i("LoginInitial", "overlayVc is: $overlayVc")
 
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
-    var isContentVisible by remember { mutableStateOf(true) }
+    var guestModeOverlayVisible by remember { mutableStateOf(false) }
+    var contentVisible by remember { mutableStateOf(true) }
+
+    val guestModeEnterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
+    val guestModeExitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
     val loginActivity = context as? LoginActivity
 
@@ -173,7 +186,7 @@ fun LoginInitial(
 
             application?.login(result.network.byJwt)
 
-            isContentVisible = false
+            contentVisible = false
 
             delay(500)
 
@@ -185,6 +198,55 @@ fun LoginInitial(
                 setLoginError(error)
             }
 
+        }
+
+    }
+
+    val createGuestNetwork = {
+        setCreateGuestModeInProgress(true)
+        setGuestModeOverlayBodyVisible(false)
+
+        val args = NetworkCreateArgs()
+        args.terms = true
+        args.guestMode = true
+
+        application?.api?.networkCreate(args) { result, err ->
+            runBlocking(Dispatchers.Main.immediate) {
+
+                if (err != null) {
+                    Log.i("OnboardingGuestModeOverlay", "error ${err.message}")
+                    setLoginError(err.message)
+                } else if (result.error != null) {
+                    Log.i("OnboardingGuestModeOverlay", "error ${result.error.message}")
+                    setLoginError(result.error.message)
+                } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                    setLoginError(null)
+
+                    application.login(result.network.byJwt)
+
+                    setGuestModeLoginSuccess(true)
+
+                    contentVisible = false
+
+                    loginActivity?.authClientAndFinish { error ->
+                        // inProgress = false
+                        setCreateGuestModeInProgress(false)
+
+                        Log.i("OnboardingGuestModeOverlay", "inside authClientAndFinish: error is: $error")
+
+                        setLoginError(error)
+
+                        if (error != null) {
+                            contentVisible = true
+                            setGuestModeLoginSuccess(false)
+                            setGuestModeOverlayBodyVisible(true)
+                        }
+
+                    }
+                } else {
+                    setLoginError(context.getString(R.string.create_network_error))
+                }
+            }
         }
 
     }
@@ -223,7 +285,7 @@ fun LoginInitial(
     }
 
     AnimatedVisibility(
-        visible = isContentVisible,
+        visible = contentVisible,
         enter = EnterTransition.None,
         exit = fadeOut()
     ) {
@@ -327,13 +389,7 @@ fun LoginInitial(
                             guestModeStr.getStringAnnotations(
                                 tag = "GUEST_MODE", start = offset, end = offset
                             ).firstOrNull()?.let {
-
-                                // Log.i("LoginInitial", "overlay VC is: $overlayVc")
-
-                                // overlayViewModel
-                                launchDialog(OverlayMode.OnboardingGuestMode)
-
-                                // overlayVc?.openOverlay(OverlayMode.OnboardingGuestMode.toString())
+                                guestModeOverlayVisible = true
                             }
                         },
                         style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted)
@@ -354,6 +410,23 @@ fun LoginInitial(
             }
 
         }
+    }
+
+    AnimatedVisibility(
+        visible = guestModeOverlayVisible,
+        enter = guestModeEnterTransition,
+        exit = if (guestModeLoginSuccess) ExitTransition.None else guestModeExitTransition,
+    ) {
+
+        OnboardingGuestModeOverlay(
+            bodyVisible = guestModeOverlayBodyVisible,
+            onDismiss = {
+                guestModeOverlayVisible = false
+            },
+            onCreateGuestNetwork = {
+                createGuestNetwork()
+            }
+        )
     }
 
     WelcomeAnimatedOverlayLogin(
@@ -408,7 +481,11 @@ private fun LoginInitialPreview() {
                     setLoginError = {},
                     googleAuthInProgress = false,
                     setGoogleAuthInProgress = {},
-                    launchDialog = {}
+                    setCreateGuestModeInProgress = {},
+                    guestModeLoginSuccess = false,
+                    setGuestModeLoginSuccess = {},
+                    guestModeOverlayBodyVisible = true,
+                    setGuestModeOverlayBodyVisible = {}
                 )
             }
         }
