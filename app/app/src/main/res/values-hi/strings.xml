@@ -126,8 +126,6 @@
 
     <string name="unlock_supporter_tooltip">और भी तेज़ गति अनलॉक करें और नई सुविधाओं तक जल्दी पहुंच प्राप्त करें।</string>
     <string name="become_supporter">समर्थक बनें</string>
-    <string name="client_id_label">क्लाइंट आईडी</string>
-    <string name="share_label">URnetwork शेयर करें</string>
     <string name="notifications_label">सूचनाएं</string>
     <string name="receive_notifications">कनेक्शन सूचनाएं प्राप्त करें</string>
     <string name="connectivity_label">कनेक्टिविटी</string>

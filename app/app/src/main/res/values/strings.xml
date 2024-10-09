@@ -152,8 +152,6 @@
     <!-- Settings -->
     <string name="unlock_supporter_tooltip">Unlock even faster speeds and first dibs on new features.</string>
     <string name="become_supporter">Become a supporter</string>
-    <string name="client_id_label">Client ID</string>
-    <string name="share_label">Share URnetwork</string>
     <string name="notifications_label">Notifications</string>
     <string name="receive_notifications">Receive connection notifications</string>
     <string name="connectivity_label">Connectivity</string>

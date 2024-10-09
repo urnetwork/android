@@ -148,8 +148,6 @@
     <!-- 設定 -->
     <string name="unlock_supporter_tooltip">さらに高速な速度と新機能への優先アクセスをアンロックします。</string>
     <string name="become_supporter">サポーターになる</string>
-    <string name="client_id_label">クライアントID</string>
-    <string name="share_label">URnetworkを共有</string>
     <string name="notifications_label">通知</string>
     <string name="receive_notifications">接続通知を受け取る</string>
     <string name="connectivity_label">接続性</string>

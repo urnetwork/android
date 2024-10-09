@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.components.overlays
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
@@ -70,7 +73,16 @@ fun GuestModeOverlay(
 
                 URButton(
                     onClick = {
+
                         application?.logout()
+
+                        onDismiss()
+
+                        val intent = Intent(context, LoginActivity::class.java)
+                        context.startActivity(intent)
+
+                        (context as? Activity)?.finish()
+
                     },
                     style = ButtonStyle.OUTLINE
                 ) { buttonTextStyle ->

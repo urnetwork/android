@@ -128,8 +128,6 @@
 
     <string name="unlock_supporter_tooltip">Débloquez des vitesses encore plus rapides et soyez le premier à accéder aux nouvelles fonctionnalités.</string>
     <string name="become_supporter">Devenir un supporter</string>
-    <string name="client_id_label">ID client</string>
-    <string name="share_label">Partager URréseau</string>
     <string name="notifications_label">Notifications</string>
     <string name="receive_notifications">Recevoir des notifications de connexion</string>
     <string name="connectivity_label">Connectivité</string>

@@ -148,8 +148,6 @@
     <!-- 설정 -->
     <string name="unlock_supporter_tooltip">더 빠른 속도와 새로운 기능에 대한 우선 접근권을 얻으세요.</string>
     <string name="become_supporter">서포터 되기</string>
-    <string name="client_id_label">클라이언트 ID</string>
-    <string name="share_label">URnetwork 공유하기</string>
     <string name="notifications_label">알림</string>
     <string name="receive_notifications">연결 알림 받기</string>
     <string name="connectivity_label">연결성</string>

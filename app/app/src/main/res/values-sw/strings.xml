@@ -127,8 +127,6 @@
 
     <string name="unlock_supporter_tooltip">Fungua kasi ya haraka zaidi na upate vipengele vipya kwanza.</string>
     <string name="become_supporter">Kuwa msaidizi</string>
-    <string name="client_id_label">Kitambulisho cha Mteja</string>
-    <string name="share_label">Shiriki URnetwork</string>
     <string name="notifications_label">Arifa</string>
     <string name="receive_notifications">Pokea arifa za muunganisho</string>
 

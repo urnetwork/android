@@ -125,8 +125,6 @@
 
     <string name="unlock_supporter_tooltip">Desbloquea velocidades aún más rápidas y obtén acceso prioritario a nuevas funciones.</string>
     <string name="become_supporter">Convertirse en colaborador</string>
-    <string name="client_id_label">ID de cliente</string>
-    <string name="share_label">Compartir URred</string>
     <string name="notifications_label">Notificaciones</string>
     <string name="receive_notifications">Recibir notificaciones de conexión</string>
     <string name="connectivity_label">Conectividad</string>
