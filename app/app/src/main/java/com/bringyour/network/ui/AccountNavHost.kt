@@ -77,7 +77,6 @@ fun AccountNavHost(
             settingsViewModel,
             overlayViewModel
         ) }
-        
         composable("wallets") {
             WalletsNavHost(
                 accountNavController = navController,

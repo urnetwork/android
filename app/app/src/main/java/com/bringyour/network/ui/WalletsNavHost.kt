@@ -51,7 +51,6 @@ fun WalletsNavHost(
     ) {
         composable("wallets") {
             WalletsScreen(
-                accountNavController,
                 navController,
                 sagaViewModel,
                 walletViewModel

@@ -60,6 +60,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavHostController
 import com.bringyour.client.AccountPayment
 import com.bringyour.client.Id
 import com.bringyour.network.R
@@ -68,8 +69,9 @@ import com.bringyour.network.ui.theme.BlueLight
 
 @Composable
 fun WalletsScreen(
-    accountNavController: NavController,
-    walletNavController: NavController,
+//    accountNavController: NavController,
+//    walletNavController: NavController,
+    navController: NavHostController,
     sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel,
 ) {
@@ -79,8 +81,9 @@ fun WalletsScreen(
     }
 
     WalletsScreen(
-        accountNavController,
-        walletNavController,
+//        accountNavController,
+//        walletNavController,
+        navController,
         isSolanaSaga = sagaViewModel.isSolanaSaga,
         getSolanaAddress = sagaViewModel.getSagaWalletAddress,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
@@ -110,8 +113,9 @@ fun WalletsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletsScreen(
-    accountNavController: NavController,
-    walletNavController: NavController,
+//    accountNavController: NavController,
+//    walletNavController: NavController,
+    navController: NavHostController,
     isSolanaSaga: Boolean,
     getSolanaAddress: ((String?) -> Unit) -> Unit,
     addExternalWalletModalVisible: Boolean,
@@ -246,7 +250,7 @@ fun WalletsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { accountNavController.popBackStack() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
                     }
                 },
@@ -455,7 +459,7 @@ fun WalletsScreen(
                                         isPayoutWallet = wallet.walletId.equals(payoutWalletId),
                                         walletAddress = wallet.walletAddress,
                                         walletId = wallet.walletId,
-                                        navController = walletNavController
+                                        navController = navController
                                     )
 
                                     Spacer(modifier = Modifier.width(16.dp))
@@ -561,13 +565,11 @@ fun WalletsScreen(
 @Composable
 private fun WalletScreenPreview() {
 
-    val parentNavController = rememberNavController()
-    val walletNavController = rememberNavController()
+    val navController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            parentNavController,
-            walletNavController,
+            navController,
             isSolanaSaga = false,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
@@ -599,13 +601,11 @@ private fun WalletScreenPreview() {
 @Composable
 private fun WalletScreenSagaPreview() {
 
-    val parentNavController = rememberNavController()
-    val walletNavController = rememberNavController()
+    val navController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            parentNavController,
-            walletNavController,
+            navController,
             isSolanaSaga = true,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
@@ -637,13 +637,11 @@ private fun WalletScreenSagaPreview() {
 @Composable
 private fun WalletScreenExternalWalletModalPreview() {
 
-    val parentNavController = rememberNavController()
-    val walletNavController = rememberNavController()
+    val navController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            parentNavController,
-            walletNavController,
+            navController,
             isSolanaSaga = true,
             getSolanaAddress = {},
             addExternalWalletModalVisible = true,
@@ -675,13 +673,11 @@ private fun WalletScreenExternalWalletModalPreview() {
 @Composable
 private fun WalletScreenInitializingWalletPreview() {
 
-    val parentNavController = rememberNavController()
-    val walletNavController = rememberNavController()
+    val navController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            parentNavController,
-            walletNavController,
+            navController,
             isSolanaSaga = false,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
@@ -713,13 +709,11 @@ private fun WalletScreenInitializingWalletPreview() {
 @Composable
 private fun WalletScreenRemovingWalletPreview() {
 
-    val parentNavController = rememberNavController()
-    val walletNavController = rememberNavController()
+    val navController = rememberNavController()
 
     URNetworkTheme {
         WalletsScreen(
-            parentNavController,
-            walletNavController,
+            navController,
             isSolanaSaga = false,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
