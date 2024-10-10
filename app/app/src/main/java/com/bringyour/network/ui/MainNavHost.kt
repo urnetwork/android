@@ -120,6 +120,20 @@ fun MainNavHost(
     DisposableEffect(Unit) {
 
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+
+            val route = Route.fromString(destination.route ?: "")
+            if (route == Route.Connect && currentTopLevelRoute.route != Route.Connect) {
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT)
+            }
+
+            if (route == Route.Support && currentTopLevelRoute.route != Route.Support) {
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT)
+            }
+
+            if (route == Route.AccountContainer && currentTopLevelRoute.route != Route.AccountContainer) {
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
+            }
+
             mainNavViewModel.setCurrentRoute(Route.fromString(destination.route ?: ""))
         }
 
