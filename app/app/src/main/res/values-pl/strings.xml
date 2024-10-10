@@ -148,8 +148,6 @@
     <!-- Ustawienia -->
     <string name="unlock_supporter_tooltip">Odblokuj jeszcze szybsze prędkości i pierwszeństwo do nowych funkcji.</string>
     <string name="become_supporter">Zostań wspierającym</string>
-    <string name="client_id_label">ID klienta</string>
-    <string name="share_label">Udostępnij URnetwork</string>
     <string name="notifications_label">Powiadomienia</string>
     <string name="receive_notifications">Otrzymuj powiadomienia o połączeniach</string>
     <string name="connectivity_label">Łączność</string>

@@ -125,8 +125,6 @@
 
     <string name="unlock_supporter_tooltip">Ξεκλειδώστε ακόμη μεγαλύτερες ταχύτητες και αποκτήστε πρώιμη πρόσβαση σε νέες δυνατότητες.</string>
     <string name="become_supporter">Γίνετε υποστηρικτής</string>
-    <string name="client_id_label">Αναγνωριστικό πελάτη</string>
-    <string name="share_label">Κοινή χρήση URδικτύου</string>
     <string name="notifications_label">Ειδοποιήσεις</string>
     <string name="receive_notifications">Λήψη ειδοποιήσεων σύνδεσης</string>
     <string name="connectivity_label">Συνδεσιμότητα</string>

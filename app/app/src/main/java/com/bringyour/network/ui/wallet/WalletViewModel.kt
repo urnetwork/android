@@ -111,7 +111,7 @@ class WalletViewModel @Inject constructor(
     }
 
     val closeRemoveWalletModal = {
-        addExternalWalletModalVisible = false
+        removeWalletModalVisible = false
     }
 
     var externalWalletAddress by mutableStateOf(TextFieldValue())

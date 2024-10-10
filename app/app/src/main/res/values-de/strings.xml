@@ -127,8 +127,6 @@
 
     <string name="unlock_supporter_tooltip">Schalte noch schnellere Geschwindigkeiten frei und erhalte vorrangigen Zugriff auf neue Funktionen.</string>
     <string name="become_supporter">Unterstützer werden</string>
-    <string name="client_id_label">Client-ID</string>
-    <string name="share_label">URnetzwerk teilen</string>
     <string name="notifications_label">Benachrichtigungen</string>
     <string name="receive_notifications">Verbindungsbenachrichtigungen erhalten</string>
     <string name="connectivity_label">Konnektivität</string>

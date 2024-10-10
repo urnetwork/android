@@ -248,7 +248,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             URTextInputLabel(
-                text = stringResource(id = R.string.client_id_label)
+                text = "URid"
             )
             Row(
                 modifier = Modifier
@@ -281,7 +281,9 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            URTextInputLabel(text = stringResource(id = R.string.share_label))
+            URTextInputLabel(
+                text = "URL"
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

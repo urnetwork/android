@@ -51,43 +51,45 @@ class PlanViewModel @Inject constructor(
     val billingClient: StateFlow<BillingClient?> = _billingClient.asStateFlow()
 
     val upgrade: () -> Unit = {
-        setInProgress(true)
-        setChangePlanError(null)
+        if (!inProgress) {
+            setInProgress(true)
+            setChangePlanError(null)
 
-        createBillingClientConnection {
-            if (_billingClient.value != null) {
-                _billingClient.value?.startConnection(object : BillingClientStateListener {
-                    override fun onBillingSetupFinished(billingResult: BillingResult) {
+            createBillingClientConnection {
+                if (_billingClient.value != null) {
+                    _billingClient.value?.startConnection(object : BillingClientStateListener {
+                        override fun onBillingSetupFinished(billingResult: BillingResult) {
 
-                        Log.i("Upgrade", "billing result ${billingResult.responseCode}")
+                            Log.i("Upgrade", "billing result ${billingResult.responseCode}")
 
-                        if (billingResult.responseCode == BillingResponseCode.OK) {
+                            if (billingResult.responseCode == BillingResponseCode.OK) {
 
-                            viewModelScope.launch {
-                                _requestPlanUpgrade.emit(Unit)
+                                viewModelScope.launch {
+                                    _requestPlanUpgrade.emit(Unit)
+                                }
+
+
+                            } else {
+                                // show error message of billing error
+                                // FIXME show error
+
+                                setChangePlanError("Billing error: ${billingResult.responseCode} ${billingResult.debugMessage}")
+
+                                setInProgress(false)
+                                _billingClient.value?.endConnection()
                             }
+                        }
 
+                        override fun onBillingServiceDisconnected() {
+                            // Try to restart the connection on the next request to
+                            // Google Play by calling the startConnection() method.
 
-                        } else {
-                            // show error message of billing error
-                            // FIXME show error
-
-                            setChangePlanError("Billing error: ${billingResult.responseCode} ${billingResult.debugMessage}")
-
+                            setChangePlanError("Billing error: Disconnected")
                             setInProgress(false)
                             _billingClient.value?.endConnection()
                         }
-                    }
-
-                    override fun onBillingServiceDisconnected() {
-                        // Try to restart the connection on the next request to
-                        // Google Play by calling the startConnection() method.
-
-                        setChangePlanError("Billing error: Disconnected")
-                        setInProgress(false)
-                        _billingClient.value?.endConnection()
-                    }
-                })
+                    })
+                }
             }
         }
     }

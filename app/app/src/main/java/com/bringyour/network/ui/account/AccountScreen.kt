@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.account
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.Route
@@ -192,6 +195,11 @@ fun AccountScreenContent(
                                         .offset(y = (-8).dp)
                                         .clickable {
                                             application?.logout()
+
+                                            val intent = Intent(context, LoginActivity::class.java)
+                                            context.startActivity(intent)
+
+                                            (context as? Activity)?.finish()
                                         }
                                 )
                             } else {
@@ -265,7 +273,11 @@ fun AccountScreenContent(
                                             modifier = Modifier
                                                 .offset(y = (-8).dp)
                                                 .clickable {
-                                                    navController.navigate(Route.Wallets)
+                                                    if (loginMode == LoginMode.Guest) {
+                                                        launchOverlay(OverlayMode.GuestMode)
+                                                    } else {
+                                                        navController.navigate(Route.Wallets)
+                                                    }
                                                 },
                                             style = TextStyle(
                                                 color = BlueMedium
