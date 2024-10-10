@@ -1,6 +1,12 @@
 package com.bringyour.network.ui
 
 import android.content.res.Configuration
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +28,10 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaul
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -34,9 +39,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.network.R
+import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
@@ -51,17 +59,16 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.wallet.SagaViewModel
 import com.bringyour.network.utils.isTablet
-
-enum class AppDestinations(
-    val selectedIcon: Int,
-    val unselectedIcon: Int,
-    val description: String
-) {
-    CONNECT(R.drawable.main_nav_globe_filled, R.drawable.main_nav_globe, "Connect"),
-    ACCOUNT(R.drawable.main_nav_user_filled, R.drawable.main_nav_user, "Account"),
-    SUPPORT(R.drawable.main_nav_chat_filled, R.drawable.main_nav_chat, "Support")
-}
-
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
+import com.bringyour.network.ui.account.AccountViewModel
+import com.bringyour.network.ui.profile.ProfileScreen
+import com.bringyour.network.ui.profile.ProfileViewModel
+import com.bringyour.network.ui.settings.SettingsScreen
+import com.bringyour.network.ui.wallet.WalletScreen
+import com.bringyour.network.ui.wallet.WalletViewModel
+import com.bringyour.network.ui.wallet.WalletsScreen
 
 @Composable
 fun MainNavHost(
@@ -70,11 +77,14 @@ fun MainNavHost(
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     animateIn: Boolean,
+    mainNavViewModel: MainNavViewModel = hiltViewModel(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
 
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.CONNECT) }
+    val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
+    val currentRoute by mainNavViewModel.currentRoute.collectAsState()
+    val previousRoute by mainNavViewModel.previousRoute.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -83,12 +93,8 @@ fun MainNavHost(
         navigationRailItemColors = NavigationRailItemDefaults.colors(
             indicatorColor = Color.Transparent
         ),
-        navigationDrawerItemColors = NavigationDrawerItemDefaults.colors(
-
-        )
+        navigationDrawerItemColors = NavigationDrawerItemDefaults.colors()
     )
-
-    val accountNavHostController = rememberNavController()
 
     val customColors = NavigationSuiteDefaults.colors(
         navigationRailContainerColor = Black,
@@ -109,6 +115,36 @@ fun MainNavHost(
 
     }
 
+    val navController = rememberNavController()
+
+    DisposableEffect(Unit) {
+
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+
+            val route = Route.fromString(destination.route ?: "")
+            if (route == Route.Connect && currentTopLevelRoute.route != Route.Connect) {
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT)
+            }
+
+            if (route == Route.Support && currentTopLevelRoute.route != Route.Support) {
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT)
+            }
+
+            if (route == Route.AccountContainer && currentTopLevelRoute.route != Route.AccountContainer) {
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
+            }
+
+            mainNavViewModel.setCurrentRoute(Route.fromString(destination.route ?: ""))
+        }
+
+        navController.addOnDestinationChangedListener(listener)
+
+        onDispose {
+            navController.removeOnDestinationChangedListener(listener)
+        }
+    }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -124,19 +160,43 @@ fun MainNavHost(
             navigationSuiteColors = customColors,
             layoutType = navSuiteLayoutType,
             navigationSuiteItems = {
-                AppDestinations.entries.forEach { screen ->
+                TopLevelScaffoldRoutes.entries.forEach { screen ->
                     item(
                         icon = {
 
-                            val iconRes = if (screen == currentDestination) {
+                            val iconRes = if (screen == currentTopLevelRoute) {
                                 screen.selectedIcon
                             } else {
                                 screen.unselectedIcon
                             }
                             Icon(painterResource(id = iconRes), contentDescription = screen.description)
                         },
-                        selected = screen == currentDestination,
-                        onClick = { currentDestination = screen },
+                        selected = screen == currentTopLevelRoute,
+                        onClick = {
+
+                            if (currentTopLevelRoute.route == Route.AccountContainer
+                                && screen.route == Route.AccountContainer
+                                && currentRoute != Route.Account
+                                ) {
+                                navController.popBackStack(Route.Account, inclusive = false)
+                            } else {
+                                navController.navigate(screen.route) {
+                                    // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    // Avoid multiple copies of the same destination when
+                                    // reselecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when reselecting a previously selected item
+                                    restoreState = true
+                                }
+                            }
+                            mainNavViewModel.setCurrentTopLevelRoute(screen)
+                                  },
                         colors = navItemColors,
                     )
                 }
@@ -150,13 +210,13 @@ fun MainNavHost(
                 ) {
                     Row {
                         MainNavContent(
-                            currentDestination,
+                            previousRoute,
                             sagaViewModel,
-                            accountNavHostController,
                             settingsViewModel,
                             promptReviewViewModel,
                             planViewModel,
-                            overlayViewModel
+                            overlayViewModel,
+                            navController
                         )
                     }
 
@@ -168,7 +228,6 @@ fun MainNavHost(
                             color = MainBorderBase
                         )
                     }
-
                 }
 
             } else {
@@ -177,13 +236,13 @@ fun MainNavHost(
                     modifier = Modifier.padding(bottom = 1.dp)
                 ) {
                     MainNavContent(
-                        currentDestination,
-                        sagaViewModel,
-                        accountNavHostController,
-                        settingsViewModel,
-                        promptReviewViewModel,
-                        planViewModel,
-                        overlayViewModel
+                        previousRoute = previousRoute,
+                        sagaViewModel = sagaViewModel,
+                        settingsViewModel = settingsViewModel,
+                        promptReviewViewModel = promptReviewViewModel,
+                        planViewModel = planViewModel,
+                        overlayViewModel = overlayViewModel,
+                        navController = navController,
                     )
 
                     HorizontalDivider(
@@ -210,13 +269,16 @@ fun MainNavHost(
 
 @Composable
 fun MainNavContent(
-    currentDestination: AppDestinations,
+    previousRoute: Route?,
     sagaViewModel: SagaViewModel,
-    accountNavHostController: NavHostController,
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
+    navController: NavHostController,
+    accountViewModel: AccountViewModel = hiltViewModel(),
+    walletViewModel: WalletViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel(),
     connectViewModel: ConnectViewModel = hiltViewModel(),
 ) {
 
@@ -238,21 +300,119 @@ fun MainNavContent(
         )
     }
 
-    when (currentDestination) {
-        AppDestinations.CONNECT -> ConnectScreen(
-            connectViewModel,
-            promptReviewViewModel,
-            overlayViewModel
-        )
-        AppDestinations.ACCOUNT -> AccountNavHost(
-            sagaViewModel,
-            accountNavHostController,
-            planViewModel,
-            settingsViewModel,
-            overlayViewModel = overlayViewModel
-        )
-        AppDestinations.SUPPORT -> FeedbackScreen(
-            overlayViewModel = overlayViewModel
-        )
+    val nestedPopEnterTransition = fadeIn(animationSpec = tween(300))
+
+    val nestedEnterTransition = {
+        if (previousRoute == Route.Connect || previousRoute == Route.Support) {
+            EnterTransition.None
+        } else {
+            slideInHorizontally(
+                initialOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(durationMillis = 300)
+            ) + fadeIn(animationSpec = tween(300))
+        }
+    }
+
+    val nestedPopExitTransition = {
+        val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
+        if (destinationRoute == Route.Connect || destinationRoute == Route.Support) {
+            ExitTransition.None
+        } else {
+            slideOutHorizontally(
+                targetOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(durationMillis = 300)
+            )
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = Route.Connect,
+    ) {
+
+        composable<Route.Connect>(
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            ConnectScreen(
+                connectViewModel,
+                promptReviewViewModel,
+                overlayViewModel
+            )
+        }
+
+        composable<Route.Support>(
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            FeedbackScreen(
+                overlayViewModel = overlayViewModel
+            )
+        }
+
+        navigation<Route.AccountContainer>(
+            startDestination = Route.Account,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            composable<Route.Account> {
+                AccountScreen(
+                    navController,
+                    accountViewModel,
+                    totalPayoutAmount = walletViewModel.totalPayoutAmount,
+                    totalPayoutAmountInitialized = walletViewModel.totalPayoutAmountInitialized,
+                    walletCount = walletViewModel.wallets.size,
+                    planViewModel = planViewModel,
+                    overlayViewModel = overlayViewModel
+                )
+            }
+            composable<Route.Profile>(
+                enterTransition = { nestedEnterTransition() },
+                popExitTransition = { nestedPopExitTransition() }
+            ) { ProfileScreen(
+                navController,
+                accountViewModel,
+                profileViewModel,
+                overlayViewModel
+            ) }
+            composable<Route.Settings>(
+                enterTransition = { nestedEnterTransition() },
+                popExitTransition = { nestedPopExitTransition() }
+            ) { SettingsScreen(
+                navController,
+                accountViewModel,
+                planViewModel,
+                settingsViewModel,
+                overlayViewModel
+            ) }
+
+            composable<Route.Wallets>(
+                enterTransition = { nestedEnterTransition() },
+                popEnterTransition = { nestedPopEnterTransition },
+                popExitTransition = { nestedPopExitTransition() }
+            ) {
+                WalletsScreen(
+                    navController,
+                    sagaViewModel,
+                    walletViewModel
+                )
+            }
+
+            composable<Route.Wallet>(
+                enterTransition = { nestedEnterTransition() },
+                popExitTransition = { nestedPopExitTransition() }
+            ) { backStackEntry ->
+
+                val wallet: Route.Wallet = backStackEntry.toRoute()
+                val accountWallet = walletViewModel.findWalletById(wallet.id)
+
+                WalletScreen(
+                    navController = navController,
+                    accountWallet = accountWallet,
+                    walletViewModel = walletViewModel,
+                    overlayViewModel = overlayViewModel
+                )
+            }
+        }
     }
 }

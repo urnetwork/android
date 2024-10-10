@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.client.Id
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
@@ -60,7 +61,7 @@ fun WalletCard(
                 shape = RoundedCornerShape(size = 12.dp)
             )
             .clickable {
-                navController.navigate("wallet/${walletId}")
+                navController.navigate(Route.Wallet("$walletId"))
             }
             .padding(16.dp)
     ) {
