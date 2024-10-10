@@ -61,7 +61,7 @@ fun WalletCard(
                 shape = RoundedCornerShape(size = 12.dp)
             )
             .clickable {
-                navController.navigate("${Route.WALLETS}/${walletId}")
+                navController.navigate(Route.Wallet("$walletId"))
             }
             .padding(16.dp)
     ) {

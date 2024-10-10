@@ -39,6 +39,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
@@ -264,7 +265,7 @@ fun AccountScreenContent(
                                             modifier = Modifier
                                                 .offset(y = (-8).dp)
                                                 .clickable {
-                                                    navController.navigate("wallets")
+                                                    navController.navigate(Route.Wallets)
                                                 },
                                             style = TextStyle(
                                                 color = BlueMedium
@@ -301,7 +302,7 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.profile),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate("profile")
+                    navController.navigate(Route.Profile)
                 } else {
                     launchOverlay(OverlayMode.GuestMode)
                 }
@@ -313,7 +314,7 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.settings),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate("settings")
+                    navController.navigate(Route.Settings)
                 } else {
                     launchOverlay(OverlayMode.GuestMode)
                 }
@@ -325,7 +326,7 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.wallet),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate("wallets")
+                    navController.navigate(Route.Wallets)
                 } else {
                     launchOverlay(OverlayMode.GuestMode)
                 }

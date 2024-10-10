@@ -1,12 +1,10 @@
 package com.bringyour.network.ui
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -30,13 +28,10 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaul
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -44,12 +39,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.network.R
 import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
@@ -67,6 +61,7 @@ import com.bringyour.network.ui.wallet.SagaViewModel
 import com.bringyour.network.utils.isTablet
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
@@ -74,7 +69,6 @@ import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
-
 
 @Composable
 fun MainNavHost(
@@ -89,9 +83,8 @@ fun MainNavHost(
 ) {
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
-    val lastAccountRoute by mainNavViewModel.lastAccountRoute.collectAsState()
-
-    // var currentTopLevelDestination by rememberSaveable { mutableStateOf(TopLevelScaffoldRoutes.CONNECT) }
+    val currentRoute by mainNavViewModel.currentRoute.collectAsState()
+    val previousRoute by mainNavViewModel.previousRoute.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -100,12 +93,8 @@ fun MainNavHost(
         navigationRailItemColors = NavigationRailItemDefaults.colors(
             indicatorColor = Color.Transparent
         ),
-        navigationDrawerItemColors = NavigationDrawerItemDefaults.colors(
-
-        )
+        navigationDrawerItemColors = NavigationDrawerItemDefaults.colors()
     )
-
-    val accountNavHostController = rememberNavController()
 
     val customColors = NavigationSuiteDefaults.colors(
         navigationRailContainerColor = Black,
@@ -127,7 +116,19 @@ fun MainNavHost(
     }
 
     val navController = rememberNavController()
-    // var lastAccountDestination by remember { mutableStateOf("account") }
+
+    DisposableEffect(Unit) {
+
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            mainNavViewModel.setCurrentRoute(Route.fromString(destination.route ?: ""))
+        }
+
+        navController.addOnDestinationChangedListener(listener)
+
+        onDispose {
+            navController.removeOnDestinationChangedListener(listener)
+        }
+    }
 
 
     Box(
@@ -159,41 +160,28 @@ fun MainNavHost(
                         selected = screen == currentTopLevelRoute,
                         onClick = {
 
-                            Log.i("MainNavHost", "pre navController.graph.findStartDestination().route: ${navController.graph.findStartDestination().route}")
-                            Log.i("MainNavHost", "pre navController.graph.findStartDestination().parent?.route: ${navController.graph.findStartDestination().parent?.route}")
-                            Log.i("MainNavHost", "pre navController.currentBackStackEntry?.destination?.route: ${navController.currentBackStackEntry?.destination?.route}")
-                            Log.i("MainNavHost", "pre navController.currentDestination?.route: ${navController.currentDestination?.route}")
-                            Log.i("MainNavHost", "pre navController.currentDestination?.parent?.route: ${navController.currentDestination?.parent?.route}")
-                            Log.i("MainNavHost", "pre navController.currentDestination?.parent?.findStartDestination()?.route: ${navController.currentDestination?.parent?.findStartDestination()?.route}")
-
-                            navController.navigate("${screen.route}")
-
-
-
-                            Log.i("MainNavHost", "post navController.graph.findStartDestination().route: ${navController.graph.findStartDestination().route}")
-                            Log.i("MainNavHost", "post navController.graph.findStartDestination().parent?.route: ${navController.graph.findStartDestination().parent?.route}")
-                            Log.i("MainNavHost", "post navController.currentBackStackEntry?.destination?.route: ${navController.currentBackStackEntry?.destination?.route}")
-                            Log.i("MainNavHost", "post navController.currentDestination?.route: ${navController.currentDestination?.route}")
-                            Log.i("MainNavHost", "post navController.currentDestination?.parent?.route: ${navController.currentDestination?.parent?.route}")
-                            Log.i("MainNavHost", "post navController.currentDestination?.parent?.findStartDestination()?.route: ${navController.currentDestination?.parent?.findStartDestination()?.route}")
-
-
-//                            if (screen == TopLevelScaffoldRoutes.ACCOUNT && currentTopLevelRoute != TopLevelScaffoldRoutes.ACCOUNT) {
-//                                // If navigating to Account from another top-level destination,
-//                                // navigate to the last known Account destination
-//                                navController.navigate("$lastAccountRoute")
-//                            } else if (screen != TopLevelScaffoldRoutes.ACCOUNT) {
-//                                // For other top-level destinations, navigate normally
-//                                navController.navigate("${screen.route}") {
-//                                    popUpTo(navController.graph.findStartDestination().id) {
-//                                        saveState = true
-//                                    }
-//                                    launchSingleTop = true
-//                                    restoreState = true
-//                                }
-//                            }
+                            if (currentTopLevelRoute.route == Route.AccountContainer
+                                && screen.route == Route.AccountContainer
+                                && currentRoute != Route.Account
+                                ) {
+                                navController.popBackStack(Route.Account, inclusive = false)
+                            } else {
+                                navController.navigate(screen.route) {
+                                    // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    // Avoid multiple copies of the same destination when
+                                    // reselecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when reselecting a previously selected item
+                                    restoreState = true
+                                }
+                            }
                             mainNavViewModel.setCurrentTopLevelRoute(screen)
-                            // currentTopLevelDestination = screen
                                   },
                         colors = navItemColors,
                     )
@@ -208,9 +196,8 @@ fun MainNavHost(
                 ) {
                     Row {
                         MainNavContent(
-                            currentTopLevelRoute,
+                            previousRoute,
                             sagaViewModel,
-                            accountNavHostController,
                             settingsViewModel,
                             promptReviewViewModel,
                             planViewModel,
@@ -227,7 +214,6 @@ fun MainNavHost(
                             color = MainBorderBase
                         )
                     }
-
                 }
 
             } else {
@@ -236,14 +222,13 @@ fun MainNavHost(
                     modifier = Modifier.padding(bottom = 1.dp)
                 ) {
                     MainNavContent(
-                        currentTopLevelRoute,
-                        sagaViewModel,
-                        accountNavHostController,
-                        settingsViewModel,
-                        promptReviewViewModel,
-                        planViewModel,
-                        overlayViewModel,
-                        navController
+                        previousRoute = previousRoute,
+                        sagaViewModel = sagaViewModel,
+                        settingsViewModel = settingsViewModel,
+                        promptReviewViewModel = promptReviewViewModel,
+                        planViewModel = planViewModel,
+                        overlayViewModel = overlayViewModel,
+                        navController = navController,
                     )
 
                     HorizontalDivider(
@@ -270,15 +255,13 @@ fun MainNavHost(
 
 @Composable
 fun MainNavContent(
-    currentTopLevelRoute: TopLevelScaffoldRoutes,
+    previousRoute: Route?,
     sagaViewModel: SagaViewModel,
-    accountNavHostController: NavHostController,
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
     navController: NavHostController,
-
     accountViewModel: AccountViewModel = hiltViewModel(),
     walletViewModel: WalletViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
@@ -303,28 +286,37 @@ fun MainNavContent(
         )
     }
 
-    val nestedEnterTransition =  slideInHorizontally(
-        initialOffsetX = { fullWidth -> fullWidth },
-        animationSpec = tween(durationMillis = 300)
-    ) + fadeIn(animationSpec = tween(300))
-    val nestedExitTransition = fadeOut(
-        animationSpec = tween(300)
-    )
     val nestedPopEnterTransition = fadeIn(animationSpec = tween(300))
-    val nestedPopExitTransition = slideOutHorizontally(
-        targetOffsetX = { fullWidth -> fullWidth },
-        animationSpec = tween(durationMillis = 300)
-    )
 
+    val nestedEnterTransition = {
+        if (previousRoute == Route.Connect || previousRoute == Route.Support) {
+            EnterTransition.None
+        } else {
+            slideInHorizontally(
+                initialOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(durationMillis = 300)
+            ) + fadeIn(animationSpec = tween(300))
+        }
+    }
 
+    val nestedPopExitTransition = {
+        val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
+        if (destinationRoute == Route.Connect || destinationRoute == Route.Support) {
+            ExitTransition.None
+        } else {
+            slideOutHorizontally(
+                targetOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(durationMillis = 300)
+            )
+        }
+    }
 
     NavHost(
         navController = navController,
-        startDestination = "connect",
+        startDestination = Route.Connect,
     ) {
 
-        composable(
-            "${Route.CONNECT}",
+        composable<Route.Connect>(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
@@ -335,8 +327,7 @@ fun MainNavContent(
             )
         }
 
-        composable(
-            "${Route.SUPPORT}",
+        composable<Route.Support>(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
@@ -345,13 +336,12 @@ fun MainNavContent(
             )
         }
 
-        navigation(
-            startDestination = "${Route.ACCOUNT}",
-            route = "${Route.ACCOUNT_CONTAINER}",
+        navigation<Route.AccountContainer>(
+            startDestination = Route.Account,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            composable("${Route.ACCOUNT}") {
+            composable<Route.Account> {
                 AccountScreen(
                     navController,
                     accountViewModel,
@@ -361,42 +351,19 @@ fun MainNavContent(
                     planViewModel = planViewModel,
                     overlayViewModel = overlayViewModel
                 )
-
-                LaunchedEffect(Unit) {
-                    // setLastAccountRoute(Route.Account)
-                }
             }
-            composable(
-                "${Route.PROFILE}",
-                enterTransition = {
-                    Log.i("MainNavHost", "navController.previousBackStackEntry?.destination?.route? ${navController.previousBackStackEntry?.destination?.route}")
-                    if (currentTopLevelRoute == TopLevelScaffoldRoutes.ACCOUNT) {
-                        nestedEnterTransition
-                    } else {
-                        EnterTransition.None
-                    }
-                },
-                exitTransition = {
-                    if (currentTopLevelRoute == TopLevelScaffoldRoutes.ACCOUNT) {
-                        nestedExitTransition
-                    } else {
-                        ExitTransition.None
-                    }
-                },
-                popEnterTransition = { nestedPopEnterTransition },
-                popExitTransition = { nestedPopExitTransition }
+            composable<Route.Profile>(
+                enterTransition = { nestedEnterTransition() },
+                popExitTransition = { nestedPopExitTransition() }
             ) { ProfileScreen(
                 navController,
                 accountViewModel,
                 profileViewModel,
                 overlayViewModel
             ) }
-            composable(
-                "${Route.SETTINGS}",
-                enterTransition = { nestedEnterTransition },
-                exitTransition = { nestedExitTransition },
-                popEnterTransition = { nestedPopEnterTransition },
-                popExitTransition = { nestedPopExitTransition }
+            composable<Route.Settings>(
+                enterTransition = { nestedEnterTransition() },
+                popExitTransition = { nestedPopExitTransition() }
             ) { SettingsScreen(
                 navController,
                 accountViewModel,
@@ -405,31 +372,25 @@ fun MainNavContent(
                 overlayViewModel
             ) }
 
-            composable(
-                "${Route.WALLETS}",
-                enterTransition = { nestedEnterTransition },
-                exitTransition = { nestedExitTransition },
+            composable<Route.Wallets>(
+                enterTransition = { nestedEnterTransition() },
                 popEnterTransition = { nestedPopEnterTransition },
-                popExitTransition = { nestedPopExitTransition }
+                popExitTransition = { nestedPopExitTransition() }
             ) {
                 WalletsScreen(
-                    // accountNavController,
                     navController,
                     sagaViewModel,
                     walletViewModel
                 )
             }
 
-            composable(
-                "${Route.WALLETS}/{walletId}",
-                enterTransition = { nestedEnterTransition },
-                exitTransition = { nestedExitTransition },
-                popEnterTransition = { nestedPopEnterTransition },
-                popExitTransition = { nestedPopExitTransition }
+            composable<Route.Wallet>(
+                enterTransition = { nestedEnterTransition() },
+                popExitTransition = { nestedPopExitTransition() }
             ) { backStackEntry ->
 
-                val walletId = backStackEntry.arguments?.getString("walletId") ?: ""
-                val accountWallet = walletViewModel.findWalletById(walletId)
+                val wallet: Route.Wallet = backStackEntry.toRoute()
+                val accountWallet = walletViewModel.findWalletById(wallet.id)
 
                 WalletScreen(
                     navController = navController,
@@ -440,23 +401,4 @@ fun MainNavContent(
             }
         }
     }
-
-
-//    when (currentDestination) {
-//        AppDestinations.CONNECT -> ConnectScreen(
-//            connectViewModel,
-//            promptReviewViewModel,
-//            overlayViewModel
-//        )
-//        AppDestinations.ACCOUNT -> AccountNavHost(
-//            sagaViewModel,
-//            accountNavHostController,
-//            planViewModel,
-//            settingsViewModel,
-//            overlayViewModel = overlayViewModel
-//        )
-//        AppDestinations.SUPPORT -> FeedbackScreen(
-//            overlayViewModel = overlayViewModel
-//        )
-//    }
 }
