@@ -34,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.client.NetworkUser
 import com.bringyour.network.R
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
@@ -53,7 +51,6 @@ import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.overlays.OverlayMode
-import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordViewModel
 import com.bringyour.network.ui.theme.Black
@@ -103,8 +100,6 @@ fun ProfileScreen(
         networkName = networkUser?.networkName ?: "",
         networkNameTextFieldValue = profileViewModel.networkNameTextFieldValue,
         setNetworkName = profileViewModel.setNetworkNameTextFieldValue,
-        nameTextFieldValue = profileViewModel.nameTextFieldValue,
-        setName = profileViewModel.setNameTextFieldValue,
         userAuth = networkUser?.userAuth,
         isEditingProfile = profileViewModel.isEditingProfile,
         setIsEditingProfile = profileViewModel.setIsEditingProfile,
@@ -135,8 +130,6 @@ fun ProfileScreen(
     networkName: String,
     networkNameTextFieldValue: TextFieldValue,
     setNetworkName: (TextFieldValue) -> Unit,
-    nameTextFieldValue: TextFieldValue,
-    setName: (TextFieldValue) -> Unit,
     userAuth: String?,
     isEditingProfile: Boolean,
     setIsEditingProfile: (Boolean) -> Unit,
@@ -207,19 +200,6 @@ fun ProfileScreen(
                 )
             }
             Spacer(modifier = Modifier.height(64.dp))
-
-            URTextInput(
-                value = nameTextFieldValue,
-                onValueChange = {
-                    setName(it)
-                },
-                enabled = isEditingProfile && !isUpdating,
-                label = stringResource(id = R.string.name_label),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
-                ),
-            )
 
             URTextInput(
                 value = networkNameTextFieldValue,
@@ -386,8 +366,6 @@ fun ProfileScreenPreview() {
             networkName = "my_network",
             networkNameTextFieldValue = TextFieldValue("my_network"),
             setNetworkName = {},
-            nameTextFieldValue = TextFieldValue("Lorem Ipsum"),
-            setName = {},
             isEditingProfile = false,
             setIsEditingProfile = {},
             cancelEdits = {},
@@ -421,8 +399,6 @@ fun ProfileScreenEditingPreview() {
             networkName = "my_network",
             networkNameTextFieldValue = TextFieldValue("my_network"),
             setNetworkName = {},
-            nameTextFieldValue = TextFieldValue("Lorem Ipsum"),
-            setName = {},
             isEditingProfile = true,
             setIsEditingProfile = {},
             cancelEdits = {},
@@ -456,8 +432,6 @@ fun ProfileScreenErrorUpdatingPreview() {
             networkName = "my_network",
             networkNameTextFieldValue = TextFieldValue("my_network"),
             setNetworkName = {},
-            nameTextFieldValue = TextFieldValue("Lorem Ipsum"),
-            setName = {},
             isEditingProfile = false,
             setIsEditingProfile = {},
             cancelEdits = {},

@@ -48,11 +48,7 @@ class ProfileViewModel @Inject constructor(
         errorUpdatingProfile = errExists
     }
 
-    // private var networkUser by mutableStateOf<NetworkUser?>(null)
     private var networkUser: NetworkUser? = null
-
-    var nameTextFieldValue by mutableStateOf(TextFieldValue())
-        private set
 
     var networkNameTextFieldValue by mutableStateOf(TextFieldValue())
         private set
@@ -75,11 +71,6 @@ class ProfileViewModel @Inject constructor(
 
     val setNetworkNameTextFieldValue: (TextFieldValue) -> Unit = {
         networkNameTextFieldValue = it
-    }
-
-    val setNameTextFieldValue: (TextFieldValue) -> Unit = {
-        nameTextFieldValue = it
-        validateName(nameTextFieldValue.text)
     }
 
     val setIsEditingProfile: (Boolean) -> Unit = {
@@ -114,31 +105,22 @@ class ProfileViewModel @Inject constructor(
 
     }
 
-    val validateName: (String) -> Unit = { nn ->
-
-        usernameIsValid = nn.length < 100
-
-    }
-
     val updateProfile: () -> Unit = {
         if (networkNameIsValid && usernameIsValid) {
             setIsEditingProfile(false)
-            networkUserVc?.updateNetworkUser(networkNameTextFieldValue.text, nameTextFieldValue.text)
+            networkUserVc?.updateNetworkUser(networkNameTextFieldValue.text)
         } else {
             setErrorUpdatingProfile(true)
         }
     }
 
     val cancelEdits = {
-        setNameTextFieldValue(TextFieldValue(networkUser?.userName ?: ""))
         setNetworkNameTextFieldValue(TextFieldValue(networkUser?.networkName ?: ""))
         setIsEditingProfile(false)
     }
 
     val setNetworkUser: (NetworkUser?) -> Unit = { nu ->
         networkUser = nu
-
-        setNameTextFieldValue(TextFieldValue(nu?.userName ?: ""))
         setNetworkNameTextFieldValue(TextFieldValue(nu?.networkName ?: ""))
     }
 

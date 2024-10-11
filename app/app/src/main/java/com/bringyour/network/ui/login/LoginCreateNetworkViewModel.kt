@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +11,6 @@ import com.bringyour.client.Client
 import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.client.NetworkNameValidationViewController
 import com.bringyour.network.NetworkSpaceManagerProvider
-import com.bringyour.network.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,12 +29,6 @@ class LoginCreateNetworkViewModel @Inject constructor(
         emailOrPhone = tfv
     }
 
-    var username by mutableStateOf(TextFieldValue(""))
-        private set
-
-    val setUsername: (TextFieldValue) -> Unit = { tfv ->
-        username = tfv
-    }
 
     var networkNameIsValid by mutableStateOf(false)
         private set
@@ -125,7 +117,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
     val createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs = { params ->
         val args = NetworkCreateArgs()
 
-        args.userName = username.text.trim()
+        args.userName = ""
         args.networkName = networkName.text.trim()
         args.terms = termsAgreed
 
