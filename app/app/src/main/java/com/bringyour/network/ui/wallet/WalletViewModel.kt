@@ -21,6 +21,9 @@ import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,6 +51,16 @@ class WalletViewModel @Inject constructor(
 
     var unpaidMegaByteCount by mutableStateOf("")
         private set
+
+    var isRetrievingSagaWallet by mutableStateOf(false)
+        private set
+
+    val setIsRetrievingSagaWallet: (Boolean) -> Unit = { ir ->
+        isRetrievingSagaWallet = ir
+    }
+
+    private val _requestSagaWallet = MutableSharedFlow<Unit>()
+    val requestSagaWallet: SharedFlow<Unit> = _requestSagaWallet.asSharedFlow()
 
     /**
      * Display a loading indicator when first loading wallets
@@ -283,6 +296,7 @@ class WalletViewModel @Inject constructor(
 
         if (chain != "") {
             walletVc?.addExternalWallet(externalWalletAddress.text, chain)
+            setExternaWalletAddress(TextFieldValue(""))
         }
 
     }
@@ -397,6 +411,33 @@ class WalletViewModel @Inject constructor(
         walletVc?.addUnpaidByteCountListener{ ubc ->
             unpaidMegaByteCount = String.format("%.4f", ubc / (1024.0 * 1024.0))
         }
+    }
+
+    val getSagaWalletAddress:  () -> Unit = {
+
+        if (!isRetrievingSagaWallet) {
+
+            setIsRetrievingSagaWallet(true)
+            viewModelScope.launch {
+                _requestSagaWallet.emit(Unit)
+            }
+
+        }
+
+    }
+
+    val sagaWalletAddressRetrieved: (String?) -> Unit = { address ->
+        if (address != null) {
+            setExternaWalletAddress(TextFieldValue(address))
+            // setExternalWalletAddress(TextFieldValue(address))
+            // since this is taken directly from the saga,
+            // we can mark this as true without calling our API to validate
+            setExternalWalletAddressIsValid("SOL", true)
+
+            // Log.i("WalletViewModel", "everything in its right place: $address")
+            createExternalWallet()
+        }
+        setIsRetrievingSagaWallet(false)
     }
 
     init {

@@ -57,7 +57,6 @@ import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
-import com.bringyour.network.ui.wallet.SagaViewModel
 import com.bringyour.network.utils.isTablet
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
@@ -72,7 +71,7 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 
 @Composable
 fun MainNavHost(
-    sagaViewModel: SagaViewModel,
+    walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
@@ -211,12 +210,12 @@ fun MainNavHost(
                     Row {
                         MainNavContent(
                             previousRoute,
-                            sagaViewModel,
-                            settingsViewModel,
-                            promptReviewViewModel,
-                            planViewModel,
-                            overlayViewModel,
-                            navController
+                            settingsViewModel = settingsViewModel,
+                            promptReviewViewModel = promptReviewViewModel,
+                            planViewModel = planViewModel,
+                            overlayViewModel = overlayViewModel,
+                            navController = navController,
+                            walletViewModel = walletViewModel
                         )
                     }
 
@@ -237,12 +236,12 @@ fun MainNavHost(
                 ) {
                     MainNavContent(
                         previousRoute = previousRoute,
-                        sagaViewModel = sagaViewModel,
                         settingsViewModel = settingsViewModel,
                         promptReviewViewModel = promptReviewViewModel,
                         planViewModel = planViewModel,
                         overlayViewModel = overlayViewModel,
                         navController = navController,
+                        walletViewModel = walletViewModel
                     )
 
                     HorizontalDivider(
@@ -270,14 +269,13 @@ fun MainNavHost(
 @Composable
 fun MainNavContent(
     previousRoute: Route?,
-    sagaViewModel: SagaViewModel,
+    walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
     navController: NavHostController,
     accountViewModel: AccountViewModel = hiltViewModel(),
-    walletViewModel: WalletViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
     connectViewModel: ConnectViewModel = hiltViewModel(),
 ) {
@@ -393,7 +391,6 @@ fun MainNavContent(
             ) {
                 WalletsScreen(
                     navController,
-                    sagaViewModel,
                     walletViewModel
                 )
             }

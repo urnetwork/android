@@ -2,6 +2,7 @@ package com.bringyour.network
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
@@ -29,13 +30,17 @@ import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.ui.wallet.SagaViewModel
+import com.bringyour.network.ui.wallet.WalletViewModel
 import com.google.android.play.core.review.ReviewException
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.android.play.core.review.model.ReviewErrorCode
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
+import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
+import com.solana.mobilewalletadapter.clientlib.TransactionResult
+import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,11 +54,13 @@ class MainActivity: AppCompatActivity() {
 
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
-    private val sagaViewModel: SagaViewModel by viewModels()
+    private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val promptReviewViewModel: PromptReviewViewModel by viewModels()
     private val planViewModel: PlanViewModel by viewModels()
     private var reviewManager: ReviewManager? = null
+
+    private var sagaActivitySender: ActivityResultSender? = null
 
     private fun prepareVpnService() {
         val app = application as MainApplication
@@ -96,8 +103,7 @@ class MainActivity: AppCompatActivity() {
         // immutable shadow
         val app = application as MainApplication
 
-        val sender = ActivityResultSender(this)
-        sagaViewModel.setSender(sender)
+        sagaActivitySender = ActivityResultSender(this)
 
         reviewManager = ReviewManagerFactory.create(this)
 
@@ -143,7 +149,7 @@ class MainActivity: AppCompatActivity() {
         setContent {
             URNetworkTheme {
                 MainNavHost(
-                    sagaViewModel,
+                    walletViewModel,
                     settingsViewModel,
                     promptReviewViewModel,
                     planViewModel,
@@ -151,7 +157,6 @@ class MainActivity: AppCompatActivity() {
                 )
             }
         }
-
     }
 
     override fun onStart() {
@@ -225,6 +230,12 @@ class MainActivity: AppCompatActivity() {
             }
         }
 
+        // for requesting saga wallet
+        lifecycleScope.launch {
+            walletViewModel.requestSagaWallet.collect {
+                requestSagaWallet()
+            }
+        }
     }
 
     override fun onStop() {
@@ -254,6 +265,41 @@ class MainActivity: AppCompatActivity() {
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false
+    }
+
+    private fun requestSagaWallet() {
+
+        val solanaWalletAdapter = MobileWalletAdapter(
+            connectionIdentity = ConnectionIdentity(
+                identityUri = Uri.parse("https://ur.io"),
+                iconUri = Uri.parse("favicon.svg"),
+                identityName = "URnetwork"
+            )
+        )
+
+        if (sagaActivitySender != null) {
+            lifecycleScope.launch {
+                val address = getWalletAddress(solanaWalletAdapter, sagaActivitySender!!)
+                walletViewModel.sagaWalletAddressRetrieved(address)
+            }
+        }
+    }
+
+    private suspend fun getWalletAddress(walletAdapter: MobileWalletAdapter, activitySender: ActivityResultSender): String? {
+        return when (val result = walletAdapter.connect(activitySender)) {
+            is TransactionResult.Success -> {
+                val pubKey = SolanaPublicKey(result.authResult.publicKey)
+                pubKey.base58()
+            }
+            is TransactionResult.NoWalletFound -> {
+                Log.i("SolanaViewModel", "No MWA compatible wallet app found on device.")
+                null
+            }
+            is TransactionResult.Failure -> {
+                Log.i("SolanaViewModel", "Error connecting to wallet: " + result.e.message)
+                null
+            }
+        }
     }
 
     private suspend fun upgradePlan() {

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,10 +23,8 @@ import com.bringyour.network.ui.theme.TextMuted
 fun SetupWallet(
     initCircleWallet: () -> Unit,
     circleWalletInProgress: Boolean,
-    isSolanaSaga: Boolean,
-    getSolanaAddress: ((String?) -> Unit) -> Unit,
+    getSolanaAddress: () -> Unit,
     openModal: () -> Unit,
-    connectSaga: (String?) -> Unit
 ) {
 
     Column(
@@ -52,14 +51,10 @@ fun SetupWallet(
 
         Column {
 
-            if (isSolanaSaga) {
+            if (Build.MODEL.equals("SAGA", ignoreCase = true)) {
 
                 URButton(
-                    onClick = {
-                        getSolanaAddress { address ->
-                            connectSaga(address)
-                        }
-                    },
+                    onClick = getSolanaAddress,
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
