@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.wallet
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +35,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import circle.programmablewallet.sdk.api.ApiError
 import circle.programmablewallet.sdk.api.Callback
@@ -69,10 +67,7 @@ import com.bringyour.network.ui.theme.BlueLight
 
 @Composable
 fun WalletsScreen(
-//    accountNavController: NavController,
-//    walletNavController: NavController,
     navController: NavHostController,
-    sagaViewModel: SagaViewModel,
     walletViewModel: WalletViewModel,
 ) {
 
@@ -81,11 +76,8 @@ fun WalletsScreen(
     }
 
     WalletsScreen(
-//        accountNavController,
-//        walletNavController,
         navController,
-        isSolanaSaga = sagaViewModel.isSolanaSaga,
-        getSolanaAddress = sagaViewModel.getSagaWalletAddress,
+        getSolanaAddress = walletViewModel.getSagaWalletAddress,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
@@ -98,7 +90,6 @@ fun WalletsScreen(
         createExternalWallet = walletViewModel.createExternalWallet,
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
         payoutWalletId = walletViewModel.payoutWalletId,
-        setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
         isInitializingFirstWallet = walletViewModel.initializingFirstWallet,
         setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
@@ -113,11 +104,8 @@ fun WalletsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletsScreen(
-//    accountNavController: NavController,
-//    walletNavController: NavController,
     navController: NavHostController,
-    isSolanaSaga: Boolean,
-    getSolanaAddress: ((String?) -> Unit) -> Unit,
+    getSolanaAddress: () -> Unit,
     addExternalWalletModalVisible: Boolean,
     openModal: () -> Unit,
     closeModal: () -> Unit,
@@ -129,7 +117,6 @@ fun WalletsScreen(
     createExternalWallet: () -> Unit,
     isProcessingExternalWallet: Boolean,
     payoutWalletId: Id?,
-    setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit,
     isInitializingFirstWallet: Boolean,
     wallets: List<AccountWallet>,
     setCircleWalletInProgress: (Boolean) -> Unit,
@@ -362,20 +349,8 @@ fun WalletsScreen(
                             SetupWallet(
                                 initCircleWallet = initCircleWallet,
                                 circleWalletInProgress = circleWalletInProgress,
-                                isSolanaSaga = isSolanaSaga,
                                 getSolanaAddress = getSolanaAddress,
                                 openModal = openModal,
-                                connectSaga = { address ->
-
-                                    Log.i("WalletsScreen", "Solana address is: $address")
-                                    if (!address.isNullOrEmpty()) {
-                                        setExternalWalletAddress(TextFieldValue(address))
-                                        // since this is taken directly from the saga,
-                                        // we can mark this as true without calling our API to validate
-                                        setExternalWalletAddressIsValid("SOL", true)
-                                        createExternalWallet()
-                                    }
-                                }
                             )
                         }
                     } else {
@@ -482,9 +457,7 @@ fun WalletsScreen(
 
                     }
                 }
-
             }
-
         }
 
         URDialog(
@@ -570,7 +543,6 @@ private fun WalletScreenPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            isSolanaSaga = false,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
             openModal = {},
@@ -584,7 +556,6 @@ private fun WalletScreenPreview() {
             createExternalWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
-            setExternalWalletAddressIsValid = { _, _ -> },
             isInitializingFirstWallet = false,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
@@ -606,7 +577,6 @@ private fun WalletScreenSagaPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            isSolanaSaga = true,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
             openModal = {},
@@ -620,7 +590,6 @@ private fun WalletScreenSagaPreview() {
             createExternalWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
-            setExternalWalletAddressIsValid = { _, _ -> },
             isInitializingFirstWallet = false,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
@@ -642,7 +611,6 @@ private fun WalletScreenExternalWalletModalPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            isSolanaSaga = true,
             getSolanaAddress = {},
             addExternalWalletModalVisible = true,
             openModal = {},
@@ -656,7 +624,6 @@ private fun WalletScreenExternalWalletModalPreview() {
             createExternalWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
-            setExternalWalletAddressIsValid = { _, _ -> },
             isInitializingFirstWallet = false,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
@@ -678,7 +645,6 @@ private fun WalletScreenInitializingWalletPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            isSolanaSaga = false,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
             openModal = {},
@@ -692,7 +658,6 @@ private fun WalletScreenInitializingWalletPreview() {
             createExternalWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
-            setExternalWalletAddressIsValid = { _, _ -> },
             isInitializingFirstWallet = true,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
@@ -714,7 +679,6 @@ private fun WalletScreenRemovingWalletPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            isSolanaSaga = false,
             getSolanaAddress = {},
             addExternalWalletModalVisible = false,
             openModal = {},
@@ -728,7 +692,6 @@ private fun WalletScreenRemovingWalletPreview() {
             createExternalWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
-            setExternalWalletAddressIsValid = { _, _ -> },
             isInitializingFirstWallet = true,
             setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
