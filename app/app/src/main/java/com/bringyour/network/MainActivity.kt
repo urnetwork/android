@@ -39,6 +39,7 @@ import com.google.android.play.core.review.model.ReviewErrorCode
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
+import com.solana.mobilewalletadapter.clientlib.Solana
 import com.solana.mobilewalletadapter.clientlib.TransactionResult
 import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.AndroidEntryPoint
@@ -276,6 +277,7 @@ class MainActivity: AppCompatActivity() {
                 identityName = "URnetwork"
             )
         )
+        solanaWalletAdapter.blockchain = Solana.Mainnet
 
         if (sagaActivitySender != null) {
             lifecycleScope.launch {
