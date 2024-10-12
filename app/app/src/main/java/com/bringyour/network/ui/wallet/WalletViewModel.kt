@@ -100,6 +100,13 @@ class WalletViewModel @Inject constructor(
 
     private var fetchBytesLastCheckedHour by mutableIntStateOf(0)
 
+    var circleWalletExists by mutableStateOf(false)
+        private set
+
+    val setCircleWalletExists: (Boolean) -> Unit = { exists ->
+        circleWalletExists = exists
+    }
+
     val updateNextPayoutDateStr = {
         walletVc?.let { vc ->
             nextPayoutDateStr = vc.nextPayoutDate
@@ -219,13 +226,14 @@ class WalletViewModel @Inject constructor(
 
             val updatedWallets = mutableListOf<AccountWallet>()
 
-            var circleWalletExists = false
+            // var circleWalletExists = false
+            setCircleWalletExists(false)
 
             for (i in 0 until n) {
                 val wallet = result.get(i)
                 updatedWallets.add(wallet)
                 if (!wallet.circleWalletId.isNullOrEmpty()) {
-                    circleWalletExists = true
+                    setCircleWalletExists(true)
                     Log.i("WalletViewModel", "circle wallet exists")
                 } else {
                     Log.i("WalletViewModel", "no circle wallet found")
@@ -413,7 +421,7 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    val getSagaWalletAddress:  () -> Unit = {
+    val connectSagaWallet:  () -> Unit = {
 
         if (!isRetrievingSagaWallet) {
 

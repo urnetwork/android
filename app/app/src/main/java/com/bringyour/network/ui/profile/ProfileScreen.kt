@@ -243,45 +243,47 @@ fun ProfileScreen(
                 ),
             )
 
-            if (isEditingProfile) {
+            // todo - temporarily remove edits until new API changes are made
+            //
+//            if (isEditingProfile) {
+//
+//                Row {
+//                    Text(
+//                        stringResource(id = R.string.cancel),
+//                        modifier = Modifier.clickable {
+//                            cancelEdits()
+//                        },
+//                        style = TextStyle(
+//                            color = BlueMedium
+//                        )
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(24.dp))
+//
+//                    Text(
+//                        stringResource(id = R.string.save),
+//                        modifier = Modifier.clickable {
+//                            updateProfile()
+//                        },
+//                        style = TextStyle(
+//                            color = BlueMedium
+//                        )
+//                    )
+//                }
+//
+//            } else {
+//                Text(
+//                    stringResource(id = R.string.edit_profile),
+//                    modifier = Modifier.clickable {
+//                        setIsEditingProfile(true)
+//                    },
+//                    style = TextStyle(
+//                        color = BlueMedium
+//                    )
+//                )
+//            }
 
-                Row {
-                    Text(
-                        stringResource(id = R.string.cancel),
-                        modifier = Modifier.clickable {
-                            cancelEdits()
-                        },
-                        style = TextStyle(
-                            color = BlueMedium
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.width(24.dp))
-
-                    Text(
-                        stringResource(id = R.string.save),
-                        modifier = Modifier.clickable {
-                            updateProfile()
-                        },
-                        style = TextStyle(
-                            color = BlueMedium
-                        )
-                    )
-                }
-
-            } else {
-                Text(
-                    stringResource(id = R.string.edit_profile),
-                    modifier = Modifier.clickable {
-                        setIsEditingProfile(true)
-                    },
-                    style = TextStyle(
-                        color = BlueMedium
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+            // Spacer(modifier = Modifier.height(32.dp))
 
             URTextInput(
                 value = TextFieldValue(""),

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -126,43 +127,51 @@ private fun InfoIconWithOverlayPreview() {
 @Composable
 private fun InfoPopupPreview() {
     URNetworkTheme {
-        InfoPopup(
-            onDismiss = {}
-        ) {
-            Column() {
-                Row {
-                    Text(
-                        "Unlock even faster speeds and first",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = BlueLight
-                    )
-                }
-                Row {
-                    Text(
-                        "dibs on new features.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = BlueLight
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+        Scaffold { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                InfoPopup(
+                    onDismiss = {}
                 ) {
-                    Text(
-                        "Become a supporter",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = FontWeight(700),
-                            color = BlueLight,
-                        )
-                    )
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Right Arrow",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Column() {
+                        Row {
+                            Text(
+                                "Unlock even faster speeds and first",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BlueLight
+                            )
+                        }
+                        Row {
+                            Text(
+                                "dibs on new features.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BlueLight
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Become a supporter",
+                                style = TextStyle(
+                                    fontSize = 12.sp,
+                                    lineHeight = 20.sp,
+                                    fontWeight = FontWeight(700),
+                                    color = BlueLight,
+                                )
+                            )
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Right Arrow",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
