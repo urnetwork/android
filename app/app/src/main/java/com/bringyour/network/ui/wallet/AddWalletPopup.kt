@@ -143,7 +143,7 @@ fun AddWalletPopup(
                     HorizontalDivider()
                 }
 
-                if (!circleWalletExists && !isSaga) {
+                if (!circleWalletExists) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
