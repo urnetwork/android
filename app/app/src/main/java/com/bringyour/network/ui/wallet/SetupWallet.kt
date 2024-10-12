@@ -23,7 +23,7 @@ import com.bringyour.network.ui.theme.TextMuted
 fun SetupWallet(
     initCircleWallet: () -> Unit,
     circleWalletInProgress: Boolean,
-    getSolanaAddress: () -> Unit,
+    connectSagaWallet: () -> Unit,
     openModal: () -> Unit,
 ) {
 
@@ -54,7 +54,7 @@ fun SetupWallet(
             if (Build.MODEL.equals("SAGA", ignoreCase = true)) {
 
                 URButton(
-                    onClick = getSolanaAddress,
+                    onClick = connectSagaWallet,
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),

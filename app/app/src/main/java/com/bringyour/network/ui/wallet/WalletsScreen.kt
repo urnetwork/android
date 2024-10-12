@@ -77,9 +77,9 @@ fun WalletsScreen(
 
     WalletsScreen(
         navController,
-        getSolanaAddress = walletViewModel.getSagaWalletAddress,
+        connectSagaWallet = walletViewModel.connectSagaWallet,
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
-        openModal = walletViewModel.openExternalWalletModal,
+        openExternalWalletModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
         createCircleWallet = walletViewModel.createCircleWallet,
         circleWalletInProgress = walletViewModel.circleWalletInProgress,
@@ -97,7 +97,8 @@ fun WalletsScreen(
         isRemovingWallet = walletViewModel.isRemovingWallet,
         pollWallets = walletViewModel.pollWallets,
         initializingWallets = walletViewModel.initializingWallets,
-        unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount
+        unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
+        circleWalletExists = walletViewModel.circleWalletExists
     )
 }
 
@@ -105,9 +106,9 @@ fun WalletsScreen(
 @Composable
 fun WalletsScreen(
     navController: NavHostController,
-    getSolanaAddress: () -> Unit,
+    connectSagaWallet: () -> Unit,
     addExternalWalletModalVisible: Boolean,
-    openModal: () -> Unit,
+    openExternalWalletModal: () -> Unit,
     closeModal: () -> Unit,
     createCircleWallet: (OnWalletExecute) -> Unit,
     externalWalletAddress: TextFieldValue,
@@ -125,7 +126,8 @@ fun WalletsScreen(
     isRemovingWallet: Boolean,
     pollWallets: () -> Unit?,
     initializingWallets: Boolean,
-    unpaidMegaByteCount: String
+    unpaidMegaByteCount: String,
+    circleWalletExists: Boolean,
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -349,8 +351,8 @@ fun WalletsScreen(
                             SetupWallet(
                                 initCircleWallet = initCircleWallet,
                                 circleWalletInProgress = circleWalletInProgress,
-                                getSolanaAddress = getSolanaAddress,
-                                openModal = openModal,
+                                connectSagaWallet = connectSagaWallet,
+                                openModal = openExternalWalletModal,
                             )
                         }
                     } else {
@@ -380,23 +382,13 @@ fun WalletsScreen(
                                 }
                             }
 
-                            IconButton(
-                                onClick = { openModal() },
-                                modifier = Modifier
-                                    .background(
-                                        color = MainTintedBackgroundBase,
-                                        shape = CircleShape
-                                    )
-                                    .width(26.dp)
-                                    .height(26.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.plus_icon),
-                                    contentDescription = stringResource(id = R.string.add_wallet),
-                                    tint = TextMuted,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
+                            AddWallet(
+                                circleWalletExists = circleWalletExists,
+                                initCircleWallet = initCircleWallet,
+                                connectSagaWallet = connectSagaWallet,
+                                openExternalWalletModal = openExternalWalletModal
+                            )
+                            
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -440,8 +432,6 @@ fun WalletsScreen(
                                     Spacer(modifier = Modifier.width(16.dp))
 
                                 }
-
-
                             }
                         }
 
@@ -454,7 +444,6 @@ fun WalletsScreen(
                                 payouts,
                             )
                         }
-
                     }
                 }
             }
@@ -543,9 +532,9 @@ private fun WalletScreenPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            getSolanaAddress = {},
+            connectSagaWallet = {},
             addExternalWalletModalVisible = false,
-            openModal = {},
+            openExternalWalletModal = {},
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
@@ -563,7 +552,8 @@ private fun WalletScreenPreview() {
             isRemovingWallet = false,
             pollWallets = {},
             initializingWallets = false,
-            unpaidMegaByteCount = "124.64"
+            unpaidMegaByteCount = "124.64",
+            circleWalletExists = false
         )
     }
 }
@@ -577,9 +567,9 @@ private fun WalletScreenSagaPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            getSolanaAddress = {},
+            connectSagaWallet = {},
             addExternalWalletModalVisible = false,
-            openModal = {},
+            openExternalWalletModal = {},
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
@@ -597,7 +587,8 @@ private fun WalletScreenSagaPreview() {
             isRemovingWallet = false,
             pollWallets = {},
             initializingWallets = false,
-            unpaidMegaByteCount = "124.64"
+            unpaidMegaByteCount = "124.64",
+            circleWalletExists = false
         )
     }
 }
@@ -611,9 +602,9 @@ private fun WalletScreenExternalWalletModalPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            getSolanaAddress = {},
+            connectSagaWallet = {},
             addExternalWalletModalVisible = true,
-            openModal = {},
+            openExternalWalletModal = {},
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
@@ -631,7 +622,8 @@ private fun WalletScreenExternalWalletModalPreview() {
             isRemovingWallet = false,
             pollWallets = {},
             initializingWallets = false,
-            unpaidMegaByteCount = "124.64"
+            unpaidMegaByteCount = "124.64",
+            circleWalletExists = false
         )
     }
 }
@@ -645,9 +637,9 @@ private fun WalletScreenInitializingWalletPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            getSolanaAddress = {},
+            connectSagaWallet = {},
             addExternalWalletModalVisible = false,
-            openModal = {},
+            openExternalWalletModal = {},
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
@@ -665,7 +657,8 @@ private fun WalletScreenInitializingWalletPreview() {
             isRemovingWallet = false,
             pollWallets = {},
             initializingWallets = false,
-            unpaidMegaByteCount = "124.64"
+            unpaidMegaByteCount = "124.64",
+            circleWalletExists = false
         )
     }
 }
@@ -679,9 +672,9 @@ private fun WalletScreenRemovingWalletPreview() {
     URNetworkTheme {
         WalletsScreen(
             navController,
-            getSolanaAddress = {},
+            connectSagaWallet = {},
             addExternalWalletModalVisible = false,
-            openModal = {},
+            openExternalWalletModal = {},
             closeModal = {},
             createCircleWallet = {},
             circleWalletInProgress = false,
@@ -699,7 +692,8 @@ private fun WalletScreenRemovingWalletPreview() {
             isRemovingWallet = true,
             pollWallets = {},
             initializingWallets = false,
-            unpaidMegaByteCount = "124.64"
+            unpaidMegaByteCount = "124.64",
+            circleWalletExists = false
         )
     }
 }
