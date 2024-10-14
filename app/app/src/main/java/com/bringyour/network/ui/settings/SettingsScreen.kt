@@ -2,6 +2,7 @@ package com.bringyour.network.ui.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -102,7 +103,9 @@ fun SettingsScreen(
                 requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
                 notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
                 allowProductUpdates = settingsViewModel.allowProductUpdates,
-                updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates
+                updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
+                provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
+                toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected
             )
         }
     } else {
@@ -114,7 +117,9 @@ fun SettingsScreen(
             requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
             notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
             allowProductUpdates = settingsViewModel.allowProductUpdates,
-            updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates
+            updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
+            provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
+            toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected
         )
     }
 }
@@ -129,7 +134,9 @@ fun SettingsScreen(
     notificationsPermanentlyDenied: Boolean,
     requestAllowNotifications: () -> Unit,
     allowProductUpdates: Boolean,
-    updateAllowProductUpdates: (Boolean) -> Unit
+    updateAllowProductUpdates: (Boolean) -> Unit,
+    provideWhileDisconnected: Boolean,
+    toggleProvideWhileDisconnected: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -322,6 +329,39 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+
+            URTextInputLabel(text = stringResource(id = R.string.connections))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.provide_disconnected),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                URSwitch(
+                    checked = provideWhileDisconnected,
+                    toggle = {
+                        Log.i("SettingsScreen", "toggling provideWhileDisconnected")
+                        // setProvideWhileDisconnected(!provideWhileDisconnected)
+                        toggleProvideWhileDisconnected()
+                    },
+                )
+            }
+
+//            Text(
+//                if (notificationsPermanentlyDenied || notificationsAllowed) stringResource(id = R.string.update_notification_settings) else "",
+//                style = MaterialTheme.typography.bodySmall,
+//                color = TextMuted
+//            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+
             // allow notifications
             URTextInputLabel(text = stringResource(id = R.string.notifications_label))
             Row(
@@ -429,7 +469,9 @@ fun SettingsScreenPreview() {
             notificationsPermanentlyDenied = false,
             requestAllowNotifications = {},
             allowProductUpdates = true,
-            updateAllowProductUpdates = {}
+            updateAllowProductUpdates = {},
+            provideWhileDisconnected = true,
+            toggleProvideWhileDisconnected = {}
         )
     }
 }
@@ -447,7 +489,9 @@ fun SettingsScreenSupporterPreview() {
             notificationsPermanentlyDenied = false,
             requestAllowNotifications = {},
             allowProductUpdates = true,
-            updateAllowProductUpdates = {}
+            updateAllowProductUpdates = {},
+            provideWhileDisconnected = false,
+            toggleProvideWhileDisconnected = {}
         )
     }
 }
@@ -465,7 +509,9 @@ fun SettingsScreenNotificationsDisabledPreview() {
             notificationsPermanentlyDenied = true,
             requestAllowNotifications = {},
             allowProductUpdates = true,
-            updateAllowProductUpdates = {}
+            updateAllowProductUpdates = {},
+            provideWhileDisconnected = true,
+            toggleProvideWhileDisconnected = {}
         )
     }
 }
@@ -483,7 +529,9 @@ fun SettingsScreenNotificationsAllowedPreview() {
             notificationsPermanentlyDenied = false,
             requestAllowNotifications = {},
             allowProductUpdates = false,
-            updateAllowProductUpdates = {}
+            updateAllowProductUpdates = {},
+            provideWhileDisconnected = true,
+            toggleProvideWhileDisconnected = {}
         )
     }
 }

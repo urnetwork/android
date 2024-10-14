@@ -3,6 +3,7 @@ package com.bringyour.network.ui.settings
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     var allowProductUpdates by mutableStateOf(false)
+        private set
+
+    var provideWhileDisconnected by mutableStateOf(false)
         private set
 
     val setAllowProductUpdates: (Boolean) -> Unit = { allow ->
@@ -93,8 +97,16 @@ class SettingsViewModel @Inject constructor(
         accountPreferencesVc?.updateAllowProductUpdates(allow)
     }
 
+    val toggleProvideWhileDisconnected: () -> Unit = {
+        val currentProvideWhileDisconnected = provideWhileDisconnected
+        byDeviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
+        provideWhileDisconnected = !currentProvideWhileDisconnected
+    }
+
     init {
         accountPreferencesVc = byDeviceManager.byDevice?.openAccountPreferencesViewController()
+
+        provideWhileDisconnected = byDeviceManager.byDevice?.provideWhileDisconnected ?: false
 
         addAllowProductUpdatesListener()
 
