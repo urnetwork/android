@@ -36,7 +36,7 @@ fun OnboardingCarouselSlide(
     content: @Composable () -> Unit
 ) {
     Box(
-        // modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         Box(

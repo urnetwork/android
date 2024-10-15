@@ -75,6 +75,7 @@ import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.OnboardingGuestModeOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.utils.isTablet
+import com.bringyour.network.utils.isTv
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -305,7 +306,7 @@ fun LoginInitial(
 
         Scaffold { innerPadding ->
 
-            if (isTablet() && configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (isTv()) {
 
                 Row(
                     modifier = Modifier
@@ -317,7 +318,7 @@ fun LoginInitial(
 
                     Row(
                         modifier = Modifier
-                            .weight(2f)
+                            .weight(1f)
                             .fillMaxHeight(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End
@@ -328,7 +329,7 @@ fun LoginInitial(
 
                     Row(
                         modifier = Modifier
-                            .weight(3f)
+                            .weight(1f)
                             .fillMaxHeight(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -352,6 +353,7 @@ fun LoginInitial(
                             }
                         )
                     }
+                    Spacer(modifier = Modifier.width(64.dp))
                 }
 
             } else {
@@ -616,7 +618,7 @@ private fun LoginInitialPreview() {
     device = "spec:width=1920dp,height=1080dp,dpi=480"
 )
 @Composable
-fun LandscapePreview() {
+private fun LoginInitialLandscapePreview() {
     val navController = rememberNavController()
 
     val login: (
