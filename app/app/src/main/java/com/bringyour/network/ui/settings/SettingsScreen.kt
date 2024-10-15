@@ -351,14 +351,7 @@ fun SettingsScreen(
                 )
             }
 
-//            Text(
-//                if (notificationsPermanentlyDenied || notificationsAllowed) stringResource(id = R.string.update_notification_settings) else "",
-//                style = MaterialTheme.typography.bodySmall,
-//                color = TextMuted
-//            )
-
             Spacer(modifier = Modifier.height(24.dp))
-
 
             // allow notifications
             URTextInputLabel(text = stringResource(id = R.string.notifications_label))
