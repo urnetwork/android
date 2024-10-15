@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.client.AccountPreferencesViewController
+import com.bringyour.client.Client
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -101,6 +102,24 @@ class SettingsViewModel @Inject constructor(
         val currentProvideWhileDisconnected = provideWhileDisconnected
         byDeviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
         provideWhileDisconnected = !currentProvideWhileDisconnected
+
+        // if enabling provideWhileDisconnected
+        // turn on provide
+        if (provideWhileDisconnected && byDeviceManager.byDevice?.provideEnabled == false) {
+            Log.i("SettingsViewModel", "currently disconnected, but setting provide mode to public")
+            byDeviceManager.byDevice?.provideMode = Client.ProvideModePublic
+        } else {
+            Log.i("SettingsViewModel", "currently disconnected, but setting provide mode to public")
+        }
+
+        // if disabling provideWhileDisconnected and currently not connected
+        // turn provide mode off
+        if (!provideWhileDisconnected && byDeviceManager.byDevice?.connectEnabled == false) {
+            Log.i("SettingsViewModel", "provideWhileDisconnected == false and connectEnabled == false")
+            byDeviceManager.byDevice?.provideMode = Client.ProvideModeNone
+        } else {
+            Log.i("SettingsViewModel", "provideWhileDisconnected == false and connectEnabled == ${byDeviceManager.byDevice?.connectEnabled}")
+        }
     }
 
     init {

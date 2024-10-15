@@ -43,9 +43,9 @@ class ByDeviceManager @Inject constructor() {
             Log.i("ByDeviceManager", "setting provideWhileDisconnected to $it")
             asyncLocalState?.localState?.provideWhileDisconnected = it
             byDevice?.provideWhileDisconnected = it
-            if (it == true) {
-                byDevice?.provideMode = Client.ProvideModePublic
-            }
+//            if (it == true) {
+//                byDevice?.provideMode = Client.ProvideModePublic
+//            }
         }
 
 
@@ -80,10 +80,12 @@ class ByDeviceManager @Inject constructor() {
         val localState = networkSpace!!.asyncLocalState.localState!!
         val instanceId = localState.instanceId!!
         val routeLocal = localState.routeLocal
-        val provideMode = localState.provideMode
         val connectLocation = localState.connectLocation
         val canShowRatingDialog = localState.canShowRatingDialog
         val provideWhileDisconnected = localState.provideWhileDisconnected
+        Log.i("ByDeviceManager", "localState.provideWhileDisconnected: ${localState.provideWhileDisconnected}")
+        Log.i("ByDeviceManager", "localState.provideMode: ${localState.provideMode}")
+        val provideMode = if (provideWhileDisconnected) Client.ProvideModePublic else localState.provideMode
 
         byDevice = Client.newBringYourDeviceWithDefaults(
             networkSpace,
