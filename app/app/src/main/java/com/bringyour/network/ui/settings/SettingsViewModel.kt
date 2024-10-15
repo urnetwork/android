@@ -3,7 +3,6 @@ package com.bringyour.network.ui.settings
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -106,19 +105,13 @@ class SettingsViewModel @Inject constructor(
         // if enabling provideWhileDisconnected
         // turn on provide
         if (provideWhileDisconnected && byDeviceManager.byDevice?.provideEnabled == false) {
-            Log.i("SettingsViewModel", "currently disconnected, but setting provide mode to public")
             byDeviceManager.byDevice?.provideMode = Client.ProvideModePublic
-        } else {
-            Log.i("SettingsViewModel", "currently disconnected, but setting provide mode to public")
         }
 
         // if disabling provideWhileDisconnected and currently not connected
         // turn provide mode off
         if (!provideWhileDisconnected && byDeviceManager.byDevice?.connectEnabled == false) {
-            Log.i("SettingsViewModel", "provideWhileDisconnected == false and connectEnabled == false")
             byDeviceManager.byDevice?.provideMode = Client.ProvideModeNone
-        } else {
-            Log.i("SettingsViewModel", "provideWhileDisconnected == false and connectEnabled == ${byDeviceManager.byDevice?.connectEnabled}")
         }
     }
 
