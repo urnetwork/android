@@ -101,18 +101,6 @@ class SettingsViewModel @Inject constructor(
         val currentProvideWhileDisconnected = provideWhileDisconnected
         byDeviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
         provideWhileDisconnected = !currentProvideWhileDisconnected
-
-        // if enabling provideWhileDisconnected
-        // turn on provide
-        if (provideWhileDisconnected && byDeviceManager.byDevice?.provideEnabled == false) {
-            byDeviceManager.byDevice?.provideMode = Client.ProvideModePublic
-        }
-
-        // if disabling provideWhileDisconnected and currently not connected
-        // turn provide mode off
-        if (!provideWhileDisconnected && byDeviceManager.byDevice?.connectEnabled == false) {
-            byDeviceManager.byDevice?.provideMode = Client.ProvideModeNone
-        }
     }
 
     init {

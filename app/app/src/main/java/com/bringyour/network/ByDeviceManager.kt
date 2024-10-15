@@ -3,8 +3,6 @@ package com.bringyour.network
 import android.util.Log
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
-import com.bringyour.client.ConnectLocation
-import com.bringyour.client.Id
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.bringyour.client.NetworkSpace
@@ -43,9 +41,6 @@ class ByDeviceManager @Inject constructor() {
             Log.i("ByDeviceManager", "setting provideWhileDisconnected to $it")
             asyncLocalState?.localState?.provideWhileDisconnected = it
             byDevice?.provideWhileDisconnected = it
-//            if (it == true) {
-//                byDevice?.provideMode = Client.ProvideModePublic
-//            }
         }
 
 
