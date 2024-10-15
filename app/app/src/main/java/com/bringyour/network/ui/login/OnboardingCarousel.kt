@@ -93,9 +93,9 @@ fun OnboardingCarousel() {
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth(),
-        contentAlignment = Alignment.Center
+//        modifier = Modifier
+//            .fillMaxWidth(),
+//        contentAlignment = Alignment.Center
     ) {
         slides.forEachIndexed { index, slide ->
             AnimatedVisibility(
