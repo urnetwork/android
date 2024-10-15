@@ -200,4 +200,9 @@
 
     <string name="circlepw_recover_pincode_answer_input_header">在此处输入您的答案</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">在此处键入您的答案</string>
+
+    <string name="connections">连接</string>
+    <string name="provide_disconnected">离线提供</string>
+    <string name="unpaid_mb">已提供的未付兆字节</string>
+    <string name="payouts_amount_threshold">付款每两周进行一次，并且需要提供最低金额才能收到付款。</string>
 </resources>

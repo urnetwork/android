@@ -200,4 +200,9 @@
 
     <string name="circlepw_recover_pincode_answer_input_header">Andika jibu lako hapa</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">Andika jibu lako hapa</string>
+
+    <string name="connections">Miunganisho</string>
+    <string name="provide_disconnected">Toa wakati hujaunganishwa</string>
+    <string name="unpaid_mb">Megabytes ambazo hazijalipwa zimetolewa</string>
+    <string name="payouts_amount_threshold">Malipo hutolewa kila baada ya wiki mbili, na yanahitaji kiwango cha chini kilichotolewa ili kupokea malipo.</string>
 </resources>

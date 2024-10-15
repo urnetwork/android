@@ -190,4 +190,9 @@
     <string name="circlepw_recover_pincode_answer_input_header">Geben Sie Ihre Antwort hier ein</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">Geben Sie Ihre Antwort hier ein</string>
 
+    <string name="connections">Verbindungen</string>
+    <string name="provide_disconnected">Offline bereitstellen</string>
+    <string name="unpaid_mb">Nicht bezahlte Megabyte bereitgestellt</string>
+    <string name="payouts_amount_threshold">Auszahlungen erfolgen alle zwei Wochen und erfordern einen Mindestbetrag, der bereitgestellt werden muss, um eine Auszahlung zu erhalten.</string>
+
 </resources>

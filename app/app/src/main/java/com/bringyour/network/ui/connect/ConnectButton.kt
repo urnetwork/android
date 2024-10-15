@@ -252,33 +252,51 @@ fun GridCanvas(
             // fade out the provider points
             animatedPoints.values.forEach { point ->
                 launch {
-                    point.color.snapTo(getStateColor(point.state))
-                    point.color.animateTo(
-                        Color.Transparent,
-                        animationSpec = tween(durationMillis = 500, delayMillis = 1000)
-                    )
+                    try {
+                        point.color.snapTo(getStateColor(point.state))
+                        point.color.animateTo(
+                            Color.Transparent,
+                            animationSpec = tween(durationMillis = 500, delayMillis = 1000)
+                        )
+                    } catch (e: Exception) {
+                        if (currentStatus == ConnectStatus.CONNECTED) {
+                            point.color.snapTo(Color.Transparent)
+                        }
+                    }
                 }
             }
 
             // animate in the first half
             firstHalf.forEach { point ->
                 launch {
-                    point.center.snapTo(point.initialOffset)
-                    point.center.animateTo(
-                        point.targetOffset,
-                        animationSpec = tween(durationMillis = 500, delayMillis = 1000)
-                    )
+                    try {
+                        point.center.snapTo(point.initialOffset)
+                        point.center.animateTo(
+                            point.targetOffset,
+                            animationSpec = tween(durationMillis = 500, delayMillis = 1000)
+                        )
+                    } catch (e: Exception) {
+                        if (currentStatus == ConnectStatus.CONNECTED) {
+                            point.center.snapTo(point.targetOffset)
+                        }
+                    }
                 }
             }
 
             // animate in the second half
             secondHalf.forEach { point ->
                 launch {
-                    point.center.snapTo(point.initialOffset)
-                    point.center.animateTo(
-                        point.targetOffset,
-                        animationSpec = tween(durationMillis = 500, delayMillis = 2000)
-                    )
+                    try {
+                        point.center.snapTo(point.initialOffset)
+                        point.center.animateTo(
+                            point.targetOffset,
+                            animationSpec = tween(durationMillis = 500, delayMillis = 2000)
+                        )
+                    } catch (e: Exception) {
+                        if (currentStatus == ConnectStatus.CONNECTED) {
+                            point.center.snapTo(point.targetOffset)
+                        }
+                    }
                 }
             }
 
@@ -290,19 +308,31 @@ fun GridCanvas(
 
             animatedSuccessPoints.forEach { point ->
                 launch {
-                    point.center.animateTo(
-                        point.initialOffset,
-                        animationSpec = tween(durationMillis = 500)
-                    )
+                    try {
+                        point.center.animateTo(
+                            point.initialOffset,
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }  catch (e: Exception) {
+                        if (currentStatus == ConnectStatus.CONNECTING) {
+                            point.center.snapTo(point.initialOffset)
+                        }
+                    }
                 }
             }
 
             animatedPoints.values.forEach { point ->
                 launch {
-                    point.color.animateTo(
-                        getStateColor(point.state),
-                        animationSpec = tween(durationMillis = 500)
-                    )
+                    try {
+                        point.color.animateTo(
+                            getStateColor(point.state),
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    } catch (e: Exception) {
+                        if (currentStatus == ConnectStatus.CONNECTING) {
+                            point.color.snapTo(getStateColor(point.state))
+                        }
+                    }
                 }
             }
         }
@@ -316,10 +346,16 @@ fun GridCanvas(
             // pull out the large dots
             animatedSuccessPoints.forEach { point ->
                 launch {
-                    point.center.animateTo(
-                        point.initialOffset,
-                        animationSpec = tween(durationMillis = 1000)
-                    )
+                    try {
+                        point.center.animateTo(
+                            point.initialOffset,
+                            animationSpec = tween(durationMillis = 1000)
+                        )
+                    } catch (e: Exception) {
+                        if (currentStatus == ConnectStatus.DISCONNECTED) {
+                            point.center.snapTo(point.initialOffset)
+                        }
+                    }
                 }
             }
         }
@@ -344,10 +380,16 @@ fun GridCanvas(
                 if (!animatedPoint.done) {
 
                     launch {
-                        animatedPoint.color.animateTo(
-                            getStateColor(ProviderPointState.REMOVED),
-                            animationSpec = tween(durationMillis = 500)
-                        )
+                        try {
+                            animatedPoint.color.animateTo(
+                                getStateColor(ProviderPointState.REMOVED),
+                                animationSpec = tween(durationMillis = 500)
+                            )
+                        } catch (e: Exception) {
+                            if (animatedPoint.done) {
+                                animatedPoint.color.snapTo(getStateColor(ProviderPointState.REMOVED))
+                            }
+                        }
                     }
 
                     launch {
@@ -397,10 +439,16 @@ fun GridCanvas(
                         )
                         if (currentStatus != ConnectStatus.CONNECTED) {
                             launch {
-                                animatedPoint.color.animateTo(
-                                    getStateColor(newState),
-                                    animationSpec = tween(durationMillis = 500)
-                                )
+                                try {
+                                    animatedPoint.color.animateTo(
+                                        getStateColor(newState),
+                                        animationSpec = tween(durationMillis = 500)
+                                    )
+                                } catch (e: Exception) {
+                                    if (!animatedPoint.done) {
+                                        animatedPoint.color.snapTo(getStateColor(animatedPoint.state))
+                                    }
+                                }
                             }
                         }
 
@@ -425,10 +473,16 @@ fun GridCanvas(
 
                     if (currentStatus != ConnectStatus.CONNECTED) {
                         launch {
-                            animatedPoint.color.animateTo(
-                                getStateColor(newState),
-                                animationSpec = tween(durationMillis = 500)
-                            )
+                            try {
+                                animatedPoint.color.animateTo(
+                                    getStateColor(newState),
+                                    animationSpec = tween(durationMillis = 500)
+                                )
+                            } catch (e: Exception) {
+                                if (!animatedPoint.done) {
+                                    animatedPoint.color.snapTo(getStateColor(animatedPoint.state))
+                                }
+                            }
                         }
                     }
 

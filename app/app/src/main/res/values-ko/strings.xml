@@ -222,4 +222,9 @@
 
     <string name="circlepw_recover_pincode_answer_input_header">여기에 답변을 입력하십시오</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">여기에 답변을 입력하십시오</string>
+
+    <string name="connections">연결</string>
+    <string name="provide_disconnected">오프라인 상태에서 제공</string>
+    <string name="unpaid_mb">미지급 메가바이트 제공됨</string>
+    <string name="payouts_amount_threshold">지급은 2주마다 발생하며 지급을 받으려면 최소 금액을 제공해야 합니다.</string>
 </resources>

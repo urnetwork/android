@@ -2,8 +2,6 @@ package com.bringyour.network
 
 import com.bringyour.client.BringYourDevice
 import com.bringyour.client.Client
-import com.bringyour.client.ConnectLocation
-import com.bringyour.client.Id
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.bringyour.client.NetworkSpace
@@ -34,6 +32,13 @@ class ByDeviceManager @Inject constructor() {
         set(it) {
             asyncLocalState?.localState?.canShowRatingDialog = it
             byDevice?.canShowRatingDialog = it
+        }
+
+    var provideWhileDisconnected: Boolean
+        get() = byDevice?.provideWhileDisconnected!!
+        set(it) {
+            asyncLocalState?.localState?.provideWhileDisconnected = it
+            byDevice?.provideWhileDisconnected = it
         }
 
 
@@ -68,9 +73,10 @@ class ByDeviceManager @Inject constructor() {
         val localState = networkSpace!!.asyncLocalState.localState!!
         val instanceId = localState.instanceId!!
         val routeLocal = localState.routeLocal
-        val provideMode = localState.provideMode
         val connectLocation = localState.connectLocation
         val canShowRatingDialog = localState.canShowRatingDialog
+        val provideWhileDisconnected = localState.provideWhileDisconnected
+        val provideMode = if (provideWhileDisconnected) Client.ProvideModePublic else localState.provideMode
 
         byDevice = Client.newBringYourDeviceWithDefaults(
             networkSpace,
@@ -93,6 +99,7 @@ class ByDeviceManager @Inject constructor() {
         byDevice?.provideMode = provideMode
         byDevice?.connectLocation = connectLocation
         byDevice?.canShowRatingDialog = canShowRatingDialog
+        byDevice?.provideWhileDisconnected = provideWhileDisconnected
 
 //        connectVc = byDevice?.openConnectViewControllerV0()
     }
