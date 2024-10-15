@@ -199,4 +199,9 @@
 
     <string name="circlepw_recover_pincode_answer_input_header">Εισαγάγετε την απάντησή σας εδώ</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">Πληκτρολογήστε την απάντησή σας εδώ</string>
+
+    <string name="connections">Συνδέσεις</string>
+    <string name="provide_disconnected">Παροχή ενώ είστε εκτός σύνδεσης</string>
+    <string name="unpaid_mb">Μη καταβληθέντα megabyte που παρέχονται</string>
+    <string name="payouts_amount_threshold">Οι πληρωμές πραγματοποιούνται κάθε δύο εβδομάδες και απαιτούν ένα ελάχιστο ποσό που παρέχεται για να λάβετε μια πληρωμή.</string>
 </resources>

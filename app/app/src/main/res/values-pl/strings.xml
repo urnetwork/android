@@ -222,4 +222,9 @@
 
     <string name="circlepw_recover_pincode_answer_input_header">Wprowadź swoją odpowiedź tutaj</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">Wpisz tutaj swoją odpowiedź</string>
+
+    <string name="connections">Połączenia</string>
+    <string name="provide_disconnected">Dostarczaj w trybie offline</string>
+    <string name="unpaid_mb">Nieopłacone megabajty dostarczone</string>
+    <string name="payouts_amount_threshold">Wypłaty następują co dwa tygodnie i wymagają minimalnej kwoty dostarczonej, aby otrzymać wypłatę.</string>
 </resources>

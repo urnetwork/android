@@ -199,4 +199,9 @@
 
     <string name="circlepw_recover_pincode_answer_input_header">Introduce tu respuesta aquí</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">Escribe tu respuesta aquí</string>
+
+    <string name="connections">Conexiones</string>
+    <string name="provide_disconnected">Proporcionar sin conexión</string>
+    <string name="unpaid_mb">Megabytes no pagados proporcionados</string>
+    <string name="payouts_amount_threshold">Los pagos se realizan cada dos semanas y requieren una cantidad mínima proporcionada para recibir un pago.</string>
 </resources>

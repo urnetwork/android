@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.client.AccountPreferencesViewController
+import com.bringyour.client.Client
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,6 +41,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     var allowProductUpdates by mutableStateOf(false)
+        private set
+
+    var provideWhileDisconnected by mutableStateOf(false)
         private set
 
     val setAllowProductUpdates: (Boolean) -> Unit = { allow ->
@@ -93,8 +97,16 @@ class SettingsViewModel @Inject constructor(
         accountPreferencesVc?.updateAllowProductUpdates(allow)
     }
 
+    val toggleProvideWhileDisconnected: () -> Unit = {
+        val currentProvideWhileDisconnected = provideWhileDisconnected
+        byDeviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
+        provideWhileDisconnected = !currentProvideWhileDisconnected
+    }
+
     init {
         accountPreferencesVc = byDeviceManager.byDevice?.openAccountPreferencesViewController()
+
+        provideWhileDisconnected = byDeviceManager.byDevice?.provideWhileDisconnected ?: false
 
         addAllowProductUpdatesListener()
 
