@@ -185,4 +185,9 @@
     <string name="circlepw_security_confirm_input_match">أنا موافق</string>
     <string name="circlepw_recover_pincode_answer_input_header">أدخل إجابتك هنا</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">اكتب إجابتك هنا</string>
+
+    <string name="connections">الاتصالات</string>
+    <string name="provide_disconnected">توفير أثناء عدم الاتصال</string>
+    <string name="unpaid_mb">ميغابايت غير مدفوعة مقدمة</string>
+    <string name="payouts_amount_threshold">تحدث عمليات الدفع كل أسبوعين ، وتتطلب حدًا أدنى من المبلغ المقدم لتلقي دفعة.</string>
 </resources>

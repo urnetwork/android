@@ -201,4 +201,9 @@
 
     <string name="circlepw_recover_pincode_answer_input_header">Saisissez votre réponse ici</string>
     <string name="circlepw_recover_pincode_answer_input_placeholder">Saisissez votre réponse ici</string>
+
+    <string name="connections">Connexions</string>
+    <string name="provide_disconnected">Fournir hors ligne</string>
+    <string name="unpaid_mb">Mégaoctets non payés fournis</string>
+    <string name="payouts_amount_threshold">Les paiements ont lieu toutes les deux semaines et nécessitent un montant minimum fourni pour recevoir un paiement.</string>
 </resources>

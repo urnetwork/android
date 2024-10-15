@@ -346,8 +346,6 @@ fun SettingsScreen(
                 URSwitch(
                     checked = provideWhileDisconnected,
                     toggle = {
-                        Log.i("SettingsScreen", "toggling provideWhileDisconnected")
-                        // setProvideWhileDisconnected(!provideWhileDisconnected)
                         toggleProvideWhileDisconnected()
                     },
                 )
