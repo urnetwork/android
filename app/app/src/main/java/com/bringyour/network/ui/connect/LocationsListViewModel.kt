@@ -94,29 +94,44 @@ class LocationsListViewModel @Inject constructor(
     private val addFilteredLocationsListener = {
 
         locationsVc?.let { vc ->
-            vc.addFilteredLocationsListener { filteredLocation ->
+            vc.addFilteredLocationsListener { filteredLocation, state ->
+                viewModelScope.launch {
 
-                bestSearchMatches.addAll(makeConnectLocationCollection(filteredLocation.bestMatches))
-                connectCountries.addAll(makeConnectLocationCollection(filteredLocation.countries))
-                promotedLocations.addAll(makeConnectLocationCollection(filteredLocation.promoted))
-                devices.addAll(makeConnectLocationCollection(filteredLocation.devices))
-                cities.addAll(makeConnectLocationCollection(filteredLocation.cities))
-                regions.addAll(makeConnectLocationCollection(filteredLocation.regions))
-            }
-        }
-    }
+                    bestSearchMatches.clear()
+                    connectCountries.clear()
+                    promotedLocations.clear()
+                    devices.clear()
+                    cities.clear()
+                    regions.clear()
 
-    private val addFilterLocationsStateListener = {
-        locationsVc?.let { vc ->
-            vc.addFilteredLocationsStateListener { state ->
+                    filteredLocation?.let {
+                        bestSearchMatches.addAll(makeConnectLocationCollection(it.bestMatches))
+                        connectCountries.addAll(makeConnectLocationCollection(it.countries))
+                        promotedLocations.addAll(makeConnectLocationCollection(it.promoted))
+                        devices.addAll(makeConnectLocationCollection(it.devices))
+                        cities.addAll(makeConnectLocationCollection(it.cities))
+                        regions.addAll(makeConnectLocationCollection(it.regions))
+                    }
 
-                val stateFromString = FilterLocationsState.fromString(state)
-                if (stateFromString != null) {
-                    _filterLocationsState.value = stateFromString
+                    FilterLocationsState.fromString(state)?.let {
+                        _filterLocationsState.value = it
+                    }
                 }
             }
         }
     }
+
+//    private val addFilterLocationsStateListener = {
+//        locationsVc?.let { vc ->
+//            vc.addFilteredLocationsStateListener { state ->
+//
+//                val stateFromString = FilterLocationsState.fromString(state)
+//                if (stateFromString != null) {
+//                    _filterLocationsState.value = stateFromString
+//                }
+//            }
+//        }
+//    }
 
     init {
 
@@ -124,7 +139,7 @@ class LocationsListViewModel @Inject constructor(
         locationsVc = byDevice?.openLocationsViewController()
 
         addFilteredLocationsListener()
-        addFilterLocationsStateListener()
+//        addFilterLocationsStateListener()
 
         viewModelScope.launch {
             locationsVc?.start()
