@@ -62,7 +62,7 @@ fun ProvidersBottomSheet(
     content: @Composable (PaddingValues) -> Unit,
 ) {
 
-    val fetchLocationsState by remember { locationsViewModel.locationsState }.collectAsState()
+    val fetchLocationsState by remember { locationsViewModel.filterLocationsState }.collectAsState()
 
     ProvidersBottomSheet(
         scaffoldState = scaffoldState,
@@ -99,7 +99,7 @@ fun ProvidersBottomSheet(
     getLocationColor: (String) -> Color,
     filterLocations: (String) -> Unit,
     connect: (ConnectLocation?) -> Unit,
-    fetchLocationsState: FetchLocationsState,
+    fetchLocationsState: FilterLocationsState,
     searchQueryTextFieldValue: TextFieldValue,
     setSearchQueryTextFieldValue: (TextFieldValue) -> Unit,
     currentSearchQuery: String,
@@ -207,7 +207,7 @@ fun ProvidersBottomSheet(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     when(fetchLocationsState) {
-                        FetchLocationsState.Loading -> {
+                        FilterLocationsState.Loading -> {
                             Column(
                                 Modifier
                                     .fillMaxSize()
@@ -223,7 +223,7 @@ fun ProvidersBottomSheet(
                                 )
                             }
                         }
-                        FetchLocationsState.Loaded -> {
+                        FilterLocationsState.Loaded -> {
 
                             LocationsList(
                                 onLocationSelect = { location ->
@@ -244,7 +244,7 @@ fun ProvidersBottomSheet(
                                 searchQuery = currentSearchQuery
                             )
                         }
-                        FetchLocationsState.Error -> {
+                        FilterLocationsState.Error -> {
                             FetchLocationsError(
                                 onRefresh = {
                                     filterLocations(currentSearchQuery)
@@ -281,7 +281,7 @@ private fun PreviewBottomSheet() {
                 BlueMedium
             },
             filterLocations = { _ -> },
-            fetchLocationsState = FetchLocationsState.Loaded,
+            fetchLocationsState = FilterLocationsState.Loaded,
             searchQueryTextFieldValue = TextFieldValue(""),
             setSearchQueryTextFieldValue = {},
             currentSearchQuery = ""
@@ -317,7 +317,7 @@ private fun PreviewBottomSheetExpanded() {
                 BlueMedium
             },
             filterLocations = { _ -> },
-            fetchLocationsState = FetchLocationsState.Loaded,
+            fetchLocationsState = FilterLocationsState.Loaded,
             searchQueryTextFieldValue = TextFieldValue(""),
             setSearchQueryTextFieldValue = {},
             currentSearchQuery = ""

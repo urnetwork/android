@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -8,10 +9,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.Client.LocationTypeCity
-import com.bringyour.client.Client.LocationTypeCountry
-import com.bringyour.client.Client.LocationTypeRegion
 import com.bringyour.client.ConnectLocation
+import com.bringyour.client.ConnectLocationList
 import com.bringyour.client.LocationsViewController
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
@@ -29,8 +28,8 @@ class LocationsListViewModel @Inject constructor(
 
     private var locationsVc: LocationsViewController? = null
 
-    private val _locationsState = MutableStateFlow(FetchLocationsState.Loading)
-    val locationsState: StateFlow<FetchLocationsState> = _locationsState.asStateFlow()
+    private val _filterLocationsState = MutableStateFlow(FilterLocationsState.Loading)
+    val filterLocationsState: StateFlow<FilterLocationsState> = _filterLocationsState.asStateFlow()
 
     val connectCountries = mutableStateListOf<ConnectLocation>()
 
@@ -55,19 +54,14 @@ class LocationsListViewModel @Inject constructor(
     // when searching, items with matchDistance of 0
     val bestSearchMatches = mutableStateListOf<ConnectLocation>()
 
-    private val subs = mutableListOf<Sub>()
+    val filterLocations:(String) -> Unit = { search ->
 
-    private val getLocations = {
-        val exportedLocations = locationsVc?.locations
-        if (exportedLocations != null) {
-            val locations = mutableListOf<ConnectLocation>()
-            val n = exportedLocations.len()
-
-            for (i in 0 until n) {
-                locations.add(exportedLocations.get(i))
-            }
-
-            var providerCount = 0
+        if (
+            // we don't want to re-run the same query, if we're not in an error state
+            (search != currentSearchQuery && _filterLocationsState.value != FilterLocationsState.Error) ||
+            // but if we're in an error state, run the query
+            _filterLocationsState.value == FilterLocationsState.Error)
+        {
 
             connectCountries.clear()
             promotedLocations.clear()
@@ -76,68 +70,9 @@ class LocationsListViewModel @Inject constructor(
             regions.clear()
             bestSearchMatches.clear()
 
-            locations.forEach { location ->
-                providerCount += location.providerCount
-
-                // if we have search matches, these will be grouped at the top
-                if (currentSearchQuery.isNotEmpty() && location.matchDistance == 0) {
-                    bestSearchMatches.add(location)
-                    // avoid repeating them in other groups
-                    return@forEach
-                }
-
-                if (location.promoted) {
-                    promotedLocations.add(location)
-                }
-
-                if (location.locationType == LocationTypeCountry) {
-                    connectCountries.add(location)
-                }
-
-                // only display these groups when searching
-                if (currentSearchQuery.isNotEmpty()) {
-                    if (location.locationType == LocationTypeCity) {
-                        cities.add(location)
-                    }
-
-                    if (location.locationType == LocationTypeRegion) {
-                        regions.add(location)
-                    }
-
-                    if (location.isDevice) {
-                        devices.add(location)
-                    }
-                }
-
-            }
-
-            if (_locationsState.value != FetchLocationsState.Loaded) {
-                setLocationsState(FetchLocationsState.Loaded)
-            }
-
-        } else {
-            connectCountries.clear()
-        }
-    }
-
-    val filterLocations:(String) -> Unit = { search ->
-
-        if (
-            // we don't want to re-run the same query, if we're not in an error state
-            (search != currentSearchQuery && _locationsState.value != FetchLocationsState.Error) ||
-            // but if we're in an error state, run the query
-            _locationsState.value == FetchLocationsState.Error)
-        {
-
             currentSearchQuery = search
-
             locationsVc?.filterLocations(search)
-            if (_locationsState.value != FetchLocationsState.Loading) {
-                setLocationsState(FetchLocationsState.Loading)
-            }
-
         }
-
     }
 
     val getLocationColor: (String) -> Color = { color ->
@@ -145,31 +80,58 @@ class LocationsListViewModel @Inject constructor(
         Color(android.graphics.Color.parseColor("#$hex"))
     }
 
+    private val makeConnectLocationCollection: (ConnectLocationList) -> Collection<ConnectLocation> = { list ->
+        val locations = mutableListOf<ConnectLocation>()
+        val n = list.len()
+
+        for (i in 0 until n) {
+            locations.add(list.get(i))
+        }
+
+        locations
+    }
+
     private val addFilteredLocationsListener = {
 
         locationsVc?.let { vc ->
-            vc.addFilteredLocationsListener {
-                    getLocations()
-            }
-        }
+            vc.addFilteredLocationsListener { filteredLocation, state ->
+                viewModelScope.launch {
 
-    }
+                    bestSearchMatches.clear()
+                    connectCountries.clear()
+                    promotedLocations.clear()
+                    devices.clear()
+                    cities.clear()
+                    regions.clear()
 
-    private val setLocationsState: (FetchLocationsState) -> Unit = { state ->
-        _locationsState.value = state
-    }
+                    filteredLocation?.let {
+                        bestSearchMatches.addAll(makeConnectLocationCollection(it.bestMatches))
+                        connectCountries.addAll(makeConnectLocationCollection(it.countries))
+                        promotedLocations.addAll(makeConnectLocationCollection(it.promoted))
+                        devices.addAll(makeConnectLocationCollection(it.devices))
+                        cities.addAll(makeConnectLocationCollection(it.cities))
+                        regions.addAll(makeConnectLocationCollection(it.regions))
+                    }
 
-    private val addFetchLocationsErrorListener = {
-
-        locationsVc?.let { vc ->
-            vc.addFilteredLocationsErrorListener { errorExists ->
-                if (errorExists) {
-                    setLocationsState(FetchLocationsState.Error)
+                    FilterLocationsState.fromString(state)?.let {
+                        _filterLocationsState.value = it
+                    }
                 }
             }
         }
-
     }
+
+//    private val addFilterLocationsStateListener = {
+//        locationsVc?.let { vc ->
+//            vc.addFilteredLocationsStateListener { state ->
+//
+//                val stateFromString = FilterLocationsState.fromString(state)
+//                if (stateFromString != null) {
+//                    _filterLocationsState.value = stateFromString
+//                }
+//            }
+//        }
+//    }
 
     init {
 
@@ -177,7 +139,7 @@ class LocationsListViewModel @Inject constructor(
         locationsVc = byDevice?.openLocationsViewController()
 
         addFilteredLocationsListener()
-        addFetchLocationsErrorListener()
+//        addFilterLocationsStateListener()
 
         viewModelScope.launch {
             locationsVc?.start()
@@ -187,19 +149,25 @@ class LocationsListViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        subs.forEach { sub ->
-            sub.close()
-        }
-        subs.clear()
-
         locationsVc?.let {
             byDeviceManager.byDevice?.closeViewController(it)
         }
     }
 }
 
-enum class FetchLocationsState {
+enum class FilterLocationsState {
     Loading,
     Loaded,
-    Error
+    Error;
+
+    companion object {
+        fun fromString(value: String): FilterLocationsState? {
+            return when (value.uppercase()) {
+                "LOCATIONS_LOADING" -> Loading
+                "LOCATIONS_LOADED" -> Loaded
+                "LOCATIONS_ERROR" -> Error
+                else -> null
+            }
+        }
+    }
 }
