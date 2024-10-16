@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.login
 
-import android.util.Log
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -30,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +62,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import androidx.compose.runtime.collectAsState
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 
 // Base class with common parameters
@@ -108,8 +105,6 @@ fun LoginCreateNetwork(
         isValidatingNetworkName = loginCreateNetworkViewModel.isValidatingNetworkName,
         emailOrPhone = loginCreateNetworkViewModel.emailOrPhone,
         setEmailOrPhone = loginCreateNetworkViewModel.setEmailOrPhone,
-        username = loginCreateNetworkViewModel.username,
-        setUsername = loginCreateNetworkViewModel.setUsername,
         networkName = loginCreateNetworkViewModel.networkName,
         setNetworkName = loginCreateNetworkViewModel.setNetworkName,
         networkNameErrorExists = loginCreateNetworkViewModel.networkNameErrorExists,
@@ -135,8 +130,6 @@ fun LoginCreateNetwork(
     isValidatingNetworkName: Boolean,
     emailOrPhone: TextFieldValue,
     setEmailOrPhone: (TextFieldValue) -> Unit,
-    username: TextFieldValue,
-    setUsername: (TextFieldValue) -> Unit,
     password: TextFieldValue,
     setPassword: (TextFieldValue) -> Unit,
     networkNameErrorExists: Boolean,
@@ -155,9 +148,7 @@ fun LoginCreateNetwork(
         is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
             setEmailOrPhone(TextFieldValue(params.userAuth))
         }
-        is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-            setUsername(TextFieldValue(params.userName))
-        }
+        else -> Unit
     }
 
     var isBtnEnabled by remember { mutableStateOf(false) }
@@ -165,7 +156,7 @@ fun LoginCreateNetwork(
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(inProgress, params, networkName.text, username.text, password.text, termsAgreed) {
+    LaunchedEffect(inProgress, params, networkName.text, password.text, termsAgreed) {
         isBtnEnabled  = when(params) {
             is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
                 !inProgress &&
@@ -173,7 +164,6 @@ fun LoginCreateNetwork(
                                 Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
                         (networkName.text.length >= 6) &&
                         (password.text.length >= 12) &&
-                        (username.text.isNotEmpty()) &&
                         !isValidatingNetworkName &&
                         !networkNameErrorExists &&
                         networkNameIsValid &&
@@ -185,7 +175,6 @@ fun LoginCreateNetwork(
                         (networkName.text.length >= 6) &&
                         (params.authJwt.isNotEmpty()) &&
                         (params.authJwtType.isNotEmpty()) &&
-                        (username.text.isNotEmpty()) &&
                         !isValidatingNetworkName &&
                         !networkNameErrorExists &&
                         networkNameIsValid &&
@@ -322,18 +311,6 @@ fun LoginCreateNetwork(
                 Column(
                     modifier = Modifier.imePadding()
                 ) {
-                    URTextInput(
-                        label = stringResource(id = R.string.name_label),
-                        value = username,
-                        onValueChange = { newValue ->
-                            setUsername(newValue)
-                        },
-                        placeholder = stringResource(id = R.string.name_placeholder),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                    )
 
                     if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
                         URTextInput(
@@ -472,8 +449,6 @@ private fun LoginNetworkCreatePreview() {
                     isValidatingNetworkName = false,
                     emailOrPhone = TextFieldValue("hello@ur.io"),
                     setEmailOrPhone = {},
-                    username = TextFieldValue(""),
-                    setUsername = {},
                     networkName = TextFieldValue("hello-world"),
                     setNetworkName = {},
                     networkNameErrorExists = false,
