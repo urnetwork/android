@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,8 +22,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -35,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.ui.theme.Blue500
+import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextDanger
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
@@ -59,6 +66,14 @@ fun URTextInput(
     maxLines: Int = 1
 ) {
 
+    var isFocused by remember { mutableStateOf(false) }
+
+    val underlineColor = when {
+        !enabled -> Color.Transparent
+        isFocused -> BlueMedium
+        else -> TextFaint
+    }
+
     Column {
 
         if (label != null) {
@@ -79,10 +94,21 @@ fun URTextInput(
                         cursorBrush = SolidColor(Blue500),
                         textStyle = TextStyle(color = Color.LightGray),
                         modifier = Modifier
-                            // .fillMaxWidth()
                             .weight(1f)
                             .background(Color.Transparent)
-                            .imePadding(),
+                            .then(
+                                if (enabled) {
+                                    Modifier
+                                        .focusable()
+                                        .onFocusChanged { state ->
+                                            isFocused = state.isFocused
+                                        }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            // should not be focusable if disabled
+                            ,
                         decorationBox = { innerTextField ->
                             if (value.text.isEmpty()) {
                                 Text(
@@ -136,7 +162,7 @@ fun URTextInput(
                 Spacer(modifier = Modifier.height(8.dp))
             }
             HorizontalDivider(
-                color = if (enabled) TextFaint else Color.Transparent,
+                color = underlineColor,
                 thickness = 1.dp,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

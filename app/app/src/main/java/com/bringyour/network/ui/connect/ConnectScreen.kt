@@ -105,12 +105,11 @@ fun ConnectMainContent(
 
         currentStatus = connectStatus
 
-        when(connectStatus) {
-            ConnectStatus.CONNECTED -> disconnectBtnVisible = true
-            ConnectStatus.CONNECTING -> disconnectBtnVisible = true
-            ConnectStatus.DESTINATION_SET -> disconnectBtnVisible = true
-            ConnectStatus.DISCONNECTED -> disconnectBtnVisible = false
-
+        disconnectBtnVisible = when(connectStatus) {
+            ConnectStatus.CONNECTED -> true
+            ConnectStatus.CONNECTING -> true
+            ConnectStatus.DESTINATION_SET -> true
+            ConnectStatus.DISCONNECTED -> false
         }
 
         if (connectStatus == ConnectStatus.CONNECTED) {
@@ -137,7 +136,9 @@ fun ConnectMainContent(
             .background(Black)
             .padding(16.dp),
     ) {
-        Column {
+        Column(
+            // modifier = Modifier.padding(bottom = 112.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -211,6 +212,9 @@ fun ConnectMainContent(
 
                 }
             }
+
+            Spacer(modifier = Modifier.height(112.dp))
+
         }
     }
 }

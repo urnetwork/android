@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,6 +64,7 @@ import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -99,7 +102,9 @@ fun ConnectButton(
 
     Box(
         modifier = Modifier
-            .size(256.dp)
+            .size(if (isTv()) 128.dp else 256.dp)
+//            .widthIn(max = 256.dp)
+//            .heightIn(max = 256.dp)
             .clipToBounds()
             .background(color = Color(0x0AFFFFFF))
     ) {
@@ -136,7 +141,7 @@ fun ConnectButton(
             contentDescription = "Connect Mask",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(512.dp)
+                .size(if (isTv()) 256.dp else 512.dp)
                 .align(Alignment.Center)
                 .zIndex(1f)
         )
@@ -185,7 +190,7 @@ private fun ConnectingButtonContent(
         }
 
         GridCanvas(
-            size = 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
+            size = if (isTv()) 124.dp else 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
             providerGridPoints = providerGridPoints,
             grid = grid,
             updatedStatus = status,

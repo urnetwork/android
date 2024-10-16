@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
@@ -68,6 +69,7 @@ import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
+import com.bringyour.network.utils.isTv
 
 @Composable
 fun MainNavHost(
@@ -106,7 +108,9 @@ fun MainNavHost(
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val navSuiteLayoutType = with(adaptiveInfo) {
 
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
+        if (isTv()) {
+            NavigationSuiteType.NavigationDrawer
+        } else if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
             NavigationSuiteType.NavigationRail
         } else {
             NavigationSuiteType.NavigationBar
@@ -158,6 +162,7 @@ fun MainNavHost(
             contentColor = Black,
             navigationSuiteColors = customColors,
             layoutType = navSuiteLayoutType,
+
             navigationSuiteItems = {
                 TopLevelScaffoldRoutes.entries.forEach { screen ->
                     item(
@@ -197,6 +202,7 @@ fun MainNavHost(
                             mainNavViewModel.setCurrentTopLevelRoute(screen)
                                   },
                         colors = navItemColors,
+                        label = { if (isTv()) Text(screen.description) else Text("") }
                     )
                 }
             }
@@ -281,7 +287,9 @@ fun MainNavContent(
 ) {
 
     val localDensityCurrent = LocalDensity.current
-    val canvasSizePx = with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
+    val canvasSizePx = if (isTv())
+        with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).div(2).toPx() } else
+        with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
 
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)

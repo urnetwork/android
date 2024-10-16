@@ -330,7 +330,8 @@ fun LoginInitial(
                     Row(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight(),
+                            .fillMaxHeight()
+                            .padding(end = 64.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         LoginInitialActions(
@@ -353,7 +354,7 @@ fun LoginInitial(
                             }
                         )
                     }
-                    Spacer(modifier = Modifier.width(64.dp))
+                    // Spacer(modifier = Modifier.width(64.dp))
                 }
 
             } else {

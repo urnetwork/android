@@ -60,7 +60,22 @@ enum class TopLevelScaffoldRoutes(
     val description: String,
     val route: Route
 ) {
-    CONNECT(R.drawable.main_nav_globe_filled, R.drawable.main_nav_globe, "Connect", route = Route.Connect),
-    ACCOUNT_CONTAINER(R.drawable.main_nav_user_filled, R.drawable.main_nav_user, "Account", route = Route.AccountContainer),
-    SUPPORT(R.drawable.main_nav_chat_filled, R.drawable.main_nav_chat, "Support", route = Route.Support)
+    CONNECT(
+        R.drawable.main_nav_globe_filled,
+        R.drawable.main_nav_globe,
+        "Connect",
+        route = Route.Connect
+    ),
+    ACCOUNT_CONTAINER(
+        R.drawable.main_nav_user_filled,
+        R.drawable.main_nav_user,
+        "Account",
+        route = Route.AccountContainer
+    ),
+    SUPPORT(
+        R.drawable.main_nav_chat_filled,
+        R.drawable.main_nav_chat,
+        "Support",
+        route = Route.Support
+    )
 }
