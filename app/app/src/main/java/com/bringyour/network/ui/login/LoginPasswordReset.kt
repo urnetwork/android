@@ -1,19 +1,22 @@
 package com.bringyour.network.ui.login
 
-import android.util.Log
 import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -111,66 +114,78 @@ fun LoginPasswordReset(
                 ),
                 actions = {},
             )
-        }
+        },
     ) { innerPadding ->
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-                .imePadding(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
+                    .widthIn(max = 512.dp)
+                    .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-            Text(stringResource(id = R.string.forgot_password), style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(64.dp))
-
-            URTextInput(
-                value = user,
-                onValueChange = { newValue ->
-                    user = newValue
-                },
-                placeholder = stringResource(id = R.string.user_auth_placeholder),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Go
-                ),
-                onGo = {
-                    sendResetLink()
-                },
-                label = stringResource(id = R.string.user_auth_label)
-            )
-
-
-            Text(
-                stringResource(id = R.string.check_junk_mail),
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            URButton(
-                onClick = {
-                    sendResetLink()
-                },
-                enabled = isBtnEnabled
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .imePadding()
                 ) {
-                    Text(stringResource(id = R.string.send_reset_link), style = buttonTextStyle)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Right Arrow",
-                        modifier = Modifier.size(16.dp),
-                        tint = if (isBtnEnabled) Color.White else Color.Gray
+                    Text(stringResource(id = R.string.forgot_password), style = MaterialTheme.typography.headlineLarge)
+                    Spacer(modifier = Modifier.height(64.dp))
+
+                    URTextInput(
+                        value = user,
+                        onValueChange = { newValue ->
+                            user = newValue
+                        },
+                        placeholder = stringResource(id = R.string.user_auth_placeholder),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Go
+                        ),
+                        onGo = {
+                            sendResetLink()
+                        },
+                        label = stringResource(id = R.string.user_auth_label)
                     )
+
+
+                    Text(
+                        stringResource(id = R.string.check_junk_mail),
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    URButton(
+                        onClick = {
+                            sendResetLink()
+                        },
+                        enabled = isBtnEnabled
+                    ) { buttonTextStyle ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(stringResource(id = R.string.send_reset_link), style = buttonTextStyle)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Right Arrow",
+                                modifier = Modifier.size(16.dp),
+                                tint = if (isBtnEnabled) Color.White else Color.Gray
+                            )
+                        }
+                    }
                 }
             }
         }

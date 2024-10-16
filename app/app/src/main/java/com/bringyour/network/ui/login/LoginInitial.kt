@@ -43,8 +43,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -354,43 +356,48 @@ fun LoginInitial(
                             }
                         )
                     }
-                    // Spacer(modifier = Modifier.width(64.dp))
                 }
 
             } else {
+                // mobile + tablet
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding) // need to debug why this is 0
-                        .padding(16.dp)
-                        .imePadding(),
+                        .verticalScroll(rememberScrollState())
+                        .padding(innerPadding)
+                        .padding(16.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    OnboardingCarousel()
+                    Column(
+                        modifier = Modifier.imePadding()
+                    ) {
+                        OnboardingCarousel()
 
-                    Spacer(modifier = Modifier.height(64.dp))
+                        Spacer(modifier = Modifier.height(64.dp))
 
-                    LoginInitialActions(
-                        userAuth = userAuth,
-                        setUserAuth = setUserAuth,
-                        userAuthInProgress = userAuthInProgress,
-                        isValidUserAuth = isValidUserAuth,
-                        setGuestModeOverlayVisible = setGuestModeOverlayVisible,
-                        googleAuthInProgress = googleAuthInProgress,
-                        onLogin = {
-                            login(
-                                context,
-                                application?.api,
-                                onLogin,
-                                onNewNetwork,
-                            )
-                        },
-                        onGoogleLogin = {
-                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                        }
-                    )
+                        LoginInitialActions(
+                            userAuth = userAuth,
+                            setUserAuth = setUserAuth,
+                            userAuthInProgress = userAuthInProgress,
+                            isValidUserAuth = isValidUserAuth,
+                            setGuestModeOverlayVisible = setGuestModeOverlayVisible,
+                            googleAuthInProgress = googleAuthInProgress,
+                            onLogin = {
+                                login(
+                                    context,
+                                    application?.api,
+                                    onLogin,
+                                    onNewNetwork,
+                                )
+                            },
+                            onGoogleLogin = {
+                                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                            }
+                        )
+                    }
+
                 }
             }
 
@@ -464,7 +471,6 @@ fun LoginInitialActions(
 
     Column(
         modifier = Modifier
-            // .fillMaxWidth()
             .widthIn(max = 512.dp),
         horizontalAlignment = Alignment.Start
     ) {
@@ -476,7 +482,7 @@ fun LoginInitialActions(
             placeholder = stringResource(id = R.string.user_auth_placeholder),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Go
+                imeAction = if (isValidUserAuth) ImeAction.Go else ImeAction.Done
             ),
             onGo = {
                 onLogin()

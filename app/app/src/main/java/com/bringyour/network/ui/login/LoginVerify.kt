@@ -9,11 +9,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -195,60 +200,67 @@ fun LoginVerify(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp),
+                contentAlignment = Alignment.Center
             ) {
 
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                        .fillMaxHeight()
+                        .widthIn(512.dp)
+                        .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    Text(
-                        stringResource(id = R.string.login_verify_header),
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Text(
-                        stringResource(id = R.string.login_verify_details),
-                        color = TextMuted
-                    )
-
-                    Spacer(modifier = Modifier.height(40.dp))
-
-                    URCodeInput(
-                        value = code,
-                        onValueChange = { newCode ->
-                            code = newCode
-                        },
-                        codeLength = codeLength,
-                        enabled = !verifyInProgress
-                    )
-
-                    Spacer(modifier = Modifier.height(40.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        // modifier = Modifier.imePadding()
                     ) {
                         Text(
-                            stringResource(id = R.string.dont_see_it),
+                            stringResource(id = R.string.login_verify_header),
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Text(
+                            stringResource(id = R.string.login_verify_details),
                             color = TextMuted
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
 
-                        Text(
-                            stringResource(id = R.string.resend_verify_code),
-                            style = TextStyle(
-                                color = if (resendBtnEnabled) Color.White else TextMuted,
-                                fontSize = 16.sp
-                            ),
-                            modifier = Modifier.clickable {
-                                if (resendBtnEnabled) {
-                                    resendCode()
-                                }
-                            }
+                        Spacer(modifier = Modifier.height(40.dp))
+
+                        URCodeInput(
+                            value = code,
+                            onValueChange = { newCode ->
+                                code = newCode
+                            },
+                            codeLength = codeLength,
+                            enabled = !verifyInProgress
                         )
+
+                        Spacer(modifier = Modifier.height(40.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                stringResource(id = R.string.dont_see_it),
+                                color = TextMuted
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Text(
+                                stringResource(id = R.string.resend_verify_code),
+                                style = TextStyle(
+                                    color = if (resendBtnEnabled) Color.White else TextMuted,
+                                    fontSize = 16.sp
+                                ),
+                                modifier = Modifier.clickable {
+                                    if (resendBtnEnabled) {
+                                        resendCode()
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -217,7 +219,7 @@ fun LoginPassword(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        // .widthIn(max = 512.dp)
+                        .verticalScroll(rememberScrollState())
                         .padding(innerPadding)
                         .padding(16.dp),
                     verticalArrangement = Arrangement.Center,
@@ -258,7 +260,6 @@ fun LoginPassword(
 @Composable
 fun LoginPasswordForm(
     user: TextFieldValue,
-    // setUser: (TextFieldValue) -> Unit,
     password: TextFieldValue,
     setPassword: (TextFieldValue) -> Unit,
     login: () -> Unit?,
@@ -269,18 +270,15 @@ fun LoginPasswordForm(
     Column(
         modifier = Modifier
             .widthIn(max = 512.dp)
+            .imePadding()
     ) {
-//        Column(
-//            modifier = Modifier
-//                .imePadding()
-//        ) {
         URTextInput(
             value = user,
             onValueChange = {},
             placeholder = stringResource(id = R.string.user_auth_placeholder),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
+                imeAction = if (password.text.isEmpty()) ImeAction.Done else ImeAction.Next
             ),
             label = stringResource(id = R.string.user_auth_label),
             enabled = false
