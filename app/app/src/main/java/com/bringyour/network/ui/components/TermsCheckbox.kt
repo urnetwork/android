@@ -67,8 +67,6 @@ fun TermsCheckbox(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.Top
     ) {
         Checkbox(
             modifier = Modifier.size(16.dp),

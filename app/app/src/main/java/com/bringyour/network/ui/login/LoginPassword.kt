@@ -169,9 +169,8 @@ fun LoginPassword(
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding) // need to debug why this is 0
-                        .padding(16.dp)
-                        .imePadding(),
+                        .padding(innerPadding)
+                        .padding(16.dp),
                 ) {
 
                     Row(
@@ -270,42 +269,41 @@ fun LoginPasswordForm(
     Column(
         modifier = Modifier
             .widthIn(max = 512.dp)
-        // .imePadding()
     ) {
-        Column(
-            modifier = Modifier
-                .imePadding()
-        ) {
-            URTextInput(
-                value = user,
-                onValueChange = {},
-                placeholder = stringResource(id = R.string.user_auth_placeholder),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                label = stringResource(id = R.string.user_auth_label),
-                enabled = false
-            )
+//        Column(
+//            modifier = Modifier
+//                .imePadding()
+//        ) {
+        URTextInput(
+            value = user,
+            onValueChange = {},
+            placeholder = stringResource(id = R.string.user_auth_placeholder),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            label = stringResource(id = R.string.user_auth_label),
+            enabled = false
+        )
 
-            URTextInput(
-                value = password,
-                onValueChange = { newValue ->
-                    // password = newValue
-                    setPassword(newValue)
-                },
-                placeholder = "*****************",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Go
-                ),
-                isPassword = true,
-                label = stringResource(id = R.string.password_label),
-                onGo = {
-                    login()
-                }
-            )
-        }
+        URTextInput(
+            value = password,
+            onValueChange = { newValue ->
+                // password = newValue
+                setPassword(newValue)
+            },
+            placeholder = "*****************",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Go
+            ),
+            isPassword = true,
+            label = stringResource(id = R.string.password_label),
+            onGo = {
+                login()
+            }
+        )
+        // }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -393,28 +391,28 @@ private fun LoginPasswordPreview() {
     }
 }
 
-@Preview(
-    name = "Landscape Preview",
-    device = "spec:width=1920dp,height=1080dp,dpi=480"
-)
-@Composable
-private fun LoginPasswordLandscapePreview() {
-    val navController = rememberNavController()
-
-    URNetworkTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                LoginPassword(
-                    userAuth = "hello@urnetwork.com",
-                    navController
-                )
-            }
-        }
-    }
-}
+//@Preview(
+//    name = "Landscape Preview",
+//    device = "spec:width=1920dp,height=1080dp,dpi=480"
+//)
+//@Composable
+//private fun LoginPasswordLandscapePreview() {
+//    val navController = rememberNavController()
+//
+//    URNetworkTheme {
+//        Scaffold(
+//            modifier = Modifier.fillMaxSize()
+//        ) { innerPadding ->
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(innerPadding)
+//            ) {
+//                LoginPassword(
+//                    userAuth = "hello@urnetwork.com",
+//                    navController
+//                )
+//            }
+//        }
+//    }
+//}

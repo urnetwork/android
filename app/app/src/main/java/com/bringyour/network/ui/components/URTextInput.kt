@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +48,7 @@ import com.bringyour.network.ui.theme.TextDanger
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun URTextInput(
@@ -67,6 +70,7 @@ fun URTextInput(
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     val underlineColor = when {
         !enabled -> Color.Transparent
@@ -94,19 +98,34 @@ fun URTextInput(
                         cursorBrush = SolidColor(Blue500),
                         textStyle = TextStyle(color = Color.LightGray),
                         modifier = Modifier
-                            .weight(1f)
+                            // .weight(1f)
+                            // .imePadding()
+                            .fillMaxWidth()
                             .background(Color.Transparent)
-                            .then(
-                                if (enabled) {
-                                    Modifier
-                                        .focusable()
-                                        .onFocusChanged { state ->
-                                            isFocused = state.isFocused
-                                        }
-                                } else {
-                                    Modifier
-                                }
-                            )
+//                            .focusable()
+//                            .onFocusChanged {
+////                                if (it.isFocused) {
+////                                }
+//                                coroutineScope.launch {
+//                                    isFocused = it.isFocused
+//                                    if (it.isFocused) {
+//
+//                                    }
+//                                }
+//                            }
+
+//                            .then(
+//                                if (enabled) {
+//                                    Modifier
+//                                        .focusable()
+//                                        .onFocusChanged { state ->
+//                                            Log.i("URTextInput", "focus changed: ${state.isFocused}")
+//                                            isFocused = state.isFocused
+//                                        }
+//                                } else {
+//                                    Modifier
+//                                }
+//                            )
                             // should not be focusable if disabled
                             ,
                         decorationBox = { innerTextField ->
