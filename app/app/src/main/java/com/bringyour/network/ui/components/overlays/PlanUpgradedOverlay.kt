@@ -1,21 +1,14 @@
 package com.bringyour.network.ui.components.overlays
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -33,59 +26,40 @@ fun PlanUpgradedOverlay(
         onDismiss = { onDismiss() },
         bgImageResourceId = R.drawable.overlay_plan_upgraded_bg
     ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    Green100,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .fillMaxWidth()
-                .padding(24.dp)
-
+        OverlayContent(
+            backgroundColor = Green100
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
+            Text(
+                "You're premium.",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Black
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Icon(
-                    painter = painterResource(id = R.drawable.globe_filled),
-                    contentDescription = "URnetwork globe filled"
-                )
+            Text(
+                "Thanks for building the new internet with us.",
+                style = MaterialTheme.typography.headlineLarge,
+                color = Black
+            )
 
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    "You're premium.",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Black
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(128.dp))
 
-                Text(
-                    "Thanks for building the new internet with us.",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Black
-                )
-
-                Spacer(modifier = Modifier.height(128.dp))
-
-                URButton(
-                    onClick = {
-                        onDismiss()
-                    },
-                    style = ButtonStyle.OUTLINE,
-                    borderColor = Black
-                ) { buttonTextStyle ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Close",
-                            style = buttonTextStyle,
-                            color = Black
-                        )
-                    }
+            URButton(
+                onClick = {
+                    onDismiss()
+                },
+                style = ButtonStyle.OUTLINE,
+                borderColor = Black
+            ) { buttonTextStyle ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        "Close",
+                        style = buttonTextStyle,
+                        color = Black
+                    )
                 }
             }
         }
