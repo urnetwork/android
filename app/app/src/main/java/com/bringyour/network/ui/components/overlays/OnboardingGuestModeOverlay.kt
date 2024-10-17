@@ -44,7 +44,7 @@ fun OnboardingGuestModeOverlay(
 
     OverlayBackground(
         onDismiss = { onDismiss() },
-        bgImageResourceId = R.drawable.overlay_onboarding_bg
+        bgImageResourceId = R.drawable.overlay_guest_onboarding_bg
     ) {
 
         AnimatedVisibility(

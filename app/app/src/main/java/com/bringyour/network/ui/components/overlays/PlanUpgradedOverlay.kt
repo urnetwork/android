@@ -22,10 +22,8 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Green100
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.ui.theme.Yellow
 
 @Composable
 fun PlanUpgradedOverlay(
@@ -33,7 +31,7 @@ fun PlanUpgradedOverlay(
 ) {
     OverlayBackground(
         onDismiss = { onDismiss() },
-        bgImageResourceId = R.drawable.overlay_plan_upgraded_bg_mobile
+        bgImageResourceId = R.drawable.overlay_plan_upgraded_bg
     ) {
         Box(
             modifier = Modifier

@@ -115,10 +115,13 @@ fun FeedbackScreen(
                 maxLines = 5,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    imeAction = if (feedbackMsg.text.isNotEmpty()) ImeAction.Send else ImeAction.Done
+                    imeAction = ImeAction.Send
                 ),
                 onSend = {
-                    submitFeedback()
+                    if (feedbackMsg.text.isNotEmpty()) {
+                        submitFeedback()
+                    }
+                    keyboardController?.hide()
                 },
                 keyboardController = keyboardController
             )
