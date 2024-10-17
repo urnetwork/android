@@ -43,8 +43,7 @@ fun TransferSubmittedOverlay(
                 style = MaterialTheme.typography.bodyLarge,
                 color = Black
             )
-    
-    
+
             Spacer(modifier = Modifier.height(128.dp))
     
             URButton(
