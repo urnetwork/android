@@ -159,6 +159,8 @@ fun LoginInitial(
 
     val loginActivity = context as? LoginActivity
 
+    val isTv = isTv()
+
     val guestModeStr = buildAnnotatedString {
         append(stringResource(id = R.string.commitment_issues))
 
@@ -206,9 +208,11 @@ fun LoginInitial(
 
             delay(500)
 
-            welcomeOverlayVisible = true
+            if (!isTv) {
+                welcomeOverlayVisible = true
 
-            delay(500)
+                delay(500)
+            }
 
             loginActivity?.authClientAndFinish { error ->
                 setLoginError(error)

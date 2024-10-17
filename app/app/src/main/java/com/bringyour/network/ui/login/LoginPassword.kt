@@ -86,6 +86,8 @@ fun LoginPassword(
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
 
+    val isTv = isTv()
+
     LaunchedEffect(Unit) {
         inProgress = false
     }
@@ -120,9 +122,11 @@ fun LoginPassword(
 
                         delay(500)
 
-                        welcomeOverlayVisible = true
+                        if (!isTv) {
+                            welcomeOverlayVisible = true
 
-                        delay(250)
+                            delay(250)
+                        }
 
                         loginActivity?.authClientAndFinish { error ->
                             if (error != null) {

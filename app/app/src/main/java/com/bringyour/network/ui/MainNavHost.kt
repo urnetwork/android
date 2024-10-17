@@ -262,7 +262,7 @@ fun MainNavHost(
     }
 
     WelcomeAnimatedMainOverlay(
-        animateIn
+        animateIn = animateIn && !isTv()
     )
 
     FullScreenOverlay(
