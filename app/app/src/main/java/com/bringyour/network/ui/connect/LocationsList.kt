@@ -2,6 +2,7 @@ package com.bringyour.network.ui.connect
 
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,9 +46,14 @@ fun LocationsList(
         searchQuery.isEmpty()) {
         // there has probably been an uncaught error
         // everything is empty, including search
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+        ) {
             FetchLocationsError(
                 onRefresh = onRefresh
             )
+        }
     } else if (
         promotedLocations.isEmpty() &&
         connectCountries.isEmpty() &&

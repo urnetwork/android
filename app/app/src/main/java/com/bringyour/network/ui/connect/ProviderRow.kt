@@ -76,6 +76,7 @@ fun ProviderRow(
         Row(
             modifier = Modifier
                 .weight(1f)
+                .height(40.dp)
                 // .background(if (isFocused) BlueMedium else Color.Transparent),
         ) {
             CircleImage(
