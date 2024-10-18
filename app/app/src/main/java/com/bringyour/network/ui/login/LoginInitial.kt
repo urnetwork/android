@@ -204,11 +204,12 @@ fun LoginInitial(
 
             application?.login(result.network.byJwt)
 
-            contentVisible = false
-
-            delay(500)
-
             if (!isTv) {
+
+                contentVisible = false
+
+                delay(500)
+
                 welcomeOverlayVisible = true
 
                 delay(500)

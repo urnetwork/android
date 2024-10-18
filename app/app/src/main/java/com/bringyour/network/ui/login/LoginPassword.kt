@@ -118,11 +118,12 @@ fun LoginPassword(
                     } else {
                         app.login(result.network.byJwt)
 
-                        isContentVisible = false
-
-                        delay(500)
-
                         if (!isTv) {
+
+                            isContentVisible = false
+
+                            delay(500)
+
                             welcomeOverlayVisible = true
 
                             delay(250)

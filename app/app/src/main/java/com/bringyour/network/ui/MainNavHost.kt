@@ -291,6 +291,8 @@ fun MainNavContent(
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).div(2).toPx() } else
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
 
+    val isTv = isTv()
+
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
     }
@@ -334,6 +336,16 @@ fun MainNavContent(
     NavHost(
         navController = navController,
         startDestination = Route.Connect,
+        enterTransition = {
+            if (isTv) {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeIn(animationSpec = tween(300))
+            } else {
+                EnterTransition.None
+            }
+        }
     ) {
 
         composable<Route.Connect>(
