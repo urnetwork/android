@@ -1,12 +1,17 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,7 +37,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -109,6 +125,10 @@ fun ProvidersBottomSheet(
     val keyboardController = LocalSoftwareKeyboardController.current
     var debounceJob by remember { mutableStateOf<Job?>(null) }
 
+    var peekInFocus by remember { mutableStateOf(false) }
+
+    // val focusManager = LocalFocusManager.current
+
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
             keyboardController?.hide()
@@ -122,7 +142,7 @@ fun ProvidersBottomSheet(
         ),
         sheetContainerColor = Black,
         sheetContentColor = Black,
-        sheetPeekHeight = 92.dp,
+        sheetPeekHeight = 94.dp,
         sheetDragHandle = {},
         sheetContent = {
 
@@ -132,7 +152,51 @@ fun ProvidersBottomSheet(
                     Modifier
                         .fillMaxSize()
                         .background(color = Black)
-                        .padding(horizontal = 16.dp),
+                        .focusGroup()
+//                        .onKeyEvent { keyEvent ->
+//                            if (keyEvent.type == KeyEventType.KeyUp) {
+//                                when (keyEvent.key) {
+//                                    Key.DirectionUp -> {
+//                                        Log.i("KeyEvent", "D-pad Up released")
+//                                        focusManager.moveFocus(FocusDirection.Up)
+//                                        // Handle D-pad up key release
+//                                        true
+//                                    }
+//                                    Key.DirectionDown -> {
+//                                        Log.i("KeyEvent", "D-pad Down released")
+//                                        focusManager.moveFocus(FocusDirection.Down)
+//                                        // Handle D-pad down key release
+//                                        true
+//                                    }
+//                                    Key.DirectionLeft -> {
+//                                        Log.i("KeyEvent", "D-pad Left released")
+//                                        // Handle D-pad left key release
+//                                        true
+//                                    }
+//                                    Key.DirectionRight -> {
+//                                        Log.i("KeyEvent", "D-pad Right released")
+//                                        // Handle D-pad right key release
+//                                        true
+//                                    }
+//                                    else -> false
+//                                }
+//                            } else {
+//                                false
+//                            }
+//                        },
+                        .onFocusChanged {
+                            scope.launch {
+
+//                                Log.i("ProvidersBottomSheet", "onFocusChanged: has focus? ${it.hasFocus}")
+//                                Log.i("ProvidersBottomSheet", "onFocusChanged: scaffoldState.bottomSheetState.currentValue? ${scaffoldState.bottomSheetState.currentValue}")
+//
+//                                if (it.hasFocus && scaffoldState.bottomSheetState.currentValue != SheetValue.Expanded) {
+//                                    scaffoldState.bottomSheetState.expand()
+//                                    peekInFocus = true
+//                                }
+
+                            }
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
@@ -153,56 +217,91 @@ fun ProvidersBottomSheet(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
-                        ProviderRow(
-                            location = "Best available provider",
-                            onClick = {
-                                // passing null for connect location will connect to best available
-                                connect(null)
-                                scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                            },
-                            color = Red400
-                        )
-                    } else {
-
-                        val key =
-                            if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
-                            else selectedLocation.countryCode
-
-                        ProviderRow(
-                            location = selectedLocation.name,
-                            providerCount = selectedLocation.providerCount,
-                            onClick = {
-                                connect(selectedLocation)
-                                scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                            },
-                            color = getLocationColor(key)
-                        )
-                    }
-
-                    URSearchInput(
-                        value = searchQueryTextFieldValue,
-                        onValueChange = { query ->
-                            if (query.text != searchQueryTextFieldValue.text) {
-                                setSearchQueryTextFieldValue(query)
-
-                                debounceJob?.cancel()
-                                debounceJob = scope.launch {
-                                    delay(250L)
-                                    filterLocations(query.text)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                Log.i("ProvidersBottomSheet", "peek onFocusChanged: has focus? ${it.hasFocus}")
+                                peekInFocus = it.isFocused
+                                if (it.isFocused) {
+                                    scope.launch { scaffoldState.bottomSheetState.expand() }
                                 }
                             }
-                        },
-                        onSearch = {
-                            filterLocations(searchQueryTextFieldValue.text)
-                        },
-                        placeholder = stringResource(id = R.string.search_placeholder),
-                        keyboardController = keyboardController,
-                        onClear = {
-                            setSearchQueryTextFieldValue(TextFieldValue(""))
-                            filterLocations("")
+                            .onKeyEvent { keyEvent ->
+                                if (peekInFocus && keyEvent.key == Key.DirectionUp && keyEvent.type == KeyEventType.KeyDown) {
+                                    Log.i("ProvidersBottomSheet", "CLOSE NOW")
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                    peekInFocus = false
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            .padding(bottom = 16.dp)
+                    ) {
+                        if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
+                            ProviderRow(
+                                location = "Best available provider",
+                                onClick = {
+                                    // passing null for connect location will connect to best available
+                                    connect(null)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                },
+                                color = Red400
+                            )
+                        } else {
+
+                            val key =
+                                if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
+                                else selectedLocation.countryCode
+
+                            ProviderRow(
+                                location = selectedLocation.name,
+                                providerCount = selectedLocation.providerCount,
+                                onClick = {
+                                    connect(selectedLocation)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                },
+                                color = getLocationColor(key)
+                            )
                         }
-                    )
+                    }
+
+                    // Spacer(modifier = Modifier.height(8.dp))
+
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        URSearchInput(
+                            value = searchQueryTextFieldValue,
+                            onValueChange = { query ->
+                                if (query.text != searchQueryTextFieldValue.text) {
+                                    setSearchQueryTextFieldValue(query)
+
+                                    debounceJob?.cancel()
+                                    debounceJob = scope.launch {
+                                        delay(250L)
+                                        filterLocations(query.text)
+                                    }
+                                }
+                            },
+                            onSearch = {
+                                filterLocations(searchQueryTextFieldValue.text)
+                            },
+                            placeholder = stringResource(id = R.string.search_placeholder),
+                            keyboardController = keyboardController,
+                            onClear = {
+                                setSearchQueryTextFieldValue(TextFieldValue(""))
+                                filterLocations("")
+                            },
+                            onFocusChanged = {
+                                Log.i("SearchInput", "onFocusChanged")
+                                // scope.launch { scaffoldState.bottomSheetState.expand() }
+                            }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -241,7 +340,11 @@ fun ProvidersBottomSheet(
                                 onRefresh = {
                                     filterLocations(currentSearchQuery)
                                 },
-                                searchQuery = currentSearchQuery
+                                searchQuery = currentSearchQuery,
+                                onFocusChanged = {
+                                    Log.i("ProvidersBottomSheet", "caught a provider row change")
+                                    scope.launch { scaffoldState.bottomSheetState.expand() }
+                                }
                             )
                         }
                         FilterLocationsState.Error -> {

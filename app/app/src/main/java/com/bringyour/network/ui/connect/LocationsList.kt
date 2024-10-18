@@ -1,10 +1,12 @@
 package com.bringyour.network.ui.connect
 
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import com.bringyour.client.ConnectLocation
@@ -30,6 +32,7 @@ fun LocationsList(
     selectedLocation: ConnectLocation?,
     getLocationColor: (String) -> Color,
     onRefresh: () -> Unit,
+    onFocusChanged: () -> Unit = {}
 ) {
 
     if (
@@ -58,13 +61,17 @@ fun LocationsList(
             NoLocationsFound()
     } else {
         // success
-        LazyColumn {
+        LazyColumn(
+            // modifier = Modifier.focusGroup()
+        ) {
 
             if (bestSearchMatches.isNotEmpty()) {
                 item {
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.top_matches))
@@ -81,7 +88,8 @@ fun LocationsList(
                             onLocationSelect(location)
                         },
                         isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                        color = getLocationColor(location.connectLocationId.toString())
+                        color = getLocationColor(location.connectLocationId.toString()),
+                        onFocusChanged = onFocusChanged
                     )
                 }
             }
@@ -90,7 +98,9 @@ fun LocationsList(
             if (promotedLocations.isNotEmpty() && bestSearchMatches.isEmpty()) {
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.promoted_locations))
@@ -107,7 +117,8 @@ fun LocationsList(
                             onLocationSelect(null)
                         },
                         color = Red400,
-                        isSelected = selectedLocation?.connectLocationId?.bestAvailable == true
+                        isSelected = selectedLocation?.connectLocationId?.bestAvailable == true,
+                        onFocusChanged = onFocusChanged
                     )
                 }
 
@@ -119,7 +130,8 @@ fun LocationsList(
                             onLocationSelect(location)
                         },
                         isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                        color = getLocationColor(location.connectLocationId.toString())
+                        color = getLocationColor(location.connectLocationId.toString()),
+                        onFocusChanged = onFocusChanged
                     )
                 }
             }
@@ -128,7 +140,9 @@ fun LocationsList(
                 item {
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.countries))
@@ -145,7 +159,8 @@ fun LocationsList(
                             onLocationSelect(location)
                         },
                         isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                        color = getLocationColor(location.countryCode)
+                        color = getLocationColor(location.countryCode),
+                        onFocusChanged = onFocusChanged
                     )
                 }
             }
@@ -153,7 +168,9 @@ fun LocationsList(
             if (regions.isNotEmpty()) {
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.regions))
@@ -170,7 +187,8 @@ fun LocationsList(
                             onLocationSelect(location)
                         },
                         isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                        color = getLocationColor(location.connectLocationId.toString())
+                        color = getLocationColor(location.connectLocationId.toString()),
+                        onFocusChanged = onFocusChanged
                     )
                 }
             }
@@ -178,7 +196,9 @@ fun LocationsList(
             if (cities.isNotEmpty()) {
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.cities))
@@ -195,7 +215,8 @@ fun LocationsList(
                             onLocationSelect(location)
                         },
                         isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                        color = getLocationColor(location.connectLocationId.toString())
+                        color = getLocationColor(location.connectLocationId.toString()),
+                        onFocusChanged = onFocusChanged
                     )
                 }
             }
@@ -204,7 +225,9 @@ fun LocationsList(
                 item {
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.devices))
@@ -221,7 +244,8 @@ fun LocationsList(
                             onLocationSelect(location)
                         },
                         isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                        color = getLocationColor(location.connectLocationId.toString())
+                        color = getLocationColor(location.connectLocationId.toString()),
+                        onFocusChanged = onFocusChanged
                     )
                 }
             }

@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,7 +55,19 @@ fun ConnectScreen(
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
-    val scaffoldState = rememberBottomSheetScaffoldState()
+
+
+    // val scaffoldState = rememberBottomSheetScaffoldState()
+
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.PartiallyExpanded,
+            skipHiddenState = false
+        )
+    )
+
+
     val networkUser by accountViewModel.networkUser.collectAsState()
 
     ProvidersBottomSheet(

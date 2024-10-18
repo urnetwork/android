@@ -2,6 +2,7 @@ package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
@@ -48,13 +50,16 @@ fun URSearchInput(
     placeholder: String = "",
     keyboardController: SoftwareKeyboardController?,
     onSearch: () -> Unit = {},
-    onClear: () -> Unit
+    onClear: () -> Unit,
+    onFocusChanged: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(MainTintedBackgroundBase)
+            .onFocusChanged { onFocusChanged() }
+            .focusable()
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         Row(
