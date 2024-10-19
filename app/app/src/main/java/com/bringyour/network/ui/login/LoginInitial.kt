@@ -247,7 +247,11 @@ fun LoginInitial(
 
                     setGuestModeLoginSuccess(true)
 
-                    contentVisible = false
+                    if (isTv) {
+                        setGuestModeOverlayVisible(false)
+                    } else {
+                        contentVisible = false
+                    }
 
                     loginActivity?.authClientAndFinish { error ->
                         // inProgress = false

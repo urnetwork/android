@@ -112,6 +112,8 @@ fun LoginVerify(
         }
     }
 
+    val isTv = isTv()
+
     val verify = {
 
         verifyInProgress = true
@@ -135,13 +137,15 @@ fun LoginVerify(
 
                     verifyInProgress = true
 
-                    isContentVisible = false
+                    if (!isTv) {
+                        isContentVisible = false
 
-                    delay(500)
+                        delay(500)
 
-                    welcomeOverlayVisible = true
+                        welcomeOverlayVisible = true
 
-                    delay(250)
+                        delay(250)
+                    }
 
                     loginActivity?.authClientAndFinish { error ->
                         verifyInProgress = false
