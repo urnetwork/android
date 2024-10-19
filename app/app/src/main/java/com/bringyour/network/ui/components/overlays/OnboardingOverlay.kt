@@ -24,12 +24,13 @@ fun OnboardingOverlay(
 ) {
 
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_guest_onboarding_bg
     ) {
 
         OverlayContent(
-            backgroundColor = Yellow
+            backgroundColor = Yellow,
+            onDismiss = onDismiss
         ) {
             Text(
                 "Nicely done.",

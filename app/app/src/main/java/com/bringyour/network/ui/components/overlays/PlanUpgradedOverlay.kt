@@ -23,11 +23,12 @@ fun PlanUpgradedOverlay(
     onDismiss: () -> Unit
 ) {
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_plan_upgraded_bg
     ) {
         OverlayContent(
-            backgroundColor = Green100
+            backgroundColor = Green100,
+            onDismiss = onDismiss
         ) {
             Text(
                 "You're premium.",

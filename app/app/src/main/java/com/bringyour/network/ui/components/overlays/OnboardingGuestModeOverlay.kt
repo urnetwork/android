@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -34,9 +35,10 @@ fun OnboardingGuestModeOverlay(
     onCreateGuestNetwork: () -> Unit
 ) {
     var termsAgreed by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
 
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_guest_onboarding_bg
     ) {
 
@@ -46,7 +48,8 @@ fun OnboardingGuestModeOverlay(
             exit = fadeOut()
         ) {
             OverlayContent(
-                backgroundColor = Yellow
+                backgroundColor = Yellow,
+                onDismiss = onDismiss
             ) {
                 Text(
                     "Nicely done.",
@@ -68,7 +71,8 @@ fun OnboardingGuestModeOverlay(
                     checked = termsAgreed,
                     onCheckChanged = { it ->
                         termsAgreed = it
-                    }
+                    },
+                    focusRequester = focusRequester
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

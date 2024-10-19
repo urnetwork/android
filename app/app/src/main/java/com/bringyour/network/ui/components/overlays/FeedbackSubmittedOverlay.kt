@@ -24,12 +24,13 @@ fun FeedbackSubmittedOverlay(
 ) {
 
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_feedback_bg
     ) {
 
         OverlayContent(
-            backgroundColor = Pink
+            backgroundColor = Pink,
+            onDismiss = onDismiss
         ) {
             Text(
                 "Feedback submitted.",

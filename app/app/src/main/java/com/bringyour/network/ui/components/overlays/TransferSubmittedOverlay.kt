@@ -24,11 +24,12 @@ fun TransferSubmittedOverlay(
     onDismiss: () -> Unit
 ) {
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_transfer_submitted_bg
     ) {
         OverlayContent(
-            backgroundColor = Yellow
+            backgroundColor = Yellow,
+            onDismiss = onDismiss
         ) {
             Text(
                 stringResource(id = R.string.transfer_submitted),

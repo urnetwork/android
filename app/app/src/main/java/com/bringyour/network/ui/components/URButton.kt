@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -75,7 +76,7 @@ fun URButton(
         onClick = onClick,
         colors = buttonColors,
         modifier = baseModifier.then(
-            Modifier.defaultMinSize(minHeight = 48.dp)
+            Modifier.defaultMinSize(minHeight = 48.dp).focusable()
         ),
         enabled = enabled,
 

@@ -33,12 +33,13 @@ fun GuestModeOverlay(
     val application = context.applicationContext as? MainApplication
 
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_guest_mode_bg
     ) {
 
         OverlayContent(
-            backgroundColor = Blue200
+            backgroundColor = Blue200,
+            onDismiss = onDismiss
         ) {
             Text(
                 stringResource(id = R.string.in_guest_mode),

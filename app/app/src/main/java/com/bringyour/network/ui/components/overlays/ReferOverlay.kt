@@ -82,12 +82,13 @@ fun ReferOverlay(
     // val referralCode = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
 
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_refer_bg
     ) {
 
         OverlayContent(
-            backgroundColor = Green300
+            backgroundColor = Green300,
+            onDismiss = onDismiss
         ) {
             Text(
                 stringResource(id = R.string.refer_friends_header),
