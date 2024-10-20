@@ -185,7 +185,7 @@ class ConnectViewModel @Inject constructor(
         when (state) {
             ProviderPointState.IN_EVALUATION -> Yellow
             ProviderPointState.EVALUATION_FAILED -> Red
-            ProviderPointState.NOT_ADDED -> TextFaint
+            ProviderPointState.NOT_ADDED -> Red
             ProviderPointState.ADDED -> Green
             ProviderPointState.REMOVED -> Red
             else -> Color.Transparent
