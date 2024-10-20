@@ -30,7 +30,6 @@ fun OnboardingOverlay(
 
         OverlayContent(
             backgroundColor = Yellow,
-            onDismiss = onDismiss
         ) {
             Text(
                 "Nicely done.",

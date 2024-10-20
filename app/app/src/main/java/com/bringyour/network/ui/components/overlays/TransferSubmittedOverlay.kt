@@ -29,7 +29,6 @@ fun TransferSubmittedOverlay(
     ) {
         OverlayContent(
             backgroundColor = Yellow,
-            onDismiss = onDismiss
         ) {
             Text(
                 stringResource(id = R.string.transfer_submitted),

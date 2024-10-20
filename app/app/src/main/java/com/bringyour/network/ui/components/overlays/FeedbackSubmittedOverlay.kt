@@ -30,7 +30,6 @@ fun FeedbackSubmittedOverlay(
 
         OverlayContent(
             backgroundColor = Pink,
-            onDismiss = onDismiss
         ) {
             Text(
                 "Feedback submitted.",

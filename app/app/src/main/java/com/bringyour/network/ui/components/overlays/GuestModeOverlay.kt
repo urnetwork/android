@@ -39,7 +39,6 @@ fun GuestModeOverlay(
 
         OverlayContent(
             backgroundColor = Blue200,
-            onDismiss = onDismiss
         ) {
             Text(
                 stringResource(id = R.string.in_guest_mode),

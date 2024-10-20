@@ -88,7 +88,6 @@ fun ReferOverlay(
 
         OverlayContent(
             backgroundColor = Green300,
-            onDismiss = onDismiss
         ) {
             Text(
                 stringResource(id = R.string.refer_friends_header),
@@ -196,20 +195,21 @@ fun QRCodeWithImage(
 ) {
 
     val padding = 8.dp
-
-    Box(
-        modifier = Modifier.padding(horizontal = 32.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .size(256.dp)
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White)
-                .padding(padding)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
         ) {
-
-            val size = constraints.maxWidth
+            val size = with(LocalDensity.current) {256.dp.toPx()}
 
             val paddingPx = with(LocalDensity.current) { padding.toPx() }
 
@@ -258,6 +258,7 @@ fun QRCodeWithImage(
             }
         }
     }
+
 }
 
 fun generateQRCode(text: String, size: Int): Bitmap {
@@ -326,6 +327,19 @@ fun trimWhiteSpace(bitmap: Bitmap): Bitmap {
 @Preview
 @Composable
 private fun ReferOverlayPreview() {
+    URNetworkTheme {
+        ReferOverlay(
+            onDismiss = {},
+            referralLink = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+        )
+    }
+}
+
+@Preview(
+    device = "spec:width=1920dp,height=1080dp,dpi=480"
+)
+@Composable
+private fun ReferOverlayLandscapePreview() {
     URNetworkTheme {
         ReferOverlay(
             onDismiss = {},

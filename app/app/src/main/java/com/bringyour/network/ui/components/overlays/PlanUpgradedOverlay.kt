@@ -28,7 +28,6 @@ fun PlanUpgradedOverlay(
     ) {
         OverlayContent(
             backgroundColor = Green100,
-            onDismiss = onDismiss
         ) {
             Text(
                 "You're premium.",

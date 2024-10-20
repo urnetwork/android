@@ -215,6 +215,7 @@ private fun ConnectMobileAndTablet(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Black)
                 .padding(16.dp),
         ) {
             ConnectMainContent(
