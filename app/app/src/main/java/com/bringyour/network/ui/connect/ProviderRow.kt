@@ -1,6 +1,9 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,13 +18,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
@@ -36,23 +46,38 @@ fun ProviderRow(
     imageResourceId: Int? = null,
     onClick: (Int) -> Unit,
     isSelected: Boolean = false,
-    color: Color
+    color: Color,
+    onFocusChanged: () -> Unit = {}
 ) {
 
     val formatter = NumberFormat.getNumberInstance(Locale.US)
 
+    var isFocused by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .onFocusChanged {
+                isFocused = it.isFocused
+                onFocusChanged()
+                if (it.isFocused) {
+                    Log.i("ProviderRow", "$location is focused")
+                }
+            }
+            .focusable()
             .clickable {
                 onClick(1)
-            },
+            }
+            .background(if (isFocused) BlueDark else Color.Transparent)
+            .padding(vertical = 12.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
             modifier = Modifier
-                .weight(1f),
+                .weight(1f)
+                .height(40.dp)
+                // .background(if (isFocused) BlueMedium else Color.Transparent),
         ) {
             CircleImage(
                 size = 40.dp,
@@ -96,7 +121,7 @@ fun ProviderRow(
         }
     }
     
-    Spacer(modifier = Modifier.height(24.dp))
+    //Spacer(modifier = Modifier.height(24.dp))
 }
 
 @Preview

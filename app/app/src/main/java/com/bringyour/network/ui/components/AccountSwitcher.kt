@@ -3,9 +3,11 @@ package com.bringyour.network.ui.components
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +54,7 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 enum class LoginMode {
@@ -65,9 +70,9 @@ fun AccountSwitcher(
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-//    val overlayVc = application?.overlayVc
 
     var isOverlayVisible by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester()}
 
     Box(
         modifier = Modifier.size(32.dp)
@@ -77,7 +82,9 @@ fun AccountSwitcher(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { isOverlayVisible = true },
+                .clickable {
+                    isOverlayVisible = true
+                           },
             colorFilter = if (loginMode == LoginMode.Authenticated) null
                 else ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
         )
@@ -88,14 +95,16 @@ fun AccountSwitcher(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
                     context = context,
-                    launchOverlay = launchOverlay
+                    launchOverlay = launchOverlay,
+                    focusRequester = focusRequester
                 )
                 LoginMode.Authenticated -> AuthenticatedPopup(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
                     context = context,
                     launchOverlay = launchOverlay,
-                    networkName = networkName
+                    networkName = networkName,
+                    focusRequester = focusRequester
                 )
             }
         }
@@ -130,11 +139,7 @@ fun AccountSwitcherPopup(
                         .width(256.dp)
                         .clickable { /* Do nothing to prevent dismiss */ }
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .background(color = Color(0xFF121212))
-                            .background(Color(0x29FFFFFF))
-                    ) {
+                    Column {
                         content()
                     }
                 }
@@ -148,8 +153,10 @@ fun GuestPopup(
     onDismiss: () -> Unit,
     context: Context?,
     application: MainApplication?,
-    launchOverlay: (OverlayMode) -> Unit
+    launchOverlay: (OverlayMode) -> Unit,
+    focusRequester: FocusRequester
 ) {
+
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
         PopupActionRow(
             iconResourceId = R.drawable.main_nav_user_filled,
@@ -171,6 +178,7 @@ fun GuestPopup(
                 
                 (context as? Activity)?.finish()
             },
+            focusRequester = focusRequester
         )
 
         HorizontalDivider()
@@ -192,7 +200,8 @@ fun AuthenticatedPopup(
     context: Context?,
     application: MainApplication?,
     launchOverlay: (OverlayMode) -> Unit,
-    networkName: String?
+    networkName: String?,
+    focusRequester: FocusRequester
 ) {
 
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
@@ -214,6 +223,7 @@ fun AuthenticatedPopup(
 
                 (context as? Activity)?.finish()
             },
+            focusRequester = focusRequester
         )
 
         HorizontalDivider()
@@ -222,7 +232,6 @@ fun AuthenticatedPopup(
             text = "Share URnetwork",
             onClick = {
                 launchOverlay(OverlayMode.Refer)
-                // overlayVc?.openOverlay(OverlayMode.Refer.toString())
                 onDismiss()
             },
         )
@@ -234,12 +243,33 @@ fun PopupActionRow(
     onClick: () -> Unit,
     iconResourceId: Int,
     text: String,
-    isSelected: Boolean = false
+    isSelected: Boolean = false,
+    focusRequester: FocusRequester? = null
 ) {
+
+    var isFocused by remember { mutableStateOf(false) }
+    val isFocusedBgColor = MainBorderBase.copy(alpha = 0.6f)
+    val bgColor = animateColorAsState(
+        targetValue = if (isFocused) {
+            isFocusedBgColor
+        } else {
+            MainBorderBase
+        }, label = ""
+    )
+
+    val modifier = if (focusRequester != null) {
+        Modifier.focusRequester(focusRequester)
+    } else {
+        Modifier
+    }
+
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .background(bgColor.value)
             .clickable { onClick() }
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable()
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -260,6 +290,12 @@ fun PopupActionRow(
                 modifier = Modifier.width(16.dp),
                 tint = BlueMedium
             )
+        }
+    }
+
+    if (focusRequester != null) {
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
         }
     }
 }
@@ -291,12 +327,16 @@ fun AccountSwitcherAuthenticatedPreview() {
 @Preview
 @Composable
 fun GuestPopupPreview() {
+
+    val focusRequester = remember { FocusRequester() }
+
     URNetworkTheme {
         GuestPopup(
             onDismiss = {},
             application =  null,
             context = null,
-            launchOverlay = {}
+            launchOverlay = {},
+            focusRequester = focusRequester
         )
     }
 }

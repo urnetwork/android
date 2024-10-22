@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -168,9 +170,10 @@ fun SettingsScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
                 .padding(16.dp)
-                .imePadding()
+                // .imePadding()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -241,15 +244,18 @@ fun SettingsScreen(
 
                 }
 
-                if (currentPlan == Plan.Basic) {
-                    Text(
-                        stringResource(id = R.string.change),
-                        style = TextStyle(
-                            color = BlueMedium
-                        ),
-                        modifier = Modifier.clickable {  }
-                    )
-                }
+                // todo - wrap this in UpgradePlanBottomSheetScaffold
+//                if (currentPlan == Plan.Basic) {
+//                    Text(
+//                        stringResource(id = R.string.change),
+//                        style = TextStyle(
+//                            color = BlueMedium
+//                        ),
+//                        modifier = Modifier.clickable {
+//
+//                        }
+//                    )
+//                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -328,7 +334,6 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-
 
             URTextInputLabel(text = stringResource(id = R.string.connections))
             Row(

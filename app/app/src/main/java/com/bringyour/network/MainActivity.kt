@@ -1,7 +1,10 @@
 package com.bringyour.network
 
+import android.app.UiModeManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
@@ -143,7 +146,13 @@ class MainActivity: AppCompatActivity() {
 
         val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
 
-        if (Build.VERSION.SDK_INT >= 34) {
+
+
+        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+        val isTv = uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+
+        // disable animation in if mobile or tablet
+        if (Build.VERSION.SDK_INT >= 34 && !isTv) {
             overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
         }
 

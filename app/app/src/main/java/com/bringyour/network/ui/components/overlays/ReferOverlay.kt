@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -46,7 +45,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
@@ -84,125 +82,107 @@ fun ReferOverlay(
     // val referralCode = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
 
     OverlayBackground(
-        onDismiss = { onDismiss() },
+        onDismiss = onDismiss,
         bgImageResourceId = R.drawable.overlay_refer_bg
     ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    Green300,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .fillMaxWidth()
-                .padding(24.dp)
 
+        OverlayContent(
+            backgroundColor = Green300,
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
+            Text(
+                stringResource(id = R.string.refer_friends_header),
+                style = MaterialTheme.typography.headlineLarge,
+                color = Black
+            )
 
-                Icon(painter = painterResource(id = R.drawable.globe_filled), contentDescription = "URnetwork globe filled")
+            Spacer(modifier = Modifier.height(24.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    stringResource(id = R.string.refer_friends_header),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Black
+            Text(
+                stringResource(id = R.string.refer_friends_detail),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Black
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (referralLink != null) {
+
+                QRCodeWithImage(
+                    text = referralLink,
+                    imageResId = R.drawable.qr_code_center
                 )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    stringResource(id = R.string.refer_friends_detail),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Black
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-
-                if (referralLink != null) {
-
-
-
-                    QRCodeWithImage(
-                        text = referralLink,
-                        imageResId = R.drawable.qr_code_center
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                Color.White,
-                                shape = RoundedCornerShape(size = 24.dp)
-                            )
-                            .padding(16.dp)
-
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                referralLink,
-                                style = MaterialTheme.typography.bodyMedium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 8.dp)
-                            )
-
-                            Text(
-                                stringResource(id = R.string.copy),
-                                modifier = Modifier.clickable {
-                                    clipboardManager.setText(AnnotatedString(referralLink))
-                                },
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = BlueMedium
-                                ),
-                            )
-                        }
-                    }
-                } else {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(24.dp),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = TextMuted,
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                URButton(onClick = {
-                    val shareIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, referralLink)
-                        type = "text/plain"
-                    }
-                    context.startActivity(Intent.createChooser(shareIntent, null))
-                }) { textStyle ->
+                Box(
+                    modifier = Modifier
+                        .background(
+                            Color.White,
+                            shape = RoundedCornerShape(size = 24.dp)
+                        )
+                        .padding(16.dp)
+
+                ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            stringResource(id = R.string.share),
-                            style = textStyle
+                            referralLink,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_share),
-                            contentDescription = "Share Icon",
-                            modifier = Modifier.size(16.dp),
-                            tint = Color.White
+
+                        Text(
+                            stringResource(id = R.string.copy),
+                            modifier = Modifier.clickable {
+                                clipboardManager.setText(AnnotatedString(referralLink))
+                            },
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = BlueMedium
+                            ),
                         )
                     }
                 }
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .width(24.dp)
+                        .height(24.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = TextMuted,
+                )
+            }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            URButton(onClick = {
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, referralLink)
+                    type = "text/plain"
+                }
+                context.startActivity(Intent.createChooser(shareIntent, null))
+            }) { textStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(id = R.string.share),
+                        style = textStyle
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_share),
+                        contentDescription = "Share Icon",
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.White
+                    )
+                }
             }
         }
     }
@@ -215,20 +195,21 @@ fun QRCodeWithImage(
 ) {
 
     val padding = 8.dp
-
-    Box(
-        modifier = Modifier.padding(horizontal = 32.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .size(256.dp)
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White)
-                .padding(padding)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
         ) {
-
-            val size = constraints.maxWidth
+            val size = with(LocalDensity.current) {256.dp.toPx()}
 
             val paddingPx = with(LocalDensity.current) { padding.toPx() }
 
@@ -277,6 +258,7 @@ fun QRCodeWithImage(
             }
         }
     }
+
 }
 
 fun generateQRCode(text: String, size: Int): Bitmap {
@@ -345,6 +327,19 @@ fun trimWhiteSpace(bitmap: Bitmap): Bitmap {
 @Preview
 @Composable
 private fun ReferOverlayPreview() {
+    URNetworkTheme {
+        ReferOverlay(
+            onDismiss = {},
+            referralLink = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+        )
+    }
+}
+
+@Preview(
+    device = "spec:width=1920dp,height=1080dp,dpi=480"
+)
+@Composable
+private fun ReferOverlayLandscapePreview() {
     URNetworkTheme {
         ReferOverlay(
             onDismiss = {},

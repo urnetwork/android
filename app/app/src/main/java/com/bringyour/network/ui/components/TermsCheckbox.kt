@@ -2,18 +2,28 @@ package com.bringyour.network.ui.components
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -23,14 +33,18 @@ import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.isTv
 
 @Composable
 fun TermsCheckbox(
     checked: Boolean,
     onCheckChanged: (Boolean) -> Unit,
+    focusRequester: FocusRequester? = null
 ) {
 
     val context = LocalContext.current
+
+    var isFocused by remember { mutableStateOf(false) }
 
     val checkboxStr = buildAnnotatedString {
         append("I agree to URnetwork's ")
@@ -65,17 +79,33 @@ fun TermsCheckbox(
 
     }
 
+    val checkboxModifier = if (focusRequester != null)
+        Modifier
+        .size(16.dp)
+        .onFocusChanged {
+            isFocused = it.isFocused
+        }
+        .focusRequester(focusRequester)
+        .focusable()
+    else Modifier
+        .size(16.dp)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.Top
     ) {
         Checkbox(
-            modifier = Modifier.size(16.dp),
+            modifier = checkboxModifier.then(
+                if (isFocused) {
+                    Modifier.background(TextMuted.copy(alpha = 0.3f), CircleShape) // Focused border color
+                } else {
+                    Modifier
+                }
+            ),
             checked = checked,
             onCheckedChange = {
                 onCheckChanged(it)
-            }
+            },
+
         )
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -93,15 +123,26 @@ fun TermsCheckbox(
             style = MaterialTheme.typography.bodyMedium.copy(color = TextMuted),
         )
     }
+
+    if (focusRequester != null && isTv()) {
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+    }
+
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun TermsCheckboxCheckedPreview() {
+
+    val focusRequester = remember { FocusRequester() }
+
     URNetworkTheme {
         TermsCheckbox(
             checked = true,
-            onCheckChanged = {}
+            onCheckChanged = {},
+            focusRequester
         )
     }
 }
@@ -109,10 +150,14 @@ private fun TermsCheckboxCheckedPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun TermsCheckboxUncheckedPreview() {
+
+    val focusRequester = remember { FocusRequester() }
+
     URNetworkTheme {
         TermsCheckbox(
             checked = false,
-            onCheckChanged = {}
+            onCheckChanged = {},
+            focusRequester
         )
     }
 }

@@ -70,7 +70,7 @@ fun URCodeInput(
     }
 
     Row(
-        modifier = Modifier.imePadding(),
+        modifier = Modifier.height(24.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         for (i in 0 until codeLength) {
