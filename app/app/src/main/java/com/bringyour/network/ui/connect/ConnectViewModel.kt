@@ -19,7 +19,6 @@ import com.bringyour.client.Id
 import com.bringyour.client.ProviderGridPoint
 import com.bringyour.client.Sub
 import com.bringyour.network.ByDeviceManager
-import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
@@ -35,8 +34,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConnectViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
-    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
+    byDeviceManager: ByDeviceManager,
 ): ViewModel() {
 
     private var connectVc: ConnectViewController? = null

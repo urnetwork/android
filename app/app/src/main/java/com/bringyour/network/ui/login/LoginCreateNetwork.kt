@@ -4,18 +4,24 @@ import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -43,6 +49,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,6 +70,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import com.bringyour.network.utils.isTv
 
 // Base class with common parameters
 open class CommonLoginParams(
@@ -185,9 +193,6 @@ fun LoginCreateNetwork(
 
     var createNetworkError by remember { mutableStateOf<String?>(null) }
 
-    var debounceJob by remember { mutableStateOf<Job?>(null) }
-    val coroutineScope = rememberCoroutineScope()
-
     val createNetwork = {
         val args = createNetworkArgs(params)
 
@@ -288,125 +293,101 @@ fun LoginCreateNetwork(
             }
         ) { innerPadding ->
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                    // .imePadding(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Row {
-                    Text("Join", style = MaterialTheme.typography.headlineLarge)
-                }
-
-                Row {
-                    Text("URnetwork", style = MaterialTheme.typography.headlineLarge)
-                }
-
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Column(
-                    modifier = Modifier.imePadding()
+            if (isTv()) {
+                // mobile or tablet
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding) // need to debug why this is 0
+                        .padding(16.dp)
+                        .imePadding(),
                 ) {
 
-                    if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
-                        URTextInput(
-                            label = stringResource(id = R.string.user_auth_label),
-                            value = emailOrPhone,
-                            onValueChange = { newValue ->
-                                val filteredText = newValue.text.filter { it != ' ' }
-                                val filteredTextFieldValue = newValue.copy(text = filteredText)
-                                setEmailOrPhone(filteredTextFieldValue)
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            "Join\nURnetwork",
+                            style = MaterialTheme.typography.headlineLarge,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(64.dp))
+                    }
 
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState())
+                            .padding(end = 64.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+
+                        NetworkCreateForm(
+                            params = params,
+                            emailOrPhone = emailOrPhone,
+                            networkName = networkName,
+                            setNetworkName = setNetworkName,
+                            validateNetworkName = validateNetworkName,
+                            isValidatingNetworkName = isValidatingNetworkName,
+                            networkNameErrorExists = networkNameErrorExists,
+                            password = password,
+                            setPassword = setPassword,
+                            termsAgreed = termsAgreed,
+                            setTermsAgreed = setTermsAgreed,
+                            isBtnEnabled = isBtnEnabled,
+                            onCreateNetwork = {
+                                createNetwork()
                             },
-                            placeholder = stringResource(id = R.string.user_auth_placeholder),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Email,
-                                imeAction = ImeAction.Next
-                            ),
+                            networkNameSupportingText = networkNameSupportingText,
+                        )
+                    }
+                }
+            } else {
+                // mobile or tablet
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(innerPadding)
+                        .padding(16.dp),
+                    // .imePadding(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    Row {
+                        Text(
+                            "Join\nURnetwork",
+                            style = MaterialTheme.typography.headlineLarge,
+                            textAlign = TextAlign.Center
                         )
                     }
 
-                    URTextInput(
-                        label = stringResource(id = R.string.network_name_label),
-                        value = networkName,
-                        onValueChange = { newValue ->
-                            val originalCursorPosition = newValue.selection.start
+                    Spacer(modifier = Modifier.height(48.dp))
 
-                            val filteredText = networkNameInputFilter(newValue.text)
-                            val cursorOffset = newValue.text.length - filteredText.length
-                            val newCursorPosition =
-                                (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
-
-                            val newNetworkName = newValue.copy(
-                                text = filteredText,
-                                selection = TextRange(newCursorPosition)
-                            )
-
-                            setNetworkName(newNetworkName)
-
-                            debounceJob?.cancel()
-                            debounceJob = coroutineScope.launch {
-                                delay(500L)
-                                validateNetworkName(newNetworkName.text)
-                            }
+                    NetworkCreateForm(
+                        params = params,
+                        emailOrPhone = emailOrPhone,
+                        networkName = networkName,
+                        setNetworkName = setNetworkName,
+                        validateNetworkName = validateNetworkName,
+                        isValidatingNetworkName = isValidatingNetworkName,
+                        networkNameErrorExists = networkNameErrorExists,
+                        password = password,
+                        setPassword = setPassword,
+                        termsAgreed = termsAgreed,
+                        setTermsAgreed = setTermsAgreed,
+                        isBtnEnabled = isBtnEnabled,
+                        onCreateNetwork = {
+                            createNetwork()
                         },
-                        placeholder = stringResource(id = R.string.network_name_placeholder),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
-                                ImeAction.Next else ImeAction.Done
-                        ),
-                        isValidating = isValidatingNetworkName,
-                        isValid = !networkNameErrorExists,
-                        supportingText = networkNameSupportingText
-                    )
-
-                    if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
-
-                        URTextInput(
-                            label = stringResource(id = R.string.password_label),
-                            value = password,
-                            onValueChange = setPassword,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Done
-                            ),
-                            isPassword = true,
-                            supportingText = stringResource(id = R.string.password_support_txt)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row {
-
-                    TermsCheckbox(
-                        checked = termsAgreed,
-                        onCheckChanged = setTermsAgreed
-                    )
-
-                }
-
-                Spacer(modifier = Modifier.height(48.dp))
-
-                URButton(
-                    onClick = {
-                        createNetwork()
-                    },
-                    enabled = isBtnEnabled
-                ) { buttonTextStyle ->
-                    Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Right Arrow",
-                        modifier = Modifier.size(16.dp),
-                        tint = if (isBtnEnabled) Color.White else Color.Gray
+                        networkNameSupportingText = networkNameSupportingText,
                     )
                 }
             }
@@ -417,6 +398,133 @@ fun LoginCreateNetwork(
     WelcomeAnimatedOverlayLogin(
         isVisible = welcomeOverlayVisible
     )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun NetworkCreateForm(
+    params: LoginCreateNetworkParams,
+    emailOrPhone: TextFieldValue,
+    // setEmailOrPhone: (TextFieldValue) -> Unit,
+    networkName: TextFieldValue,
+    setNetworkName: (TextFieldValue) -> Unit,
+    validateNetworkName: (String) -> Unit,
+    isValidatingNetworkName: Boolean,
+    networkNameErrorExists: Boolean,
+    networkNameSupportingText: String,
+    password: TextFieldValue,
+    setPassword: (TextFieldValue) -> Unit,
+    termsAgreed: Boolean,
+    setTermsAgreed: (Boolean) -> Unit,
+    isBtnEnabled: Boolean,
+    onCreateNetwork: () -> Unit
+) {
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    Column(
+        modifier = Modifier
+            // .wrapContentHeight()
+            .imePadding()
+    ) {
+
+        if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+            URTextInput(
+                label = stringResource(id = R.string.user_auth_label),
+                value = emailOrPhone,
+                onValueChange = {},
+                enabled = false,
+                placeholder = stringResource(id = R.string.user_auth_placeholder),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+            )
+        }
+
+        URTextInput(
+            label = stringResource(id = R.string.network_name_label),
+            value = networkName,
+            onValueChange = { newValue ->
+                val originalCursorPosition = newValue.selection.start
+
+                val filteredText = networkNameInputFilter(newValue.text)
+                val cursorOffset = newValue.text.length - filteredText.length
+                val newCursorPosition =
+                    (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
+
+                val newNetworkName = newValue.copy(
+                    text = filteredText,
+                    selection = TextRange(newCursorPosition)
+                )
+
+                setNetworkName(newNetworkName)
+
+                debounceJob?.cancel()
+                debounceJob = coroutineScope.launch {
+                    delay(500L)
+                    validateNetworkName(newNetworkName.text)
+                }
+            },
+            placeholder = stringResource(id = R.string.network_name_placeholder),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
+                    ImeAction.Next else ImeAction.Done
+            ),
+            isValidating = isValidatingNetworkName,
+            isValid = !networkNameErrorExists,
+            supportingText = networkNameSupportingText
+        )
+
+        if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+
+            URTextInput(
+                label = stringResource(id = R.string.password_label),
+                value = password,
+                onValueChange = setPassword,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                isPassword = true,
+                supportingText = stringResource(id = R.string.password_support_txt)
+            )
+        }
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row {
+
+            TermsCheckbox(
+                checked = termsAgreed,
+                onCheckChanged = setTermsAgreed
+            )
+
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        URButton(
+            onClick = {
+                // createNetwork()
+                onCreateNetwork()
+            },
+            enabled = isBtnEnabled
+        ) { buttonTextStyle ->
+            Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Right Arrow",
+                modifier = Modifier.size(16.dp),
+                tint = if (isBtnEnabled) Color.White else Color.Gray
+            )
+        }
+    }
 }
 
 @Preview

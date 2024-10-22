@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -113,43 +114,48 @@ fun LoginPasswordResetAfterSend(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(stringResource(id = R.string.reset_link_sent), style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(64.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth().widthIn(512.dp)
             ) {
-                Text(
-                    "${stringResource(id = R.string.reset_link_sent_to)} $userAuth",
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                stringResource(id = R.string.check_junk_mail),
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-
-            URButton(
-                onClick = {
-                    sendResetLink()
-                },
-                enabled = isBtnEnabled
-            ) { buttonTextStyle ->
+                Text(stringResource(id = R.string.reset_link_sent), style = MaterialTheme.typography.headlineLarge)
+                Spacer(modifier = Modifier.height(64.dp))
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
                 ) {
                     Text(
-                        if (markAsSent) stringResource(id = R.string.sent) else stringResource(id = R.string.resend_reset_link),
-                        style = buttonTextStyle
+                        "${stringResource(id = R.string.reset_link_sent_to)} $userAuth",
                     )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = R.string.check_junk_mail),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = TextMuted
+                    )
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+
+                URButton(
+                    onClick = {
+                        sendResetLink()
+                    },
+                    enabled = isBtnEnabled
+                ) { buttonTextStyle ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            if (markAsSent) stringResource(id = R.string.sent) else stringResource(id = R.string.resend_reset_link),
+                            style = buttonTextStyle
+                        )
+                    }
                 }
             }
         }

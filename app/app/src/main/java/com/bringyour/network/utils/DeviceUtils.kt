@@ -32,3 +32,10 @@ fun isTablet(): Boolean {
         true
     }
 }
+
+@Composable
+fun isTv(): Boolean {
+    val configuration = LocalConfiguration.current
+    val uiMode = configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
+    return uiMode == Configuration.UI_MODE_TYPE_TELEVISION
+}

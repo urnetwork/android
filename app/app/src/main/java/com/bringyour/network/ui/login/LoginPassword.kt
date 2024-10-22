@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,8 +18,10 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -60,6 +64,7 @@ import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -73,12 +78,15 @@ fun LoginPassword(
     val context = LocalContext.current
     val app = context.applicationContext as? MainApplication
     val loginActivity = context as? LoginActivity
-    var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
+    // var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
+    val user = TextFieldValue(userAuth)
     var password by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf<String?>(null) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
+
+    val isTv = isTv()
 
     LaunchedEffect(Unit) {
         inProgress = false
@@ -110,13 +118,16 @@ fun LoginPassword(
                     } else {
                         app.login(result.network.byJwt)
 
-                        isContentVisible = false
+                        if (!isTv) {
 
-                        delay(500)
+                            isContentVisible = false
 
-                        welcomeOverlayVisible = true
+                            delay(500)
 
-                        delay(250)
+                            welcomeOverlayVisible = true
+
+                            delay(250)
+                        }
 
                         loginActivity?.authClientAndFinish { error ->
                             if (error != null) {
@@ -159,109 +170,204 @@ fun LoginPassword(
                 )
             }
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
-                    .imePadding(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
 
-                Text(
-                    stringResource(id = R.string.login_password_header),
-                    style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
-                )
-
-                Spacer(modifier = Modifier.height(64.dp))
-
-                URTextInput(
-                    value = user,
-                    onValueChange = { newValue ->
-                        user = newValue
-                    },
-                    placeholder = stringResource(id = R.string.user_auth_placeholder),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    label = stringResource(id = R.string.user_auth_label)
-                )
-
-                URTextInput(
-                    value = password,
-                    onValueChange = { newValue ->
-                        password = newValue
-                    },
-                    placeholder = "*****************",
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Go
-                    ),
-                    isPassword = true,
-                    label = stringResource(id = R.string.password_label),
-                    onGo = {
-                        login()
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                URButton(
-                    onClick = {
-                        login()
-                    },
-                    enabled = !inProgress,
-                    isProcessing = inProgress
-                ) { buttonTextStyle ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Right Arrow",
-                            modifier = Modifier.size(16.dp),
-                            tint = if (!inProgress) Color.White else Color.Gray
-                        )
-                    }
-                }
-
-                if (loginError != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("$loginError")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
+            if (isTv()) {
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp),
                 ) {
-                    Text(stringResource(id = R.string.forgot_password))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    ClickableText(
-                        text = AnnotatedString(stringResource(id = R.string.reset_it)),
-                        onClick = {
-                            navController.navigate("reset-password/${userAuth}")
-                        },
-                        style = TextStyle(
-                            color = BlueMedium,
-                            fontSize = 16.sp
+
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            stringResource(id = R.string.login_password_header),
+                            style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
                         )
+                        Spacer(modifier = Modifier.width(64.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(end = 64.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+
+                        LoginPasswordForm(
+                            user = user,
+                            password = password,
+                            setPassword = { tfv ->
+                                password = tfv
+                            },
+                            login = login,
+                            inProgress = inProgress,
+                            loginError = loginError,
+                            onResetPassword = {
+                                navController.navigate("reset-password/${userAuth}")
+                            }
+                        )
+                    }
+                }
+
+
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(innerPadding)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    Text(
+                        stringResource(id = R.string.login_password_header),
+                        style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+                    )
+
+                    Spacer(modifier = Modifier.height(64.dp))
+
+                    LoginPasswordForm(
+                        user = user,
+                        password = password,
+                        setPassword = { tfv ->
+                            password = tfv
+                        },
+                        login = login,
+                        inProgress = inProgress,
+                        loginError = loginError,
+                        onResetPassword = {
+                            navController.navigate("reset-password/${userAuth}")
+                        }
                     )
                 }
             }
+
         }
     }
 
     WelcomeAnimatedOverlayLogin(
         isVisible = welcomeOverlayVisible
     )
+}
 
+@Composable
+fun LoginPasswordForm(
+    user: TextFieldValue,
+    password: TextFieldValue,
+    setPassword: (TextFieldValue) -> Unit,
+    login: () -> Unit?,
+    inProgress: Boolean,
+    loginError: String?,
+    onResetPassword: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .widthIn(max = 512.dp)
+            .imePadding()
+    ) {
+        URTextInput(
+            value = user,
+            onValueChange = {},
+            placeholder = stringResource(id = R.string.user_auth_placeholder),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = if (password.text.isEmpty()) ImeAction.Done else ImeAction.Next
+            ),
+            label = stringResource(id = R.string.user_auth_label),
+            enabled = false
+        )
+
+        URTextInput(
+            value = password,
+            onValueChange = { newValue ->
+                // password = newValue
+                setPassword(newValue)
+            },
+            placeholder = "*****************",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Go
+            ),
+            isPassword = true,
+            label = stringResource(id = R.string.password_label),
+            onGo = {
+                login()
+            }
+        )
+        // }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        URButton(
+            onClick = {
+                login()
+            },
+            enabled = !inProgress,
+            isProcessing = inProgress
+        ) { buttonTextStyle ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Right Arrow",
+                    modifier = Modifier.size(16.dp),
+                    tint = if (!inProgress) Color.White else Color.Gray
+                )
+            }
+        }
+
+        if (loginError != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("$loginError")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(id = R.string.forgot_password))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                stringResource(id = R.string.reset_it),
+                style = TextStyle(
+                    color = BlueMedium,
+                    fontSize = 16.sp
+                ),
+                modifier = Modifier.clickable {
+                    onResetPassword()
+                }
+            )
+//            ClickableText(
+//                text = AnnotatedString(stringResource(id = R.string.reset_it)),
+//                onClick = {
+//                    // navController.navigate("reset-password/${userAuth}")
+//                    onResetPassword()
+//                },
+//                style = TextStyle(
+//                    color = BlueMedium,
+//                    fontSize = 16.sp
+//                )
+//            )
+        }
+    }
 }
 
 @Preview()
@@ -287,3 +393,29 @@ private fun LoginPasswordPreview() {
         }
     }
 }
+
+//@Preview(
+//    name = "Landscape Preview",
+//    device = "spec:width=1920dp,height=1080dp,dpi=480"
+//)
+//@Composable
+//private fun LoginPasswordLandscapePreview() {
+//    val navController = rememberNavController()
+//
+//    URNetworkTheme {
+//        Scaffold(
+//            modifier = Modifier.fillMaxSize()
+//        ) { innerPadding ->
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(innerPadding)
+//            ) {
+//                LoginPassword(
+//                    userAuth = "hello@urnetwork.com",
+//                    navController
+//                )
+//            }
+//        }
+//    }
+//}

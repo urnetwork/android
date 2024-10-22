@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 
 @HiltViewModel
 class MainNavViewModel @Inject constructor(): ViewModel() {
-    private val _currentTopLevelRoute = MutableStateFlow(TopLevelScaffoldRoutes.CONNECT)
+    private val _currentTopLevelRoute = MutableStateFlow(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
     val currentTopLevelRoute: StateFlow<TopLevelScaffoldRoutes> = _currentTopLevelRoute.asStateFlow()
 
     val setCurrentTopLevelRoute: (TopLevelScaffoldRoutes) -> Unit = { route ->
@@ -43,7 +43,9 @@ sealed class Route {
         }
     }
 
+    @Serializable object ConnectContainer: Route()
     @Serializable object Connect : Route()
+    @Serializable object BrowseLocations : Route()
     @Serializable object AccountContainer : Route()
     @Serializable object Account : Route()
     @Serializable object Support : Route()
@@ -60,7 +62,22 @@ enum class TopLevelScaffoldRoutes(
     val description: String,
     val route: Route
 ) {
-    CONNECT(R.drawable.main_nav_globe_filled, R.drawable.main_nav_globe, "Connect", route = Route.Connect),
-    ACCOUNT_CONTAINER(R.drawable.main_nav_user_filled, R.drawable.main_nav_user, "Account", route = Route.AccountContainer),
-    SUPPORT(R.drawable.main_nav_chat_filled, R.drawable.main_nav_chat, "Support", route = Route.Support)
+    CONNECT_CONTAINER(
+        R.drawable.main_nav_globe_filled,
+        R.drawable.main_nav_globe,
+        "Connect",
+        route = Route.ConnectContainer
+    ),
+    ACCOUNT_CONTAINER(
+        R.drawable.main_nav_user_filled,
+        R.drawable.main_nav_user,
+        "Account",
+        route = Route.AccountContainer
+    ),
+    SUPPORT(
+        R.drawable.main_nav_chat_filled,
+        R.drawable.main_nav_chat,
+        "Support",
+        route = Route.Support
+    )
 }

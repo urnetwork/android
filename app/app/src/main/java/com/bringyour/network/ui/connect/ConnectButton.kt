@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,6 +64,7 @@ import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -99,7 +102,9 @@ fun ConnectButton(
 
     Box(
         modifier = Modifier
-            .size(256.dp)
+            .size(if (isTv()) 128.dp else 256.dp)
+//            .widthIn(max = 256.dp)
+//            .heightIn(max = 256.dp)
             .clipToBounds()
             .background(color = Color(0x0AFFFFFF))
     ) {
@@ -136,7 +141,7 @@ fun ConnectButton(
             contentDescription = "Connect Mask",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(512.dp)
+                .size(if (isTv()) 256.dp else 512.dp)
                 .align(Alignment.Center)
                 .zIndex(1f)
         )
@@ -185,7 +190,7 @@ private fun ConnectingButtonContent(
         }
 
         GridCanvas(
-            size = 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
+            size = if (isTv()) 124.dp else 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
             providerGridPoints = providerGridPoints,
             grid = grid,
             updatedStatus = status,
@@ -595,7 +600,7 @@ private fun DisconnectedButtonContent() {
     ) {
 
         Text(
-            stringResource(id = R.string.tap_to_connect),
+            stringResource(id = if (isTv()) R.string.connect else R.string.tap_to_connect),
             style = TextStyle(
                 fontSize = 20.sp,
                 lineHeight = 20.sp,
@@ -613,7 +618,9 @@ private fun DisconnectedButtonContent() {
 @Composable
 fun TapToConnectAnimation() {
 
-    val size = remember { Animatable(56f) }
+    val initialSize = if (isTv()) 28f else 56f
+    val targetSize = if (isTv()) 41f else 82f
+    val size = remember { Animatable(initialSize) }
     val alpha = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
@@ -621,7 +628,7 @@ fun TapToConnectAnimation() {
             delay(100)
             launch {
                 size.animateTo(
-                    targetValue = 82f,
+                    targetValue = targetSize,
                     animationSpec = tween(durationMillis = 1000)
                 )
             }
@@ -632,14 +639,14 @@ fun TapToConnectAnimation() {
                 )
             }
             delay(4000)
-            size.snapTo(56f)
+            size.snapTo(initialSize)
             alpha.snapTo(1f)
             delay(100)
         }
     }
 
     Box(
-        modifier = Modifier.size(82.dp),
+        modifier = Modifier.size(if (isTv()) 41.dp else 82.dp),
         contentAlignment = Alignment.Center,
     ) {
 
@@ -652,18 +659,18 @@ fun TapToConnectAnimation() {
 
         Box(
             modifier = Modifier
-                .size(56.dp)
+                .size(if (isTv()) 28.dp else 56.dp)
                 .background(color = BlueMedium, shape = CircleShape)
         ) {
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(if (isTv()) 26.dp else 52.dp)
                     .background(color = Black, shape = CircleShape)
                     .align(Alignment.Center)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(if (isTv()) 24.dp else 48.dp)
                         .background(color = BlueMedium, shape = CircleShape)
                         .align(Alignment.Center)
                 )

@@ -68,7 +68,6 @@ fun FullScreenOverlay(
         enter = enterTransition,
         exit = exitTransition,
     ) {
-
         FeedbackSubmittedOverlay(
             onDismiss = {
                 overlayViewModel.launch(null)

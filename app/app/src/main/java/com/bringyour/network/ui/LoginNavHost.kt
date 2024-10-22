@@ -24,6 +24,7 @@ import com.bringyour.network.ui.login.LoginPasswordResetAfterSend
 import com.bringyour.network.ui.login.LoginVerify
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.utils.isTv
 
 @Composable
 fun LoginNavHost(
@@ -32,6 +33,7 @@ fun LoginNavHost(
 ) {
 
     val navController = rememberNavController()
+    val isTv = isTv()
 
     Box(
        modifier = Modifier.fillMaxSize()
@@ -46,7 +48,13 @@ fun LoginNavHost(
             ) + fadeIn(animationSpec = tween(300)
             ) },
             exitTransition = {
-                ExitTransition.None
+                if (isTv) {
+                    slideOutHorizontally (
+                        animationSpec = tween(durationMillis = 300)
+                    ) + fadeOut(animationSpec = tween(300))
+                } else {
+                    ExitTransition.None
+                }
             },
             popEnterTransition = {
                 fadeIn(animationSpec = tween(300))

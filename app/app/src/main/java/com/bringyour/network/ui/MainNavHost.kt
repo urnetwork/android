@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
@@ -62,12 +63,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.bringyour.network.ui.account.AccountViewModel
+import com.bringyour.network.ui.connect.BrowseLocationsScreen
+import com.bringyour.network.ui.connect.LocationsListViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
+import com.bringyour.network.utils.isTv
 
 @Composable
 fun MainNavHost(
@@ -106,7 +110,9 @@ fun MainNavHost(
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val navSuiteLayoutType = with(adaptiveInfo) {
 
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
+        if (isTv()) {
+            NavigationSuiteType.NavigationDrawer
+        } else if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
             NavigationSuiteType.NavigationRail
         } else {
             NavigationSuiteType.NavigationBar
@@ -122,11 +128,11 @@ fun MainNavHost(
 
             val route = Route.fromString(destination.route ?: "")
             if (route == Route.Connect && currentTopLevelRoute.route != Route.Connect) {
-                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT)
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
             }
 
             if (route == Route.Support && currentTopLevelRoute.route != Route.Support) {
-                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT)
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
             }
 
             if (route == Route.AccountContainer && currentTopLevelRoute.route != Route.AccountContainer) {
@@ -158,6 +164,7 @@ fun MainNavHost(
             contentColor = Black,
             navigationSuiteColors = customColors,
             layoutType = navSuiteLayoutType,
+
             navigationSuiteItems = {
                 TopLevelScaffoldRoutes.entries.forEach { screen ->
                     item(
@@ -178,6 +185,12 @@ fun MainNavHost(
                                 && currentRoute != Route.Account
                                 ) {
                                 navController.popBackStack(Route.Account, inclusive = false)
+                            } else if (
+                                currentTopLevelRoute.route == Route.ConnectContainer
+                                && screen.route == Route.ConnectContainer
+                                && currentRoute != Route.Connect
+                            ) {
+                                navController.popBackStack(Route.Connect, inclusive = false)
                             } else {
                                 navController.navigate(screen.route) {
                                     // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
@@ -197,6 +210,7 @@ fun MainNavHost(
                             mainNavViewModel.setCurrentTopLevelRoute(screen)
                                   },
                         colors = navItemColors,
+                        label = { if (isTv()) Text(screen.description) else Text("") }
                     )
                 }
             }
@@ -219,7 +233,7 @@ fun MainNavHost(
                         )
                     }
 
-                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT && !isTv()) {
                         HorizontalDivider(
                             modifier = Modifier
                                 .height(1.dp)
@@ -244,19 +258,21 @@ fun MainNavHost(
                         walletViewModel = walletViewModel
                     )
 
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .height(1.dp)
-                            .fillMaxWidth(),
-                        color = MainBorderBase
-                    )
+                    if (!isTv()) {
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .height(1.dp)
+                                .fillMaxWidth(),
+                            color = MainBorderBase
+                        )
+                    }
                 }
             }
         }
     }
 
     WelcomeAnimatedMainOverlay(
-        animateIn
+        animateIn = animateIn && !isTv()
     )
 
     FullScreenOverlay(
@@ -278,10 +294,15 @@ fun MainNavContent(
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
     connectViewModel: ConnectViewModel = hiltViewModel(),
+    locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
 
     val localDensityCurrent = LocalDensity.current
-    val canvasSizePx = with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
+    val canvasSizePx = if (isTv())
+        with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).div(2).toPx() } else
+        with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
+
+    val isTv = isTv()
 
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
@@ -301,7 +322,7 @@ fun MainNavContent(
     val nestedPopEnterTransition = fadeIn(animationSpec = tween(300))
 
     val nestedEnterTransition = {
-        if (previousRoute == Route.Connect || previousRoute == Route.Support) {
+        if ( (!isTv && previousRoute == Route.Connect) || previousRoute == Route.Support) {
             EnterTransition.None
         } else {
             slideInHorizontally(
@@ -313,7 +334,7 @@ fun MainNavContent(
 
     val nestedPopExitTransition = {
         val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
-        if (destinationRoute == Route.Connect || destinationRoute == Route.Support) {
+        if ( (!isTv && destinationRoute == Route.Connect) || destinationRoute == Route.Support) {
             ExitTransition.None
         } else {
             slideOutHorizontally(
@@ -325,18 +346,45 @@ fun MainNavContent(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Connect,
+        startDestination = Route.ConnectContainer,
+        enterTransition = {
+            if (isTv) {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeIn(animationSpec = tween(300))
+            } else {
+                EnterTransition.None
+            }
+        }
     ) {
 
-        composable<Route.Connect>(
+        navigation<Route.ConnectContainer>(
+            startDestination = Route.Connect,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            ConnectScreen(
-                connectViewModel,
-                promptReviewViewModel,
-                overlayViewModel
-            )
+            composable<Route.Connect> {
+                ConnectScreen(
+                    connectViewModel,
+                    promptReviewViewModel,
+                    overlayViewModel,
+                    locationsListViewModel,
+                    navController
+                )
+            }
+
+            composable<Route.BrowseLocations>(
+                enterTransition = { nestedEnterTransition() },
+                popEnterTransition = { nestedPopEnterTransition },
+                popExitTransition = { nestedPopExitTransition() }
+            ) {
+                BrowseLocationsScreen(
+                    navController = navController,
+                    connectViewModel = connectViewModel,
+                    locationsListViewModel = locationsListViewModel
+                )
+            }
         }
 
         composable<Route.Support>(

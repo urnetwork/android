@@ -38,15 +38,22 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.onFocusChanged
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -69,6 +76,8 @@ import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.OnboardingGuestModeOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.utils.isTv
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -138,12 +147,19 @@ fun LoginInitial(
 
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var guestModeOverlayVisible by remember { mutableStateOf(false) }
+
+    val setGuestModeOverlayVisible: (Boolean) -> Unit = { isVisible ->
+        guestModeOverlayVisible = isVisible
+    }
+
     var contentVisible by remember { mutableStateOf(true) }
 
     val guestModeEnterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
     val guestModeExitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
     val loginActivity = context as? LoginActivity
+
+    val isTv = isTv()
 
     val guestModeStr = buildAnnotatedString {
         append(stringResource(id = R.string.commitment_issues))
@@ -186,13 +202,16 @@ fun LoginInitial(
 
             application?.login(result.network.byJwt)
 
-            contentVisible = false
+            if (!isTv) {
 
-            delay(500)
+                contentVisible = false
 
-            welcomeOverlayVisible = true
+                delay(500)
 
-            delay(500)
+                welcomeOverlayVisible = true
+
+                delay(500)
+            }
 
             loginActivity?.authClientAndFinish { error ->
                 setLoginError(error)
@@ -226,7 +245,11 @@ fun LoginInitial(
 
                     setGuestModeLoginSuccess(true)
 
-                    contentVisible = false
+                    if (isTv) {
+                        setGuestModeOverlayVisible(false)
+                    } else {
+                        contentVisible = false
+                    }
 
                     loginActivity?.authClientAndFinish { error ->
                         // inProgress = false
@@ -292,110 +315,99 @@ fun LoginInitial(
 
         Scaffold { innerPadding ->
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding) // need to debug why this is 0
-                    .padding(16.dp)
-                    .imePadding(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            if (isTv()) {
 
-                OnboardingCarousel()
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding) // need to debug why this is 0
+                        .padding(16.dp)
+                        .imePadding(),
+                ) {
 
-                Spacer(modifier = Modifier.height(64.dp))
-
-                URTextInput(
-                    value = userAuth,
-                    onValueChange = {
-                        setUserAuth(it)
-                    },
-                    placeholder = stringResource(id = R.string.user_auth_placeholder),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Go
-                    ),
-                    onGo = {
-                        login(
-                            context,
-                            application?.api,
-                            onLogin,
-                            onNewNetwork,
-                        )
-                    },
-                    label = stringResource(id = R.string.user_auth_label)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                URButton(
-                    onClick = {
-                        login(
-                            context,
-                            application?.api,
-                            onLogin,
-                            onNewNetwork,
-                        )
-                    },
-                    enabled = !userAuthInProgress && isValidUserAuth,
-                    isProcessing = userAuthInProgress
-                ) { buttonTextStyle ->
-                    Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    "or",
-                    color = TextMuted
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                URButton(
-                    style = ButtonStyle.SECONDARY,
-                    onClick = {
-                        googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                    },
-                    enabled = !googleAuthInProgress
-                ) { buttonTextStyle ->
                     Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        OnboardingCarousel()
+                        Spacer(modifier = Modifier.width(64.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(end = 64.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
-                        // todo - this looks a little blurry
-                        Image(
-                            painter = painterResource(id = R.drawable.google_login_icon),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Text(
-                            stringResource(id = R.string.google_auth_btn_text),
-                            style = buttonTextStyle
+                        LoginInitialActions(
+                            userAuth = userAuth,
+                            setUserAuth = setUserAuth,
+                            userAuthInProgress = userAuthInProgress,
+                            isValidUserAuth = isValidUserAuth,
+                            setGuestModeOverlayVisible = setGuestModeOverlayVisible,
+                            googleAuthInProgress = googleAuthInProgress,
+                            onLogin = {
+                                login(
+                                    context,
+                                    application?.api,
+                                    onLogin,
+                                    onNewNetwork,
+                                )
+                            },
+                            onGoogleLogin = {
+                                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                            }
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            } else {
+                // mobile + tablet
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(innerPadding)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
-                Row() {
+                    Column(
+                        modifier = Modifier.imePadding()
+                    ) {
+                        OnboardingCarousel()
 
-                    ClickableText(
-                        text = guestModeStr,
-                        onClick = { offset ->
-                            guestModeStr.getStringAnnotations(
-                                tag = "GUEST_MODE", start = offset, end = offset
-                            ).firstOrNull()?.let {
-                                guestModeOverlayVisible = true
+                        Spacer(modifier = Modifier.height(64.dp))
+
+                        LoginInitialActions(
+                            userAuth = userAuth,
+                            setUserAuth = setUserAuth,
+                            userAuthInProgress = userAuthInProgress,
+                            isValidUserAuth = isValidUserAuth,
+                            setGuestModeOverlayVisible = setGuestModeOverlayVisible,
+                            googleAuthInProgress = googleAuthInProgress,
+                            onLogin = {
+                                login(
+                                    context,
+                                    application?.api,
+                                    onLogin,
+                                    onNewNetwork,
+                                )
+                            },
+                            onGoogleLogin = {
+                                googleSignInLauncher.launch(googleSignInClient.signInIntent)
                             }
-                        },
-                        style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted)
-                    )
+                        )
+                    }
+
                 }
             }
+
             URSnackBar(
                 type = SnackBarType.ERROR,
                 isVisible = loginError != null,
@@ -435,10 +447,225 @@ fun LoginInitial(
 
 }
 
+@Composable
+fun LoginInitialActions(
+    userAuth: TextFieldValue,
+    setUserAuth: (TextFieldValue) -> Unit,
+    userAuthInProgress: Boolean,
+    isValidUserAuth: Boolean,
+    setGuestModeOverlayVisible: (Boolean) -> Unit,
+    googleAuthInProgress: Boolean,
+    onLogin: () -> Unit,
+    onGoogleLogin: () -> Unit,
+) {
+    val guestModeStr = buildAnnotatedString {
+        append(stringResource(id = R.string.commitment_issues))
+
+        pushStringAnnotation(
+            tag = "GUEST_MODE",
+            annotation = "Guest Mode"
+        )
+        withStyle(
+            style = SpanStyle(
+                color = Color.White
+            )
+        ) {
+            append(" ${stringResource(id = R.string.try_guest_mode)}")
+        }
+        pop()
+
+    }
+
+    Column(
+        modifier = Modifier
+            .widthIn(max = 512.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        URTextInput(
+            value = userAuth,
+            onValueChange = {
+                setUserAuth(it)
+            },
+            placeholder = stringResource(id = R.string.user_auth_placeholder),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = if (isValidUserAuth) ImeAction.Go else ImeAction.Done
+            ),
+            onGo = {
+                onLogin()
+            },
+            label = stringResource(id = R.string.user_auth_label)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        URButton(
+            onClick = {
+                onLogin()
+            },
+            enabled = !userAuthInProgress && isValidUserAuth,
+            isProcessing = userAuthInProgress
+        ) { buttonTextStyle ->
+            Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                "or",
+                color = TextMuted
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        URButton(
+            style = ButtonStyle.SECONDARY,
+            onClick = {
+                onGoogleLogin()
+            },
+            enabled = !googleAuthInProgress
+        ) { buttonTextStyle ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // todo - this looks a little blurry
+                Image(
+                    painter = painterResource(id = R.drawable.google_login_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    stringResource(id = R.string.google_auth_btn_text),
+                    style = buttonTextStyle
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TryGuestMode(
+            setGuestModeOverlayVisible = setGuestModeOverlayVisible
+        )
+    }
+}
+
+@Composable
+private fun TryGuestMode(
+    setGuestModeOverlayVisible: (Boolean) -> Unit
+) {
+
+    var isFocused by remember { mutableStateOf(false) }
+
+    val guestModeStr = buildAnnotatedString {
+        append(stringResource(id = R.string.commitment_issues))
+
+        pushStringAnnotation(
+            tag = "GUEST_MODE",
+            annotation = "Guest Mode"
+        )
+        withStyle(
+            style = SpanStyle(
+                color = if (isFocused) BlueMedium else Color.White
+            )
+        ) {
+            append(" ${stringResource(id = R.string.try_guest_mode)}")
+        }
+        pop()
+
+    }
+
+    Row {
+        ClickableText(
+            text = guestModeStr,
+            onClick = { offset ->
+                guestModeStr.getStringAnnotations(
+                    tag = "GUEST_MODE", start = offset, end = offset
+                ).firstOrNull()?.let {
+                    setGuestModeOverlayVisible(true)
+                }
+            },
+            modifier = Modifier
+                .onFocusChanged {
+                    isFocused = it.isFocused
+                }
+                .focusable(),
+            style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted),
+        )
+    }
+}
+
 @Preview()
 @Composable
 private fun LoginInitialPreview() {
 
+    val navController = rememberNavController()
+
+    val login: (
+        Context,
+        BringYourApi?,
+        (AuthLoginResult) -> Unit,
+        (AuthLoginResult) -> Unit,
+    ) -> Unit = { context, api, onLogin, onNewNetwork ->
+
+    }
+
+    val googleLogin : (
+        Context,
+        BringYourApi?,
+        GoogleSignInAccount,
+        (AuthLoginResult) -> Unit,
+        (email: String?, authJwt: String?, userName: String) -> Unit,
+    ) -> Unit = { context, api, account, onLogin, onNewNetwork ->
+
+    }
+
+    URNetworkTheme {
+        Scaffold(
+            modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                LoginInitial(
+                    navController = navController,
+                    userAuth = TextFieldValue("hello@ur.io"),
+                    setUserAuth = {},
+                    userAuthInProgress = false,
+                    isValidUserAuth = true,
+                    login = login,
+                    googleLogin = googleLogin,
+                    loginError = null,
+                    setLoginError = {},
+                    googleAuthInProgress = false,
+                    setGoogleAuthInProgress = {},
+                    setCreateGuestModeInProgress = {},
+                    guestModeLoginSuccess = false,
+                    setGuestModeLoginSuccess = {},
+                    guestModeOverlayBodyVisible = true,
+                    setGuestModeOverlayBodyVisible = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(
+    name = "Landscape Preview",
+    device = "spec:width=1920dp,height=1080dp,dpi=480"
+)
+@Composable
+private fun LoginInitialLandscapePreview() {
     val navController = rememberNavController()
 
     val login: (

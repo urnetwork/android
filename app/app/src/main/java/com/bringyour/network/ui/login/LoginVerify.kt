@@ -9,11 +9,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -55,6 +60,7 @@ import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -106,6 +112,8 @@ fun LoginVerify(
         }
     }
 
+    val isTv = isTv()
+
     val verify = {
 
         verifyInProgress = true
@@ -129,13 +137,15 @@ fun LoginVerify(
 
                     verifyInProgress = true
 
-                    isContentVisible = false
+                    if (!isTv) {
+                        isContentVisible = false
 
-                    delay(500)
+                        delay(500)
 
-                    welcomeOverlayVisible = true
+                        welcomeOverlayVisible = true
 
-                    delay(250)
+                        delay(250)
+                    }
 
                     loginActivity?.authClientAndFinish { error ->
                         verifyInProgress = false
@@ -190,65 +200,121 @@ fun LoginVerify(
             }
         ) { innerPadding ->
 
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-
-                Column(
+            if (isTv()) {
+                // mobile or tablet
+                Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(innerPadding)
+                        .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp)
                 ) {
 
-                    Text(
-                        stringResource(id = R.string.login_verify_header),
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Text(
-                        stringResource(id = R.string.login_verify_details),
-                        color = TextMuted
-                    )
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
 
-                    Spacer(modifier = Modifier.height(40.dp))
+                        Column {
+                            Text(
+                                stringResource(id = R.string.login_verify_header),
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Text(
+                                stringResource(id = R.string.login_verify_details),
+                                color = TextMuted
+                            )
+                        }
 
-                    URCodeInput(
-                        value = code,
-                        onValueChange = { newCode ->
-                            code = newCode
-                        },
-                        codeLength = codeLength,
-                        enabled = !verifyInProgress
-                    )
-
-                    Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.width(64.dp))
+                    }
 
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState())
+                            .padding(end = 64.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        Text(
-                            stringResource(id = R.string.dont_see_it),
-                            color = TextMuted
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
 
-                        Text(
-                            stringResource(id = R.string.resend_verify_code),
-                            style = TextStyle(
-                                color = if (resendBtnEnabled) Color.White else TextMuted,
-                                fontSize = 16.sp
-                            ),
-                            modifier = Modifier.clickable {
-                                if (resendBtnEnabled) {
+                        Column {
+                            URCodeInput(
+                                value = code,
+                                onValueChange = { newCode ->
+                                    code = newCode
+                                },
+                                codeLength = codeLength,
+                                enabled = !verifyInProgress
+                            )
+
+                            Spacer(modifier = Modifier.height(40.dp))
+
+                            ResendCode(
+                                resendCode = {
                                     resendCode()
-                                }
-                            }
-                        )
+                                },
+                                resendBtnEnabled = resendBtnEnabled
+                            )
+                        }
+                    }
+                }
+            } else {
+                // mobile + tablet
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .widthIn(512.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        Column(
+                            modifier = Modifier.imePadding()
+                        ) {
+                            Text(
+                                stringResource(id = R.string.login_verify_header),
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Text(
+                                stringResource(id = R.string.login_verify_details),
+                                color = TextMuted
+                            )
+
+                            Spacer(modifier = Modifier.height(40.dp))
+
+                            URCodeInput(
+                                value = code,
+                                onValueChange = { newCode ->
+                                    code = newCode
+                                },
+                                codeLength = codeLength,
+                                enabled = !verifyInProgress
+                            )
+
+                            Spacer(modifier = Modifier.height(40.dp))
+
+                            ResendCode(
+                                resendCode = {
+                                    resendCode()
+                                },
+                                resendBtnEnabled = resendBtnEnabled
+                            )
+                        }
                     }
                 }
             }
@@ -285,6 +351,35 @@ fun LoginVerify(
     WelcomeAnimatedOverlayLogin(
         isVisible = welcomeOverlayVisible
     )
+}
+
+@Composable
+private fun ResendCode(
+    resendCode: () -> Unit,
+    resendBtnEnabled: Boolean
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            stringResource(id = R.string.dont_see_it),
+            color = TextMuted
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Text(
+            stringResource(id = R.string.resend_verify_code),
+            style = TextStyle(
+                color = if (resendBtnEnabled) Color.White else TextMuted,
+                fontSize = 16.sp
+            ),
+            modifier = Modifier.clickable {
+                if (resendBtnEnabled) {
+                    resendCode()
+                }
+            }
+        )
+    }
 }
 
 @Preview
