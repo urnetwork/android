@@ -39,6 +39,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -53,6 +54,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.onFocusChanged
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -76,6 +78,7 @@ import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.OnboardingGuestModeOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.utils.isTablet
 import com.bringyour.network.utils.isTv
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -178,8 +181,6 @@ fun LoginInitial(
         pop()
 
     }
-
-    val configuration = LocalConfiguration.current
 
     val onLogin: (AuthLoginResult) -> Unit = { result ->
         navController.navigate("login-password/${result.userAuth}")
@@ -554,21 +555,54 @@ fun LoginInitialActions(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row() {
+        TryGuestMode(
+            setGuestModeOverlayVisible = setGuestModeOverlayVisible
+        )
+    }
+}
 
-            ClickableText(
-                text = guestModeStr,
-                onClick = { offset ->
-                    guestModeStr.getStringAnnotations(
-                        tag = "GUEST_MODE", start = offset, end = offset
-                    ).firstOrNull()?.let {
-                        // guestModeOverlayVisible = true
-                        setGuestModeOverlayVisible(true)
-                    }
-                },
-                style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted)
+@Composable
+private fun TryGuestMode(
+    setGuestModeOverlayVisible: (Boolean) -> Unit
+) {
+
+    var isFocused by remember { mutableStateOf(false) }
+
+    val guestModeStr = buildAnnotatedString {
+        append(stringResource(id = R.string.commitment_issues))
+
+        pushStringAnnotation(
+            tag = "GUEST_MODE",
+            annotation = "Guest Mode"
+        )
+        withStyle(
+            style = SpanStyle(
+                color = if (isFocused) BlueMedium else Color.White
             )
+        ) {
+            append(" ${stringResource(id = R.string.try_guest_mode)}")
         }
+        pop()
+
+    }
+
+    Row {
+        ClickableText(
+            text = guestModeStr,
+            onClick = { offset ->
+                guestModeStr.getStringAnnotations(
+                    tag = "GUEST_MODE", start = offset, end = offset
+                ).firstOrNull()?.let {
+                    setGuestModeOverlayVisible(true)
+                }
+            },
+            modifier = Modifier
+                .onFocusChanged {
+                    isFocused = it.isFocused
+                }
+                .focusable(),
+            style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted),
+        )
     }
 }
 
