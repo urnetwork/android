@@ -247,6 +247,11 @@ class ConnectViewModel @Inject constructor(
 //        addWindowEventSizeListener()
 
 
+        update()
+
+    }
+
+    fun update() {
         updateSelectedLocation()
         updateGrid()
         updateConnectionStatus()
