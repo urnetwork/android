@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -296,7 +297,6 @@ fun MainNavContent(
     connectViewModel: ConnectViewModel = hiltViewModel(),
     locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
-
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx = if (isTv())
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).div(2).toPx() } else
@@ -307,6 +307,14 @@ fun MainNavContent(
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
     }
+
+    LifecycleResumeEffect(Unit) {
+        connectViewModel.update()
+
+        onPauseOrDispose {
+        }
+    }
+
 
     val configuration = LocalConfiguration.current
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation

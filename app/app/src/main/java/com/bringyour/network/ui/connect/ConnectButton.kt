@@ -227,22 +227,17 @@ fun GridCanvas(
         ?: 2.toFloat()
     val padding = 1f
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
-
-    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val animatedPoints = remember { mutableStateMapOf<Id, AnimatedProviderGridPoint>() }
-
-    var isInFocus by remember { mutableStateOf(true) }
 
     LaunchedEffect(updatedStatus) {
 
         // when navigating between screens,
         // if connected, snap to state
         if (currentStatus == null && updatedStatus == ConnectStatus.CONNECTED) {
+            shuffleSuccessPoints()
 
             animatedSuccessPoints.forEach { point ->
-                launch {
-                    point.center.snapTo(point.targetOffset)
-                }
+                point.center.snapTo(point.targetOffset)
             }
         }
 
@@ -371,111 +366,74 @@ fun GridCanvas(
     // Update points with animations
     // we have to check isInFocus because the app will not draw new points
     // if this is trigged when the app is in the background
-    LaunchedEffect(providerGridPoints, isInFocus) {
-
-        if (isInFocus) {
-
-            val removeAnimatedPoints = mutableListOf<AnimatedProviderGridPoint>()
-            for ((clientId, animatedPoint) in animatedPoints) {
-                if (!providerGridPoints.containsKey(clientId)) {
-                    removeAnimatedPoints.add(animatedPoint)
-                }
+    LaunchedEffect(providerGridPoints) {
+        val removeAnimatedPoints = mutableListOf<AnimatedProviderGridPoint>()
+        for ((clientId, animatedPoint) in animatedPoints) {
+            if (!providerGridPoints.containsKey(clientId)) {
+                removeAnimatedPoints.add(animatedPoint)
             }
-            for (animatedPoint in removeAnimatedPoints) {
-                if (!animatedPoint.done) {
+        }
+        for (animatedPoint in removeAnimatedPoints) {
+            if (!animatedPoint.done) {
 
-                    launch {
-                        try {
-                            animatedPoint.color.animateTo(
-                                getStateColor(ProviderPointState.REMOVED),
-                                animationSpec = tween(durationMillis = 500)
-                            )
-                        } catch (e: Exception) {
-                            if (animatedPoint.done) {
-                                animatedPoint.color.snapTo(getStateColor(ProviderPointState.REMOVED))
-                            }
-                        }
-                    }
-
-                    launch {
-                        // Remove point
-                        try {
-                            animatedPoint.radius.animateTo(
-                                0f,
-                                animationSpec = tween(
-                                    durationMillis = 500,
-                                    delayMillis = 500
-                                )
-                            )
-                        } catch (e: Exception) {
-                            // Failure(androidx.compose.runtime.LeftCompositionCancellationException: The coroutine scope left the composition)
-                            if (animatedPoint.done) {
-                                animatedPoint.radius.snapTo(0f)
-                            }
-                        } finally {
-                            if (animatedPoint.done) {
-                                animatedPoints.remove(animatedPoint.clientId)
-                            }
-                        }
-
-                    }
-                    animatedPoint.done = true
-                }
-            }
-
-            providerGridPoints.values.forEach { point ->
-
-
-                var animatedPoint = animatedPoints[point.clientId]
-                val newState = ProviderPointState.fromString(point.state)
-
-
-                if (animatedPoint == null) {
-                    val done =
-                        newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED
-
-                    if (!done) {
-                        // Adding a new point
-                        animatedPoint = AnimatedProviderGridPoint(
-                            point.clientId,
-                            point.x,
-                            point.y,
-                            newState!!
+                launch {
+                    try {
+                        animatedPoint.color.animateTo(
+                            getStateColor(ProviderPointState.REMOVED),
+                            animationSpec = tween(durationMillis = 500)
                         )
-                        if (currentStatus != ConnectStatus.CONNECTED) {
-                            launch {
-                                try {
-                                    animatedPoint.color.animateTo(
-                                        getStateColor(newState),
-                                        animationSpec = tween(durationMillis = 500)
-                                    )
-                                } catch (e: Exception) {
-                                    if (!animatedPoint.done) {
-                                        animatedPoint.color.snapTo(getStateColor(animatedPoint.state))
-                                    }
-                                }
-                            }
+                    } catch (e: Exception) {
+                        if (animatedPoint.done) {
+                            animatedPoint.color.snapTo(getStateColor(ProviderPointState.REMOVED))
                         }
-
-                        launch {
-                            try {
-                                animatedPoint.radius.animateTo(
-                                    pointSize / 2 - padding / 2,
-                                    animationSpec = tween(durationMillis = 500)
-                                )
-                            } catch (e: Exception) {
-                                if (!animatedPoint.done) {
-                                    animatedPoint.radius.snapTo(
-                                        pointSize / 2 - padding / 2
-                                    )
-                                }
-                            }
-                        }
-
-                        animatedPoints[point.clientId] = animatedPoint
                     }
-                } else if (animatedPoint.state != newState) {
+                }
 
+                launch {
+                    // Remove point
+                    try {
+                        animatedPoint.radius.animateTo(
+                            0f,
+                            animationSpec = tween(
+                                durationMillis = 500,
+                                delayMillis = 500
+                            )
+                        )
+                    } catch (e: Exception) {
+                        // Failure(androidx.compose.runtime.LeftCompositionCancellationException: The coroutine scope left the composition)
+                        if (animatedPoint.done) {
+                            animatedPoint.radius.snapTo(0f)
+                        }
+                    } finally {
+                        if (animatedPoint.done) {
+                            animatedPoints.remove(animatedPoint.clientId)
+                        }
+                    }
+
+                }
+                animatedPoint.done = true
+            }
+        }
+
+        providerGridPoints.values.forEach { point ->
+
+
+            var animatedPoint = animatedPoints[point.clientId]
+            val newState = ProviderPointState.fromString(point.state)
+
+
+            if (animatedPoint == null) {
+                val done =
+                    newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED
+
+                if (!done) {
+                    // Adding a new point
+                    animatedPoint = AnimatedProviderGridPoint(
+                        point.clientId,
+                        point.x,
+                        point.y,
+                        newState!!
+                    )
                     if (currentStatus != ConnectStatus.CONNECTED) {
                         launch {
                             try {
@@ -491,77 +449,86 @@ fun GridCanvas(
                         }
                     }
 
-                    animatedPoint.state = newState!!
-
-                    val done =
-                        newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED
-                    if (animatedPoint.done != done) {
-                        if (done) {
-                            launch {
-                                // Remove point
-                                try {
-                                    animatedPoint.radius.animateTo(
-                                        0f,
-                                        animationSpec = tween(
-                                            durationMillis = 500,
-                                            delayMillis = 500
-                                        )
-                                    )
-                                } catch (e: Exception) {
-                                    if (animatedPoint.done) {
-                                        // Failure(androidx.compose.runtime.LeftCompositionCancellationException: The coroutine scope left the composition)
-                                        animatedPoint.radius.snapTo(0f)
-                                    }
-                                } finally {
-                                    if (animatedPoint.done) {
-                                        animatedPoints.remove(animatedPoint.clientId)
-                                    }
-                                }
-                            }
-                        } else {
-                            launch {
-                                try {
-                                    animatedPoint.radius.animateTo(
-                                        pointSize / 2 - padding / 2,
-                                        animationSpec = tween(durationMillis = 500)
-                                    )
-                                } catch (e: Exception) {
-                                    if (!animatedPoint.done) {
-                                        animatedPoint.radius.snapTo(pointSize / 2 - padding / 2)
-                                    }
-                                }
+                    launch {
+                        try {
+                            animatedPoint.radius.animateTo(
+                                pointSize / 2 - padding / 2,
+                                animationSpec = tween(durationMillis = 500)
+                            )
+                        } catch (e: Exception) {
+                            if (!animatedPoint.done) {
+                                animatedPoint.radius.snapTo(
+                                    pointSize / 2 - padding / 2
+                                )
                             }
                         }
                     }
 
-                    animatedPoint.done = done
+                    animatedPoints[point.clientId] = animatedPoint
                 }
+            } else if (animatedPoint.state != newState) {
+
+                if (currentStatus != ConnectStatus.CONNECTED) {
+                    launch {
+                        try {
+                            animatedPoint.color.animateTo(
+                                getStateColor(newState),
+                                animationSpec = tween(durationMillis = 500)
+                            )
+                        } catch (e: Exception) {
+                            if (!animatedPoint.done) {
+                                animatedPoint.color.snapTo(getStateColor(animatedPoint.state))
+                            }
+                        }
+                    }
+                }
+
+                animatedPoint.state = newState!!
+
+                val done =
+                    newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED
+                if (animatedPoint.done != done) {
+                    if (done) {
+                        launch {
+                            // Remove point
+                            try {
+                                animatedPoint.radius.animateTo(
+                                    0f,
+                                    animationSpec = tween(
+                                        durationMillis = 500,
+                                        delayMillis = 500
+                                    )
+                                )
+                            } catch (e: Exception) {
+                                if (animatedPoint.done) {
+                                    // Failure(androidx.compose.runtime.LeftCompositionCancellationException: The coroutine scope left the composition)
+                                    animatedPoint.radius.snapTo(0f)
+                                }
+                            } finally {
+                                if (animatedPoint.done) {
+                                    animatedPoints.remove(animatedPoint.clientId)
+                                }
+                            }
+                        }
+                    } else {
+                        launch {
+                            try {
+                                animatedPoint.radius.animateTo(
+                                    pointSize / 2 - padding / 2,
+                                    animationSpec = tween(durationMillis = 500)
+                                )
+                            } catch (e: Exception) {
+                                if (!animatedPoint.done) {
+                                    animatedPoint.radius.snapTo(pointSize / 2 - padding / 2)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                animatedPoint.done = done
             }
         }
-    }
-
-    // used for detecting when the app goes into the background or foreground
-    DisposableEffect(Unit) {
-        val lifecycle = lifecycleOwner.value.lifecycle
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    isInFocus = true
-                }
-
-                Lifecycle.Event.ON_PAUSE -> {
-                    isInFocus = false
-                }
-
-                else -> Unit
-            }
-        }
-
-        lifecycle.addObserver(observer)
-        onDispose {
-            lifecycle.removeObserver(observer)
-        }
-
     }
 
     Canvas(modifier = Modifier.size(size)) {
