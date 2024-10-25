@@ -31,7 +31,7 @@ class MainService : VpnService() {
     companion object {
 
         const val NOTIFICATION_ID = 101
-        const val NOTIFICATION_CHANNEL_ID = "BringYour"
+        const val NOTIFICATION_CHANNEL_ID = "URnetwork"
 
     }
 
@@ -82,16 +82,20 @@ class MainService : VpnService() {
                     app.byDeviceManager.routeLocal = false
                 }
 
+                val offline = intent.getBooleanExtra("offline", false)
+
                 app.router?.let { router ->
-                    // TODO
-                    // builder
-                    // blockingx
-                    // establish
                     val builder = Builder()
                     builder.setSession("URnetwork")
                     builder.setMtu(1440)
                     builder.setBlocking(true)
-                    builder.addDisallowedApplication(packageName)
+                    if (offline) {
+                        // when offline, only allow traffic from a fake package name
+                        // in this way, the vpn service remains active but no apps detect it as an interface
+                        builder.addAllowedApplication("${packageName}.offline")
+                    } else {
+                        builder.addDisallowedApplication(packageName)
+                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         builder.setMetered(false)
                     }

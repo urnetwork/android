@@ -41,6 +41,13 @@ class ByDeviceManager @Inject constructor() {
             byDevice?.provideWhileDisconnected = it
         }
 
+    var vpnInterfaceWhileOffline: Boolean
+        get() = byDevice?.vpnInterfaceWhileOffline!!
+        set(it) {
+            asyncLocalState?.localState?.vpnInterfaceWhileOffline = it
+            byDevice?.vpnInterfaceWhileOffline = it
+        }
+
 
 //    var provideMode: Long
 //        get() = byDevice?.provideMode!!
@@ -77,6 +84,7 @@ class ByDeviceManager @Inject constructor() {
         val canShowRatingDialog = localState.canShowRatingDialog
         val provideWhileDisconnected = localState.provideWhileDisconnected
         val provideMode = if (provideWhileDisconnected) Client.ProvideModePublic else localState.provideMode
+        val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
 
         byDevice = Client.newBringYourDeviceWithDefaults(
             networkSpace,
@@ -100,6 +108,7 @@ class ByDeviceManager @Inject constructor() {
         byDevice?.connectLocation = connectLocation
         byDevice?.canShowRatingDialog = canShowRatingDialog
         byDevice?.provideWhileDisconnected = provideWhileDisconnected
+        byDevice?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
 
 //        connectVc = byDevice?.openConnectViewControllerV0()
     }
