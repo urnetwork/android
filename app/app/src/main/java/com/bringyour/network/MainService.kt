@@ -31,7 +31,7 @@ class MainService : VpnService() {
     companion object {
 
         const val NOTIFICATION_ID = 101
-        const val NOTIFICATION_CHANNEL_ID = "BringYour"
+        const val NOTIFICATION_CHANNEL_ID = "URnetwork"
 
     }
 

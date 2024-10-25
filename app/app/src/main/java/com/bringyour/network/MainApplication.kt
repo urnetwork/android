@@ -59,11 +59,13 @@ class MainApplication : Application() {
 //    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
     var deviceProvidePausedSub: Sub? = null
+    var deviceOfflineSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
     var router: Router? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
+    var offlineCallback: ConnectivityManager.NetworkCallback? = null
 
 
     // use one set of view controllers across the entire app
@@ -178,6 +180,53 @@ class MainApplication : Application() {
 
     }
 
+
+    private fun addOfflineCallback() {
+        removeOfflineCallback()
+
+        offlineCallback = object : ConnectivityManager.NetworkCallback() {
+            var connectedNetwork: Network? = null
+
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+
+                Log.i(TAG, "network available device = $network")
+                connectedNetwork = network
+                byDevice?.offline = false
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+
+                if (network == connectedNetwork) {
+                    Log.i(TAG, "network lost device = $network")
+                    connectedNetwork = null
+                    byDevice?.offline = true
+                }
+            }
+        }
+
+
+        val networkRequestBuilder = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+        val networkRequest = networkRequestBuilder.build()
+
+        val connectivityManager =
+            getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        connectivityManager.requestNetwork(networkRequest, offlineCallback!!)
+
+    }
+
+    fun removeOfflineCallback() {
+        offlineCallback?.let {
+            val connectivityManager =
+                getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+            connectivityManager.unregisterNetworkCallback(it)
+        }
+        offlineCallback = null
+    }
+
     private fun addNetworkCallback() {
         removeNetworkCallback()
 
@@ -270,6 +319,7 @@ class MainApplication : Application() {
         stopVpnService()
 
         removeNetworkCallback()
+        removeOfflineCallback()
 
         devicesVc?.let {
             byDevice?.closeViewController(it)
@@ -282,6 +332,8 @@ class MainApplication : Application() {
         deviceProvideSub = null
         deviceProvidePausedSub?.close()
         deviceProvidePausedSub = null
+        deviceOfflineSub?.close()
+        deviceOfflineSub = null
         deviceConnectSub?.close()
         deviceConnectSub = null
 
@@ -351,6 +403,11 @@ class MainApplication : Application() {
                 updateVpnService()
             }
         }
+        deviceOfflineSub = byDevice?.addOfflineChangeListener { _, _ ->
+            runBlocking(Dispatchers.Main.immediate) {
+                updateVpnService()
+            }
+        }
         deviceConnectSub = byDevice?.addConnectChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
@@ -360,7 +417,7 @@ class MainApplication : Application() {
 
         router = Router(byDevice!!)
 
-
+        addOfflineCallback()
         addNetworkCallback()
 
         updateVpnService()
@@ -454,50 +511,63 @@ class MainApplication : Application() {
 
 
     fun startVpnService() {
+        val byDevice = byDevice ?: return
 
-        val foreground = true
 
-        val vpnIntent = Intent(this, MainService::class.java)
-        vpnIntent.putExtra("source", "app")
-        vpnIntent.putExtra("stop", false)
-        vpnIntent.putExtra("start", true)
-        vpnIntent.putExtra("foreground", foreground)
+        val offline = byDevice.offline
+        val vpnInterfaceWhileOffline = byDevice.vpnInterfaceWhileOffline
+        if (offline && !vpnInterfaceWhileOffline) {
+            stopVpnService()
+        } else {
 
-        try {
-            if (VpnService.prepare(this) != null) {
-                // prepare returns an intent when the user must grant additional permissions
-                // the ui will check `vpnRequestStart` and start again when the permissions have been set up
-                vpnRequestStart = true
-                vpnRequestStartListener?.let { it() }
-            } else {
-                // important: start the vpn service in the application context
+            val foreground = true
 
-                if (foreground) {
-                    // use a foreground service to allow notifications
-                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                        val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                            this,
-                            android.Manifest.permission.POST_NOTIFICATIONS
-                        ) == PackageManager.PERMISSION_GRANTED
-                        if (hasForegroundPermissions) {
-                            startForegroundService(vpnIntent)
+            val vpnIntent = Intent(this, MainService::class.java)
+            vpnIntent.putExtra("source", "app")
+            vpnIntent.putExtra("stop", false)
+            vpnIntent.putExtra("start", true)
+            vpnIntent.putExtra("foreground", foreground)
+//        vpnIntent.putExtra("offline", offline)
+
+            try {
+                if (VpnService.prepare(this) != null) {
+                    // prepare returns an intent when the user must grant additional permissions
+                    // the ui will check `vpnRequestStart` and start again when the permissions have been set up
+                    vpnRequestStart = true
+                    vpnRequestStartListener?.let { it() }
+                } else {
+                    // important: start the vpn service in the application context
+
+                    if (foreground) {
+                        // use a foreground service to allow notifications
+                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                            val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+                                this,
+                                android.Manifest.permission.POST_NOTIFICATIONS
+                            ) == PackageManager.PERMISSION_GRANTED
+                            if (hasForegroundPermissions) {
+                                startForegroundService(vpnIntent)
+                            } else {
+                                startService(vpnIntent)
+                            }
                         } else {
-                            startService(vpnIntent)
+                            ContextCompat.startForegroundService(this, vpnIntent)
                         }
                     } else {
-                        ContextCompat.startForegroundService(this, vpnIntent)
+                        startService(vpnIntent)
                     }
-                } else {
-                    startService(vpnIntent)
-                }
 
-                vpnRequestStart = false
+                    vpnRequestStart = false
+                }
+            } catch (e: Exception) {
+                Log.i(
+                    TAG,
+                    "Error trying to communicate with the vpn service to start: ${e.message}"
+                )
+                vpnRequestStart = true
+                // do not request start here
+                // that could lead to a loop
             }
-        } catch (e: Exception) {
-            Log.i(TAG, "Error trying to communicate with the vpn service to start: ${e.message}")
-            vpnRequestStart = true
-            // do not request start here
-            // that could lead to a loop
         }
     }
 
