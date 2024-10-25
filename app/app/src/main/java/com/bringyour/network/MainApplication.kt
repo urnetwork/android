@@ -516,58 +516,53 @@ class MainApplication : Application() {
 
         val offline = byDevice.offline
         val vpnInterfaceWhileOffline = byDevice.vpnInterfaceWhileOffline
-        if (offline && !vpnInterfaceWhileOffline) {
-            stopVpnService()
-        } else {
+        val foreground = true
 
-            val foreground = true
+        val vpnIntent = Intent(this, MainService::class.java)
+        vpnIntent.putExtra("source", "app")
+        vpnIntent.putExtra("stop", false)
+        vpnIntent.putExtra("start", true)
+        vpnIntent.putExtra("foreground", foreground)
+        vpnIntent.putExtra("offline", offline && !vpnInterfaceWhileOffline)
 
-            val vpnIntent = Intent(this, MainService::class.java)
-            vpnIntent.putExtra("source", "app")
-            vpnIntent.putExtra("stop", false)
-            vpnIntent.putExtra("start", true)
-            vpnIntent.putExtra("foreground", foreground)
-//        vpnIntent.putExtra("offline", offline)
+        try {
+            if (VpnService.prepare(this) != null) {
+                // prepare returns an intent when the user must grant additional permissions
+                // the ui will check `vpnRequestStart` and start again when the permissions have been set up
+                vpnRequestStart = true
+                vpnRequestStartListener?.let { it() }
+            } else {
+                // important: start the vpn service in the application context
 
-            try {
-                if (VpnService.prepare(this) != null) {
-                    // prepare returns an intent when the user must grant additional permissions
-                    // the ui will check `vpnRequestStart` and start again when the permissions have been set up
-                    vpnRequestStart = true
-                    vpnRequestStartListener?.let { it() }
-                } else {
-                    // important: start the vpn service in the application context
-
-                    if (foreground) {
-                        // use a foreground service to allow notifications
-                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                            val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                                this,
-                                android.Manifest.permission.POST_NOTIFICATIONS
-                            ) == PackageManager.PERMISSION_GRANTED
-                            if (hasForegroundPermissions) {
-                                startForegroundService(vpnIntent)
-                            } else {
-                                startService(vpnIntent)
-                            }
+                if (foreground) {
+                    // use a foreground service to allow notifications
+                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                        val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+                            this,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (hasForegroundPermissions) {
+                            startForegroundService(vpnIntent)
                         } else {
-                            ContextCompat.startForegroundService(this, vpnIntent)
+                            startService(vpnIntent)
                         }
                     } else {
-                        startService(vpnIntent)
+                        ContextCompat.startForegroundService(this, vpnIntent)
                     }
-
-                    vpnRequestStart = false
+                } else {
+                    startService(vpnIntent)
                 }
-            } catch (e: Exception) {
-                Log.i(
-                    TAG,
-                    "Error trying to communicate with the vpn service to start: ${e.message}"
-                )
-                vpnRequestStart = true
-                // do not request start here
-                // that could lead to a loop
+
+                vpnRequestStart = false
             }
+        } catch (e: Exception) {
+            Log.i(
+                TAG,
+                "Error trying to communicate with the vpn service to start: ${e.message}"
+            )
+            vpnRequestStart = true
+            // do not request start here
+            // that could lead to a loop
         }
     }
 
