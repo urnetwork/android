@@ -20,6 +20,7 @@ import com.bringyour.client.ValidateAddressCallback
 import com.bringyour.client.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
+import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -205,10 +206,13 @@ class WalletViewModel @Inject constructor(
     }
 
     private val fetchCircleWalletInfo = {
-        byDevice?.api?.subscriptionBalance { result, _ ->
-
-            viewModelScope.launch {
-                setCircleWalletBalance(Client.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents))
+        byDevice?.api?.subscriptionBalance { result, error ->
+            if (error != null) {
+                Log.i(TAG, "[wallet]fetch error = $error")
+            } else {
+                viewModelScope.launch {
+                    setCircleWalletBalance(Client.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents))
+                }
             }
         }
     }
