@@ -288,6 +288,7 @@ dependencies {
     // androidTestImplementation(platform(libs.androidx.compose.bom))
 
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation "com.android.installreferrer:installreferrer:2.2"
     implementation 'circle.programmablewallet:sdk:1.0.1059'
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'

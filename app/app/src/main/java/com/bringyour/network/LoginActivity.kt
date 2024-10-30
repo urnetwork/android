@@ -1,24 +1,34 @@
 package com.bringyour.network
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.RemoteException
 import androidx.activity.compose.setContent
 import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
+import com.android.installreferrer.api.InstallReferrerClient
+import com.android.installreferrer.api.InstallReferrerStateListener
 import com.bringyour.client.AuthNetworkClientArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.theme.URNetworkTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
     private var app : MainApplication? = null
+
+
+    private var referrerClient: InstallReferrerClient? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,10 +38,56 @@ class LoginActivity : AppCompatActivity() {
         // immutable shadow
         val app = app ?: return
 
-        if (app.byDevice != null) {
+        val action: String? = intent?.action
+
+        if (Intent.ACTION_VIEW == action) {
+            intent?.data?.let { u ->
+                if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c" || u.scheme == "ur") {
+                    createWithUri(u)
+                }
+            }
+
+        }
+        // FIXME google play referrer
+        else if (app.byDevice != null) {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
+        } else {
+            // fresh install, async check the install referrer
+            // see https://developer.android.com/google/play/installreferrer/library
+
+            referrerClient = InstallReferrerClient.newBuilder(this).build()
+            referrerClient?.startConnection(object : InstallReferrerStateListener {
+                override fun onInstallReferrerSetupFinished(responseCode: Int) {
+                    lifecycleScope.launch {
+                        try {
+                            when (responseCode) {
+                                InstallReferrerClient.InstallReferrerResponse.OK -> {
+                                    try {
+                                        referrerClient?.installReferrer?.let { details ->
+                                            details.installReferrer?.let {
+                                                val u = Uri.parse(it)
+                                                if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c") {
+                                                    createWithUri(Uri.parse(it))
+                                                }
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        // do nothing
+                                    }
+                                }
+                            }
+                        } finally {
+                            referrerClient?.endConnection()
+                            referrerClient = null
+                        }
+                    }
+                }
+
+                override fun onInstallReferrerServiceDisconnected() {
+                }
+            })
         }
 
         // this is so overlays don't get cut by top bar and bottom drawer
@@ -45,6 +101,40 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+
+    private fun createWithUri(uri: Uri) {
+        val app = app ?: return
+
+        val queryParameters = mutableMapOf<String, String>()
+        for (name in uri.queryParameterNames) {
+            uri.getQueryParameter(name)?.let {
+                queryParameters[name] = it
+            }
+        }
+        val authCode = queryParameters.remove("auth_code")
+        val guest = queryParameters.remove("guest")
+        if (authCode != null) {
+            // FIXME
+            // start api to resolve auth code, show message in login screen until done
+            // FIXME include queryParameters in launch main
+
+            // FIXME if same network, just finish to main activity (do not log out)
+            // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
+        } else if (guest != null) {
+            // FIXME
+            // login as guest
+            // FIXME include queryParameters in launch main
+
+            // FIXME if already guest, just finish to main activity (do not log out)
+            // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
+        } else if (app.byDevice != null) {
+            // FIXME, open main activity with query
+        } else {
+            // FIXME else, store query for when logging in
+
+        }
     }
 
     fun authClientAndFinish(callback: (String?) -> Unit) {
@@ -82,6 +172,14 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        referrerClient?.endConnection()
     }
 
 }
