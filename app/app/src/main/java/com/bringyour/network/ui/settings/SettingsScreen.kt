@@ -104,7 +104,8 @@ fun SettingsScreen(
                 allowProductUpdates = settingsViewModel.allowProductUpdates,
                 updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
                 provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
-                toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected
+                toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
+                urIdUrl = settingsViewModel.urIdUrl
             )
         }
     } else {
@@ -118,7 +119,8 @@ fun SettingsScreen(
             allowProductUpdates = settingsViewModel.allowProductUpdates,
             updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
             provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
-            toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected
+            toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
+            urIdUrl = settingsViewModel.urIdUrl
         )
     }
 }
@@ -135,7 +137,8 @@ fun SettingsScreen(
     allowProductUpdates: Boolean,
     updateAllowProductUpdates: (Boolean) -> Unit,
     provideWhileDisconnected: Boolean,
-    toggleProvideWhileDisconnected: () -> Unit
+    toggleProvideWhileDisconnected: () -> Unit,
+    urIdUrl: (String) -> String?
 ) {
 
     val context = LocalContext.current
@@ -302,8 +305,13 @@ fun SettingsScreen(
                         shape = RoundedCornerShape(12.dp)
                     )
                     .clickable {
+                        
+
+
                         clipboardManager.setText(
-                            AnnotatedString("https://ur.io/c?$clientId")
+                            AnnotatedString(
+                                urIdUrl(clientId) ?: clientId
+                            )
                         )
                     }
                     .padding(horizontal = 12.dp, vertical = 12.dp),
@@ -464,7 +472,8 @@ fun SettingsScreenPreview() {
             allowProductUpdates = true,
             updateAllowProductUpdates = {},
             provideWhileDisconnected = true,
-            toggleProvideWhileDisconnected = {}
+            toggleProvideWhileDisconnected = {},
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
         )
     }
 }
@@ -484,7 +493,8 @@ fun SettingsScreenSupporterPreview() {
             allowProductUpdates = true,
             updateAllowProductUpdates = {},
             provideWhileDisconnected = false,
-            toggleProvideWhileDisconnected = {}
+            toggleProvideWhileDisconnected = {},
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
         )
     }
 }
@@ -504,7 +514,8 @@ fun SettingsScreenNotificationsDisabledPreview() {
             allowProductUpdates = true,
             updateAllowProductUpdates = {},
             provideWhileDisconnected = true,
-            toggleProvideWhileDisconnected = {}
+            toggleProvideWhileDisconnected = {},
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
         )
     }
 }
@@ -524,7 +535,8 @@ fun SettingsScreenNotificationsAllowedPreview() {
             allowProductUpdates = false,
             updateAllowProductUpdates = {},
             provideWhileDisconnected = true,
-            toggleProvideWhileDisconnected = {}
+            toggleProvideWhileDisconnected = {},
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
         )
     }
 }

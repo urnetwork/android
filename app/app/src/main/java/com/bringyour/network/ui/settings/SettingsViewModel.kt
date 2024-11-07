@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.client.AccountPreferencesViewController
 import com.bringyour.client.Client
 import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.NetworkSpaceManagerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val byDeviceManager: ByDeviceManager,
+    networkSpaceManagerProvider: NetworkSpaceManagerProvider,
     @ApplicationContext private val context: Context
 ): ViewModel() {
 
@@ -48,6 +50,10 @@ class SettingsViewModel @Inject constructor(
 
     val setAllowProductUpdates: (Boolean) -> Unit = { allow ->
         allowProductUpdates = allow
+    }
+
+    val urIdUrl: (String) -> String? = { clientId ->
+        networkSpaceManagerProvider.getNetworkSpace()?.connectLinkUrl(clientId)
     }
 
     fun onPermissionResult(isGranted: Boolean) {

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.client.AuthLoginArgs
 import com.bringyour.client.AuthLoginResult
 import com.bringyour.client.BringYourApi
+import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.R
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(): ViewModel() {
+class LoginViewModel @Inject constructor(
+    networkSpaceManagerProvider: NetworkSpaceManagerProvider
+): ViewModel() {
 
     var userAuthInProgress by mutableStateOf(false)
         private set
@@ -105,6 +108,10 @@ class LoginViewModel @Inject constructor(): ViewModel() {
                 }
             }
         }
+    }
+
+    val allowGoogleSso = {
+        networkSpaceManagerProvider.getNetworkSpace()?.ssoGoogle ?: false
     }
 
     val googleLogin: (
