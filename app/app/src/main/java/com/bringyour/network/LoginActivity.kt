@@ -53,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
-        } else {
+        } else { //FIXME else (app.canRefer) {
             // fresh install, async check the install referrer
             // see https://developer.android.com/google/play/installreferrer/library
 
@@ -79,6 +79,9 @@ class LoginActivity : AppCompatActivity() {
                                 }
                             }
                         } finally {
+                            // FIXME take the referral only once per install
+//                            app.canRefer = false
+
                             referrerClient?.endConnection()
                             referrerClient = null
                         }

@@ -184,4 +184,5 @@
     <string name="verify_error">Something went wrong. Try again.</string>
     <string name="create_network_error">Something went wrong. Try again.</string>
     <string name="verify_send_error">Error</string>
+    <string name="asset_statements" translatable="false">[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
 </resources>
