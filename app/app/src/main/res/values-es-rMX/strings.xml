@@ -205,4 +205,5 @@
     <string name="provide_disconnected">Proporcionar sin conexión</string>
     <string name="unpaid_mb">Megabytes no pagados proporcionados</string>
     <string name="payouts_amount_threshold">Los pagos se realizan cada dos semanas y requieren una cantidad mínima proporcionada para recibir un pago.</string>
+    <string name="open_nested_link">Abrir enlace %1$s cuando esté conectado a %2$s</string>
 </resources>

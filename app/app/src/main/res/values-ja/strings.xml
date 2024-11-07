@@ -227,4 +227,5 @@
     <string name="provide_disconnected">オフラインで提供</string>
     <string name="unpaid_mb">未払いのメガバイトを提供</string>
     <string name="payouts_amount_threshold">支払いは2週間ごとに行われ、支払いを受け取るには最低額を提供する必要があります。</string>
+    <string name="open_nested_link">%2$sに接続したらリンク%1$sを開きます</string>
 </resources>

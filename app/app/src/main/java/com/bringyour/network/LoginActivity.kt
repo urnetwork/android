@@ -125,7 +125,7 @@ class LoginActivity : AppCompatActivity() {
         val authCode = queryParameters.remove("auth_code")
         val guest = queryParameters.remove("guest")
         val target = queryParameters.remove("target")
-        // val searchLocation = queryParameters.remove()
+        val defaultLocation = queryParameters.remove("default")
         if (authCode != null) {
 
             loginViewModel.codeLogin(
@@ -143,7 +143,8 @@ class LoginActivity : AppCompatActivity() {
 
                         authClientAndFinish(
                             callback = {err -> },
-                            targetUrl = target
+                            targetUrl = target,
+                            defaultLocation = defaultLocation
                         )
 
 
@@ -167,7 +168,8 @@ class LoginActivity : AppCompatActivity() {
 
     fun authClientAndFinish(
         callback: (String?) -> Unit,
-        targetUrl: String? = null
+        targetUrl: String? = null,
+        defaultLocation: String? = null
     ) {
         val app = app ?: return
 
@@ -181,7 +183,7 @@ class LoginActivity : AppCompatActivity() {
                     callback(err.message)
                 } else if (result.error != null) {
                     callback(result.error.message)
-                } else if (0 < result.byClientJwt.length) {
+                } else if (result.byClientJwt.isNotEmpty()) {
                     callback(null)
 
                     app.loginClient(result.byClientJwt)
@@ -192,6 +194,10 @@ class LoginActivity : AppCompatActivity() {
 
                     if (targetUrl != null) {
                         intent.putExtra("TARGET_URL", targetUrl)
+                    }
+
+                    if (defaultLocation != null) {
+                        intent.putExtra("DEFAULT_LOCATION", defaultLocation)
                     }
 
                     startActivity(intent)

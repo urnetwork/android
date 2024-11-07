@@ -129,13 +129,15 @@ fun LoginPassword(
                             delay(250)
                         }
 
-                        loginActivity?.authClientAndFinish { error ->
+                        loginActivity?.authClientAndFinish(
+                            { error ->
                             if (error != null) {
                                 inProgress = false
                             }
 
                             loginError = error
-                        }
+                            }
+                        )
                     }
 
                 } else {

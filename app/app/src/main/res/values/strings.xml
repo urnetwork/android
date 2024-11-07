@@ -185,4 +185,5 @@
     <string name="create_network_error">Something went wrong. Try again.</string>
     <string name="verify_send_error">Error</string>
     <string name="asset_statements" translatable="false">[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
+    <string name="open_nested_link">Open link %1$s when connected to %2$s</string>
 </resources>

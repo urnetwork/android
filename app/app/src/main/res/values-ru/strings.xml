@@ -227,4 +227,5 @@
     <string name="provide_disconnected">Предоставлять в автономном режиме</string>
     <string name="unpaid_mb">Предоставленные неоплаченные мегабайты</string>
     <string name="payouts_amount_threshold">Выплаты производятся каждые две недели и требуют минимальной суммы, чтобы получить выплату.</string>
+    <string name="open_nested_link">Открыть ссылку %1$s при подключении к %2$s</string>
 </resources>

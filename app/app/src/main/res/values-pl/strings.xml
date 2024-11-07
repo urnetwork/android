@@ -227,4 +227,5 @@
     <string name="provide_disconnected">Dostarczaj w trybie offline</string>
     <string name="unpaid_mb">Nieopłacone megabajty dostarczone</string>
     <string name="payouts_amount_threshold">Wypłaty następują co dwa tygodnie i wymagają minimalnej kwoty dostarczonej, aby otrzymać wypłatę.</string>
+    <string name="open_nested_link">Otwórz link %1$s po połączeniu z %2$s</string>
 </resources>

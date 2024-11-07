@@ -205,4 +205,5 @@
     <string name="provide_disconnected">Toa wakati hujaunganishwa</string>
     <string name="unpaid_mb">Megabytes ambazo hazijalipwa zimetolewa</string>
     <string name="payouts_amount_threshold">Malipo hutolewa kila baada ya wiki mbili, na yanahitaji kiwango cha chini kilichotolewa ili kupokea malipo.</string>
+    <string name="open_nested_link">Fungua kiungo %1$s wakati umeunganishwa na %2$s</string>
 </resources>
