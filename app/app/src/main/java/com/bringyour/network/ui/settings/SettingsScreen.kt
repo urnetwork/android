@@ -2,7 +2,6 @@ package com.bringyour.network.ui.settings
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -58,7 +56,6 @@ import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueLight
-import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -306,7 +303,7 @@ fun SettingsScreen(
                     )
                     .clickable {
                         clipboardManager.setText(
-                            AnnotatedString(clientId)
+                            AnnotatedString("https://ur.io/c?$clientId")
                         )
                     }
                     .padding(horizontal = 12.dp, vertical = 12.dp),
