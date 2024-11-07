@@ -8,6 +8,7 @@ import android.os.RemoteException
 import androidx.activity.compose.setContent
 import android.util.Log
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +16,9 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.bringyour.client.AuthNetworkClientArgs
 import com.bringyour.network.ui.LoginNavHost
+import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.wallet.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +31,7 @@ class LoginActivity : AppCompatActivity() {
 
 
     private var referrerClient: InstallReferrerClient? = null
+    private val loginViewModel: LoginViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +104,9 @@ class LoginActivity : AppCompatActivity() {
 
         setContent {
             URNetworkTheme {
-                LoginNavHost()
+                LoginNavHost(
+                    loginViewModel
+                )
             }
         }
 
@@ -118,13 +124,32 @@ class LoginActivity : AppCompatActivity() {
         }
         val authCode = queryParameters.remove("auth_code")
         val guest = queryParameters.remove("guest")
+        val target = queryParameters.remove("target")
+        // val searchLocation = queryParameters.remove()
         if (authCode != null) {
-            // FIXME
-            // start api to resolve auth code, show message in login screen until done
-            // FIXME include queryParameters in launch main
 
-            // FIXME if same network, just finish to main activity (do not log out)
-            // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
+            loginViewModel.codeLogin(
+                authCode,
+                { authJwt ->
+                    runBlocking(Dispatchers.Main.immediate) {
+
+                        // FIXME
+                        // start api to resolve auth code, show message in login screen until done
+                        // FIXME include queryParameters in launch main
+                        // FIXME if same network, just finish to main activity (do not log out)
+                        // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
+
+                        app.login(authJwt)
+
+                        authClientAndFinish(
+                            callback = {err -> },
+                            targetUrl = target
+                        )
+
+
+                    }
+                }
+            )
         } else if (guest != null) {
             // FIXME
             // login as guest
@@ -140,7 +165,10 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    fun authClientAndFinish(callback: (String?) -> Unit) {
+    fun authClientAndFinish(
+        callback: (String?) -> Unit,
+        targetUrl: String? = null
+    ) {
         val app = app ?: return
 
         val authArgs = AuthNetworkClientArgs()
@@ -161,6 +189,11 @@ class LoginActivity : AppCompatActivity() {
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
                     intent.putExtra("ANIMATE_IN", true)
+
+                    if (targetUrl != null) {
+                        intent.putExtra("TARGET_URL", targetUrl)
+                    }
+
                     startActivity(intent)
 
                     if (Build.VERSION.SDK_INT >= 34) {

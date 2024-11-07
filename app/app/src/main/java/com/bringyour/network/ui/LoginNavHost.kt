@@ -28,7 +28,7 @@ import com.bringyour.network.utils.isTv
 
 @Composable
 fun LoginNavHost(
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel,
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
 
