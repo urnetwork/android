@@ -40,6 +40,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -52,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.util.lerp
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.utils.isLandscape
 
 @Composable
 fun WelcomeAnimatedMainOverlay(
@@ -91,18 +94,31 @@ fun WelcomeAnimatedMainOverlay(
 
     val animatedSize = lerp(initialSize, finalSize, animationProgress)
     val animatedTopPadding = lerp(0f, topOffsetFinal, animationProgress)
+    val isLandscape = isLandscape()
 
     val close: () -> Unit = {
-        coroutineScope.launch {
-            isBodyVisible = false
 
-            delay(1000)
+        if (isLandscape) {
+            coroutineScope.launch {
+                isBodyVisible = false
+                isVisible = false
 
-            isVisible = false
+                delay(1000)
 
-            delay(1000)
+                overlayClosed = true
+            }
+        } else {
+            coroutineScope.launch {
+                isBodyVisible = false
 
-            overlayClosed = true
+                delay(1000)
+
+                isVisible = false
+
+                delay(1000)
+
+                overlayClosed = true
+            }
         }
     }
 
@@ -140,6 +156,7 @@ fun WelcomeAnimatedMainOverlay(
         enter = EnterTransition.None,
         exit = fadeOut(),
     ) {
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -150,87 +167,98 @@ fun WelcomeAnimatedMainOverlay(
                     )
                 }
         ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val xOffset = (screenWidthPx - animatedSize) / 2
 
-                // Draw the image
-                translate(left = xOffset, top = animatedTopPadding) {
-                    with(painter) {
-                        draw(size = Size(animatedSize, animatedSize))
-                    }
-                }
-
-                // top rectangle
-                drawRect(
-                    color = Black,
-                    topLeft = Offset(0f, 0f),
-                    size = Size(width = screenWidthPx + 2.dp.toPx(), height = animatedTopPadding + 1.dp.toPx())
-                )
-
-                // left rectangle
-                drawRect(
-                    color = Black,
-                    topLeft = Offset(0f, animatedTopPadding),
-                    size = Size(width = ((screenWidthPx - animatedSize) / 2) + 1.dp.toPx(), height = animatedSize)
-                )
-
-                // right rectangle
-                drawRect(
-                    color = Black,
-                    topLeft = Offset(((screenWidthPx - animatedSize) / 2) + animatedSize - 1.dp.toPx(), animatedTopPadding),
-                    size = Size(width = ((screenWidthPx - animatedSize) / 2) + 2.dp.toPx(), height = animatedSize)
-                )
-
-                // bottom rectangle
-                drawRect(
-                    color = Black,
-                    topLeft = Offset(0f, animatedTopPadding + animatedSize - 1.dp.toPx()),
-                    size = Size(width = screenWidthPx + 2.dp.toPx(), height = screenHeightPx)
-                )
-            }
-
-            // "nicely done" content
-            AnimatedVisibility(
-                visible = isBodyVisible,
-                enter = fadeIn(),
-                exit = fadeOut(),
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // top padding + mask size + 32.dp of room
-                    Spacer(modifier = Modifier.height(122.dp + 256.dp + 32.dp))
-                    Text(
-                        stringResource(id = R.string.nicely_done),
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                    Text(
-                        stringResource(id = R.string.step_in),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                    Spacer(modifier = Modifier.height(48.dp))
-                    URButton(
-                        onClick = {
-                            close()
-                        },
-                        style = ButtonStyle.OUTLINE
-                    ) { buttonTextStyle ->
-                        Row(
-                            modifier = Modifier
-                                .padding(horizontal = 48.dp),
-                        ) {
-                            Text(
-                                stringResource(id = R.string.enter),
-                                style = buttonTextStyle
-                            )
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val xOffset = (screenWidthPx - animatedSize) / 2
+
+                    // Draw the image
+                    translate(left = xOffset, top = animatedTopPadding) {
+                        with(painter) {
+                            draw(size = Size(animatedSize, animatedSize))
                         }
                     }
+
+                    // top rectangle
+                    drawRect(
+                        color = Black,
+                        topLeft = Offset(0f, 0f),
+                        size = Size(width = screenWidthPx + 2.dp.toPx(), height = animatedTopPadding + 1.dp.toPx())
+                    )
+
+                    // left rectangle
+                    drawRect(
+                        color = Black,
+                        topLeft = Offset(0f, animatedTopPadding),
+                        size = Size(width = ((screenWidthPx - animatedSize) / 2) + 1.dp.toPx(), height = animatedSize)
+                    )
+
+                    // right rectangle
+                    drawRect(
+                        color = Black,
+                        topLeft = Offset(((screenWidthPx - animatedSize) / 2) + animatedSize - 1.dp.toPx(), animatedTopPadding),
+                        size = Size(width = ((screenWidthPx - animatedSize) / 2) + 2.dp.toPx(), height = animatedSize)
+                    )
+
+                    // bottom rectangle
+                    drawRect(
+                        color = Black,
+                        topLeft = Offset(0f, animatedTopPadding + animatedSize - 1.dp.toPx()),
+                        size = Size(width = screenWidthPx + 2.dp.toPx(), height = screenHeightPx)
+                    )
                 }
+
+                // "nicely done" content
+                AnimatedVisibility(
+                    visible = isBodyVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // top padding + mask size + 32.dp of room
+                        Spacer(modifier = Modifier.height(122.dp + 256.dp + 32.dp))
+                        Text(
+                            stringResource(id = R.string.nicely_done),
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                        Text(
+                            stringResource(id = R.string.step_in),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        Spacer(modifier = Modifier.height(48.dp))
+                        URButton(
+                            onClick = {
+                                close()
+                            },
+                            style = ButtonStyle.OUTLINE
+                        ) { buttonTextStyle ->
+                            Row(
+                                modifier = Modifier
+                                    .padding(horizontal = 48.dp),
+                            ) {
+                                Text(
+                                    stringResource(id = R.string.enter),
+                                    style = buttonTextStyle
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+
             }
         }
     }

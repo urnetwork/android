@@ -1,12 +1,10 @@
 package com.bringyour.network.ui.connect
 
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
@@ -67,8 +65,10 @@ fun LocationsList(
             NoLocationsFound()
     } else {
         // success
+
         LazyColumn(
-            // modifier = Modifier.focusGroup()
+            modifier = Modifier.fillMaxSize(),
+            // verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
             if (bestSearchMatches.isNotEmpty()) {
@@ -77,13 +77,11 @@ fun LocationsList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.top_matches))
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 items(bestSearchMatches) { location ->
@@ -106,13 +104,11 @@ fun LocationsList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.promoted_locations))
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 item {
@@ -148,13 +144,11 @@ fun LocationsList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.countries))
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 items(connectCountries) { location ->
@@ -176,13 +170,11 @@ fun LocationsList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.regions))
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 items(regions) { location ->
@@ -204,13 +196,11 @@ fun LocationsList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.cities))
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 items(cities) { location ->
@@ -233,13 +223,11 @@ fun LocationsList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(stringResource(id = R.string.devices))
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 items(devices) { location ->
@@ -256,5 +244,6 @@ fun LocationsList(
                 }
             }
         }
+
     }
 }

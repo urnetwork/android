@@ -39,3 +39,9 @@ fun isTv(): Boolean {
     val uiMode = configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
     return uiMode == Configuration.UI_MODE_TYPE_TELEVISION
 }
+
+@Composable
+fun isLandscape(): Boolean {
+    val configuration = LocalConfiguration.current
+    return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+}
