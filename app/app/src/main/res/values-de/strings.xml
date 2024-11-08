@@ -197,5 +197,8 @@
     <string name="open_nested_link">Verbinden mit %1$s und Link %2$s öffnen</string>
     <string name="connect_and_open">Verbinden und Link öffnen</string>
     <string name="connect_to_location">Mit %1$s verbinden</string>
+    <string name="no_locations_found">Keine Standorte gefunden</string>
+    <string name="no_locations_found_detail">Leider konnten wir keine Standorte finden, die mit %1$s in Verbindung stehen.</string>
+    <string name="dismiss">Schließen</string>
 
 </resources>

@@ -151,7 +151,7 @@ class MainActivity: AppCompatActivity() {
         // for testing
         // val targetUrl = "https://ur.io/ip"
         val targetUrl = null
-        val defaultLocation = "California"
+        val defaultLocation = "zkjhdf"
 
 
         val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager

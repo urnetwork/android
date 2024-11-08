@@ -208,4 +208,7 @@
     <string name="open_nested_link">Unganisha kwa %1$s na ufungue kiungo %2$s</string>
     <string name="connect_and_open">Unganisha na ufungue kiungo</string>
     <string name="connect_to_location">Unganisha kwa %1$s</string>
+    <string name="no_locations_found">Hakuna maeneo yaliyopatikana</string>
+    <string name="no_locations_found_detail">Samahani, hatukuweza kupata maeneo yoyote yanayohusiana na %1$s.</string>
+    <string name="dismiss">Futa</string>
 </resources>

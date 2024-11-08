@@ -1,6 +1,9 @@
-package com.bringyour.network.ui.components.NestedLinkBottomSheet
+package com.bringyour.network.ui.components.nestedLinkBottomSheet
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.client.ConnectLocation
@@ -21,6 +24,13 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 ): ViewModel() {
 
     private var locationsVc: LocationsViewController? = null
+
+    // private var searchLoaded = false
+    var searchLoaded by mutableStateOf(false)
+        private set
+    private val setSearchLoaded: (Boolean) -> Unit = { sl ->
+        searchLoaded = sl
+    }
 
     private val _filterLocationsState = MutableStateFlow(FilterLocationsState.Loading)
     val filterLocationsState: StateFlow<FilterLocationsState> = _filterLocationsState.asStateFlow()
@@ -52,15 +62,13 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 
                     filteredLocation?.let {
                         searchLocationResults.addAll(makeConnectLocationCollection(it.bestMatches))
-//                        searchLocationResults.addAll(makeConnectLocationCollection(it.countries))
-//                        searchLocationResults.addAll(makeConnectLocationCollection(it.devices))
-//                        searchLocationResults.addAll(makeConnectLocationCollection(it.cities))
-//                        searchLocationResults.addAll(makeConnectLocationCollection(it.regions))
                     }
 
                     FilterLocationsState.fromString(state)?.let {
                         _filterLocationsState.value = it
                     }
+
+                    setSearchLoaded(true)
                 }
             }
         }

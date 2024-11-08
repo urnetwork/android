@@ -1,4 +1,4 @@
-package com.bringyour.network.ui.components.NestedLinkBottomSheet
+package com.bringyour.network.ui.components.nestedLinkBottomSheet
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -40,6 +41,7 @@ import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +56,7 @@ fun NestedLinkBottomSheet(
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val uriHandler = LocalUriHandler.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = defaultLocation) {
         if (defaultLocation != null) {
@@ -91,7 +94,13 @@ fun NestedLinkBottomSheet(
                     }
                 },
                 connectStatus = connectStatus,
-                searchLocationsCount = nestedLinkBottomSheetViewModel.searchLocationResults.size
+                searchLocationsCount = nestedLinkBottomSheetViewModel.searchLocationResults.size,
+                searchLoaded = nestedLinkBottomSheetViewModel.searchLoaded,
+                dismiss = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.hide()
+                    }
+                }
             )
 
         }
@@ -105,10 +114,21 @@ private fun NestedLinkSheetContent(
     targetLink: String?,
     defaultLocation: String?,
     confirm: () -> Unit,
+    dismiss: () -> Unit,
     connectStatus: ConnectStatus,
-    searchLocationsCount: Int
+    searchLocationsCount: Int,
+    searchLoaded: Boolean
 ) {
 
+    val headerText = if (searchLoaded && searchLocationsCount <= 0) stringResource(id = R.string.no_locations_found)
+        else if (targetLink.isNullOrEmpty()) stringResource(id = R.string.connect)
+            else stringResource(id = R.string.connect_and_open)
+
+    val detailResourceId = if (searchLoaded && searchLocationsCount <= 0) R.string.no_locations_found_detail else if (targetLink.isNullOrEmpty()) R.string.connect_to_location else R.string.open_nested_link
+
+    val actionTextResourceId = if (targetLink.isNullOrEmpty()) R.string.connect
+        else R.string.connect_and_open
+    
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
@@ -162,7 +182,7 @@ private fun NestedLinkSheetContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            if (targetLink.isNullOrEmpty()) stringResource(id = R.string.connect) else stringResource(id = R.string.connect_and_open),
+            headerText,
             style = MaterialTheme.typography.titleLarge,
             color = Color.White
         )
@@ -171,7 +191,7 @@ private fun NestedLinkSheetContent(
 
         Text(
             stringResource(
-                id = if (targetLink.isNullOrEmpty()) R.string.connect_to_location else R.string.open_nested_link,
+                id = detailResourceId,
                 defaultLocation ?: "",
                 targetLink ?: "",
             ),
@@ -183,14 +203,25 @@ private fun NestedLinkSheetContent(
             modifier = Modifier.height(42.dp)
         )
 
-        URButton(
-            onClick = confirm,
-            enabled = connectStatus == ConnectStatus.DISCONNECTED && searchLocationsCount > 0
-        ) { buttonTextStyle ->
-            Text(
-                if (targetLink.isNullOrEmpty()) stringResource(id = R.string.connect) else stringResource(id = R.string.connect_and_open),
-                style = buttonTextStyle
-            )
+        if (searchLoaded && searchLocationsCount <= 0) {
+            URButton(
+                onClick = dismiss,
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = R.string.dismiss),
+                    style = buttonTextStyle
+                )
+            }
+        } else {
+            URButton(
+                onClick = confirm,
+                enabled = connectStatus == ConnectStatus.DISCONNECTED && searchLocationsCount > 0
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = actionTextResourceId),
+                    style = buttonTextStyle
+                )
+            }
         }
 
         Spacer(
@@ -201,7 +232,7 @@ private fun NestedLinkSheetContent(
 
 @Preview
 @Composable
-private fun NestedLinkBottomSheetPreview() {
+private fun NestedLinkSheetPreview() {
 
     URNetworkTheme {
         NestedLinkSheetContent(
@@ -209,7 +240,43 @@ private fun NestedLinkBottomSheetPreview() {
             defaultLocation = "Germany",
             confirm = {},
             connectStatus = ConnectStatus.DISCONNECTED,
-            searchLocationsCount = 1
+            searchLocationsCount = 1,
+            searchLoaded = true,
+            dismiss = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun NestedLinkSheetNoLocationsPreview() {
+
+    URNetworkTheme {
+        NestedLinkSheetContent(
+            targetLink = "https://ur.io/123/abcdefg",
+            defaultLocation = "Lorem Ipsum",
+            confirm = {},
+            connectStatus = ConnectStatus.DISCONNECTED,
+            searchLocationsCount = 0,
+            searchLoaded = true,
+            dismiss = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun NestedLinkSheetNoLinkPreview() {
+
+    URNetworkTheme {
+        NestedLinkSheetContent(
+            targetLink = null,
+            defaultLocation = "California",
+            confirm = {},
+            connectStatus = ConnectStatus.DISCONNECTED,
+            searchLocationsCount = 1,
+            searchLoaded = true,
+            dismiss = {}
         )
     }
 }

@@ -208,4 +208,7 @@
     <string name="open_nested_link">连接到 %1$s 并打开链接 %2$s</string>
     <string name="connect_and_open">连接并打开链接</string>
     <string name="connect_to_location">连接到 %1$s</string>
+    <string name="no_locations_found">未找到任何位置</string>
+    <string name="no_locations_found_detail">抱歉，我们找不到与 %1$s 相关的任何位置。</string>
+    <string name="dismiss">关闭</string>
 </resources>

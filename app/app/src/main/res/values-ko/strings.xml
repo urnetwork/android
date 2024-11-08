@@ -230,4 +230,7 @@
     <string name="open_nested_link">%1$s에 연결하고 링크 %2$s을(를) 엽니다</string>
     <string name="connect_and_open">연결하고 링크를 엽니다</string>
     <string name="connect_to_location">%1$s에 연결</string>
+    <string name="no_locations_found">위치를 찾을 수 없습니다</string>
+    <string name="no_locations_found_detail">죄송합니다. %1$s 관련 위치를 찾을 수 없습니다.</string>
+    <string name="dismiss">닫기</string>
 </resources>

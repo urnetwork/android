@@ -230,4 +230,7 @@
     <string name="open_nested_link">%1$sに接続してリンク%2$sを開く</string>
     <string name="connect_and_open">接続してリンクを開く</string>
     <string name="connect_to_location">%1$sに接続</string>
+    <string name="no_locations_found">場所が見つかりません</string>
+    <string name="no_locations_found_detail">申し訳ありませんが、%1$sに関連する場所が見つかりませんでした。</string>
+    <string name="dismiss">閉じる</string>
 </resources>

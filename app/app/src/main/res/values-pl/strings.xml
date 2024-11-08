@@ -230,4 +230,8 @@
     <string name="open_nested_link">Połącz z %1$s i otwórz link %2$s</string>
     <string name="connect_and_open">Połącz i otwórz link</string>
     <string name="connect_to_location">Połącz z %1$s</string>
+    <string name="no_locations_found">Nie znaleziono lokalizacji</string>
+    <string name="no_locations_found_detail">Przepraszamy, nie mogliśmy znaleźć żadnych lokalizacji powiązanych z %1$s.</string>
+    <string name="dismiss">Zamknij</string>
+
 </resources>

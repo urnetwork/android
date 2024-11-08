@@ -68,7 +68,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.bringyour.network.ui.account.AccountViewModel
-import com.bringyour.network.ui.components.NestedLinkBottomSheet.NestedLinkBottomSheet
+import com.bringyour.network.ui.components.nestedLinkBottomSheet.NestedLinkBottomSheet
 import com.bringyour.network.ui.connect.BrowseLocationsScreen
 import com.bringyour.network.ui.connect.LocationsListViewModel
 import com.bringyour.network.ui.profile.ProfileScreen

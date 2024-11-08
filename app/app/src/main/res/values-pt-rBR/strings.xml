@@ -208,4 +208,7 @@
     <string name="open_nested_link">Conectar a %1$s e abrir link %2$s</string>
     <string name="connect_and_open">Conectar e abrir link</string>
     <string name="connect_to_location">Conectar a %1$s</string>
+    <string name="no_locations_found">Nenhum local encontrado</string>
+    <string name="no_locations_found_detail">Desculpe, não conseguimos encontrar nenhum local relacionado a %1$s.</string>
+    <string name="dismiss">Dispensar</string>
 </resources>

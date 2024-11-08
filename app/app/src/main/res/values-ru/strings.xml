@@ -230,4 +230,7 @@
     <string name="open_nested_link">Подключиться к %1$s и открыть ссылку %2$s</string>
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
     <string name="connect_to_location">Подключиться к %1$s</string>
+    <string name="no_locations_found">Местоположения не найдены</string>
+    <string name="no_locations_found_detail">Извините, нам не удалось найти местоположения, связанные с %1$s.</string>
+    <string name="dismiss">Закрыть</string>
 </resources>

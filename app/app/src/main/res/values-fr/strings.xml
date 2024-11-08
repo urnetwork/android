@@ -209,4 +209,7 @@
     <string name="open_nested_link">Se connecter à %1$s et ouvrir le lien %2$s</string>
     <string name="connect_and_open">Se connecter et ouvrir le lien</string>
     <string name="connect_to_location">Se connecter à %1$s</string>
+    <string name="no_locations_found">Aucun emplacement trouvé</string>
+    <string name="no_locations_found_detail">Désolé, nous n\'avons trouvé aucun emplacement lié à %1$s.</string>
+    <string name="dismiss">Fermer</string>
 </resources>

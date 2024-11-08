@@ -207,5 +207,7 @@
     <string name="open_nested_link">Σύνδεση με %1$s και άνοιγμα συνδέσμου %2$s</string>
     <string name="connect_and_open">Σύνδεση και άνοιγμα συνδέσμου</string>
     <string name="connect_to_location">Σύνδεση με %1$s</string>
-
+    <string name="no_locations_found">Δεν βρέθηκαν τοποθεσίες</string>
+    <string name="no_locations_found_detail">Λυπούμαστε, δεν μπορέσαμε να βρούμε τοποθεσίες που σχετίζονται με %1$s.</string>
+    <string name="dismiss">Ακύρωση</string>
 </resources>
