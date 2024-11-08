@@ -204,5 +204,8 @@
     <string name="provide_disconnected">Παροχή ενώ είστε εκτός σύνδεσης</string>
     <string name="unpaid_mb">Μη καταβληθέντα megabyte που παρέχονται</string>
     <string name="payouts_amount_threshold">Οι πληρωμές πραγματοποιούνται κάθε δύο εβδομάδες και απαιτούν ένα ελάχιστο ποσό που παρέχεται για να λάβετε μια πληρωμή.</string>
-    <string name="open_nested_link">Άνοιγμα συνδέσμου %1$s όταν είναι συνδεδεμένο με %2$s</string>
+    <string name="open_nested_link">Σύνδεση με %1$s και άνοιγμα συνδέσμου %2$s</string>
+    <string name="connect_and_open">Σύνδεση και άνοιγμα συνδέσμου</string>
+    <string name="connect_to_location">Σύνδεση με %1$s</string>
+
 </resources>

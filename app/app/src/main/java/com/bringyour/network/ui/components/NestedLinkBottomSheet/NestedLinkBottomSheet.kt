@@ -1,0 +1,215 @@
+package com.bringyour.network.ui.components.NestedLinkBottomSheet
+
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.bringyour.network.R
+import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.connect.ConnectStatus
+import com.bringyour.network.ui.connect.ConnectViewModel
+import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.MainBorderBase
+import com.bringyour.network.ui.theme.TextFaint
+import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.ui.theme.URNetworkTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NestedLinkBottomSheet(
+    scaffoldState: BottomSheetScaffoldState,
+    targetLink: String?,
+    defaultLocation: String?,
+    connectViewModel: ConnectViewModel,
+    nestedLinkBottomSheetViewModel: NestedLinkBottomSheetViewModel = hiltViewModel(),
+    content: @Composable () -> Unit,
+) {
+
+    val connectStatus by connectViewModel.connectStatus.collectAsState()
+    val uriHandler = LocalUriHandler.current
+
+    LaunchedEffect(key1 = defaultLocation) {
+        if (defaultLocation != null) {
+            nestedLinkBottomSheetViewModel.filterLocations(defaultLocation)
+        }
+    }
+
+    LaunchedEffect(key1 = connectStatus) {
+        if (connectStatus == ConnectStatus.CONNECTED && scaffoldState.bottomSheetState.isVisible) {
+            scaffoldState.bottomSheetState.hide()
+
+            if (targetLink != null) {
+                uriHandler.openUri(targetLink ?: "")
+            }
+        }
+    }
+
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetShape = RoundedCornerShape(
+            0.dp,
+        ),
+        sheetContainerColor = Black,
+        sheetContentColor = Black,
+        sheetPeekHeight = 0.dp,
+        sheetDragHandle = {},
+        sheetContent = {
+
+            NestedLinkSheetContent(
+                targetLink = targetLink,
+                defaultLocation = defaultLocation,
+                confirm = {
+                    if (nestedLinkBottomSheetViewModel.searchLocationResults.isNotEmpty()) {
+                        connectViewModel.connect(nestedLinkBottomSheetViewModel.searchLocationResults[0])
+                    }
+                },
+                connectStatus = connectStatus,
+                searchLocationsCount = nestedLinkBottomSheetViewModel.searchLocationResults.size
+            )
+
+        }
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun NestedLinkSheetContent(
+    targetLink: String?,
+    defaultLocation: String?,
+    confirm: () -> Unit,
+    connectStatus: ConnectStatus,
+    searchLocationsCount: Int
+) {
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    Column(
+        modifier = Modifier
+            .then(
+                if (screenWidth > 640.dp) {
+                    Modifier.fillMaxWidth()
+                } else {
+                    Modifier
+                        .requiredWidth(LocalConfiguration.current.screenWidthDp.dp + 4.dp)
+                }
+            )
+            .offset(y = 1.dp)
+            .border(
+                1.dp,
+                MainBorderBase,
+                shape = RoundedCornerShape(
+                    topStart = 12.dp,
+                    topEnd = 12.dp,
+                    bottomEnd = 0.dp,
+                    bottomStart = 0.dp
+                )
+            )
+            .padding(
+                horizontal = 16.dp,
+            )
+    ) {
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Surface(
+                color = TextFaint,
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Box(
+                    Modifier
+                        .size(
+                            width = 48.dp,
+                            height = 4.dp
+                        )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            if (targetLink.isNullOrEmpty()) stringResource(id = R.string.connect) else stringResource(id = R.string.connect_and_open),
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            stringResource(
+                id = if (targetLink.isNullOrEmpty()) R.string.connect_to_location else R.string.open_nested_link,
+                defaultLocation ?: "",
+                targetLink ?: "",
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextMuted
+        )
+
+        Spacer(
+            modifier = Modifier.height(42.dp)
+        )
+
+        URButton(
+            onClick = confirm,
+            enabled = connectStatus == ConnectStatus.DISCONNECTED && searchLocationsCount > 0
+        ) { buttonTextStyle ->
+            Text(
+                if (targetLink.isNullOrEmpty()) stringResource(id = R.string.connect) else stringResource(id = R.string.connect_and_open),
+                style = buttonTextStyle
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(32.dp)
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun NestedLinkBottomSheetPreview() {
+
+    URNetworkTheme {
+        NestedLinkSheetContent(
+            targetLink = "https://ur.io/123/abcdefg",
+            defaultLocation = "Germany",
+            confirm = {},
+            connectStatus = ConnectStatus.DISCONNECTED,
+            searchLocationsCount = 1
+        )
+    }
+}

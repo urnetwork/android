@@ -194,6 +194,8 @@
     <string name="provide_disconnected">Offline bereitstellen</string>
     <string name="unpaid_mb">Nicht bezahlte Megabyte bereitgestellt</string>
     <string name="payouts_amount_threshold">Auszahlungen erfolgen alle zwei Wochen und erfordern einen Mindestbetrag, der bereitgestellt werden muss, um eine Auszahlung zu erhalten.</string>
-    <string name="open_nested_link">Öffnen Sie den Link %1$s, wenn Sie mit %2$s verbunden sind</string>
+    <string name="open_nested_link">Verbinden mit %1$s und Link %2$s öffnen</string>
+    <string name="connect_and_open">Verbinden und Link öffnen</string>
+    <string name="connect_to_location">Mit %1$s verbinden</string>
 
 </resources>
