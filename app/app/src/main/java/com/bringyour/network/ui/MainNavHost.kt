@@ -134,7 +134,7 @@ fun MainNavHost(
 
     val nestedLinkScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = if (!defaultLocation.isNullOrEmpty()) SheetValue.Expanded else SheetValue.Hidden,
+            initialValue = if (defaultLocation != null) SheetValue.Expanded else SheetValue.Hidden,
             skipHiddenState = false
         )
     )

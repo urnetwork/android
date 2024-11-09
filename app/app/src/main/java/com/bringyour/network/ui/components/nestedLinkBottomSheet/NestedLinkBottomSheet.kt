@@ -63,7 +63,7 @@ fun NestedLinkBottomSheet(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = defaultLocation) {
-        if (defaultLocation != null) {
+        if (!defaultLocation.isNullOrEmpty()) {
             nestedLinkBottomSheetViewModel.filterLocations(defaultLocation)
         }
     }
