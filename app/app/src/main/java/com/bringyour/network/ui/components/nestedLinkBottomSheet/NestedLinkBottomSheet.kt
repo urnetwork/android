@@ -42,6 +42,10 @@ import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.launch
+import kotlin.text.isLowerCase
+import kotlin.text.replaceFirstChar
+import kotlin.text.split
+import kotlin.text.titlecase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,6 +136,10 @@ private fun NestedLinkSheetContent(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
+
+    val titlecasedLocation = defaultLocation?.split(" ")
+        ?.joinToString(" ") { it.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } }
+
     Column(
         modifier = Modifier
             .then(
@@ -192,7 +200,7 @@ private fun NestedLinkSheetContent(
         Text(
             stringResource(
                 id = detailResourceId,
-                defaultLocation ?: "",
+                titlecasedLocation ?: "",
                 targetLink ?: "",
             ),
             style = MaterialTheme.typography.bodyMedium,
