@@ -210,4 +210,8 @@
     <string name="no_locations_found">No se encontraron ubicaciones</string>
     <string name="no_locations_found_detail">Lo sentimos, no pudimos encontrar ninguna ubicación relacionada con %1$s.</string>
     <string name="dismiss">Descarta</string>
+    <string name="switch_account">Cambiar cuenta</string>
+    <string name="switch_account_details">¿Quieres desconectarte de %1$s y cambiar de cuenta?</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
 </resources>

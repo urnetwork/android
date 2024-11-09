@@ -210,4 +210,8 @@
     <string name="no_locations_found">Δεν βρέθηκαν τοποθεσίες</string>
     <string name="no_locations_found_detail">Λυπούμαστε, δεν μπορέσαμε να βρούμε τοποθεσίες που σχετίζονται με %1$s.</string>
     <string name="dismiss">Ακύρωση</string>
+    <string name="switch_account">Αλλαγή λογαριασμού</string>
+    <string name="switch_account_details">Θέλετε να αποσυνδεθείτε από το %1$s και να αλλάξετε λογαριασμούς;</string>
+    <string name="yes">Ναι</string>
+    <string name="no">Όχι</string>
 </resources>

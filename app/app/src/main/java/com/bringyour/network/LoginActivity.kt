@@ -12,10 +12,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.bringyour.client.AuthNetworkClientArgs
+import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.network.ui.LoginNavHost
+import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
@@ -32,6 +35,14 @@ class LoginActivity : AppCompatActivity() {
 
     private var referrerClient: InstallReferrerClient? = null
     private val loginViewModel: LoginViewModel by viewModels()
+
+    private var promptAccountSwitch = false
+    private var currentNetworkName: String? = null
+    private var targetJwt: String? = null
+    private var targetUrl: String? = null
+    private var defaultLocation: String? = null
+    private var switchToGuestMode = false
+    // private var targetNetworkName: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,10 +63,10 @@ class LoginActivity : AppCompatActivity() {
             }
 
         }
+
         // FIXME google play referrer
         else if (app.byDevice != null) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            navigateToMain()
             return
         } else { //FIXME else (app.canRefer) {
             // fresh install, async check the install referrer
@@ -105,11 +116,21 @@ class LoginActivity : AppCompatActivity() {
         setContent {
             URNetworkTheme {
                 LoginNavHost(
-                    loginViewModel
+                    loginViewModel,
+                    promptAccountSwitch = promptAccountSwitch,
+                    targetUrl = targetUrl,
+                    targetJwt = targetJwt,
+                    currentNetworkName = currentNetworkName,
+                    defaultLocation = defaultLocation,
+                    switchToGuestMode = switchToGuestMode
                 )
             }
         }
+    }
 
+    fun navigateToMain() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 
 
@@ -123,9 +144,12 @@ class LoginActivity : AppCompatActivity() {
             }
         }
         val authCode = queryParameters.remove("auth_code")
-        val guest = queryParameters.remove("guest")
-        val target = queryParameters.remove("target")
-        val defaultLocation = queryParameters.remove("default")
+        val guest = queryParameters.remove("guest").toBoolean()
+        targetUrl = queryParameters.remove("target")
+        defaultLocation = queryParameters.remove("default")
+
+        val localState = app.asyncLocalState
+
         if (authCode != null) {
 
             loginViewModel.codeLogin(
@@ -135,35 +159,119 @@ class LoginActivity : AppCompatActivity() {
 
                         // FIXME
                         // start api to resolve auth code, show message in login screen until done
-                        // FIXME include queryParameters in launch main
-                        // FIXME if same network, just finish to main activity (do not log out)
-                        // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
 
-                        app.login(authJwt)
+                        if (app.asyncLocalState?.localState?.byJwt == authJwt) {
+                            // user already logged into this network
 
-                        authClientAndFinish(
-                            callback = {err -> },
-                            targetUrl = target,
-                            defaultLocation = defaultLocation
-                        )
+                            setLinksAndStartMain(
+                                targetUrl = targetUrl,
+                                defaultLocation = defaultLocation
+                            )
+
+                        } else if (!app.asyncLocalState?.localState?.byJwt.isNullOrEmpty() && app.asyncLocalState?.localState?.byJwt != authJwt) {
+                            // user is logged in, but not to the account related to the auth code
+                            // prompt account switch
+
+                            targetJwt = authJwt
+                            promptAccountSwitch = true
 
 
+                            // currentNetworkName = app.asyncLocalState?.localState?.byJwt
+                            localState?.parseByJwt { jwt, _ ->
+                                currentNetworkName = jwt.networkName
+                            }
+
+                        } else {
+                            app.login(authJwt)
+
+                            authClientAndFinish(
+                                callback = {err -> },
+                                targetUrl = targetUrl,
+                                defaultLocation = defaultLocation
+                            )
+                        }
                     }
                 }
             )
-        } else if (guest != null) {
+        } else if (guest) {
             // FIXME
             // login as guest
             // FIXME include queryParameters in launch main
 
-            // FIXME if already guest, just finish to main activity (do not log out)
-            // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
+            if (localState != null) {
+                localState.parseByJwt { jwt, _ ->
+
+                    if (jwt.guestMode) {
+                        setLinksAndStartMain(targetUrl, defaultLocation)
+                    } else {
+                        // targetJwt = authJwt
+                        promptAccountSwitch = true
+                        switchToGuestMode = true
+                        // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
+                    }
+                }
+            } else {
+
+                val args = NetworkCreateArgs()
+                args.terms = true
+                args.guestMode = true
+
+                app.api?.networkCreate(args) { result, err ->
+                    runBlocking(Dispatchers.Main.immediate) {
+
+                        if (err != null) {
+                            Log.i(TAG, "error ${err.message}")
+                        } else if (result.error != null) {
+                            Log.i(TAG, "error ${result.error.message}")
+                        } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+
+                            app.login(result.network.byJwt)
+
+                            authClientAndFinish(
+                                { error ->
+
+                                    if (error != null) {
+                                        Log.i(TAG, "authClientAndFinish error: $error")
+                                    }
+                                },
+                                targetUrl = targetUrl,
+                                defaultLocation = defaultLocation
+                            )
+
+                        } else {
+                            Log.i(TAG, "authClientAndFinish error: ${R.string.create_network_error}")
+                        }
+                    }
+                }
+
+            }
+
         } else if (app.byDevice != null) {
-            // FIXME, open main activity with query
+            setLinksAndStartMain(targetUrl, defaultLocation)
         } else {
             // FIXME else, store query for when logging in
 
         }
+    }
+
+    private fun setLinksAndStartMain(
+        targetUrl: String?,
+        defaultLocation: String?
+    ) {
+        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+
+        if (targetUrl != null) {
+            intent.putExtra("TARGET_URL", targetUrl)
+        }
+
+        if (defaultLocation != null) {
+            intent.putExtra("DEFAULT_LOCATION", defaultLocation)
+        }
+
+        startActivity(intent)
+
+        finish()
     }
 
     fun authClientAndFinish(

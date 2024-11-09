@@ -211,4 +211,8 @@
     <string name="no_locations_found">Hakuna maeneo yaliyopatikana</string>
     <string name="no_locations_found_detail">Samahani, hatukuweza kupata maeneo yoyote yanayohusiana na %1$s.</string>
     <string name="dismiss">Futa</string>
+    <string name="switch_account">Badilisha Akaunti</string>
+    <string name="switch_account_details">Je, unataka kukata muunganisho kutoka %1$s na kubadilisha akaunti?</string>
+    <string name="yes">Ndiyo</string>
+    <string name="no">Hapana</string>
 </resources>

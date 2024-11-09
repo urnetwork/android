@@ -212,4 +212,8 @@
     <string name="no_locations_found">Aucun emplacement trouvé</string>
     <string name="no_locations_found_detail">Désolé, nous n\'avons trouvé aucun emplacement lié à %1$s.</string>
     <string name="dismiss">Fermer</string>
+    <string name="switch_account">Changer de compte</string>
+    <string name="switch_account_details">Voulez-vous vous déconnecter de %1$s et changer de compte ?</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
 </resources>

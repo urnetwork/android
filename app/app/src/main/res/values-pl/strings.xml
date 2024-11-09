@@ -233,5 +233,9 @@
     <string name="no_locations_found">Nie znaleziono lokalizacji</string>
     <string name="no_locations_found_detail">Przepraszamy, nie mogliśmy znaleźć żadnych lokalizacji powiązanych z %1$s.</string>
     <string name="dismiss">Zamknij</string>
+    <string name="switch_account">Przełącz konto</string>
+    <string name="switch_account_details">Czy chcesz rozłączyć się z %1$s i przełączyć konta?</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
 
 </resources>

@@ -196,4 +196,9 @@
     <string name="no_locations_found">لم يتم العثور على مواقع</string>
     <string name="no_locations_found_detail">عذرًا، تعذر علينا العثور على أي مواقع ذات صلة بـ %1$s.</string>
     <string name="dismiss">تجاهل</string>
+
+    <string name="switch_account">تبديل الحساب</string>
+    <string name="switch_account_details">هل تريد قطع الاتصال من %1$s والتبديل بين الحسابات؟</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
 </resources>

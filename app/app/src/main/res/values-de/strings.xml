@@ -200,5 +200,9 @@
     <string name="no_locations_found">Keine Standorte gefunden</string>
     <string name="no_locations_found_detail">Leider konnten wir keine Standorte finden, die mit %1$s in Verbindung stehen.</string>
     <string name="dismiss">Schließen</string>
+    <string name="switch_account">Konto wechseln</string>
+    <string name="switch_account_details">Möchten Sie die Verbindung zu %1$s trennen und das Konto wechseln?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
 
 </resources>
