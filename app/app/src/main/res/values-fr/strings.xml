@@ -214,6 +214,5 @@
     <string name="dismiss">Fermer</string>
     <string name="switch_account">Changer de compte</string>
     <string name="switch_account_details">Voulez-vous vous déconnecter de %1$s et changer de compte ?</string>
-    <string name="yes">Oui</string>
-    <string name="no">Non</string>
+    <string name="auth_code_loading">Chargement du code d\'authentification</string>
 </resources>

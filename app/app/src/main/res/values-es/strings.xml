@@ -212,6 +212,5 @@
     <string name="dismiss">Descarta</string>
     <string name="switch_account">Cambiar cuenta</string>
     <string name="switch_account_details">¿Quieres desconectarte de %1$s y cambiar de cuenta?</string>
-    <string name="yes">Sí</string>
-    <string name="no">No</string>
+    <string name="auth_code_loading">Cargando código de autenticación</string>
 </resources>

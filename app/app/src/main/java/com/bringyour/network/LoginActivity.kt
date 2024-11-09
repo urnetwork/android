@@ -4,28 +4,27 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.RemoteException
 import androidx.activity.compose.setContent
 import android.util.Log
-import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.bringyour.client.AuthNetworkClientArgs
 import com.bringyour.client.NetworkCreateArgs
 import com.bringyour.network.ui.LoginNavHost
-import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.ui.wallet.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+import kotlin.text.contains
+import kotlin.text.substringBefore
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -42,8 +41,7 @@ class LoginActivity : AppCompatActivity() {
     private var targetUrl: String? = null
     private var defaultLocation: String? = null
     private var switchToGuestMode = false
-    // private var targetNetworkName: String? = null
-
+    private var isLoadingAuthCode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,8 +54,10 @@ class LoginActivity : AppCompatActivity() {
         val action: String? = intent?.action
 
         if (Intent.ACTION_VIEW == action) {
+            Log.i(TAG, "Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
                 if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c" || u.scheme == "ur") {
+                    Log.i(TAG, "createWithUri $u")
                     createWithUri(u)
                 }
             }
@@ -122,7 +122,8 @@ class LoginActivity : AppCompatActivity() {
                     targetJwt = targetJwt,
                     currentNetworkName = currentNetworkName,
                     defaultLocation = defaultLocation,
-                    switchToGuestMode = switchToGuestMode
+                    switchToGuestMode = switchToGuestMode,
+                    isLoadingAuthCode = isLoadingAuthCode
                 )
             }
         }
@@ -139,6 +140,7 @@ class LoginActivity : AppCompatActivity() {
 
         val queryParameters = mutableMapOf<String, String>()
         for (name in uri.queryParameterNames) {
+            Log.i(TAG, "query parameter: $name")
             uri.getQueryParameter(name)?.let {
                 queryParameters[name] = it
             }
@@ -146,19 +148,26 @@ class LoginActivity : AppCompatActivity() {
         val authCode = queryParameters.remove("auth_code")
         val guest = queryParameters.remove("guest").toBoolean()
         targetUrl = queryParameters.remove("target")
-        defaultLocation = queryParameters.remove("default")
+
+        val queryString = uri.query
+        defaultLocation = if (queryString != null && queryString.contains('&')) {
+            URLDecoder.decode(queryString.substringBefore('&'), StandardCharsets.UTF_8.name())
+        } else {
+            URLDecoder.decode(queryString ?: "", StandardCharsets.UTF_8.name()) // Handle null or no '&'
+        }
 
         val localState = app.asyncLocalState
 
         if (authCode != null) {
+
+            isLoadingAuthCode = true
 
             loginViewModel.codeLogin(
                 authCode,
                 { authJwt ->
                     runBlocking(Dispatchers.Main.immediate) {
 
-                        // FIXME
-                        // start api to resolve auth code, show message in login screen until done
+                        isLoadingAuthCode = false
 
                         if (app.asyncLocalState?.localState?.byJwt == authJwt) {
                             // user already logged into this network
@@ -175,8 +184,6 @@ class LoginActivity : AppCompatActivity() {
                             targetJwt = authJwt
                             promptAccountSwitch = true
 
-
-                            // currentNetworkName = app.asyncLocalState?.localState?.byJwt
                             localState?.parseByJwt { jwt, _ ->
                                 currentNetworkName = jwt.networkName
                             }
@@ -194,9 +201,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             )
         } else if (guest) {
-            // FIXME
             // login as guest
-            // FIXME include queryParameters in launch main
 
             if (localState != null) {
                 localState.parseByJwt { jwt, _ ->
@@ -204,10 +209,8 @@ class LoginActivity : AppCompatActivity() {
                     if (jwt.guestMode) {
                         setLinksAndStartMain(targetUrl, defaultLocation)
                     } else {
-                        // targetJwt = authJwt
                         promptAccountSwitch = true
                         switchToGuestMode = true
-                        // FIXME otherwise confirm with the user if they want to switch account (do you want to disconnect and switch accounts)
                     }
                 }
             } else {
@@ -250,7 +253,6 @@ class LoginActivity : AppCompatActivity() {
             setLinksAndStartMain(targetUrl, defaultLocation)
         } else {
             // FIXME else, store query for when logging in
-
         }
     }
 

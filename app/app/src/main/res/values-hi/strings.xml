@@ -212,7 +212,6 @@
     <string name="dismiss">खारिज करें</string>
     <string name="switch_account">खाता बदलें</string>
     <string name="switch_account_details">क्या आप %1$s से डिस्कनेक्ट करना और खाते बदलना चाहते हैं?</string>
-    <string name="yes">हाँ</string>
-    <string name="no">नहीं</string>
+    <string name="auth_code_loading">ऑथ कोड लोड हो रहा है</string>
 
 </resources>

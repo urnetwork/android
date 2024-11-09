@@ -212,6 +212,5 @@
     <string name="dismiss">Ακύρωση</string>
     <string name="switch_account">Αλλαγή λογαριασμού</string>
     <string name="switch_account_details">Θέλετε να αποσυνδεθείτε από το %1$s και να αλλάξετε λογαριασμούς;</string>
-    <string name="yes">Ναι</string>
-    <string name="no">Όχι</string>
+    <string name="auth_code_loading">Φόρτωση κωδικού ελέγχου ταυτότητας</string>
 </resources>

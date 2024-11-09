@@ -235,7 +235,6 @@
     <string name="dismiss">Zamknij</string>
     <string name="switch_account">Przełącz konto</string>
     <string name="switch_account_details">Czy chcesz rozłączyć się z %1$s i przełączyć konta?</string>
-    <string name="yes">Tak</string>
-    <string name="no">Nie</string>
+    <string name="auth_code_loading">Ładowanie kodu uwierzytelniającego</string>
 
 </resources>

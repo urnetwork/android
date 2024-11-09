@@ -194,6 +194,5 @@
 
     <string name="switch_account">Switch Account</string>
     <string name="switch_account_details">Do you want to disconnect from %1$s and switch accounts?</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
+    <string name="auth_code_loading">Auth code loading</string>
 </resources>

@@ -235,6 +235,5 @@
     <string name="dismiss">閉じる</string>
     <string name="switch_account">アカウントを切り替える</string>
     <string name="switch_account_details">%1$s から切断してアカウントを切り替えますか？</string>
-    <string name="yes">はい</string>
-    <string name="no">いいえ</string>
+    <string name="auth_code_loading">認証コードを読み込んでいます</string>
 </resources>

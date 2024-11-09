@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
+import com.bringyour.network.ui.login.AuthCodeLoadingScreen
 import com.bringyour.network.ui.login.LoginCreateNetwork
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.login.LoginInitial
@@ -38,6 +39,7 @@ fun LoginNavHost(
     targetUrl: String? = null,
     defaultLocation: String? = null,
     switchToGuestMode: Boolean,
+    isLoadingAuthCode: Boolean,
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
 
@@ -50,131 +52,138 @@ fun LoginNavHost(
        modifier = Modifier.fillMaxSize()
     ) {
 
-        if (switchAccount && !currentNetworkName.isNullOrEmpty() && !targetJwt.isNullOrEmpty() && !defaultLocation.isNullOrEmpty()) {
-            SwitchAccountScreen(
-                currentNetworkName = currentNetworkName,
-                targetJwt = targetJwt,
-                targetUrl = targetUrl,
-                defaultLocation = defaultLocation,
-                switchToGuestMode = switchToGuestMode,
-                setSwitchAccount = setSwitchAccount
-            )
+        if (isLoadingAuthCode) {
+            AuthCodeLoadingScreen()
         } else {
-            NavHost(
-                navController = navController,
-                startDestination = "login-initial",
-                enterTransition = { slideInHorizontally(
-                    initialOffsetX = { fullWidth -> fullWidth },
-                    animationSpec = tween(durationMillis = 300)
-                ) + fadeIn(animationSpec = tween(300)
-                ) },
-                exitTransition = {
-                    if (isTv) {
-                        slideOutHorizontally (
-                            animationSpec = tween(durationMillis = 300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    } else {
-                        ExitTransition.None
-                    }
-                },
-                popEnterTransition = {
-                    fadeIn(animationSpec = tween(300))
-                },
-                popExitTransition = {
-                    slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> fullWidth },
+
+            if (switchAccount && !currentNetworkName.isNullOrEmpty() && !targetJwt.isNullOrEmpty() && !defaultLocation.isNullOrEmpty()) {
+                SwitchAccountScreen(
+                    currentNetworkName = currentNetworkName,
+                    targetJwt = targetJwt,
+                    targetUrl = targetUrl,
+                    defaultLocation = defaultLocation,
+                    switchToGuestMode = switchToGuestMode,
+                    setSwitchAccount = setSwitchAccount
+                )
+            } else {
+                NavHost(
+                    navController = navController,
+                    startDestination = "login-initial",
+                    enterTransition = { slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth },
                         animationSpec = tween(durationMillis = 300)
-                    )
+                    ) + fadeIn(animationSpec = tween(300)
+                    ) },
+                    exitTransition = {
+                        if (isTv) {
+                            slideOutHorizontally (
+                                animationSpec = tween(durationMillis = 300)
+                            ) + fadeOut(animationSpec = tween(300))
+                        } else {
+                            ExitTransition.None
+                        }
+                    },
+                    popEnterTransition = {
+                        fadeIn(animationSpec = tween(300))
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> fullWidth },
+                            animationSpec = tween(durationMillis = 300)
+                        )
+                    }
+                ) {
+
+                    composable("login-initial") {
+                        LoginInitial(
+                            navController,
+                            loginViewModel,
+                        )
+                    }
+
+                    composable("login-password/{userAuth}") { backStackEntry ->
+
+                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+
+                        LoginPassword(
+                            userAuth,
+                            navController
+                        )
+                    }
+
+                    composable("create-network/{userAuth}") { backStackEntry ->
+
+                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+
+                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateUserAuthParams(
+                            userAuth = userAuth,
+                        )
+
+                        LoginCreateNetwork(
+                            createNetworkParams,
+                            navController
+                        )
+                    }
+
+                    composable("create-network-jwt/{userAuth}/{authJwt}/{userName}") { backStackEntry ->
+
+                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+                        val authJwt = backStackEntry.arguments?.getString("authJwt") ?: ""
+                        val userName = backStackEntry.arguments?.getString("userName") ?: ""
+                        val authJwtType = "google"
+
+                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
+                            userAuth = userAuth,
+                            authJwtType = authJwtType,
+                            authJwt = authJwt,
+                            userName = userName
+                        )
+
+                        LoginCreateNetwork(
+                            createNetworkParams,
+                            navController
+                        )
+                    }
+
+                    composable("verify/{userAuth}") { backStackEntry ->
+
+                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+
+                        LoginVerify(
+                            userAuth,
+                            navController
+                        )
+                    }
+
+                    composable("reset-password/{userAuth}") { backStackEntry ->
+
+                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+
+                        LoginPasswordReset(
+                            userAuth,
+                            navController
+                        )
+                    }
+
+                    composable("reset-password-after-send/{userAuth}") { backStackEntry ->
+
+                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+
+                        LoginPasswordResetAfterSend(
+                            userAuth,
+                            navController
+                        )
+                    }
                 }
-            ) {
 
-                composable("login-initial") {
-                    LoginInitial(
-                        navController,
-                        loginViewModel,
-                    )
-                }
-
-                composable("login-password/{userAuth}") { backStackEntry ->
-
-                    val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-
-                    LoginPassword(
-                        userAuth,
-                        navController
-                    )
-                }
-
-                composable("create-network/{userAuth}") { backStackEntry ->
-
-                    val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-
-                    val createNetworkParams = LoginCreateNetworkParams.LoginCreateUserAuthParams(
-                        userAuth = userAuth,
-                    )
-
-                    LoginCreateNetwork(
-                        createNetworkParams,
-                        navController
-                    )
-                }
-
-                composable("create-network-jwt/{userAuth}/{authJwt}/{userName}") { backStackEntry ->
-
-                    val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-                    val authJwt = backStackEntry.arguments?.getString("authJwt") ?: ""
-                    val userName = backStackEntry.arguments?.getString("userName") ?: ""
-                    val authJwtType = "google"
-
-                    val createNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
-                        userAuth = userAuth,
-                        authJwtType = authJwtType,
-                        authJwt = authJwt,
-                        userName = userName
-                    )
-
-                    LoginCreateNetwork(
-                        createNetworkParams,
-                        navController
-                    )
-                }
-
-                composable("verify/{userAuth}") { backStackEntry ->
-
-                    val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-
-                    LoginVerify(
-                        userAuth,
-                        navController
-                    )
-                }
-
-                composable("reset-password/{userAuth}") { backStackEntry ->
-
-                    val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-
-                    LoginPasswordReset(
-                        userAuth,
-                        navController
-                    )
-                }
-
-                composable("reset-password-after-send/{userAuth}") { backStackEntry ->
-
-                    val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-
-                    LoginPasswordResetAfterSend(
-                        userAuth,
-                        navController
-                    )
-                }
+                FullScreenOverlay(
+                    referralCodeViewModel = null,
+                    overlayViewModel = overlayViewModel
+                )
             }
 
-            FullScreenOverlay(
-                referralCodeViewModel = null,
-                overlayViewModel = overlayViewModel
-            )
         }
+
     }
 
 }

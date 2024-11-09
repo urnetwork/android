@@ -202,7 +202,5 @@
     <string name="dismiss">Schließen</string>
     <string name="switch_account">Konto wechseln</string>
     <string name="switch_account_details">Möchten Sie die Verbindung zu %1$s trennen und das Konto wechseln?</string>
-    <string name="yes">Ja</string>
-    <string name="no">Nein</string>
-
+    <string name="auth_code_loading">Auth-Code wird geladen</string>
 </resources>

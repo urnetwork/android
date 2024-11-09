@@ -145,14 +145,8 @@ class MainActivity: AppCompatActivity() {
         // setStatusBarColor(color = Color.Transparent.toArgb(), false)
 
         val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
-//        val targetUrl = intent.getStringExtra("TARGET_URL")
-//        val defaultLocation = intent.getStringExtra("DEFAULT_LOCATION")
-
-        // for testing
-        // val targetUrl = "https://ur.io/ip"
-        val targetUrl = null
-        val defaultLocation = "zkjhdf"
-
+        val targetUrl = intent.getStringExtra("TARGET_URL")
+        val defaultLocation = intent.getStringExtra("DEFAULT_LOCATION")
 
         val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         val isTv = uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
