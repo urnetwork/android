@@ -147,12 +147,6 @@ fun LoginVerify(
                         delay(250)
                     }
 
-//                    loginActivity?.authClientAndFinish { error ->
-//                        verifyInProgress = false
-//
-//                        verifyError = error
-//                    }
-
                     loginActivity?.authClientAndFinish({ error ->
                         verifyInProgress = false
 

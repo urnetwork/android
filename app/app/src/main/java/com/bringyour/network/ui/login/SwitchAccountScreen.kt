@@ -36,8 +36,6 @@ fun SwitchAccountScreen(
     currentNetworkName: String,
     targetJwt: String?,
     switchToGuestMode: Boolean = false,
-    targetUrl: String?,
-    defaultLocation: String,
     setSwitchAccount: (Boolean) -> Unit
 ) {
 
@@ -80,8 +78,6 @@ fun SwitchAccountScreen(
                                 setCreateGuestNetworkError(error)
                                 setSwitchAccount(false)
                             },
-                            targetUrl = targetUrl,
-                            defaultLocation = defaultLocation
                         )
 
                     } else {
@@ -98,8 +94,6 @@ fun SwitchAccountScreen(
                 {err ->
                     setSwitchAccount(false)
                 },
-                targetUrl,
-                defaultLocation
             )
 
         } else {
@@ -173,8 +167,6 @@ private fun SwitchAccountScreenPreview() {
         SwitchAccountScreen(
             currentNetworkName = "URnetwork123",
             targetJwt = "abc",
-            targetUrl = "https://ur.io/ip",
-            defaultLocation = "California",
             setSwitchAccount = {}
         )
     }

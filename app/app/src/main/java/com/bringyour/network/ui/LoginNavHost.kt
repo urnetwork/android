@@ -60,8 +60,6 @@ fun LoginNavHost(
                 SwitchAccountScreen(
                     currentNetworkName = currentNetworkName,
                     targetJwt = targetJwt,
-                    targetUrl = targetUrl,
-                    defaultLocation = defaultLocation,
                     switchToGuestMode = switchToGuestMode,
                     setSwitchAccount = setSwitchAccount
                 )

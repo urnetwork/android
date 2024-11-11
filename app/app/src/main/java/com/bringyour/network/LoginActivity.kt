@@ -193,8 +193,6 @@ class LoginActivity : AppCompatActivity() {
 
                             authClientAndFinish(
                                 callback = {err -> },
-                                targetUrl = targetUrl,
-                                defaultLocation = defaultLocation
                             )
                         }
                     }
@@ -236,9 +234,7 @@ class LoginActivity : AppCompatActivity() {
                                     if (error != null) {
                                         Log.i(TAG, "authClientAndFinish error: $error")
                                     }
-                                },
-                                targetUrl = targetUrl,
-                                defaultLocation = defaultLocation
+                                }
                             )
 
                         } else {
@@ -251,8 +247,6 @@ class LoginActivity : AppCompatActivity() {
 
         } else if (app.byDevice != null) {
             setLinksAndStartMain(targetUrl, defaultLocation)
-        } else {
-            // FIXME else, store query for when logging in
         }
     }
 
@@ -278,8 +272,6 @@ class LoginActivity : AppCompatActivity() {
 
     fun authClientAndFinish(
         callback: (String?) -> Unit,
-        targetUrl: String? = null,
-        defaultLocation: String? = null
     ) {
         val app = app ?: return
 
@@ -304,10 +296,14 @@ class LoginActivity : AppCompatActivity() {
 
                     if (targetUrl != null) {
                         intent.putExtra("TARGET_URL", targetUrl)
+                        // clear targetUrl
+                        targetUrl = null
                     }
 
                     if (defaultLocation != null) {
                         intent.putExtra("DEFAULT_LOCATION", defaultLocation)
+                        // clear default location
+                        defaultLocation = null
                     }
 
                     startActivity(intent)
