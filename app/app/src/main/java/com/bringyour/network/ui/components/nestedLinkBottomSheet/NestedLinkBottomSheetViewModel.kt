@@ -1,9 +1,6 @@
 package com.bringyour.network.ui.components.nestedLinkBottomSheet
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.client.ConnectLocation
@@ -24,13 +21,6 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 ): ViewModel() {
 
     private var locationsVc: LocationsViewController? = null
-
-    // private var searchLoaded = false
-    var searchLoaded by mutableStateOf(false)
-        private set
-    private val setSearchLoaded: (Boolean) -> Unit = { sl ->
-        searchLoaded = sl
-    }
 
     private val _filterLocationsState = MutableStateFlow(FilterLocationsState.Loading)
     val filterLocationsState: StateFlow<FilterLocationsState> = _filterLocationsState.asStateFlow()
@@ -68,7 +58,7 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
                         _filterLocationsState.value = it
                     }
 
-                    setSearchLoaded(true)
+                    // setSearchLoaded(true)
                 }
             }
         }

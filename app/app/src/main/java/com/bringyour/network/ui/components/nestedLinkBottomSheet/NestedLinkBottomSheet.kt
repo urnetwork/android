@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.connect.ConnectStatus
 import com.bringyour.network.ui.connect.ConnectViewModel
+import com.bringyour.network.ui.connect.FilterLocationsState
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextFaint
@@ -59,6 +61,7 @@ fun NestedLinkBottomSheet(
 ) {
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
+    val fetchLocationsState by remember { nestedLinkBottomSheetViewModel.filterLocationsState }.collectAsState()
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
 
@@ -99,12 +102,12 @@ fun NestedLinkBottomSheet(
                 },
                 connectStatus = connectStatus,
                 searchLocationsCount = nestedLinkBottomSheetViewModel.searchLocationResults.size,
-                searchLoaded = nestedLinkBottomSheetViewModel.searchLoaded,
                 dismiss = {
                     scope.launch {
                         scaffoldState.bottomSheetState.hide()
                     }
-                }
+                },
+                locationsState = fetchLocationsState
             )
 
         }
@@ -121,14 +124,16 @@ private fun NestedLinkSheetContent(
     dismiss: () -> Unit,
     connectStatus: ConnectStatus,
     searchLocationsCount: Int,
-    searchLoaded: Boolean
+    locationsState: FilterLocationsState
 ) {
 
-    val headerText = if (searchLoaded && searchLocationsCount <= 0) stringResource(id = R.string.no_locations_found)
+    val noLocationsFound = locationsState == FilterLocationsState.Loaded && searchLocationsCount <= 0
+
+    val headerText = if (noLocationsFound) stringResource(id = R.string.no_locations_found)
         else if (targetLink.isNullOrEmpty()) stringResource(id = R.string.connect)
             else stringResource(id = R.string.connect_and_open)
 
-    val detailResourceId = if (searchLoaded && searchLocationsCount <= 0) R.string.no_locations_found_detail else if (targetLink.isNullOrEmpty()) R.string.connect_to_location else R.string.open_nested_link
+    val detailResourceId = if (noLocationsFound) R.string.no_locations_found_detail else if (targetLink.isNullOrEmpty()) R.string.connect_to_location else R.string.open_nested_link
 
     val actionTextResourceId = if (targetLink.isNullOrEmpty()) R.string.connect
         else R.string.connect_and_open
@@ -208,10 +213,10 @@ private fun NestedLinkSheetContent(
         )
 
         Spacer(
-            modifier = Modifier.height(42.dp)
+            modifier = Modifier.height(48.dp)
         )
 
-        if (searchLoaded && searchLocationsCount <= 0) {
+        if (noLocationsFound) {
             URButton(
                 onClick = dismiss,
             ) { buttonTextStyle ->
@@ -249,7 +254,7 @@ private fun NestedLinkSheetPreview() {
             confirm = {},
             connectStatus = ConnectStatus.DISCONNECTED,
             searchLocationsCount = 1,
-            searchLoaded = true,
+            locationsState = FilterLocationsState.Loaded,
             dismiss = {}
         )
     }
@@ -266,7 +271,7 @@ private fun NestedLinkSheetNoLocationsPreview() {
             confirm = {},
             connectStatus = ConnectStatus.DISCONNECTED,
             searchLocationsCount = 0,
-            searchLoaded = true,
+            locationsState = FilterLocationsState.Loaded,
             dismiss = {}
         )
     }
@@ -283,7 +288,7 @@ private fun NestedLinkSheetNoLinkPreview() {
             confirm = {},
             connectStatus = ConnectStatus.DISCONNECTED,
             searchLocationsCount = 1,
-            searchLoaded = true,
+            locationsState = FilterLocationsState.Loaded,
             dismiss = {}
         )
     }

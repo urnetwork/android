@@ -109,7 +109,7 @@ fun ProvidersBottomSheet(
         ),
         sheetContainerColor = Black,
         sheetContentColor = Black,
-        sheetPeekHeight = 94.dp,
+        sheetPeekHeight = 102.dp,
         sheetDragHandle = {},
         sheetContent = {
 
