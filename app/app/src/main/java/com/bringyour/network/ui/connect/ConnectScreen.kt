@@ -337,7 +337,8 @@ fun ConnectMainContent(
             ConnectStatusIndicator(
                 status = connectStatus,
                 windowCurrentSize = windowCurrentSize,
-                networkName = networkName
+                networkName = networkName,
+                guestMode = loginMode == LoginMode.Guest
             )
 
             Spacer(modifier = Modifier.height(16.dp))
