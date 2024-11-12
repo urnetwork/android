@@ -22,6 +22,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 @Composable
 fun ConnectStatusIndicator(
     networkName: String?,
+    guestMode: Boolean,
     status: ConnectStatus,
     windowCurrentSize: Int,
 ) {
@@ -30,7 +31,7 @@ fun ConnectStatusIndicator(
         ConnectStatus.CONNECTED -> "Connected to $windowCurrentSize providers"
         ConnectStatus.CONNECTING -> "Connecting to providers..."
         ConnectStatus.DESTINATION_SET -> "Connecting to providers..."
-        ConnectStatus.DISCONNECTED -> if (networkName != null) "$networkName is ready to connect"
+        ConnectStatus.DISCONNECTED -> if (guestMode) "Ready to connect" else if (networkName != null) "$networkName is ready to connect"
         else ""
     }
 
@@ -79,7 +80,8 @@ fun ConnectStatusIndicatorDisconnected() {
         ConnectStatusIndicator(
             status = ConnectStatus.DISCONNECTED,
             windowCurrentSize = 0,
-            networkName = "my_network"
+            networkName = "my_network",
+            guestMode = false,
         )
     }
 }
@@ -91,7 +93,8 @@ fun ConnectStatusIndicatorConnecting() {
         ConnectStatusIndicator(
             status = ConnectStatus.CONNECTING,
             windowCurrentSize = 12,
-            networkName = "my_network"
+            networkName = "my_network",
+            guestMode = false
         )
     }
 }
@@ -103,7 +106,21 @@ fun ConnectStatusIndicatorConnected() {
         ConnectStatusIndicator(
             status = ConnectStatus.CONNECTED,
             windowCurrentSize = 32,
-            networkName = "my_network"
+            networkName = "my_network",
+            guestMode = false
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ConnectStatusIndicatorGuestMode() {
+    URNetworkTheme {
+        ConnectStatusIndicator(
+            status = ConnectStatus.DISCONNECTED,
+            windowCurrentSize = 32,
+            networkName = "guest1244567",
+            guestMode = true
         )
     }
 }

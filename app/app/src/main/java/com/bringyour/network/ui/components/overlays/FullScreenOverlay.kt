@@ -76,17 +76,14 @@ fun FullScreenOverlay(
     }
 
     // Onboarding overlay
+    // todo - this is not being used
     AnimatedVisibility(
         visible = overlayMode == OverlayMode.Onboarding,
         enter = enterTransition,
         exit = exitTransition,
     ) {
 
-        OnboardingOverlay(
-            onDismiss = {
-                overlayViewModel.launch(null)
-            }
-        )
+        OnboardingOverlay()
     }
 
     // Plan upgrade
