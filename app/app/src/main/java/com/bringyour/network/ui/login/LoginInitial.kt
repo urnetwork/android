@@ -476,86 +476,92 @@ fun LoginInitialActions(
 
     }
 
-    Column(
-        modifier = Modifier
-            .widthIn(max = 512.dp),
-        horizontalAlignment = Alignment.Start
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     ) {
-        URTextInput(
-            value = userAuth,
-            onValueChange = {
-                setUserAuth(it)
-            },
-            placeholder = stringResource(id = R.string.user_auth_placeholder),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = if (isValidUserAuth) ImeAction.Go else ImeAction.Done
-            ),
-            onGo = {
-                onLogin()
-            },
-            label = stringResource(id = R.string.user_auth_label)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        URButton(
-            onClick = {
-                onLogin()
-            },
-            enabled = !userAuthInProgress && isValidUserAuth,
-            isProcessing = userAuthInProgress
-        ) { buttonTextStyle ->
-            Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+                .widthIn(max = 512.dp),
+            horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                "or",
-                color = TextMuted
+            URTextInput(
+                value = userAuth,
+                onValueChange = {
+                    setUserAuth(it)
+                },
+                placeholder = stringResource(id = R.string.user_auth_placeholder),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = if (isValidUserAuth) ImeAction.Go else ImeAction.Done
+                ),
+                onGo = {
+                    onLogin()
+                },
+                label = stringResource(id = R.string.user_auth_label)
             )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        URButton(
-            style = ButtonStyle.SECONDARY,
-            onClick = {
-                onGoogleLogin()
-            },
-            enabled = !googleAuthInProgress
-        ) { buttonTextStyle ->
+            URButton(
+                onClick = {
+                    onLogin()
+                },
+                enabled = !userAuthInProgress && isValidUserAuth,
+                isProcessing = userAuthInProgress
+            ) { buttonTextStyle ->
+                Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
             ) {
-
-                // todo - this looks a little blurry
-                Image(
-                    painter = painterResource(id = R.drawable.google_login_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-
                 Text(
-                    stringResource(id = R.string.google_auth_btn_text),
-                    style = buttonTextStyle
+                    "or",
+                    color = TextMuted
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = {
+                    onGoogleLogin()
+                },
+                enabled = !googleAuthInProgress
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    // todo - this looks a little blurry
+                    Image(
+                        painter = painterResource(id = R.drawable.google_login_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        stringResource(id = R.string.google_auth_btn_text),
+                        style = buttonTextStyle
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TryGuestMode(
+                setGuestModeOverlayVisible = setGuestModeOverlayVisible
+            )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TryGuestMode(
-            setGuestModeOverlayVisible = setGuestModeOverlayVisible
-        )
     }
+
 }
 
 @Composable
