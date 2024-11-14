@@ -568,6 +568,7 @@ fun ExternalWalletScreenContent(
                 .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
 
             Row(
