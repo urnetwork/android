@@ -207,14 +207,14 @@ private fun ConnectMobileAndTablet(
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 
-//    ProvidersBottomSheet(
-//        scaffoldState,
-//        connect = connectViewModel.connect,
-//        selectedLocation = connectViewModel.selectedLocation,
-//        locationsViewModel = locationsViewModel
-//    ) { _ ->
+    ProvidersBottomSheet(
+        scaffoldState,
+        connect = connectViewModel.connect,
+        selectedLocation = connectViewModel.selectedLocation,
+        locationsViewModel = locationsViewModel
+    ) { _ ->
 
-    NestedScrollBottomSheet {
+    // NestedScrollBottomSheet {
 
         Box(
             modifier = Modifier
