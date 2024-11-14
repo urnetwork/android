@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,19 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import com.bringyour.client.ConnectGrid
 import com.bringyour.client.ConnectLocation
@@ -49,7 +40,6 @@ import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
-import com.bringyour.network.ui.components.NestedScrollBottomSheet
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -60,7 +50,6 @@ import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.utils.isTv
-import kotlinx.coroutines.launch
 
 @Composable
 fun ConnectScreen(
@@ -214,8 +203,6 @@ private fun ConnectMobileAndTablet(
         locationsViewModel = locationsViewModel
     ) { _ ->
 
-    // NestedScrollBottomSheet {
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -292,15 +279,7 @@ fun ConnectMainContent(
 
     }
 
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Black)
-//            .padding(16.dp),
-//    ) {
-        Column(
-            // modifier = Modifier.padding(bottom = 112.dp)
-        ) {
+        Column() {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -375,11 +354,7 @@ fun ConnectMainContent(
 
                 }
             }
-
-            // Spacer(modifier = Modifier.height(112.dp))
-
         }
-    // }
 }
 
 @Preview

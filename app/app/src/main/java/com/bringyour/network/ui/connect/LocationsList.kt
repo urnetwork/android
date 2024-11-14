@@ -2,6 +2,7 @@ package com.bringyour.network.ui.connect
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import com.bringyour.client.ConnectLocation
 import androidx.compose.foundation.lazy.items
@@ -48,7 +50,8 @@ fun LocationsList(
     selectedLocation: ConnectLocation?,
     getLocationColor: (String) -> Color,
     onRefresh: () -> Unit,
-    onFocusChanged: () -> Unit = {}
+    onFocusChanged: () -> Unit = {},
+    listState: LazyListState
 ) {
 
     val lazyListState = rememberLazyListState()
@@ -100,7 +103,9 @@ fun LocationsList(
 //        ) {
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize(),
+                state = listState
                 // flingBehavior = flingBehavior
                 // verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
