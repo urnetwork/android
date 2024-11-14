@@ -49,6 +49,7 @@ import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.NestedScrollBottomSheet
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -206,12 +207,14 @@ private fun ConnectMobileAndTablet(
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 
-    ProvidersBottomSheet(
-        scaffoldState,
-        connect = connectViewModel.connect,
-        selectedLocation = connectViewModel.selectedLocation,
-        locationsViewModel = locationsViewModel
-    ) { _ ->
+//    ProvidersBottomSheet(
+//        scaffoldState,
+//        connect = connectViewModel.connect,
+//        selectedLocation = connectViewModel.selectedLocation,
+//        locationsViewModel = locationsViewModel
+//    ) { _ ->
+
+    NestedScrollBottomSheet {
 
         Box(
             modifier = Modifier
