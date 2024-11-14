@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.client.AuthLoginWithPasswordArgs
+import com.bringyour.sdk.AuthLoginWithPasswordArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R

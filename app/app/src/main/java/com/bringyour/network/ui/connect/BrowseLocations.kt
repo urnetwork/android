@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.bringyour.client.ConnectLocation
+import com.bringyour.sdk.ConnectLocation
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.Black

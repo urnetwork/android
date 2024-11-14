@@ -6,11 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.Client
-import com.bringyour.client.NetworkNameValidationViewController
-import com.bringyour.client.NetworkUser
-import com.bringyour.client.NetworkUserViewController
-import com.bringyour.client.Sub
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.NetworkNameValidationViewController
+import com.bringyour.sdk.NetworkUser
+import com.bringyour.sdk.NetworkUserViewController
+import com.bringyour.sdk.Sub
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -144,7 +144,7 @@ class ProfileViewModel @Inject constructor(
 
         networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
 
-        networkNameValidationVc = Client.newNetworkNameValidationViewController(
+        networkNameValidationVc = Sdk.newNetworkNameValidationViewController(
             networkSpaceManagerProvider.getNetworkSpace()?.api
         )
 

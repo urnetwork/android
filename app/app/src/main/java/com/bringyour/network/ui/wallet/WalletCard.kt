@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.client.Id
+import com.bringyour.sdk.Id
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.gravityCondensedFamily

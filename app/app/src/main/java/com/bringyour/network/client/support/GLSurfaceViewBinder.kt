@@ -1,4 +1,4 @@
-package com.bringyour.client.support
+package com.bringyour.sdk.support
 
 import android.graphics.PixelFormat
 import android.opengl.GLSurfaceView
@@ -6,8 +6,8 @@ import android.opengl.GLSurfaceView.RENDERMODE_WHEN_DIRTY
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import com.bringyour.client.GLViewCallback
-import com.bringyour.client.GLViewController
+import com.bringyour.sdk.GLViewCallback
+import com.bringyour.sdk.GLViewController
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 

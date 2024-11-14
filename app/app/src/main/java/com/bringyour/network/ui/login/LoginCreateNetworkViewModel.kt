@@ -7,9 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.Client
-import com.bringyour.client.NetworkCreateArgs
-import com.bringyour.client.NetworkNameValidationViewController
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.NetworkCreateArgs
+import com.bringyour.sdk.NetworkNameValidationViewController
 import com.bringyour.network.NetworkSpaceManagerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -136,7 +136,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
     }
 
     init {
-        networkNameValidationVc = Client.newNetworkNameValidationViewController(
+        networkNameValidationVc = Sdk.newNetworkNameValidationViewController(
             networkSpaceManagerProvider.getNetworkSpace()?.api
         )
     }

@@ -10,8 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.AccountPreferencesViewController
-import com.bringyour.client.Client
+import com.bringyour.sdk.AccountPreferencesViewController
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext

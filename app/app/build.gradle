@@ -245,11 +245,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     // see https://developer.android.com/reference/tools/gradle-api/7.4/com/android/build/api/dsl/BuildFeatures
     buildFeatures {
@@ -263,7 +263,7 @@ android {
     }
 
     tasks.register('goclientBuild', Exec) {
-        workingDir "${bringyourHomeDir}/bringyour/client"
+        workingDir "${bringyourHomeDir}/sdk"
         commandLine 'make', 'clean', 'build_android'
     }
 
@@ -278,8 +278,8 @@ dependencies {
     // see https://developer.android.com/build/dependencies#groovy
     //    implementation name: 'client', ext: 'aar'
 
-    compileOnly fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*-sources.jar'])
-    implementation fileTree(dir: "${bringyourHomeDir}/bringyour/client/build/android", include: ['*.aar', '*.jar'])
+    compileOnly fileTree(dir: "${bringyourHomeDir}/sdk/build/android", include: ['*-sources.jar'])
+    implementation fileTree(dir: "${bringyourHomeDir}/sdk/build/android", include: ['*.aar', '*.jar'])
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
@@ -363,4 +363,10 @@ dependencies {
 // Allow references to generated code
 kapt {
     correctErrorTypes = true
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
