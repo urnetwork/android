@@ -64,11 +64,25 @@ class LoginActivity : AppCompatActivity() {
 
         }
 
+//        // for testing
+//        if (true) {
+//            // create new uri
+//            val uri = Uri.Builder()
+//                .scheme("https")
+//                .authority("ur.io")
+//                .appendPath("c")
+//                .appendQueryParameter("japan", "")
+//                .appendQueryParameter("guest", "true")
+//                // .appendPath("/c?japan&guest=true")
+//                .build()
+//            createWithUri(uri)
+//        }
+
         // FIXME google play referrer
         else if (app.byDevice != null) {
             navigateToMain()
             return
-        } else { //FIXME else (app.canRefer) {
+        } else if (app.byDeviceManager.canRefer) {
             // fresh install, async check the install referrer
             // see https://developer.android.com/google/play/installreferrer/library
 
@@ -94,8 +108,7 @@ class LoginActivity : AppCompatActivity() {
                                 }
                             }
                         } finally {
-                            // FIXME take the referral only once per install
-//                            app.canRefer = false
+                            app.byDeviceManager.canRefer = false
 
                             referrerClient?.endConnection()
                             referrerClient = null
@@ -156,6 +169,8 @@ class LoginActivity : AppCompatActivity() {
             URLDecoder.decode(queryString ?: "", StandardCharsets.UTF_8.name()) // Handle null or no '&'
         }
 
+        defaultLocation = defaultLocation?.removeSuffix("=")
+
         val localState = app.asyncLocalState
 
         if (authCode != null) {
@@ -207,6 +222,7 @@ class LoginActivity : AppCompatActivity() {
                     if (jwt.guestMode) {
                         setLinksAndStartMain(targetUrl, defaultLocation)
                     } else {
+                        currentNetworkName = jwt.networkName
                         promptAccountSwitch = true
                         switchToGuestMode = true
                     }

@@ -42,7 +42,6 @@ fun LoginNavHost(
     isLoadingAuthCode: Boolean,
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
-
     val navController = rememberNavController()
     val isTv = isTv()
 
@@ -56,7 +55,7 @@ fun LoginNavHost(
             AuthCodeLoadingScreen()
         } else {
 
-            if (switchAccount && !currentNetworkName.isNullOrEmpty() && !targetJwt.isNullOrEmpty() && !defaultLocation.isNullOrEmpty()) {
+            if (switchAccount && !currentNetworkName.isNullOrEmpty() && !defaultLocation.isNullOrEmpty()) {
                 SwitchAccountScreen(
                     currentNetworkName = currentNetworkName,
                     targetJwt = targetJwt,
