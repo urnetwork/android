@@ -2,8 +2,8 @@ package com.bringyour.network
 
 import android.os.ParcelFileDescriptor
 import android.util.Log
-import com.bringyour.client.BringYourDevice
-import com.bringyour.client.ReceivePacket
+import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.ReceivePacket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream

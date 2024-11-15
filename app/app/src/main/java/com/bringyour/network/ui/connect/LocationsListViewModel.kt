@@ -9,10 +9,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.ConnectLocation
-import com.bringyour.client.ConnectLocationList
-import com.bringyour.client.LocationsViewController
-import com.bringyour.client.Sub
+import com.bringyour.sdk.ConnectLocation
+import com.bringyour.sdk.ConnectLocationList
+import com.bringyour.sdk.LocationsViewController
+import com.bringyour.sdk.Sub
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

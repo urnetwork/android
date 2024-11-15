@@ -47,8 +47,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.client.ConnectLocation
 import com.bringyour.network.R
+import com.bringyour.sdk.ConnectLocation
 import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.BlueMedium

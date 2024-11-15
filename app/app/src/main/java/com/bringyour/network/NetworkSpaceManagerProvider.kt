@@ -1,8 +1,8 @@
 package com.bringyour.network
 
-import com.bringyour.client.Client
-import com.bringyour.client.NetworkSpace
-import com.bringyour.client.NetworkSpaceManager
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.NetworkSpace
+import com.bringyour.sdk.NetworkSpaceManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,7 +13,7 @@ class NetworkSpaceManagerProvider @Inject constructor() {
     private var networkSpace: NetworkSpace? = null
 
     val init: (filesDirPath: String) -> Unit = { filesDirPath ->
-        networkSpaceManager = Client.newNetworkSpaceManager(filesDirPath)
+        networkSpaceManager = Sdk.newNetworkSpaceManager(filesDirPath)
         // networkSpaceManager
     }
 

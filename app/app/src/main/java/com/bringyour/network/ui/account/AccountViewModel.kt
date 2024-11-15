@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.NetworkUser
-import com.bringyour.client.NetworkUserViewController
+import com.bringyour.sdk.NetworkUser
+import com.bringyour.sdk.NetworkUserViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.ui.components.LoginMode
