@@ -52,13 +52,12 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 
                     filteredLocation?.let {
                         searchLocationResults.addAll(makeConnectLocationCollection(it.bestMatches))
+                        searchLocationResults.addAll(makeConnectLocationCollection(it.devices))
                     }
 
                     FilterLocationsState.fromString(state)?.let {
                         _filterLocationsState.value = it
                     }
-
-                    // setSearchLoaded(true)
                 }
             }
         }
