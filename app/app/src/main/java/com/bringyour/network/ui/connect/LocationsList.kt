@@ -1,10 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,25 +13,13 @@ import com.bringyour.sdk.ConnectLocation
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Red400
 
-private val flingBehavior = object : FlingBehavior {
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        return 0F
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LocationsList(
     searchQuery: String,
@@ -53,18 +36,6 @@ fun LocationsList(
     onFocusChanged: () -> Unit = {},
     listState: LazyListState
 ) {
-
-    val lazyListState = rememberLazyListState()
-
-//    val nestedScrollConnection = remember {
-//        object : NestedScrollConnection {
-//            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-//                // Check if LazyColumn is at the top or bottom and prevent BottomSheet from intercepting scrolls
-//                val canScrollVertically = lazyListState.
-//                return if (canScrollVertically) Offset.Zero else available
-//            }
-//        }
-//    }
 
     if (
         promotedLocations.isEmpty() &&
@@ -98,15 +69,10 @@ fun LocationsList(
     } else {
         // success
 
-//        CompositionLocalProvider (
-//            LocalOverscrollConfiguration provides null
-//        ) {
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize(),
                 state = listState
-                // flingBehavior = flingBehavior
                 // verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
