@@ -205,4 +205,13 @@
     <string name="provide_disconnected">离线提供</string>
     <string name="unpaid_mb">已提供的未付兆字节</string>
     <string name="payouts_amount_threshold">付款每两周进行一次，并且需要提供最低金额才能收到付款。</string>
+    <string name="open_nested_link">连接到 %1$s 并打开链接 %2$s</string>
+    <string name="connect_and_open">连接并打开链接</string>
+    <string name="connect_to_location">连接到 %1$s</string>
+    <string name="no_locations_found">未找到任何位置</string>
+    <string name="no_locations_found_detail">抱歉，我们找不到与 %1$s 相关的任何位置。</string>
+    <string name="dismiss">关闭</string>
+    <string name="switch_account">切换帐户</string>
+    <string name="switch_account_details">您要断开与 %1$s 的连接并切换帐户吗？</string>
+    <string name="auth_code_loading">正在加载身份验证代码</string>
 </resources>

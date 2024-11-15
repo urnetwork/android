@@ -48,8 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.client.AuthVerifyArgs
-import com.bringyour.client.AuthVerifySendArgs
+import com.bringyour.sdk.AuthVerifyArgs
+import com.bringyour.sdk.AuthVerifySendArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
@@ -147,11 +147,11 @@ fun LoginVerify(
                         delay(250)
                     }
 
-                    loginActivity?.authClientAndFinish { error ->
+                    loginActivity?.authClientAndFinish({ error ->
                         verifyInProgress = false
 
                         verifyError = error
-                    }
+                    })
                 } else {
                     verifyError = context.getString(R.string.verify_error)
                 }

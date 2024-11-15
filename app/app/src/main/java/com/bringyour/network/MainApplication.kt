@@ -15,15 +15,15 @@ import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.core.content.ContextCompat
 import circle.programmablewallet.sdk.presentation.SettingsManagement
-import com.bringyour.client.AccountViewController
-import com.bringyour.client.Client
-import com.bringyour.client.DevicesViewController
-import com.bringyour.client.LoginViewController
+import com.bringyour.sdk.AccountViewController
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.DevicesViewController
+import com.bringyour.sdk.LoginViewController
 import com.bringyour.network.ui.account.CircleLayoutProvider
 import com.bringyour.network.ui.account.CircleViewSetterProvider
 import dagger.hilt.android.HiltAndroidApp
-import com.bringyour.client.NetworkSpace
-import com.bringyour.client.Sub
+import com.bringyour.sdk.NetworkSpace
+import com.bringyour.sdk.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -113,7 +113,7 @@ class MainApplication : Application() {
 
         val networkSpaceManager = networkSpaceManagerProvider.getNetworkSpaceManager()
 
-        val key = Client.newNetworkSpaceKey(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
+        val key = Sdk.newNetworkSpaceKey(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
         val bundleNetworkSpaceExists = networkSpaceManager?.getNetworkSpace(key) != null
         val bundleNetworkSpace = networkSpaceManager?.updateNetworkSpace(key) { values ->
             // migrate specific bundled fields to the latest from the build
@@ -159,7 +159,7 @@ class MainApplication : Application() {
 
         networkSpaceManagerProvider.setNetworkSpace(networkSpace)
 
-        loginVc = Client.newLoginViewController(api)
+        loginVc = Sdk.newLoginViewController(api)
 
         if (networkSpace.wallet == "circle" || networkSpace.wallet == "all") {
             initCircleWallet()

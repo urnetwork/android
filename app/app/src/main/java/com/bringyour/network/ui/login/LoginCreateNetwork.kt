@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
@@ -55,7 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.client.NetworkCreateArgs
+import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
@@ -219,11 +221,13 @@ fun LoginCreateNetwork(
 
                     delay(250)
 
-                    loginActivity?.authClientAndFinish { error ->
-                        inProgress = false
+                    loginActivity?.authClientAndFinish(
+                        { error ->
+                            inProgress = false
 
-                        createNetworkError = error
-                    }
+                            createNetworkError = error
+                        }
+                    )
                 } else if (result.verificationRequired != null) {
                     createNetworkError = null
 
@@ -294,7 +298,6 @@ fun LoginCreateNetwork(
         ) { innerPadding ->
 
             if (isTv()) {
-                // mobile or tablet
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -405,7 +408,6 @@ fun LoginCreateNetwork(
 private fun NetworkCreateForm(
     params: LoginCreateNetworkParams,
     emailOrPhone: TextFieldValue,
-    // setEmailOrPhone: (TextFieldValue) -> Unit,
     networkName: TextFieldValue,
     setNetworkName: (TextFieldValue) -> Unit,
     validateNetworkName: (String) -> Unit,
@@ -422,107 +424,110 @@ private fun NetworkCreateForm(
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    Column(
-        modifier = Modifier
-            // .wrapContentHeight()
-            .imePadding()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     ) {
+        Column(
+            modifier = Modifier
+                .imePadding()
+                .widthIn(max = 512.dp)
+        ) {
 
-        if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                URTextInput(
+                    label = stringResource(id = R.string.user_auth_label),
+                    value = emailOrPhone,
+                    onValueChange = {},
+                    enabled = false,
+                    placeholder = stringResource(id = R.string.user_auth_placeholder),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                )
+            }
+
             URTextInput(
-                label = stringResource(id = R.string.user_auth_label),
-                value = emailOrPhone,
-                onValueChange = {},
-                enabled = false,
-                placeholder = stringResource(id = R.string.user_auth_placeholder),
+                label = stringResource(id = R.string.network_name_label),
+                value = networkName,
+                onValueChange = { newValue ->
+                    val originalCursorPosition = newValue.selection.start
+
+                    val filteredText = networkNameInputFilter(newValue.text)
+                    val cursorOffset = newValue.text.length - filteredText.length
+                    val newCursorPosition =
+                        (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
+
+                    val newNetworkName = newValue.copy(
+                        text = filteredText,
+                        selection = TextRange(newCursorPosition)
+                    )
+
+                    setNetworkName(newNetworkName)
+
+                    debounceJob?.cancel()
+                    debounceJob = coroutineScope.launch {
+                        delay(500L)
+                        validateNetworkName(newNetworkName.text)
+                    }
+                },
+                placeholder = stringResource(id = R.string.network_name_placeholder),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
+                    keyboardType = KeyboardType.Text,
+                    imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
+                        ImeAction.Next else ImeAction.Done
                 ),
+                isValidating = isValidatingNetworkName,
+                isValid = !networkNameErrorExists,
+                supportingText = networkNameSupportingText
             )
-        }
 
-        URTextInput(
-            label = stringResource(id = R.string.network_name_label),
-            value = networkName,
-            onValueChange = { newValue ->
-                val originalCursorPosition = newValue.selection.start
+            if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
 
-                val filteredText = networkNameInputFilter(newValue.text)
-                val cursorOffset = newValue.text.length - filteredText.length
-                val newCursorPosition =
-                    (originalCursorPosition - cursorOffset).coerceIn(0, filteredText.length)
+                URTextInput(
+                    label = stringResource(id = R.string.password_label),
+                    value = password,
+                    onValueChange = setPassword,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    isPassword = true,
+                    supportingText = stringResource(id = R.string.password_support_txt)
+                )
+            }
 
-                val newNetworkName = newValue.copy(
-                    text = filteredText,
-                    selection = TextRange(newCursorPosition)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row {
+
+                TermsCheckbox(
+                    checked = termsAgreed,
+                    onCheckChanged = setTermsAgreed
                 )
 
-                setNetworkName(newNetworkName)
+            }
 
-                debounceJob?.cancel()
-                debounceJob = coroutineScope.launch {
-                    delay(500L)
-                    validateNetworkName(newNetworkName.text)
-                }
-            },
-            placeholder = stringResource(id = R.string.network_name_placeholder),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
-                    ImeAction.Next else ImeAction.Done
-            ),
-            isValidating = isValidatingNetworkName,
-            isValid = !networkNameErrorExists,
-            supportingText = networkNameSupportingText
-        )
+            Spacer(modifier = Modifier.height(48.dp))
 
-        if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
-
-            URTextInput(
-                label = stringResource(id = R.string.password_label),
-                value = password,
-                onValueChange = setPassword,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                isPassword = true,
-                supportingText = stringResource(id = R.string.password_support_txt)
-            )
-        }
-
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row {
-
-            TermsCheckbox(
-                checked = termsAgreed,
-                onCheckChanged = setTermsAgreed
-            )
-
-        }
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        URButton(
-            onClick = {
-                // createNetwork()
-                onCreateNetwork()
-            },
-            enabled = isBtnEnabled
-        ) { buttonTextStyle ->
-            Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
-            Spacer(modifier = Modifier.width(4.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Right Arrow",
-                modifier = Modifier.size(16.dp),
-                tint = if (isBtnEnabled) Color.White else Color.Gray
-            )
+            URButton(
+                onClick = {
+                    // createNetwork()
+                    onCreateNetwork()
+                },
+                enabled = isBtnEnabled
+            ) { buttonTextStyle ->
+                Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Right Arrow",
+                    modifier = Modifier.size(16.dp),
+                    tint = if (isBtnEnabled) Color.White else Color.Gray
+                )
+            }
         }
     }
 }

@@ -1,10 +1,10 @@
 package com.bringyour.network
 
-import com.bringyour.client.BringYourDevice
-import com.bringyour.client.Client
+import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.Sdk
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.bringyour.client.NetworkSpace
+import com.bringyour.sdk.NetworkSpace
 
 @Singleton
 class ByDeviceManager @Inject constructor() {
@@ -29,6 +29,13 @@ class ByDeviceManager @Inject constructor() {
 
     var canShowRatingDialog: Boolean
         get() = byDevice?.canShowRatingDialog!!
+        set(it) {
+            asyncLocalState?.localState?.canShowRatingDialog = it
+            byDevice?.canShowRatingDialog = it
+        }
+
+    var canRefer: Boolean
+        get() = if (byDevice == null) false else byDevice?.canRefer!!
         set(it) {
             asyncLocalState?.localState?.canShowRatingDialog = it
             byDevice?.canShowRatingDialog = it
@@ -83,10 +90,11 @@ class ByDeviceManager @Inject constructor() {
         val connectLocation = localState.connectLocation
         val canShowRatingDialog = localState.canShowRatingDialog
         val provideWhileDisconnected = localState.provideWhileDisconnected
-        val provideMode = if (provideWhileDisconnected) Client.ProvideModePublic else localState.provideMode
+        val provideMode = if (provideWhileDisconnected) Sdk.ProvideModePublic else localState.provideMode
         val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
+        val canRefer = localState.canRefer
 
-        byDevice = Client.newBringYourDeviceWithDefaults(
+        byDevice = Sdk.newBringYourDeviceWithDefaults(
             networkSpace,
             byClientJwt,
             deviceDescription,
@@ -109,6 +117,7 @@ class ByDeviceManager @Inject constructor() {
         byDevice?.canShowRatingDialog = canShowRatingDialog
         byDevice?.provideWhileDisconnected = provideWhileDisconnected
         byDevice?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
+        byDevice?.canRefer = canRefer
 
 //        connectVc = byDevice?.openConnectViewControllerV0()
     }

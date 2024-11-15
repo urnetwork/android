@@ -204,4 +204,13 @@
     <string name="provide_disconnected">Proporcionar sin conexión</string>
     <string name="unpaid_mb">Megabytes no pagados proporcionados</string>
     <string name="payouts_amount_threshold">Los pagos se realizan cada dos semanas y requieren una cantidad mínima proporcionada para recibir un pago.</string>
+    <string name="open_nested_link">Conectar a %1$s y abrir enlace %2$s</string>
+    <string name="connect_and_open">Conectar y abrir enlace</string>
+    <string name="connect_to_location">Conectar a %1$s</string>
+    <string name="no_locations_found">No se encontraron ubicaciones</string>
+    <string name="no_locations_found_detail">Lo sentimos, no pudimos encontrar ninguna ubicación relacionada con %1$s.</string>
+    <string name="dismiss">Descarta</string>
+    <string name="switch_account">Cambiar cuenta</string>
+    <string name="switch_account_details">¿Quieres desconectarte de %1$s y cambiar de cuenta?</string>
+    <string name="auth_code_loading">Cargando código de autenticación</string>
 </resources>

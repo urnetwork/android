@@ -205,4 +205,13 @@
     <string name="provide_disconnected">Toa wakati hujaunganishwa</string>
     <string name="unpaid_mb">Megabytes ambazo hazijalipwa zimetolewa</string>
     <string name="payouts_amount_threshold">Malipo hutolewa kila baada ya wiki mbili, na yanahitaji kiwango cha chini kilichotolewa ili kupokea malipo.</string>
+    <string name="open_nested_link">Unganisha kwa %1$s na ufungue kiungo %2$s</string>
+    <string name="connect_and_open">Unganisha na ufungue kiungo</string>
+    <string name="connect_to_location">Unganisha kwa %1$s</string>
+    <string name="no_locations_found">Hakuna maeneo yaliyopatikana</string>
+    <string name="no_locations_found_detail">Samahani, hatukuweza kupata maeneo yoyote yanayohusiana na %1$s.</string>
+    <string name="dismiss">Futa</string>
+    <string name="switch_account">Badilisha Akaunti</string>
+    <string name="switch_account_details">Je, unataka kukata muunganisho kutoka %1$s na kubadilisha akaunti?</string>
+    <string name="auth_code_loading">Kupakia msimbo wa uthibitishaji</string>
 </resources>

@@ -54,10 +54,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.bringyour.client.ConnectGrid
-import com.bringyour.client.Id
-import com.bringyour.client.Time
-import com.bringyour.client.ProviderGridPoint
+import com.bringyour.sdk.ConnectGrid
+import com.bringyour.sdk.Id
+import com.bringyour.sdk.Time
+import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium

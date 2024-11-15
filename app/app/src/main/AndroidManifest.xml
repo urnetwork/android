@@ -55,8 +55,9 @@
         android:networkSecurityConfig="@xml/network_security_config"
         >
 
-        <!-- FIXME LoginActivity is the launcher. On create, check for client token, and if present finish and launch mainactivity -->
-
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
         <property android:name="android.net.PROPERTY_SELF_CERTIFIED_NETWORK_CAPABILITIES" android:resource="@xml/self_certified_network_capabilities"/>
 
         <activity
@@ -72,6 +73,24 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+
+            <!-- see https://developer.android.com/training/app-links/deep-linking -->
+            <!-- see https://developer.android.com/training/app-links/verify-android-applinks -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="ur.io" />
+                <data android:pathPrefix="/c" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="ur" />
             </intent-filter>
         </activity>
 

@@ -56,6 +56,7 @@ import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.isTv
 
 enum class LoginMode {
     Guest, Authenticated
@@ -293,7 +294,7 @@ fun PopupActionRow(
         }
     }
 
-    if (focusRequester != null) {
+    if (focusRequester != null && isTv()) {
         LaunchedEffect(Unit) {
             focusRequester.requestFocus()
         }
