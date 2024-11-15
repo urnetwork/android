@@ -57,6 +57,7 @@ fun ProviderRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(64.dp)
             .onFocusChanged {
                 isFocused = it.isFocused
                 onFocusChanged()
@@ -69,7 +70,8 @@ fun ProviderRow(
                 onClick(1)
             }
             .background(if (isFocused) BlueDark else Color.Transparent)
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+        ,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -77,7 +79,6 @@ fun ProviderRow(
             modifier = Modifier
                 .weight(1f)
                 .height(40.dp)
-                // .background(if (isFocused) BlueMedium else Color.Transparent),
         ) {
             CircleImage(
                 size = 40.dp,
@@ -120,8 +121,6 @@ fun ProviderRow(
             )
         }
     }
-    
-    //Spacer(modifier = Modifier.height(24.dp))
 }
 
 @Preview
