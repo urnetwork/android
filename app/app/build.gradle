@@ -132,6 +132,7 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
         }
         dev {
             dimension = 'version'
@@ -155,6 +156,7 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"all"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"all"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
         }
         canary {
             dimension = 'version'
@@ -172,6 +174,7 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
         }
         github {
             dimension = 'version'
@@ -193,6 +196,7 @@ android {
             // this can avoid the need for an initial doh query
             // json string array
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
         }
         play {
             dimension = 'version'
@@ -209,6 +213,7 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"play"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"circle"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
         }
         solana_dapp {
             dimension = 'version'
@@ -225,6 +230,7 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
         }
         fire {
             dimension = 'version'
@@ -241,6 +247,7 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"circle"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'false'
         }
     }
 

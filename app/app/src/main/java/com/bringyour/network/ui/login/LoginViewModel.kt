@@ -121,6 +121,10 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    val allowGoogleSso = {
+        networkSpaceManagerProvider.getNetworkSpace()?.ssoGoogle ?: false
+    }
+
     val googleLogin: (
         context: Context,
         api: BringYourApi?,

@@ -130,6 +130,7 @@ class MainApplication : Application() {
             // TODO sso settings
             values.store = BuildConfig.BRINGYOUR_BUNDLE_STORE
             values.wallet = BuildConfig.BRINGYOUR_BUNDLE_WALLET
+            values.ssoGoogle = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE
         }
 
         if (!bundleNetworkSpaceExists || networkSpaceManager?.activeNetworkSpace == null) {

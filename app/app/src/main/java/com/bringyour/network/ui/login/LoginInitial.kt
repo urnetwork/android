@@ -106,7 +106,8 @@ fun LoginInitial(
         guestModeLoginSuccess = loginViewModel.guestModeLoginSuccess,
         setGuestModeLoginSuccess = loginViewModel.setGuestModeLoginSuccess,
         guestModeOverlayBodyVisible = loginViewModel.guestModeOverlayBodyVisible,
-        setGuestModeOverlayBodyVisible = loginViewModel.setGuestModeOverlayBodyVisible
+        setGuestModeOverlayBodyVisible = loginViewModel.setGuestModeOverlayBodyVisible,
+        allowGoogleSso = loginViewModel.allowGoogleSso
     )
 
 }
@@ -140,6 +141,7 @@ fun LoginInitial(
     setGuestModeLoginSuccess: (Boolean) -> Unit,
     guestModeOverlayBodyVisible: Boolean,
     setGuestModeOverlayBodyVisible: (Boolean) -> Unit,
+    allowGoogleSso: () -> Boolean
 ) {
 
     val context = LocalContext.current
@@ -160,24 +162,6 @@ fun LoginInitial(
     val loginActivity = context as? LoginActivity
 
     val isTv = isTv()
-
-    val guestModeStr = buildAnnotatedString {
-        append(stringResource(id = R.string.commitment_issues))
-
-        pushStringAnnotation(
-            tag = "GUEST_MODE",
-            annotation = "Guest Mode"
-        )
-        withStyle(
-            style = SpanStyle(
-                color = Color.White
-            )
-        ) {
-            append(" ${stringResource(id = R.string.try_guest_mode)}")
-        }
-        pop()
-
-    }
 
     val onLogin: (AuthLoginResult) -> Unit = { result ->
         navController.navigate("login-password/${result.userAuth}")
@@ -361,7 +345,8 @@ fun LoginInitial(
                             },
                             onGoogleLogin = {
                                 googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                            }
+                            },
+                            allowGoogleSso = allowGoogleSso
                         )
                     }
                 }
@@ -402,7 +387,8 @@ fun LoginInitial(
                             },
                             onGoogleLogin = {
                                 googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                            }
+                            },
+                            allowGoogleSso = allowGoogleSso
                         )
                     }
 
@@ -458,24 +444,8 @@ fun LoginInitialActions(
     googleAuthInProgress: Boolean,
     onLogin: () -> Unit,
     onGoogleLogin: () -> Unit,
+    allowGoogleSso: () -> Boolean
 ) {
-    val guestModeStr = buildAnnotatedString {
-        append(stringResource(id = R.string.commitment_issues))
-
-        pushStringAnnotation(
-            tag = "GUEST_MODE",
-            annotation = "Guest Mode"
-        )
-        withStyle(
-            style = SpanStyle(
-                color = Color.White
-            )
-        ) {
-            append(" ${stringResource(id = R.string.try_guest_mode)}")
-        }
-        pop()
-
-    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -516,42 +486,45 @@ fun LoginInitialActions(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    "or",
-                    color = TextMuted
-                )
-            }
+            if (allowGoogleSso()) {
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onGoogleLogin()
-                },
-                enabled = !googleAuthInProgress
-            ) { buttonTextStyle ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-
-                    // todo - this looks a little blurry
-                    Image(
-                        painter = painterResource(id = R.drawable.google_login_icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     Text(
-                        stringResource(id = R.string.google_auth_btn_text),
-                        style = buttonTextStyle
+                        "or",
+                        color = TextMuted
                     )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(
+                    style = ButtonStyle.SECONDARY,
+                    onClick = {
+                        onGoogleLogin()
+                    },
+                    enabled = !googleAuthInProgress
+                ) { buttonTextStyle ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        // todo - this looks a little blurry
+                        Image(
+                            painter = painterResource(id = R.drawable.google_login_icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            stringResource(id = R.string.google_auth_btn_text),
+                            style = buttonTextStyle
+                        )
+                    }
                 }
             }
 
@@ -660,7 +633,8 @@ private fun LoginInitialPreview() {
                     guestModeLoginSuccess = false,
                     setGuestModeLoginSuccess = {},
                     guestModeOverlayBodyVisible = true,
-                    setGuestModeOverlayBodyVisible = {}
+                    setGuestModeOverlayBodyVisible = {},
+                    allowGoogleSso = { true }
                 )
             }
         }
@@ -719,7 +693,8 @@ private fun LoginInitialLandscapePreview() {
                     guestModeLoginSuccess = false,
                     setGuestModeLoginSuccess = {},
                     guestModeOverlayBodyVisible = true,
-                    setGuestModeOverlayBodyVisible = {}
+                    setGuestModeOverlayBodyVisible = {},
+                    allowGoogleSso = { true }
                 )
             }
         }
