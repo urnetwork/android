@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import com.bringyour.client.AuthNetworkClientArgs
+import com.bringyour.sdk.AuthNetworkClientArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.theme.URNetworkTheme
 import dagger.hilt.android.AndroidEntryPoint

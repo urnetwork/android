@@ -40,10 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
-import com.bringyour.client.ConnectGrid
-import com.bringyour.client.ConnectLocation
-import com.bringyour.client.Id
-import com.bringyour.client.ProviderGridPoint
+import com.bringyour.sdk.ConnectGrid
+import com.bringyour.sdk.ConnectLocation
+import com.bringyour.sdk.Id
+import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher

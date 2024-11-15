@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import com.bringyour.client.FeedbackViewController
+import com.bringyour.sdk.FeedbackViewController
 import com.bringyour.network.ByDeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

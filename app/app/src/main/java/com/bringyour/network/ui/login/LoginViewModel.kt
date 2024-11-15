@@ -8,9 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.AuthLoginArgs
-import com.bringyour.client.AuthLoginResult
-import com.bringyour.client.BringYourApi
+import com.bringyour.sdk.AuthLoginArgs
+import com.bringyour.sdk.AuthLoginResult
+import com.bringyour.sdk.BringYourApi
 import com.bringyour.network.R
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
