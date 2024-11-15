@@ -35,7 +35,7 @@ class ByDeviceManager @Inject constructor() {
         }
 
     var canRefer: Boolean
-        get() = byDevice?.canRefer!!
+        get() = if (byDevice == null) false else byDevice?.canRefer!!
         set(it) {
             asyncLocalState?.localState?.canShowRatingDialog = it
             byDevice?.canShowRatingDialog = it
