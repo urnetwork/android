@@ -40,7 +40,7 @@ import circle.programmablewallet.sdk.api.ApiError
 import circle.programmablewallet.sdk.api.Callback
 import circle.programmablewallet.sdk.api.ExecuteWarning
 import circle.programmablewallet.sdk.result.ExecuteResult
-import com.bringyour.client.AccountWallet
+import com.bringyour.sdk.AccountWallet
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.URDialog
@@ -53,14 +53,16 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
-import com.bringyour.client.AccountPayment
-import com.bringyour.client.Id
+import com.bringyour.sdk.AccountPayment
+import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.theme.BlueLight
@@ -252,8 +254,9 @@ fun WalletsScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(innerPadding),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp)

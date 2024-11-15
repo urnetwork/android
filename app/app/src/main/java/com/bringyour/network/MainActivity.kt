@@ -26,8 +26,8 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
-import com.bringyour.client.SubscriptionCreatePaymentIdArgs
-import com.bringyour.client.SubscriptionCreatePaymentIdResult
+import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
+import com.bringyour.sdk.SubscriptionCreatePaymentIdResult
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel

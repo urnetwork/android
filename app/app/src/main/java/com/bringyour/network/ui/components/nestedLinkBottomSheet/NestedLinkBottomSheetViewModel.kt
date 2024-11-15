@@ -3,9 +3,9 @@ package com.bringyour.network.ui.components.nestedLinkBottomSheet
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.client.ConnectLocation
-import com.bringyour.client.ConnectLocationList
-import com.bringyour.client.LocationsViewController
+import com.bringyour.sdk.ConnectLocation
+import com.bringyour.sdk.ConnectLocationList
+import com.bringyour.sdk.LocationsViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.ui.connect.FilterLocationsState
 import dagger.hilt.android.lifecycle.HiltViewModel

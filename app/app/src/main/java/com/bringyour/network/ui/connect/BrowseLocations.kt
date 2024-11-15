@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -25,7 +26,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.bringyour.client.ConnectLocation
+import com.bringyour.sdk.ConnectLocation
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.Black
@@ -50,6 +51,7 @@ fun BrowseLocations(
     setSearchQueryTextFieldValue: (TextFieldValue) -> Unit,
     currentSearchQuery: String,
     keyboardController: SoftwareKeyboardController?,
+    lazyListState: LazyListState
 ) {
 
     val scope = rememberCoroutineScope()
@@ -128,6 +130,7 @@ fun BrowseLocations(
                         filterLocations(currentSearchQuery)
                     },
                     searchQuery = currentSearchQuery,
+                    listState = lazyListState
                 )
             }
             FilterLocationsState.Error -> {

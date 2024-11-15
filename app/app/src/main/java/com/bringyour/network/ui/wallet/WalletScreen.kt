@@ -56,9 +56,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bringyour.client.AccountPayment
-import com.bringyour.client.AccountWallet
-import com.bringyour.client.Id
+import com.bringyour.sdk.AccountPayment
+import com.bringyour.sdk.AccountWallet
+import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URDialog
 import com.bringyour.network.ui.components.overlays.OverlayMode
@@ -568,6 +568,7 @@ fun ExternalWalletScreenContent(
                 .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
 
             Row(

@@ -12,8 +12,8 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
-import com.bringyour.client.AuthNetworkClientArgs
-import com.bringyour.client.NetworkCreateArgs
+import com.bringyour.sdk.AuthNetworkClientArgs
+import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme

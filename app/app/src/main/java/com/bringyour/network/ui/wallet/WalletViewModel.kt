@@ -11,15 +11,16 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
-import com.bringyour.client.AccountPayment
-import com.bringyour.client.AccountWallet
-import com.bringyour.client.BringYourDevice
-import com.bringyour.client.Client
-import com.bringyour.client.Id
-import com.bringyour.client.ValidateAddressCallback
-import com.bringyour.client.WalletViewController
+import com.bringyour.sdk.AccountPayment
+import com.bringyour.sdk.AccountWallet
+import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.Id
+import com.bringyour.sdk.ValidateAddressCallback
+import com.bringyour.sdk.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
+import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -205,10 +206,13 @@ class WalletViewModel @Inject constructor(
     }
 
     private val fetchCircleWalletInfo = {
-        byDevice?.api?.subscriptionBalance { result, _ ->
-
-            viewModelScope.launch {
-                setCircleWalletBalance(Client.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents))
+        byDevice?.api?.subscriptionBalance { result, error ->
+            if (error != null) {
+                Log.i(TAG, "[wallet]fetch error = $error")
+            } else {
+                viewModelScope.launch {
+                    setCircleWalletBalance(Sdk.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents))
+                }
             }
         }
     }

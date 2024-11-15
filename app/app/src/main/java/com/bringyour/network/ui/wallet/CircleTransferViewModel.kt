@@ -8,11 +8,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
-import com.bringyour.client.BringYourDevice
-import com.bringyour.client.Client
-import com.bringyour.client.ValidateAddressCallback
-import com.bringyour.client.WalletCircleTransferOutArgs
-import com.bringyour.client.WalletViewController
+import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.ValidateAddressCallback
+import com.bringyour.sdk.WalletCircleTransferOutArgs
+import com.bringyour.sdk.WalletViewController
 import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -127,7 +127,7 @@ class CircleTransferViewModel @Inject constructor(
 
     val transfer: (OnWalletExecute) -> Unit = { onExecute ->
         val args = WalletCircleTransferOutArgs()
-        args.amountUsdcNanoCents = Client.usdToNanoCents(transferAmountTextFieldValue.text.toDouble())
+        args.amountUsdcNanoCents = Sdk.usdToNanoCents(transferAmountTextFieldValue.text.toDouble())
         args.toAddress = sendToAddress.text
         // todo - this is missing in the design, need to add a terms checkbox
         args.terms = true
