@@ -55,7 +55,7 @@ fun LoginNavHost(
             AuthCodeLoadingScreen()
         } else {
 
-            if (switchAccount && !currentNetworkName.isNullOrEmpty() && !defaultLocation.isNullOrEmpty()) {
+            if (switchAccount && !currentNetworkName.isNullOrEmpty()) {
                 SwitchAccountScreen(
                     currentNetworkName = currentNetworkName,
                     targetJwt = targetJwt,

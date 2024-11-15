@@ -202,10 +202,10 @@ class LoginViewModel @Inject constructor(
 
         byDevice?.api?.authCodeLogin(args) { result, err ->
 
-            if (err != null && result.jwt.isNotEmpty()) {
+            if (err == null && result.jwt != null) {
                 onSuccess(result.jwt)
             } else {
-                Log.i(TAG, "authCodeLogin: error: ${result.error}")
+                Log.i(TAG, "authCodeLogin: error: result is: $result")
             }
 
         }

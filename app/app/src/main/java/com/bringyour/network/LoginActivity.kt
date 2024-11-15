@@ -153,7 +153,6 @@ class LoginActivity : AppCompatActivity() {
 
         val queryParameters = mutableMapOf<String, String>()
         for (name in uri.queryParameterNames) {
-            Log.i(TAG, "query parameter: $name")
             uri.getQueryParameter(name)?.let {
                 queryParameters[name] = it
             }
@@ -162,14 +161,32 @@ class LoginActivity : AppCompatActivity() {
         val guest = queryParameters.remove("guest").toBoolean()
         targetUrl = queryParameters.remove("target")
 
-        val queryString = uri.query
-        defaultLocation = if (queryString != null && queryString.contains('&')) {
-            URLDecoder.decode(queryString.substringBefore('&'), StandardCharsets.UTF_8.name())
+        val urlString = uri.toString()
+
+        defaultLocation = if (urlString.contains('?')) {
+            val params = urlString.substringAfter('?')
+            if (params.contains('&')) {
+                URLDecoder.decode(params.substringBefore('&'), StandardCharsets.UTF_8.name())
+            } else {
+                // Handle single parameter cases
+                if (params.contains('=')) {
+                    val key = params.substringBefore('=')
+                    if (key.lowercase() != "guest" && key.lowercase() != "auth_code" && key.lowercase() != "target") {
+                        URLDecoder.decode(key, StandardCharsets.UTF_8.name()) // Default location
+                    } else {
+                        null // Only guest parameter
+                    }
+                } else {
+                    URLDecoder.decode(params, StandardCharsets.UTF_8.name()) // Single parameter, no '='
+                }
+            }
         } else {
-            URLDecoder.decode(queryString ?: "", StandardCharsets.UTF_8.name()) // Handle null or no '&'
+            null // Handle no '?'
         }
 
-        defaultLocation = defaultLocation?.removeSuffix("=")
+        if (defaultLocation != null) {
+            defaultLocation = defaultLocation?.removeSuffix("=")
+        }
 
         val localState = app.asyncLocalState
 
@@ -181,8 +198,6 @@ class LoginActivity : AppCompatActivity() {
                 authCode,
                 { authJwt ->
                     runBlocking(Dispatchers.Main.immediate) {
-
-                        isLoadingAuthCode = false
 
                         if (app.asyncLocalState?.localState?.byJwt == authJwt) {
                             // user already logged into this network
@@ -204,12 +219,15 @@ class LoginActivity : AppCompatActivity() {
                             }
 
                         } else {
+
                             app.login(authJwt)
 
                             authClientAndFinish(
                                 callback = {err -> },
                             )
                         }
+
+                        isLoadingAuthCode = false
                     }
                 }
             )
