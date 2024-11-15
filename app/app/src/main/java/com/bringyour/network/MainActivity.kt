@@ -145,8 +145,8 @@ class MainActivity: AppCompatActivity() {
         // setStatusBarColor(color = Color.Transparent.toArgb(), false)
 
         val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
-
-
+        val targetUrl = intent.getStringExtra("TARGET_URL")
+        val defaultLocation = intent.getStringExtra("DEFAULT_LOCATION")
 
         val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         val isTv = uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
@@ -163,7 +163,9 @@ class MainActivity: AppCompatActivity() {
                     settingsViewModel,
                     promptReviewViewModel,
                     planViewModel,
-                    animateIn
+                    animateIn,
+                    targetUrl,
+                    defaultLocation
                 )
             }
         }

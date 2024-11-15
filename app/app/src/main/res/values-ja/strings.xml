@@ -227,4 +227,13 @@
     <string name="provide_disconnected">オフラインで提供</string>
     <string name="unpaid_mb">未払いのメガバイトを提供</string>
     <string name="payouts_amount_threshold">支払いは2週間ごとに行われ、支払いを受け取るには最低額を提供する必要があります。</string>
+    <string name="open_nested_link">%1$sに接続してリンク%2$sを開く</string>
+    <string name="connect_and_open">接続してリンクを開く</string>
+    <string name="connect_to_location">%1$sに接続</string>
+    <string name="no_locations_found">場所が見つかりません</string>
+    <string name="no_locations_found_detail">申し訳ありませんが、%1$sに関連する場所が見つかりませんでした。</string>
+    <string name="dismiss">閉じる</string>
+    <string name="switch_account">アカウントを切り替える</string>
+    <string name="switch_account_details">%1$s から切断してアカウントを切り替えますか？</string>
+    <string name="auth_code_loading">認証コードを読み込んでいます</string>
 </resources>

@@ -221,11 +221,13 @@ fun LoginCreateNetwork(
 
                     delay(250)
 
-                    loginActivity?.authClientAndFinish { error ->
-                        inProgress = false
+                    loginActivity?.authClientAndFinish(
+                        { error ->
+                            inProgress = false
 
-                        createNetworkError = error
-                    }
+                            createNetworkError = error
+                        }
+                    )
                 } else if (result.verificationRequired != null) {
                     createNetworkError = null
 

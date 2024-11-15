@@ -227,4 +227,14 @@
     <string name="provide_disconnected">Dostarczaj w trybie offline</string>
     <string name="unpaid_mb">Nieopłacone megabajty dostarczone</string>
     <string name="payouts_amount_threshold">Wypłaty następują co dwa tygodnie i wymagają minimalnej kwoty dostarczonej, aby otrzymać wypłatę.</string>
+    <string name="open_nested_link">Połącz z %1$s i otwórz link %2$s</string>
+    <string name="connect_and_open">Połącz i otwórz link</string>
+    <string name="connect_to_location">Połącz z %1$s</string>
+    <string name="no_locations_found">Nie znaleziono lokalizacji</string>
+    <string name="no_locations_found_detail">Przepraszamy, nie mogliśmy znaleźć żadnych lokalizacji powiązanych z %1$s.</string>
+    <string name="dismiss">Zamknij</string>
+    <string name="switch_account">Przełącz konto</string>
+    <string name="switch_account_details">Czy chcesz rozłączyć się z %1$s i przełączyć konta?</string>
+    <string name="auth_code_loading">Ładowanie kodu uwierzytelniającego</string>
+
 </resources>

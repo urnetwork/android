@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.login
 
 import android.content.Context
+import android.util.Log
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,10 +9,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bringyour.sdk.AuthCodeLoginArgs
 import com.bringyour.sdk.AuthLoginArgs
 import com.bringyour.sdk.AuthLoginResult
+import com.bringyour.sdk.AuthVerifySendArgs
 import com.bringyour.sdk.BringYourApi
+import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.NetworkSpace
+import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.R
+import com.bringyour.network.TAG
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -19,7 +27,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(): ViewModel() {
+class LoginViewModel @Inject constructor(
+    byDeviceManager: ByDeviceManager,
+    networkSpaceManagerProvider: NetworkSpaceManagerProvider
+): ViewModel() {
+
+    private var byDevice: BringYourDevice? = null
+    private var networkSpace: NetworkSpace? = null
 
     var userAuthInProgress by mutableStateOf(false)
         private set
@@ -179,6 +193,32 @@ class LoginViewModel @Inject constructor(): ViewModel() {
         isValidUserAuth = userAuth.text.isNotEmpty() &&
                 (Patterns.EMAIL_ADDRESS.matcher(userAuth.text).matches() ||
                         Patterns.PHONE.matcher(userAuth.text).matches())
+    }
+
+    val codeLogin: (String, (String) -> Unit) -> Unit = { code, onSuccess ->
+
+        val args = AuthCodeLoginArgs()
+        args.authCode = code
+
+        byDevice?.api?.authCodeLogin(args) { result, err ->
+
+            if (err == null && result.jwt != null) {
+                onSuccess(result.jwt)
+            } else {
+                Log.i(TAG, "authCodeLogin: error: result is: $result")
+            }
+
+        }
+
+    }
+
+    init {
+        byDevice = byDeviceManager.byDevice
+
+        networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+        // val localState = networkSpace?.asyncLocalState
+
+
     }
 
 }

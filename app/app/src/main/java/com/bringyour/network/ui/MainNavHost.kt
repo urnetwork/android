@@ -17,17 +17,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +68,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.bringyour.network.ui.account.AccountViewModel
+import com.bringyour.network.ui.components.nestedLinkBottomSheet.NestedLinkBottomSheet
 import com.bringyour.network.ui.connect.BrowseLocationsScreen
 import com.bringyour.network.ui.connect.LocationsListViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
@@ -74,6 +79,7 @@ import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
 import com.bringyour.network.utils.isTv
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavHost(
     walletViewModel: WalletViewModel,
@@ -81,9 +87,12 @@ fun MainNavHost(
     promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     animateIn: Boolean,
+    targetLink: String?,
+    defaultLocation: String?,
     mainNavViewModel: MainNavViewModel = hiltViewModel(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
-    overlayViewModel: OverlayViewModel = hiltViewModel()
+    overlayViewModel: OverlayViewModel = hiltViewModel(),
+    connectViewModel: ConnectViewModel = hiltViewModel(),
 ) {
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
@@ -123,6 +132,13 @@ fun MainNavHost(
 
     val navController = rememberNavController()
 
+    val nestedLinkScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = if (defaultLocation != null) SheetValue.Expanded else SheetValue.Hidden,
+            skipHiddenState = false
+        )
+    )
+
     DisposableEffect(Unit) {
 
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
@@ -150,122 +166,130 @@ fun MainNavHost(
         }
     }
 
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Black)
-            .padding(top = 36.dp)
-             // .systemBarsPadding()
-             // .windowInsetsPadding(WindowInsets.systemBars)
+    NestedLinkBottomSheet(
+        scaffoldState = nestedLinkScaffoldState,
+        targetLink = targetLink,
+        defaultLocation = defaultLocation,
+        connectViewModel = connectViewModel
     ) {
-
-        NavigationSuiteScaffold(
-            containerColor = Black,
-            contentColor = Black,
-            navigationSuiteColors = customColors,
-            layoutType = navSuiteLayoutType,
-
-            navigationSuiteItems = {
-                TopLevelScaffoldRoutes.entries.forEach { screen ->
-                    item(
-                        icon = {
-
-                            val iconRes = if (screen == currentTopLevelRoute) {
-                                screen.selectedIcon
-                            } else {
-                                screen.unselectedIcon
-                            }
-                            Icon(painterResource(id = iconRes), contentDescription = screen.description)
-                        },
-                        selected = screen == currentTopLevelRoute,
-                        onClick = {
-
-                            if (currentTopLevelRoute.route == Route.AccountContainer
-                                && screen.route == Route.AccountContainer
-                                && currentRoute != Route.Account
-                                ) {
-                                navController.popBackStack(Route.Account, inclusive = false)
-                            } else if (
-                                currentTopLevelRoute.route == Route.ConnectContainer
-                                && screen.route == Route.ConnectContainer
-                                && currentRoute != Route.Connect
-                            ) {
-                                navController.popBackStack(Route.Connect, inclusive = false)
-                            } else {
-                                navController.navigate(screen.route) {
-                                    // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
-                                    // Pop up to the start destination of the graph to
-                                    // avoid building up a large stack of destinations
-                                    // on the back stack as users select items
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    // Avoid multiple copies of the same destination when
-                                    // reselecting the same item
-                                    launchSingleTop = true
-                                    // Restore state when reselecting a previously selected item
-                                    restoreState = true
-                                }
-                            }
-                            mainNavViewModel.setCurrentTopLevelRoute(screen)
-                                  },
-                        colors = navItemColors,
-                        label = { if (isTv()) Text(screen.description) else Text("") }
-                    )
-                }
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Black)
+                .padding(top = 36.dp)
+            // .systemBarsPadding()
+            // .windowInsetsPadding(WindowInsets.systemBars)
         ) {
 
-            if (isTablet()) {
+            NavigationSuiteScaffold(
+                containerColor = Black,
+                contentColor = Black,
+                navigationSuiteColors = customColors,
+                layoutType = navSuiteLayoutType,
 
-                Column(
-                    modifier = Modifier.padding(bottom = 1.dp)
-                ) {
-                    Row {
+                navigationSuiteItems = {
+                    TopLevelScaffoldRoutes.entries.forEach { screen ->
+                        item(
+                            icon = {
+
+                                val iconRes = if (screen == currentTopLevelRoute) {
+                                    screen.selectedIcon
+                                } else {
+                                    screen.unselectedIcon
+                                }
+                                Icon(painterResource(id = iconRes), contentDescription = screen.description)
+                            },
+                            selected = screen == currentTopLevelRoute,
+                            onClick = {
+
+                                if (currentTopLevelRoute.route == Route.AccountContainer
+                                    && screen.route == Route.AccountContainer
+                                    && currentRoute != Route.Account
+                                ) {
+                                    navController.popBackStack(Route.Account, inclusive = false)
+                                } else if (
+                                    currentTopLevelRoute.route == Route.ConnectContainer
+                                    && screen.route == Route.ConnectContainer
+                                    && currentRoute != Route.Connect
+                                ) {
+                                    navController.popBackStack(Route.Connect, inclusive = false)
+                                } else {
+                                    navController.navigate(screen.route) {
+                                        // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
+                                        // Pop up to the start destination of the graph to
+                                        // avoid building up a large stack of destinations
+                                        // on the back stack as users select items
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        // Avoid multiple copies of the same destination when
+                                        // reselecting the same item
+                                        launchSingleTop = true
+                                        // Restore state when reselecting a previously selected item
+                                        restoreState = true
+                                    }
+                                }
+                                mainNavViewModel.setCurrentTopLevelRoute(screen)
+                            },
+                            colors = navItemColors,
+                            label = { if (isTv()) Text(screen.description) else Text("") }
+                        )
+                    }
+                }
+            ) {
+
+                if (isTablet()) {
+
+                    Column(
+                        modifier = Modifier.padding(bottom = 1.dp)
+                    ) {
+                        Row {
+                            MainNavContent(
+                                previousRoute,
+                                settingsViewModel = settingsViewModel,
+                                promptReviewViewModel = promptReviewViewModel,
+                                planViewModel = planViewModel,
+                                overlayViewModel = overlayViewModel,
+                                navController = navController,
+                                walletViewModel = walletViewModel,
+                                connectViewModel = connectViewModel
+                            )
+                        }
+
+                        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT && !isTv()) {
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .height(1.dp)
+                                    .fillMaxWidth(),
+                                color = MainBorderBase
+                            )
+                        }
+                    }
+
+                } else {
+
+                    Column(
+                        modifier = Modifier.padding(bottom = 1.dp)
+                    ) {
                         MainNavContent(
-                            previousRoute,
+                            previousRoute = previousRoute,
                             settingsViewModel = settingsViewModel,
                             promptReviewViewModel = promptReviewViewModel,
                             planViewModel = planViewModel,
                             overlayViewModel = overlayViewModel,
                             navController = navController,
-                            walletViewModel = walletViewModel
+                            walletViewModel = walletViewModel,
+                            connectViewModel = connectViewModel
                         )
-                    }
 
-                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT && !isTv()) {
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .height(1.dp)
-                                .fillMaxWidth(),
-                            color = MainBorderBase
-                        )
-                    }
-                }
-
-            } else {
-
-                Column(
-                    modifier = Modifier.padding(bottom = 1.dp)
-                ) {
-                    MainNavContent(
-                        previousRoute = previousRoute,
-                        settingsViewModel = settingsViewModel,
-                        promptReviewViewModel = promptReviewViewModel,
-                        planViewModel = planViewModel,
-                        overlayViewModel = overlayViewModel,
-                        navController = navController,
-                        walletViewModel = walletViewModel
-                    )
-
-                    if (!isTv()) {
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .height(1.dp)
-                                .fillMaxWidth(),
-                            color = MainBorderBase
-                        )
+                        if (!isTv()) {
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .height(1.dp)
+                                    .fillMaxWidth(),
+                                color = MainBorderBase
+                            )
+                        }
                     }
                 }
             }
@@ -292,9 +316,9 @@ fun MainNavContent(
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
     navController: NavHostController,
+    connectViewModel: ConnectViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    connectViewModel: ConnectViewModel = hiltViewModel(),
     locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current

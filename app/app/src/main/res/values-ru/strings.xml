@@ -227,4 +227,13 @@
     <string name="provide_disconnected">Предоставлять в автономном режиме</string>
     <string name="unpaid_mb">Предоставленные неоплаченные мегабайты</string>
     <string name="payouts_amount_threshold">Выплаты производятся каждые две недели и требуют минимальной суммы, чтобы получить выплату.</string>
+    <string name="open_nested_link">Подключиться к %1$s и открыть ссылку %2$s</string>
+    <string name="connect_and_open">Подключиться и открыть ссылку</string>
+    <string name="connect_to_location">Подключиться к %1$s</string>
+    <string name="no_locations_found">Местоположения не найдены</string>
+    <string name="no_locations_found_detail">Извините, нам не удалось найти местоположения, связанные с %1$s.</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="switch_account">Сменить аккаунт</string>
+    <string name="switch_account_details">Вы хотите отключиться от %1$s и сменить аккаунт?</string>
+    <string name="auth_code_loading">Загрузка кода аутентификации</string>
 </resources>

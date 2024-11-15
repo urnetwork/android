@@ -204,4 +204,14 @@
     <string name="provide_disconnected">Fornecer offline</string>
     <string name="unpaid_mb">Megabytes não pagos fornecidos</string>
     <string name="payouts_amount_threshold">Os pagamentos ocorrem a cada duas semanas e exigem um valor mínimo fornecido para receber um pagamento.</string>
+    <string name="open_nested_link">Conectar a %1$s e abrir link %2$s</string>
+    <string name="connect_and_open">Conectar e abrir link</string>
+    <string name="connect_to_location">Conectar a %1$s</string>
+    <string name="no_locations_found">Nenhum local encontrado</string>
+    <string name="no_locations_found_detail">Desculpe, não conseguimos encontrar nenhum local relacionado a %1$s.</string>
+    <string name="dismiss">Dispensar</string>
+    <string name="switch_account">Trocar de conta</string>
+    <string name="switch_account_details">Você quer se desconectar de %1$s e trocar de conta?</string>
+    <string name="auth_code_loading">Carregando código de autenticação</string>
+
 </resources>

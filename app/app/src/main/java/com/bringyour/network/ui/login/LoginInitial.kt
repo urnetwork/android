@@ -213,9 +213,11 @@ fun LoginInitial(
                 delay(500)
             }
 
-            loginActivity?.authClientAndFinish { error ->
-                setLoginError(error)
-            }
+            loginActivity?.authClientAndFinish(
+                { error ->
+                    setLoginError(error)
+                }
+            )
 
         }
 
@@ -251,21 +253,20 @@ fun LoginInitial(
                         contentVisible = false
                     }
 
-                    loginActivity?.authClientAndFinish { error ->
-                        // inProgress = false
-                        setCreateGuestModeInProgress(false)
+                    loginActivity?.authClientAndFinish(
+                        { error ->
+                            setCreateGuestModeInProgress(false)
 
-                        Log.i("OnboardingGuestModeOverlay", "inside authClientAndFinish: error is: $error")
+                            setLoginError(error)
 
-                        setLoginError(error)
-
-                        if (error != null) {
-                            contentVisible = true
-                            setGuestModeLoginSuccess(false)
-                            setGuestModeOverlayBodyVisible(true)
+                            if (error != null) {
+                                contentVisible = true
+                                setGuestModeLoginSuccess(false)
+                                setGuestModeOverlayBodyVisible(true)
+                            }
                         }
+                    )
 
-                    }
                 } else {
                     setLoginError(context.getString(R.string.create_network_error))
                 }

@@ -147,11 +147,11 @@ fun LoginVerify(
                         delay(250)
                     }
 
-                    loginActivity?.authClientAndFinish { error ->
+                    loginActivity?.authClientAndFinish({ error ->
                         verifyInProgress = false
 
                         verifyError = error
-                    }
+                    })
                 } else {
                     verifyError = context.getString(R.string.verify_error)
                 }

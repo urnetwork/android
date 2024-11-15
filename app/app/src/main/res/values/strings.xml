@@ -176,6 +176,7 @@
     <string name="share">Share</string>
     <string name="copy">Copy</string>
     <string name="send">Send</string>
+    <string name="dismiss">Dismiss</string>
 
     <string name="login_error_auth_allowed">Please login with one of: %s.</string>
     <string name="login_error">Something went wrong. Try again.</string>
@@ -184,4 +185,14 @@
     <string name="verify_error">Something went wrong. Try again.</string>
     <string name="create_network_error">Something went wrong. Try again.</string>
     <string name="verify_send_error">Error</string>
+    <string name="asset_statements" translatable="false">[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
+    <string name="open_nested_link">Connect to %1$s and open link %2$s</string>
+    <string name="connect_and_open">Connect and open link</string>
+    <string name="connect_to_location">Connect to %1$s</string>
+    <string name="no_locations_found">No locations found</string>
+    <string name="no_locations_found_detail">Sorry, we couldn\'t find any locations related to %1$s.</string>
+
+    <string name="switch_account">Switch Account</string>
+    <string name="switch_account_details">Do you want to disconnect from %1$s and switch accounts?</string>
+    <string name="auth_code_loading">Auth code loading</string>
 </resources>
