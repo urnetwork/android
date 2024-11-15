@@ -286,6 +286,7 @@ fun ProvidersBottomSheet(
                             LocationsList(
                                 onLocationSelect = { location ->
                                     connect(location)
+                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
                                 },
                                 promotedLocations = promotedLocations,
                                 connectCountries = connectCountries,
