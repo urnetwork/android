@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,11 +53,11 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.bringyour.sdk.AccountPayment
@@ -100,7 +99,9 @@ fun WalletsScreen(
         pollWallets = walletViewModel.pollWallets,
         initializingWallets = walletViewModel.initializingWallets,
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
-        circleWalletExists = walletViewModel.circleWalletExists
+        circleWalletExists = walletViewModel.circleWalletExists,
+        refresh = walletViewModel.refreshWalletsInfo,
+        isRefreshing = walletViewModel.isRefreshing
     )
 }
 
@@ -130,10 +131,14 @@ fun WalletsScreen(
     initializingWallets: Boolean,
     unpaidMegaByteCount: String,
     circleWalletExists: Boolean,
+    refresh: () -> Unit,
+    isRefreshing: Boolean
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
     val app = context.applicationContext as? MainApplication
+
+    val refreshState = rememberPullToRefreshState()
 
     val initCircleWallet = {
 
@@ -252,156 +257,102 @@ fun WalletsScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(innerPadding),
+                .padding(innerPadding)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                state = refreshState,
+                onRefresh = refresh,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("URwallet", style = MaterialTheme.typography.headlineSmall)
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Box(
+                Column(
                     modifier = Modifier
-                        .background(
-                            color = MainTintedBackgroundBase,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(
-                            start = 16.dp,
-                            top = 16.dp,
-                            bottom = 10.dp, // hacky due to line-height issue
-                            end = 16.dp
-                        )
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            stringResource(id = R.string.unpaid_mb),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextMuted
-                        )
-                        Row(
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Text(
-                                unpaidMegaByteCount,
-                                style = HeadingLargeCondensed
-                            )
-
-                            Spacer(modifier = Modifier.width(2.dp))
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row {
-                    Text(
-                        stringResource(id = R.string.payouts_amount_threshold),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-            }
-
-            if (isInitializingFirstWallet) {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.width(24.dp),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
-                }
-
-            } else {
-
-                if (initializingWallets) {
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                    Column(
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.width(24.dp),
-                            color = MaterialTheme.colorScheme.secondary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
-                    }
-
-                } else {
-                    if (wallets.isEmpty()) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            SetupWallet(
-                                initCircleWallet = initCircleWallet,
-                                circleWalletInProgress = circleWalletInProgress,
-                                connectSagaWallet = connectSagaWallet,
-                                openModal = openExternalWalletModal,
-                            )
-                        }
-                    } else {
-
                         Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row {
-                                Text(
-                                    stringResource(id = R.string.wallets),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Spacer(modifier = Modifier.width(2.dp))
+                            Text("URwallet", style = MaterialTheme.typography.headlineSmall)
+                        }
 
-                                InfoIconWithOverlay() {
-                                    Column() {
-                                        Text(
-                                            stringResource(id = R.string.chains_supported),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = BlueLight
-                                        )
-                                    }
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = MainTintedBackgroundBase,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .padding(
+                                    start = 16.dp,
+                                    top = 16.dp,
+                                    bottom = 10.dp, // hacky due to line-height issue
+                                    end = 16.dp
+                                )
+                        ) {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    stringResource(id = R.string.unpaid_mb),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = TextMuted
+                                )
+                                Row(
+                                    verticalAlignment = Alignment.Bottom
+                                ) {
+                                    Text(
+                                        unpaidMegaByteCount,
+                                        style = HeadingLargeCondensed
+                                    )
+
+                                    Spacer(modifier = Modifier.width(2.dp))
                                 }
                             }
-
-                            AddWallet(
-                                circleWalletExists = circleWalletExists,
-                                initCircleWallet = initCircleWallet,
-                                connectSagaWallet = connectSagaWallet,
-                                openExternalWalletModal = openExternalWalletModal
-                            )
-                            
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        if (isRemovingWallet) {
+                        Row {
+                            Text(
+                                stringResource(id = R.string.payouts_amount_threshold),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextMuted
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                    }
+
+                    if (isInitializingFirstWallet) {
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(24.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+
+                    } else {
+
+                        if (initializingWallets) {
+
                             Row(
-                                modifier = Modifier
-                                    .height(124.dp)
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 CircularProgressIndicator(
@@ -410,42 +361,109 @@ fun WalletsScreen(
                                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
                                 )
                             }
+
                         } else {
-                            LazyRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(124.dp)
-                            ) {
-
-                                item {
-                                    Spacer(modifier = Modifier.width(16.dp))
+                            if (wallets.isEmpty()) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    SetupWallet(
+                                        initCircleWallet = initCircleWallet,
+                                        circleWalletInProgress = circleWalletInProgress,
+                                        connectSagaWallet = connectSagaWallet,
+                                        openModal = openExternalWalletModal,
+                                    )
                                 }
+                            } else {
 
-                                items(wallets) { wallet ->
+                                Row(
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row {
+                                        Text(
+                                            stringResource(id = R.string.wallets),
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                        Spacer(modifier = Modifier.width(2.dp))
 
-                                    WalletCard(
-                                        isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
-                                        blockchain = Blockchain.fromString(wallet.blockchain),
-                                        isPayoutWallet = wallet.walletId.equals(payoutWalletId),
-                                        walletAddress = wallet.walletAddress,
-                                        walletId = wallet.walletId,
-                                        navController = navController
+                                        InfoIconWithOverlay() {
+                                            Column() {
+                                                Text(
+                                                    stringResource(id = R.string.chains_supported),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = BlueLight
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    AddWallet(
+                                        circleWalletExists = circleWalletExists,
+                                        initCircleWallet = initCircleWallet,
+                                        connectSagaWallet = connectSagaWallet,
+                                        openExternalWalletModal = openExternalWalletModal
                                     )
 
-                                    Spacer(modifier = Modifier.width(16.dp))
+                                }
 
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                if (isRemovingWallet) {
+                                    Row(
+                                        modifier = Modifier
+                                            .height(124.dp)
+                                            .fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.width(24.dp),
+                                            color = MaterialTheme.colorScheme.secondary,
+                                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        )
+                                    }
+                                } else {
+                                    LazyRow(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(124.dp)
+                                    ) {
+
+                                        item {
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                        }
+
+                                        items(wallets) { wallet ->
+
+                                            WalletCard(
+                                                isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
+                                                blockchain = Blockchain.fromString(wallet.blockchain),
+                                                isPayoutWallet = wallet.walletId.equals(payoutWalletId),
+                                                walletAddress = wallet.walletAddress,
+                                                walletId = wallet.walletId,
+                                                navController = navController
+                                            )
+
+                                            Spacer(modifier = Modifier.width(16.dp))
+
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(32.dp))
+
+                                Column(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    WalletsPayoutsList(
+                                        payouts,
+                                    )
                                 }
                             }
-                        }
-
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            WalletsPayoutsList(
-                                payouts,
-                            )
                         }
                     }
                 }
@@ -556,7 +574,9 @@ private fun WalletScreenPreview() {
             pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false
+            circleWalletExists = false,
+            refresh = {},
+            isRefreshing = false
         )
     }
 }
@@ -591,7 +611,9 @@ private fun WalletScreenSagaPreview() {
             pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false
+            circleWalletExists = false,
+            refresh = {},
+            isRefreshing = false
         )
     }
 }
@@ -626,7 +648,9 @@ private fun WalletScreenExternalWalletModalPreview() {
             pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false
+            circleWalletExists = false,
+            refresh = {},
+            isRefreshing = false
         )
     }
 }
@@ -661,7 +685,9 @@ private fun WalletScreenInitializingWalletPreview() {
             pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false
+            circleWalletExists = false,
+            refresh = {},
+            isRefreshing = false
         )
     }
 }
@@ -696,7 +722,9 @@ private fun WalletScreenRemovingWalletPreview() {
             pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false
+            circleWalletExists = false,
+            refresh = {},
+            isRefreshing = false
         )
     }
 }

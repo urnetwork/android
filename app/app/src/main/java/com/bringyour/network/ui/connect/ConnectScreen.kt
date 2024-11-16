@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -51,6 +52,7 @@ import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.utils.isTv
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
@@ -58,6 +60,7 @@ fun ConnectScreen(
     overlayViewModel: OverlayViewModel,
     locationsViewModel: LocationsListViewModel,
     navController: NavController,
+    locationsSheetState: BottomSheetScaffoldState,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
@@ -91,7 +94,8 @@ fun ConnectScreen(
             checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
             launchOverlay = overlayViewModel.launch,
             locationsViewModel = locationsViewModel,
-            connectViewModel = connectViewModel
+            connectViewModel = connectViewModel,
+            scaffoldState = locationsSheetState
         )
     }
 }
@@ -192,9 +196,9 @@ private fun ConnectMobileAndTablet(
     checkTriggerPromptReview: () -> Unit,
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
-    connectViewModel: ConnectViewModel
+    connectViewModel: ConnectViewModel,
+    scaffoldState: BottomSheetScaffoldState
 ) {
-    val scaffoldState = rememberBottomSheetScaffoldState()
 
     ProvidersBottomSheet(
         scaffoldState,
