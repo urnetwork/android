@@ -36,8 +36,6 @@ fun LoginNavHost(
     promptAccountSwitch: Boolean,
     currentNetworkName: String? = null,
     targetJwt: String? = null,
-    targetUrl: String? = null,
-    defaultLocation: String? = null,
     switchToGuestMode: Boolean,
     isLoadingAuthCode: Boolean,
     overlayViewModel: OverlayViewModel = hiltViewModel()
