@@ -1,6 +1,9 @@
 package com.bringyour.network.ui.components.nestedLinkBottomSheet
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.ConnectLocation
@@ -26,6 +29,31 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
     val filterLocationsState: StateFlow<FilterLocationsState> = _filterLocationsState.asStateFlow()
 
     val searchLocationResults = mutableStateListOf<ConnectLocation>()
+
+    var targetLinkOpened by mutableStateOf(false)
+        private set
+
+    val setTargetLinkOpened: (Boolean) -> Unit = { opened ->
+        targetLinkOpened = opened
+    }
+
+    var targetLink by mutableStateOf<String?>(null)
+        private set
+
+    val setTargetLink: (String?) -> Unit = { link ->
+
+        if (link != targetLink) {
+            targetLink = link
+            setTargetLinkOpened(false)
+        }
+    }
+
+    var promptComplete by mutableStateOf(false)
+        private set
+
+    val setPromptComplete: (Boolean) -> Unit = { complete ->
+        promptComplete = complete
+    }
 
     private val makeConnectLocationCollection: (ConnectLocationList) -> Collection<ConnectLocation> = { list ->
         val locations = mutableListOf<ConnectLocation>()
