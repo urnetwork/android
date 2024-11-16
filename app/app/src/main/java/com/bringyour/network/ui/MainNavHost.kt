@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -78,6 +80,7 @@ import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
 import com.bringyour.network.utils.isTv
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +101,9 @@ fun MainNavHost(
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
     val currentRoute by mainNavViewModel.currentRoute.collectAsState()
     val previousRoute by mainNavViewModel.previousRoute.collectAsState()
+
+    val locationsSheetState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -210,9 +216,15 @@ fun MainNavHost(
                                 } else if (
                                     currentTopLevelRoute.route == Route.ConnectContainer
                                     && screen.route == Route.ConnectContainer
-                                    && currentRoute != Route.Connect
                                 ) {
-                                    navController.popBackStack(Route.Connect, inclusive = false)
+
+                                    if (currentRoute != Route.Connect) {
+                                        navController.popBackStack(Route.Connect, inclusive = false)
+                                    } else {
+                                        // tapping connect button again should close locations sheet if it's open
+                                        scope.launch { locationsSheetState.bottomSheetState.partialExpand() }
+                                    }
+
                                 } else {
                                     navController.navigate(screen.route) {
                                         // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
@@ -252,7 +264,8 @@ fun MainNavHost(
                                 overlayViewModel = overlayViewModel,
                                 navController = navController,
                                 walletViewModel = walletViewModel,
-                                connectViewModel = connectViewModel
+                                connectViewModel = connectViewModel,
+                                locationsSheetState = locationsSheetState
                             )
                         }
 
@@ -279,7 +292,8 @@ fun MainNavHost(
                             overlayViewModel = overlayViewModel,
                             navController = navController,
                             walletViewModel = walletViewModel,
-                            connectViewModel = connectViewModel
+                            connectViewModel = connectViewModel,
+                            locationsSheetState = locationsSheetState
                         )
 
                         if (!isTv()) {
@@ -307,6 +321,7 @@ fun MainNavHost(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavContent(
     previousRoute: Route?,
@@ -317,6 +332,7 @@ fun MainNavContent(
     overlayViewModel: OverlayViewModel,
     navController: NavHostController,
     connectViewModel: ConnectViewModel,
+    locationsSheetState: BottomSheetScaffoldState,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
     locationsListViewModel: LocationsListViewModel = hiltViewModel()
@@ -402,7 +418,8 @@ fun MainNavContent(
                     promptReviewViewModel,
                     overlayViewModel,
                     locationsListViewModel,
-                    navController
+                    navController,
+                    locationsSheetState
                 )
             }
 

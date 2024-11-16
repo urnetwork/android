@@ -65,18 +65,30 @@ fun NestedLinkBottomSheet(
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = defaultLocation) {
+    LaunchedEffect(defaultLocation) {
         if (!defaultLocation.isNullOrEmpty()) {
             nestedLinkBottomSheetViewModel.filterLocations(defaultLocation)
         }
     }
 
-    LaunchedEffect(key1 = connectStatus) {
-        if (connectStatus == ConnectStatus.CONNECTED && scaffoldState.bottomSheetState.isVisible) {
-            scaffoldState.bottomSheetState.hide()
+    LaunchedEffect(targetLink) {
+        nestedLinkBottomSheetViewModel.setTargetLink(targetLink)
+    }
 
-            if (targetLink != null) {
+    LaunchedEffect(defaultLocation, targetLink) {
+        nestedLinkBottomSheetViewModel.setPromptComplete(false)
+    }
+
+    LaunchedEffect(connectStatus) {
+        if (
+            connectStatus == ConnectStatus.CONNECTED &&
+            scaffoldState.bottomSheetState.isVisible &&
+            nestedLinkBottomSheetViewModel.promptComplete
+            ) {
+
+            if (nestedLinkBottomSheetViewModel.targetLink != null && !nestedLinkBottomSheetViewModel.targetLinkOpened) {
                 uriHandler.openUri(targetLink ?: "")
+                nestedLinkBottomSheetViewModel.setTargetLinkOpened(true)
             }
         }
     }
@@ -97,12 +109,17 @@ fun NestedLinkBottomSheet(
                 defaultLocation = defaultLocation,
                 confirm = {
                     if (nestedLinkBottomSheetViewModel.searchLocationResults.isNotEmpty()) {
+                        nestedLinkBottomSheetViewModel.setPromptComplete(true)
                         connectViewModel.connect(nestedLinkBottomSheetViewModel.searchLocationResults[0])
+                        scope.launch {
+                            scaffoldState.bottomSheetState.hide()
+                        }
                     }
                 },
                 connectStatus = connectStatus,
                 searchLocationsCount = nestedLinkBottomSheetViewModel.searchLocationResults.size,
                 dismiss = {
+                    nestedLinkBottomSheetViewModel.setPromptComplete(true)
                     scope.launch {
                         scaffoldState.bottomSheetState.hide()
                     }
@@ -228,7 +245,7 @@ private fun NestedLinkSheetContent(
         } else {
             URButton(
                 onClick = confirm,
-                enabled = connectStatus == ConnectStatus.DISCONNECTED && searchLocationsCount > 0
+                enabled = searchLocationsCount > 0
             ) { buttonTextStyle ->
                 Text(
                     stringResource(id = actionTextResourceId),

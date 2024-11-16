@@ -38,14 +38,13 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -99,7 +98,9 @@ fun WalletScreen(
         closeRemoveWalletModal = walletViewModel.closeRemoveWalletModal,
         circleWalletBalance = walletViewModel.circleWalletBalance,
         setCircleWalletBalance = walletViewModel.setCircleWalletBalance,
-        launchOverlay = overlayViewModel.launch
+        launchOverlay = overlayViewModel.launch,
+        refresh = walletViewModel.refreshWalletsInfo,
+        isRefreshing = walletViewModel.isRefreshing
     )
 }
 
@@ -121,7 +122,9 @@ fun WalletScreen(
     openRemoveWalletModal: () -> Unit,
     circleWalletBalance: Double,
     setCircleWalletBalance: (Double) -> Unit,
-    launchOverlay: (OverlayMode) -> Unit
+    launchOverlay: (OverlayMode) -> Unit,
+    refresh: () -> Unit,
+    isRefreshing: Boolean,
 ) {
 
     if (isCircleWallet) {
@@ -140,7 +143,9 @@ fun WalletScreen(
             closeRemoveWalletModal = closeRemoveWalletModal,
             walletBalance = circleWalletBalance,
             setCircleWalletBalance = setCircleWalletBalance,
-            launchOverlay = launchOverlay
+            launchOverlay = launchOverlay,
+            refresh = refresh,
+            isRefreshing = isRefreshing
         )
     } else {
         ExternalWalletScreenContent(
@@ -157,6 +162,8 @@ fun WalletScreen(
             removeWalletModalVisible = removeWalletModalVisible,
             closeRemoveWalletModal = closeRemoveWalletModal,
             openRemoveWalletModal = openRemoveWalletModal,
+            refresh = refresh,
+            isRefreshing = isRefreshing
         )
     }
 
@@ -166,8 +173,13 @@ fun WalletScreen(
 @Composable
 fun WalletContentScaffold(
     navController: NavController,
-    content: @Composable (PaddingValues) -> Unit,
+    refresh: () -> Unit,
+    isRefreshing: Boolean,
+    content: @Composable () -> Unit,
 ) {
+
+    val refreshState = rememberPullToRefreshState()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -189,7 +201,18 @@ fun WalletContentScaffold(
             )
         }
     ) { innerPadding ->
-        content(innerPadding)
+
+        Box(
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                state = refreshState,
+                onRefresh = refresh,
+            ) {
+                content()
+            }
+        }
     }
 }
 
@@ -211,6 +234,8 @@ fun CircleWalletScaffold(
     walletBalance: Double,
     setCircleWalletBalance: (Double) -> Unit,
     launchOverlay: (OverlayMode) -> Unit,
+    refresh: () -> Unit,
+    isRefreshing: Boolean,
     circleViewModel: CircleTransferViewModel = hiltViewModel()
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState(
@@ -269,7 +294,9 @@ fun CircleWalletScaffold(
             scaffoldState = scaffoldState,
             scope = scope,
             setSendToAddress = circleViewModel.setSendToAddress,
-            setTransferAmountFieldValue = circleViewModel.setTransferAmount
+            setTransferAmountFieldValue = circleViewModel.setTransferAmount,
+            refresh = refresh,
+            isRefreshing = isRefreshing
         )
     }
 }
@@ -295,124 +322,139 @@ fun CircleWalletScreenContent(
     scaffoldState: BottomSheetScaffoldState,
     setSendToAddress: (TextFieldValue) -> Unit,
     setTransferAmountFieldValue: (TextFieldValue, Double) -> Unit,
+    refresh: () -> Unit,
+    isRefreshing: Boolean,
 ) {
-    WalletContentScaffold(navController) {
-        innerPadding ->
-        Column(
+    WalletContentScaffold(
+        navController,
+        refresh,
+        isRefreshing
+    ) {
+
+        LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
         ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                WalletChainIcon(
-                    blockchain = blockchain,
-                    isCircleWallet = isCircleWallet
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
+            item {
 
                 Column {
-                    Text(
-                        "Circle Wallet",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
 
-                    MaskedWalletAddress(walletAddress)
+                        WalletChainIcon(
+                            blockchain = blockchain,
+                            isCircleWallet = isCircleWallet
+                        )
 
-                }
+                        Spacer(modifier = Modifier.width(16.dp))
 
-            }
+                        Column {
+                            Text(
+                                "Circle Wallet",
+                                style = MaterialTheme.typography.headlineSmall
+                            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
-            if (!isPayoutWallet) {
-                URButton(
-                    onClick = {
-                        if (walletId != null) {
-                            setPayoutWallet(walletId)
+                            MaskedWalletAddress(walletAddress)
+
                         }
-                    },
-                    enabled = !isSettingPayoutWallet && walletId != null
-                ) { buttonTextStyle ->
-                    Text(
-                        stringResource(id = R.string.make_default),
-                        style = buttonTextStyle
-                    )
-                }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                    }
 
-            // circle wallet balance
-            Column(
-                modifier = Modifier.fillMaxWidth()
-                    .background(MainTintedBackgroundBase, shape = RoundedCornerShape(8.dp))
-                    .padding(
-                        start = 16.dp,
-                        top = 16.dp,
-                        bottom = 10.dp, // accounting for line-height issue
-                        end = 16.dp
-                    )
-            ) {
-                Text(
-                    stringResource(id = R.string.balance),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
-                )
-                Row(
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Text(
-                        String.format("%.2f", walletBalance),
-                        style = HeadingLargeCondensed
-                    )
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                    Spacer(modifier = Modifier.width(2.dp))
+                    if (!isPayoutWallet) {
+                        URButton(
+                            onClick = {
+                                if (walletId != null) {
+                                    setPayoutWallet(walletId)
+                                }
+                            },
+                            enabled = !isSettingPayoutWallet && walletId != null
+                        ) { buttonTextStyle ->
+                            Text(
+                                stringResource(id = R.string.make_default),
+                                style = buttonTextStyle
+                            )
+                        }
+                    }
 
-                    // this is really hacky, but setting line-height isn't being acknowledged
-                    Box(
-                        modifier = Modifier.offset(y = -(11).dp)
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // circle wallet balance
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                            .background(MainTintedBackgroundBase, shape = RoundedCornerShape(8.dp))
+                            .padding(
+                                start = 16.dp,
+                                top = 16.dp,
+                                bottom = 10.dp, // accounting for line-height issue
+                                end = 16.dp
+                            )
                     ) {
                         Text(
-                            "USDC",
+                            stringResource(id = R.string.balance),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
+                        Row(
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                String.format("%.2f", walletBalance),
+                                style = HeadingLargeCondensed
+                            )
+
+                            Spacer(modifier = Modifier.width(2.dp))
+
+                            // this is really hacky, but setting line-height isn't being acknowledged
+                            Box(
+                                modifier = Modifier.offset(y = -(11).dp)
+                            ) {
+                                Text(
+                                    "USDC",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = TextMuted
+                                )
+                            }
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    URButton(
+                        onClick = {
+                            scope.launch {
+                                scaffoldState.bottomSheetState.expand()
+                                setSendToAddress(TextFieldValue(""))
+                                setTransferAmountFieldValue(TextFieldValue(""), walletBalance)
+                            }
+                        }
+                    ) { buttonTextStyle ->
+                        Text(
+                            stringResource(id = R.string.transfer_funds),
+                            style = buttonTextStyle
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
                 }
+
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            URButton(
-                onClick = {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.expand()
-                        setSendToAddress(TextFieldValue(""))
-                        setTransferAmountFieldValue(TextFieldValue(""), walletBalance)
-                    }
-                }
-            ) { buttonTextStyle ->
-                Text(
-                    stringResource(id = R.string.transfer_funds),
-                    style = buttonTextStyle
+            item {
+                PayoutsList(
+                    payouts,
+                    walletAddress
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            PayoutsList(
-                payouts,
-                walletAddress
-            )
         }
     }
 
@@ -431,6 +473,7 @@ fun PayoutsList(
     payouts: List<AccountPayment>,
     walletAddress: String?,
 ) {
+
     if (payouts.isNotEmpty()) {
 
         Text(
@@ -440,9 +483,9 @@ fun PayoutsList(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        LazyColumn {
+        Column {
 
-            items(payouts) { payout ->
+            for (payout in payouts) {
 
                 PayoutRow(
                     walletAddress = walletAddress ?: "",
@@ -557,89 +600,101 @@ fun ExternalWalletScreenContent(
     removeWalletModalVisible: Boolean,
     closeRemoveWalletModal: () -> Unit,
     openRemoveWalletModal: () -> Unit,
+    refresh: () -> Unit,
+    isRefreshing: Boolean,
 ) {
 
     WalletContentScaffold(
-        navController
-    ) { innerPadding ->
+        navController,
+        refresh,
+        isRefreshing,
+    ) {
 
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
         ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                WalletChainIcon(
-                    blockchain = blockchain,
-                    isCircleWallet = false
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
+            item {
                 Column {
-                    Text(
-                        "${blockchain.toString().lowercase().capitalize()} Wallet",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
 
-                    MaskedWalletAddress(walletAddress)
+                        WalletChainIcon(
+                            blockchain = blockchain,
+                            isCircleWallet = false
+                        )
 
-                }
+                        Spacer(modifier = Modifier.width(16.dp))
 
-            }
+                        Column {
+                            Text(
+                                "${blockchain.toString().lowercase().capitalize()} Wallet",
+                                style = MaterialTheme.typography.headlineSmall
+                            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
-            if (!isPayoutWallet) {
-                URButton(
-                    onClick = {
-                        if (walletId != null) {
-                            setPayoutWallet(walletId)
+                            MaskedWalletAddress(walletAddress)
+
                         }
-                    },
-                    enabled = !isSettingPayoutWallet && walletId != null
-                ) { buttonTextStyle ->
-                    Text(
-                        stringResource(id = R.string.make_default),
-                        style = buttonTextStyle
-                    )
+
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    if (!isPayoutWallet) {
+                        URButton(
+                            onClick = {
+                                if (walletId != null) {
+                                    setPayoutWallet(walletId)
+                                }
+                            },
+                            enabled = !isSettingPayoutWallet && walletId != null
+                        ) { buttonTextStyle ->
+                            Text(
+                                stringResource(id = R.string.make_default),
+                                style = buttonTextStyle
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    URButton(
+                        onClick = {
+                            openRemoveWalletModal()
+                        },
+                        style = ButtonStyle.OUTLINE,
+                        enabled = !removeWalletModalVisible
+                    ) { buttonTextStyle ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                stringResource(id = R.string.remove),
+                                style = buttonTextStyle
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
+
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            URButton(
-                onClick = {
-                    openRemoveWalletModal()
-                },
-                style = ButtonStyle.OUTLINE,
-                enabled = !removeWalletModalVisible
-            ) { buttonTextStyle ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        stringResource(id = R.string.remove),
-                        style = buttonTextStyle
-                    )
-                }
+            item {
+                PayoutsList(
+                    payouts,
+                    walletAddress
+                )
             }
-            Spacer(modifier = Modifier.height(32.dp))
 
-            PayoutsList(
-                payouts,
-                walletAddress
-            )
         }
+
     }
 
     RemoveWalletDialog(
@@ -688,7 +743,9 @@ private fun WalletScreenPreview() {
             closeRemoveWalletModal = {},
             circleWalletBalance = 1.1,
             setCircleWalletBalance = {},
-            launchOverlay = {}
+            launchOverlay = {},
+            refresh = {},
+            isRefreshing = false
         )
     }
 }
@@ -717,7 +774,9 @@ private fun WalletScreenIsPayoutPreview() {
             closeRemoveWalletModal = {},
             circleWalletBalance = 1.1,
             setCircleWalletBalance = {},
-            launchOverlay = {}
+            launchOverlay = {},
+            refresh = {},
+            isRefreshing = false
         )
     }
 }
@@ -745,7 +804,9 @@ private fun WalletScreenRemoveWalletPreview() {
             closeRemoveWalletModal = {},
             circleWalletBalance = 1.1,
             setCircleWalletBalance = {},
-            launchOverlay = {}
+            launchOverlay = {},
+            refresh = {},
+            isRefreshing = false
         )
     }
 }
