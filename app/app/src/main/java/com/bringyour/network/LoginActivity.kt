@@ -17,6 +17,7 @@ import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.sdk.AuthCodeLoginArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -131,10 +132,8 @@ class LoginActivity : AppCompatActivity() {
                 LoginNavHost(
                     loginViewModel,
                     promptAccountSwitch = promptAccountSwitch,
-                    targetUrl = targetUrl,
                     targetJwt = targetJwt,
                     currentNetworkName = currentNetworkName,
-                    defaultLocation = defaultLocation,
                     switchToGuestMode = switchToGuestMode,
                     isLoadingAuthCode = isLoadingAuthCode
                 )
@@ -194,12 +193,16 @@ class LoginActivity : AppCompatActivity() {
 
             isLoadingAuthCode = true
 
-            loginViewModel.codeLogin(
-                authCode,
-                { authJwt ->
+            val args = AuthCodeLoginArgs()
+            args.authCode = authCode
+
+            app.api?.authCodeLogin(args) { result, err ->
+
+                if (err == null && result.jwt != null) {
+
                     runBlocking(Dispatchers.Main.immediate) {
 
-                        if (app.asyncLocalState?.localState?.byJwt == authJwt) {
+                        if (app.asyncLocalState?.localState?.byJwt == result.jwt) {
                             // user already logged into this network
 
                             setLinksAndStartMain(
@@ -207,11 +210,11 @@ class LoginActivity : AppCompatActivity() {
                                 defaultLocation = defaultLocation
                             )
 
-                        } else if (!app.asyncLocalState?.localState?.byJwt.isNullOrEmpty() && app.asyncLocalState?.localState?.byJwt != authJwt) {
+                        } else if (!app.asyncLocalState?.localState?.byJwt.isNullOrEmpty() && app.asyncLocalState?.localState?.byJwt != result.jwt) {
                             // user is logged in, but not to the account related to the auth code
                             // prompt account switch
 
-                            targetJwt = authJwt
+                            targetJwt = result.jwt
                             promptAccountSwitch = true
 
                             localState?.parseByJwt { jwt, _ ->
@@ -220,7 +223,7 @@ class LoginActivity : AppCompatActivity() {
 
                         } else {
 
-                            app.login(authJwt)
+                            app.login(result.jwt)
 
                             authClientAndFinish(
                                 callback = {err -> },
@@ -229,8 +232,13 @@ class LoginActivity : AppCompatActivity() {
 
                         isLoadingAuthCode = false
                     }
+
+                } else {
+                    Log.i(TAG, "authCodeLogin: error: result is: $result")
                 }
-            )
+
+            }
+
         } else if (guest) {
             // login as guest
 
