@@ -119,6 +119,27 @@ class WalletViewModel @Inject constructor(
         calendar.get(Calendar.HOUR_OF_DAY)
     }
 
+    var isRefreshing by mutableStateOf(false)
+        private set
+
+    private val setIsRefreshing: (Boolean) -> Unit = { isRefreshing ->
+        this.isRefreshing = isRefreshing
+    }
+
+    private var paymentsRefreshed = false
+    private var transferStatsRefreshed = false
+
+    val refreshWalletsInfo = {
+        if (!isRefreshing) {
+            setIsRefreshing(true)
+            paymentsRefreshed = false
+            transferStatsRefreshed = false
+
+            walletVc?.fetchPayments()
+            walletVc?.fetchTransferStats()
+        }
+    }
+
     val openExternalWalletModal = {
         addExternalWalletModalVisible = true
     }
@@ -210,8 +231,14 @@ class WalletViewModel @Inject constructor(
             if (error != null) {
                 Log.i(TAG, "[wallet]fetch error = $error")
             } else {
+
                 viewModelScope.launch {
-                    setCircleWalletBalance(Sdk.nanoCentsToUsd(result.walletInfo.balanceUsdcNanoCents))
+                    result.walletInfo?.balanceUsdcNanoCents?.let {
+                        Sdk.nanoCentsToUsd(
+                            it
+                        )
+                    }?.let { setCircleWalletBalance(it) }
+
                 }
             }
         }
@@ -238,7 +265,6 @@ class WalletViewModel @Inject constructor(
                 updatedWallets.add(wallet)
                 if (!wallet.circleWalletId.isNullOrEmpty()) {
                     setCircleWalletExists(true)
-                    Log.i("WalletViewModel", "circle wallet exists")
                 } else {
                     Log.i("WalletViewModel", "no circle wallet found")
                 }
@@ -376,6 +402,14 @@ class WalletViewModel @Inject constructor(
             if (!totalPayoutAmountInitialized) {
                 totalPayoutAmountInitialized = true
             }
+
+            paymentsRefreshed = true
+
+            if (isRefreshing && transferStatsRefreshed) {
+                viewModelScope.launch {
+                    setIsRefreshing(false)
+                }
+            }
         }
 
     }
@@ -410,7 +444,8 @@ class WalletViewModel @Inject constructor(
         walletVc?.setIsPollingAccountWallets(true)
     }
 
-    // checking since transfer_escrow_sweep is run once an hour
+    // this data depends on transfer_escrow_sweep
+    // data is only updated once an hour
     val fetchTransferStats = {
         val currentHour = getCurrentHour()
         if (fetchBytesLastCheckedHour != currentHour) {
@@ -422,6 +457,12 @@ class WalletViewModel @Inject constructor(
     val addUnpaidByteCountListener = {
         walletVc?.addUnpaidByteCountListener{ ubc ->
             unpaidMegaByteCount = String.format("%.4f", ubc / (1024.0 * 1024.0))
+            transferStatsRefreshed = true
+            if (isRefreshing && paymentsRefreshed) {
+                viewModelScope.launch {
+                    setIsRefreshing(false)
+                }
+            }
         }
     }
 
@@ -446,7 +487,6 @@ class WalletViewModel @Inject constructor(
             // we can mark this as true without calling our API to validate
             setExternalWalletAddressIsValid("SOL", true)
 
-            // Log.i("WalletViewModel", "everything in its right place: $address")
             createExternalWallet()
         }
         setIsRetrievingSagaWallet(false)

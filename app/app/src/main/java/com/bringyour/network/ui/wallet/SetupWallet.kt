@@ -46,6 +46,7 @@ fun SetupWallet(
                 style = MaterialTheme.typography.bodyLarge,
                 color = TextMuted
             )
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
 
