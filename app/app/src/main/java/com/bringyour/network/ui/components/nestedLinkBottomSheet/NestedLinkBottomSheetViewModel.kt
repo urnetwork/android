@@ -41,11 +41,8 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
         private set
 
     val setTargetLink: (String?) -> Unit = { link ->
-
-        if (link != targetLink) {
-            targetLink = link
-            setTargetLinkOpened(false)
-        }
+        targetLink = link
+        setTargetLinkOpened(false)
     }
 
     var promptComplete by mutableStateOf(false)
