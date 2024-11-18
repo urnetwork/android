@@ -75,21 +75,25 @@ fun NestedLinkBottomSheet(
         nestedLinkBottomSheetViewModel.setTargetLink(targetLink)
     }
 
+    // if the default locations or taget link changes
+    // reset the prompt complete state
     LaunchedEffect(defaultLocation, targetLink) {
         nestedLinkBottomSheetViewModel.setPromptComplete(false)
     }
 
     LaunchedEffect(connectStatus) {
-        if (
-            connectStatus == ConnectStatus.CONNECTED &&
-            scaffoldState.bottomSheetState.isVisible &&
-            nestedLinkBottomSheetViewModel.promptComplete
-            ) {
 
-            if (nestedLinkBottomSheetViewModel.targetLink != null && !nestedLinkBottomSheetViewModel.targetLinkOpened) {
+        if (
+            connectStatus == ConnectStatus.CONNECTED && // connection made
+            nestedLinkBottomSheetViewModel.targetLink != null && // target link exists
+            !nestedLinkBottomSheetViewModel.targetLinkOpened && // target link has not previously been opened
+            nestedLinkBottomSheetViewModel.promptComplete && // prompt has been completed
+            nestedLinkBottomSheetViewModel.searchLocationResults.size > 0 && // search location result exists
+            nestedLinkBottomSheetViewModel.searchLocationResults.first().connectLocationId.locationId == connectViewModel.selectedLocation?.connectLocationId?.locationId // search location matches connected location
+            ) {
                 uriHandler.openUri(targetLink ?: "")
                 nestedLinkBottomSheetViewModel.setTargetLinkOpened(true)
-            }
+                nestedLinkBottomSheetViewModel.setTargetLink(null)
         }
     }
 
@@ -116,9 +120,9 @@ fun NestedLinkBottomSheet(
                         }
                     }
                 },
-                connectStatus = connectStatus,
                 searchLocationsCount = nestedLinkBottomSheetViewModel.searchLocationResults.size,
                 dismiss = {
+                    nestedLinkBottomSheetViewModel.setTargetLink(null)
                     nestedLinkBottomSheetViewModel.setPromptComplete(true)
                     scope.launch {
                         scaffoldState.bottomSheetState.hide()
@@ -139,7 +143,6 @@ private fun NestedLinkSheetContent(
     defaultLocation: String?,
     confirm: () -> Unit,
     dismiss: () -> Unit,
-    connectStatus: ConnectStatus,
     searchLocationsCount: Int,
     locationsState: FilterLocationsState
 ) {
@@ -269,7 +272,6 @@ private fun NestedLinkSheetPreview() {
             targetLink = "https://ur.io/123/abcdefg",
             defaultLocation = "Germany",
             confirm = {},
-            connectStatus = ConnectStatus.DISCONNECTED,
             searchLocationsCount = 1,
             locationsState = FilterLocationsState.Loaded,
             dismiss = {}
@@ -286,7 +288,6 @@ private fun NestedLinkSheetNoLocationsPreview() {
             targetLink = "https://ur.io/123/abcdefg",
             defaultLocation = "Lorem Ipsum",
             confirm = {},
-            connectStatus = ConnectStatus.DISCONNECTED,
             searchLocationsCount = 0,
             locationsState = FilterLocationsState.Loaded,
             dismiss = {}
@@ -303,7 +304,6 @@ private fun NestedLinkSheetNoLinkPreview() {
             targetLink = null,
             defaultLocation = "California",
             confirm = {},
-            connectStatus = ConnectStatus.DISCONNECTED,
             searchLocationsCount = 1,
             locationsState = FilterLocationsState.Loaded,
             dismiss = {}
