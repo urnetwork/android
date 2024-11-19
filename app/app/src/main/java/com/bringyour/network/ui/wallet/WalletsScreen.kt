@@ -101,7 +101,7 @@ fun WalletsScreen(
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
         circleWalletExists = walletViewModel.circleWalletExists,
         refresh = walletViewModel.refreshWalletsInfo,
-        isRefreshing = walletViewModel.isRefreshing
+        isRefreshing = walletViewModel.isRefreshingWallets
     )
 }
 
