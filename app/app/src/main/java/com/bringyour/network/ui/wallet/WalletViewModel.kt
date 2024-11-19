@@ -22,6 +22,7 @@ import com.bringyour.network.ByDeviceManager
 import com.bringyour.network.CircleWalletManager
 import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -119,24 +120,54 @@ class WalletViewModel @Inject constructor(
         calendar.get(Calendar.HOUR_OF_DAY)
     }
 
-    var isRefreshing by mutableStateOf(false)
+    /**
+     * For refreshing wallets screen
+     * including payouts and unpaid bytes
+     */
+    var isRefreshingWallets by mutableStateOf(false)
         private set
 
-    private val setIsRefreshing: (Boolean) -> Unit = { isRefreshing ->
-        this.isRefreshing = isRefreshing
+    private val setIsRefreshingWallets: (Boolean) -> Unit = { isRefreshing ->
+        this.isRefreshingWallets = isRefreshing
+    }
+
+    /**
+     * For freshing individual wallet
+     * including payouts and Circle balance
+     */
+    var isRefreshingWallet by mutableStateOf(false)
+        private set
+
+    private val setIsRefreshingWallet: (Boolean) -> Unit = { isRefreshing ->
+        this.isRefreshingWallet = isRefreshing
     }
 
     private var paymentsRefreshed = false
     private var transferStatsRefreshed = false
 
     val refreshWalletsInfo = {
-        if (!isRefreshing) {
-            setIsRefreshing(true)
+        if (!isRefreshingWallets) {
+            setIsRefreshingWallets(true)
             paymentsRefreshed = false
             transferStatsRefreshed = false
 
             walletVc?.fetchPayments()
             walletVc?.fetchTransferStats()
+        }
+    }
+
+    val refreshWalletInfo: (Boolean) -> Unit = { isCircleWallet ->
+
+        if (!isRefreshingWallet && !isRefreshingWallets && paymentsRefreshed) {
+            setIsRefreshingWallet(true)
+            paymentsRefreshed = false
+
+            if (isCircleWallet) {
+                fetchCircleWalletInfo()
+            }
+
+            walletVc?.fetchPayments()
+
         }
     }
 
@@ -257,7 +288,6 @@ class WalletViewModel @Inject constructor(
 
             val updatedWallets = mutableListOf<AccountWallet>()
 
-            // var circleWalletExists = false
             setCircleWalletExists(false)
 
             for (i in 0 until n) {
@@ -405,9 +435,17 @@ class WalletViewModel @Inject constructor(
 
             paymentsRefreshed = true
 
-            if (isRefreshing && transferStatsRefreshed) {
+            // refreshing all wallets
+            if (isRefreshingWallets && transferStatsRefreshed) {
                 viewModelScope.launch {
-                    setIsRefreshing(false)
+                    setIsRefreshingWallets(false)
+                }
+            }
+
+            // refreshing individual wallet
+            if (isRefreshingWallet) {
+                viewModelScope.launch {
+                    setIsRefreshingWallet(false)
                 }
             }
         }
@@ -458,9 +496,9 @@ class WalletViewModel @Inject constructor(
         walletVc?.addUnpaidByteCountListener{ ubc ->
             unpaidMegaByteCount = String.format("%.4f", ubc / (1024.0 * 1024.0))
             transferStatsRefreshed = true
-            if (isRefreshing && paymentsRefreshed) {
-                viewModelScope.launch {
-                    setIsRefreshing(false)
+            if (isRefreshingWallets && paymentsRefreshed) {
+                viewModelScope.launch(Dispatchers.Main) {
+                    setIsRefreshingWallets(false)
                 }
             }
         }

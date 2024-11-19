@@ -99,8 +99,8 @@ fun WalletScreen(
         circleWalletBalance = walletViewModel.circleWalletBalance,
         setCircleWalletBalance = walletViewModel.setCircleWalletBalance,
         launchOverlay = overlayViewModel.launch,
-        refresh = walletViewModel.refreshWalletsInfo,
-        isRefreshing = walletViewModel.isRefreshing
+        refresh = walletViewModel.refreshWalletInfo,
+        isRefreshing = walletViewModel.isRefreshingWallet
     )
 }
 
@@ -123,7 +123,7 @@ fun WalletScreen(
     circleWalletBalance: Double,
     setCircleWalletBalance: (Double) -> Unit,
     launchOverlay: (OverlayMode) -> Unit,
-    refresh: () -> Unit,
+    refresh: (Boolean) -> Unit,
     isRefreshing: Boolean,
 ) {
 
@@ -173,8 +173,9 @@ fun WalletScreen(
 @Composable
 fun WalletContentScaffold(
     navController: NavController,
-    refresh: () -> Unit,
+    refresh: (Boolean) -> Unit,
     isRefreshing: Boolean,
+    isCircleWallet: Boolean,
     content: @Composable () -> Unit,
 ) {
 
@@ -208,7 +209,9 @@ fun WalletContentScaffold(
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
                 state = refreshState,
-                onRefresh = refresh,
+                onRefresh = {
+                    refresh(isCircleWallet)
+                            },
             ) {
                 content()
             }
@@ -234,7 +237,7 @@ fun CircleWalletScaffold(
     walletBalance: Double,
     setCircleWalletBalance: (Double) -> Unit,
     launchOverlay: (OverlayMode) -> Unit,
-    refresh: () -> Unit,
+    refresh: (Boolean) -> Unit,
     isRefreshing: Boolean,
     circleViewModel: CircleTransferViewModel = hiltViewModel()
 ) {
@@ -322,13 +325,14 @@ fun CircleWalletScreenContent(
     scaffoldState: BottomSheetScaffoldState,
     setSendToAddress: (TextFieldValue) -> Unit,
     setTransferAmountFieldValue: (TextFieldValue, Double) -> Unit,
-    refresh: () -> Unit,
+    refresh: (Boolean) -> Unit,
     isRefreshing: Boolean,
 ) {
     WalletContentScaffold(
         navController,
         refresh,
-        isRefreshing
+        isRefreshing,
+        isCircleWallet
     ) {
 
         LazyColumn(
@@ -388,7 +392,8 @@ fun CircleWalletScreenContent(
 
                     // circle wallet balance
                     Column(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .background(MainTintedBackgroundBase, shape = RoundedCornerShape(8.dp))
                             .padding(
                                 start = 16.dp,
@@ -600,7 +605,7 @@ fun ExternalWalletScreenContent(
     removeWalletModalVisible: Boolean,
     closeRemoveWalletModal: () -> Unit,
     openRemoveWalletModal: () -> Unit,
-    refresh: () -> Unit,
+    refresh: (Boolean) -> Unit,
     isRefreshing: Boolean,
 ) {
 
@@ -608,6 +613,7 @@ fun ExternalWalletScreenContent(
         navController,
         refresh,
         isRefreshing,
+        isCircleWallet = false
     ) {
 
         LazyColumn(
