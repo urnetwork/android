@@ -271,7 +271,7 @@ android {
 
     tasks.register('goclientBuild', Exec) {
         workingDir "${bringyourHomeDir}/sdk"
-        commandLine 'make', 'clean', 'build_android'
+        commandLine 'make', 'init', 'build_android'
     }
 
     tasks.withType(JavaCompile).tap {
