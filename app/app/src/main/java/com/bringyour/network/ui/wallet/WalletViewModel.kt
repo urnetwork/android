@@ -494,11 +494,11 @@ class WalletViewModel @Inject constructor(
 
     val addUnpaidByteCountListener = {
         walletVc?.addUnpaidByteCountListener{ ubc ->
-            unpaidMegaByteCount = String.format("%.4f", ubc / (1024.0 * 1024.0))
-            transferStatsRefreshed = true
-            if (isRefreshingWallets && paymentsRefreshed) {
-                viewModelScope.launch(Dispatchers.Main) {
-                    setIsRefreshingWallets(false)
+            viewModelScope.launch(Dispatchers.Main) {
+                unpaidMegaByteCount = String.format("%.4f", ubc / (1024.0 * 1024.0))
+                transferStatsRefreshed = true
+                if (isRefreshingWallets && paymentsRefreshed) {
+                        setIsRefreshingWallets(false)
                 }
             }
         }
