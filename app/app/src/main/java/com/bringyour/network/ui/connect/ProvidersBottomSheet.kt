@@ -87,6 +87,7 @@ fun ProvidersBottomSheet(
         setSearchQueryTextFieldValue = locationsViewModel.setSearchQueryTextFieldValue,
         currentSearchQuery = locationsViewModel.currentSearchQuery,
         connect = connect,
+        refreshLocations = locationsViewModel.refreshLocations
     ) { innerPadding ->
         content(innerPadding)
     }
@@ -110,6 +111,7 @@ fun ProvidersBottomSheet(
     searchQueryTextFieldValue: TextFieldValue,
     setSearchQueryTextFieldValue: (TextFieldValue) -> Unit,
     currentSearchQuery: String,
+    refreshLocations: () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -118,6 +120,10 @@ fun ProvidersBottomSheet(
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
             keyboardController?.hide()
+        }
+
+        if (scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) {
+            refreshLocations()
         }
     }
 
@@ -265,43 +271,49 @@ fun ProvidersBottomSheet(
                     }
 
                     when(fetchLocationsState) {
+                        FilterLocationsState.Loaded,
                         FilterLocationsState.Loading -> {
-                            Column(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color = Black)
-                                    .padding(horizontal = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(24.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
-                            }
-                        }
-                        FilterLocationsState.Loaded -> {
 
-                            LocationsList(
-                                onLocationSelect = { location ->
-                                    connect(location)
-                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                                },
-                                promotedLocations = promotedLocations,
-                                connectCountries = connectCountries,
-                                cities = cities,
-                                regions = regions,
-                                bestSearchMatches = bestSearchMatches,
-                                getLocationColor = getLocationColor,
-                                selectedLocation = selectedLocation,
-                                devices = devices,
-                                onRefresh = {
-                                    filterLocations(currentSearchQuery)
-                                },
-                                searchQuery = currentSearchQuery,
-                                listState = lazyListState
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+
+                                LocationsList(
+                                    onLocationSelect = { location ->
+                                        connect(location)
+                                        scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                                    },
+                                    promotedLocations = promotedLocations,
+                                    connectCountries = connectCountries,
+                                    cities = cities,
+                                    regions = regions,
+                                    bestSearchMatches = bestSearchMatches,
+                                    getLocationColor = getLocationColor,
+                                    selectedLocation = selectedLocation,
+                                    devices = devices,
+                                    onRefresh = {
+                                        filterLocations(currentSearchQuery)
+                                    },
+                                    searchQuery = currentSearchQuery,
+                                    listState = lazyListState
+                                )
+
+                                if (fetchLocationsState == FilterLocationsState.Loading) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Black.copy(alpha = 0.5f))
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.width(24.dp)
+                                                .align(Alignment.Center),
+                                        )
+                                    }
+                                }
+
+                            }
+
                         }
                         FilterLocationsState.Error -> {
                             Column(
@@ -348,7 +360,8 @@ private fun PreviewBottomSheet() {
             fetchLocationsState = FilterLocationsState.Loaded,
             searchQueryTextFieldValue = TextFieldValue(""),
             setSearchQueryTextFieldValue = {},
-            currentSearchQuery = ""
+            currentSearchQuery = "",
+            refreshLocations = {}
         ) {
             Text("Hello world")
         }
@@ -384,7 +397,8 @@ private fun PreviewBottomSheetExpanded() {
             fetchLocationsState = FilterLocationsState.Loaded,
             searchQueryTextFieldValue = TextFieldValue(""),
             setSearchQueryTextFieldValue = {},
-            currentSearchQuery = ""
+            currentSearchQuery = "",
+            refreshLocations = {}
         ) {
             Text("Hello world")
         }
