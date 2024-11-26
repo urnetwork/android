@@ -20,13 +20,27 @@ dependencyResolutionManagement {
 
         // circle sdk
         maven {
+
+            def mavenPassword = System.getenv("GITHUB_TOKEN") ?: null
+
+           
+
             Properties properties = new Properties()
             properties.load(new File(rootDir.absolutePath + "/dependencies.properties").newDataInputStream())
-            url properties.getProperty('pwsdk.maven.url')
 
-            credentials {
-                username properties.getProperty('pwsdk.maven.username')
-                password properties.getProperty('pwsdk.maven.password')
+            if (mavenPassword != null) {
+                url properties.getProperty('pwsdk.maven.url')
+                credentials {
+                    username 'x-access-token'
+                    password mavenPassword
+                }
+            } else {
+                url properties.getProperty('pwsdk.maven.url')
+
+                credentials {
+                    username properties.getProperty('pwsdk.maven.username')
+                    password properties.getProperty('pwsdk.maven.password')
+                }
             }
         }
     }
