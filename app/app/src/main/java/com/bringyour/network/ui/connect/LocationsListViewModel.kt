@@ -54,21 +54,8 @@ class LocationsListViewModel @Inject constructor(
     // when searching, items with matchDistance of 0
     val bestSearchMatches = mutableStateListOf<ConnectLocation>()
 
-    private var lastLocationsRefreshTime = 0L
-
     val refreshLocations: () -> Unit = {
-
-        val currentTime = System.currentTimeMillis()
-
-        val refreshThreshold = 30000 // 30 seconds
-
-        if (currentTime - lastLocationsRefreshTime > refreshThreshold) {
-
-            lastLocationsRefreshTime = currentTime
-
-            locationsVc?.filterLocations(currentSearchQuery)
-
-        }
+        locationsVc?.filterLocations(currentSearchQuery)
     }
 
     val filterLocations:(String) -> Unit = { search ->

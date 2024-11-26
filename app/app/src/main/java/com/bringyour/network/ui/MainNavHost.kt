@@ -96,6 +96,7 @@ fun MainNavHost(
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
     overlayViewModel: OverlayViewModel = hiltViewModel(),
     connectViewModel: ConnectViewModel = hiltViewModel(),
+    locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
@@ -225,6 +226,8 @@ fun MainNavHost(
                                         scope.launch { locationsSheetState.bottomSheetState.partialExpand() }
                                     }
 
+                                    locationsListViewModel.refreshLocations()
+
                                 } else {
                                     navController.navigate(screen.route) {
                                         // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
@@ -265,7 +268,8 @@ fun MainNavHost(
                                 navController = navController,
                                 walletViewModel = walletViewModel,
                                 connectViewModel = connectViewModel,
-                                locationsSheetState = locationsSheetState
+                                locationsSheetState = locationsSheetState,
+                                locationsListViewModel = locationsListViewModel
                             )
                         }
 
@@ -293,7 +297,8 @@ fun MainNavHost(
                             navController = navController,
                             walletViewModel = walletViewModel,
                             connectViewModel = connectViewModel,
-                            locationsSheetState = locationsSheetState
+                            locationsSheetState = locationsSheetState,
+                            locationsListViewModel = locationsListViewModel
                         )
 
                         if (!isTv()) {
@@ -333,9 +338,10 @@ fun MainNavContent(
     navController: NavHostController,
     connectViewModel: ConnectViewModel,
     locationsSheetState: BottomSheetScaffoldState,
+    locationsListViewModel: LocationsListViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    locationsListViewModel: LocationsListViewModel = hiltViewModel()
+    // /locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx = if (isTv())

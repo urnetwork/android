@@ -120,7 +120,6 @@ fun ProvidersBottomSheet(
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
             keyboardController?.hide()
-            refreshLocations()
         }
 
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) {
