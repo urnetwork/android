@@ -272,22 +272,6 @@ fun ProvidersBottomSheet(
                     }
 
                     when(fetchLocationsState) {
-//                        FilterLocationsState.Loading -> {
-//                            Column(
-//                                Modifier
-//                                    .fillMaxSize()
-//                                    .background(color = Black)
-//                                    .padding(horizontal = 16.dp),
-//                                horizontalAlignment = Alignment.CenterHorizontally,
-//                                verticalArrangement = Arrangement.Center
-//                            ) {
-//                                CircularProgressIndicator(
-//                                    modifier = Modifier.width(24.dp),
-//                                    color = MaterialTheme.colorScheme.secondary,
-//                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-//                                )
-//                            }
-//                        }
                         FilterLocationsState.Loaded,
                         FilterLocationsState.Loading -> {
 
@@ -317,10 +301,6 @@ fun ProvidersBottomSheet(
                                 )
 
                                 if (fetchLocationsState == FilterLocationsState.Loading) {
-//                                    CircularProgressIndicator(
-//                                        modifier = Modifier.align(Alignment.Center)
-//                                    )
-
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
