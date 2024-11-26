@@ -54,6 +54,23 @@ class LocationsListViewModel @Inject constructor(
     // when searching, items with matchDistance of 0
     val bestSearchMatches = mutableStateListOf<ConnectLocation>()
 
+    private var lastLocationsRefreshTime = 0L
+
+    val refreshLocations: () -> Unit = {
+
+        val currentTime = System.currentTimeMillis()
+
+        val refreshThreshold = 30000 // 30 seconds
+
+        if (currentTime - lastLocationsRefreshTime > refreshThreshold) {
+
+            lastLocationsRefreshTime = currentTime
+
+            locationsVc?.filterLocations(currentSearchQuery)
+
+        }
+    }
+
     val filterLocations:(String) -> Unit = { search ->
 
         if (
@@ -62,14 +79,6 @@ class LocationsListViewModel @Inject constructor(
             // but if we're in an error state, run the query
             _filterLocationsState.value == FilterLocationsState.Error)
         {
-
-            connectCountries.clear()
-            promotedLocations.clear()
-            devices.clear()
-            cities.clear()
-            regions.clear()
-            bestSearchMatches.clear()
-
             currentSearchQuery = search
             locationsVc?.filterLocations(search)
         }
@@ -121,25 +130,12 @@ class LocationsListViewModel @Inject constructor(
         }
     }
 
-//    private val addFilterLocationsStateListener = {
-//        locationsVc?.let { vc ->
-//            vc.addFilteredLocationsStateListener { state ->
-//
-//                val stateFromString = FilterLocationsState.fromString(state)
-//                if (stateFromString != null) {
-//                    _filterLocationsState.value = stateFromString
-//                }
-//            }
-//        }
-//    }
-
     init {
 
         val byDevice = byDeviceManager.byDevice
         locationsVc = byDevice?.openLocationsViewController()
 
         addFilteredLocationsListener()
-//        addFilterLocationsStateListener()
 
         viewModelScope.launch {
             locationsVc?.start()
