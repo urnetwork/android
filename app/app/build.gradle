@@ -20,10 +20,22 @@ plugins {
 
 import java.text.SimpleDateFormat
 import org.yaml.snakeyaml.Yaml
+import groovy.json.JsonSlurper
+import org.apache.commons.io.FilenameUtils
 
+def githubRepo = 'urnetwork/sdk'
+def latestReleaseUrl = "https://api.github.com/repos/${githubRepo}/releases/latest"
+def downloadDir = "${buildDir}/downloads"
 
-def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
+def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "."
 
+subprojects { subproject ->
+    subproject.tasks.whenTaskAdded {
+        if (it.name.contains("kapt")) {
+            it.enabled = false
+        }
+    }
+}
 ext.envSecret = { envName ->
     def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
     if (servicesFile.exists()) {
@@ -41,31 +53,41 @@ ext.envSecret = { envName ->
 }
 
 android {
-    ext.appVersion = { ->
-        def out = new ByteArrayOutputStream()
-        def osName = ''
-        def osArch = ''
-        switch (System.getProperty('os.name')) {
-            case 'Linux':
-                osName = 'linux'
-                break
-            case 'Mac OS X':
-                osName = 'darwin'
-                break
-        }
-        switch (System.getProperty('os.arch')) {
-            case 'amd64':
-                osArch = 'amd64'
-            case 'aarch64':
-                osArch = 'arm64'
-                break
-        }
-        exec {
-            executable "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl"
-            args 'ls', 'version', '-b'
-            standardOutput out
-        }
-        out.toString().trim()
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_19
+    targetCompatibility JavaVersion.VERSION_19
+    }
+    kotlinOptions {
+        jvmTarget = '19'
+    }
+
+    ext.appVersion = { -> "1.2.3"
+
+        // def out = new ByteArrayOutputStream()
+        // def osName = ''
+        // def osArch = ''
+        // switch (System.getProperty('os.name')) {
+        //     case 'Linux':
+        //         osName = 'linux'
+        //         break
+        //     case 'Mac OS X':
+        //         osName = 'darwin'
+        //         break
+        // }
+        // switch (System.getProperty('os.arch')) {
+        //     case 'amd64':
+        //         osArch = 'amd64'
+        //     case 'aarch64':
+        //         osArch = 'arm64'
+        //         break
+        // }
+        // exec {
+        //     executable "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl"
+        //     args 'ls', 'version', '-b'
+        //     standardOutput out
+        // }
+        // out.toString().trim()
     }
     ext.appVersionCode = { ->
         // hours since company founding
@@ -98,10 +120,10 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file("${System.properties['user.home']}/.android/debug.keystore")
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storePassword 'android'
+            storeFile file(System.getenv('ANDROID_KEYSTORE_FILE') ?: "${System.properties['user.home']}/.android/debug.keystore")
+            keyAlias System.getenv('ANDROID_KEYSTORE_ALIAS') ?: 'androiddebugkey'
+            keyPassword System.getenv('ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD') ?: 'android'
+            storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD') ?: 'android'
         }
     }
 
@@ -269,14 +291,36 @@ android {
         kotlinCompilerExtensionVersion = "1.5.13"
     }
 
-    tasks.register('goclientBuild', Exec) {
-        workingDir "${bringyourHomeDir}/sdk"
-        commandLine 'make', 'init', 'build_android'
+    // tasks.register('goclientBuild', Exec) {
+    //     // workingDir "${bringyourHomeDir}/sdk"
+    //     commandLine 'bash' '-c' ''
+    // }
+
+    task downloadLatestReleaseArtifacts {
+        doLast {
+            def conn = new URL(latestReleaseUrl).openConnection()
+
+            def json = new JsonSlurper().parse(conn.inputStream)
+            json.assets.each { asset ->
+                if (asset.name.endsWith('.jar') || asset.name.endsWith('.aar')) {
+                    def downloadUrl = asset.browser_download_url
+                    def fileName = FilenameUtils.getName(downloadUrl)
+                    def file = new File(downloadDir, fileName)
+                    if (!file.parentFile.exists()) {
+                        file.parentFile.mkdirs()
+                    }
+                    println "Downloading ${downloadUrl}"
+                    file.withOutputStream { out ->
+                        new URL(downloadUrl).withInputStream { from -> out << from }
+                    }
+                }
+            }
+        }
     }
 
     tasks.withType(JavaCompile).tap {
         configureEach {
-            compileTask -> compileTask.dependsOn goclientBuild
+            compileTask -> compileTask.dependsOn downloadLatestReleaseArtifacts
         }
     }
 }
