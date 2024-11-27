@@ -29,6 +29,13 @@ def downloadDir = "${buildDir}/downloads"
 
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "."
 
+subprojects { subproject ->
+    subproject.tasks.whenTaskAdded {
+        if (it.name.contains("kapt")) {
+            it.enabled = false
+        }
+    }
+}
 ext.envSecret = { envName ->
     def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
     if (servicesFile.exists()) {

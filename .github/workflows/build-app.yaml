@@ -33,4 +33,4 @@ jobs:
           ANDROID_KEYSTORE_ALIAS: solana_dapp
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.APP_SIGNING_KEYSTORE_PASSWORD }}
           ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD: ${{ secrets.APP_SIGNING_KEY_SOLANA_DAPP_PASSWORD }}
-        run: ./gradlew assembleRelease --info
+        run: ./gradlew assembleRelease
