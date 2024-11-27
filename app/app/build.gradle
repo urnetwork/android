@@ -104,10 +104,10 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file("${System.properties['user.home']}/.android/debug.keystore")
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storePassword 'android'
+            storeFile file(System.getenv('ANDROID_KEYSTORE_FILE') ?: "${System.properties['user.home']}/.android/debug.keystore")
+            keyAlias System.getenv('ANDROID_KEYSTORE_ALIAS') ?: 'androiddebugkey'
+            keyPassword System.getenv('ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD') ?: 'android'
+            storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD') ?: 'android'
         }
     }
 
