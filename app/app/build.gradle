@@ -20,9 +20,14 @@ plugins {
 
 import java.text.SimpleDateFormat
 import org.yaml.snakeyaml.Yaml
+import groovy.json.JsonSlurper
+import org.apache.commons.io.FilenameUtils
 
+def githubRepo = 'urnetwork/sdk'
+def latestReleaseUrl = "https://api.github.com/repos/${githubRepo}/releases/latest"
+def downloadDir = "${buildDir}/downloads"
 
-def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
+def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "."
 
 ext.envSecret = { envName ->
     def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
@@ -270,14 +275,36 @@ android {
         kotlinCompilerExtensionVersion = "1.5.13"
     }
 
-    tasks.register('goclientBuild', Exec) {
-        // workingDir "${bringyourHomeDir}/sdk"
-        commandLine 'echo'
+    // tasks.register('goclientBuild', Exec) {
+    //     // workingDir "${bringyourHomeDir}/sdk"
+    //     commandLine 'bash' '-c' ''
+    // }
+
+    task downloadLatestReleaseArtifacts {
+        doLast {
+            def conn = new URL(latestReleaseUrl).openConnection()
+
+            def json = new JsonSlurper().parse(conn.inputStream)
+            json.assets.each { asset ->
+                if (asset.name.endsWith('.jar') || asset.name.endsWith('.aar')) {
+                    def downloadUrl = asset.browser_download_url
+                    def fileName = FilenameUtils.getName(downloadUrl)
+                    def file = new File(downloadDir, fileName)
+                    if (!file.parentFile.exists()) {
+                        file.parentFile.mkdirs()
+                    }
+                    println "Downloading ${downloadUrl}"
+                    file.withOutputStream { out ->
+                        new URL(downloadUrl).withInputStream { from -> out << from }
+                    }
+                }
+            }
+        }
     }
 
     tasks.withType(JavaCompile).tap {
         configureEach {
-            compileTask -> compileTask.dependsOn goclientBuild
+            compileTask -> compileTask.dependsOn downloadLatestReleaseArtifacts
         }
     }
 }
