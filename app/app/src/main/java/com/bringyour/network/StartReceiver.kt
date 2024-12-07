@@ -15,7 +15,7 @@ class StartReceiver : BroadcastReceiver() {
                     // note starting in Android 15, boot completed receivers cannot start foreground services
                     // see https://developer.android.com/about/versions/15/behavior-changes-15#fgs-boot-completed
                     // TODO do we need to use a foreground service generally
-                    app.startVpnService(false)
+                    app.startVpnServiceWithForeground(false)
                 }
             }
         }

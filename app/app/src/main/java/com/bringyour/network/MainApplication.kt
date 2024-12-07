@@ -464,7 +464,7 @@ class MainApplication : Application() {
         val routeLocal = byDevice.routeLocal
 
         if (provideEnabled || connectEnabled || !routeLocal) {
-            startVpnService(true)
+            startVpnService()
             // if provide paused, keep the vpn on but do not keep the locks
             if (provideEnabled && !providePaused) {
                 if (wakeLock == null) {
@@ -510,8 +510,11 @@ class MainApplication : Application() {
         }
     }
 
+    fun startVpnService() {
+        startVpnServiceWithForeground(true)
+    }
 
-    fun startVpnService(foreground: Boolean) {
+    fun startVpnServiceWithForeground(foreground: Boolean) {
         val byDevice = byDevice ?: return
 
 
