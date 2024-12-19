@@ -24,57 +24,38 @@ import java.net.InetAddress
 
 
 // see https://developer.android.com/develop/connectivity/vpn
-
-
-
 class MainService : VpnService() {
     companion object {
-
         const val NOTIFICATION_ID = 101
         const val NOTIFICATION_CHANNEL_ID = "URnetwork"
-
     }
 
-
-
-    // TODO opt this process out of the vpn network?
-
-    // addDisallowedApplication (String packageName)
 
     private var pfd: ParcelFileDescriptor? = null
     private var foregroundStarted: Boolean = false
 
-//    private var managed: Boolean = false
-
 
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
-
-        // FIXME get the local IPv4 and IPv6 address from the platform
-        // FIXME when using auth login, the jwt should contain the local addresses
-
-
-        // FIXME bundle args to start, restart, stop
-
         val app = application as MainApplication
-
-//        Log.i(TAG,"START INTENT = $intent")
-
-//        managed = intent?.getBooleanExtra("managed", false) ?: false
-
 
         intent?.getBooleanExtra("stop", false)?.let { stop ->
             if (stop) {
-                try {
-                    pfd?.close()
-                } catch (e: IOException) {
-                    // ignore
-                }
-                pfd = null
+                stop()
             }
         }
 
         intent?.getBooleanExtra("start", true)?.let { start ->
             if (start) {
+                intent.getBooleanExtra("foreground", false).let { foreground ->
+                    if (foreground) {
+                        startForegroundNotification("On")
+                        // update the notification `NOTIFICATION_ID` and it will update the displayed notification
+                        // see https://stackoverflow.com/questions/5528288/how-do-i-update-the-notification-text-for-a-foreground-service-in-android
+                    } else {
+                        stopForegroundNotification()
+                    }
+                }
+
                 // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
                 if (intent.getStringExtra("source") != "app") {
                     // this was started with always-on mode
@@ -197,21 +178,7 @@ class MainService : VpnService() {
                             builder.addRoute("fe00::", 7)
                             builder.addRoute("fc00::", 8)
                         }
-
                     }
-
-//        val pfd = builder.establish()
-
-                    // fis
-                    // fos
-
-                    // thread to read fis, post to user remote nat
-                    // callback on user remote nat to synchronize on fos, write to fos
-
-                    // startForeground
-                    // show the transfer stats
-
-                    // stop self when turned off
 
                     builder.establish()?.let { pfd ->
                         try {
@@ -227,29 +194,8 @@ class MainService : VpnService() {
             }
         }
 
-        intent?.getBooleanExtra("foreground", false)?.let { notification ->
-            if (notification) {
-                if (!foregroundStarted) {
-                    startForegroundNotification("On")
-                    foregroundStarted = true
-                }
-                // update the notification `NOTIFICATION_ID` and it will update the displayed notification
-                // see https://stackoverflow.com/questions/5528288/how-do-i-update-the-notification-text-for-a-foreground-service-in-android
-            } else {
-                if (foregroundStarted) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                    foregroundStarted = false
-                }
-            }
-        }
-
-    // FIXME configure intent
-
-//        startForeground(1, getStatusNotificationBuilder().build());
-
-        // see https://developer.android.com/reference/android/app/Service#START_STICKY
+        // see https://developer.android.com/reference/android/app/Service#START_REDELIVER_INTENT
         return START_REDELIVER_INTENT
-//        return START_STICKY
     }
 
     override fun onDestroy() {
@@ -257,22 +203,7 @@ class MainService : VpnService() {
 
         super.onDestroy()
 
-//        val app = application as MainApplication
-
-
-        try {
-            pfd?.close()
-        } catch (e: IOException) {
-            // ignore
-        }
-        pfd = null
-
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
-
-//        if (!managed) {
-//            app.stop()
-//        }
+        stop()
     }
 
     override fun onRevoke() {
@@ -280,8 +211,11 @@ class MainService : VpnService() {
 
         super.onRevoke()
 
-//        val app = application as MainApplication
+        stop()
+    }
 
+
+    private fun stop() {
         try {
             pfd?.close()
         } catch (e: IOException) {
@@ -289,16 +223,12 @@ class MainService : VpnService() {
         }
         pfd = null
 
-//        if (!managed) {
-//            app.stop()
-//        }
+        stopForegroundNotification()
+        stopSelf()
     }
 
 
-
     private fun startForegroundNotification(message: String) {
-
-
         if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
             val notificationManager = getSystemService(
                     NOTIFICATION_SERVICE
@@ -329,6 +259,15 @@ class MainService : VpnService() {
             .build()
 
         startForeground(NOTIFICATION_ID, notification)
+        foregroundStarted = true
+    }
+
+
+    private fun stopForegroundNotification() {
+        if (foregroundStarted) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            foregroundStarted = false
+        }
     }
 
 }
