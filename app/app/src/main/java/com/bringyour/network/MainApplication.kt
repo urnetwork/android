@@ -1,6 +1,7 @@
 package com.bringyour.network
 
 import android.app.Application
+import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -545,8 +546,18 @@ class MainApplication : Application() {
                             android.Manifest.permission.POST_NOTIFICATIONS
                         ) == PackageManager.PERMISSION_GRANTED
                         if (hasForegroundPermissions) {
-                            startForegroundService(vpnIntent)
+                            try {
+                                startForegroundService(vpnIntent)
+                            } catch (e: ForegroundServiceStartNotAllowedException) {
+                                startService(vpnIntent)
+                            }
                         } else {
+                            startService(vpnIntent)
+                        }
+                    } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
+                        try {
+                            ContextCompat.startForegroundService(this, vpnIntent)
+                        } catch (e: ForegroundServiceStartNotAllowedException) {
                             startService(vpnIntent)
                         }
                     } else {
@@ -578,7 +589,7 @@ class MainApplication : Application() {
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
         try {
-            startService(vpnIntent)
+            stopService(vpnIntent)
         } catch (e: Exception) {
             Log.i(TAG, "Error trying to communicate with the vpn service to stop: ${e.message}")
             // ignore
