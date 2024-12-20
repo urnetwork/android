@@ -107,6 +107,8 @@ class MainActivity: AppCompatActivity() {
         // immutable shadow
         val app = application as MainApplication
 
+        app.allowForeground = true
+
         sagaActivitySender = ActivityResultSender(this)
 
         reviewManager = ReviewManagerFactory.create(this)
