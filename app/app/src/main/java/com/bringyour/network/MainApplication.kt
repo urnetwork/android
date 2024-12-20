@@ -56,6 +56,7 @@ class MainApplication : Application() {
     }
 
     var networkSpaceSub: Sub? = null
+    var allowForeground: Boolean = false
 
 //    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
@@ -512,7 +513,10 @@ class MainApplication : Application() {
     }
 
     fun startVpnService() {
-        startVpnServiceWithForeground(true)
+        // note starting in Android 15, boot completed receivers cannot start foreground services
+        // the app will not allow foreground until the activity is explicitly opened
+        // see https://developer.android.com/about/versions/15/behavior-changes-15#fgs-boot-completed
+        startVpnServiceWithForeground(allowForeground)
     }
 
     fun startVpnServiceWithForeground(foreground: Boolean) {
