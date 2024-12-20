@@ -48,6 +48,7 @@ import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
@@ -382,25 +383,23 @@ class MainActivity: AppCompatActivity() {
                 .build()
         )
 
-        val subscriptionCreatePaymentIdResult: SubscriptionCreatePaymentIdResult? = withContext(
-            Dispatchers.IO) {
-            app.api?.subscriptionCreatePaymentIdSync(SubscriptionCreatePaymentIdArgs())
-        }
 
-        val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(productDetailsParamsList)
-
-        subscriptionCreatePaymentIdResult?.subscriptionPaymentId?.string()?.let {
-            buildingFlowParamsBuilder.setObfuscatedAccountId(it)
-        }
-
-        val billingFlowParams = buildingFlowParamsBuilder.build()
-
-        // Launch the billing flow
-
-        activity.let { a ->
-            val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
-            Log.i("MainActivity", "billing result: $billingResult")
+        app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs()) { result, err ->
+            if (err == null) {
+                val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
+                    .setProductDetailsParamsList(productDetailsParamsList)
+                result?.subscriptionPaymentId?.string()?.let {
+                    buildingFlowParamsBuilder.setObfuscatedAccountId(it)
+                }
+                val billingFlowParams = buildingFlowParamsBuilder.build()
+                runBlocking(Dispatchers.Main.immediate) {
+                    // Launch the billing flow
+                    activity.let { a ->
+                        val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
+                        Log.i("MainActivity", "billing result: $billingResult")
+                    }
+                }
+            }
         }
     }
 }
