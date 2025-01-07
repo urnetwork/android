@@ -13,19 +13,16 @@ class PromptReviewViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
 ): ViewModel() {
 
-    private val _promptReview = MutableStateFlow(false)
-    val promptReview: StateFlow<Boolean> = _promptReview
-
     val checkTriggerPromptReview = {
         Log.i("PromptReviewViewModel", "check trigger prompt review")
-        if (deviceManager.device?.shouldShowRatingDialog == true) {
-            Log.i("PromptReviewViewModel", "prompt the review")
-            _promptReview.value = true
-        }
+        deviceManager.device?.shouldShowRatingDialog == true
     }
 
-    val resetPromptReview = {
-        _promptReview.value = false
+    val enablePromptReview = {
+        deviceManager.canShowRatingDialog = true
+    }
+
+    val disablePromptReview = {
         deviceManager.canShowRatingDialog = false
     }
 

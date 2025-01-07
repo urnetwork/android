@@ -217,26 +217,6 @@ class MainActivity: AppCompatActivity() {
             }
         }
 
-        // watch for review prompt
-        lifecycleScope.launch {
-            promptReviewViewModel.promptReview.collect { prompt ->
-                if (prompt) {
-                    val request = reviewManager?.requestReviewFlow()
-                    request?.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            // We got the ReviewInfo object
-                            val reviewInfo = task.result
-                            launchReviewFlow(reviewInfo)
-                        } else {
-                            // There was some problem, log or handle the error code.
-                            @ReviewErrorCode val reviewErrorCode = (task.getException() as ReviewException).errorCode
-                            Log.i("MainActivity", "error prompting review -> code: $reviewErrorCode")
-                        }
-                    }
-                }
-            }
-        }
-
         // for upgrading plan
         lifecycleScope.launch {
             planViewModel.requestPlanUpgrade.collect {
@@ -248,6 +228,29 @@ class MainActivity: AppCompatActivity() {
         lifecycleScope.launch {
             walletViewModel.requestSagaWallet.collect {
                 requestSagaWallet()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+
+        // watch for review prompt
+        lifecycleScope.launch {
+            if (promptReviewViewModel.checkTriggerPromptReview()) {
+                val request = reviewManager?.requestReviewFlow()
+                request?.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        // We got the ReviewInfo object
+                        val reviewInfo = task.result
+                        launchReviewFlow(reviewInfo)
+                    } else {
+                        // There was some problem, log or handle the error code.
+                        @ReviewErrorCode val reviewErrorCode = (task.getException() as ReviewException).errorCode
+                        Log.i("MainActivity", "error prompting review -> code: $reviewErrorCode")
+                    }
+                }
             }
         }
     }
@@ -267,7 +270,7 @@ class MainActivity: AppCompatActivity() {
             // The flow has finished. The API does not indicate whether the user
             // reviewed or not, or even whether the review dialog was shown. Thus, no
             // matter the result, we continue our app flow.
-            promptReviewViewModel.resetPromptReview()
+            promptReviewViewModel.enablePromptReview()
         }
 
     }
