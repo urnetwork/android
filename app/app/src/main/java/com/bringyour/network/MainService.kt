@@ -1,24 +1,17 @@
 package com.bringyour.network
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.IpPrefix
 import android.net.VpnService
-import android.net.wifi.WifiManager
-import android.os.Binder
 import android.os.Build
-import android.os.IBinder
 import android.os.ParcelFileDescriptor
-import android.os.PowerManager
 import android.system.OsConstants.AF_INET
 import android.system.OsConstants.AF_INET6
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
 import java.io.IOException
 import java.net.InetAddress
 
@@ -60,7 +53,7 @@ class MainService : VpnService() {
                 if (intent.getStringExtra("source") != "app") {
                     // this was started with always-on mode
                     // turn off local routing
-                    app.byDeviceManager.routeLocal = false
+                    app.deviceManager.routeLocal = false
                 }
 
                 val offline = intent.getBooleanExtra("offline", false)

@@ -78,7 +78,7 @@ class MainApplication : Application() {
     var hasBiometric: Boolean = false
 
     @Inject
-    lateinit var byDeviceManager: ByDeviceManager
+    lateinit var deviceManager: DeviceManager
 
     @Inject
     lateinit var circleWalletManager: CircleWalletManager
@@ -98,7 +98,8 @@ class MainApplication : Application() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
 
-    val byDevice get() = byDeviceManager.byDevice
+    val device get() = deviceManager.device
+    val vcManager get() = deviceManager.vcManager
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
 //    val apiUrl get() = networkSpace?.apiUrl
@@ -195,7 +196,7 @@ class MainApplication : Application() {
 
                 Log.i(TAG, "network available device = $network")
                 connectedNetwork = network
-                byDevice?.offline = false
+                device?.offline = false
             }
 
             override fun onLost(network: Network) {
@@ -204,7 +205,7 @@ class MainApplication : Application() {
                 if (network == connectedNetwork) {
                     Log.i(TAG, "network lost device = $network")
                     connectedNetwork = null
-                    byDevice?.offline = true
+                    device?.offline = true
                 }
             }
         }
@@ -241,7 +242,7 @@ class MainApplication : Application() {
 
                 Log.i(TAG, "network available device = $network")
                 connectedNetwork = network
-                byDevice?.providePaused = false
+                device?.providePaused = false
             }
 
 //            override fun onCapabilitiesChanged(
@@ -260,7 +261,7 @@ class MainApplication : Application() {
                 if (network == connectedNetwork) {
                     Log.i(TAG, "network lost device = $network")
                     connectedNetwork = null
-                    byDevice?.providePaused = true
+                    device?.providePaused = true
                 }
             }
         }
@@ -325,7 +326,7 @@ class MainApplication : Application() {
         removeOfflineCallback()
 
         devicesVc?.let {
-            byDevice?.closeViewController(it)
+            vcManager?.closeViewController(it)
         }
         devicesVc = null
 
@@ -345,7 +346,7 @@ class MainApplication : Application() {
 
 //        byDevice?.close()
 //        byDevice = null
-        byDeviceManager.clearByDevice()
+        deviceManager.clearDevice()
 
         accountVc?.close()
         accountVc = null
@@ -356,14 +357,14 @@ class MainApplication : Application() {
 
 
     private fun initDevice(byClientJwt: String) {
-        byDeviceManager.initDevice(
+        deviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
             deviceDescription,
             deviceSpec
         )
 
-        router = Router(byDevice!!) {
+        router = Router(device!!) {
             runBlocking(Dispatchers.Main.immediate) {
                 updateVpnService()
             }
@@ -373,8 +374,8 @@ class MainApplication : Application() {
 //        devicesVc = byDevice?.openDevicesViewController()
 //        accountVc = byDevice?.openAccountViewController()
 
-        devicesVc = byDevice?.openDevicesViewController()
-        accountVc = byDevice?.openAccountViewController()
+        devicesVc = vcManager?.openDevicesViewController()
+        accountVc = vcManager?.openAccountViewController()
 
 //        byDevice?.providePaused = true
 //        byDevice?.routeLocal = routeLocal
@@ -389,36 +390,36 @@ class MainApplication : Application() {
 
 
 
-        deviceRouteLocalSub = byDevice?.addRouteLocalChangeListener {
+        deviceRouteLocalSub = device?.addRouteLocalChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
                 updateVpnService()
             }
         }
-        deviceProvideSub = byDevice?.addProvideChangeListener {
+        deviceProvideSub = device?.addProvideChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.provideEnabled = provideEnabled
                 updateVpnService()
             }
         }
-        deviceProvidePausedSub = byDevice?.addProvidePausedChangeListener {
+        deviceProvidePausedSub = device?.addProvidePausedChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
                 updateVpnService()
             }
         }
-        deviceOfflineSub = byDevice?.addOfflineChangeListener { _, _ ->
+        deviceOfflineSub = device?.addOfflineChangeListener { _, _ ->
             runBlocking(Dispatchers.Main.immediate) {
                 updateVpnService()
             }
         }
-        deviceConnectSub = byDevice?.addConnectChangeListener {
+        deviceConnectSub = device?.addConnectChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
                 updateVpnService()
             }
         }
 
-        router = Router(byDevice!!)
+        router = Router(device!!)
 
         addOfflineCallback()
         addNetworkCallback()
@@ -458,12 +459,12 @@ class MainApplication : Application() {
     }
 
     private fun updateVpnService() {
-        val byDevice = byDevice ?: return
+        val device = device ?: return
 
-        val provideEnabled = byDevice.provideEnabled
-        val providePaused = byDevice.providePaused
-        val connectEnabled = byDevice.connectEnabled
-        val routeLocal = byDevice.routeLocal
+        val provideEnabled = device.provideEnabled
+        val providePaused = device.providePaused
+        val connectEnabled = device.connectEnabled
+        val routeLocal = device.routeLocal
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()
@@ -520,11 +521,11 @@ class MainApplication : Application() {
     }
 
     fun startVpnServiceWithForeground(foreground: Boolean) {
-        val byDevice = byDevice ?: return
+        val device = device ?: return
 
 
-        val offline = byDevice.offline
-        val vpnInterfaceWhileOffline = byDevice.vpnInterfaceWhileOffline
+        val offline = device.offline
+        val vpnInterfaceWhileOffline = device.vpnInterfaceWhileOffline
 
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("source", "app")

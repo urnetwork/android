@@ -1,18 +1,17 @@
 package com.bringyour.network.ui.shared.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.bringyour.sdk.ReferralCodeViewController
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class ReferralCodeViewModel @Inject constructor(
-    byDeviceManager: ByDeviceManager,
+    deviceManager: DeviceManager,
 ): ViewModel() {
 
     private var referralCodeVc: ReferralCodeViewController? = null
@@ -28,7 +27,7 @@ class ReferralCodeViewModel @Inject constructor(
 
     init {
 
-        referralCodeVc = byDeviceManager.byDevice?.openReferralCodeViewController()
+        referralCodeVc = deviceManager.vcManager?.openReferralCodeViewController()
 
         addReferralCodeListener()
 

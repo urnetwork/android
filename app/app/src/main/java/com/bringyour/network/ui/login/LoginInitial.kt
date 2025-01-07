@@ -67,7 +67,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthLoginResult
-import com.bringyour.sdk.BringYourApi
+import com.bringyour.sdk.Api
 import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
@@ -121,13 +121,13 @@ fun LoginInitial(
     isValidUserAuth: Boolean,
     login: (
         ctx: Context,
-        api: BringYourApi?,
+        api: Api?,
         onLogin: (AuthLoginResult) -> Unit,
         onNewNetwork: (AuthLoginResult) -> Unit,
     ) -> Unit,
     googleLogin: (
         context: Context,
-        api: BringYourApi?,
+        api: Api?,
         account: GoogleSignInAccount,
         onLogin: (AuthLoginResult) -> Unit,
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
@@ -591,7 +591,7 @@ private fun LoginInitialPreview() {
 
     val login: (
         Context,
-        BringYourApi?,
+        Api?,
         (AuthLoginResult) -> Unit,
         (AuthLoginResult) -> Unit,
     ) -> Unit = { context, api, onLogin, onNewNetwork ->
@@ -600,7 +600,7 @@ private fun LoginInitialPreview() {
 
     val googleLogin : (
         Context,
-        BringYourApi?,
+        Api?,
         GoogleSignInAccount,
         (AuthLoginResult) -> Unit,
         (email: String?, authJwt: String?, userName: String) -> Unit,
@@ -651,7 +651,7 @@ private fun LoginInitialLandscapePreview() {
 
     val login: (
         Context,
-        BringYourApi?,
+        Api?,
         (AuthLoginResult) -> Unit,
         (AuthLoginResult) -> Unit,
     ) -> Unit = { context, api, onLogin, onNewNetwork ->
@@ -660,7 +660,7 @@ private fun LoginInitialLandscapePreview() {
 
     val googleLogin : (
         Context,
-        BringYourApi?,
+        Api?,
         GoogleSignInAccount,
         (AuthLoginResult) -> Unit,
         (email: String?, authJwt: String?, userName: String) -> Unit,

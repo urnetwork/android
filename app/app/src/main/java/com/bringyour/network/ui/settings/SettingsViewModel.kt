@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.AccountPreferencesViewController
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
     networkSpaceManagerProvider: NetworkSpaceManagerProvider,
     @ApplicationContext private val context: Context
 ): ViewModel() {
@@ -104,14 +104,14 @@ class SettingsViewModel @Inject constructor(
 
     val toggleProvideWhileDisconnected: () -> Unit = {
         val currentProvideWhileDisconnected = provideWhileDisconnected
-        byDeviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
+        deviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
         provideWhileDisconnected = !currentProvideWhileDisconnected
     }
 
     init {
-        accountPreferencesVc = byDeviceManager.byDevice?.openAccountPreferencesViewController()
+        accountPreferencesVc = deviceManager.vcManager?.openAccountPreferencesViewController()
 
-        provideWhileDisconnected = byDeviceManager.byDevice?.provideWhileDisconnected ?: false
+        provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
 
         addAllowProductUpdatesListener()
 

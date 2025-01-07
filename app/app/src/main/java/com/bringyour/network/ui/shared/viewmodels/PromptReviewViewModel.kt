@@ -2,7 +2,7 @@ package com.bringyour.network.ui.shared.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PromptReviewViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
 ): ViewModel() {
 
     private val _promptReview = MutableStateFlow(false)
@@ -18,7 +18,7 @@ class PromptReviewViewModel @Inject constructor(
 
     val checkTriggerPromptReview = {
         Log.i("PromptReviewViewModel", "check trigger prompt review")
-        if (byDeviceManager.byDevice?.shouldShowRatingDialog == true) {
+        if (deviceManager.device?.shouldShowRatingDialog == true) {
             Log.i("PromptReviewViewModel", "prompt the review")
             _promptReview.value = true
         }
@@ -26,7 +26,7 @@ class PromptReviewViewModel @Inject constructor(
 
     val resetPromptReview = {
         _promptReview.value = false
-        byDeviceManager.canShowRatingDialog = false
+        deviceManager.canShowRatingDialog = false
     }
 
 }

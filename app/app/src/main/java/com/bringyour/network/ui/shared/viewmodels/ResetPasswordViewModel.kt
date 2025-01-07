@@ -6,14 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.AuthPasswordResetArgs
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ResetPasswordViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
 ): ViewModel() {
 
     var isSendingResetPassLink by mutableStateOf(false)
@@ -30,7 +30,7 @@ class ResetPasswordViewModel @Inject constructor(
         val args = AuthPasswordResetArgs()
         args.userAuth = userAuth.trim()
 
-        val byDevice = byDeviceManager.byDevice
+        val byDevice = deviceManager.device
         byDevice?.api?.authPasswordReset(args) { _, err ->
             viewModelScope.launch {
                 isSendingResetPassLink = false

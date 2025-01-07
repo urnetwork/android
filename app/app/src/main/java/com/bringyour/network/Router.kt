@@ -2,10 +2,8 @@ package com.bringyour.network
 
 import android.os.ParcelFileDescriptor
 import android.util.Log
-import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.ReceivePacket
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -16,7 +14,7 @@ import kotlin.concurrent.Volatile
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
-class Router(val byDevice: BringYourDevice, val reconnect: () -> Unit = {}) {
+class Router(val deviceLocal: DeviceLocal, val reconnect: () -> Unit = {}) {
     companion object {
 //        val WRITE_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(5L)
     }
@@ -86,7 +84,7 @@ class Router(val byDevice: BringYourDevice, val reconnect: () -> Unit = {}) {
                 }
 
                 Log.i("Router", "init")
-                val localSendPacketSub = byDevice.addReceivePacket(receivePacket)
+                val localSendPacketSub = deviceLocal.addReceivePacket(receivePacket)
                 try {
 
                     var nextPfd: ParcelFileDescriptor? = null
@@ -128,7 +126,7 @@ class Router(val byDevice: BringYourDevice, val reconnect: () -> Unit = {}) {
 
                                             if (0 < n) {
                                                 // note sendPacket makes a copy of the buffer
-                                                val success = byDevice.sendPacket(buffer, n)
+                                                val success = deviceLocal.sendPacket(buffer, n)
                                                 if (!success) {
                                                     Log.i("Router", "Send packet dropped.")
                                                 }

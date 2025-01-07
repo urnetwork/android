@@ -10,12 +10,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.AuthLoginArgs
 import com.bringyour.sdk.AuthLoginResult
-import com.bringyour.sdk.BringYourApi
-import com.bringyour.sdk.BringYourDevice
 import com.bringyour.sdk.NetworkSpace
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.R
+import com.bringyour.sdk.Api
+import com.bringyour.sdk.DeviceLocal
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -24,11 +24,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    byDeviceManager: ByDeviceManager,
+    deviceManager: DeviceManager,
     networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
-    private var byDevice: BringYourDevice? = null
+    private var device: DeviceLocal? = null
     private var networkSpace: NetworkSpace? = null
 
     var userAuthInProgress by mutableStateOf(false)
@@ -68,7 +68,7 @@ class LoginViewModel @Inject constructor(
 
     val login: (
         ctx: Context,
-        api: BringYourApi?,
+        api: Api?,
         onLogin: (AuthLoginResult) -> Unit,
         onNewNetwork: (AuthLoginResult) -> Unit,
     ) -> Unit = { ctx, api, onLogin, onNewNetwork ->
@@ -123,7 +123,7 @@ class LoginViewModel @Inject constructor(
 
     val googleLogin: (
         context: Context,
-        api: BringYourApi?,
+        api: Api?,
         account: GoogleSignInAccount,
         onLogin: (AuthLoginResult) -> Unit,
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
@@ -196,7 +196,7 @@ class LoginViewModel @Inject constructor(
     }
 
     init {
-        byDevice = byDeviceManager.byDevice
+        device = deviceManager.device
 
         networkSpace = networkSpaceManagerProvider.getNetworkSpace()
 

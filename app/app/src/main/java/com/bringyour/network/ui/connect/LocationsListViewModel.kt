@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -12,8 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationList
 import com.bringyour.sdk.LocationsViewController
-import com.bringyour.sdk.Sub
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocationsListViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager
+    private val deviceManager: DeviceManager
 ): ViewModel() {
 
     private var locationsVc: LocationsViewController? = null
@@ -119,8 +117,7 @@ class LocationsListViewModel @Inject constructor(
 
     init {
 
-        val byDevice = byDeviceManager.byDevice
-        locationsVc = byDevice?.openLocationsViewController()
+        locationsVc = deviceManager.vcManager?.openLocationsViewController()
 
         addFilteredLocationsListener()
 
@@ -133,7 +130,7 @@ class LocationsListViewModel @Inject constructor(
         super.onCleared()
 
         locationsVc?.let {
-            byDeviceManager.byDevice?.closeViewController(it)
+            deviceManager.vcManager?.closeViewController(it)
         }
     }
 }

@@ -18,12 +18,11 @@ import com.bringyour.sdk.ConnectViewController
 import com.bringyour.sdk.Id
 import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.sdk.Sub
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
-import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.Yellow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
@@ -34,7 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConnectViewModel @Inject constructor(
-    byDeviceManager: ByDeviceManager,
+    deviceManager: DeviceManager,
 ): ViewModel() {
 
     private var connectVc: ConnectViewController? = null
@@ -235,8 +234,7 @@ class ConnectViewModel @Inject constructor(
 
     init {
 
-        val byDevice = byDeviceManager.byDevice
-        connectVc = byDevice?.openConnectViewController()
+        connectVc = deviceManager.vcManager?.openConnectViewController()
 
 
 //        addProviderGridPointChangedListener()

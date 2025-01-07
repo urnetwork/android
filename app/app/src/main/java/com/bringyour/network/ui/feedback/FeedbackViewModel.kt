@@ -7,13 +7,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.bringyour.sdk.FeedbackViewController
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class FeedbackViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
 ): ViewModel() {
 
     private var feedbackVc: FeedbackViewController? = null
@@ -50,9 +50,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     init {
-        val byDevice = byDeviceManager.byDevice
-
-        feedbackVc = byDevice?.openFeedbackViewController()
+        feedbackVc = deviceManager.vcManager?.openFeedbackViewController()
 
         addIsSendingListener()
     }
@@ -61,7 +59,7 @@ class FeedbackViewModel @Inject constructor(
         super.onCleared()
 
         feedbackVc?.let {
-            byDeviceManager.byDevice?.closeViewController(it)
+            deviceManager.vcManager?.closeViewController(it)
         }
     }
 
