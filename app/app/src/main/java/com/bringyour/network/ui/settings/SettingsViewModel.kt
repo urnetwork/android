@@ -109,7 +109,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     init {
-        accountPreferencesVc = deviceManager.vcManager?.openAccountPreferencesViewController()
+        accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
 
         provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
 

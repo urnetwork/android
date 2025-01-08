@@ -14,8 +14,8 @@ class DeviceManager @Inject constructor() {
     var device: DeviceLocal? = null
         private set
 
-    var vcManager: ViewControllerManager? = null
-        private set
+//    var vcManager: ViewControllerManager? = null
+//        private set
 
 //    val byDevice = byDeviceManager.getByDevice()
 //    var connectVc: ConnectViewControllerV0? = null
@@ -108,7 +108,7 @@ class DeviceManager @Inject constructor() {
             instanceId,
             false
         )
-        vcManager = Sdk.newViewControllerManager(device)
+//        vcManager = Sdk.newViewControllerManager(device)
 
         localState.provideSecretKeys?.let {
             device?.loadProvideSecretKeys(it)

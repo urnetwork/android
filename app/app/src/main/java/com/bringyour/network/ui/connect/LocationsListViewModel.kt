@@ -117,7 +117,7 @@ class LocationsListViewModel @Inject constructor(
 
     init {
 
-        locationsVc = deviceManager.vcManager?.openLocationsViewController()
+        locationsVc = deviceManager.device?.openLocationsViewController()
 
         addFilteredLocationsListener()
 
@@ -130,7 +130,7 @@ class LocationsListViewModel @Inject constructor(
         super.onCleared()
 
         locationsVc?.let {
-            deviceManager.vcManager?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
     }
 }

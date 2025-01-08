@@ -166,7 +166,7 @@ class CircleTransferViewModel @Inject constructor(
     }
 
     init {
-        walletVc = deviceManager.vcManager?.openWalletViewController()
+        walletVc = deviceManager.device?.openWalletViewController()
         circleWalletSdk = circleWalletManager.circleWalletSdk
     }
 

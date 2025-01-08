@@ -99,7 +99,7 @@ class MainApplication : Application() {
     private var wifiLock: WifiManager.WifiLock? = null
 
     val device get() = deviceManager.device
-    val vcManager get() = deviceManager.vcManager
+//    val vcManager get() = deviceManager.vcManager
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
 //    val apiUrl get() = networkSpace?.apiUrl
@@ -326,7 +326,7 @@ class MainApplication : Application() {
         removeOfflineCallback()
 
         devicesVc?.let {
-            vcManager?.closeViewController(it)
+            device?.closeViewController(it)
         }
         devicesVc = null
 
@@ -374,8 +374,8 @@ class MainApplication : Application() {
 //        devicesVc = byDevice?.openDevicesViewController()
 //        accountVc = byDevice?.openAccountViewController()
 
-        devicesVc = vcManager?.openDevicesViewController()
-        accountVc = vcManager?.openAccountViewController()
+        devicesVc = device?.openDevicesViewController()
+        accountVc = device?.openAccountViewController()
 
 //        byDevice?.providePaused = true
 //        byDevice?.routeLocal = routeLocal

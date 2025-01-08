@@ -90,7 +90,7 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 
     init {
 
-        locationsVc = deviceManager.vcManager?.openLocationsViewController()
+        locationsVc = deviceManager.device?.openLocationsViewController()
 
         addFilteredLocationsListener()
 
@@ -101,7 +101,7 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
         super.onCleared()
 
         locationsVc?.let {
-            deviceManager.vcManager?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
     }
 

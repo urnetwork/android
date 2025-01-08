@@ -50,7 +50,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     init {
-        feedbackVc = deviceManager.vcManager?.openFeedbackViewController()
+        feedbackVc = deviceManager.device?.openFeedbackViewController()
 
         addIsSendingListener()
     }
@@ -59,7 +59,7 @@ class FeedbackViewModel @Inject constructor(
         super.onCleared()
 
         feedbackVc?.let {
-            deviceManager.vcManager?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
     }
 

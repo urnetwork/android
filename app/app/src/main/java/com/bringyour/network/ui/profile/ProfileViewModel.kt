@@ -142,7 +142,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
 
-        networkUserVc = deviceManager.vcManager?.openNetworkUserViewController()
+        networkUserVc = deviceManager.device?.openNetworkUserViewController()
 
         networkNameValidationVc = Sdk.newNetworkNameValidationViewController(
             networkSpaceManagerProvider.getNetworkSpace()?.api
@@ -160,7 +160,7 @@ class ProfileViewModel @Inject constructor(
         super.onCleared()
 
         networkUserVc?.let {
-            deviceManager.vcManager?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
 
         updateSuccessListener = null

@@ -27,7 +27,7 @@ class ReferralCodeViewModel @Inject constructor(
 
     init {
 
-        referralCodeVc = deviceManager.vcManager?.openReferralCodeViewController()
+        referralCodeVc = deviceManager.device?.openReferralCodeViewController()
 
         addReferralCodeListener()
 

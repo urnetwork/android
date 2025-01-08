@@ -234,7 +234,7 @@ class ConnectViewModel @Inject constructor(
 
     init {
 
-        connectVc = deviceManager.vcManager?.openConnectViewController()
+        connectVc = deviceManager.device?.openConnectViewController()
 
 
 //        addProviderGridPointChangedListener()

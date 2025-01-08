@@ -534,7 +534,7 @@ class WalletViewModel @Inject constructor(
 
         circleWalletSdk = circleWalletManager.circleWalletSdk
 
-        walletVc = deviceManager.vcManager?.openWalletViewController()
+        walletVc = deviceManager.device?.openWalletViewController()
 
         updateNextPayoutDateStr()
         addAccountWalletsListener()
@@ -557,7 +557,7 @@ class WalletViewModel @Inject constructor(
         super.onCleared()
 
         walletVc?.let {
-            deviceManager.vcManager?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
     }
 

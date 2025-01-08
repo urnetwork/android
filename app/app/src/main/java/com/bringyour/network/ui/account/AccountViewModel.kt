@@ -64,7 +64,7 @@ class AccountViewModel @Inject constructor(
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState
 
-        networkUserVc = deviceManager.vcManager?.openNetworkUserViewController()
+        networkUserVc = deviceManager.device?.openNetworkUserViewController()
 
         addNetworkUserListener()
 
