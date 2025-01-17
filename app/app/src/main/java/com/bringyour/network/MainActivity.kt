@@ -82,16 +82,21 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun requestPermissionsThenStartVpnServiceWithRestart() {
-        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+        val app = application as MainApplication
+        if (app.allowForeground) {
+            if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
+                if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                    val hasForegroundPermissions = ContextCompat.checkSelfPermission(
                         this,
                         android.Manifest.permission.POST_NOTIFICATIONS
                     ) == PackageManager.PERMISSION_GRANTED
-                if (hasForegroundPermissions) {
-                    prepareVpnService()
+                    if (hasForegroundPermissions) {
+                        prepareVpnService()
+                    } else {
+                        requestPermissionLauncherAndStart?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
                 } else {
-                    requestPermissionLauncherAndStart?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    prepareVpnService()
                 }
             } else {
                 prepareVpnService()
@@ -107,7 +112,7 @@ class MainActivity: AppCompatActivity() {
         // immutable shadow
         val app = application as MainApplication
 
-        app.allowForeground = true
+//        app.allowForeground = true
 
         sagaActivitySender = ActivityResultSender(this)
 
@@ -387,25 +392,29 @@ class MainActivity: AppCompatActivity() {
                 .build()
         )
 
-        val subscriptionCreatePaymentIdResult: SubscriptionCreatePaymentIdResult? = withContext(
-            Dispatchers.IO) {
-            app.api?.subscriptionCreatePaymentIdSync(SubscriptionCreatePaymentIdArgs())
+//        val subscriptionCreatePaymentIdResult: SubscriptionCreatePaymentIdResult? = withContext(
+//            Dispatchers.IO) {
+//            app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs())
+//        }
+
+        app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs()) { result, error ->
+            val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(productDetailsParamsList)
+
+            result?.subscriptionPaymentId?.string()?.let {
+                buildingFlowParamsBuilder.setObfuscatedAccountId(it)
+            }
+
+            val billingFlowParams = buildingFlowParamsBuilder.build()
+
+            // Launch the billing flow
+
+            activity.let { a ->
+                val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
+                Log.i("MainActivity", "billing result: $billingResult")
+            }
         }
 
-        val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(productDetailsParamsList)
 
-        subscriptionCreatePaymentIdResult?.subscriptionPaymentId?.string()?.let {
-            buildingFlowParamsBuilder.setObfuscatedAccountId(it)
-        }
-
-        val billingFlowParams = buildingFlowParamsBuilder.build()
-
-        // Launch the billing flow
-
-        activity.let { a ->
-            val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
-            Log.i("MainActivity", "billing result: $billingResult")
-        }
     }
 }

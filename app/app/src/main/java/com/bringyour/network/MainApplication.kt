@@ -270,7 +270,8 @@ class MainApplication : Application() {
         // see https://developer.android.com/training/monitoring-device-state/connectivity-status-type
         val networkRequestBuilder = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+            // 2025-01 drop the non-metered requirement. This appears to limit some networks globally
+//            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
 
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
@@ -517,7 +518,7 @@ class MainApplication : Application() {
         // note starting in Android 15, boot completed receivers cannot start foreground services
         // the app will not allow foreground until the activity is explicitly opened
         // see https://developer.android.com/about/versions/15/behavior-changes-15#fgs-boot-completed
-        startVpnServiceWithForeground(allowForeground)
+        startVpnServiceWithForeground(/*allowForeground*/false)
     }
 
     fun startVpnServiceWithForeground(foreground: Boolean) {
