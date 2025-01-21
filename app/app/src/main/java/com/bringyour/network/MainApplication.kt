@@ -56,6 +56,7 @@ class MainApplication : Application() {
     }
 
     var networkSpaceSub: Sub? = null
+    // set this to true to use foreground services
     var allowForeground: Boolean = false
 
 //    var byDevice: BringYourDevice? = null
@@ -64,7 +65,7 @@ class MainApplication : Application() {
     var deviceOfflineSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
-    var router: Router? = null
+//    var router: Router? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
@@ -76,6 +77,8 @@ class MainApplication : Application() {
     var accountVc: AccountViewController? = null
 
     var hasBiometric: Boolean = false
+
+    var tunnelRequestStatus: TunnelRequestStatus = TunnelRequestStatus.None
 
     @Inject
     lateinit var deviceManager: DeviceManager
@@ -252,7 +255,7 @@ class MainApplication : Application() {
 //                super.onCapabilitiesChanged(network, networkCapabilities)
 //
 ////                val metered = !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-////                byDevice?.providePaused = metered
+////                bydevice.providePaused = metered
 //            }
 
             override fun onLost(network: Network) {
@@ -331,8 +334,8 @@ class MainApplication : Application() {
         }
         devicesVc = null
 
-        router?.close()
-        router = null
+//        router?.close()
+//        router = null
         deviceProvideSub?.close()
         deviceProvideSub = null
         deviceProvidePausedSub?.close()
@@ -365,11 +368,11 @@ class MainApplication : Application() {
             deviceSpec
         )
 
-        router = Router(device!!) {
-            runBlocking(Dispatchers.Main.immediate) {
-                updateVpnService()
-            }
-        }
+//        router = Router(device!!) {
+//            runBlocking(Dispatchers.Main.immediate) {
+//                updateVpnService()
+//            }
+//        }
 
         // connectVc = byDevice?.openConnectViewController()
 //        devicesVc = byDevice?.openDevicesViewController()
@@ -420,7 +423,7 @@ class MainApplication : Application() {
             }
         }
 
-        router = Router(device!!)
+//        router = Router(device!!)
 
         addOfflineCallback()
         addNetworkCallback()
@@ -514,14 +517,21 @@ class MainApplication : Application() {
         }
     }
 
+        // FIXME tunnel request status
+
     fun startVpnService() {
         // note starting in Android 15, boot completed receivers cannot start foreground services
         // the app will not allow foreground until the activity is explicitly opened
         // see https://developer.android.com/about/versions/15/behavior-changes-15#fgs-boot-completed
-        startVpnServiceWithForeground(/*allowForeground*/false)
+        startVpnServiceWithForeground(allowForeground)
     }
 
-    fun startVpnServiceWithForeground(foreground: Boolean) {
+    private fun startVpnServiceWithForeground(foreground: Boolean) {
+        if (tunnelRequestStatus == TunnelRequestStatus.Started) {
+            return
+        }
+
+
         val device = device ?: return
 
 
@@ -573,6 +583,7 @@ class MainApplication : Application() {
                     startService(vpnIntent)
                 }
 
+                tunnelRequestStatus = TunnelRequestStatus.Started
                 vpnRequestStart = false
             }
         } catch (e: Exception) {
@@ -589,13 +600,22 @@ class MainApplication : Application() {
     private fun stopVpnService() {
         vpnRequestStart = false
 
+        if (tunnelRequestStatus == TunnelRequestStatus.Stopped) {
+            return
+        }
+
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("source", "app")
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
         try {
-            stopService(vpnIntent)
+            if (allowForeground) {
+                stopService(vpnIntent)
+            } else {
+                startService(vpnIntent)
+            }
+            tunnelRequestStatus = TunnelRequestStatus.Stopped
         } catch (e: Exception) {
             Log.i(TAG, "Error trying to communicate with the vpn service to stop: ${e.message}")
             // ignore
@@ -603,4 +623,8 @@ class MainApplication : Application() {
 
 
     }
+}
+
+enum class TunnelRequestStatus {
+    Started, Stopped, None
 }
