@@ -54,17 +54,23 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.theme.BlueLight
+import kotlinx.coroutines.launch
 
 @Composable
 fun WalletsScreen(
@@ -132,13 +138,18 @@ fun WalletsScreen(
     unpaidMegaByteCount: String,
     circleWalletExists: Boolean,
     refresh: () -> Unit,
-    isRefreshing: Boolean
+    isRefreshing: Boolean,
+    viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
     val app = context.applicationContext as? MainApplication
 
     val refreshState = rememberPullToRefreshState()
+
+    val connectWalletSheetState = rememberModalBottomSheetState()
+
+    val scope = rememberCoroutineScope()
 
     val initCircleWallet = {
 
@@ -371,7 +382,10 @@ fun WalletsScreen(
                                         initCircleWallet = initCircleWallet,
                                         circleWalletInProgress = circleWalletInProgress,
                                         connectSagaWallet = connectSagaWallet,
-                                        openModal = openExternalWalletModal,
+                                        openModal = {
+                                            viewModel.setIsPresentedConnectWalletSheet(true)
+                                        }
+                                        // openModal = openExternalWalletModal,
                                     )
                                 }
                             } else {
@@ -470,6 +484,19 @@ fun WalletsScreen(
             }
         }
 
+        /**
+         * Connect wallet sheet
+         */
+        if (viewModel.isPresentedConnectWalletSheet) {
+            ConnectWalletSheet(
+                setIsPresentedConnectWalletSheet = viewModel.setIsPresentedConnectWalletSheet,
+                connectWalletSheetState = connectWalletSheetState
+            )
+        }
+
+        /**
+         * todo: deprecate
+         */
         URDialog(
             visible = addExternalWalletModalVisible,
             onDismiss = { closeModal() }

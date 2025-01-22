@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.buttonTextStyle
 import com.bringyour.network.ui.theme.TextMuted
 
 @Composable
@@ -91,28 +92,36 @@ fun SetupWallet(
 
                 URButton(
                     onClick = {
-                        initCircleWallet()
-                    },
-                    enabled = !circleWalletInProgress
-                ) { buttonTextStyle ->
-                    Text(stringResource(id = R.string.setup_circle_wallet), style = buttonTextStyle)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                URButton(
-                    onClick = {
                         openModal()
-                    },
-                    style = ButtonStyle.OUTLINE
-                ) { buttonTextStyle ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
                     }
+                ) { buttonTextStyle ->
+                    Text("Connect wallet", style = buttonTextStyle)
                 }
+
+//                URButton(
+//                    onClick = {
+//                        initCircleWallet()
+//                    },
+//                    enabled = !circleWalletInProgress
+//                ) { buttonTextStyle ->
+//                    Text(stringResource(id = R.string.setup_circle_wallet), style = buttonTextStyle)
+//                }
+//
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                URButton(
+//                    onClick = {
+//                        openModal()
+//                    },
+//                    style = ButtonStyle.OUTLINE
+//                ) { buttonTextStyle ->
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.Center
+//                    ) {
+//                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
+//                    }
+//                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
