@@ -56,6 +56,7 @@ class MainApplication : Application() {
     }
 
     var networkSpaceSub: Sub? = null
+    // set this to true to use foreground services
     var allowForeground: Boolean = false
 
 //    var byDevice: BringYourDevice? = null
@@ -64,7 +65,7 @@ class MainApplication : Application() {
     var deviceOfflineSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
-    var router: Router? = null
+//    var router: Router? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
@@ -77,8 +78,10 @@ class MainApplication : Application() {
 
     var hasBiometric: Boolean = false
 
+    var tunnelRequestStatus: TunnelRequestStatus = TunnelRequestStatus.None
+
     @Inject
-    lateinit var byDeviceManager: ByDeviceManager
+    lateinit var deviceManager: DeviceManager
 
     @Inject
     lateinit var circleWalletManager: CircleWalletManager
@@ -98,7 +101,8 @@ class MainApplication : Application() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
 
-    val byDevice get() = byDeviceManager.byDevice
+    val device get() = deviceManager.device
+//    val vcManager get() = deviceManager.vcManager
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
 //    val apiUrl get() = networkSpace?.apiUrl
@@ -195,7 +199,7 @@ class MainApplication : Application() {
 
                 Log.i(TAG, "network available device = $network")
                 connectedNetwork = network
-                byDevice?.offline = false
+                device?.offline = false
             }
 
             override fun onLost(network: Network) {
@@ -204,7 +208,7 @@ class MainApplication : Application() {
                 if (network == connectedNetwork) {
                     Log.i(TAG, "network lost device = $network")
                     connectedNetwork = null
-                    byDevice?.offline = true
+                    device?.offline = true
                 }
             }
         }
@@ -241,7 +245,7 @@ class MainApplication : Application() {
 
                 Log.i(TAG, "network available device = $network")
                 connectedNetwork = network
-                byDevice?.providePaused = false
+                device?.providePaused = false
             }
 
 //            override fun onCapabilitiesChanged(
@@ -251,7 +255,7 @@ class MainApplication : Application() {
 //                super.onCapabilitiesChanged(network, networkCapabilities)
 //
 ////                val metered = !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-////                byDevice?.providePaused = metered
+////                bydevice.providePaused = metered
 //            }
 
             override fun onLost(network: Network) {
@@ -260,7 +264,7 @@ class MainApplication : Application() {
                 if (network == connectedNetwork) {
                     Log.i(TAG, "network lost device = $network")
                     connectedNetwork = null
-                    byDevice?.providePaused = true
+                    device?.providePaused = true
                 }
             }
         }
@@ -269,7 +273,8 @@ class MainApplication : Application() {
         // see https://developer.android.com/training/monitoring-device-state/connectivity-status-type
         val networkRequestBuilder = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+            // 2025-01 drop the non-metered requirement. This appears to limit some networks globally
+//            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
 
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
@@ -325,12 +330,12 @@ class MainApplication : Application() {
         removeOfflineCallback()
 
         devicesVc?.let {
-            byDevice?.closeViewController(it)
+            device?.closeViewController(it)
         }
         devicesVc = null
 
-        router?.close()
-        router = null
+//        router?.close()
+//        router = null
         deviceProvideSub?.close()
         deviceProvideSub = null
         deviceProvidePausedSub?.close()
@@ -345,7 +350,7 @@ class MainApplication : Application() {
 
 //        byDevice?.close()
 //        byDevice = null
-        byDeviceManager.clearByDevice()
+        deviceManager.clearDevice()
 
         accountVc?.close()
         accountVc = null
@@ -356,25 +361,25 @@ class MainApplication : Application() {
 
 
     private fun initDevice(byClientJwt: String) {
-        byDeviceManager.initDevice(
+        deviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
             deviceDescription,
             deviceSpec
         )
 
-        router = Router(byDevice!!) {
-            runBlocking(Dispatchers.Main.immediate) {
-                updateVpnService()
-            }
-        }
+//        router = Router(device!!) {
+//            runBlocking(Dispatchers.Main.immediate) {
+//                updateVpnService()
+//            }
+//        }
 
         // connectVc = byDevice?.openConnectViewController()
 //        devicesVc = byDevice?.openDevicesViewController()
 //        accountVc = byDevice?.openAccountViewController()
 
-        devicesVc = byDevice?.openDevicesViewController()
-        accountVc = byDevice?.openAccountViewController()
+        devicesVc = device?.openDevicesViewController()
+        accountVc = device?.openAccountViewController()
 
 //        byDevice?.providePaused = true
 //        byDevice?.routeLocal = routeLocal
@@ -389,36 +394,36 @@ class MainApplication : Application() {
 
 
 
-        deviceRouteLocalSub = byDevice?.addRouteLocalChangeListener {
+        deviceRouteLocalSub = device?.addRouteLocalChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
                 updateVpnService()
             }
         }
-        deviceProvideSub = byDevice?.addProvideChangeListener {
+        deviceProvideSub = device?.addProvideChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.provideEnabled = provideEnabled
                 updateVpnService()
             }
         }
-        deviceProvidePausedSub = byDevice?.addProvidePausedChangeListener {
+        deviceProvidePausedSub = device?.addProvidePausedChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
                 updateVpnService()
             }
         }
-        deviceOfflineSub = byDevice?.addOfflineChangeListener { _, _ ->
+        deviceOfflineSub = device?.addOfflineChangeListener { _, _ ->
             runBlocking(Dispatchers.Main.immediate) {
                 updateVpnService()
             }
         }
-        deviceConnectSub = byDevice?.addConnectChangeListener {
+        deviceConnectSub = device?.addConnectChangeListener {
             runBlocking(Dispatchers.Main.immediate) {
 //                this@MainApplication.connectEnabled = connectEnabled
                 updateVpnService()
             }
         }
 
-        router = Router(byDevice!!)
+//        router = Router(device!!)
 
         addOfflineCallback()
         addNetworkCallback()
@@ -458,12 +463,12 @@ class MainApplication : Application() {
     }
 
     private fun updateVpnService() {
-        val byDevice = byDevice ?: return
+        val device = device ?: return
 
-        val provideEnabled = byDevice.provideEnabled
-        val providePaused = byDevice.providePaused
-        val connectEnabled = byDevice.connectEnabled
-        val routeLocal = byDevice.routeLocal
+        val provideEnabled = device.provideEnabled
+        val providePaused = device.providePaused
+        val connectEnabled = device.connectEnabled
+        val routeLocal = device.routeLocal
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()
@@ -512,6 +517,8 @@ class MainApplication : Application() {
         }
     }
 
+        // FIXME tunnel request status
+
     fun startVpnService() {
         // note starting in Android 15, boot completed receivers cannot start foreground services
         // the app will not allow foreground until the activity is explicitly opened
@@ -519,12 +526,17 @@ class MainApplication : Application() {
         startVpnServiceWithForeground(allowForeground)
     }
 
-    fun startVpnServiceWithForeground(foreground: Boolean) {
-        val byDevice = byDevice ?: return
+    private fun startVpnServiceWithForeground(foreground: Boolean) {
+        if (tunnelRequestStatus == TunnelRequestStatus.Started) {
+            return
+        }
 
 
-        val offline = byDevice.offline
-        val vpnInterfaceWhileOffline = byDevice.vpnInterfaceWhileOffline
+        val device = device ?: return
+
+
+        val offline = device.offline
+        val vpnInterfaceWhileOffline = device.vpnInterfaceWhileOffline
 
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("source", "app")
@@ -542,36 +554,47 @@ class MainApplication : Application() {
             } else {
                 // important: start the vpn service in the application context
 
-                if (foreground) {
-                    // use a foreground service to allow notifications
+                fun hasForegoundPermissions(): Boolean {
                     if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                         val hasForegroundPermissions = ContextCompat.checkSelfPermission(
                             this,
                             android.Manifest.permission.POST_NOTIFICATIONS
                         ) == PackageManager.PERMISSION_GRANTED
-                        if (hasForegroundPermissions) {
+                        return hasForegroundPermissions
+                    } else {
+                        return true
+                    }
+                }
+
+                if (foreground && !hasForegoundPermissions()) {
+                    vpnRequestStart = true
+                    vpnRequestStartListener?.let { it() }
+                } else {
+
+                    if (foreground) {
+                        // use a foreground service to allow notifications
+                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                             try {
                                 startForegroundService(vpnIntent)
                             } catch (e: ForegroundServiceStartNotAllowedException) {
                                 startService(vpnIntent)
                             }
+                        } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
+                            try {
+                                ContextCompat.startForegroundService(this, vpnIntent)
+                            } catch (e: ForegroundServiceStartNotAllowedException) {
+                                startService(vpnIntent)
+                            }
                         } else {
-                            startService(vpnIntent)
-                        }
-                    } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
-                        try {
                             ContextCompat.startForegroundService(this, vpnIntent)
-                        } catch (e: ForegroundServiceStartNotAllowedException) {
-                            startService(vpnIntent)
                         }
                     } else {
-                        ContextCompat.startForegroundService(this, vpnIntent)
+                        startService(vpnIntent)
                     }
-                } else {
-                    startService(vpnIntent)
-                }
 
-                vpnRequestStart = false
+                    tunnelRequestStatus = TunnelRequestStatus.Started
+                    vpnRequestStart = false
+                }
             }
         } catch (e: Exception) {
             Log.i(
@@ -587,13 +610,19 @@ class MainApplication : Application() {
     private fun stopVpnService() {
         vpnRequestStart = false
 
+        if (tunnelRequestStatus == TunnelRequestStatus.Stopped) {
+            return
+        }
+
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("source", "app")
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
         try {
+            startService(vpnIntent)
             stopService(vpnIntent)
+            tunnelRequestStatus = TunnelRequestStatus.Stopped
         } catch (e: Exception) {
             Log.i(TAG, "Error trying to communicate with the vpn service to stop: ${e.message}")
             // ignore
@@ -601,4 +630,8 @@ class MainApplication : Application() {
 
 
     }
+}
+
+enum class TunnelRequestStatus {
+    Started, Stopped, None
 }

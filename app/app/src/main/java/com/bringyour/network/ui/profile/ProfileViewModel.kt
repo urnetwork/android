@@ -11,7 +11,7 @@ import com.bringyour.sdk.NetworkNameValidationViewController
 import com.bringyour.sdk.NetworkUser
 import com.bringyour.sdk.NetworkUserViewController
 import com.bringyour.sdk.Sub
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
     networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
@@ -142,7 +142,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
 
-        networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
+        networkUserVc = deviceManager.device?.openNetworkUserViewController()
 
         networkNameValidationVc = Sdk.newNetworkNameValidationViewController(
             networkSpaceManagerProvider.getNetworkSpace()?.api
@@ -160,7 +160,7 @@ class ProfileViewModel @Inject constructor(
         super.onCleared()
 
         networkUserVc?.let {
-            byDeviceManager.byDevice?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
 
         updateSuccessListener = null

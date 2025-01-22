@@ -1,58 +1,63 @@
 package com.bringyour.network
 
-import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.bringyour.sdk.NetworkSpace
+import com.bringyour.sdk.Sub
+import com.bringyour.sdk.ViewControllerManager
 
 @Singleton
-class ByDeviceManager @Inject constructor() {
+class DeviceManager @Inject constructor() {
 
-    var byDevice: BringYourDevice? = null
+    var device: DeviceLocal? = null
         private set
+
+//    var vcManager: ViewControllerManager? = null
+//        private set
 
 //    val byDevice = byDeviceManager.getByDevice()
 //    var connectVc: ConnectViewControllerV0? = null
 //        private set
 //        connectVc?.start()
 
-    val networkSpace get() = byDevice?.networkSpace
-    val asyncLocalState get() = byDevice?.networkSpace?.asyncLocalState
+    val networkSpace get() = device?.networkSpace
+    val asyncLocalState get() = device?.networkSpace?.asyncLocalState
 
     var routeLocal: Boolean
-        get() = byDevice?.routeLocal!!
+        get() = device?.routeLocal!!
         set(it) {
             asyncLocalState?.localState?.routeLocal = it
-            byDevice?.routeLocal = it
+            device?.routeLocal = it
         }
 
     var canShowRatingDialog: Boolean
-        get() = byDevice?.canShowRatingDialog!!
+        get() = device?.canShowRatingDialog!!
         set(it) {
             asyncLocalState?.localState?.canShowRatingDialog = it
-            byDevice?.canShowRatingDialog = it
+            device?.canShowRatingDialog = it
         }
 
     var canRefer: Boolean
-        get() = if (byDevice == null) false else byDevice?.canRefer!!
+        get() = if (device == null) false else device?.canRefer!!
         set(it) {
             asyncLocalState?.localState?.canShowRatingDialog = it
-            byDevice?.canShowRatingDialog = it
+            device?.canShowRatingDialog = it
         }
 
     var provideWhileDisconnected: Boolean
-        get() = byDevice?.provideWhileDisconnected!!
+        get() = device?.provideWhileDisconnected!!
         set(it) {
             asyncLocalState?.localState?.provideWhileDisconnected = it
-            byDevice?.provideWhileDisconnected = it
+            device?.provideWhileDisconnected = it
         }
 
     var vpnInterfaceWhileOffline: Boolean
-        get() = byDevice?.vpnInterfaceWhileOffline!!
+        get() = device?.vpnInterfaceWhileOffline!!
         set(it) {
             asyncLocalState?.localState?.vpnInterfaceWhileOffline = it
-            byDevice?.vpnInterfaceWhileOffline = it
+            device?.vpnInterfaceWhileOffline = it
         }
 
 
@@ -82,7 +87,7 @@ class ByDeviceManager @Inject constructor() {
         deviceDescription: String,
         deviceSpec: String
     ) {
-        byDevice?.close()  // Ensure old instance is cleaned up
+        device?.close()  // Ensure old instance is cleaned up
 
         val localState = networkSpace!!.asyncLocalState.localState!!
         val instanceId = localState.instanceId!!
@@ -94,30 +99,36 @@ class ByDeviceManager @Inject constructor() {
         val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
         val canRefer = localState.canRefer
 
-        byDevice = Sdk.newBringYourDeviceWithDefaults(
+        device = Sdk.newDeviceLocalWithDefaults(
             networkSpace,
             byClientJwt,
             deviceDescription,
             deviceSpec,
             getAppVersion(),
-            instanceId
+            instanceId,
+            false
         )
+//        vcManager = Sdk.newViewControllerManager(device)
 
         localState.provideSecretKeys?.let {
-            byDevice?.loadProvideSecretKeys(it)
+            device?.loadProvideSecretKeys(it)
         } ?: run {
-            byDevice?.initProvideSecretKeys()
-            localState.provideSecretKeys = byDevice?.provideSecretKeys
+            var sub: Sub? = null
+            sub = device?.addProvideSecretKeysListener {
+                localState.provideSecretKeys = it
+                sub?.close()
+            }
+            device?.initProvideSecretKeys()
         }
 
-        byDevice?.providePaused = true
-        byDevice?.routeLocal = routeLocal
-        byDevice?.provideMode = provideMode
-        byDevice?.connectLocation = connectLocation
-        byDevice?.canShowRatingDialog = canShowRatingDialog
-        byDevice?.provideWhileDisconnected = provideWhileDisconnected
-        byDevice?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
-        byDevice?.canRefer = canRefer
+        device?.providePaused = true
+        device?.routeLocal = routeLocal
+        device?.provideMode = provideMode
+        device?.connectLocation = connectLocation
+        device?.canShowRatingDialog = canShowRatingDialog
+        device?.provideWhileDisconnected = provideWhileDisconnected
+        device?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
+        device?.canRefer = canRefer
 
 //        connectVc = byDevice?.openConnectViewControllerV0()
     }
@@ -126,14 +137,14 @@ class ByDeviceManager @Inject constructor() {
 //        return byDevice
 //    }
 
-    fun clearByDevice() {
+    fun clearDevice() {
 //        connectVc?.let {
 //            byDevice?.closeViewController(it)
 //        }
 //        connectVc = null
 
-        byDevice?.close()
-        byDevice = null
+        device?.close()
+        device = null
     }
 
     private fun getAppVersion(): String {

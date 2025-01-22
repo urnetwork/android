@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.NetworkUser
 import com.bringyour.sdk.NetworkUserViewController
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.ui.components.LoginMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
     private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
@@ -64,7 +64,7 @@ class AccountViewModel @Inject constructor(
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState
 
-        networkUserVc = byDeviceManager.byDevice?.openNetworkUserViewController()
+        networkUserVc = deviceManager.device?.openNetworkUserViewController()
 
         addNetworkUserListener()
 
@@ -75,9 +75,9 @@ class AccountViewModel @Inject constructor(
             }
         }
 
-        byDeviceManager.byDevice.let { device ->
+        deviceManager.device.let { device ->
             viewModelScope.launch {
-                clientId = device?.clientId()?.idStr ?: ""
+                clientId = device?.clientId?.idStr ?: ""
             }
         }
 

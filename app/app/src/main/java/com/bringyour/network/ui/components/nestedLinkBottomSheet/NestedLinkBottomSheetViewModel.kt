@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationList
 import com.bringyour.sdk.LocationsViewController
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.ui.connect.FilterLocationsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NestedLinkBottomSheetViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager
+    private val deviceManager: DeviceManager
 ): ViewModel() {
 
     private var locationsVc: LocationsViewController? = null
@@ -90,8 +90,7 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 
     init {
 
-        val byDevice = byDeviceManager.byDevice
-        locationsVc = byDevice?.openLocationsViewController()
+        locationsVc = deviceManager.device?.openLocationsViewController()
 
         addFilteredLocationsListener()
 
@@ -102,7 +101,7 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
         super.onCleared()
 
         locationsVc?.let {
-            byDeviceManager.byDevice?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
     }
 

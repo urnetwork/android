@@ -80,10 +80,10 @@ class LoginActivity : AppCompatActivity() {
 //        }
 
         // FIXME google play referrer
-        else if (app.byDevice != null) {
+        else if (app.device != null) {
             navigateToMain()
             return
-        } else if (app.byDeviceManager.canRefer) {
+        } else if (app.deviceManager.canRefer) {
             // fresh install, async check the install referrer
             // see https://developer.android.com/google/play/installreferrer/library
 
@@ -109,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
                                 }
                             }
                         } finally {
-                            app.byDeviceManager.canRefer = false
+                            app.deviceManager.canRefer = false
 
                             referrerClient?.endConnection()
                             referrerClient = null
@@ -287,7 +287,7 @@ class LoginActivity : AppCompatActivity() {
 
             }
 
-        } else if (app.byDevice != null) {
+        } else if (app.device != null) {
             setLinksAndStartMain(targetUrl, defaultLocation)
         }
     }

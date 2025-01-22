@@ -82,7 +82,7 @@ fun ConnectScreen(
             animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
             shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
             getStateColor = connectViewModel.getStateColor,
-            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
+//            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
             launchOverlay = overlayViewModel.launch,
             getLocationColor = locationsViewModel.getLocationColor
         )
@@ -91,7 +91,7 @@ fun ConnectScreen(
             connectStatus = connectStatus,
             networkName = networkUser?.networkName,
             loginMode = accountViewModel.loginMode,
-            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
+//            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
             launchOverlay = overlayViewModel.launch,
             locationsViewModel = locationsViewModel,
             connectViewModel = connectViewModel,
@@ -115,7 +115,7 @@ private fun ConnectTV(
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
     getStateColor: (ProviderPointState?) -> Color,
-    checkTriggerPromptReview: () -> Unit,
+//    checkTriggerPromptReview: () -> Boolean,
     launchOverlay: (OverlayMode) -> Unit,
     getLocationColor: (String) -> Color
 ) {
@@ -144,7 +144,7 @@ private fun ConnectTV(
                     animatedSuccessPoints = animatedSuccessPoints,
                     shuffleSuccessPoints = shuffleSuccessPoints,
                     getStateColor = getStateColor,
-                    checkTriggerPromptReview = checkTriggerPromptReview,
+//                    checkTriggerPromptReview = checkTriggerPromptReview,
                     launchOverlay = launchOverlay
                 )
 
@@ -193,7 +193,7 @@ private fun ConnectMobileAndTablet(
     connectStatus: ConnectStatus,
     networkName: String?,
     loginMode: LoginMode,
-    checkTriggerPromptReview: () -> Unit,
+//    checkTriggerPromptReview: () -> Boolean,
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
     connectViewModel: ConnectViewModel,
@@ -226,7 +226,7 @@ private fun ConnectMobileAndTablet(
                 animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
                 shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
                 getStateColor = connectViewModel.getStateColor,
-                checkTriggerPromptReview = checkTriggerPromptReview,
+//                checkTriggerPromptReview = checkTriggerPromptReview,
                 launchOverlay = launchOverlay
             )
         }
@@ -247,7 +247,7 @@ fun ConnectMainContent(
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
     getStateColor: (ProviderPointState?) -> Color,
-    checkTriggerPromptReview: () -> Unit,
+//    checkTriggerPromptReview: () -> Boolean,
     launchOverlay: (OverlayMode) -> Unit,
 ) {
 
@@ -306,7 +306,7 @@ fun ConnectMainContent(
                     onClick = {
                         if (connectStatus == ConnectStatus.DISCONNECTED) {
                             connect(selectedLocation)
-                            checkTriggerPromptReview()
+//                            checkTriggerPromptReview()
                         }
                     },
                     updatedStatus = connectStatus,
@@ -345,7 +345,7 @@ fun ConnectMainContent(
                     URButton(
                         onClick = {
                             disconnect()
-                            checkTriggerPromptReview()
+//                            checkTriggerPromptReview()
                         },
                         style = ButtonStyle.OUTLINE
                     ) { buttonTextStyle ->
@@ -387,7 +387,7 @@ private fun ConnectMainContentPreview() {
                     animatedSuccessPoints = listOf(),
                     shuffleSuccessPoints = {},
                     getStateColor = mockGetStateColor,
-                    checkTriggerPromptReview = {},
+//                    checkTriggerPromptReview = {false},
                     launchOverlay = {}
                 )
             }

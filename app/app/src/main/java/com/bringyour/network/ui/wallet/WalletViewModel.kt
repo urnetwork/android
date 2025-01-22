@@ -13,12 +13,12 @@ import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.AccountWallet
-import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Id
 import com.bringyour.sdk.ValidateAddressCallback
 import com.bringyour.sdk.WalletViewController
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.CircleWalletManager
 import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,11 +31,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WalletViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
     private val circleWalletManager: CircleWalletManager,
 ): ViewModel() {
 
-    private var byDevice: BringYourDevice? = null
+    private var byDevice: DeviceLocal? = null
     private var walletVc: WalletViewController? = null
     private var circleWalletSdk: WalletSdk? = null
 
@@ -534,10 +534,7 @@ class WalletViewModel @Inject constructor(
 
         circleWalletSdk = circleWalletManager.circleWalletSdk
 
-        byDevice = byDeviceManager.byDevice
-
-
-        walletVc = byDevice?.openWalletViewController()
+        walletVc = deviceManager.device?.openWalletViewController()
 
         updateNextPayoutDateStr()
         addAccountWalletsListener()
@@ -560,7 +557,7 @@ class WalletViewModel @Inject constructor(
         super.onCleared()
 
         walletVc?.let {
-            byDeviceManager.byDevice?.closeViewController(it)
+            deviceManager.device?.closeViewController(it)
         }
     }
 

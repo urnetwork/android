@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.wallet
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,25 +7,26 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
-import com.bringyour.sdk.BringYourDevice
+import com.bringyour.sdk.Api
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.ValidateAddressCallback
 import com.bringyour.sdk.WalletCircleTransferOutArgs
 import com.bringyour.sdk.WalletViewController
-import com.bringyour.network.ByDeviceManager
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.CircleWalletManager
+import com.bringyour.sdk.DeviceLocal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CircleTransferViewModel @Inject constructor(
-    private val byDeviceManager: ByDeviceManager,
+    private val deviceManager: DeviceManager,
     private val circleWalletManager: CircleWalletManager,
 ): ViewModel() {
 
     private var walletVc: WalletViewController? = null
-    private var byDevice: BringYourDevice? = null
+    private var byDevice: DeviceLocal? = null
     private var circleWalletSdk: WalletSdk? = null
 
     var transferAmountTextFieldValue by mutableStateOf(TextFieldValue(""))
@@ -166,8 +166,7 @@ class CircleTransferViewModel @Inject constructor(
     }
 
     init {
-        byDevice = byDeviceManager.byDevice
-        walletVc = byDevice?.openWalletViewController()
+        walletVc = deviceManager.device?.openWalletViewController()
         circleWalletSdk = circleWalletManager.circleWalletSdk
     }
 
