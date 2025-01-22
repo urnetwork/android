@@ -554,37 +554,47 @@ class MainApplication : Application() {
             } else {
                 // important: start the vpn service in the application context
 
-                if (foreground) {
-                    // use a foreground service to allow notifications
+                fun hasForegoundPermissions(): Boolean {
                     if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                         val hasForegroundPermissions = ContextCompat.checkSelfPermission(
                             this,
                             android.Manifest.permission.POST_NOTIFICATIONS
                         ) == PackageManager.PERMISSION_GRANTED
-                        if (hasForegroundPermissions) {
+                        return hasForegroundPermissions
+                    } else {
+                        return true
+                    }
+                }
+
+                if (foreground && !hasForegoundPermissions()) {
+                    vpnRequestStart = true
+                    vpnRequestStartListener?.let { it() }
+                } else {
+
+                    if (foreground) {
+                        // use a foreground service to allow notifications
+                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                             try {
                                 startForegroundService(vpnIntent)
                             } catch (e: ForegroundServiceStartNotAllowedException) {
                                 startService(vpnIntent)
                             }
+                        } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
+                            try {
+                                ContextCompat.startForegroundService(this, vpnIntent)
+                            } catch (e: ForegroundServiceStartNotAllowedException) {
+                                startService(vpnIntent)
+                            }
                         } else {
-                            startService(vpnIntent)
-                        }
-                    } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
-                        try {
                             ContextCompat.startForegroundService(this, vpnIntent)
-                        } catch (e: ForegroundServiceStartNotAllowedException) {
-                            startService(vpnIntent)
                         }
                     } else {
-                        ContextCompat.startForegroundService(this, vpnIntent)
+                        startService(vpnIntent)
                     }
-                } else {
-                    startService(vpnIntent)
-                }
 
-                tunnelRequestStatus = TunnelRequestStatus.Started
-                vpnRequestStart = false
+                    tunnelRequestStatus = TunnelRequestStatus.Started
+                    vpnRequestStart = false
+                }
             }
         } catch (e: Exception) {
             Log.i(
@@ -610,11 +620,8 @@ class MainApplication : Application() {
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)
         try {
-            if (allowForeground) {
-                stopService(vpnIntent)
-            } else {
-                startService(vpnIntent)
-            }
+            startService(vpnIntent)
+            stopService(vpnIntent)
             tunnelRequestStatus = TunnelRequestStatus.Stopped
         } catch (e: Exception) {
             Log.i(TAG, "Error trying to communicate with the vpn service to stop: ${e.message}")
