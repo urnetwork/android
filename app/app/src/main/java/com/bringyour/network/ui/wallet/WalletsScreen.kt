@@ -294,7 +294,9 @@ fun WalletsScreen(
 
                                     AddWallet(
                                         connectSagaWallet = connectSagaWallet,
-                                        openExternalWalletModal = openExternalWalletModal
+                                        openLinkWalletSheet = {
+                                            viewModel.setIsPresentedConnectWalletSheet(true)
+                                        }
                                     )
 
                                 }
@@ -371,7 +373,6 @@ fun WalletsScreen(
                 onSubmit = {
                     if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
                         linkWallet()
-                        // viewModel.setIsPresentedConnectWalletSheet(false)
                     }
                 },
                 walletValidationState = walletValidationState,
