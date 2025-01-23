@@ -35,13 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
-import circle.programmablewallet.sdk.api.ApiError
-import circle.programmablewallet.sdk.api.Callback
-import circle.programmablewallet.sdk.api.ExecuteWarning
-import circle.programmablewallet.sdk.result.ExecuteResult
 import com.bringyour.sdk.AccountWallet
-import com.bringyour.network.MainActivity
-import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.components.URDialog
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
@@ -54,14 +48,11 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -70,7 +61,6 @@ import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.theme.BlueLight
-import kotlinx.coroutines.launch
 
 @Composable
 fun WalletsScreen(
@@ -88,24 +78,19 @@ fun WalletsScreen(
         addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
         openExternalWalletModal = walletViewModel.openExternalWalletModal,
         closeModal = walletViewModel.closeExternalWalletModal,
-        createCircleWallet = walletViewModel.createCircleWallet,
-        circleWalletInProgress = walletViewModel.circleWalletInProgress,
         wallets = walletViewModel.wallets,
         externalWalletAddress = walletViewModel.externalWalletAddress,
         setExternalWalletAddress = walletViewModel.setExternaWalletAddress,
         walletValidationState = walletViewModel.externalWalletAddressIsValid,
-        createExternalWallet = walletViewModel.createExternalWallet,
+        linkWallet = walletViewModel.linkWallet,
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
         payoutWalletId = walletViewModel.payoutWalletId,
         isInitializingFirstWallet = walletViewModel.initializingFirstWallet,
-        setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
         payouts = walletViewModel.payouts,
         isRemovingWallet = walletViewModel.isRemovingWallet,
-        pollWallets = walletViewModel.pollWallets,
         initializingWallets = walletViewModel.initializingWallets,
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
-        circleWalletExists = walletViewModel.circleWalletExists,
         refresh = walletViewModel.refreshWalletsInfo,
         isRefreshing = walletViewModel.isRefreshingWallets
     )
@@ -119,133 +104,27 @@ fun WalletsScreen(
     addExternalWalletModalVisible: Boolean,
     openExternalWalletModal: () -> Unit,
     closeModal: () -> Unit,
-    createCircleWallet: (OnWalletExecute) -> Unit,
     externalWalletAddress: TextFieldValue,
     setExternalWalletAddress: (TextFieldValue) -> Unit,
-    circleWalletInProgress: Boolean,
     walletValidationState: WalletValidationState,
-    createExternalWallet: () -> Unit,
+    linkWallet: () -> Unit,
     isProcessingExternalWallet: Boolean,
     payoutWalletId: Id?,
     isInitializingFirstWallet: Boolean,
     wallets: List<AccountWallet>,
-    setCircleWalletInProgress: (Boolean) -> Unit,
     setInitializingFirstWallet: (Boolean) -> Unit,
     payouts: List<AccountPayment>,
     isRemovingWallet: Boolean,
-    pollWallets: () -> Unit?,
     initializingWallets: Boolean,
     unpaidMegaByteCount: String,
-    circleWalletExists: Boolean,
     refresh: () -> Unit,
     isRefreshing: Boolean,
     viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    val activity = context as? MainActivity
-    val app = context.applicationContext as? MainApplication
 
     val refreshState = rememberPullToRefreshState()
 
     val connectWalletSheetState = rememberModalBottomSheetState()
-
-    val scope = rememberCoroutineScope()
-
-    val initCircleWallet = {
-
-        val onWalletExecute: OnWalletExecute = { walletSdk, userToken, encryptionKey, challengeId ->
-            walletSdk.execute(
-                activity,
-                userToken,
-                encryptionKey,
-                arrayOf(challengeId),
-                object : Callback<ExecuteResult> {
-                    override fun onWarning(
-                        warning: ExecuteWarning,
-                        result: ExecuteResult?
-                    ): Boolean {
-                        complete()
-                        // FIXME toast
-                        return false
-                    }
-
-                    override fun onError(error: Throwable): Boolean {
-                        setCircleWalletInProgress(false)
-                        setInitializingFirstWallet(false)
-
-                        if (error is ApiError) {
-                            when (error.code) {
-                                ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
-                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
-                                ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
-                                ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched -> {
-                                }
-
-                                ApiError.ErrorCode.networkError -> {
-                                    // FIXME toast
-                                }
-
-                                else -> {
-                                    // FIXME toast
-                                }
-                            }
-                            // App will handle next step, SDK will keep the Activity.
-                            return true
-                        }
-
-                        // App won't handle next step, SDK will finish the Activity.
-                        return false
-                    }
-
-                    override fun onResult(result: ExecuteResult) {
-                        complete()
-                    }
-
-                    fun complete() {
-                        if (app?.hasBiometric == false) {
-                            // update {}
-                        } else {
-                            // enable biometrics
-                            walletSdk.setBiometricsPin(
-                                activity,
-                                userToken,
-                                encryptionKey,
-                                object : Callback<ExecuteResult> {
-                                    override fun onError(error: Throwable): Boolean {
-
-                                        error.printStackTrace()
-                                        if (error is ApiError) {
-                                            return when (error.code) {
-                                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> true // App will handle next step, SDK will keep the Activity.
-                                                else -> false
-                                            }
-                                        }
-                                        return false // App won't handle next step, SDK will finish the Activity.
-                                    }
-
-                                    override fun onResult(result: ExecuteResult) {
-                                        //success
-                                        // update {}
-                                    }
-
-                                    override fun onWarning(
-                                        warning: ExecuteWarning,
-                                        result: ExecuteResult?
-                                    ): Boolean {
-                                        return false // App won't handle next step, SDK will finish the Activity.
-                                    }
-                                }
-                            )
-                        }
-
-                        pollWallets()
-                    }
-                }
-            )
-        }
-
-        createCircleWallet(onWalletExecute)
-    }
 
     Scaffold(
         topBar = {
@@ -379,8 +258,6 @@ fun WalletsScreen(
                                     modifier = Modifier.padding(16.dp)
                                 ) {
                                     SetupWallet(
-                                        initCircleWallet = initCircleWallet,
-                                        circleWalletInProgress = circleWalletInProgress,
                                         connectSagaWallet = connectSagaWallet,
                                         openModal = {
                                             viewModel.setIsPresentedConnectWalletSheet(true)
@@ -416,8 +293,6 @@ fun WalletsScreen(
                                     }
 
                                     AddWallet(
-                                        circleWalletExists = circleWalletExists,
-                                        initCircleWallet = initCircleWallet,
                                         connectSagaWallet = connectSagaWallet,
                                         openExternalWalletModal = openExternalWalletModal
                                     )
@@ -490,7 +365,17 @@ fun WalletsScreen(
         if (viewModel.isPresentedConnectWalletSheet) {
             ConnectWalletSheet(
                 setIsPresentedConnectWalletSheet = viewModel.setIsPresentedConnectWalletSheet,
-                connectWalletSheetState = connectWalletSheetState
+                connectWalletSheetState = connectWalletSheetState,
+                externalWalletAddress = externalWalletAddress,
+                setExternalWalletAddress = setExternalWalletAddress,
+                onSubmit = {
+                    if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
+                        linkWallet()
+                        // viewModel.setIsPresentedConnectWalletSheet(false)
+                    }
+                },
+                walletValidationState = walletValidationState,
+                isProcessingWallet = isProcessingExternalWallet
             )
         }
 
@@ -561,7 +446,7 @@ fun WalletsScreen(
                         ),
                         modifier = Modifier.clickable {
                             if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
-                                createExternalWallet()
+                                linkWallet()
                             }
                         },
                     )
@@ -584,24 +469,19 @@ private fun WalletScreenPreview() {
             addExternalWalletModalVisible = false,
             openExternalWalletModal = {},
             closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
             walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
+            linkWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             isInitializingFirstWallet = false,
-            setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
             refresh = {},
             isRefreshing = false
         )
@@ -621,24 +501,19 @@ private fun WalletScreenSagaPreview() {
             addExternalWalletModalVisible = false,
             openExternalWalletModal = {},
             closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
             walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
+            linkWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             isInitializingFirstWallet = false,
-            setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
             refresh = {},
             isRefreshing = false
         )
@@ -658,24 +533,19 @@ private fun WalletScreenExternalWalletModalPreview() {
             addExternalWalletModalVisible = true,
             openExternalWalletModal = {},
             closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
             walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
+            linkWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             isInitializingFirstWallet = false,
-            setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
             refresh = {},
             isRefreshing = false
         )
@@ -695,24 +565,19 @@ private fun WalletScreenInitializingWalletPreview() {
             addExternalWalletModalVisible = false,
             openExternalWalletModal = {},
             closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
             walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
+            linkWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             isInitializingFirstWallet = true,
-            setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = false,
-            pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
             refresh = {},
             isRefreshing = false
         )
@@ -732,24 +597,19 @@ private fun WalletScreenRemovingWalletPreview() {
             addExternalWalletModalVisible = false,
             openExternalWalletModal = {},
             closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
             wallets = listOf(),
             externalWalletAddress = TextFieldValue(""),
             setExternalWalletAddress = {},
             walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
+            linkWallet = {},
             isProcessingExternalWallet = false,
             payoutWalletId = null,
             isInitializingFirstWallet = true,
-            setCircleWalletInProgress = {},
             setInitializingFirstWallet = {},
             payouts = listOf(),
             isRemovingWallet = true,
-            pollWallets = {},
             initializingWallets = false,
             unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
             refresh = {},
             isRefreshing = false
         )

@@ -9,34 +9,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,22 +35,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
-import com.bringyour.network.ui.components.buttonTextStyle
-import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
-import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.launch
@@ -73,8 +59,16 @@ private enum class SheetContent {
 @Composable
 fun ConnectWalletSheet(
     setIsPresentedConnectWalletSheet: (Boolean) -> Unit,
-    connectWalletSheetState: SheetState
+    connectWalletSheetState: SheetState,
+    externalWalletAddress: TextFieldValue,
+    setExternalWalletAddress: (TextFieldValue) -> Unit,
+    onSubmit: () -> Unit,
+    walletValidationState: WalletValidationState,
+    isProcessingWallet: Boolean
 ) {
+
+    val scope = rememberCoroutineScope()
+
     var currentContent by remember { mutableStateOf(SheetContent.WALLET_LIST) }
 
     var isForwardNavigation by remember { mutableStateOf(true) }
@@ -112,18 +106,28 @@ fun ConnectWalletSheet(
                     back = {
                         isForwardNavigation = false
                         currentContent = SheetContent.WALLET_LIST
-                    }
+                    },
+                    externalWalletAddress = externalWalletAddress,
+                    setExternalWalletAddress = setExternalWalletAddress,
+                    onSubmit = {
+                        onSubmit()
+
+                        scope.launch { connectWalletSheetState.hide() }.invokeOnCompletion {
+                            if (!connectWalletSheetState.isVisible) {
+                                setIsPresentedConnectWalletSheet(false)
+                            }
+                        }},
+                    walletValidationState = walletValidationState,
+                    isProcessingWallet = isProcessingWallet
                 )
             }
         }
-
     }
-
 }
 
 @Composable
 private fun WalletProvidersList(
-    onExternalClick: () -> Unit
+    onExternalClick: () -> Unit,
 ) {
 
     Surface (
@@ -170,10 +174,13 @@ private fun WalletProvidersList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LinkExternalWalletView(
-    back: () -> Unit
+    back: () -> Unit,
+    externalWalletAddress: TextFieldValue,
+    setExternalWalletAddress: (TextFieldValue) -> Unit,
+    onSubmit: () -> Unit,
+    walletValidationState: WalletValidationState,
+    isProcessingWallet: Boolean
 ) {
-
-    var text by remember { mutableStateOf(TextFieldValue("")) }
 
     Box(
         modifier = Modifier
@@ -218,15 +225,25 @@ private fun LinkExternalWalletView(
             ) {
 
                 URTextInput(
-                    value = text,
-                    onValueChange = { text = it },
+                    value = externalWalletAddress,
+                    onValueChange = setExternalWalletAddress,
                     label = "USDC wallet address",
                     placeholder = "Enter a Solana or Matic USDC wallet address",
-                    supportingText = "USDC addresses on Solana and Polygon are currently supported"
+                    supportingText = "USDC addresses on Solana and Polygon are currently supported",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
+                    onDone = {
+                        if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingWallet)  {
+                            onSubmit()
+                        }
+                    }
                 )
 
                 URButton(
-                    onClick = {}
+                    onClick = onSubmit,
+                    enabled = (walletValidationState.solana || walletValidationState.polygon) && !isProcessingWallet,
                 ) { buttonTextStyle ->
                     Text("Link wallet", style = buttonTextStyle)
                 }
@@ -257,7 +274,12 @@ private fun ConnectWalletSheetPreview() {
             ) {
                 ConnectWalletSheet(
                     setIsPresentedConnectWalletSheet = {},
-                    connectWalletSheetState = bottomSheetState
+                    connectWalletSheetState = bottomSheetState,
+                    externalWalletAddress = TextFieldValue(""),
+                    setExternalWalletAddress = {},
+                    onSubmit = {},
+                    walletValidationState = WalletValidationState(solana = true),
+                    isProcessingWallet = false
                 )
             }
         }

@@ -42,8 +42,6 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable()
 fun AddWallet(
-    circleWalletExists: Boolean,
-    initCircleWallet: () -> Unit,
     openExternalWalletModal: () -> Unit,
     connectSagaWallet: () -> Unit,
 ) {
@@ -54,13 +52,13 @@ fun AddWallet(
     Box() {
         IconButton(
             onClick = {
-                if (!isSaga && circleWalletExists) {
-                    // just directly open the modal to add external wallet
-                    openExternalWalletModal()
-                } else {
-                    // prompt popup to allow choice of what type of wallet to add
-                    showOverlay = true
-                }
+//                if (!isSaga && circleWalletExists) {
+//                    // just directly open the modal to add external wallet
+//                    openExternalWalletModal()
+//                } else {
+//                    // prompt popup to allow choice of what type of wallet to add
+//                    showOverlay = true
+//                }
             },
             modifier = Modifier
                 .background(
@@ -82,8 +80,6 @@ fun AddWallet(
                     onDismiss = {
                         showOverlay = false
                     },
-                    circleWalletExists = circleWalletExists,
-                    initCircleWallet = initCircleWallet,
                     openExternalWalletModal = openExternalWalletModal,
                     connectSagaWallet = connectSagaWallet,
                     isSaga = isSaga
@@ -96,8 +92,6 @@ fun AddWallet(
 @Composable
 fun AddWalletPopup(
     onDismiss: () -> Unit,
-    initCircleWallet: () -> Unit,
-    circleWalletExists: Boolean,
     openExternalWalletModal: () -> Unit,
     connectSagaWallet: () -> Unit,
     isSaga: Boolean,
@@ -143,20 +137,20 @@ fun AddWalletPopup(
                     HorizontalDivider()
                 }
 
-                if (!circleWalletExists) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                initCircleWallet()
-                                onDismiss()
-                            }
-                            .padding(vertical = 8.dp, horizontal = 16.dp)
-                    ) {
-                        Text(stringResource(id = R.string.setup_circle_wallet))
-                    }
-                    HorizontalDivider()
-                }
+//                if (!circleWalletExists) {
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .clickable {
+//                                initCircleWallet()
+//                                onDismiss()
+//                            }
+//                            .padding(vertical = 8.dp, horizontal = 16.dp)
+//                    ) {
+//                        Text(stringResource(id = R.string.setup_circle_wallet))
+//                    }
+//                    HorizontalDivider()
+//                }
 
                 Row(
                     modifier = Modifier
@@ -187,8 +181,6 @@ private fun AddWalletPopupPreview() {
             ) {
                 AddWalletPopup(
                     onDismiss = {},
-                    circleWalletExists = false,
-                    initCircleWallet = {},
                     openExternalWalletModal = {},
                     connectSagaWallet = {},
                     isSaga = true

@@ -4,16 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.bringyour.network.CircleWalletManager
-import com.bringyour.network.DeviceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 
 @HiltViewModel
 class WalletsScreenViewModel @Inject constructor(
-    private val deviceManager: DeviceManager,
-    private val circleWalletManager: CircleWalletManager,
+    // private val deviceManager: DeviceManager
 ): ViewModel() {
 
     var isPresentedConnectWalletSheet by mutableStateOf(false)

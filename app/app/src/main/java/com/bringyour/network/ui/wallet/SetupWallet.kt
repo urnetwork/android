@@ -17,13 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.components.buttonTextStyle
 import com.bringyour.network.ui.theme.TextMuted
 
 @Composable
 fun SetupWallet(
-    initCircleWallet: () -> Unit,
-    circleWalletInProgress: Boolean,
     connectSagaWallet: () -> Unit,
     openModal: () -> Unit,
 ) {
