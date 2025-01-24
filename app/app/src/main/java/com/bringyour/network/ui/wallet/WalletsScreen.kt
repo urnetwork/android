@@ -393,7 +393,8 @@ fun WalletsScreen(
                                                 isPayoutWallet = wallet.walletId.equals(payoutWalletId),
                                                 walletAddress = wallet.walletAddress,
                                                 walletId = wallet.walletId,
-                                                navController = navController
+                                                navController = navController,
+                                                payouts = payouts
                                             )
 
                                             Spacer(modifier = Modifier.width(16.dp))
