@@ -199,33 +199,23 @@ class MainService : VpnService() {
             }
 
             builder.establish()?.let { pfd ->
-
                 val previousPacketFlow = this.packetFlow
                 app.device?.let { device ->
                     packetFlow = PacketFlow(device, pfd) {
                         runBlocking(Dispatchers.Main.immediate) {
                             if (packetFlow == it) {
                                 packetFlow = null
-                                // FIXME notify tunnel closed
-//                                    device.tunnelStarted = false
 
+                                device.tunnelStarted = false
                             }
-
+                            // else the ended packet flow was replaced by a new one
                         }
                     }
-                    // FIXME
-//                        device.tunnelStarted = true
+
+                    device.tunnelStarted = true
                 }
                 // cancel the previous packet flow after the new packet flow is set
                 previousPacketFlow?.cancel()
-            }
-        }
-
-
-        intent?.getBooleanExtra("start", true)?.let { start ->
-            if (start) {
-
-
             }
         }
 
