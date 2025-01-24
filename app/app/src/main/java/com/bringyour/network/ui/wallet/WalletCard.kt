@@ -35,6 +35,7 @@ import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import com.bringyour.sdk.AccountPayment
 
 @Composable
 fun WalletCard(
@@ -44,7 +45,15 @@ fun WalletCard(
     walletAddress: String,
     walletId: Id?,
     navController: NavController,
+    payouts: List<AccountPayment>,
 ) {
+
+    val walletPayments = payouts.filter { it.walletId == walletId }
+    val totalPayouts = if (walletPayments.isEmpty()) {
+        "0.00"
+    } else {
+        String.format("%.4f", walletPayments.sumOf { it.tokenAmount })
+    }
 
     val walletType = if (isCircleWallet) "Circle"
         else if (blockchain == Blockchain.SOLANA)
@@ -103,7 +112,7 @@ fun WalletCard(
 
                 // todo populate this
                 Text(
-                    "0.00 USDC",
+                    "${totalPayouts ?: "0.00"} USDC",
                     style = TextStyle(
                         fontFamily = gravityCondensedFamily,
                         fontWeight = FontWeight(900),
@@ -161,7 +170,8 @@ private fun WalletCardCirclePreview() {
             isPayoutWallet = true,
             walletAddress = "0x0000000000000000000000",
             navController = navController,
-            walletId = null
+            walletId = null,
+            payouts = listOf()
         )
     }
 }
@@ -178,7 +188,8 @@ private fun WalletCardSolanaPreview() {
             isPayoutWallet = false,
             walletAddress = "0x0000000000000000000000",
             navController = navController,
-            walletId = null
+            walletId = null,
+            payouts = listOf()
         )
     }
 }
@@ -195,7 +206,8 @@ private fun WalletCardPolygonPreview() {
             isPayoutWallet = false,
             walletAddress = "0x0000000000000000000000",
             navController = navController,
-            walletId = null
+            walletId = null,
+            payouts = listOf()
         )
     }
 }
