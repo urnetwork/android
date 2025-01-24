@@ -58,6 +58,9 @@ class MainActivity: AppCompatActivity() {
 
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
+    // used for solana mobile adapter
+    val activityResultSender = ActivityResultSender(this)
+
     private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val promptReviewViewModel: PromptReviewViewModel by viewModels()
@@ -172,7 +175,8 @@ class MainActivity: AppCompatActivity() {
                     planViewModel,
                     animateIn,
                     targetUrl,
-                    defaultLocation
+                    defaultLocation,
+                    activityResultSender
                 )
             }
         }

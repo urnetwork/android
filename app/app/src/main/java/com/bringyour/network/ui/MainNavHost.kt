@@ -80,6 +80,7 @@ import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
 import com.bringyour.network.utils.isTv
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,6 +93,7 @@ fun MainNavHost(
     animateIn: Boolean,
     targetLink: String?,
     defaultLocation: String?,
+    activityResultSender: ActivityResultSender,
     mainNavViewModel: MainNavViewModel = hiltViewModel(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
     overlayViewModel: OverlayViewModel = hiltViewModel(),
@@ -269,7 +271,8 @@ fun MainNavHost(
                                 walletViewModel = walletViewModel,
                                 connectViewModel = connectViewModel,
                                 locationsSheetState = locationsSheetState,
-                                locationsListViewModel = locationsListViewModel
+                                locationsListViewModel = locationsListViewModel,
+                                activityResultSender = activityResultSender
                             )
                         }
 
@@ -298,7 +301,8 @@ fun MainNavHost(
                             walletViewModel = walletViewModel,
                             connectViewModel = connectViewModel,
                             locationsSheetState = locationsSheetState,
-                            locationsListViewModel = locationsListViewModel
+                            locationsListViewModel = locationsListViewModel,
+                            activityResultSender = activityResultSender
                         )
 
                         if (!isTv()) {
@@ -339,6 +343,7 @@ fun MainNavContent(
     connectViewModel: ConnectViewModel,
     locationsSheetState: BottomSheetScaffoldState,
     locationsListViewModel: LocationsListViewModel,
+    activityResultSender: ActivityResultSender,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
     // /locationsListViewModel: LocationsListViewModel = hiltViewModel()
@@ -349,6 +354,8 @@ fun MainNavContent(
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
 
     val isTv = isTv()
+
+    val wallets by walletViewModel.wallets.collectAsState()
 
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
@@ -462,7 +469,7 @@ fun MainNavContent(
                     accountViewModel,
                     totalPayoutAmount = walletViewModel.totalPayoutAmount,
                     totalPayoutAmountInitialized = walletViewModel.totalPayoutAmountInitialized,
-                    walletCount = walletViewModel.wallets.size,
+                    walletCount = wallets.size,
                     planViewModel = planViewModel,
                     overlayViewModel = overlayViewModel
                 )
@@ -494,7 +501,8 @@ fun MainNavContent(
             ) {
                 WalletsScreen(
                     navController,
-                    walletViewModel
+                    walletViewModel,
+                    activityResultSender
                 )
             }
 

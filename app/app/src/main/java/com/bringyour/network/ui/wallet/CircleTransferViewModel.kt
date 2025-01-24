@@ -7,13 +7,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import circle.programmablewallet.sdk.WalletSdk
-import com.bringyour.sdk.Api
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.ValidateAddressCallback
 import com.bringyour.sdk.WalletCircleTransferOutArgs
 import com.bringyour.sdk.WalletViewController
 import com.bringyour.network.DeviceManager
-import com.bringyour.network.CircleWalletManager
 import com.bringyour.sdk.DeviceLocal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -22,7 +20,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CircleTransferViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-    private val circleWalletManager: CircleWalletManager,
 ): ViewModel() {
 
     private var walletVc: WalletViewController? = null
@@ -167,7 +164,6 @@ class CircleTransferViewModel @Inject constructor(
 
     init {
         walletVc = deviceManager.device?.openWalletViewController()
-        circleWalletSdk = circleWalletManager.circleWalletSdk
     }
 
 }

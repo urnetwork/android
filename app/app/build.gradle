@@ -333,6 +333,10 @@ dependencies {
     implementation 'circle.programmablewallet:sdk:1.0.1059'
 }
 
+dependencies {
+    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.3")
+}
+
 // google play
 dependencies {
     // FIXME only bundle if using google play flavor

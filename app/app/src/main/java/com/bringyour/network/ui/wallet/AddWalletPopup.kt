@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,16 +38,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.bringyour.network.R
-import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable()
 fun AddWallet(
-    circleWalletExists: Boolean,
-    initCircleWallet: () -> Unit,
-    openExternalWalletModal: () -> Unit,
+    openSolanaConnectModal: () -> Unit,
+    openExternalConnectModal: () -> Unit,
     connectSagaWallet: () -> Unit,
 ) {
     var showOverlay by remember { mutableStateOf(false) }
@@ -54,13 +55,7 @@ fun AddWallet(
     Box() {
         IconButton(
             onClick = {
-                if (!isSaga && circleWalletExists) {
-                    // just directly open the modal to add external wallet
-                    openExternalWalletModal()
-                } else {
-                    // prompt popup to allow choice of what type of wallet to add
-                    showOverlay = true
-                }
+                showOverlay = true
             },
             modifier = Modifier
                 .background(
@@ -82,9 +77,8 @@ fun AddWallet(
                     onDismiss = {
                         showOverlay = false
                     },
-                    circleWalletExists = circleWalletExists,
-                    initCircleWallet = initCircleWallet,
-                    openExternalWalletModal = openExternalWalletModal,
+                    openSolanaConnectModal = openSolanaConnectModal,
+                    openExternalWalletModal = openExternalConnectModal,
                     connectSagaWallet = connectSagaWallet,
                     isSaga = isSaga
                 )
@@ -96,9 +90,8 @@ fun AddWallet(
 @Composable
 fun AddWalletPopup(
     onDismiss: () -> Unit,
-    initCircleWallet: () -> Unit,
-    circleWalletExists: Boolean,
     openExternalWalletModal: () -> Unit,
+    openSolanaConnectModal: () -> Unit,
     connectSagaWallet: () -> Unit,
     isSaga: Boolean,
 ) {
@@ -112,8 +105,8 @@ fun AddWalletPopup(
             alignment = Alignment.TopEnd,
             offset = IntOffset(x = 16, y = 96),
             properties = PopupProperties(
-                focusable = true
-            )
+                focusable = true,
+            ),
         ) {
 
             Column(
@@ -123,55 +116,74 @@ fun AddWalletPopup(
                         shape = RoundedCornerShape(8.dp)
                     )
                     .background(
-                        BlueDark,
+                        MainTintedBackgroundBase,
                     )
                     .width(224.dp)
             ) {
                 if (isSaga) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                connectSagaWallet()
-                                onDismiss()
-                            }
-                            .padding(vertical = 8.dp, horizontal = 16.dp)
-                    ) {
-                        Text(stringResource(id = R.string.connect_saga_wallet))
-                    }
 
-                    HorizontalDivider()
-                }
-
-                if (!circleWalletExists) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                initCircleWallet()
-                                onDismiss()
-                            }
-                            .padding(vertical = 8.dp, horizontal = 16.dp)
-                    ) {
-                        Text(stringResource(id = R.string.setup_circle_wallet))
-                    }
-                    HorizontalDivider()
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            openExternalWalletModal()
+                    PopupMenuItem(
+                        painter = painterResource(id = R.drawable.solana_logo),
+                        text = stringResource(id = R.string.connect_saga_wallet),
+                        onClick = {
+                            connectSagaWallet()
                             onDismiss()
                         }
-                        .padding(vertical = 8.dp, horizontal = 16.dp)
-                ) {
-                    Text(stringResource(id = R.string.connect_external_wallet))
+                    )
+
+                } else {
+
+                    PopupMenuItem(
+                        painter = painterResource(id = R.drawable.solana_logo),
+                        text = "Connect Solana wallet",
+                        onClick = {
+                            openSolanaConnectModal()
+                            onDismiss()
+                        }
+                    )
+
                 }
 
+                HorizontalDivider()
+
+                PopupMenuItem(
+                    painter = painterResource(id = R.drawable.plus_icon),
+                    text = stringResource(id = R.string.connect_external_wallet),
+                    onClick = {
+                        openExternalWalletModal()
+                        onDismiss()
+                    }
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun PopupMenuItem(
+    painter: Painter,
+    text: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
+            .padding(vertical = 8.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painter,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.width(16.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(text)
     }
 }
 
@@ -187,11 +199,10 @@ private fun AddWalletPopupPreview() {
             ) {
                 AddWalletPopup(
                     onDismiss = {},
-                    circleWalletExists = false,
-                    initCircleWallet = {},
                     openExternalWalletModal = {},
                     connectSagaWallet = {},
-                    isSaga = true
+                    isSaga = true,
+                    openSolanaConnectModal = {}
                 )
             }
         }

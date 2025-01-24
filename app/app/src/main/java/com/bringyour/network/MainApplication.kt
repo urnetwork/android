@@ -13,15 +13,11 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.PowerManager
 import android.util.Log
-import androidx.biometric.BiometricManager
 import androidx.core.content.ContextCompat
-import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.sdk.AccountViewController
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.DevicesViewController
 import com.bringyour.sdk.LoginViewController
-import com.bringyour.network.ui.account.CircleLayoutProvider
-import com.bringyour.network.ui.account.CircleViewSetterProvider
 import dagger.hilt.android.HiltAndroidApp
 import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sub
@@ -78,15 +74,10 @@ class MainApplication : Application() {
     var devicesVc: DevicesViewController? = null
     var accountVc: AccountViewController? = null
 
-    var hasBiometric: Boolean = false
-
     var tunnelRequestStatus: TunnelRequestStatus = TunnelRequestStatus.None
 
     @Inject
     lateinit var deviceManager: DeviceManager
-
-    @Inject
-    lateinit var circleWalletManager: CircleWalletManager
 
     @Inject
     lateinit var networkSpaceManagerProvider: NetworkSpaceManagerProvider
@@ -168,10 +159,6 @@ class MainApplication : Application() {
         networkSpaceManagerProvider.setNetworkSpace(networkSpace)
 
         loginVc = Sdk.newLoginViewController(api)
-
-        if (networkSpace.wallet == "circle" || networkSpace.wallet == "all") {
-            initCircleWallet()
-        }
 
         asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt?.let { byClientJwt ->
@@ -456,7 +443,6 @@ class MainApplication : Application() {
         // return byDevice
     }
 
-
     private fun updateTunnelStarted() {
         device?.tunnelStarted?.let { tunnelStarted ->
             Log.i(TAG, "[tunnel]started=$tunnelStarted")
@@ -473,34 +459,6 @@ class MainApplication : Application() {
         }
     }
 
-
-
-    private fun initCircleWallet() {
-        val applicationContext = applicationContext ?: return
-
-        val addId = applicationContext.getString(R.string.circle_app_id)
-
-        val settingsManagement = SettingsManagement()
-
-        val fingerprintManager = BiometricManager.from(applicationContext)
-
-        hasBiometric = BiometricManager.BIOMETRIC_SUCCESS == fingerprintManager.canAuthenticate(
-            BiometricManager.Authenticators.BIOMETRIC_WEAK or
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG)
-
-        settingsManagement.isEnableBiometricsPin = hasBiometric //Set "true" to enable, "false" to disable
-        val layoutProvider = CircleLayoutProvider(applicationContext)
-        val viewSetterProvider = CircleViewSetterProvider(applicationContext)
-
-        circleWalletManager.init(
-            applicationContext,
-            addId,
-            settingsManagement,
-            layoutProvider,
-            viewSetterProvider
-        )
-
-    }
 
     private fun updateVpnService() {
         val device = device ?: return

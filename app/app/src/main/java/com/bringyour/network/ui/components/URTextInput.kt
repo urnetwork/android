@@ -194,7 +194,7 @@ fun URTextInput(
                     .height(12.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                Spacer(modifier = Modifier.width(8.dp))
+                // Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     supportingText.toString(),
                     style = TextStyle(

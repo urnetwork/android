@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.wallet
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,50 +29,49 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
-import circle.programmablewallet.sdk.api.ApiError
-import circle.programmablewallet.sdk.api.Callback
-import circle.programmablewallet.sdk.api.ExecuteWarning
-import circle.programmablewallet.sdk.result.ExecuteResult
 import com.bringyour.sdk.AccountWallet
-import com.bringyour.network.MainActivity
-import com.bringyour.network.MainApplication
-import com.bringyour.network.ui.components.URDialog
-import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
-import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.theme.BlueLight
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
+import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
+import com.solana.mobilewalletadapter.clientlib.Solana
+import com.solana.mobilewalletadapter.clientlib.TransactionResult
+import com.solana.publickey.SolanaPublicKey
+import kotlinx.coroutines.launch
 
 @Composable
 fun WalletsScreen(
     navController: NavHostController,
     walletViewModel: WalletViewModel,
+    activityResultSender: ActivityResultSender,
 ) {
+
+    val wallets by walletViewModel.wallets.collectAsState()
 
     LaunchedEffect(Unit) {
         walletViewModel.fetchTransferStats()
@@ -79,29 +80,23 @@ fun WalletsScreen(
     WalletsScreen(
         navController,
         connectSagaWallet = walletViewModel.connectSagaWallet,
-        addExternalWalletModalVisible = walletViewModel.addExternalWalletModalVisible,
-        openExternalWalletModal = walletViewModel.openExternalWalletModal,
-        closeModal = walletViewModel.closeExternalWalletModal,
-        createCircleWallet = walletViewModel.createCircleWallet,
-        circleWalletInProgress = walletViewModel.circleWalletInProgress,
-        wallets = walletViewModel.wallets,
+        wallets = wallets,
         externalWalletAddress = walletViewModel.externalWalletAddress,
         setExternalWalletAddress = walletViewModel.setExternaWalletAddress,
         walletValidationState = walletViewModel.externalWalletAddressIsValid,
-        createExternalWallet = walletViewModel.createExternalWallet,
+        linkWallet = walletViewModel.linkWallet,
         isProcessingExternalWallet = walletViewModel.isProcessingExternalWallet,
         payoutWalletId = walletViewModel.payoutWalletId,
         isInitializingFirstWallet = walletViewModel.initializingFirstWallet,
-        setCircleWalletInProgress = walletViewModel.setCircleWalletInProgress,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
         payouts = walletViewModel.payouts,
         isRemovingWallet = walletViewModel.isRemovingWallet,
-        pollWallets = walletViewModel.pollWallets,
         initializingWallets = walletViewModel.initializingWallets,
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
-        circleWalletExists = walletViewModel.circleWalletExists,
         refresh = walletViewModel.refreshWalletsInfo,
-        isRefreshing = walletViewModel.isRefreshingWallets
+        isRefreshing = walletViewModel.isRefreshingWallets,
+        setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
+        activityResultSender = activityResultSender
     )
 }
 
@@ -110,130 +105,77 @@ fun WalletsScreen(
 fun WalletsScreen(
     navController: NavHostController,
     connectSagaWallet: () -> Unit,
-    addExternalWalletModalVisible: Boolean,
-    openExternalWalletModal: () -> Unit,
-    closeModal: () -> Unit,
-    createCircleWallet: (OnWalletExecute) -> Unit,
     externalWalletAddress: TextFieldValue,
     setExternalWalletAddress: (TextFieldValue) -> Unit,
-    circleWalletInProgress: Boolean,
     walletValidationState: WalletValidationState,
-    createExternalWallet: () -> Unit,
+    linkWallet: () -> Unit,
     isProcessingExternalWallet: Boolean,
     payoutWalletId: Id?,
     isInitializingFirstWallet: Boolean,
     wallets: List<AccountWallet>,
-    setCircleWalletInProgress: (Boolean) -> Unit,
     setInitializingFirstWallet: (Boolean) -> Unit,
     payouts: List<AccountPayment>,
     isRemovingWallet: Boolean,
-    pollWallets: () -> Unit?,
     initializingWallets: Boolean,
     unpaidMegaByteCount: String,
-    circleWalletExists: Boolean,
     refresh: () -> Unit,
-    isRefreshing: Boolean
+    isRefreshing: Boolean,
+    activityResultSender: ActivityResultSender,
+    setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit,
+    viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    val activity = context as? MainActivity
-    val app = context.applicationContext as? MainApplication
 
     val refreshState = rememberPullToRefreshState()
 
-    val initCircleWallet = {
+    val connectWalletSheetState = rememberModalBottomSheetState()
 
-        val onWalletExecute: OnWalletExecute = { walletSdk, userToken, encryptionKey, challengeId ->
-            walletSdk.execute(
-                activity,
-                userToken,
-                encryptionKey,
-                arrayOf(challengeId),
-                object : Callback<ExecuteResult> {
-                    override fun onWarning(
-                        warning: ExecuteWarning,
-                        result: ExecuteResult?
-                    ): Boolean {
-                        complete()
-                        // FIXME toast
-                        return false
-                    }
+    val scope = rememberCoroutineScope()
 
-                    override fun onError(error: Throwable): Boolean {
-                        setCircleWalletInProgress(false)
-                        setInitializingFirstWallet(false)
+    val connectSolanaWallet = {
 
-                        if (error is ApiError) {
-                            when (error.code) {
-                                ApiError.ErrorCode.userCanceled -> return false // App won't handle next step, SDK will finish the Activity.
-                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked,
-                                ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.securityAnswersLocked,
-                                ApiError.ErrorCode.insecurePinCode, ApiError.ErrorCode.pinCodeNotMatched -> {
-                                }
+        val solanaUri = Uri.parse("https://ur.io")
+        val iconUri = Uri.parse("favicon.ico")
+        val identityName = "URnetwork"
 
-                                ApiError.ErrorCode.networkError -> {
-                                    // FIXME toast
-                                }
+        // Instantiate the MWA client object
+        val walletAdapter = MobileWalletAdapter(
+            connectionIdentity = ConnectionIdentity(
+                identityUri = solanaUri,
+                iconUri = iconUri,
+                identityName = identityName,
+            ),
+        )
+        walletAdapter.blockchain = Solana.Mainnet
 
-                                else -> {
-                                    // FIXME toast
-                                }
-                            }
-                            // App will handle next step, SDK will keep the Activity.
-                            return true
-                        }
+        scope.launch {
 
-                        // App won't handle next step, SDK will finish the Activity.
-                        return false
-                    }
+            // `connect` dispatches an association intent to MWA-compatible wallet apps.
+            when (val result = walletAdapter.connect(activityResultSender)) {
+                is TransactionResult.Success -> {
+                    val authResult = result.authResult
+                    val account = SolanaPublicKey(authResult.accounts.first().publicKey)
 
-                    override fun onResult(result: ExecuteResult) {
-                        complete()
-                    }
+                    Log.i("ConnectWalletSheet", "account is: ${account.base58()}")
 
-                    fun complete() {
-                        if (app?.hasBiometric == false) {
-                            // update {}
-                        } else {
-                            // enable biometrics
-                            walletSdk.setBiometricsPin(
-                                activity,
-                                userToken,
-                                encryptionKey,
-                                object : Callback<ExecuteResult> {
-                                    override fun onError(error: Throwable): Boolean {
+                    setExternalWalletAddress(TextFieldValue(account.base58()))
+                    // setExternalWalletAddress(TextFieldValue(address))
+                    // since this is taken directly from the solana mobile adapter,
+                    // we can mark this as true without calling our API to validate
+                    setExternalWalletAddressIsValid("SOL", true)
 
-                                        error.printStackTrace()
-                                        if (error is ApiError) {
-                                            return when (error.code) {
-                                                ApiError.ErrorCode.incorrectUserPin, ApiError.ErrorCode.userPinLocked, ApiError.ErrorCode.securityAnswersLocked, ApiError.ErrorCode.incorrectSecurityAnswers, ApiError.ErrorCode.pinCodeNotMatched, ApiError.ErrorCode.insecurePinCode -> true // App will handle next step, SDK will keep the Activity.
-                                                else -> false
-                                            }
-                                        }
-                                        return false // App won't handle next step, SDK will finish the Activity.
-                                    }
+                    linkWallet()
 
-                                    override fun onResult(result: ExecuteResult) {
-                                        //success
-                                        // update {}
-                                    }
-
-                                    override fun onWarning(
-                                        warning: ExecuteWarning,
-                                        result: ExecuteResult?
-                                    ): Boolean {
-                                        return false // App won't handle next step, SDK will finish the Activity.
-                                    }
-                                }
-                            )
-                        }
-
-                        pollWallets()
-                    }
                 }
-            )
+                is TransactionResult.NoWalletFound -> {
+                    println("No MWA compatible wallet app found on device.")
+                }
+                is TransactionResult.Failure -> {
+                    println("Error connecting to wallet: " + result.e.message)
+                }
+            }
+
         }
 
-        createCircleWallet(onWalletExecute)
     }
 
     Scaffold(
@@ -368,10 +310,13 @@ fun WalletsScreen(
                                     modifier = Modifier.padding(16.dp)
                                 ) {
                                     SetupWallet(
-                                        initCircleWallet = initCircleWallet,
-                                        circleWalletInProgress = circleWalletInProgress,
                                         connectSagaWallet = connectSagaWallet,
-                                        openModal = openExternalWalletModal,
+                                        openExternalConnectModal = {
+                                            viewModel.setIsPresentedConnectWalletSheet(true)
+                                        },
+                                        openSolanaConnectModal = {
+                                            connectSolanaWallet()
+                                        }
                                     )
                                 }
                             } else {
@@ -402,10 +347,13 @@ fun WalletsScreen(
                                     }
 
                                     AddWallet(
-                                        circleWalletExists = circleWalletExists,
-                                        initCircleWallet = initCircleWallet,
                                         connectSagaWallet = connectSagaWallet,
-                                        openExternalWalletModal = openExternalWalletModal
+                                        openSolanaConnectModal = {
+                                            connectSolanaWallet()
+                                        },
+                                        openExternalConnectModal = {
+                                            viewModel.setIsPresentedConnectWalletSheet(true)
+                                        },
                                     )
 
                                 }
@@ -445,7 +393,8 @@ fun WalletsScreen(
                                                 isPayoutWallet = wallet.walletId.equals(payoutWalletId),
                                                 walletAddress = wallet.walletAddress,
                                                 walletId = wallet.walletId,
-                                                navController = navController
+                                                navController = navController,
+                                                payouts = payouts
                                             )
 
                                             Spacer(modifier = Modifier.width(16.dp))
@@ -470,262 +419,188 @@ fun WalletsScreen(
             }
         }
 
-        URDialog(
-            visible = addExternalWalletModalVisible,
-            onDismiss = { closeModal() }
-        ) {
-            Column() {
-                Text(
-                    stringResource(id = R.string.connect_external_wallet),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    stringResource(id = R.string.connect_external_wallet_supported_chains),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                URTextInput(
-                    value = externalWalletAddress,
-                    onValueChange = { newValue ->
-                        setExternalWalletAddress(newValue)
-                                    },
-                    label = stringResource(id = R.string.wallet_address_label),
-                    placeholder = stringResource(id = R.string.wallet_address_placeholder),
-                    maxLines = 2
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = AnnotatedString(
-                            stringResource(id = R.string.cancel),
-                            spanStyle = SpanStyle(
-                                color = BlueMedium,
-                                fontSize = 14.sp
-                            )
-                        ),
-                        modifier = Modifier.clickable {
-                            closeModal()
-                            setExternalWalletAddress(TextFieldValue(""))
-                        },
-                    )
-
-                    Spacer(modifier = Modifier.width(32.dp))
-
-                    Text(
-                        text = AnnotatedString(
-                            stringResource(id = R.string.connect),
-                            spanStyle = if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet)
-                                SpanStyle(
-                                    color = BlueMedium,
-                                    fontSize = 14.sp
-                                ) else
-                                SpanStyle(
-                                    color = TextMuted,
-                                    fontSize = 14.sp
-                                )
-                        ),
-                        modifier = Modifier.clickable {
-                            if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
-                                createExternalWallet()
-                            }
-                        },
-                    )
-                }
-            }
+        /**
+         * Connect wallet sheet
+         */
+        if (viewModel.isPresentedConnectWalletSheet) {
+            ManualWalletAddressSheet(
+                setIsPresentedConnectWalletSheet = viewModel.setIsPresentedConnectWalletSheet,
+                connectWalletSheetState = connectWalletSheetState,
+                externalWalletAddress = externalWalletAddress,
+                setExternalWalletAddress = setExternalWalletAddress,
+                onSubmit = {
+                    if ((walletValidationState.solana || walletValidationState.polygon) && !isProcessingExternalWallet) {
+                        linkWallet()
+                        viewModel.setIsPresentedConnectWalletSheet(false)
+                    }
+                },
+                walletValidationState = walletValidationState,
+                isProcessingWallet = isProcessingExternalWallet
+            )
         }
     }
 }
 
-@Preview
-@Composable
-private fun WalletScreenPreview() {
+// passing ActivityResultSender breaks previews
 
-    val navController = rememberNavController()
-
-    URNetworkTheme {
-        WalletsScreen(
-            navController,
-            connectSagaWallet = {},
-            addExternalWalletModalVisible = false,
-            openExternalWalletModal = {},
-            closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
-            wallets = listOf(),
-            externalWalletAddress = TextFieldValue(""),
-            setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
-            isProcessingExternalWallet = false,
-            payoutWalletId = null,
-            isInitializingFirstWallet = false,
-            setCircleWalletInProgress = {},
-            setInitializingFirstWallet = {},
-            payouts = listOf(),
-            isRemovingWallet = false,
-            pollWallets = {},
-            initializingWallets = false,
-            unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
-            refresh = {},
-            isRefreshing = false
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun WalletScreenSagaPreview() {
-
-    val navController = rememberNavController()
-
-    URNetworkTheme {
-        WalletsScreen(
-            navController,
-            connectSagaWallet = {},
-            addExternalWalletModalVisible = false,
-            openExternalWalletModal = {},
-            closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
-            wallets = listOf(),
-            externalWalletAddress = TextFieldValue(""),
-            setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
-            isProcessingExternalWallet = false,
-            payoutWalletId = null,
-            isInitializingFirstWallet = false,
-            setCircleWalletInProgress = {},
-            setInitializingFirstWallet = {},
-            payouts = listOf(),
-            isRemovingWallet = false,
-            pollWallets = {},
-            initializingWallets = false,
-            unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
-            refresh = {},
-            isRefreshing = false
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun WalletScreenExternalWalletModalPreview() {
-
-    val navController = rememberNavController()
-
-    URNetworkTheme {
-        WalletsScreen(
-            navController,
-            connectSagaWallet = {},
-            addExternalWalletModalVisible = true,
-            openExternalWalletModal = {},
-            closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
-            wallets = listOf(),
-            externalWalletAddress = TextFieldValue(""),
-            setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
-            isProcessingExternalWallet = false,
-            payoutWalletId = null,
-            isInitializingFirstWallet = false,
-            setCircleWalletInProgress = {},
-            setInitializingFirstWallet = {},
-            payouts = listOf(),
-            isRemovingWallet = false,
-            pollWallets = {},
-            initializingWallets = false,
-            unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
-            refresh = {},
-            isRefreshing = false
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun WalletScreenInitializingWalletPreview() {
-
-    val navController = rememberNavController()
-
-    URNetworkTheme {
-        WalletsScreen(
-            navController,
-            connectSagaWallet = {},
-            addExternalWalletModalVisible = false,
-            openExternalWalletModal = {},
-            closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
-            wallets = listOf(),
-            externalWalletAddress = TextFieldValue(""),
-            setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
-            isProcessingExternalWallet = false,
-            payoutWalletId = null,
-            isInitializingFirstWallet = true,
-            setCircleWalletInProgress = {},
-            setInitializingFirstWallet = {},
-            payouts = listOf(),
-            isRemovingWallet = false,
-            pollWallets = {},
-            initializingWallets = false,
-            unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
-            refresh = {},
-            isRefreshing = false
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun WalletScreenRemovingWalletPreview() {
-
-    val navController = rememberNavController()
-
-    URNetworkTheme {
-        WalletsScreen(
-            navController,
-            connectSagaWallet = {},
-            addExternalWalletModalVisible = false,
-            openExternalWalletModal = {},
-            closeModal = {},
-            createCircleWallet = {},
-            circleWalletInProgress = false,
-            wallets = listOf(),
-            externalWalletAddress = TextFieldValue(""),
-            setExternalWalletAddress = {},
-            walletValidationState = WalletValidationState(),
-            createExternalWallet = {},
-            isProcessingExternalWallet = false,
-            payoutWalletId = null,
-            isInitializingFirstWallet = true,
-            setCircleWalletInProgress = {},
-            setInitializingFirstWallet = {},
-            payouts = listOf(),
-            isRemovingWallet = true,
-            pollWallets = {},
-            initializingWallets = false,
-            unpaidMegaByteCount = "124.64",
-            circleWalletExists = false,
-            refresh = {},
-            isRefreshing = false
-        )
-    }
-}
+//@Preview
+//@Composable
+//private fun WalletScreenPreview() {
+//
+//    val navController = rememberNavController()
+//
+//    URNetworkTheme {
+//        WalletsScreen(
+//            navController,
+//            connectSagaWallet = {},
+//            addExternalWalletModalVisible = false,
+//            openExternalWalletModal = {},
+//            closeModal = {},
+//            wallets = listOf(),
+//            externalWalletAddress = TextFieldValue(""),
+//            setExternalWalletAddress = {},
+//            walletValidationState = WalletValidationState(),
+//            linkWallet = {},
+//            isProcessingExternalWallet = false,
+//            payoutWalletId = null,
+//            isInitializingFirstWallet = false,
+//            setInitializingFirstWallet = {},
+//            payouts = listOf(),
+//            isRemovingWallet = false,
+//            initializingWallets = false,
+//            unpaidMegaByteCount = "124.64",
+//            refresh = {},
+//            isRefreshing = false,
+//            activityResultSender = ActivityResultSender(null)
+//        )
+//    }
+//}
+//
+//@Preview
+//@Composable
+//private fun WalletScreenSagaPreview() {
+//
+//    val navController = rememberNavController()
+//
+//    URNetworkTheme {
+//        WalletsScreen(
+//            navController,
+//            connectSagaWallet = {},
+//            addExternalWalletModalVisible = false,
+//            openExternalWalletModal = {},
+//            closeModal = {},
+//            wallets = listOf(),
+//            externalWalletAddress = TextFieldValue(""),
+//            setExternalWalletAddress = {},
+//            walletValidationState = WalletValidationState(),
+//            linkWallet = {},
+//            isProcessingExternalWallet = false,
+//            payoutWalletId = null,
+//            isInitializingFirstWallet = false,
+//            setInitializingFirstWallet = {},
+//            payouts = listOf(),
+//            isRemovingWallet = false,
+//            initializingWallets = false,
+//            unpaidMegaByteCount = "124.64",
+//            refresh = {},
+//            isRefreshing = false
+//        )
+//    }
+//}
+//
+//@Preview
+//@Composable
+//private fun WalletScreenExternalWalletModalPreview() {
+//
+//    val navController = rememberNavController()
+//
+//    URNetworkTheme {
+//        WalletsScreen(
+//            navController,
+//            connectSagaWallet = {},
+//            addExternalWalletModalVisible = true,
+//            openExternalWalletModal = {},
+//            closeModal = {},
+//            wallets = listOf(),
+//            externalWalletAddress = TextFieldValue(""),
+//            setExternalWalletAddress = {},
+//            walletValidationState = WalletValidationState(),
+//            linkWallet = {},
+//            isProcessingExternalWallet = false,
+//            payoutWalletId = null,
+//            isInitializingFirstWallet = false,
+//            setInitializingFirstWallet = {},
+//            payouts = listOf(),
+//            isRemovingWallet = false,
+//            initializingWallets = false,
+//            unpaidMegaByteCount = "124.64",
+//            refresh = {},
+//            isRefreshing = false
+//        )
+//    }
+//}
+//
+//@Preview
+//@Composable
+//private fun WalletScreenInitializingWalletPreview() {
+//
+//    val navController = rememberNavController()
+//
+//    URNetworkTheme {
+//        WalletsScreen(
+//            navController,
+//            connectSagaWallet = {},
+//            addExternalWalletModalVisible = false,
+//            openExternalWalletModal = {},
+//            closeModal = {},
+//            wallets = listOf(),
+//            externalWalletAddress = TextFieldValue(""),
+//            setExternalWalletAddress = {},
+//            walletValidationState = WalletValidationState(),
+//            linkWallet = {},
+//            isProcessingExternalWallet = false,
+//            payoutWalletId = null,
+//            isInitializingFirstWallet = true,
+//            setInitializingFirstWallet = {},
+//            payouts = listOf(),
+//            isRemovingWallet = false,
+//            initializingWallets = false,
+//            unpaidMegaByteCount = "124.64",
+//            refresh = {},
+//            isRefreshing = false
+//        )
+//    }
+//}
+//
+//@Preview
+//@Composable
+//private fun WalletScreenRemovingWalletPreview() {
+//
+//    val navController = rememberNavController()
+//
+//    URNetworkTheme {
+//        WalletsScreen(
+//            navController,
+//            connectSagaWallet = {},
+//            addExternalWalletModalVisible = false,
+//            openExternalWalletModal = {},
+//            closeModal = {},
+//            wallets = listOf(),
+//            externalWalletAddress = TextFieldValue(""),
+//            setExternalWalletAddress = {},
+//            walletValidationState = WalletValidationState(),
+//            linkWallet = {},
+//            isProcessingExternalWallet = false,
+//            payoutWalletId = null,
+//            isInitializingFirstWallet = true,
+//            setInitializingFirstWallet = {},
+//            payouts = listOf(),
+//            isRemovingWallet = true,
+//            initializingWallets = false,
+//            unpaidMegaByteCount = "124.64",
+//            refresh = {},
+//            isRefreshing = false
+//        )
+//    }
+//}
 
