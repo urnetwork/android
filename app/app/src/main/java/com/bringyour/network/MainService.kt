@@ -201,10 +201,10 @@ class MainService : VpnService() {
             builder.establish()?.let { pfd ->
                 val previousPacketFlow = this.packetFlow
                 app.device?.let { device ->
-                    packetFlow = PacketFlow(device, pfd) {
+                    this@MainService.packetFlow = PacketFlow(device, pfd) { endedPacketFlow ->
                         runBlocking(Dispatchers.Main.immediate) {
-                            if (packetFlow == it) {
-                                packetFlow = null
+                            if (this@MainService.packetFlow == endedPacketFlow) {
+                                this@MainService.packetFlow = null
 
                                 device.tunnelStarted = false
                             }
@@ -247,8 +247,11 @@ class MainService : VpnService() {
 
 
     private fun stop() {
+        val app = application as MainApplication
+
         packetFlow?.cancel()
         packetFlow = null
+        app.device?.tunnelStarted = false
 
         stopForegroundNotification()
         stopSelf()
@@ -370,7 +373,7 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
                 }
                 cancel()
 
-                endCallback(this)
+                endCallback(this@PacketFlow)
             }
         }
     }

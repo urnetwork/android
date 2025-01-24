@@ -66,6 +66,8 @@ class MainApplication : Application() {
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
 //    var router: Router? = null
+    var tunnelChangeSub: Sub? = null
+    var contractStatusChangeSub: Sub? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
@@ -344,6 +346,12 @@ class MainApplication : Application() {
         deviceOfflineSub = null
         deviceConnectSub?.close()
         deviceConnectSub = null
+        deviceRouteLocalSub?.close()
+        deviceRouteLocalSub = null
+        tunnelChangeSub?.close()
+        tunnelChangeSub = null
+        contractStatusChangeSub?.close()
+        contractStatusChangeSub = null
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -423,6 +431,18 @@ class MainApplication : Application() {
             }
         }
 
+
+        tunnelChangeSub = device?.addTunnelChangeListener { tunnelStarted ->
+            runBlocking(Dispatchers.Main.immediate) {
+                updateTunnelStarted()
+            }
+        }
+        contractStatusChangeSub = device?.addContractStatusChangeListener {
+            runBlocking(Dispatchers.Main.immediate) {
+                updateContractStatus()
+            }
+        }
+
 //        router = Router(device!!)
 
         addOfflineCallback()
@@ -430,7 +450,27 @@ class MainApplication : Application() {
 
         updateVpnService()
 
+        updateTunnelStarted()
+        updateContractStatus()
+
         // return byDevice
+    }
+
+
+    private fun updateTunnelStarted() {
+        device?.tunnelStarted?.let { tunnelStarted ->
+            Log.i(TAG, "[tunnel]started=$tunnelStarted")
+        } ?: run {
+            Log.i(TAG, "[tunnel]no tunnel")
+        }
+    }
+
+    private fun updateContractStatus() {
+        device?.contractStatus?.let { contractStatus ->
+            Log.i(TAG, "[contract]insufficent=${contractStatus.insufficientBalance} nopermission=${contractStatus.noPermission} premium=${contractStatus.premium}")
+        } ?: run {
+            Log.i(TAG, "[contract]no contract status")
+        }
     }
 
 
