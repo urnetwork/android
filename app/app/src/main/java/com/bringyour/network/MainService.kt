@@ -199,33 +199,23 @@ class MainService : VpnService() {
             }
 
             builder.establish()?.let { pfd ->
-
                 val previousPacketFlow = this.packetFlow
                 app.device?.let { device ->
-                    packetFlow = PacketFlow(device, pfd) {
+                    this@MainService.packetFlow = PacketFlow(device, pfd) { endedPacketFlow ->
                         runBlocking(Dispatchers.Main.immediate) {
-                            if (packetFlow == it) {
-                                packetFlow = null
-                                // FIXME notify tunnel closed
-//                                    device.tunnelStarted = false
+                            if (this@MainService.packetFlow == endedPacketFlow) {
+                                this@MainService.packetFlow = null
 
+                                device.tunnelStarted = false
                             }
-
+                            // else the ended packet flow was replaced by a new one
                         }
                     }
-                    // FIXME
-//                        device.tunnelStarted = true
+
+                    device.tunnelStarted = true
                 }
                 // cancel the previous packet flow after the new packet flow is set
                 previousPacketFlow?.cancel()
-            }
-        }
-
-
-        intent?.getBooleanExtra("start", true)?.let { start ->
-            if (start) {
-
-
             }
         }
 
@@ -257,8 +247,11 @@ class MainService : VpnService() {
 
 
     private fun stop() {
+        val app = application as MainApplication
+
         packetFlow?.cancel()
         packetFlow = null
+        app.device?.tunnelStarted = false
 
         stopForegroundNotification()
         stopSelf()
@@ -380,7 +373,7 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
                 }
                 cancel()
 
-                endCallback(this)
+                endCallback(this@PacketFlow)
             }
         }
     }
