@@ -22,7 +22,8 @@ import com.bringyour.network.ui.theme.TextMuted
 @Composable
 fun SetupWallet(
     connectSagaWallet: () -> Unit,
-    openModal: () -> Unit,
+    openSolanaConnectModal: () -> Unit,
+    openExternalConnectModal: () -> Unit,
 ) {
 
     Column(
@@ -70,7 +71,7 @@ fun SetupWallet(
 
                 URButton(
                     onClick = {
-                        openModal()
+                        openExternalConnectModal()
                     },
                     style = ButtonStyle.OUTLINE
                 ) { buttonTextStyle ->
@@ -89,36 +90,28 @@ fun SetupWallet(
 
                 URButton(
                     onClick = {
-                        openModal()
+                        // openModal()
+                        openSolanaConnectModal()
                     }
                 ) { buttonTextStyle ->
-                    Text("Connect wallet", style = buttonTextStyle)
+                    Text("Connect Solana wallet", style = buttonTextStyle)
                 }
 
-//                URButton(
-//                    onClick = {
-//                        initCircleWallet()
-//                    },
-//                    enabled = !circleWalletInProgress
-//                ) { buttonTextStyle ->
-//                    Text(stringResource(id = R.string.setup_circle_wallet), style = buttonTextStyle)
-//                }
-//
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                URButton(
-//                    onClick = {
-//                        openModal()
-//                    },
-//                    style = ButtonStyle.OUTLINE
-//                ) { buttonTextStyle ->
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.Center
-//                    ) {
-//                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
-//                    }
-//                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(
+                    onClick = {
+                        openExternalConnectModal()
+                    },
+                    style = ButtonStyle.OUTLINE
+                ) { buttonTextStyle ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(stringResource(id = R.string.connect_external_wallet), style = buttonTextStyle)
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

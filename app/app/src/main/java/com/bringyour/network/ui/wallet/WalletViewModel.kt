@@ -23,8 +23,12 @@ import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,9 +41,6 @@ class WalletViewModel @Inject constructor(
     private var walletVc: WalletViewController? = null
 
     var nextPayoutDateStr by mutableStateOf("")
-        private set
-
-    var addExternalWalletModalVisible by mutableStateOf(false)
         private set
 
     var removeWalletModalVisible by mutableStateOf(false)
@@ -81,7 +82,10 @@ class WalletViewModel @Inject constructor(
     var isRemovingWallet by mutableStateOf(false)
         private set
 
-    val wallets = mutableListOf<AccountWallet>()
+    // val wallets = mutableListOf<AccountWallet>()
+    private val _wallets = MutableStateFlow<List<AccountWallet>>(emptyList())
+    val wallets: StateFlow<List<AccountWallet>> = _wallets.asStateFlow()
+
 
     var payouts by mutableStateOf(listOf<AccountPayment>())
         private set
@@ -156,14 +160,6 @@ class WalletViewModel @Inject constructor(
             walletVc?.fetchPayments()
 
         }
-    }
-
-    val openExternalWalletModal = {
-        addExternalWalletModalVisible = true
-    }
-
-    val closeExternalWalletModal = {
-        addExternalWalletModalVisible = false
     }
 
     val openRemoveWalletModal = {
@@ -249,17 +245,20 @@ class WalletViewModel @Inject constructor(
                 fetchCircleWalletInfo()
             }
 
-            val prevWalletCount = wallets.count()
+            val prevWalletCount = _wallets.value.count()
 
-            wallets.clear()
-            wallets.addAll(updatedWallets)
+            viewModelScope.launch {
 
-            if (initializingWallets) {
-                setInitializingWallets(false)
-            }
+                _wallets.update { updatedWallets }
 
-            if (prevWalletCount <= 0 && n > 0 && initializingFirstWallet) {
-                setInitializingFirstWallet(false)
+                if (initializingWallets) {
+                    setInitializingWallets(false)
+                }
+
+                if (prevWalletCount <= 0 && n > 0 && initializingFirstWallet) {
+                    setInitializingFirstWallet(false)
+                }
+
             }
 
         }
@@ -299,13 +298,14 @@ class WalletViewModel @Inject constructor(
             chain = "MATIC"
         }
 
-        if (wallets.isEmpty()) {
+        if (_wallets.value.isEmpty()) {
             initializingFirstWallet = true
         }
 
         if (chain != "") {
             walletVc?.addExternalWallet(externalWalletAddress.text, chain)
             setExternaWalletAddress(TextFieldValue(""))
+            setExternalWalletAddressIsValid(chain, false)
         }
 
     }
@@ -329,11 +329,6 @@ class WalletViewModel @Inject constructor(
     val addExternalWalletProcessingListener = {
         viewModelScope.launch {
             walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
-
-                if (isProcessingExternalWallet && !isProcessing) {
-                    closeExternalWalletModal()
-                }
-
                 isProcessingExternalWallet = isProcessing
             }
         }
