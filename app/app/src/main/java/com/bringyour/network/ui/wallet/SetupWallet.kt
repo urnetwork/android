@@ -21,10 +21,9 @@ import com.bringyour.network.ui.theme.TextMuted
 
 @Composable
 fun SetupWallet(
-    initCircleWallet: () -> Unit,
-    circleWalletInProgress: Boolean,
     connectSagaWallet: () -> Unit,
-    openModal: () -> Unit,
+    openSolanaConnectModal: () -> Unit,
+    openExternalConnectModal: () -> Unit,
 ) {
 
     Column(
@@ -72,7 +71,7 @@ fun SetupWallet(
 
                 URButton(
                     onClick = {
-                        openModal()
+                        openExternalConnectModal()
                     },
                     style = ButtonStyle.OUTLINE
                 ) { buttonTextStyle ->
@@ -91,18 +90,18 @@ fun SetupWallet(
 
                 URButton(
                     onClick = {
-                        initCircleWallet()
-                    },
-                    enabled = !circleWalletInProgress
+                        // openModal()
+                        openSolanaConnectModal()
+                    }
                 ) { buttonTextStyle ->
-                    Text(stringResource(id = R.string.setup_circle_wallet), style = buttonTextStyle)
+                    Text("Connect Solana wallet", style = buttonTextStyle)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 URButton(
                     onClick = {
-                        openModal()
+                        openExternalConnectModal()
                     },
                     style = ButtonStyle.OUTLINE
                 ) { buttonTextStyle ->
