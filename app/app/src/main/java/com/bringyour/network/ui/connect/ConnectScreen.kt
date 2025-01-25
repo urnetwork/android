@@ -24,13 +24,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,11 +59,9 @@ import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
-import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Red400
-import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.utils.isTv
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +95,8 @@ fun ConnectScreen(
             getStateColor = connectViewModel.getStateColor,
 //            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
             launchOverlay = overlayViewModel.launch,
-            getLocationColor = locationsViewModel.getLocationColor
+            locationsViewModel = locationsViewModel,
+            // getLocationColor = locationsViewModel.getLocationColor
         )
     } else {
         ConnectMobileAndTablet(
@@ -106,8 +106,7 @@ fun ConnectScreen(
 //            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
             launchOverlay = overlayViewModel.launch,
             locationsViewModel = locationsViewModel,
-            connectViewModel = connectViewModel,
-            scaffoldState = locationsSheetState
+            connectViewModel = connectViewModel
         )
     }
 }
@@ -129,7 +128,7 @@ private fun ConnectTV(
     getStateColor: (ProviderPointState?) -> Color,
 //    checkTriggerPromptReview: () -> Boolean,
     launchOverlay: (OverlayMode) -> Unit,
-    getLocationColor: (String) -> Color
+    locationsViewModel: LocationsListViewModel
 ) {
 
     Scaffold { innerPadding ->
@@ -158,7 +157,8 @@ private fun ConnectTV(
                     getStateColor = getStateColor,
 //                    checkTriggerPromptReview = checkTriggerPromptReview,
                     launchOverlay = launchOverlay,
-                    getLocationColor = getLocationColor
+                    locationsViewModel = locationsViewModel
+                    // getLocationColor = locationsViewModel.getLocationColor
                 )
 
             }
@@ -191,7 +191,7 @@ private fun ConnectTV(
                         onClick = {
                             navController.navigate(Route.BrowseLocations)
                         },
-                        color = getLocationColor(key)
+                        color = locationsViewModel.getLocationColor(key)
                     )
                 }
 
@@ -200,7 +200,6 @@ private fun ConnectTV(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ConnectMobileAndTablet(
     connectStatus: ConnectStatus,
@@ -209,43 +208,36 @@ private fun ConnectMobileAndTablet(
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
     connectViewModel: ConnectViewModel,
-    scaffoldState: BottomSheetScaffoldState
 ) {
 
-    ProvidersBottomSheet(
-        scaffoldState,
-        connect = connectViewModel.connect,
-        selectedLocation = connectViewModel.selectedLocation,
-        locationsViewModel = locationsViewModel
-    ) { _ ->
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Black)
-                .padding(16.dp),
-        ) {
-            ConnectMainContent(
-                connectStatus = connectStatus,
-                selectedLocation = connectViewModel.selectedLocation,
-                networkName = networkName,
-                connect = connectViewModel.connect,
-                disconnect = connectViewModel.disconnect,
-                providerGridPoints = connectViewModel.providerGridPoints,
-                windowCurrentSize = connectViewModel.windowCurrentSize,
-                grid = connectViewModel.grid,
-                loginMode = loginMode,
-                animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                getStateColor = connectViewModel.getStateColor,
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Black)
+            .padding(16.dp),
+    ) {
+        ConnectMainContent(
+            connectStatus = connectStatus,
+            selectedLocation = connectViewModel.selectedLocation,
+            networkName = networkName,
+            connect = connectViewModel.connect,
+            disconnect = connectViewModel.disconnect,
+            providerGridPoints = connectViewModel.providerGridPoints,
+            windowCurrentSize = connectViewModel.windowCurrentSize,
+            grid = connectViewModel.grid,
+            loginMode = loginMode,
+            animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+            getStateColor = connectViewModel.getStateColor,
 //                checkTriggerPromptReview = checkTriggerPromptReview,
-                launchOverlay = launchOverlay,
-                getLocationColor = locationsViewModel.getLocationColor
-            )
-        }
+            launchOverlay = launchOverlay,
+            // getLocationColor = locationsViewModel.getLocationColor
+            locationsViewModel = locationsViewModel
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectMainContent(
     connectStatus: ConnectStatus,
@@ -261,8 +253,23 @@ fun ConnectMainContent(
     shuffleSuccessPoints: () -> Unit,
     getStateColor: (ProviderPointState?) -> Color,
     launchOverlay: (OverlayMode) -> Unit,
-    getLocationColor: (String) -> Color
+    locationsViewModel: LocationsListViewModel
 ) {
+
+    val locationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isPresentingLocationsSheet by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+
+    val openLocationsSheet = {
+
+        locationsViewModel.refreshLocations()
+
+        isPresentingLocationsSheet = true
+        scope.launch {
+            locationsSheetState.show()
+        }
+    }
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
@@ -276,22 +283,6 @@ fun ConnectMainContent(
             ConnectStatus.CONNECTING -> true
             ConnectStatus.DESTINATION_SET -> true
             ConnectStatus.DISCONNECTED -> false
-        }
-
-        if (connectStatus == ConnectStatus.CONNECTED) {
-                disconnectBtnVisible = true
-        }
-
-        else if (connectStatus == ConnectStatus.CONNECTING) {
-            disconnectBtnVisible = true
-        }
-
-        else if (connectStatus == ConnectStatus.DESTINATION_SET) {
-            disconnectBtnVisible = true
-        }
-
-        else if (connectStatus == ConnectStatus.DISCONNECTED) {
-            disconnectBtnVisible = false
         }
 
     }
@@ -382,10 +373,22 @@ fun ConnectMainContent(
 
         OpenProviderListButton(
             selectedLocation = selectedLocation,
-            getLocationColor = getLocationColor,
-            onClick = {}
+            getLocationColor = locationsViewModel.getLocationColor,
+            onClick = { openLocationsSheet() }
         )
 
+    }
+
+    if (isPresentingLocationsSheet) {
+        ProvidersBottomSheet(
+            sheetState = locationsSheetState,
+            connect = connect,
+            selectedLocation = selectedLocation,
+            locationsViewModel = locationsViewModel,
+            setIsPresented = { isPresented ->
+                isPresentingLocationsSheet = isPresented
+            }
+        )
     }
 }
 
@@ -423,7 +426,9 @@ fun OpenProviderListButton(
     ) {
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(vertical = 4.dp)
         ) {
 
             Icon(
@@ -444,38 +449,39 @@ fun OpenProviderListButton(
     }
 }
 
-@Preview
-@Composable
-private fun ConnectMainContentPreview() {
-    val mockGetStateColor: (ProviderPointState?) -> Color = { Red }
-
-    URNetworkTheme {
-        Scaffold { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
-            ) {
-                ConnectMainContent(
-                    connectStatus = ConnectStatus.DISCONNECTED,
-                    selectedLocation = null,
-                    networkName = "my_network",
-                    connect = {},
-                    disconnect = {},
-                    grid = null,
-                    providerGridPoints = mapOf(),
-                    windowCurrentSize = 16,
-                    loginMode = LoginMode.Authenticated,
-                    animatedSuccessPoints = listOf(),
-                    shuffleSuccessPoints = {},
-                    getStateColor = mockGetStateColor,
-//                    checkTriggerPromptReview = {false},
-                    launchOverlay = {},
-                    getLocationColor = { Color.Red }
-                )
-            }
-        }
-    }
-}
+//@Preview
+//@Composable
+//private fun ConnectMainContentPreview() {
+//    val mockGetStateColor: (ProviderPointState?) -> Color = { Red }
+//
+//    URNetworkTheme {
+//        Scaffold { innerPadding ->
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(innerPadding)
+//                    .padding(16.dp),
+//            ) {
+//                ConnectMainContent(
+//                    connectStatus = ConnectStatus.DISCONNECTED,
+//                    selectedLocation = null,
+//                    networkName = "my_network",
+//                    connect = {},
+//                    disconnect = {},
+//                    grid = null,
+//                    providerGridPoints = mapOf(),
+//                    windowCurrentSize = 16,
+//                    loginMode = LoginMode.Authenticated,
+//                    animatedSuccessPoints = listOf(),
+//                    shuffleSuccessPoints = {},
+//                    getStateColor = mockGetStateColor,
+////                    checkTriggerPromptReview = {false},
+//                    launchOverlay = {},
+//                    locationsViewModel = LocationsListViewModel()
+//                    // getLocationColor = { Color.Red }
+//                )
+//            }
+//        }
+//    }
+//}
 
