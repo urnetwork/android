@@ -3,7 +3,6 @@ package com.bringyour.network.ui.connect
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,14 +54,12 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
-import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
@@ -71,43 +67,63 @@ fun ConnectScreen(
     overlayViewModel: OverlayViewModel,
     locationsViewModel: LocationsListViewModel,
     navController: NavController,
-    locationsSheetState: BottomSheetScaffoldState,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val connectStatus by connectViewModel.connectStatus.collectAsState()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
 
-    if (isTv()) {
-        ConnectTV(
-            navController = navController,
-            connect = connectViewModel.connect,
-            selectedLocation = connectViewModel.selectedLocation,
-            connectStatus = connectStatus,
-            networkName = networkUser?.networkName,
-            disconnect = connectViewModel.disconnect,
-            providerGridPoints = connectViewModel.providerGridPoints,
-            windowCurrentSize = connectViewModel.windowCurrentSize,
-            grid = connectViewModel.grid,
-            loginMode = accountViewModel.loginMode,
-            animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-            getStateColor = connectViewModel.getStateColor,
+    Scaffold { innerPadding ->
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+//                .padding(horizontal = 16.dp)
+//                .padding(bottom = 16.dp)
+        ) {
+
+            if (isTv()) {
+                ConnectTV(
+                    navController = navController,
+                    connect = connectViewModel.connect,
+                    selectedLocation = connectViewModel.selectedLocation,
+                    connectStatus = connectStatus,
+                    networkName = networkUser?.networkName,
+                    disconnect = connectViewModel.disconnect,
+                    providerGridPoints = connectViewModel.providerGridPoints,
+                    windowCurrentSize = connectViewModel.windowCurrentSize,
+                    grid = connectViewModel.grid,
+                    loginMode = accountViewModel.loginMode,
+                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                    getStateColor = connectViewModel.getStateColor,
 //            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
-            launchOverlay = overlayViewModel.launch,
-            locationsViewModel = locationsViewModel,
-            // getLocationColor = locationsViewModel.getLocationColor
-        )
-    } else {
-        ConnectMobileAndTablet(
-            connectStatus = connectStatus,
-            networkName = networkUser?.networkName,
-            loginMode = accountViewModel.loginMode,
-//            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
-            launchOverlay = overlayViewModel.launch,
-            locationsViewModel = locationsViewModel,
-            connectViewModel = connectViewModel
-        )
+                    launchOverlay = overlayViewModel.launch,
+                    locationsViewModel = locationsViewModel,
+                )
+            } else {
+
+                ConnectMainContent(
+                    connectStatus = connectStatus,
+                    selectedLocation = connectViewModel.selectedLocation,
+                    networkName = networkUser?.networkName,
+                    connect = connectViewModel.connect,
+                    disconnect = connectViewModel.disconnect,
+                    providerGridPoints = connectViewModel.providerGridPoints,
+                    windowCurrentSize = connectViewModel.windowCurrentSize,
+                    grid = connectViewModel.grid,
+                    loginMode = accountViewModel.loginMode,
+                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                    getStateColor = connectViewModel.getStateColor,
+//                checkTriggerPromptReview = checkTriggerPromptReview,
+                    launchOverlay = overlayViewModel.launch,
+                    locationsViewModel = locationsViewModel
+                )
+            }
+
+        }
     }
 }
 
@@ -131,109 +147,63 @@ private fun ConnectTV(
     locationsViewModel: LocationsListViewModel
 ) {
 
-    Scaffold { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(16.dp)
-            ) {
-                ConnectMainContent(
-                    connectStatus = connectStatus,
-                    selectedLocation = selectedLocation,
-                    networkName = networkName,
-                    connect = connect,
-                    disconnect = disconnect,
-                    providerGridPoints = providerGridPoints,
-                    windowCurrentSize = windowCurrentSize,
-                    grid = grid,
-                    loginMode = loginMode,
-                    animatedSuccessPoints = animatedSuccessPoints,
-                    shuffleSuccessPoints = shuffleSuccessPoints,
-                    getStateColor = getStateColor,
-//                    checkTriggerPromptReview = checkTriggerPromptReview,
-                    launchOverlay = launchOverlay,
-                    locationsViewModel = locationsViewModel
-                    // getLocationColor = locationsViewModel.getLocationColor
-                )
-
-            }
-
-            Column {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .height(1.dp)
-                        .fillMaxWidth(),
-                    color = MainBorderBase
-                )
-
-                if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
-                    ProviderRow(
-                        location = "Best available provider",
-                        onClick = {
-                            navController.navigate(Route.BrowseLocations)
-                        },
-                        color = Red400
-                    )
-                } else {
-
-                    val key =
-                        if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
-                        else selectedLocation.countryCode
-
-                    ProviderRow(
-                        location = selectedLocation.name,
-                        providerCount = selectedLocation.providerCount,
-                        onClick = {
-                            navController.navigate(Route.BrowseLocations)
-                        },
-                        color = locationsViewModel.getLocationColor(key)
-                    )
-                }
-
-            }
-        }
-    }
-}
-
-@Composable
-private fun ConnectMobileAndTablet(
-    connectStatus: ConnectStatus,
-    networkName: String?,
-    loginMode: LoginMode,
-    launchOverlay: (OverlayMode) -> Unit,
-    locationsViewModel: LocationsListViewModel,
-    connectViewModel: ConnectViewModel,
-) {
-
-    Box(
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Black)
-            .padding(16.dp),
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
+
         ConnectMainContent(
             connectStatus = connectStatus,
-            selectedLocation = connectViewModel.selectedLocation,
+            selectedLocation = selectedLocation,
             networkName = networkName,
-            connect = connectViewModel.connect,
-            disconnect = connectViewModel.disconnect,
-            providerGridPoints = connectViewModel.providerGridPoints,
-            windowCurrentSize = connectViewModel.windowCurrentSize,
-            grid = connectViewModel.grid,
+            connect = connect,
+            disconnect = disconnect,
+            providerGridPoints = providerGridPoints,
+            windowCurrentSize = windowCurrentSize,
+            grid = grid,
             loginMode = loginMode,
-            animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-            shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-            getStateColor = connectViewModel.getStateColor,
-//                checkTriggerPromptReview = checkTriggerPromptReview,
+            animatedSuccessPoints = animatedSuccessPoints,
+            shuffleSuccessPoints = shuffleSuccessPoints,
+            getStateColor = getStateColor,
+//                    checkTriggerPromptReview = checkTriggerPromptReview,
             launchOverlay = launchOverlay,
-            // getLocationColor = locationsViewModel.getLocationColor
             locationsViewModel = locationsViewModel
         )
+
+        Column {
+            HorizontalDivider(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth(),
+                color = MainBorderBase
+            )
+
+            if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
+                ProviderRow(
+                    location = "Best available provider",
+                    onClick = {
+                        navController.navigate(Route.BrowseLocations)
+                    },
+                    color = Red400
+                )
+            } else {
+
+                val key =
+                    if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
+                    else selectedLocation.countryCode
+
+                ProviderRow(
+                    location = selectedLocation.name,
+                    providerCount = selectedLocation.providerCount,
+                    onClick = {
+                        navController.navigate(Route.BrowseLocations)
+                    },
+                    color = locationsViewModel.getLocationColor(key)
+                )
+            }
+
+        }
     }
 }
 
@@ -288,7 +258,10 @@ fun ConnectMainContent(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

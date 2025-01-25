@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -87,19 +88,34 @@ fun AccountScreen(
         scope = scope,
         planViewModel = planViewModel,
         overlayViewModel = overlayViewModel
-    ) {
-        AccountScreenContent(
-            loginMode = accountViewModel.loginMode,
-            navController = navController,
-            scaffoldState = scaffoldState,
-            scope = scope,
-            networkName = networkUser?.networkName,
-            totalPayoutAmount = totalPayoutAmount,
-            totalPayoutAmountInitialized = totalPayoutAmountInitialized,
-            walletCount = walletCount,
-            currentPlan = currentPlan,
-            launchOverlay = overlayViewModel.launch
-        )
+    ) { innerPadding ->
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Black)
+                .padding(innerPadding)
+                // not sure why we have to add this manually
+                // to match the connect page
+                .padding(top = 50.dp)
+                // .safeContentPadding()
+        ) {
+
+            AccountScreenContent(
+                loginMode = accountViewModel.loginMode,
+                navController = navController,
+                scaffoldState = scaffoldState,
+                scope = scope,
+                networkName = networkUser?.networkName,
+                totalPayoutAmount = totalPayoutAmount,
+                totalPayoutAmountInitialized = totalPayoutAmountInitialized,
+                walletCount = walletCount,
+                currentPlan = currentPlan,
+                launchOverlay = overlayViewModel.launch
+            )
+
+        }
+
     }
 
 }

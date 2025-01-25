@@ -27,19 +27,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.BottomSheetContentContainer
 import com.bringyour.network.ui.components.URButton
@@ -180,6 +177,8 @@ private fun UpgradePlanSheetContent(
                             "Become a",
                             style = MaterialTheme.typography.headlineMedium
                         )
+
+                        // TODO - price should be dynamically pulled
                         Text(
                             "$5/month",
                             style = TextStyle(
