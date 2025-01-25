@@ -57,6 +57,7 @@ import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Red400
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.launch
 
@@ -389,7 +390,6 @@ fun OpenProviderListButton(
             else selectedLocation.countryCode
 
         getLocationColor(key)
-        Color.White
     }
 
     Button(
@@ -410,16 +410,29 @@ fun OpenProviderListButton(
                 painter = painterResource(id = R.drawable.main_nav_globe),
                 contentDescription = stringResource(id = R.string.add_wallet),
                 tint = iconTint,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(36.dp)
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-            Text(
-                text,
-                color = Color.White,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Column() {
+
+                Text(
+                    text,
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                if (selectedLocation != null && selectedLocation.providerCount > 0) {
+                    Text(
+                        "${selectedLocation.providerCount} providers",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
+                    )
+                }
+
+            }
+            Spacer(modifier = Modifier.width(4.dp))
         }
     }
 }
