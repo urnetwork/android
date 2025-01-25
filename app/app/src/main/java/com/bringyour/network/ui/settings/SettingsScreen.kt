@@ -25,14 +25,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,10 +62,12 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
-import com.bringyour.network.ui.account.UpgradePlanBottomSheetScaffold
+import com.bringyour.network.ui.account.UpgradePlanBottomSheet
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.theme.BlueMedium
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,51 +82,49 @@ fun SettingsScreen(
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
     val currentPlan = planViewModel.currentPlan.collectAsState().value
 
-    if (currentPlan == Plan.Basic) {
-        val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
-        val scaffoldState = rememberBottomSheetScaffoldState(
-            bottomSheetState = rememberStandardBottomSheetState(
-                initialValue = SheetValue.Hidden,
-                skipHiddenState = false
-            )
-        )
+    val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
+    val setIsPresentingUpgradePlanSheet: (Boolean) -> Unit = { isPresenting ->
+        isPresentingUpgradePlanSheet = isPresenting
+    }
 
-        UpgradePlanBottomSheetScaffold(
-            scaffoldState = scaffoldState,
+    val expandUpgradePlanSheet: () -> Unit = {
+
+        scope.launch {
+            upgradePlanSheetState.expand()
+            setIsPresentingUpgradePlanSheet(true)
+        }
+
+    }
+
+    SettingsScreen(
+        navController,
+        clientId = accountViewModel.clientId,
+        currentPlan = currentPlan,
+        notificationsAllowed = notificationsAllowed,
+        requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
+        notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
+        allowProductUpdates = settingsViewModel.allowProductUpdates,
+        updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
+        provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
+        toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
+        urIdUrl = settingsViewModel.urIdUrl,
+        expandUpgradePlanSheet = expandUpgradePlanSheet
+    )
+
+    if (isPresentingUpgradePlanSheet) {
+        UpgradePlanBottomSheet(
+            sheetState = upgradePlanSheetState,
             scope = scope,
             planViewModel = planViewModel,
-            overlayViewModel = overlayViewModel
-        ) {
-            SettingsScreen(
-                navController,
-                clientId = accountViewModel.clientId,
-                currentPlan = currentPlan,
-                notificationsAllowed = notificationsAllowed,
-                requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
-                notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
-                allowProductUpdates = settingsViewModel.allowProductUpdates,
-                updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
-                provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
-                toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
-                urIdUrl = settingsViewModel.urIdUrl
-            )
-        }
-    } else {
-        SettingsScreen(
-            navController,
-            clientId = accountViewModel.clientId,
-            currentPlan = currentPlan,
-            notificationsAllowed = notificationsAllowed,
-            requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
-            notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
-            allowProductUpdates = settingsViewModel.allowProductUpdates,
-            updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
-            provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
-            toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
-            urIdUrl = settingsViewModel.urIdUrl
+            overlayViewModel = overlayViewModel,
+            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
         )
     }
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,7 +140,8 @@ fun SettingsScreen(
     updateAllowProductUpdates: (Boolean) -> Unit,
     provideWhileDisconnected: Boolean,
     toggleProvideWhileDisconnected: () -> Unit,
-    urIdUrl: (String) -> String?
+    urIdUrl: (String) -> String?,
+    expandUpgradePlanSheet: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -146,6 +149,7 @@ fun SettingsScreen(
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
+
 
     Scaffold(
         topBar = {
@@ -218,7 +222,7 @@ fun SettingsScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            // todo - navigate to premium user flow
+                                            expandUpgradePlanSheet()
                                         },
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
@@ -244,18 +248,17 @@ fun SettingsScreen(
 
                 }
 
-                // todo - wrap this in UpgradePlanBottomSheetScaffold
-//                if (currentPlan == Plan.Basic) {
-//                    Text(
-//                        stringResource(id = R.string.change),
-//                        style = TextStyle(
-//                            color = BlueMedium
-//                        ),
-//                        modifier = Modifier.clickable {
-//
-//                        }
-//                    )
-//                }
+                if (currentPlan == Plan.Basic) {
+                    Text(
+                        stringResource(id = R.string.change),
+                        style = TextStyle(
+                            color = BlueMedium
+                        ),
+                        modifier = Modifier.clickable {
+                            expandUpgradePlanSheet()
+                        }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -305,8 +308,6 @@ fun SettingsScreen(
                         shape = RoundedCornerShape(12.dp)
                     )
                     .clickable {
-                        
-
 
                         clipboardManager.setText(
                             AnnotatedString(
@@ -473,7 +474,8 @@ fun SettingsScreenPreview() {
             updateAllowProductUpdates = {},
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
-            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
+            expandUpgradePlanSheet = {}
         )
     }
 }
@@ -494,7 +496,8 @@ fun SettingsScreenSupporterPreview() {
             updateAllowProductUpdates = {},
             provideWhileDisconnected = false,
             toggleProvideWhileDisconnected = {},
-            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
+            expandUpgradePlanSheet = {}
         )
     }
 }
@@ -515,7 +518,8 @@ fun SettingsScreenNotificationsDisabledPreview() {
             updateAllowProductUpdates = {},
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
-            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
+            expandUpgradePlanSheet = {}
         )
     }
 }
@@ -536,7 +540,8 @@ fun SettingsScreenNotificationsAllowedPreview() {
             updateAllowProductUpdates = {},
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
-            urIdUrl = { clientId -> "https://ur.io/c?$clientId" }
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
+            expandUpgradePlanSheet = {}
         )
     }
 }
