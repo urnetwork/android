@@ -12,9 +12,12 @@ import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClient.ProductType
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -46,6 +49,8 @@ class PlanViewModel @Inject constructor(
 
     var inProgress by mutableStateOf(false)
         private set
+
+    var formattedSubscriptionPrice by mutableStateOf("")
 
     private val _billingClient = MutableStateFlow<BillingClient?>(null)
     val billingClient: StateFlow<BillingClient?> = _billingClient.asStateFlow()
@@ -138,13 +143,9 @@ class PlanViewModel @Inject constructor(
 
             if (billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
 
-                Log.i("PlanViewModel", "purchases updated listener received an ok response")
-
                 if (isSupporter(purchases)) {
-                    Log.i("PlanViewModel", "is supporter plan")
                     setCurrentPlan(Plan.Supporter)
                 } else {
-                    Log.i("PlanViewModel", "is basic plan")
                     setCurrentPlan(Plan.Basic)
                 }
 
@@ -172,38 +173,70 @@ class PlanViewModel @Inject constructor(
         isLoadingCurrentPlan = isLoading
     }
 
-    val fetchPurchases = {
+    private val fetchPurchases = {
 
-        createBillingClientConnection {
-            if (_billingClient.value != null) {
-                setIsLoadingCurrentPlan(true)
+        if (_billingClient.value != null) {
+            setIsLoadingCurrentPlan(true)
 
-                val params = QueryPurchasesParams.newBuilder()
-                    .setProductType(ProductType.SUBS)
+            val params = QueryPurchasesParams.newBuilder()
+                .setProductType(ProductType.SUBS)
 
-                viewModelScope.launch {
-                    val purchasesResult = _billingClient.value?.queryPurchasesAsync(params.build())
+            viewModelScope.launch {
+                val purchasesResult = _billingClient.value?.queryPurchasesAsync(params.build())
 
-                    purchasesResult?.purchasesList?.forEach { purchase ->
-                        Log.i("PlanViewModel", "$purchase")
+                if (purchasesResult?.purchasesList != null) {
+
+                    if (isSupporter(purchasesResult.purchasesList)) {
+                        setCurrentPlan(Plan.Supporter)
+                    } else {
+                        setCurrentPlan(Plan.Basic)
                     }
-
-                    if (purchasesResult?.purchasesList != null) {
-
-                        if (isSupporter(purchasesResult.purchasesList)) {
-                            setCurrentPlan(Plan.Supporter)
-                        } else {
-                            setCurrentPlan(Plan.Basic)
-                        }
-
-                    }
-
-                    setIsLoadingCurrentPlan(false)
 
                 }
 
+                setIsLoadingCurrentPlan(false)
+
             }
+
         }
+
+    }
+
+    private val fetchSubscriptionPriceInfo: () -> Unit = {
+        val params = QueryProductDetailsParams.newBuilder()
+
+        val productList = listOf(
+            QueryProductDetailsParams.Product.newBuilder()
+                .setProductId("supporter")
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build(),
+        )
+
+        params.setProductList(productList)
+
+        viewModelScope.launch {
+
+            val productDetailsResult = billingClient.value?.queryProductDetails(params.build())
+
+            val productDetails = productDetailsResult?.productDetailsList?.find { productDetails: ProductDetails ->
+                productDetails.productId == "supporter"
+            }
+
+            if (productDetails != null) {
+
+                formattedSubscriptionPrice = productDetails.subscriptionOfferDetails
+                        ?.first()
+                        ?.pricingPhases
+                        ?.pricingPhaseList
+                        ?.first()
+                        ?.formattedPrice
+                    ?: "$5.00"
+
+            }
+
+        }
+
+
     }
 
     val isSupporter: (List<Purchase>) -> Boolean = { purchases ->
@@ -228,7 +261,10 @@ class PlanViewModel @Inject constructor(
     }
 
     init {
-        fetchPurchases()
+        createBillingClientConnection {
+            fetchPurchases()
+            fetchSubscriptionPriceInfo()
+        }
     }
 
 }
