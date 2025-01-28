@@ -16,19 +16,21 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -72,34 +74,50 @@ fun AccountScreen(
 
     val scope = rememberCoroutineScope()
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false
-        )
-    )
-
     val networkUser by accountViewModel.networkUser.collectAsState()
     val currentPlan by planViewModel.currentPlan.collectAsState()
 
-    UpgradePlanBottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        scope = scope,
-        planViewModel = planViewModel,
-        overlayViewModel = overlayViewModel
-    ) {
-        AccountScreenContent(
-            loginMode = accountViewModel.loginMode,
-            navController = navController,
-            scaffoldState = scaffoldState,
-            scope = scope,
-            networkName = networkUser?.networkName,
-            totalPayoutAmount = totalPayoutAmount,
-            totalPayoutAmountInitialized = totalPayoutAmountInitialized,
-            walletCount = walletCount,
-            currentPlan = currentPlan,
-            launchOverlay = overlayViewModel.launch
-        )
+    val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
+    val setIsPresentingUpgradePlanSheet: (Boolean) -> Unit = { isPresenting ->
+        isPresentingUpgradePlanSheet = isPresenting
+    }
+
+    Scaffold() { innerPadding ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Black)
+                .padding(innerPadding)
+        ) {
+
+            AccountScreenContent(
+                loginMode = accountViewModel.loginMode,
+                navController = navController,
+                upgradePlanSheetState = upgradePlanSheetState,
+                scope = scope,
+                networkName = networkUser?.networkName,
+                totalPayoutAmount = totalPayoutAmount,
+                totalPayoutAmountInitialized = totalPayoutAmountInitialized,
+                walletCount = walletCount,
+                currentPlan = currentPlan,
+                launchOverlay = overlayViewModel.launch,
+                setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+            )
+
+            if (isPresentingUpgradePlanSheet) {
+                UpgradePlanBottomSheet(
+                    sheetState = upgradePlanSheetState,
+                    scope = scope,
+                    planViewModel = planViewModel,
+                    overlayViewModel = overlayViewModel,
+                    setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+                )
+            }
+
+        }
+
     }
 
 }
@@ -109,14 +127,15 @@ fun AccountScreen(
 fun AccountScreenContent(
     loginMode: LoginMode,
     navController: NavHostController,
-    scaffoldState: BottomSheetScaffoldState,
+    upgradePlanSheetState: SheetState,
     scope: CoroutineScope,
     networkName: String?,
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
     walletCount: Int,
     currentPlan: Plan,
-    launchOverlay: (OverlayMode) -> Unit
+    launchOverlay: (OverlayMode) -> Unit,
+    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -126,12 +145,14 @@ fun AccountScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(Black)
-            .padding(16.dp),
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.Top
     ) {
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -211,7 +232,8 @@ fun AccountScreenContent(
                                             .offset(y = (-8).dp)
                                             .clickable {
                                                 scope.launch {
-                                                    scaffoldState.bottomSheetState.expand()
+                                                    setIsPresentingUpgradePlanSheet(true)
+                                                    upgradePlanSheetState.expand()
                                                 }
                                             },
                                         style = TextStyle(
@@ -253,7 +275,7 @@ fun AccountScreenContent(
                                         verticalAlignment = Alignment.Bottom,
                                     ) {
 
-                                        Text(if (totalPayoutAmount <= 0) "0" else totalPayoutAmount.toString(),
+                                        Text(if (totalPayoutAmount <= 0) "0" else String.format("%.4f", totalPayoutAmount),
                                             style = MaterialTheme.typography.headlineMedium
                                         )
 
@@ -370,26 +392,22 @@ private fun AccountSupporterAuthenticatedPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false
-        )
-    )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     URNetworkTheme {
 
         AccountScreenContent(
             loginMode = LoginMode.Authenticated,
             navController = navController,
-            scaffoldState = scaffoldState,
+            upgradePlanSheetState = sheetState,
             scope = scope,
             networkName = "ur_network",
             totalPayoutAmount = 120.12387,
             totalPayoutAmountInitialized = true,
             walletCount = 2,
             currentPlan = Plan.Supporter,
-            launchOverlay = {}
+            launchOverlay = {},
+            setIsPresentingUpgradePlanSheet = {}
         )
 
     }
@@ -404,26 +422,22 @@ private fun AccountBasicAuthenticatedPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false
-        )
-    )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     URNetworkTheme {
 
         AccountScreenContent(
             loginMode = LoginMode.Authenticated,
             navController = navController,
-            scaffoldState = scaffoldState,
             scope = scope,
             networkName = "ur_network",
             totalPayoutAmount = 120.12387,
             totalPayoutAmountInitialized = true,
             walletCount = 2,
             currentPlan = Plan.Basic,
-            launchOverlay = {}
+            launchOverlay = {},
+            upgradePlanSheetState = sheetState,
+            setIsPresentingUpgradePlanSheet = {}
         )
 
     }
@@ -438,19 +452,15 @@ private fun AccountGuestPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false
-        )
-    )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     URNetworkTheme {
 
         AccountScreenContent(
             loginMode = LoginMode.Guest,
             navController = navController,
-            scaffoldState = scaffoldState,
+            upgradePlanSheetState = sheetState,
+            setIsPresentingUpgradePlanSheet = {},
             scope = scope,
             networkName = "ur_network",
             totalPayoutAmount = 0.0,
@@ -471,18 +481,14 @@ private fun AccountGuestNoWalletPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false
-        )
-    )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     URNetworkTheme {
         AccountScreenContent(
             loginMode = LoginMode.Guest,
             navController = navController,
-            scaffoldState = scaffoldState,
+            upgradePlanSheetState = sheetState,
+            setIsPresentingUpgradePlanSheet = {},
             scope = scope,
             networkName = "ur_network",
             totalPayoutAmount = 0.0,

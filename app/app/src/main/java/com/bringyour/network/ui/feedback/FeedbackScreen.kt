@@ -83,98 +83,107 @@ fun FeedbackScreen(
 
         }
     }
+    Scaffold() { innerPadding ->
 
-    if (isTv()) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(32.dp),
-        ) {
-
-            Column {
-                FeedbackForm(
-                    feedbackMsg = feedbackMsg,
-                    setFeedbackMsg = setFeedbackMsg,
-                    sendFeedback = {
-                        if (feedbackMsg.text.isNotEmpty()) {
-                            submitFeedback()
-                        }
-                    },
-                    isSendEnabled = isSendEnabled
-                )
-            }
-
-        }
-
-    } else if (isTablet() && !isLandscape) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        ) {
+        if (isTv()) {
 
             Column(
                 modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(32.dp),
             ) {
+
+                Column {
+                    FeedbackForm(
+                        feedbackMsg = feedbackMsg,
+                        setFeedbackMsg = setFeedbackMsg,
+                        sendFeedback = {
+                            if (feedbackMsg.text.isNotEmpty()) {
+                                submitFeedback()
+                            }
+                        },
+                        isSendEnabled = isSendEnabled
+                    )
+                }
+
+            }
+
+        } else if (isTablet() && !isLandscape) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(16.dp),
+            ) {
+
+                Column(
+                    modifier = Modifier
+                ) {
+                    FeedbackForm(
+                        feedbackMsg = feedbackMsg,
+                        setFeedbackMsg = setFeedbackMsg,
+                        sendFeedback = {
+                            if (feedbackMsg.text.isNotEmpty()) {
+                                submitFeedback()
+                            }
+                        },
+                        isSendEnabled = isSendEnabled
+                    )
+                }
+
+            }
+        } else if (isTablet() && isLandscape) {
+            Column(
+                modifier = Modifier
+                    .width(512.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(16.dp),
+            ) {
+
+                Column {
+                    FeedbackForm(
+                        feedbackMsg = feedbackMsg,
+                        setFeedbackMsg = setFeedbackMsg,
+                        sendFeedback = {
+                            if (feedbackMsg.text.isNotEmpty()) {
+                                submitFeedback()
+                            }
+                        },
+                        isSendEnabled = isSendEnabled
+                    )
+                }
+
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .width(512.dp)
+                    .fillMaxHeight()
+                    // .padding(16.dp)
+                    .padding(horizontal = 16.dp)
+                    .padding(innerPadding)
+                    .imePadding(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+
                 FeedbackForm(
                     feedbackMsg = feedbackMsg,
                     setFeedbackMsg = setFeedbackMsg,
                     sendFeedback = {
                         if (feedbackMsg.text.isNotEmpty()) {
                             submitFeedback()
-                        }
-                    },
+                        }},
                     isSendEnabled = isSendEnabled
                 )
             }
-
         }
-    } else if (isTablet() && isLandscape) {
-        Column(
-            modifier = Modifier
-                .width(512.dp)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        ) {
 
-            Column {
-                FeedbackForm(
-                    feedbackMsg = feedbackMsg,
-                    setFeedbackMsg = setFeedbackMsg,
-                    sendFeedback = {
-                        if (feedbackMsg.text.isNotEmpty()) {
-                            submitFeedback()
-                        }
-                    },
-                    isSendEnabled = isSendEnabled
-                )
-            }
-
-        }
-    } else {
-        Column(
-            modifier = Modifier
-                .width(512.dp)
-                .fillMaxHeight()
-                .padding(16.dp)
-                .imePadding(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            FeedbackForm(
-                feedbackMsg = feedbackMsg,
-                setFeedbackMsg = setFeedbackMsg,
-                sendFeedback = {
-                    if (feedbackMsg.text.isNotEmpty()) {
-                        submitFeedback()
-                    }},
-                isSendEnabled = isSendEnabled
-            )
-        }
     }
+
 }
 
 @Composable
@@ -225,28 +234,34 @@ private fun FeedbackForm(
             },
             keyboardController = keyboardController
         )
+
     }
 
-    URButton(
-        onClick = {
-            sendFeedback()
-            keyboardController?.hide()
-        },
-        enabled = isSendEnabled
-    ) { buttonTextStyle ->
-        Row {
-            Text(
-                stringResource(id = R.string.send),
-                style = buttonTextStyle
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Right Arrow",
-                modifier = Modifier.size(16.dp),
-                tint = if (isSendEnabled) Color.White else Color.Gray
-            )
+    Column {
+
+        URButton(
+            onClick = {
+                sendFeedback()
+                keyboardController?.hide()
+            },
+            enabled = isSendEnabled
+        ) { buttonTextStyle ->
+            Row {
+                Text(
+                    stringResource(id = R.string.send),
+                    style = buttonTextStyle
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Right Arrow",
+                    modifier = Modifier.size(16.dp),
+                    tint = if (isSendEnabled) Color.White else Color.Gray
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

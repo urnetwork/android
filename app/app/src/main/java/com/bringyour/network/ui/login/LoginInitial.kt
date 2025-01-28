@@ -464,12 +464,13 @@ fun LoginInitialActions(
                 placeholder = stringResource(id = R.string.user_auth_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = if (isValidUserAuth) ImeAction.Go else ImeAction.Done
+                    imeAction = ImeAction.Go
                 ),
                 onGo = {
                     onLogin()
                 },
-                label = stringResource(id = R.string.user_auth_label)
+                label = stringResource(id = R.string.user_auth_label),
+                isValid = isValidUserAuth
             )
 
             Spacer(modifier = Modifier.height(16.dp))
