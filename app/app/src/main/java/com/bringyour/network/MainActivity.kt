@@ -11,14 +11,12 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
@@ -27,7 +25,6 @@ import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
 import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
-import com.bringyour.sdk.SubscriptionCreatePaymentIdResult
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -110,6 +107,8 @@ class MainActivity: AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+
         super.onCreate(savedInstanceState)
 
         // immutable shadow
@@ -147,12 +146,6 @@ class MainActivity: AppCompatActivity() {
                 app.startVpnService()
             }
         }
-
-        // this is so overlays don't get cut by top bar and bottom drawer
-        // WindowCompat.setDecorFitsSystemWindows(window, false)
-        setTransparentStatusBar()
-
-        // setStatusBarColor(color = Color.Transparent.toArgb(), false)
 
         val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
         val targetUrl = intent.getStringExtra("TARGET_URL")
@@ -282,15 +275,6 @@ class MainActivity: AppCompatActivity() {
             promptReviewViewModel.enablePromptReview()
         }
 
-    }
-
-    private fun setTransparentStatusBar() {
-        val window = window
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = Color.Transparent.toArgb()
-
-        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.isAppearanceLightStatusBars = false
     }
 
     private fun requestSagaWallet() {

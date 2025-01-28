@@ -275,7 +275,7 @@ fun AccountScreenContent(
                                         verticalAlignment = Alignment.Bottom,
                                     ) {
 
-                                        Text(if (totalPayoutAmount <= 0) "0" else totalPayoutAmount.toString(),
+                                        Text(if (totalPayoutAmount <= 0) "0" else String.format("%.4f", totalPayoutAmount),
                                             style = MaterialTheme.typography.headlineMedium
                                         )
 

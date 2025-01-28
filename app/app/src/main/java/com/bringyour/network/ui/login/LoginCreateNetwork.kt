@@ -475,8 +475,7 @@ private fun NetworkCreateForm(
                 placeholder = stringResource(id = R.string.network_name_placeholder),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    imeAction = if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams)
-                        ImeAction.Next else ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
                 isValidating = isValidatingNetworkName,
                 isValid = !networkNameErrorExists,

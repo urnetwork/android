@@ -3,6 +3,7 @@ package com.bringyour.network.ui.connect
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,20 +17,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +57,6 @@ import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.isTv
-import kotlinx.coroutines.launch
 
 @Composable
 fun ConnectScreen(
@@ -151,7 +148,6 @@ private fun ConnectTV(
     Column(
         modifier = Modifier
             .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween
     ) {
 
         ConnectMainContent(
@@ -208,7 +204,6 @@ private fun ConnectTV(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectMainContent(
     connectStatus: ConnectStatus,
@@ -227,19 +222,11 @@ fun ConnectMainContent(
     locationsViewModel: LocationsListViewModel
 ) {
 
-    val locationsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isPresentingLocationsSheet by remember { mutableStateOf(false) }
 
-    val scope = rememberCoroutineScope()
-
     val openLocationsSheet = {
-
         locationsViewModel.refreshLocations()
-
         isPresentingLocationsSheet = true
-        scope.launch {
-            locationsSheetState.show()
-        }
     }
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -267,84 +254,91 @@ fun ConnectMainContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Column {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AccountSwitcher(
-                    loginMode,
-                    networkName,
-                    launchOverlay = launchOverlay
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-
-            ) {
-                ConnectButton(
-                    onClick = {
-                        if (connectStatus == ConnectStatus.DISCONNECTED) {
-                            connect(selectedLocation)
-//                            checkTriggerPromptReview()
-                        }
-                    },
-                    updatedStatus = connectStatus,
-                    providerGridPoints = providerGridPoints,
-                    grid = grid,
-                    animatedSuccessPoints = animatedSuccessPoints,
-                    shuffleSuccessPoints = shuffleSuccessPoints,
-                    getStateColor = getStateColor
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            ConnectStatusIndicator(
-                status = connectStatus,
-                windowCurrentSize = windowCurrentSize,
-                networkName = networkName,
-                guestMode = loginMode == LoginMode.Guest
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AccountSwitcher(
+                loginMode,
+                networkName,
+                launchOverlay = launchOverlay
             )
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
 
-            Row(
-                modifier = Modifier
-                    .height(48.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
+            Column {
 
-                AnimatedVisibility(
-                    visible = disconnectBtnVisible,
-                    enter = fadeIn(),
-                    exit = fadeOut()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+
+                ) {
+                    ConnectButton(
+                        onClick = {
+                            if (connectStatus == ConnectStatus.DISCONNECTED) {
+                                connect(selectedLocation)
+//                            checkTriggerPromptReview()
+                            }
+                        },
+                        updatedStatus = connectStatus,
+                        providerGridPoints = providerGridPoints,
+                        grid = grid,
+                        animatedSuccessPoints = animatedSuccessPoints,
+                        shuffleSuccessPoints = shuffleSuccessPoints,
+                        getStateColor = getStateColor
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                ConnectStatusIndicator(
+                    status = connectStatus,
+                    windowCurrentSize = windowCurrentSize,
+                    networkName = networkName,
+                    guestMode = loginMode == LoginMode.Guest
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
 
-                    URButton(
-                        onClick = {
-                            disconnect()
-//                            checkTriggerPromptReview()
-                        },
-                        style = ButtonStyle.OUTLINE
-                    ) { buttonTextStyle ->
-                        Text(
-                            "Disconnect",
-                            style = buttonTextStyle,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
+                    AnimatedVisibility(
+                        visible = disconnectBtnVisible,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
 
+                        URButton(
+                            onClick = {
+                                disconnect()
+//                            checkTriggerPromptReview()
+                            },
+                            style = ButtonStyle.OUTLINE
+                        ) { buttonTextStyle ->
+                            Text(
+                                "Disconnect",
+                                style = buttonTextStyle,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+
+                    }
                 }
+
             }
+
         }
 
         OpenProviderListButton(
@@ -357,7 +351,6 @@ fun ConnectMainContent(
 
     if (isPresentingLocationsSheet) {
         ProvidersBottomSheet(
-            sheetState = locationsSheetState,
             connect = connect,
             selectedLocation = selectedLocation,
             locationsViewModel = locationsViewModel,

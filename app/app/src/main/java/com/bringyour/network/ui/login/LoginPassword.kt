@@ -285,7 +285,7 @@ fun LoginPasswordForm(
             placeholder = stringResource(id = R.string.user_auth_placeholder),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
-                imeAction = if (password.text.isEmpty()) ImeAction.Done else ImeAction.Next
+                imeAction = ImeAction.Next
             ),
             label = stringResource(id = R.string.user_auth_label),
             enabled = false
