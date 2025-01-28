@@ -76,6 +76,7 @@ fun UpgradePlanBottomSheet(
         UpgradePlanSheetContent(
             upgrade = planViewModel.upgrade,
             upgradeInProgress = planViewModel.inProgress,
+            formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice
         )
 
     }
@@ -87,6 +88,7 @@ fun UpgradePlanBottomSheet(
 private fun UpgradePlanSheetContent(
     upgradeInProgress: Boolean,
     upgrade: () -> Unit,
+    formattedSubscriptionPrice: String,
 ) {
 
     val colModifier = Modifier
@@ -115,9 +117,8 @@ private fun UpgradePlanSheetContent(
                     style = MaterialTheme.typography.headlineMedium
                 )
 
-                // TODO - price should be dynamically pulled
                 Text(
-                    "$5/month",
+                    "${formattedSubscriptionPrice}/month",
                     style = TextStyle(
                         fontSize = 24.sp,
                         fontFamily = gravityCondensedFamily,
@@ -187,7 +188,7 @@ private fun UpgradePlanSheetContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Preview
 @Composable
 private fun UpgradePlanSheetContentPreview() {
@@ -196,6 +197,7 @@ private fun UpgradePlanSheetContentPreview() {
         UpgradePlanSheetContent(
             upgrade = {},
             upgradeInProgress = false,
+            formattedSubscriptionPrice = "$5.00"
         )
     }
 }
