@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.navigation.NavController
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
@@ -27,10 +28,11 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 fun BrowseLocationsScreen(
     locationsListViewModel: LocationsListViewModel,
     connectViewModel: ConnectViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val fetchLocationsState by remember { locationsListViewModel.filterLocationsState }.collectAsState()
     val lazyListState = rememberLazyListState()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         topBar = {
@@ -51,7 +53,8 @@ fun BrowseLocationsScreen(
                 ),
                 actions = {},
             )
-        }
+        },
+        containerColor = Black
     ) { innerPadding ->
         Box(modifier = Modifier
             .padding(innerPadding)
@@ -65,7 +68,7 @@ fun BrowseLocationsScreen(
                 devices = locationsListViewModel.devices,
                 bestSearchMatches = locationsListViewModel.bestSearchMatches,
                 selectedLocation = connectViewModel.selectedLocation,
-                keyboardController = null,
+                keyboardController = keyboardController,
                 currentSearchQuery = locationsListViewModel.currentSearchQuery,
                 setSearchQueryTextFieldValue = locationsListViewModel.setSearchQueryTextFieldValue,
                 searchQueryTextFieldValue = locationsListViewModel.searchQueryTextFieldValue,
@@ -76,7 +79,8 @@ fun BrowseLocationsScreen(
                           },
                 getLocationColor = locationsListViewModel.getLocationColor,
                 filterLocations = locationsListViewModel.filterLocations,
-                lazyListState = lazyListState
+                lazyListState = lazyListState,
+                refreshLocations = locationsListViewModel.refreshLocations
             )
         }
     }
