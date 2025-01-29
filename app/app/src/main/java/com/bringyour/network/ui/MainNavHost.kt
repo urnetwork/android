@@ -333,7 +333,6 @@ fun MainNavContent(
     activityResultSender: ActivityResultSender,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    // /locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx = if (isTv())
