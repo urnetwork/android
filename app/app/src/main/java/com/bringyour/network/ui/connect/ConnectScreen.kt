@@ -117,7 +117,8 @@ fun ConnectScreen(
                     getStateColor = connectViewModel.getStateColor,
 //                checkTriggerPromptReview = checkTriggerPromptReview,
                     launchOverlay = overlayViewModel.launch,
-                    locationsViewModel = locationsViewModel
+                    locationsViewModel = locationsViewModel,
+                    navController = navController
                 )
             }
 
@@ -165,7 +166,8 @@ private fun ConnectTV(
             getStateColor = getStateColor,
 //                    checkTriggerPromptReview = checkTriggerPromptReview,
             launchOverlay = launchOverlay,
-            locationsViewModel = locationsViewModel
+            locationsViewModel = locationsViewModel,
+            navController = navController
         )
 
         Column {
@@ -219,15 +221,9 @@ fun ConnectMainContent(
     shuffleSuccessPoints: () -> Unit,
     getStateColor: (ProviderPointState?) -> Color,
     launchOverlay: (OverlayMode) -> Unit,
-    locationsViewModel: LocationsListViewModel
+    locationsViewModel: LocationsListViewModel,
+    navController: NavController
 ) {
-
-    var isPresentingLocationsSheet by remember { mutableStateOf(false) }
-
-    val openLocationsSheet = {
-        locationsViewModel.refreshLocations()
-        isPresentingLocationsSheet = true
-    }
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
@@ -344,21 +340,13 @@ fun ConnectMainContent(
         OpenProviderListButton(
             selectedLocation = selectedLocation,
             getLocationColor = locationsViewModel.getLocationColor,
-            onClick = { openLocationsSheet() }
-        )
-
-    }
-
-    if (isPresentingLocationsSheet) {
-        ProvidersBottomSheet(
-            connect = connect,
-            selectedLocation = selectedLocation,
-            locationsViewModel = locationsViewModel,
-            setIsPresented = { isPresented ->
-                isPresentingLocationsSheet = isPresented
+            onClick = {
+                navController.navigate(Route.BrowseLocations)
             }
         )
+
     }
+
 }
 
 @Composable

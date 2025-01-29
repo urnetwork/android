@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.connect
 
+// TODO: deprecate this
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -221,7 +223,8 @@ fun ProvidersBottomSheet(
                                             filterLocations(currentSearchQuery)
                                         },
                                         searchQuery = currentSearchQuery,
-                                        listState = lazyListState
+                                        listState = lazyListState,
+                                        isRefreshing = true
                                     )
 
                                     if (fetchLocationsState == FilterLocationsState.Loading) {
