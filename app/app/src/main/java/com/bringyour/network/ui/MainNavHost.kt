@@ -152,7 +152,7 @@ fun MainNavHost(
             }
 
             if (route == Route.Support && currentTopLevelRoute.route != Route.Support) {
-                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
+                mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.SUPPORT)
             }
 
             if (route == Route.AccountContainer && currentTopLevelRoute.route != Route.AccountContainer) {
@@ -333,7 +333,6 @@ fun MainNavContent(
     activityResultSender: ActivityResultSender,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    // /locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx = if (isTv())
@@ -370,7 +369,7 @@ fun MainNavContent(
     val nestedPopEnterTransition = fadeIn(animationSpec = tween(300))
 
     val nestedEnterTransition = {
-        if ( (!isTv && previousRoute == Route.Connect) || previousRoute == Route.Support) {
+        if (previousRoute == Route.Support) {
             EnterTransition.None
         } else {
             slideInHorizontally(
@@ -382,7 +381,7 @@ fun MainNavContent(
 
     val nestedPopExitTransition = {
         val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
-        if ( (!isTv && destinationRoute == Route.Connect) || destinationRoute == Route.Support) {
+        if (destinationRoute == Route.Support) {
             ExitTransition.None
         } else {
             slideOutHorizontally(
