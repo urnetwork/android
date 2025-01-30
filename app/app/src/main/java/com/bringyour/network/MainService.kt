@@ -324,9 +324,9 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
             val fos = FileOutputStream(pfd.fileDescriptor)
             try {
 
-                val receiveSub = deviceLocal.addReceivePacket {
+                val receiveSub = deviceLocal.addReceivePacket { ipVersion, ipProtocol, packet ->
                     try {
-                        fos.write(it)
+                        fos.write(packet)
                     } catch (_: IOException) {
                         try {
                             fos.close()
