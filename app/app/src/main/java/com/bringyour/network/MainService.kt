@@ -108,7 +108,7 @@ class MainService : VpnService() {
                 for (dnsIpv4 in dnsIpv4s) {
                     builder.addDnsServer(dnsIpv4)
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                     builder.addRoute("0.0.0.0", 0)
                     builder.excludeRoute(IpPrefix(InetAddress.getByName("10.0.0.0"), 8))
                     builder.excludeRoute(IpPrefix(InetAddress.getByName("172.16.0.0"), 12))
@@ -169,7 +169,7 @@ class MainService : VpnService() {
                 for (dnsIpv6 in dnsIpv6s) {
                     builder.addDnsServer(dnsIpv6)
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                     builder.addRoute("::", 0)
                     builder.excludeRoute(IpPrefix(InetAddress.getByName("fd00::"), 8))
                 } else {
@@ -199,11 +199,11 @@ class MainService : VpnService() {
             }
 
             builder.establish()?.let { pfd ->
-                val previousPacketFlow = this.packetFlow
+                val previousPacketFlow = this@MainService.packetFlow
                 app.device?.let { device ->
-                    this@MainService.packetFlow = PacketFlow(device, pfd) { endedPacketFlow ->
+                    this@MainService.packetFlow = PacketFlow(device, pfd) { packetFlow ->
                         runBlocking(Dispatchers.Main.immediate) {
-                            if (this@MainService.packetFlow == endedPacketFlow) {
+                            if (this@MainService.packetFlow == packetFlow) {
                                 this@MainService.packetFlow = null
 
                                 device.tunnelStarted = false
@@ -213,6 +213,11 @@ class MainService : VpnService() {
                     }
 
                     device.tunnelStarted = true
+                } ?: run {
+                    try {
+                        pfd.close()
+                    } catch (_: IOException) {
+                    }
                 }
                 // cancel the previous packet flow after the new packet flow is set
                 previousPacketFlow?.cancel()
@@ -367,11 +372,12 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
                     receiveSub.close()
                 }
             } finally {
+                cancel()
+
                 try {
                     pfd.close()
                 } catch (_: IOException) {
                 }
-                cancel()
 
                 endCallback(this@PacketFlow)
             }
