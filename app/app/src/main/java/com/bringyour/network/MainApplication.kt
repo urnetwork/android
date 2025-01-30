@@ -108,6 +108,8 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        Sdk.setMemoryLimit(128 * 1024 * 1024)
+
         networkSpaceManagerProvider.init(filesDir.absolutePath)
 
         val networkSpaceManager = networkSpaceManagerProvider.getNetworkSpaceManager()
@@ -568,6 +570,8 @@ class MainApplication : Application() {
                     vpnRequestStart = true
                     vpnRequestStartListener?.let { it() }
                 } else {
+                    tunnelRequestStatus = TunnelRequestStatus.Started
+                    vpnRequestStart = false
 
                     if (foreground) {
                         // use a foreground service to allow notifications
@@ -589,9 +593,6 @@ class MainApplication : Application() {
                     } else {
                         startService(vpnIntent)
                     }
-
-                    tunnelRequestStatus = TunnelRequestStatus.Started
-                    vpnRequestStart = false
                 }
             }
         } catch (e: Exception) {
