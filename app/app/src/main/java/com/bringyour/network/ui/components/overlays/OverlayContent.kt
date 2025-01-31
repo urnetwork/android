@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.theme.Black
 
 @Composable
 fun OverlayContent(
@@ -40,7 +41,8 @@ fun OverlayContent(
 
             Icon(
                 painter = painterResource(id = R.drawable.globe_filled),
-                contentDescription = "URnetwork globe filled"
+                contentDescription = "URnetwork globe filled",
+                tint = Black
             )
 
             Spacer(modifier = Modifier.height(24.dp))

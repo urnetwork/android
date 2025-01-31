@@ -411,22 +411,30 @@ fun LoginInitial(
         }
     }
 
-    AnimatedVisibility(
-        visible = guestModeOverlayVisible,
-        enter = guestModeEnterTransition,
-        exit = if (guestModeLoginSuccess) ExitTransition.None else guestModeExitTransition,
-    ) {
+    OnboardingGuestModeSheet(
+        isPresenting = guestModeOverlayVisible,
+        setIsPresenting = {
+            setGuestModeOverlayVisible(it)
+        },
+        onCreateGuestNetwork = { createGuestNetwork() }
+    )
 
-        OnboardingGuestModeOverlay(
-            bodyVisible = guestModeOverlayBodyVisible,
-            onDismiss = {
-                guestModeOverlayVisible = false
-            },
-            onCreateGuestNetwork = {
-                createGuestNetwork()
-            }
-        )
-    }
+//    AnimatedVisibility(
+//        visible = guestModeOverlayVisible,
+//        enter = guestModeEnterTransition,
+//        exit = if (guestModeLoginSuccess) ExitTransition.None else guestModeExitTransition,
+//    ) {
+//
+//        OnboardingGuestModeOverlay(
+//            bodyVisible = guestModeOverlayBodyVisible,
+//            onDismiss = {
+//                guestModeOverlayVisible = false
+//            },
+//            onCreateGuestNetwork = {
+//                createGuestNetwork()
+//            }
+//        )
+//    }
 
     WelcomeAnimatedOverlayLogin(
         isVisible = welcomeOverlayVisible
