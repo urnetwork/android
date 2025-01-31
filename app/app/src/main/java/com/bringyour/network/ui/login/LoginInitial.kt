@@ -469,8 +469,7 @@ fun LoginInitialActions(
                 onGo = {
                     onLogin()
                 },
-                label = stringResource(id = R.string.user_auth_label),
-                isValid = isValidUserAuth
+                label = stringResource(id = R.string.user_auth_label)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
