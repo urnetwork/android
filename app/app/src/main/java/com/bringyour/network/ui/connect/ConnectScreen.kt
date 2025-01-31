@@ -341,6 +341,7 @@ fun ConnectMainContent(
             selectedLocation = selectedLocation,
             getLocationColor = locationsViewModel.getLocationColor,
             onClick = {
+                locationsViewModel.refreshLocations()
                 navController.navigate(Route.BrowseLocations)
             }
         )
