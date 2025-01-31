@@ -33,10 +33,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -101,10 +98,6 @@ fun LoginInitial(
         setLoginError = loginViewModel.setLoginError,
         googleAuthInProgress = loginViewModel.googleAuthInProgress,
         setCreateGuestModeInProgress = loginViewModel.setCreateGuestModeInProgress,
-        guestModeLoginSuccess = loginViewModel.guestModeLoginSuccess,
-        setGuestModeLoginSuccess = loginViewModel.setGuestModeLoginSuccess,
-        guestModeOverlayBodyVisible = loginViewModel.guestModeOverlayBodyVisible,
-        setGuestModeOverlayBodyVisible = loginViewModel.setGuestModeOverlayBodyVisible,
         allowGoogleSso = loginViewModel.allowGoogleSso
     )
 
@@ -135,10 +128,6 @@ fun LoginInitial(
     googleAuthInProgress: Boolean,
     setGoogleAuthInProgress: (Boolean) -> Unit,
     setCreateGuestModeInProgress: (Boolean) -> Unit,
-    guestModeLoginSuccess: Boolean,
-    setGuestModeLoginSuccess: (Boolean) -> Unit,
-    guestModeOverlayBodyVisible: Boolean,
-    setGuestModeOverlayBodyVisible: (Boolean) -> Unit,
     allowGoogleSso: () -> Boolean
 ) {
 
@@ -153,9 +142,6 @@ fun LoginInitial(
     }
 
     var contentVisible by remember { mutableStateOf(true) }
-
-    val guestModeEnterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
-    val guestModeExitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
     val loginActivity = context as? LoginActivity
 
@@ -207,7 +193,6 @@ fun LoginInitial(
 
     val createGuestNetwork = {
         setCreateGuestModeInProgress(true)
-        setGuestModeOverlayBodyVisible(false)
 
         val args = NetworkCreateArgs()
         args.terms = true
@@ -227,8 +212,6 @@ fun LoginInitial(
 
                     application.login(result.network.byJwt)
 
-                    setGuestModeLoginSuccess(true)
-
                     if (isTv) {
                         setGuestModeOverlayVisible(false)
                     } else {
@@ -243,8 +226,6 @@ fun LoginInitial(
 
                             if (error != null) {
                                 contentVisible = true
-                                setGuestModeLoginSuccess(false)
-                                setGuestModeOverlayBodyVisible(true)
                             }
                         }
                     )
@@ -418,23 +399,6 @@ fun LoginInitial(
             createGuestNetwork()
         }
     )
-
-//    AnimatedVisibility(
-//        visible = guestModeOverlayVisible,
-//        enter = guestModeEnterTransition,
-//        exit = if (guestModeLoginSuccess) ExitTransition.None else guestModeExitTransition,
-//    ) {
-//
-//        OnboardingGuestModeOverlay(
-//            bodyVisible = guestModeOverlayBodyVisible,
-//            onDismiss = {
-//                guestModeOverlayVisible = false
-//            },
-//            onCreateGuestNetwork = {
-//                createGuestNetwork()
-//            }
-//        )
-//    }
 
     WelcomeAnimatedOverlayLogin(
         isVisible = welcomeOverlayVisible
@@ -638,10 +602,6 @@ private fun LoginInitialPreview() {
                     googleAuthInProgress = false,
                     setGoogleAuthInProgress = {},
                     setCreateGuestModeInProgress = {},
-                    guestModeLoginSuccess = false,
-                    setGuestModeLoginSuccess = {},
-                    guestModeOverlayBodyVisible = true,
-                    setGuestModeOverlayBodyVisible = {},
                     allowGoogleSso = { true }
                 )
             }
@@ -698,10 +658,6 @@ private fun LoginInitialLandscapePreview() {
                     googleAuthInProgress = false,
                     setGoogleAuthInProgress = {},
                     setCreateGuestModeInProgress = {},
-                    guestModeLoginSuccess = false,
-                    setGuestModeLoginSuccess = {},
-                    guestModeOverlayBodyVisible = true,
-                    setGuestModeOverlayBodyVisible = {},
                     allowGoogleSso = { true }
                 )
             }
