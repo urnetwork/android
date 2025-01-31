@@ -11,9 +11,12 @@ import android.net.NetworkRequest
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.bringyour.sdk.AccountViewController
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.DevicesViewController
@@ -22,7 +25,9 @@ import dagger.hilt.android.HiltAndroidApp
 import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sub
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -102,6 +107,7 @@ class MainApplication : Application() {
 //    val platformUrl get() = networkSpace?.platformUrl
 
 
+    var service: WeakReference<MainService>? = null
 
 
 
@@ -424,6 +430,12 @@ class MainApplication : Application() {
         tunnelChangeSub = device?.addTunnelChangeListener { tunnelStarted ->
             runBlocking(Dispatchers.Main.immediate) {
                 updateTunnelStarted()
+
+                if (!tunnelStarted) {
+                    // the tunnel stopped. Sync with state
+                    tunnelRequestStatus = TunnelRequestStatus.None
+                    updateVpnService()
+                }
             }
         }
         contractStatusChangeSub = device?.addContractStatusChangeListener {
@@ -432,15 +444,17 @@ class MainApplication : Application() {
             }
         }
 
-//        router = Router(device!!)
-
         addOfflineCallback()
         addNetworkCallback()
 
-        updateVpnService()
-
         updateTunnelStarted()
         updateContractStatus()
+
+        // *important* calling startService for a VpnService in OnCreate will *not* correctly set up the routes
+        // we need to delay this after onCreate for the routes to set up correctly (wtf)
+        Handler(Looper.getMainLooper()).post {
+            updateVpnService()
+        }
 
         // return byDevice
     }
@@ -554,7 +568,7 @@ class MainApplication : Application() {
             } else {
                 // important: start the vpn service in the application context
 
-                fun hasForegoundPermissions(): Boolean {
+                fun hasForegroundPermissions(): Boolean {
                     if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                         val hasForegroundPermissions = ContextCompat.checkSelfPermission(
                             this,
@@ -566,13 +580,10 @@ class MainApplication : Application() {
                     }
                 }
 
-                if (foreground && !hasForegoundPermissions()) {
+                if (foreground && !hasForegroundPermissions()) {
                     vpnRequestStart = true
                     vpnRequestStartListener?.let { it() }
                 } else {
-                    tunnelRequestStatus = TunnelRequestStatus.Started
-                    vpnRequestStart = false
-
                     if (foreground) {
                         // use a foreground service to allow notifications
                         if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
@@ -593,6 +604,9 @@ class MainApplication : Application() {
                     } else {
                         startService(vpnIntent)
                     }
+
+                    tunnelRequestStatus = TunnelRequestStatus.Started
+                    vpnRequestStart = false
                 }
             }
         } catch (e: Exception) {
@@ -613,19 +627,34 @@ class MainApplication : Application() {
             return
         }
 
-        val vpnIntent = Intent(this, MainService::class.java)
-        vpnIntent.putExtra("source", "app")
-        vpnIntent.putExtra("stop", true)
-        vpnIntent.putExtra("start", false)
-        vpnIntent.putExtra("foreground", false)
-        try {
-            startService(vpnIntent)
-            stopService(vpnIntent)
-            tunnelRequestStatus = TunnelRequestStatus.Stopped
-        } catch (e: Exception) {
-            Log.i(TAG, "Error trying to communicate with the vpn service to stop: ${e.message}")
-            // ignore
-        }
+        // note
+        // - using startService with stop intent to stop the service is broken
+        //   because stop, start quickly will ignore the second intent and deliver just the stop
+        // - using stopService is broken, because it will not close the vpn tunnel fd,
+        //   which prevents a new tunnel from starting again correctly
+        // - using startService with stop intent, stopService in sequence is broken
+        //   because startService in OnCreate will prevent the routes from being set up correctly (wtf)
+        //
+        // using a weak reference to the service is strangely the cleanest approach
+
+        service?.get()?.stop()
+        tunnelRequestStatus = TunnelRequestStatus.Stopped
+
+
+//        val vpnIntent = Intent(this, MainService::class.java)
+//        vpnIntent.putExtra("source", "app")
+//        vpnIntent.putExtra("stop", true)
+//        vpnIntent.putExtra("start", false)
+//        vpnIntent.putExtra("foreground", false)
+//        try {
+//            // note this cannot be called in OnCreate, or it will prevent the routes from being set up correctly
+//            startService(vpnIntent)
+//            stopService(vpnIntent)
+//            tunnelRequestStatus = TunnelRequestStatus.Stopped
+//        } catch (e: Exception) {
+//            Log.i(TAG, "Error trying to communicate with the vpn service to stop: ${e.message}")
+//            // ignore
+//        }
 
 
     }

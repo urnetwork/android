@@ -13,11 +13,13 @@ import android.system.OsConstants.AF_INET6
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.ref.WeakReference
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Condition
@@ -64,6 +66,8 @@ class MainService : VpnService() {
         if (stop) {
             stop()
         } else if (start) {
+            app.service = WeakReference(this)
+
             val foreground = intent?.getBooleanExtra("foreground", false) ?: false
             val source = intent?.getStringExtra("source") ?: "unknown"
             val offline = intent?.getBooleanExtra("offline", false) ?: false
@@ -77,12 +81,17 @@ class MainService : VpnService() {
             }
 
             // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
-            if (source != "app") {
+            var alwaysOn = source != "app"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (isAlwaysOn) {
+                    alwaysOn = true
+                }
+            }
+            if (alwaysOn) {
                 // this was started with always-on mode
                 // turn off local routing
                 app.deviceManager.routeLocal = false
             }
-
 
             val builder = Builder()
             builder.setSession("URnetwork")
@@ -199,19 +208,20 @@ class MainService : VpnService() {
             }
 
             builder.establish()?.let { pfd ->
-                val previousPacketFlow = this@MainService.packetFlow
+                // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
+                packetFlow?.close()
+                packetFlow = null
                 app.device?.let { device ->
-                    this@MainService.packetFlow = PacketFlow(device, pfd) { packetFlow ->
+                    packetFlow = PacketFlow(device, pfd) {
                         runBlocking(Dispatchers.Main.immediate) {
-                            if (this@MainService.packetFlow == packetFlow) {
-                                this@MainService.packetFlow = null
-
+                            if (packetFlow == it) {
+                                // unexpected exit
+                                packetFlow = null
                                 device.tunnelStarted = false
                             }
                             // else the ended packet flow was replaced by a new one
                         }
                     }
-
                     device.tunnelStarted = true
                 } ?: run {
                     try {
@@ -219,8 +229,11 @@ class MainService : VpnService() {
                     } catch (_: IOException) {
                     }
                 }
-                // cancel the previous packet flow after the new packet flow is set
-                previousPacketFlow?.cancel()
+            } ?: run {
+                Log.i(TAG, "[service]WARNING tunnel was not started. Another existing tunnel may be blocking the start.")
+                // cancel the previous packet flow
+                packetFlow?.close()
+                packetFlow = null
             }
         }
 
@@ -229,37 +242,34 @@ class MainService : VpnService() {
     }
 
     override fun onDestroy() {
-        Log.i("MainService", "DESTROY SERVICE")
-
         super.onDestroy()
 
         stop()
     }
 
     override fun onRevoke() {
-        Log.i("MainService", "REVOKE SERVICE")
-
         super.onRevoke()
 
         stop()
     }
 
-//    override fun onTaskRemoved(rootIntent: Intent?) {
-//        super.onTaskRemoved(rootIntent)
-//
-//        stop()
-//    }
+    override fun onLowMemory() {
+        super.onLowMemory()
 
+        Sdk.freeMemory()
+    }
 
-    private fun stop() {
+    fun stop() {
         val app = application as MainApplication
 
-        packetFlow?.cancel()
+        packetFlow?.close()
         packetFlow = null
         app.device?.tunnelStarted = false
 
         stopForegroundNotification()
         stopSelf()
+
+        app.service = null
     }
 
 
@@ -308,21 +318,20 @@ class MainService : VpnService() {
 }
 
 
-private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, endCallback: (packetFlow: PacketFlow)->Unit) {
+private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor, endCallback: (packetFlow: PacketFlow)->Unit) {
 
-    val stateLock: Lock
-    val closed: Condition
+    val stateLock = ReentrantLock()
+    val closed: Condition = stateLock.newCondition()
     var active: Boolean = true
 
 
     init {
-        stateLock = ReentrantLock()
-        closed = stateLock.newCondition()
 
         thread {
-            val fis = FileInputStream(pfd.fileDescriptor)
-            val fos = FileOutputStream(pfd.fileDescriptor)
             try {
+
+                val fis = FileInputStream(pfd.fileDescriptor)
+                val fos = FileOutputStream(pfd.fileDescriptor)
 
                 val receiveSub = deviceLocal.addReceivePacket { ipVersion, ipProtocol, packet ->
                     try {
@@ -332,7 +341,7 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
                             fos.close()
                         } catch (_: IOException) {
                         }
-                        cancel()
+                        close()
                     }
                 }
                 try {
@@ -347,7 +356,7 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
                                     // note sendPacket makes a copy of the buffer
                                     val success = deviceLocal.sendPacket(buffer, n)
                                     if (!success) {
-                                        Log.i("Router", "Send packet dropped.")
+                                        Log.i(TAG, "[service]send packet dropped")
                                     }
                                 }
                             }
@@ -355,7 +364,7 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
                             try {
                                 fis.close()
                             } catch (_: IOException) { }
-                            cancel()
+                            close()
                         }
                     }
 
@@ -370,21 +379,25 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
 
                 } finally {
                     receiveSub.close()
+
+                    try {
+                        fos.close()
+                    } catch (_: IOException) {
+                    }
+                    try {
+                        fis.close()
+                    } catch (_: IOException) {
+                    }
                 }
             } finally {
-                cancel()
-
-                try {
-                    pfd.close()
-                } catch (_: IOException) {
-                }
+                close()
 
                 endCallback(this@PacketFlow)
             }
         }
     }
 
-    fun cancel() {
+    fun close() {
         stateLock.lock()
         try {
             active = false
@@ -392,6 +405,12 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
         } finally {
             stateLock.unlock()
         }
+
+        try {
+            pfd.close()
+        } catch (_: IOException) {
+        }
+
     }
 }
 
