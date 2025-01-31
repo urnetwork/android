@@ -416,7 +416,9 @@ fun LoginInitial(
         setIsPresenting = {
             setGuestModeOverlayVisible(it)
         },
-        onCreateGuestNetwork = { createGuestNetwork() }
+        onCreateGuestNetwork = {
+            createGuestNetwork()
+        }
     )
 
 //    AnimatedVisibility(

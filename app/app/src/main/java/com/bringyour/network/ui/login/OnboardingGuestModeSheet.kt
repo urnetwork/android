@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -25,15 +28,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
@@ -45,6 +48,7 @@ import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.Yellow
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +58,7 @@ fun OnboardingGuestModeSheet(
     onCreateGuestNetwork: () -> Unit
 ) {
 
+    val scope = rememberCoroutineScope()
     var termsAgreed by remember { mutableStateOf(false) }
 
     val sheetState = rememberModalBottomSheetState(
@@ -79,91 +84,115 @@ fun OnboardingGuestModeSheet(
                 ),
             contentWindowInsets = { WindowInsets(0, 0, 0, 0) }
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        drawImage(
-                            image = backgroundBitmap,
-                            dstSize = IntSize(size.width.toInt(), size.height.toInt())
-                        )
-                    }
-                    .padding(bottom = 16.dp)
+
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Your drag handle content here
-                    Box(
-                        modifier = Modifier
-                            .width(40.dp)
-                            .height(4.dp)
-                            .background(MainTintedBackgroundBase, shape = RoundedCornerShape(2.dp))
-                    )
-                }
+                Image(
+                    bitmap = backgroundBitmap,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
 
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.BottomCenter,
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 16.dp)
                 ) {
-                    OverlayContent(
-                        backgroundColor = Yellow,
+
+                    /**
+                     * Drag handle
+                     */
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            "Nicely done.",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = Black
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(4.dp)
+                                .background(MainTintedBackgroundBase, shape = RoundedCornerShape(2.dp))
                         )
+                    }
 
-                        Spacer(modifier = Modifier.height(16.dp))
 
-                        Text(
-                            "Step into the internet as it should be.",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Black
-                        )
+                    Spacer(modifier = Modifier.weight(1f)) // Spacer to push content to the bottom
 
-                        Spacer(modifier = Modifier.height(128.dp))
+                    /**
+                     * Content
+                     */
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.BottomCenter,
+                    ) {
+                        OverlayContent(
+                            backgroundColor = Yellow,
+                        ) {
+                            Text(
+                                "Nicely done.",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Black
+                            )
 
-                        TermsCheckbox(
-                            checked = termsAgreed,
-                            onCheckChanged = {
-                                termsAgreed = it
-                            },
-                            // focusRequester = focusRequester
-                        )
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                "Step into the internet as it should be.",
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = Black
+                            )
 
-                        URButton(
-                            onClick = {
-                                onCreateGuestNetwork()
-                            },
-                            style = ButtonStyle.OUTLINE,
-                            borderColor = if (termsAgreed) Black else TextMuted,
-                            enabled = termsAgreed
-                        ) { buttonTextStyle ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    "Enter",
-                                    style = buttonTextStyle,
-                                    color = if (termsAgreed) Black else TextMuted
-                                )
+                            Spacer(modifier = Modifier.height(64.dp))
+
+                            TermsCheckbox(
+                                checked = termsAgreed,
+                                onCheckChanged = {
+                                    termsAgreed = it
+                                },
+                                // focusRequester = focusRequester
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            URButton(
+                                onClick = {
+                                    onCreateGuestNetwork()
+                                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                        if (!sheetState.isVisible) {
+                                            setIsPresenting(false)
+                                        }
+                                    }
+
+                                },
+                                style = ButtonStyle.OUTLINE,
+                                borderColor = if (termsAgreed) Black else TextMuted,
+                                enabled = termsAgreed
+                            ) { buttonTextStyle ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        "Enter",
+                                        style = buttonTextStyle,
+                                        color = if (termsAgreed) Black else TextMuted
+                                    )
+                                }
                             }
                         }
                     }
+
                 }
 
             }
+
         }
 
     }
