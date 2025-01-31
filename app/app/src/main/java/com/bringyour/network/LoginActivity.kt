@@ -1,14 +1,16 @@
 package com.bringyour.network
 
 import android.content.Intent
+import android.graphics.Color.TRANSPARENT
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import android.util.Log
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
@@ -45,6 +47,15 @@ class LoginActivity : AppCompatActivity() {
     private var isLoadingAuthCode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val lightTransparentStyle = SystemBarStyle.dark(
+            scrim = TRANSPARENT
+        )
+        enableEdgeToEdge(
+            statusBarStyle = lightTransparentStyle,
+            navigationBarStyle = lightTransparentStyle
+        )
+
         super.onCreate(savedInstanceState)
 
         app = application as MainApplication
@@ -123,7 +134,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // this is so overlays don't get cut by top bar and bottom drawer
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        // WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // fixme use a custom view to show up/down statistics and hot linpath spark
 

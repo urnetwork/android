@@ -5,14 +5,4 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/by_background</item>
     </style>
-
-    <style name="BringYourActionBar"
-        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-
-        <item name="android:icon">@null</item>
-        <item name="android:logo">@null</item>
-        <item name="android:displayOptions">showHome|showTitle</item>
-        <item name="colorControlNormal">@color/white</item>
-    </style>
-
 </resources>
