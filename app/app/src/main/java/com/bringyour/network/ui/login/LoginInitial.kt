@@ -33,11 +33,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -74,7 +70,6 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
-import com.bringyour.network.ui.components.overlays.OnboardingGuestModeOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.utils.isTv
@@ -103,10 +98,6 @@ fun LoginInitial(
         setLoginError = loginViewModel.setLoginError,
         googleAuthInProgress = loginViewModel.googleAuthInProgress,
         setCreateGuestModeInProgress = loginViewModel.setCreateGuestModeInProgress,
-        guestModeLoginSuccess = loginViewModel.guestModeLoginSuccess,
-        setGuestModeLoginSuccess = loginViewModel.setGuestModeLoginSuccess,
-        guestModeOverlayBodyVisible = loginViewModel.guestModeOverlayBodyVisible,
-        setGuestModeOverlayBodyVisible = loginViewModel.setGuestModeOverlayBodyVisible,
         allowGoogleSso = loginViewModel.allowGoogleSso
     )
 
@@ -137,10 +128,6 @@ fun LoginInitial(
     googleAuthInProgress: Boolean,
     setGoogleAuthInProgress: (Boolean) -> Unit,
     setCreateGuestModeInProgress: (Boolean) -> Unit,
-    guestModeLoginSuccess: Boolean,
-    setGuestModeLoginSuccess: (Boolean) -> Unit,
-    guestModeOverlayBodyVisible: Boolean,
-    setGuestModeOverlayBodyVisible: (Boolean) -> Unit,
     allowGoogleSso: () -> Boolean
 ) {
 
@@ -155,9 +142,6 @@ fun LoginInitial(
     }
 
     var contentVisible by remember { mutableStateOf(true) }
-
-    val guestModeEnterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
-    val guestModeExitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
     val loginActivity = context as? LoginActivity
 
@@ -209,7 +193,6 @@ fun LoginInitial(
 
     val createGuestNetwork = {
         setCreateGuestModeInProgress(true)
-        setGuestModeOverlayBodyVisible(false)
 
         val args = NetworkCreateArgs()
         args.terms = true
@@ -229,8 +212,6 @@ fun LoginInitial(
 
                     application.login(result.network.byJwt)
 
-                    setGuestModeLoginSuccess(true)
-
                     if (isTv) {
                         setGuestModeOverlayVisible(false)
                     } else {
@@ -245,8 +226,6 @@ fun LoginInitial(
 
                             if (error != null) {
                                 contentVisible = true
-                                setGuestModeLoginSuccess(false)
-                                setGuestModeOverlayBodyVisible(true)
                             }
                         }
                     )
@@ -411,22 +390,15 @@ fun LoginInitial(
         }
     }
 
-    AnimatedVisibility(
-        visible = guestModeOverlayVisible,
-        enter = guestModeEnterTransition,
-        exit = if (guestModeLoginSuccess) ExitTransition.None else guestModeExitTransition,
-    ) {
-
-        OnboardingGuestModeOverlay(
-            bodyVisible = guestModeOverlayBodyVisible,
-            onDismiss = {
-                guestModeOverlayVisible = false
-            },
-            onCreateGuestNetwork = {
-                createGuestNetwork()
-            }
-        )
-    }
+    OnboardingGuestModeSheet(
+        isPresenting = guestModeOverlayVisible,
+        setIsPresenting = {
+            setGuestModeOverlayVisible(it)
+        },
+        onCreateGuestNetwork = {
+            createGuestNetwork()
+        }
+    )
 
     WelcomeAnimatedOverlayLogin(
         isVisible = welcomeOverlayVisible
@@ -630,10 +602,6 @@ private fun LoginInitialPreview() {
                     googleAuthInProgress = false,
                     setGoogleAuthInProgress = {},
                     setCreateGuestModeInProgress = {},
-                    guestModeLoginSuccess = false,
-                    setGuestModeLoginSuccess = {},
-                    guestModeOverlayBodyVisible = true,
-                    setGuestModeOverlayBodyVisible = {},
                     allowGoogleSso = { true }
                 )
             }
@@ -690,10 +658,6 @@ private fun LoginInitialLandscapePreview() {
                     googleAuthInProgress = false,
                     setGoogleAuthInProgress = {},
                     setCreateGuestModeInProgress = {},
-                    guestModeLoginSuccess = false,
-                    setGuestModeLoginSuccess = {},
-                    guestModeOverlayBodyVisible = true,
-                    setGuestModeOverlayBodyVisible = {},
                     allowGoogleSso = { true }
                 )
             }
