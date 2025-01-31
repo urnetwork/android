@@ -356,13 +356,13 @@ fun OpenProviderListButton(
     onClick: () -> Unit
 ) {
 
-    val text = if (selectedLocation == null) {
+    val text = if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
         "Best available provider"
     } else {
         selectedLocation.name
     }
 
-    val iconTint = if (selectedLocation == null) {
+    val iconTint = if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
         Red400
     } else {
 
