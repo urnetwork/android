@@ -468,7 +468,8 @@ class WalletViewModel @Inject constructor(
 
     init {
 
-        walletVc = deviceManager.device?.openWalletViewController()
+        byDevice = deviceManager.device
+        walletVc = byDevice?.openWalletViewController()
 
         updateNextPayoutDateStr()
         addAccountWalletsListener()
