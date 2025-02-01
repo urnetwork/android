@@ -201,9 +201,10 @@ class WalletViewModel @Inject constructor(
     }
 
     private val fetchCircleWalletInfo = {
-        byDevice?.api?.subscriptionBalance { result, error ->
+
+        byDevice?.api?.walletBalance { result, error ->
             if (error != null) {
-                Log.i(TAG, "[wallet]fetch error = $error")
+                Log.i(TAG, "[wallet] fetch error = $error")
             } else {
 
                 viewModelScope.launch {
