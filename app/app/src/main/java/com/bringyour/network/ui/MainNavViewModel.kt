@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 
 @HiltViewModel
 class MainNavViewModel @Inject constructor(): ViewModel() {
+
     private val _currentTopLevelRoute = MutableStateFlow(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
     val currentTopLevelRoute: StateFlow<TopLevelScaffoldRoutes> = _currentTopLevelRoute.asStateFlow()
 
@@ -28,6 +29,23 @@ class MainNavViewModel @Inject constructor(): ViewModel() {
 
     private val _previousRoute = MutableStateFlow<Route?>(null)
     val previousRoute: StateFlow<Route?> = _previousRoute.asStateFlow()
+
+    private val findContainerRoute: (Route?) -> TopLevelScaffoldRoutes = { route ->
+
+        when(route) {
+            is Route.ConnectContainer, is Route.Connect, is Route.BrowseLocations -> TopLevelScaffoldRoutes.CONNECT_CONTAINER
+            is Route.Support -> TopLevelScaffoldRoutes.SUPPORT
+            else -> TopLevelScaffoldRoutes.ACCOUNT_CONTAINER
+        }
+
+    }
+
+    val isNavigatingWithinContainer: (Route?, Route?) -> Boolean = { currentRoute, targetRoute ->
+        val currentRouteContainer = findContainerRoute(currentRoute)
+        val targetRouteContainer = findContainerRoute(targetRoute)
+
+        currentRouteContainer == targetRouteContainer
+    }
 }
 
 @Serializable

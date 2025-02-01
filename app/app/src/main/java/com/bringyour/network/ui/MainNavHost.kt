@@ -219,9 +219,8 @@ fun MainNavHost(
                                         navController.popBackStack(Route.Connect, inclusive = false)
                                     }
 
-                                    locationsListViewModel.refreshLocations()
-
                                 } else {
+
                                     navController.navigate(screen.route) {
                                         // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
                                         // Pop up to the start destination of the graph to
@@ -235,6 +234,7 @@ fun MainNavHost(
                                         launchSingleTop = true
                                         // Restore state when reselecting a previously selected item
                                         restoreState = true
+
                                     }
                                 }
                                 mainNavViewModel.setCurrentTopLevelRoute(screen)
@@ -253,6 +253,7 @@ fun MainNavHost(
                     ) {
                         Row {
                             MainNavContent(
+                                currentRoute,
                                 previousRoute,
                                 settingsViewModel = settingsViewModel,
                                 promptReviewViewModel = promptReviewViewModel,
@@ -262,7 +263,8 @@ fun MainNavHost(
                                 walletViewModel = walletViewModel,
                                 connectViewModel = connectViewModel,
                                 locationsListViewModel = locationsListViewModel,
-                                activityResultSender = activityResultSender
+                                activityResultSender = activityResultSender,
+                                isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer
                             )
                         }
 
@@ -282,6 +284,7 @@ fun MainNavHost(
                         modifier = Modifier.padding(bottom = 1.dp)
                     ) {
                         MainNavContent(
+                            currentRoute = currentRoute,
                             previousRoute = previousRoute,
                             settingsViewModel = settingsViewModel,
                             promptReviewViewModel = promptReviewViewModel,
@@ -291,7 +294,8 @@ fun MainNavHost(
                             walletViewModel = walletViewModel,
                             connectViewModel = connectViewModel,
                             locationsListViewModel = locationsListViewModel,
-                            activityResultSender = activityResultSender
+                            activityResultSender = activityResultSender,
+                            isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer
                         )
 
                         if (!isTv()) {
@@ -321,6 +325,7 @@ fun MainNavHost(
 
 @Composable
 fun MainNavContent(
+    currentRoute: Route?,
     previousRoute: Route?,
     walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
@@ -331,6 +336,7 @@ fun MainNavContent(
     connectViewModel: ConnectViewModel,
     locationsListViewModel: LocationsListViewModel,
     activityResultSender: ActivityResultSender,
+    isNavigatingWithinContainer: (Route?, Route?) -> Boolean,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -369,7 +375,11 @@ fun MainNavContent(
     val nestedPopEnterTransition = fadeIn(animationSpec = tween(300))
 
     val nestedEnterTransition = {
-        if (previousRoute == Route.Support) {
+
+        val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
+        val isWithinContainer = isNavigatingWithinContainer(previousRoute, destinationRoute)
+
+        if (!isWithinContainer) {
             EnterTransition.None
         } else {
             slideInHorizontally(
@@ -380,8 +390,11 @@ fun MainNavContent(
     }
 
     val nestedPopExitTransition = {
+
         val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
-        if (destinationRoute == Route.Support) {
+        val isWithinContainer = isNavigatingWithinContainer(currentRoute, destinationRoute)
+
+        if (!isWithinContainer) {
             ExitTransition.None
         } else {
             slideOutHorizontally(
