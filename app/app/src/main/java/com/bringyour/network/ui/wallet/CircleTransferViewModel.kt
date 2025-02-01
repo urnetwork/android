@@ -1,18 +1,19 @@
 package com.bringyour.network.ui.wallet
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import circle.programmablewallet.sdk.WalletSdk
+import com.bringyour.network.CircleWalletManager
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.ValidateAddressCallback
 import com.bringyour.sdk.WalletCircleTransferOutArgs
 import com.bringyour.sdk.WalletViewController
 import com.bringyour.network.DeviceManager
-import com.bringyour.sdk.DeviceLocal
+import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,11 +21,10 @@ import javax.inject.Inject
 @HiltViewModel
 class CircleTransferViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
+    private val circleWalletManager: CircleWalletManager,
 ): ViewModel() {
 
     private var walletVc: WalletViewController? = null
-    private var byDevice: DeviceLocal? = null
-    private var circleWalletSdk: WalletSdk? = null
 
     var transferAmountTextFieldValue by mutableStateOf(TextFieldValue(""))
         private set
@@ -123,6 +123,7 @@ class CircleTransferViewModel @Inject constructor(
     }
 
     val transfer: (OnWalletExecute) -> Unit = { onExecute ->
+
         val args = WalletCircleTransferOutArgs()
         args.amountUsdcNanoCents = Sdk.usdToNanoCents(transferAmountTextFieldValue.text.toDouble())
         args.toAddress = sendToAddress.text
@@ -131,35 +132,40 @@ class CircleTransferViewModel @Inject constructor(
 
         setTransferInProgress(true)
 
-        byDevice?.api?.walletCircleTransferOut(args) { result, error ->
-            viewModelScope.launch {
+        deviceManager.device?.let { device ->
+            device.api?.walletCircleTransferOut(args) { result, error ->
 
-                if (error != null) {
-                    setTransferError(error.message)
-                    setTransferInProgress(false)
-                } else if (result.error != null) {
-                    setTransferError(result.error.message)
-                    setTransferInProgress(false)
-                } else {
-                    val userToken = result.userToken.userToken
-                    val encryptionKey = result.userToken.encryptionKey
-                    val challengeId = result.challengeId
+                viewModelScope.launch {
 
-                    circleWalletSdk?.let { walletSdk ->
+                    if (error != null) {
+                        setTransferError(error.message)
+                        setTransferInProgress(false)
+                    } else if (result.error != null) {
+                        setTransferError(result.error.message)
+                        setTransferInProgress(false)
+                    } else {
+                        val userToken = result.userToken.userToken
+                        val encryptionKey = result.userToken.encryptionKey
+                        val challengeId = result.challengeId
 
-                        onExecute(
-                            walletSdk,
-                            userToken,
-                            encryptionKey,
-                            challengeId
-                        )
+                        circleWalletManager.circleWalletSdk?.let { walletSdk ->
+
+                            onExecute(
+                                walletSdk,
+                                userToken,
+                                encryptionKey,
+                                challengeId
+                            )
+                        }
+
                     }
 
                 }
-
             }
-
+        } ?: run {
+            Log.i(TAG, "[transfer] device does not exist")
         }
+
     }
 
     init {
