@@ -126,7 +126,7 @@ fun LoginPassword(
 
                             welcomeOverlayVisible = true
 
-                            delay(250)
+                            delay(2250)
                         }
 
                         loginActivity?.authClientAndFinish(
@@ -259,9 +259,9 @@ fun LoginPassword(
         }
     }
 
-    WelcomeAnimatedOverlayLogin(
-        isVisible = welcomeOverlayVisible
-    )
+    if (welcomeOverlayVisible) {
+        WelcomeAnimatedOverlayLogin()
+    }
 }
 
 @Composable

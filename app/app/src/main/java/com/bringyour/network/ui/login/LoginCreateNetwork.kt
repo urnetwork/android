@@ -219,7 +219,7 @@ fun LoginCreateNetwork(
 
                     welcomeOverlayVisible = true
 
-                    delay(250)
+                    delay(2250)
 
                     loginActivity?.authClientAndFinish(
                         { error ->
@@ -398,9 +398,10 @@ fun LoginCreateNetwork(
     }
 
 
-    WelcomeAnimatedOverlayLogin(
-        isVisible = welcomeOverlayVisible
-    )
+    if (welcomeOverlayVisible) {
+        WelcomeAnimatedOverlayLogin()
+    }
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)

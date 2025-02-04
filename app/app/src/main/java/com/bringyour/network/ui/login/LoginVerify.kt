@@ -144,7 +144,7 @@ fun LoginVerify(
 
                         welcomeOverlayVisible = true
 
-                        delay(250)
+                        delay(2250)
                     }
 
                     loginActivity?.authClientAndFinish({ error ->
@@ -348,9 +348,9 @@ fun LoginVerify(
         }
     }
 
-    WelcomeAnimatedOverlayLogin(
-        isVisible = welcomeOverlayVisible
-    )
+    if (welcomeOverlayVisible) {
+        WelcomeAnimatedOverlayLogin()
+    }
 }
 
 @Composable
