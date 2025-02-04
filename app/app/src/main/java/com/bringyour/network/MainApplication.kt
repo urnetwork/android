@@ -80,7 +80,7 @@ class MainApplication : Application() {
     var devicesVc: DevicesViewController? = null
     var accountVc: AccountViewController? = null
 
-    var tunnelRequestStatus: TunnelRequestStatus = TunnelRequestStatus.None
+//    var tunnelRequestStatus: TunnelRequestStatus = TunnelRequestStatus.None
 
     @Inject
     lateinit var deviceManager: DeviceManager
@@ -441,7 +441,7 @@ class MainApplication : Application() {
 
                 if (!tunnelStarted) {
                     // the tunnel stopped. Sync with state
-                    tunnelRequestStatus = TunnelRequestStatus.None
+//                    tunnelRequestStatus = TunnelRequestStatus.None
                     updateVpnService()
                 }
             }
@@ -565,9 +565,9 @@ class MainApplication : Application() {
     }
 
     private fun startVpnServiceWithForeground(foreground: Boolean) {
-        if (tunnelRequestStatus == TunnelRequestStatus.Started) {
-            return
-        }
+//        if (tunnelRequestStatus == TunnelRequestStatus.Started) {
+//            return
+//        }
 
 
         val device = device ?: return
@@ -629,7 +629,7 @@ class MainApplication : Application() {
                         startService(vpnIntent)
                     }
 
-                    tunnelRequestStatus = TunnelRequestStatus.Started
+//                    tunnelRequestStatus = TunnelRequestStatus.Started
                     vpnRequestStart = false
                 }
             }
@@ -647,9 +647,9 @@ class MainApplication : Application() {
     private fun stopVpnService() {
         vpnRequestStart = false
 
-        if (tunnelRequestStatus == TunnelRequestStatus.Stopped) {
-            return
-        }
+//        if (tunnelRequestStatus == TunnelRequestStatus.Stopped) {
+//            return
+//        }
 
         // note
         // - using startService with stop intent to stop the service is broken
@@ -662,7 +662,7 @@ class MainApplication : Application() {
         // using a weak reference to the service is strangely the cleanest approach
 
         service?.get()?.stop()
-        tunnelRequestStatus = TunnelRequestStatus.Stopped
+//        tunnelRequestStatus = TunnelRequestStatus.Stopped
 
 
 //        val vpnIntent = Intent(this, MainService::class.java)
@@ -684,6 +684,6 @@ class MainApplication : Application() {
     }
 }
 
-enum class TunnelRequestStatus {
-    Started, Stopped, None
-}
+//enum class TunnelRequestStatus {
+//    Started, Stopped, None
+//}
