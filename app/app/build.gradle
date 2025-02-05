@@ -63,7 +63,7 @@ android {
         def out = new ByteArrayOutputStream()
         exec {
             executable "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl"
-            args 'ls', 'version', '-b'
+            args 'ls', 'version'
             standardOutput out
         }
         out.toString().trim()
