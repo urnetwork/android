@@ -216,6 +216,12 @@ fun LoginInitial(
                         setGuestModeOverlayVisible(false)
                     } else {
                         contentVisible = false
+
+                        delay(500)
+
+                        welcomeOverlayVisible = true
+
+                        delay(2250)
                     }
 
                     loginActivity?.authClientAndFinish(
