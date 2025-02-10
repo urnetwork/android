@@ -20,6 +20,8 @@ import com.bringyour.sdk.ValidateAddressCallback
 import com.bringyour.sdk.WalletViewController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
+import com.bringyour.network.utils.formatDecimalString
+import com.bringyour.network.utils.roundToDecimals
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -361,7 +363,9 @@ class WalletViewModel @Inject constructor(
                 val payout = result.get(i)
                 updatedPayouts.add(payout)
 
-                totalPayoutsUsdc += String.format("%.4f", payout.tokenAmount).toDouble()
+                payout.tokenAmount
+                
+                totalPayoutsUsdc += payout.tokenAmount.roundToDecimals(4)
             }
 
             payouts = updatedPayouts
@@ -432,7 +436,7 @@ class WalletViewModel @Inject constructor(
     val addUnpaidByteCountListener = {
         walletVc?.addUnpaidByteCountListener{ ubc ->
             viewModelScope.launch(Dispatchers.Main) {
-                unpaidMegaByteCount = String.format("%.4f", ubc / (1024.0 * 1024.0))
+                unpaidMegaByteCount = formatDecimalString(ubc / (1024.0 * 1024.0), 4)
                 transferStatsRefreshed = true
                 if (isRefreshingWallets && paymentsRefreshed) {
                         setIsRefreshingWallets(false)

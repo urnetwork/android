@@ -66,6 +66,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueMontreal
+import com.bringyour.network.utils.formatDecimalString
 import com.bringyour.network.utils.isTablet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -354,7 +355,7 @@ fun CircleTransferSheetContent(
                         }
 
                         Text(
-                            String.format("%.2f", walletBalance),
+                            formatDecimalString(walletBalance, 2),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
