@@ -321,6 +321,10 @@ fun WalletsScreen(
                                 }
                             } else {
 
+                                /**
+                                 * Wallets Populated
+                                 */
+
                                 Row(
                                     modifier = Modifier
                                         .padding(16.dp)

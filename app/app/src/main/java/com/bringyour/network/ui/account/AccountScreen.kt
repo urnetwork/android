@@ -57,6 +57,7 @@ import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.formatDecimalString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -275,7 +276,7 @@ fun AccountScreenContent(
                                         verticalAlignment = Alignment.Bottom,
                                     ) {
 
-                                        Text(if (totalPayoutAmount <= 0) "0" else String.format("%.4f", totalPayoutAmount),
+                                        Text(if (totalPayoutAmount <= 0) "0" else formatDecimalString(totalPayoutAmount, 4),
                                             style = MaterialTheme.typography.headlineMedium
                                         )
 
