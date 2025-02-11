@@ -66,6 +66,7 @@ import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.utils.formatDecimalString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -410,7 +411,7 @@ fun CircleWalletScreenContent(
                             verticalAlignment = Alignment.Bottom
                         ) {
                             Text(
-                                String.format("%.2f", walletBalance),
+                                formatDecimalString(walletBalance, 2),
                                 style = HeadingLargeCondensed
                             )
 

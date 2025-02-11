@@ -35,6 +35,7 @@ import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import com.bringyour.network.utils.formatDecimalString
 import com.bringyour.sdk.AccountPayment
 
 @Composable
@@ -52,7 +53,7 @@ fun WalletCard(
     val totalPayouts = if (walletPayments.isEmpty()) {
         "0.00"
     } else {
-        String.format("%.4f", walletPayments.sumOf { it.tokenAmount })
+        formatDecimalString(walletPayments.sumOf { it.tokenAmount }, 4)
     }
 
     val walletType = if (isCircleWallet) "Circle"
