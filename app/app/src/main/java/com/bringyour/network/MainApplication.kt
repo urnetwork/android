@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import android.app.ActivityManager
 import android.app.Application
 import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Intent
@@ -16,20 +17,19 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.sdk.AccountViewController
-import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.DevicesViewController
 import com.bringyour.sdk.LoginViewController
-import dagger.hilt.android.HiltAndroidApp
 import com.bringyour.sdk.NetworkSpace
+import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
+import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
 import javax.inject.Inject
+
 
 @HiltAndroidApp
 class MainApplication : Application() {
@@ -118,7 +118,10 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Sdk.setMemoryLimit(128 * 1024 * 1024)
+        val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
+        val maxMemoryMib = activityManager?.memoryClass ?: 16
+        // target 3/4 of the max memory for the sdk
+        Sdk.setMemoryLimit(3 * maxMemoryMib * 1024 * 1024 / 4)
 
         networkSpaceManagerProvider.init(filesDir.absolutePath)
 
