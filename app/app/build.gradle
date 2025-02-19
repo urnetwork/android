@@ -60,13 +60,15 @@ android {
                 osArch = 'arm64'
                 break
         }
-        def out = new ByteArrayOutputStream()
-        exec {
-            executable "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl"
-            args 'ls', 'version'
-            standardOutput out
-        }
-        out.toString().trim()
+
+        def b = new ProcessBuilder(
+            "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl",
+            'ls',
+            'version'
+        )
+        b.redirectErrorStream()
+        def p = b.start()
+        new String(p.inputStream.readAllBytes()).trim()
     }
     ext.appVersionCode = { ->
         // hours since company founding
@@ -93,6 +95,7 @@ android {
         ndk {
             debugSymbolLevel 'SYMBOL_TABLE'
         }
+
     }
 
     signingConfigs {
