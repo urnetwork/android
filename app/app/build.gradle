@@ -24,6 +24,7 @@ import org.yaml.snakeyaml.Yaml
 
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
 
+
 ext.envSecret = { envName ->
     def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
     if (servicesFile.exists()) {
@@ -274,6 +275,7 @@ android {
     tasks.register('goclientBuild', Exec) {
         workingDir "${bringyourHomeDir}/sdk"
         commandLine 'make', 'init', 'build_android'
+        environment 'WARP_VERSION', appVersion()
     }
 
     tasks.withType(JavaCompile).tap {
