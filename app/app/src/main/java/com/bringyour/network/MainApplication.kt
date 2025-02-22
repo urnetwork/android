@@ -561,10 +561,12 @@ class MainApplication : Application() {
         // FIXME tunnel request status
 
     fun startVpnService() {
+        val device = device ?: return
+
         // note starting in Android 15, boot completed receivers cannot start foreground services
         // the app will not allow foreground until the activity is explicitly opened
         // see https://developer.android.com/about/versions/15/behavior-changes-15#fgs-boot-completed
-        startVpnServiceWithForeground(allowForeground)
+        startVpnServiceWithForeground(allowForeground && device.providerEnabled)
     }
 
     private fun startVpnServiceWithForeground(foreground: Boolean) {
