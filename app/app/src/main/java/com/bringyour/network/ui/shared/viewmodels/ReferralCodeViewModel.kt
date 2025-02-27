@@ -21,7 +21,7 @@ class ReferralCodeViewModel @Inject constructor(
 
     val addReferralCodeListener = {
         referralCodeVc?.addReferralCodeListener { code ->
-            referralLink = "https://ur.io/app?bonus=$code"
+            referralLink = "https://ur.io/c?bonus=$code"
         }
     }
 
