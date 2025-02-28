@@ -236,4 +236,5 @@
     <string name="switch_account">アカウントを切り替える</string>
     <string name="switch_account_details">%1$s から切断してアカウントを切り替えますか？</string>
     <string name="auth_code_loading">認証コードを読み込んでいます</string>
+    <string name="network_create_bonus_message">誰かがあなたを招待しています 🥳\\nネットワークを作成してボーナスを獲得しましょう！</string>
 </resources>

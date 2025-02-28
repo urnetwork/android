@@ -395,7 +395,7 @@ fun LoginCreateNetwork(
 
                         ) {
                             Text(
-                                "Someone invited you to join \uD83E\uDD73 \nClaim your bonus by creating a network!",
+                                stringResource(id = R.string.network_create_bonus_message),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }

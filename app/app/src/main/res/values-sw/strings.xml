@@ -214,4 +214,5 @@
     <string name="switch_account">Badilisha Akaunti</string>
     <string name="switch_account_details">Je, unataka kukata muunganisho kutoka %1$s na kubadilisha akaunti?</string>
     <string name="auth_code_loading">Kupakia msimbo wa uthibitishaji</string>
+    <string name="network_create_bonus_message">Mtu fulani amekualika kujiunga 🥳\\nDai bonasi yako kwa kuunda mtandao!</string>
 </resources>
