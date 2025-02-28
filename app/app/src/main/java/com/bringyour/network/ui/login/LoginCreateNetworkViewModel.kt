@@ -121,6 +121,10 @@ class LoginCreateNetworkViewModel @Inject constructor(
         args.networkName = networkName.text.trim()
         args.terms = termsAgreed
 
+        if (params.referralCode != null) {
+            args.referralCode = Sdk.parseId(params.referralCode)
+        }
+
         when(params) {
             is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
                 args.userAuth = emailOrPhone.text.trim()

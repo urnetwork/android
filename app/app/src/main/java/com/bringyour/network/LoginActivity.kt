@@ -36,6 +36,8 @@ class LoginActivity : AppCompatActivity() {
 
 
     private var referrerClient: InstallReferrerClient? = null
+    private var referralCode: String? = null
+
     private val loginViewModel: LoginViewModel by viewModels()
 
     private var promptAccountSwitch = false
@@ -110,6 +112,7 @@ class LoginActivity : AppCompatActivity() {
                                             details.installReferrer?.let {
                                                 val u = Uri.parse(it)
                                                 if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c") {
+                                                    Log.i(TAG, "referrerClient createWithUri $u")
                                                     createWithUri(Uri.parse(it))
                                                 }
                                             }
@@ -146,7 +149,8 @@ class LoginActivity : AppCompatActivity() {
                     targetJwt = targetJwt,
                     currentNetworkName = currentNetworkName,
                     switchToGuestMode = switchToGuestMode,
-                    isLoadingAuthCode = isLoadingAuthCode
+                    isLoadingAuthCode = isLoadingAuthCode,
+                    referralCode = referralCode
                 )
             }
         }
@@ -169,6 +173,7 @@ class LoginActivity : AppCompatActivity() {
         }
         val authCode = queryParameters.remove("auth_code")
         val guest = queryParameters.remove("guest").toBoolean()
+        referralCode = queryParameters.remove("bonus")
         targetUrl = queryParameters.remove("target")
 
         val urlString = uri.toString()
