@@ -195,5 +195,5 @@
     <string name="switch_account">Switch Account</string>
     <string name="switch_account_details">Do you want to disconnect from %1$s and switch accounts?</string>
     <string name="auth_code_loading">Auth code loading</string>
-    <string name="network_create_bonus_message">Someone invited you to join \\uD83E\\uDD73 \\nClaim your bonus by creating a network!</string>
+    <string name="network_create_bonus_message">Someone invited you to join 🥳 \nClaim your bonus by creating a network!</string>
 </resources>
