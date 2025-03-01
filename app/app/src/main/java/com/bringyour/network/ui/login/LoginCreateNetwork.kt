@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -72,23 +72,29 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.utils.isTv
 
 // Base class with common parameters
 open class CommonLoginParams(
     val userAuth: String,
+    var referralCode: String?
 )
 
 // Sealed class with specific parameters, properly initializing the base class
 sealed class LoginCreateNetworkParams(
     userAuth: String,
+    referralCode: String?
 ) : CommonLoginParams(
     userAuth,
+    referralCode
 ) {
      class LoginCreateUserAuthParams(
         userAuth: String,
+        referralCode: String?
     ) : LoginCreateNetworkParams(
         userAuth,
+        referralCode
     )
 
      class LoginCreateAuthJwtParams(
@@ -96,8 +102,10 @@ sealed class LoginCreateNetworkParams(
         val authJwtType: String,
         val userName: String,
         userAuth: String,
+        referralCode: String?
     ) : LoginCreateNetworkParams(
          userAuth,
+         referralCode
     )
 }
 
@@ -372,6 +380,27 @@ fun LoginCreateNetwork(
                         )
                     }
 
+                    if (params.referralCode != null) {
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    MainTintedBackgroundBase,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 16.dp, vertical = 16.dp)
+
+                        ) {
+                            Text(
+                                stringResource(id = R.string.network_create_bonus_message),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(48.dp))
 
                     NetworkCreateForm(
@@ -538,6 +567,7 @@ private fun LoginNetworkCreatePreview() {
 
     val params = LoginCreateNetworkParams.LoginCreateUserAuthParams(
         userAuth = "hello@urnetwork.com",
+        referralCode = "1234567890"
     )
 
     val navController = rememberNavController()

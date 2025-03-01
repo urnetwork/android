@@ -213,4 +213,5 @@
     <string name="switch_account">Cambiar cuenta</string>
     <string name="switch_account_details">¿Quieres desconectarte de %1$s y cambiar de cuenta?</string>
     <string name="auth_code_loading">Cargando código de autenticación</string>
+    <string name="network_create_bonus_message">¡Alguien te invitó a unirte 🥳\\n¡Reclama tu bonificación creando una red!</string>
 </resources>

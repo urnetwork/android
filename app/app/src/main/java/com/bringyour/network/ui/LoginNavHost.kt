@@ -38,6 +38,7 @@ fun LoginNavHost(
     targetJwt: String? = null,
     switchToGuestMode: Boolean,
     isLoadingAuthCode: Boolean,
+    referralCode: String?,
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
@@ -112,6 +113,7 @@ fun LoginNavHost(
 
                         val createNetworkParams = LoginCreateNetworkParams.LoginCreateUserAuthParams(
                             userAuth = userAuth,
+                            referralCode = referralCode
                         )
 
                         LoginCreateNetwork(
@@ -131,7 +133,8 @@ fun LoginNavHost(
                             userAuth = userAuth,
                             authJwtType = authJwtType,
                             authJwt = authJwt,
-                            userName = userName
+                            userName = userName,
+                            referralCode = referralCode
                         )
 
                         LoginCreateNetwork(
