@@ -18,3 +18,14 @@ To take a screencap
 ```
 adb -s XXX exec-out screencap -p > screen.png
 ```
+
+### Generate a debug keystore
+
+If you get an assemble error below, run the following command.
+
+```
+# android > Keystore file '$HOME/.android/debug.keystore' not found for signing config 'debug'.
+cd ~/.android
+keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000
+```
+
