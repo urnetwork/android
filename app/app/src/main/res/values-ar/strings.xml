@@ -201,4 +201,7 @@
     <string name="switch_account_details">هل تريد قطع الاتصال من %1$s والتبديل بين الحسابات؟</string>
     <string name="auth_code_loading">تحميل رمز المصادقة</string>
     <string name="network_create_bonus_message">شخص ما دعاك للانضمام 🥳\\nاحصل على مكافأتك عن طريق إنشاء شبكة!</string>
+    <string name="delete_account">حذف الحساب</string>
+    <string name="sorry_to_see_you_go">نحن آسفون لرؤيتك تذهب!</string>
+    <string name="are_you_sure_delete_account">هل أنت متأكد أنك تريد حذف حسابك؟</string>
 </resources>

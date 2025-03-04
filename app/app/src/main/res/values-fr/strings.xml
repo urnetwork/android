@@ -216,4 +216,7 @@
     <string name="switch_account_details">Voulez-vous vous déconnecter de %1$s et changer de compte ?</string>
     <string name="auth_code_loading">Chargement du code d\'authentification</string>
     <string name="network_create_bonus_message">Quelqu\\\'un t\\\'a invité à rejoindre 🥳\\nRéclame ton bonus en créant un réseau !</string>
+    <string name="delete_account">Supprimer le compte</string>
+    <string name="sorry_to_see_you_go">Nous sommes désolés de vous voir partir !</string>
+    <string name="are_you_sure_delete_account">Êtes-vous sûr de vouloir supprimer votre compte ?</string>
 </resources>

@@ -204,4 +204,7 @@
     <string name="switch_account_details">Möchten Sie die Verbindung zu %1$s trennen und das Konto wechseln?</string>
     <string name="auth_code_loading">Auth-Code wird geladen</string>
     <string name="network_create_bonus_message">Jemand hat dich zum Mitmachen eingeladen 🥳\\nSichere dir deinen Bonus durch die Erstellung eines Netzwerks!</string>
+    <string name="delete_account">Konto löschen</string>
+    <string name="sorry_to_see_you_go">Wir bedauern, dass Sie gehen!</string>
+    <string name="are_you_sure_delete_account">Sind Sie sicher, dass Sie Ihr Konto löschen möchten?</string>
 </resources>

@@ -237,5 +237,8 @@
     <string name="switch_account_details">Czy chcesz rozłączyć się z %1$s i przełączyć konta?</string>
     <string name="auth_code_loading">Ładowanie kodu uwierzytelniającego</string>
     <string name="network_create_bonus_message">Ktoś zaprosił Cię do dołączenia 🥳\\nOdbierz swój bonus tworząc sieć!</string>
+    <string name="delete_account">Usuń konto</string>
+    <string name="sorry_to_see_you_go">Przykro nam, że odchodzisz!</string>
+    <string name="are_you_sure_delete_account">Czy na pewno chcesz usunąć swoje konto?</string>
 
 </resources>

@@ -35,6 +35,16 @@ class SettingsViewModel @Inject constructor(
     private val _requestPermission = MutableStateFlow(false)
     val requestPermission: StateFlow<Boolean> = _requestPermission
 
+    private val _showDeleteAccountDialog = MutableStateFlow(false)
+    val showDeleteAccountDialog: StateFlow<Boolean> = _showDeleteAccountDialog
+
+    val setShowDeleteAccountDialog: (Boolean) -> Unit = { show ->
+        _showDeleteAccountDialog.value = show
+    }
+
+    private val _isDeletingAccount = MutableStateFlow(false)
+    val isDeletingAccount: StateFlow<Boolean> = _isDeletingAccount
+
     var notificationsPermanentlyDenied by mutableStateOf(false)
 
     val setNotificationsPermanentlyDenied: (Boolean) -> Unit = { pd ->
@@ -106,6 +116,28 @@ class SettingsViewModel @Inject constructor(
         val currentProvideWhileDisconnected = provideWhileDisconnected
         deviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
         provideWhileDisconnected = !currentProvideWhileDisconnected
+    }
+
+    val deleteAccount: (
+            onSuccess: () -> Unit,
+            onFailure: (Exception?) -> Unit
+            ) -> Unit = { onSuccess, onFailure ->
+
+                _isDeletingAccount.value = true
+
+        deviceManager.device?.api?.networkDelete { _, exception ->
+
+            viewModelScope.launch {
+
+                if (exception != null) {
+                    onFailure(exception)
+                } else {
+                    onSuccess()
+                }
+                _isDeletingAccount.value = false
+
+            }
+        }
     }
 
     init {

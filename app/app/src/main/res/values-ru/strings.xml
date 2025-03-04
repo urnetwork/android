@@ -237,4 +237,7 @@
     <string name="switch_account_details">Вы хотите отключиться от %1$s и сменить аккаунт?</string>
     <string name="auth_code_loading">Загрузка кода аутентификации</string>
     <string name="network_create_bonus_message">Кто-то пригласил вас присоединиться 🥳\\nПолучите свой бонус, создав сеть!</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="sorry_to_see_you_go">Нам жаль, что вы уходите!</string>
+    <string name="are_you_sure_delete_account">Вы уверены, что хотите удалить свою учетную запись?</string>
 </resources>

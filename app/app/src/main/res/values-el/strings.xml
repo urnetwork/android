@@ -214,4 +214,7 @@
     <string name="switch_account_details">Θέλετε να αποσυνδεθείτε από το %1$s και να αλλάξετε λογαριασμούς;</string>
     <string name="auth_code_loading">Φόρτωση κωδικού ελέγχου ταυτότητας</string>
     <string name="network_create_bonus_message">Κάποιος σε προσκάλεσε να συμμετάσχεις 🥳\\nΔιεκδίκησε το μπόνους σου δημιουργώντας ένα δίκτυο!</string>
+    <string name="delete_account">Διαγραφή λογαριασμού</string>
+    <string name="sorry_to_see_you_go">Λυπούμαστε που φεύγετε!</string>
+    <string name="are_you_sure_delete_account">Είστε βέβαιοι ότι θέλετε να διαγράψετε τον λογαριασμό σας;</string>
 </resources>

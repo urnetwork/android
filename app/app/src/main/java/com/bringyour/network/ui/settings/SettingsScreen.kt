@@ -1,7 +1,9 @@
 package com.bringyour.network.ui.settings
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,18 +15,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -51,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.components.URLinkText
@@ -62,7 +71,10 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.account.UpgradePlanBottomSheet
+import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -81,6 +93,7 @@ fun SettingsScreen(
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
     val currentPlan = planViewModel.currentPlan.collectAsState().value
+    val showDeleteAccountDialog = settingsViewModel.showDeleteAccountDialog.collectAsState().value
 
     val scope = rememberCoroutineScope()
 
@@ -111,7 +124,11 @@ fun SettingsScreen(
         provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
         toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
         urIdUrl = settingsViewModel.urIdUrl,
-        expandUpgradePlanSheet = expandUpgradePlanSheet
+        expandUpgradePlanSheet = expandUpgradePlanSheet,
+        showDeleteAccountDialog = showDeleteAccountDialog,
+        setShowDeleteAccountDialog = settingsViewModel.setShowDeleteAccountDialog,
+        deleteAccount = settingsViewModel.deleteAccount,
+        isDeletingAccount = settingsViewModel.isDeletingAccount.collectAsState().value
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -141,11 +158,16 @@ fun SettingsScreen(
     provideWhileDisconnected: Boolean,
     toggleProvideWhileDisconnected: () -> Unit,
     urIdUrl: (String) -> String?,
-    expandUpgradePlanSheet: () -> Unit
+    expandUpgradePlanSheet: () -> Unit,
+    setShowDeleteAccountDialog: (Boolean) -> Unit = {},
+    showDeleteAccountDialog: Boolean,
+    deleteAccount: (onSuccess: () -> Unit, onFailure: (Exception?) -> Unit) -> Unit,
+    isDeletingAccount: Boolean
 ) {
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+    val application = context.applicationContext as? MainApplication
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
@@ -177,7 +199,6 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
                 .padding(16.dp)
-                // .imePadding()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -454,13 +475,116 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row{
+                URButton(
+                    onClick = {
+                        setShowDeleteAccountDialog(true)
+                    },
+                    style = ButtonStyle.WARNING
+                ) { buttonTextStyle ->
+                    Text(
+                        stringResource(id = R.string.delete_account),
+                        style = buttonTextStyle
+                    )
+                }
+            }
+
         }
+
+        if (showDeleteAccountDialog) {
+            BasicAlertDialog(
+                onDismissRequest = {
+                    setShowDeleteAccountDialog(false)
+                },
+            ) {
+
+                Surface(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .wrapContentHeight(),
+                    shape = MaterialTheme.shapes.large,
+                    tonalElevation = AlertDialogDefaults.TonalElevation
+                ) {
+
+                    Column(modifier = Modifier.padding(16.dp)) {
+
+
+                        Row {
+                            Text(
+                                stringResource(id = R.string.delete_account),
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row {
+                            Text(
+                                stringResource(id = R.string.sorry_to_see_you_go),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row {
+                            Text(
+                                stringResource(id = R.string.are_you_sure_delete_account),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row {
+                            URButton(
+                                onClick = {
+
+                                    deleteAccount(
+                                        {
+                                            setShowDeleteAccountDialog(false)
+
+                                            application?.logout()
+
+                                            val intent = Intent(context, LoginActivity::class.java)
+                                            context.startActivity(intent)
+
+                                            (context as? Activity)?.finish()
+
+                                        },
+                                        { exception ->
+                                            Log.i(TAG, "Error deleting account: ${exception?.message}")
+                                            setShowDeleteAccountDialog(false)
+                                            // todo: snackbar show error
+                                        }
+                                    )
+                                },
+                                style = ButtonStyle.WARNING,
+                                enabled = !isDeletingAccount,
+                                isProcessing = isDeletingAccount
+                            ) { buttonTextStyle ->
+                                Text(
+                                    stringResource(id = R.string.delete_account),
+                                    style = buttonTextStyle
+                                )
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+
     }
 }
 
 @Preview
 @Composable
-fun SettingsScreenPreview() {
+private fun SettingsScreenPreview() {
     val navController = rememberNavController()
     URNetworkTheme {
         SettingsScreen(
@@ -475,14 +599,18 @@ fun SettingsScreenPreview() {
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {}
+            expandUpgradePlanSheet = {},
+            showDeleteAccountDialog = false,
+            setShowDeleteAccountDialog = {},
+            deleteAccount = { onSuccess, onFailure -> },
+            isDeletingAccount = false
         )
     }
 }
 
 @Preview
 @Composable
-fun SettingsScreenSupporterPreview() {
+private fun SettingsScreenSupporterPreview() {
     val navController = rememberNavController()
     URNetworkTheme {
         SettingsScreen(
@@ -497,14 +625,18 @@ fun SettingsScreenSupporterPreview() {
             provideWhileDisconnected = false,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {}
+            expandUpgradePlanSheet = {},
+            showDeleteAccountDialog = false,
+            setShowDeleteAccountDialog = {},
+            deleteAccount = { onSuccess, onFailure -> },
+            isDeletingAccount = false
         )
     }
 }
 
 @Preview
 @Composable
-fun SettingsScreenNotificationsDisabledPreview() {
+private fun SettingsScreenNotificationsDisabledPreview() {
     val navController = rememberNavController()
     URNetworkTheme {
         SettingsScreen(
@@ -519,14 +651,18 @@ fun SettingsScreenNotificationsDisabledPreview() {
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {}
+            expandUpgradePlanSheet = {},
+            showDeleteAccountDialog = false,
+            setShowDeleteAccountDialog = {},
+            deleteAccount = { onSuccess, onFailure -> },
+            isDeletingAccount = false
         )
     }
 }
 
 @Preview
 @Composable
-fun SettingsScreenNotificationsAllowedPreview() {
+private fun SettingsScreenNotificationsAllowedPreview() {
     val navController = rememberNavController()
     URNetworkTheme {
         SettingsScreen(
@@ -541,7 +677,37 @@ fun SettingsScreenNotificationsAllowedPreview() {
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {}
+            expandUpgradePlanSheet = {},
+            showDeleteAccountDialog = false,
+            setShowDeleteAccountDialog = {},
+            deleteAccount = { onSuccess, onFailure -> },
+            isDeletingAccount = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun SettingsScreenDeleteAccountDialogPreview() {
+    val navController = rememberNavController()
+    URNetworkTheme {
+        SettingsScreen(
+            navController,
+            clientId = "0000abc0-1111-0000-a123-000000abc000",
+            currentPlan = Plan.Supporter,
+            notificationsAllowed = false,
+            notificationsPermanentlyDenied = false,
+            requestAllowNotifications = {},
+            allowProductUpdates = false,
+            updateAllowProductUpdates = {},
+            provideWhileDisconnected = true,
+            toggleProvideWhileDisconnected = {},
+            urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
+            expandUpgradePlanSheet = {},
+            showDeleteAccountDialog = true,
+            setShowDeleteAccountDialog = {},
+            deleteAccount = { onSuccess, onFailure -> },
+            isDeletingAccount = false
         )
     }
 }

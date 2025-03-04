@@ -215,4 +215,7 @@
     <string name="switch_account_details">Je, unataka kukata muunganisho kutoka %1$s na kubadilisha akaunti?</string>
     <string name="auth_code_loading">Kupakia msimbo wa uthibitishaji</string>
     <string name="network_create_bonus_message">Mtu fulani amekualika kujiunga 🥳\\nDai bonasi yako kwa kuunda mtandao!</string>
+    <string name="delete_account">Futa akaunti</string>
+    <string name="sorry_to_see_you_go">Samahani kuona ukienda!</string>
+    <string name="are_you_sure_delete_account">Una uhakika unataka kufuta akaunti yako?</string>
 </resources>
