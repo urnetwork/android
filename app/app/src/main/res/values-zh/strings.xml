@@ -215,4 +215,7 @@
     <string name="switch_account_details">您要断开与 %1$s 的连接并切换帐户吗？</string>
     <string name="auth_code_loading">正在加载身份验证代码</string>
     <string name="network_create_bonus_message">有人邀请你加入 🥳\\n创建网络即可领取你的奖励！</string>
+    <string name="delete_account">删除帐户</string>
+    <string name="sorry_to_see_you_go">我们很遗憾看到你离开！</string>
+    <string name="are_you_sure_delete_account">您确定要删除您的帐户吗？</string>
 </resources>

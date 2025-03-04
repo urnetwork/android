@@ -27,13 +27,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 
 enum class ButtonStyle {
-    PRIMARY, SECONDARY, OUTLINE
+    PRIMARY, SECONDARY, OUTLINE, WARNING
 }
 
 val buttonTextStyle = TextStyle(
@@ -66,8 +67,11 @@ fun URButton(
         )
         ButtonStyle.OUTLINE -> ButtonDefaults.buttonColors(
             containerColor = if (isFocused) BlueMedium.copy(alpha = 0.5f) else Color.Transparent,
-            // containerColor = Color.Transparent,
             contentColor = TextMuted
+        )
+        ButtonStyle.WARNING -> ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = Red
         )
     }
 
@@ -76,6 +80,9 @@ fun URButton(
             .fillMaxWidth()
         ButtonStyle.SECONDARY -> Modifier
             .fillMaxWidth()
+        ButtonStyle.WARNING -> Modifier
+            .fillMaxWidth()
+            .border(1.dp, Red, RoundedCornerShape(100))
         ButtonStyle.OUTLINE -> when(enabled) {
             true -> Modifier
                 .border(1.dp, borderColor ?: TextFaint, RoundedCornerShape(100))
@@ -156,6 +163,19 @@ private fun OutlineButtonPreview() {
     URNetworkTheme {
         URButton(
             style = ButtonStyle.OUTLINE,
+            onClick = {}
+        ) { buttonTextStyle ->
+            Text("Disconnect", style = buttonTextStyle)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun WarningButtonPreview() {
+    URNetworkTheme {
+        URButton(
+            style = ButtonStyle.WARNING,
             onClick = {}
         ) { buttonTextStyle ->
             Text("Disconnect", style = buttonTextStyle)
