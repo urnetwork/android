@@ -240,5 +240,12 @@
     <string name="delete_account">Usuń konto</string>
     <string name="sorry_to_see_you_go">Przykro nam, że odchodzisz!</string>
     <string name="are_you_sure_delete_account">Czy na pewno chcesz usunąć swoje konto?</string>
+    <string name="reconnect_tunnel_status_indicator">Tunel VPN rozłączony 😓</string>
+    <string name="disconnect">Rozłącz</string>
+    <string name="reconnect">Połącz ponownie</string>
+    <string name="connecting_status_indicator">Łączenie z dostawcami...</string>
+    <string name="connected_provider_count">Połączono z %d dostawcami</string>
+    <string name="ready_to_connect">Gotowy do połączenia</string>
+    <string name="network_name_ready_to_connect">%s jest gotowy do połączenia</string>
 
 </resources>

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -25,24 +26,25 @@ fun ConnectStatusIndicator(
     guestMode: Boolean,
     status: ConnectStatus,
     windowCurrentSize: Int,
+    displayReconnectTunnel: Boolean
 ) {
 
-    val text = when(status) {
-        ConnectStatus.CONNECTED -> "Connected to $windowCurrentSize providers"
-        ConnectStatus.CONNECTING -> "Connecting to providers..."
-        ConnectStatus.DESTINATION_SET -> "Connecting to providers..."
-        ConnectStatus.DISCONNECTED -> if (guestMode) "Ready to connect" else if (networkName != null) "$networkName is ready to connect"
+    val text = if (displayReconnectTunnel) stringResource(id = R.string.reconnect_tunnel_status_indicator) else when(status) {
+        ConnectStatus.CONNECTED -> stringResource(id = R.string.connected_provider_count, windowCurrentSize)
+        ConnectStatus.CONNECTING -> stringResource(id = R.string.connecting_status_indicator)
+        ConnectStatus.DESTINATION_SET -> stringResource(id = R.string.connecting_status_indicator)
+        ConnectStatus.DISCONNECTED -> if (guestMode) stringResource(id = R.string.ready_to_connect) else if (networkName != null) stringResource(id = R.string.network_name_ready_to_connect, networkName)
         else ""
     }
 
-    val indicatorId = when(status) {
+    val indicatorId = if (displayReconnectTunnel) R.drawable.circle_indicator_yellow else when(status) {
         ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
         ConnectStatus.CONNECTING -> R.drawable.circle_indicator_yellow
         ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
         ConnectStatus.DISCONNECTED -> R.drawable.circle_indicator_blue
     }
 
-    val indicatorDescription = when(status) {
+    val indicatorDescription = if (displayReconnectTunnel) "Reconnect" else when(status) {
         ConnectStatus.CONNECTED -> "Connected"
         ConnectStatus.CONNECTING -> "Connecting"
         ConnectStatus.DESTINATION_SET -> "Connecting"
@@ -82,6 +84,7 @@ fun ConnectStatusIndicatorDisconnected() {
             windowCurrentSize = 0,
             networkName = "my_network",
             guestMode = false,
+            displayReconnectTunnel = false
         )
     }
 }
@@ -94,7 +97,8 @@ fun ConnectStatusIndicatorConnecting() {
             status = ConnectStatus.CONNECTING,
             windowCurrentSize = 12,
             networkName = "my_network",
-            guestMode = false
+            guestMode = false,
+            displayReconnectTunnel = false
         )
     }
 }
@@ -107,7 +111,8 @@ fun ConnectStatusIndicatorConnected() {
             status = ConnectStatus.CONNECTED,
             windowCurrentSize = 32,
             networkName = "my_network",
-            guestMode = false
+            guestMode = false,
+            displayReconnectTunnel = false
         )
     }
 }
@@ -120,7 +125,22 @@ fun ConnectStatusIndicatorGuestMode() {
             status = ConnectStatus.DISCONNECTED,
             windowCurrentSize = 32,
             networkName = "guest1244567",
-            guestMode = true
+            guestMode = true,
+            displayReconnectTunnel = false
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ConnectStatusIndicatorReconnectTunnel() {
+    URNetworkTheme {
+        ConnectStatusIndicator(
+            status = ConnectStatus.CONNECTED,
+            windowCurrentSize = 32,
+            networkName = "guest1244567",
+            guestMode = false,
+            displayReconnectTunnel = true
         )
     }
 }

@@ -240,4 +240,11 @@
     <string name="delete_account">Удалить аккаунт</string>
     <string name="sorry_to_see_you_go">Нам жаль, что вы уходите!</string>
     <string name="are_you_sure_delete_account">Вы уверены, что хотите удалить свою учетную запись?</string>
+    <string name="reconnect_tunnel_status_indicator">VPN-туннель отключен 😓</string>
+    <string name="disconnect">Отключить</string>
+    <string name="reconnect">Переподключиться</string>
+    <string name="connecting_status_indicator">Подключение к провайдерам...</string>
+    <string name="connected_provider_count">Подключено к %d провайдерам</string>
+    <string name="ready_to_connect">Готов к подключению</string>
+    <string name="network_name_ready_to_connect">%s готова к подключению</string>
 </resources>

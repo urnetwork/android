@@ -199,4 +199,11 @@
     <string name="delete_account">Delete Account</string>
     <string name="sorry_to_see_you_go">We\'re sorry to see you go!</string>
     <string name="are_you_sure_delete_account">Are you sure you want to delete your account?</string>
+    <string name="reconnect_tunnel_status_indicator">VPN tunnel disconnected 😓</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="reconnect">Reconnect</string>
+    <string name="connecting_status_indicator">Connecting to providers...</string>
+    <string name="connected_provider_count">Connected to %d providers</string>
+    <string name="ready_to_connect">Ready to connect</string>
+    <string name="network_name_ready_to_connect">%s is ready to connect</string>
 </resources>
