@@ -204,4 +204,11 @@
     <string name="delete_account">حذف الحساب</string>
     <string name="sorry_to_see_you_go">نحن آسفون لرؤيتك تذهب!</string>
     <string name="are_you_sure_delete_account">هل أنت متأكد أنك تريد حذف حسابك؟</string>
+    <string name="reconnect_tunnel_status_indicator">تم قطع اتصال نفق VPN 😓</string>
+    <string name="disconnect">قطع الاتصال</string>
+    <string name="reconnect">إعادة الاتصال</string>
+    <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة...</string>
+    <string name="connected_provider_count">متصل بـ %d من مزودي الخدمة</string>
+    <string name="ready_to_connect">جاهز للاتصال</string>
+    <string name="network_name_ready_to_connect">%s جاهزة للاتصال</string>
 </resources>

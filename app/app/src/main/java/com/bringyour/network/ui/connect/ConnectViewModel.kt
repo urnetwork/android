@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
@@ -19,6 +20,7 @@ import com.bringyour.sdk.Id
 import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.sdk.Sub
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
@@ -54,6 +56,16 @@ class ConnectViewModel @Inject constructor(
 
     var grid by mutableStateOf<ConnectGrid?>(null)
         private set
+
+    // var grid by mutableStateOf<ConnectGrid?>(null)
+    private var tunnelConnected = false
+
+    var displayReconnectTunnel by mutableStateOf(false)
+        private set
+
+    val setDisplayReconnectTunnel: (Boolean) -> Unit = { display ->
+        displayReconnectTunnel = display
+    }
 
     private val successPoints = mutableListOf<AnimatedSuccessPoint>()
 
@@ -195,7 +207,7 @@ class ConnectViewModel @Inject constructor(
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
                     viewModelScope.launch {
                         _connectStatus.value = statusFromStr
-
+                        updateDisplayReconnectTunnel()
 //                        if (statusFromStr == ConnectStatus.DISCONNECTED) {
 //                            windowCurrentSize = 0
 //                        }
@@ -232,12 +244,41 @@ class ConnectViewModel @Inject constructor(
         connectVc?.disconnect()
     }
 
+    val addTunnelListener: () -> Unit = {
+
+        Log.i(TAG, "adding tunnel listener")
+
+        val sub = deviceManager.device?.addTunnelChangeListener { tunnelConnected ->
+            Log.i(TAG, "tunnel listener called: $tunnelConnected")
+            this.tunnelConnected = tunnelConnected
+            updateDisplayReconnectTunnel()
+        }
+
+        // unwrap sub
+        if (sub == null) {
+            this.tunnelConnected = false
+            updateDisplayReconnectTunnel()
+        } else {
+            this.subs.add(sub)
+        }
+
+    }
+
+    val updateDisplayReconnectTunnel: () -> Unit = {
+        if (this.connectStatus.value == ConnectStatus.CONNECTED && !this.tunnelConnected) {
+            this.setDisplayReconnectTunnel(true)
+        } else {
+            this.setDisplayReconnectTunnel(false)
+        }
+    }
+
     init {
 
         connectVc = deviceManager.device?.openConnectViewController()
 
 
 //        addProviderGridPointChangedListener()
+        addTunnelListener()
 
         addSelectedLocationListener()
         addGridListener()

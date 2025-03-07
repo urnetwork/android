@@ -219,4 +219,11 @@
     <string name="delete_account">Supprimer le compte</string>
     <string name="sorry_to_see_you_go">Nous sommes désolés de vous voir partir !</string>
     <string name="are_you_sure_delete_account">Êtes-vous sûr de vouloir supprimer votre compte ?</string>
+    <string name="reconnect_tunnel_status_indicator">Tunnel VPN déconnecté 😓</string>
+    <string name="disconnect">Déconnecter</string>
+    <string name="reconnect">Reconnecter</string>
+    <string name="connecting_status_indicator">Connexion aux fournisseurs...</string>
+    <string name="connected_provider_count">Connecté à %d fournisseurs</string>
+    <string name="ready_to_connect">Prêt à connecter</string>
+    <string name="network_name_ready_to_connect">%s est prêt à connecter</string>
 </resources>

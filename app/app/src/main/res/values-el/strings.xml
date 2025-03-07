@@ -217,4 +217,11 @@
     <string name="delete_account">Διαγραφή λογαριασμού</string>
     <string name="sorry_to_see_you_go">Λυπούμαστε που φεύγετε!</string>
     <string name="are_you_sure_delete_account">Είστε βέβαιοι ότι θέλετε να διαγράψετε τον λογαριασμό σας;</string>
+    <string name="reconnect_tunnel_status_indicator">Το τούνελ VPN αποσυνδέθηκε 😓</string>
+    <string name="disconnect">Αποσύνδεση</string>
+    <string name="reconnect">Επανασύνδεση</string>
+    <string name="connecting_status_indicator">Σύνδεση με παρόχους...</string>
+    <string name="connected_provider_count">Συνδεδεμένο με %d παρόχους</string>
+    <string name="ready_to_connect">Έτοιμο για σύνδεση</string>
+    <string name="network_name_ready_to_connect">%s είναι έτοιμο για σύνδεση</string>
 </resources>

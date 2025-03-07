@@ -3,7 +3,6 @@ package com.bringyour.network.ui.connect
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,12 +31,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
@@ -99,6 +99,7 @@ fun ConnectScreen(
 //            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
                     launchOverlay = overlayViewModel.launch,
                     locationsViewModel = locationsViewModel,
+                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel
                 )
             } else {
 
@@ -118,7 +119,8 @@ fun ConnectScreen(
 //                checkTriggerPromptReview = checkTriggerPromptReview,
                     launchOverlay = overlayViewModel.launch,
                     locationsViewModel = locationsViewModel,
-                    navController = navController
+                    navController = navController,
+                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel
                 )
             }
 
@@ -143,7 +145,8 @@ private fun ConnectTV(
     getStateColor: (ProviderPointState?) -> Color,
 //    checkTriggerPromptReview: () -> Boolean,
     launchOverlay: (OverlayMode) -> Unit,
-    locationsViewModel: LocationsListViewModel
+    locationsViewModel: LocationsListViewModel,
+    displayReconnectTunnel: Boolean
 ) {
 
     Column(
@@ -167,7 +170,8 @@ private fun ConnectTV(
 //                    checkTriggerPromptReview = checkTriggerPromptReview,
             launchOverlay = launchOverlay,
             locationsViewModel = locationsViewModel,
-            navController = navController
+            navController = navController,
+            displayReconnectTunnel = displayReconnectTunnel
         )
 
         Column {
@@ -222,9 +226,12 @@ fun ConnectMainContent(
     getStateColor: (ProviderPointState?) -> Color,
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
-    navController: NavController
+    navController: NavController,
+    displayReconnectTunnel: Boolean
 ) {
 
+    val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
 
@@ -288,7 +295,8 @@ fun ConnectMainContent(
                         grid = grid,
                         animatedSuccessPoints = animatedSuccessPoints,
                         shuffleSuccessPoints = shuffleSuccessPoints,
-                        getStateColor = getStateColor
+                        getStateColor = getStateColor,
+                        displayReconnectTunnel = displayReconnectTunnel
                     )
                 }
 
@@ -298,39 +306,75 @@ fun ConnectMainContent(
                     status = connectStatus,
                     windowCurrentSize = windowCurrentSize,
                     networkName = networkName,
-                    guestMode = loginMode == LoginMode.Guest
+                    guestMode = loginMode == LoginMode.Guest,
+                    displayReconnectTunnel = displayReconnectTunnel
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
+                Box(
                     modifier = Modifier
                         .height(48.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
                 ) {
-
-                    AnimatedVisibility(
-                        visible = disconnectBtnVisible,
-                        enter = fadeIn(),
-                        exit = fadeOut()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
                     ) {
+                        /**
+                         * Disconnect Button
+                         */
+                        AnimatedVisibility(
+                            visible = disconnectBtnVisible && !displayReconnectTunnel,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
 
-                        URButton(
-                            onClick = {
-                                disconnect()
-//                            checkTriggerPromptReview()
-                            },
-                            style = ButtonStyle.OUTLINE
-                        ) { buttonTextStyle ->
-                            Text(
-                                "Disconnect",
-                                style = buttonTextStyle,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
+                            URButton(
+                                onClick = {
+                                    disconnect()
+                                },
+                                style = ButtonStyle.OUTLINE
+                            ) { buttonTextStyle ->
+                                Text(
+                                    stringResource(id = R.string.disconnect),
+                                    style = buttonTextStyle,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+
                         }
-
                     }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        /**
+                         * Reconnect tunnel button
+                         */
+
+                        AnimatedVisibility(
+                            visible = displayReconnectTunnel,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            URButton(
+                                onClick = {
+                                    application?.startVpnService()
+                                },
+                                style = ButtonStyle.OUTLINE
+                            ) { buttonTextStyle ->
+                                Text(
+                                    stringResource(id = R.string.reconnect),
+                                    style = buttonTextStyle,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                    }
+
                 }
 
             }

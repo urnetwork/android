@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.tween
@@ -20,20 +19,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +38,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -52,23 +47,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.Id
-import com.bringyour.sdk.Time
 import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTv
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 @Composable
 fun ConnectButton(
@@ -78,7 +69,8 @@ fun ConnectButton(
     updatedStatus: ConnectStatus,
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
-    getStateColor: (ProviderPointState?) -> Color
+    getStateColor: (ProviderPointState?) -> Color,
+    displayReconnectTunnel: Boolean
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -131,7 +123,8 @@ fun ConnectButton(
                 status = updatedStatus,
                 animatedSuccessPoints = animatedSuccessPoints,
                 shuffleSuccessPoints = shuffleSuccessPoints,
-                getStateColor = getStateColor
+                getStateColor = getStateColor,
+                displayReconnectTunnel = displayReconnectTunnel
             )
 
         }
@@ -155,7 +148,8 @@ private fun ConnectingButtonContent(
     status: ConnectStatus,
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
-    getStateColor: (ProviderPointState?) -> Color
+    getStateColor: (ProviderPointState?) -> Color,
+    displayReconnectTunnel: Boolean
 ) {
 
     var globeVisible by remember { mutableStateOf(false) }
@@ -196,7 +190,8 @@ private fun ConnectingButtonContent(
             updatedStatus = status,
             animatedSuccessPoints = animatedSuccessPoints,
             shuffleSuccessPoints = shuffleSuccessPoints,
-            getStateColor = getStateColor
+            getStateColor = getStateColor,
+            displayReconnectTunnel = displayReconnectTunnel
         )
     }
 }
@@ -220,7 +215,8 @@ fun GridCanvas(
     updatedStatus: ConnectStatus,
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
-    getStateColor: (ProviderPointState?) -> Color
+    getStateColor: (ProviderPointState?) -> Color,
+    displayReconnectTunnel: Boolean
 ) {
     val localDensityCurrent = LocalDensity.current
     val pointSize = grid?.width?.let { (size.value / it.toFloat()) * localDensityCurrent.density }
@@ -531,28 +527,67 @@ fun GridCanvas(
         }
     }
 
-    Canvas(modifier = Modifier.size(size)) {
-        // our provider grid
-        animatedPoints.values.forEach { point ->
-            drawCircle(
-                color = point.color.value,
-                radius = point.radius.value,
-                center = Offset(
-                    point.x * pointSize + pointSize / 2,
-                    point.y * pointSize + pointSize / 2
-                )
-            )
+    Box(modifier = Modifier.size(size)) {
+
+        // this is used to prevent temporary clipping
+        // when animating from the "reconnect tunnel" view to the canvas
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+
+            AnimatedVisibility(
+                visible = !displayReconnectTunnel,
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300))
+            ) {
+
+                Canvas(modifier = Modifier.size(size)) {
+                    // our provider grid
+                    animatedPoints.values.forEach { point ->
+                        drawCircle(
+                            color = point.color.value,
+                            radius = point.radius.value,
+                            center = Offset(
+                                point.x * pointSize + pointSize / 2,
+                                point.y * pointSize + pointSize / 2
+                            )
+                        )
+                    }
+
+                    // the overlaying big dots on connection success
+                    animatedSuccessPoints.forEach { point ->
+                        drawCircle(
+                            color = point.color,
+                            radius = point.radius,
+                            center = point.center.value
+                        )
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = displayReconnectTunnel,
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300))
+            ) {
+
+                Column(
+                    modifier = Modifier.size(size),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_warning),
+                        contentDescription = "",
+                        tint = TextMuted
+                    )
+                }
+            }
         }
 
-        // the overlaying big dots on connection success
-        animatedSuccessPoints.forEach { point ->
-            drawCircle(
-                color = point.color,
-                radius = point.radius,
-                center = point.center.value
-            )
-        }
     }
+
 }
 
 @Composable
@@ -660,7 +695,8 @@ private fun ConnectButtonDisconnectedPreview() {
             grid = null,
             animatedSuccessPoints = listOf(),
             shuffleSuccessPoints = {},
-            getStateColor = mockGetStateColor
+            getStateColor = mockGetStateColor,
+            displayReconnectTunnel = false
         )
     }
 }
@@ -678,7 +714,8 @@ private fun ConnectButtonConnectedPreview() {
             grid = null,
             animatedSuccessPoints = listOf(),
             shuffleSuccessPoints = {},
-            getStateColor = mockGetStateColor
+            getStateColor = mockGetStateColor,
+            displayReconnectTunnel = false
         )
     }
 }
