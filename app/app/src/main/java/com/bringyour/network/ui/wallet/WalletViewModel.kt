@@ -84,13 +84,11 @@ class WalletViewModel @Inject constructor(
     var isRemovingWallet by mutableStateOf(false)
         private set
 
-    // val wallets = mutableListOf<AccountWallet>()
     private val _wallets = MutableStateFlow<List<AccountWallet>>(emptyList())
     val wallets: StateFlow<List<AccountWallet>> = _wallets.asStateFlow()
 
-
-    var payouts by mutableStateOf(listOf<AccountPayment>())
-        private set
+    private val _payouts = MutableStateFlow<List<AccountPayment>>(emptyList())
+    val payouts: StateFlow<List<AccountPayment>> = _payouts.asStateFlow()
 
     var totalPayoutAmount by mutableDoubleStateOf(0.0)
         private set
@@ -368,7 +366,7 @@ class WalletViewModel @Inject constructor(
                 totalPayoutsUsdc += payout.tokenAmount.roundToDecimals(4)
             }
 
-            payouts = updatedPayouts
+            _payouts.value = updatedPayouts
             totalPayoutAmount = totalPayoutsUsdc
             if (!totalPayoutAmountInitialized) {
                 totalPayoutAmountInitialized = true

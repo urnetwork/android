@@ -46,6 +46,8 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
@@ -80,6 +82,7 @@ fun WalletScreen(
 
     val payoutWalletId = walletViewModel.payoutWalletId
     val isPayoutWallet = accountWallet?.walletId?.equals(payoutWalletId) ?: false
+    val payouts by walletViewModel.payouts.collectAsState()
 
     WalletScreen(
         navController,
@@ -88,7 +91,7 @@ fun WalletScreen(
         isPayoutWallet = isPayoutWallet,
         blockchain = Blockchain.fromString(accountWallet?.blockchain ?: ""),
         isCircleWallet = !accountWallet?.circleWalletId.isNullOrEmpty(),
-        payouts = walletViewModel.payouts.filter { payout -> payout.walletId.equals(accountWallet?.walletId) },
+        payouts = payouts.filter { payout -> payout.walletId.equals(accountWallet?.walletId) },
         setPayoutWallet = walletViewModel.setPayoutWallet,
         isSettingPayoutWallet = walletViewModel.isSettingPayoutWallet,
         removeWallet = walletViewModel.removeWallet,

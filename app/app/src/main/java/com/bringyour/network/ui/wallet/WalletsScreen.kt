@@ -3,7 +3,6 @@ package com.bringyour.network.ui.wallet
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,6 +71,7 @@ fun WalletsScreen(
 ) {
 
     val wallets by walletViewModel.wallets.collectAsState()
+    val payouts by walletViewModel.payouts.collectAsState()
 
     LaunchedEffect(Unit) {
         walletViewModel.fetchTransferStats()
@@ -89,7 +89,7 @@ fun WalletsScreen(
         payoutWalletId = walletViewModel.payoutWalletId,
         isInitializingFirstWallet = walletViewModel.initializingFirstWallet,
         setInitializingFirstWallet = walletViewModel.setInitializingFirstWallet,
-        payouts = walletViewModel.payouts,
+        payouts = payouts,
         isRemovingWallet = walletViewModel.isRemovingWallet,
         initializingWallets = walletViewModel.initializingWallets,
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
