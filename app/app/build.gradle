@@ -22,7 +22,10 @@ import java.text.SimpleDateFormat
 import org.yaml.snakeyaml.Yaml
 
 
-def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?: "${System.env.HOME}/bringyour"
+def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?:
+        file("${System.env.HOME}/urnetwork").exists()
+                ? "${System.env.HOME}/urnetwork"
+                : "${System.env.HOME}/bringyour"
 
 
 ext.envSecret = { envName ->
