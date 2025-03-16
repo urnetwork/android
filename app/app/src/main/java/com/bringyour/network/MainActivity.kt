@@ -122,7 +122,8 @@ class MainActivity: AppCompatActivity() {
         // immutable shadow
         val app = application as MainApplication
 
-//        app.allowForeground = true
+        // allow foreground to be started when the activity is active
+        app.allowForeground = true
 
         sagaActivitySender = ActivityResultSender(this)
 
@@ -282,7 +283,15 @@ class MainActivity: AppCompatActivity() {
             // matter the result, we continue our app flow.
             promptReviewViewModel.enablePromptReview()
         }
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // immutable shadow
+        val app = application as MainApplication
+
+        app.allowForeground = false
     }
 
     private fun requestSagaWallet() {
