@@ -50,7 +50,9 @@ android {
             warpVersion = localProperties.getProperty('warp.version')
         }
 
-        warpVersion ?: { ->
+        if (warpVersion) {
+            warpVersion
+        } else {
             def osName = ''
             def osArch = ''
             switch (System.getProperty('os.name')) {
@@ -78,7 +80,7 @@ android {
             b.redirectErrorStream()
             def p = b.start()
             new String(p.inputStream.readAllBytes()).trim()
-        }()
+        }
     }
     ext.appVersionCode = { ->
         def warpVersionCode = ''
@@ -88,11 +90,13 @@ android {
             warpVersionCode = localProperties.getProperty('warp.version_code')
         }
 
-        warpVersionCode ?: { ->
+        if (warpVersionCode) {
+            warpVersionCode as Integer
+        } else {
             // hours since company founding
             def companyFounded = new SimpleDateFormat('MM/dd/yyyy').parse('05/23/2023')
             ((System.currentTimeMillis() - companyFounded.getTime()) / (1000 * 60 * 60)) as Integer
-        }()
+        }
     }
 
     namespace 'com.bringyour.network'
