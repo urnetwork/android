@@ -48,10 +48,12 @@ import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
@@ -68,6 +70,7 @@ fun AccountScreen(
     accountViewModel: AccountViewModel,
     overlayViewModel: OverlayViewModel,
     planViewModel: PlanViewModel,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
     walletCount: Int
@@ -76,7 +79,7 @@ fun AccountScreen(
     val scope = rememberCoroutineScope()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
-    val currentPlan by planViewModel.currentPlan.collectAsState()
+    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
 
     val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,7 +71,9 @@ fun ConnectButton(
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,
     getStateColor: (ProviderPointState?) -> Color,
-    displayReconnectTunnel: Boolean
+    displayReconnectTunnel: Boolean,
+    insufficientBalance: Boolean,
+    isPollingSubscriptionBalance: Boolean
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -109,13 +112,52 @@ fun ConnectButton(
 
 
             AnimatedVisibility(
-                visible = disconnectedVisible,
+                visible = disconnectedVisible && !insufficientBalance && !isPollingSubscriptionBalance,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
                 DisconnectedButtonContent()
             }
 
+            /**
+             * Insufficient balance
+             */
+            AnimatedVisibility(
+                visible = insufficientBalance && !isPollingSubscriptionBalance,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_warning),
+                        contentDescription = "Insufficient balance",
+                        tint = TextMuted
+                    )
+                }
+            }
+
+            /**
+             * Polling subscription balance
+             */
+            AnimatedVisibility(
+                visible = insufficientBalance && !isPollingSubscriptionBalance,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
 
             ConnectingButtonContent(
                 providerGridPoints = providerGridPoints,
@@ -696,7 +738,9 @@ private fun ConnectButtonDisconnectedPreview() {
             animatedSuccessPoints = listOf(),
             shuffleSuccessPoints = {},
             getStateColor = mockGetStateColor,
-            displayReconnectTunnel = false
+            displayReconnectTunnel = false,
+            insufficientBalance = false,
+            isPollingSubscriptionBalance = false
         )
     }
 }
@@ -715,7 +759,51 @@ private fun ConnectButtonConnectedPreview() {
             animatedSuccessPoints = listOf(),
             shuffleSuccessPoints = {},
             getStateColor = mockGetStateColor,
-            displayReconnectTunnel = false
+            displayReconnectTunnel = false,
+            insufficientBalance = false,
+            isPollingSubscriptionBalance = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ConnectButtonInsufficientBalancePreview() {
+    val mockGetStateColor: (ProviderPointState?) -> Color = { Red }
+
+    URNetworkTheme {
+        ConnectButton(
+            onClick = {},
+            updatedStatus = ConnectStatus.CONNECTED,
+            providerGridPoints = mapOf(),
+            grid = null,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {},
+            getStateColor = mockGetStateColor,
+            displayReconnectTunnel = false,
+            insufficientBalance = true,
+            isPollingSubscriptionBalance = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ConnectButtonPollingBalancePreview() {
+    val mockGetStateColor: (ProviderPointState?) -> Color = { Red }
+
+    URNetworkTheme {
+        ConnectButton(
+            onClick = {},
+            updatedStatus = ConnectStatus.CONNECTED,
+            providerGridPoints = mapOf(),
+            grid = null,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {},
+            getStateColor = mockGetStateColor,
+            displayReconnectTunnel = false,
+            insufficientBalance = true,
+            isPollingSubscriptionBalance = true
         )
     }
 }
