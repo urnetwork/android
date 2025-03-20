@@ -22,12 +22,12 @@ dependencyResolutionManagement {
         // see https://developers.circle.com/w3s/android
         maven {
             Properties properties = new Properties()
-            properties.load(new File(rootDir.absolutePath + "/dependencies.properties").newDataInputStream())
+            properties.load(new File("${rootDir.absolutePath}/dependencies.properties").newDataInputStream())
             url properties.getProperty('pwsdk.maven.url')
 
             credentials {
                 Properties localProperties = new Properties()
-                localProperties.load(new File(rootDir.absolutePath + "/local.properties").newDataInputStream())
+                localProperties.load(new File("${rootDir.absolutePath}/local.properties").newDataInputStream())
                 username localProperties.getProperty('pwsdk.maven.username')
                 password localProperties.getProperty('pwsdk.maven.password')
             }
