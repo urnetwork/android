@@ -36,4 +36,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "BringYour"
 include ':app'
-

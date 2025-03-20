@@ -23,10 +23,7 @@ import org.yaml.snakeyaml.Yaml
 
 
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?:
-        file("${System.env.HOME}/urnetwork").exists()
-                ? "${System.env.HOME}/urnetwork"
-                : "${System.env.HOME}/bringyour"
-
+        file("../..").absolutePath
 
 ext.envSecret = { envName ->
     def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
@@ -46,38 +43,42 @@ ext.envSecret = { envName ->
 
 android {
     ext.appVersion = { ->
-        def osName = ''
-        def osArch = ''
-        switch (System.getProperty('os.name')) {
-            case 'Linux':
-                osName = 'linux'
-                break
-            case 'Mac OS X':
-                osName = 'darwin'
-                break
-        }
-        switch (System.getProperty('os.arch')) {
-            case 'amd64':
-                osArch = 'amd64'
-                break
-            case 'aarch64':
-                osArch = 'arm64'
-                break
-        }
+        project.findProperty('warp.version') ?: { ->
+            def osName = ''
+            def osArch = ''
+            switch (System.getProperty('os.name')) {
+                case 'Linux':
+                    osName = 'linux'
+                    break
+                case 'Mac OS X':
+                    osName = 'darwin'
+                    break
+            }
+            switch (System.getProperty('os.arch')) {
+                case 'amd64':
+                    osArch = 'amd64'
+                    break
+                case 'aarch64':
+                    osArch = 'arm64'
+                    break
+            }
 
-        def b = new ProcessBuilder(
-            "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl",
-            'ls',
-            'version'
-        )
-        b.redirectErrorStream()
-        def p = b.start()
-        new String(p.inputStream.readAllBytes()).trim()
+            def b = new ProcessBuilder(
+                    "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl",
+                    'ls',
+                    'version'
+            )
+            b.redirectErrorStream()
+            def p = b.start()
+            new String(p.inputStream.readAllBytes()).trim()
+        }()
     }
     ext.appVersionCode = { ->
-        // hours since company founding
-        def companyFounded = new SimpleDateFormat('MM/dd/yyyy').parse('05/23/2023')
-        ((System.currentTimeMillis() - companyFounded.getTime()) / (1000 * 60 * 60)) as Integer
+        project.findProperty('warp.version_code') ?: { ->
+            // hours since company founding
+            def companyFounded = new SimpleDateFormat('MM/dd/yyyy').parse('05/23/2023')
+            ((System.currentTimeMillis() - companyFounded.getTime()) / (1000 * 60 * 60)) as Integer
+        }()
     }
 
     namespace 'com.bringyour.network'
@@ -183,6 +184,7 @@ android {
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
         }
         github {
+            isDefault true
             dimension = 'version'
             applicationId 'com.bringyour.network'
             versionNameSuffix '-github'
@@ -237,23 +239,6 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
-        }
-        fire {
-            dimension = 'version'
-            applicationId 'com.bringyour.network'
-            versionNameSuffix '-fire'
-
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"circle"'
-            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'false'
         }
     }
 
