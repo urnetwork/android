@@ -143,66 +143,6 @@ android {
 
     // BuildConfig.FLAVOR
     productFlavors {
-        local {
-            dimension = 'version'
-            applicationId 'com.bringyour.network.local'
-            versionNameSuffix '-local'
-
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"local"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
-            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
-
-        }
-        dev {
-            dimension = 'version'
-            applicationId 'com.bringyour.network.dev'
-            versionNameSuffix '-dev'
-
-            // set up dns entries for your developer host ip, e.g.
-            //   outerwerld-api.bringyour.com -> 192.168.1.11
-            //   outerwerld-connect.bringyour.com -> 192.168.1.11
-
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            // the env is the host name
-            // the server names will be e.g. outerwerld-lb.bringyour.com, outerwerld-api.bringyour.com, outerwerld-connect.bringyour.com, etc.
-            // to make development easy, set your ip in the DNS
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", "\"${System.env.HOST}\""
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"all"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"all"'
-            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
-        }
-        canary {
-            dimension = 'version'
-            applicationId 'com.bringyour.network.canary'
-            versionNameSuffix '-canary'
-
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"canary"'
-            // use secret so that we can use public routing that only our builds can access
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", "\"${envSecret('canary')}\""
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
-            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
-        }
         github {
             isDefault true
             dimension = 'version'
@@ -263,21 +203,6 @@ android {
     }
 
     sourceSets {
-        local {
-            java {
-                srcDirs += ['src/google/java']
-            }
-        }
-        dev {
-            java {
-                srcDirs += ['src/google/java']
-            }
-        }
-        canary {
-            java {
-                srcDirs += ['src/google/java']
-            }
-        }
         github {
             java {
                 srcDirs += ['src/ungoogle/java']
@@ -389,22 +314,44 @@ dependencies {
 
 // circle wallet
 dependencies {
-/*build:google*/    implementation 'circle.programmablewallet:sdk:1.0.1059'
+/*build:google*/    playImplementation 'circle.programmablewallet:sdk:1.0.1059'
 }
 
 // google play
 dependencies {
-/*build:google*/    implementation 'com.google.android.gms:play-services-auth:21.3.0'
-/*build:google*/    implementation 'com.android.installreferrer:installreferrer:2.2'
+/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.3.0'
+/*build:google*/    playImplementation 'com.android.installreferrer:installreferrer:2.2'
 
     // play store review
-/*build:google*/    implementation 'com.google.android.play:review:2.0.2'
-/*build:google*/    implementation 'com.google.android.play:review-ktx:2.0.2'
+/*build:google*/    playImplementation 'com.google.android.play:review:2.0.2'
+/*build:google*/    playImplementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    implementation "com.android.billingclient:billing:7.1.1"
-/*build:google*/    implementation "com.android.billingclient:billing-ktx:7.1.1"
+/*build:google*/    playImplementation "com.android.billingclient:billing:7.1.1"
+/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:7.1.1"
 }
+
+
+
+// circle wallet
+dependencies {
+/*build:google*/    solana_dappImplementation 'circle.programmablewallet:sdk:1.0.1059'
+}
+
+// google play
+dependencies {
+/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.3.0'
+/*build:google*/    solana_dappImplementation 'com.android.installreferrer:installreferrer:2.2'
+
+    // play store review
+/*build:google*/    solana_dappImplementation 'com.google.android.play:review:2.0.2'
+/*build:google*/    solana_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
+
+    // see https://developer.android.com/google/play/billing/integrate#groovy
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:7.1.1"
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:7.1.1"
+}
+
 
 
 // Allow references to generated code
@@ -416,24 +363,4 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-}
-
-configurations {
-//    playImplementation.exclude group:'com.solanamobile', module:'mobile-wallet-adapter-clientlib-ktx'
-//    playImplementation.exclude group:'com.solanamobile', module:'web3-solana'
-//    playImplementation.exclude group:'com.solanamobile', module:'rpc-core'
-//    playImplementation.exclude group:'io.github.funkatronics', module:'multimult'
-//
-//    githubImplementation.exclude group:'com.solanamobile', module:'mobile-wallet-adapter-clientlib-ktx'
-//    githubImplementation.exclude group:'com.solanamobile', module:'web3-solana'
-//    githubImplementation.exclude group:'com.solanamobile', module:'rpc-core'
-//    githubImplementation.exclude group:'io.github.funkatronics', module:'multimult'
-
-    githubImplementation.exclude group:'circle.programmablewallet', module:'sdk'
-    githubImplementation.exclude group:'com.google.android.gms', module:'play-services-auth'
-    githubImplementation.exclude group:"com.android.installreferrer', module:'installreferrer"
-    githubImplementation.exclude group:'com.google.android.play', module:'review'
-    githubImplementation.exclude group:'com.google.android.play', module:'review-ktx'
-    githubImplementation.exclude group:'com.android.billingclient', module:'billing'
-    githubImplementation.exclude group:'com.android.billingclient', module:'billing-ktx'
 }
