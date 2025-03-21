@@ -102,7 +102,7 @@ android {
 
     namespace 'com.bringyour.network'
     compileSdk 35
-    ndkVersion '27.0.12077973'
+    ndkVersion '28.0.13004108'
 
     defaultConfig {
         applicationId "com.bringyour.network"
@@ -147,7 +147,7 @@ android {
             isDefault true
             dimension = 'version'
             applicationId 'com.bringyour.network'
-            versionNameSuffix '-github'
+//            versionNameSuffix '-github'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
