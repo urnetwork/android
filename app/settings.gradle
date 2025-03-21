@@ -21,9 +21,13 @@ dependencyResolutionManagement {
         // circle sdk
         // see https://developers.circle.com/w3s/android
         maven {
-            Properties properties = new Properties()
-            properties.load(new File("${rootDir.absolutePath}/dependencies.properties").newDataInputStream())
-            url properties.getProperty('pwsdk.maven.url')
+            // Circle SDK properties
+            // *important* you must add the following two properties to your local.properties
+            // pwsdk.maven.username=<your github username>
+            // pwsdk.maven.password=<your github personal access token with credentials read:packages>
+            // see https://developers.circle.com/w3s/android
+
+            url 'https://maven.pkg.github.com/circlefin/w3s-android-sdk'
 
             credentials {
                 Properties localProperties = new Properties()
