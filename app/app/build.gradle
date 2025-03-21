@@ -111,7 +111,7 @@ android {
         versionCode appVersionCode()
         versionName appVersion()
 
-        // setProperty('archivesBaseName', "${applicationId}-${versionName}-${versionCode}")
+        setProperty('archivesBaseName', "${applicationId}-${versionName}-${versionCode}")
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -147,7 +147,7 @@ android {
             isDefault true
             dimension = 'version'
             applicationId 'com.bringyour.network'
-            versionNameSuffix '-github'
+            // versionNameSuffix '-github'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
