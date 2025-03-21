@@ -111,7 +111,7 @@ android {
         versionCode appVersionCode()
         versionName appVersion()
 
-        setProperty('archivesBaseName', "${applicationId}-${versionName}-${versionCode}")
+        // setProperty('archivesBaseName', "${applicationId}-${versionName}-${versionCode}")
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
