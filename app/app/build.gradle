@@ -5,7 +5,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.3'
+        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.4'
     }
 }
 
@@ -14,7 +14,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.20'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.20'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.1.20'
 }
 
 
@@ -335,15 +336,15 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
 
     // serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     // for QR Code generation
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'androidx.biometric:biometric-ktx:1.4.0-alpha02'
 
     // hilt
-    implementation 'com.google.dagger:hilt-android:2.49'
-    kapt 'com.google.dagger:hilt-compiler:2.48'
+    implementation 'com.google.dagger:hilt-android:2.56'
+    kapt 'com.google.dagger:hilt-compiler:2.56'
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
 }
 
@@ -373,32 +374,38 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling:1.7.8'
 }
 
+
+// solana saga
+dependencies {
+    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.6")
+    implementation("com.solanamobile:web3-solana:0.2.5")
+    implementation("com.solanamobile:rpc-core:0.2.8")
+    implementation("io.github.funkatronics:multimult:0.2.3")
+}
+
+
+// FIXME set the following for only play and solana_dapp implementation
+
+
 // circle wallet
 dependencies {
-    implementation 'circle.programmablewallet:sdk:1.0.1059'
+/*build:google*/    implementation 'circle.programmablewallet:sdk:1.0.1059'
 }
 
 // google play
 dependencies {
-    implementation 'com.google.android.gms:play-services-auth:21.3.0'
-    implementation 'com.android.installreferrer:installreferrer:2.2'
+/*build:google*/    implementation 'com.google.android.gms:play-services-auth:21.3.0'
+/*build:google*/    implementation 'com.android.installreferrer:installreferrer:2.2'
 
     // play store review
-    implementation 'com.google.android.play:review:2.0.2'
-    implementation 'com.google.android.play:review-ktx:2.0.2'
+/*build:google*/    implementation 'com.google.android.play:review:2.0.2'
+/*build:google*/    implementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-    implementation "com.android.billingclient:billing:7.1.1"
-    implementation "com.android.billingclient:billing-ktx:7.1.1"
+/*build:google*/    implementation "com.android.billingclient:billing:7.1.1"
+/*build:google*/    implementation "com.android.billingclient:billing-ktx:7.1.1"
 }
 
-// solana saga
-dependencies {
-    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.3")
-    implementation("com.solanamobile:web3-solana:0.2.5")
-    implementation("com.solanamobile:rpc-core:0.2.7")
-    implementation("io.github.funkatronics:multimult:0.2.3")
-}
 
 // Allow references to generated code
 kapt {
@@ -422,6 +429,7 @@ configurations {
 //    githubImplementation.exclude group:'com.solanamobile', module:'rpc-core'
 //    githubImplementation.exclude group:'io.github.funkatronics', module:'multimult'
 
+    githubImplementation.exclude group:'circle.programmablewallet', module:'sdk'
     githubImplementation.exclude group:'com.google.android.gms', module:'play-services-auth'
     githubImplementation.exclude group:"com.android.installreferrer', module:'installreferrer"
     githubImplementation.exclude group:'com.google.android.play', module:'review'

@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.network.CircleWalletManager
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.ValidateAddressCallback
@@ -173,3 +174,5 @@ class CircleTransferViewModel @Inject constructor(
     }
 
 }
+
+typealias OnWalletExecute = (walletSdk: WalletSdk, userToken: String, encryptionKey: String, challengeId: String) -> Unit
