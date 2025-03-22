@@ -26,8 +26,11 @@ import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
+import com.bringyour.sdk.ContractStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -67,11 +70,17 @@ class ConnectViewModel @Inject constructor(
         displayReconnectTunnel = display
     }
 
+    private val _contractStatus = MutableStateFlow<ContractStatus?>(null)
+    val contractStatus: StateFlow<ContractStatus?> get() = _contractStatus
+
     private val successPoints = mutableListOf<AnimatedSuccessPoint>()
 
     val canvasSize = 248.dp
 
     val shuffledSuccessPoints = mutableListOf<AnimatedSuccessPoint>()
+
+    var showTopAppBar by mutableStateOf(false)
+        private set
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
         successPoints.addAll(
@@ -171,6 +180,24 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
+    private val addContractStatusListener = {
+        deviceManager.device?.addContractStatusChangeListener {
+            viewModelScope.launch {
+
+                _contractStatus.value = deviceManager.device?.contractStatus
+
+                Log.i(TAG, "contract listener updated with: ${_contractStatus.value}")
+
+                // contract status is updated when the user tries and connects
+                // if they have insufficient balance, disconnect them
+                if (_contractStatus.value?.insufficientBalance == true && _connectStatus.value != ConnectStatus.DISCONNECTED) {
+                    disconnect()
+                }
+            }
+        }
+
+    }
+
     private fun updateGrid() {
         val grid = connectVc?.grid
         this.grid = grid
@@ -201,6 +228,8 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
+    private var topAppBarJob: Job? = null
+
     private fun updateConnectionStatus() {
         connectVc?.let { vc ->
             vc.connectionStatus?.let { status ->
@@ -208,9 +237,18 @@ class ConnectViewModel @Inject constructor(
                     viewModelScope.launch {
                         _connectStatus.value = statusFromStr
                         updateDisplayReconnectTunnel()
-//                        if (statusFromStr == ConnectStatus.DISCONNECTED) {
-//                            windowCurrentSize = 0
-//                        }
+
+                        topAppBarJob?.cancel()
+                        if (statusFromStr == ConnectStatus.CONNECTED) {
+                            // Show TopAppBar after 10 seconds when connected
+                            topAppBarJob = viewModelScope.launch {
+                                delay(10000) // 10 second delay
+                                showTopAppBar = true
+                            }
+                        } else {
+                            // Hide TopAppBar immediately for any other status
+                            showTopAppBar = false
+                        }
                     }
                 }
             }
@@ -283,6 +321,7 @@ class ConnectViewModel @Inject constructor(
         addSelectedLocationListener()
         addGridListener()
         addConnectionStatusListener()
+        addContractStatusListener()
 //        addWindowEventSizeListener()
 
 

@@ -1,13 +1,17 @@
 package com.bringyour.network.ui.connect
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,17 +20,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -45,19 +55,27 @@ import com.bringyour.sdk.Id
 import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.account.AccountViewModel
-import com.bringyour.network.ui.components.AccountSwitcher
+import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.ui.shared.viewmodels.Plan
+import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
+import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
+import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.isTv
+import com.bringyour.sdk.ContractStatus
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
@@ -65,66 +83,157 @@ fun ConnectScreen(
     overlayViewModel: OverlayViewModel,
     locationsViewModel: LocationsListViewModel,
     navController: NavController,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
+    planViewModel: PlanViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
+    val scope = rememberCoroutineScope()
+
+    val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     val connectStatus by connectViewModel.connectStatus.collectAsState()
+    val contractStatus by connectViewModel.contractStatus.collectAsState()
+    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
 
-    Scaffold { innerPadding ->
+    val displayInsufficientBalance = contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-//                .padding(horizontal = 16.dp)
-//                .padding(bottom = 16.dp)
-        ) {
+    var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
 
-            if (isTv()) {
-                ConnectTV(
-                    navController = navController,
-                    connect = connectViewModel.connect,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    connectStatus = connectStatus,
-                    networkName = networkUser?.networkName,
-                    disconnect = connectViewModel.disconnect,
-                    providerGridPoints = connectViewModel.providerGridPoints,
-                    windowCurrentSize = connectViewModel.windowCurrentSize,
-                    grid = connectViewModel.grid,
-                    loginMode = accountViewModel.loginMode,
-                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                    getStateColor = connectViewModel.getStateColor,
+    val setIsPresentingUpgradePlanSheet: (Boolean) -> Unit = { isPresenting ->
+        isPresentingUpgradePlanSheet = isPresenting
+    }
+
+    val expandUpgradePlanSheet: () -> Unit = {
+
+        scope.launch {
+            upgradePlanSheetState.expand()
+            setIsPresentingUpgradePlanSheet(true)
+        }
+
+    }
+
+    LaunchedEffect(Unit) {
+        planViewModel.onUpgradeSuccess.collect {
+
+            // poll subscription balance until it's updated
+            subscriptionBalanceViewModel.pollSubscriptionBalance()
+
+        }
+    }
+
+    Scaffold(
+        contentWindowInsets = WindowInsets(0)
+    ){ innerPadding ->
+
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+
+                if (isTv()) {
+                    ConnectTV(
+                        navController = navController,
+                        connect = connectViewModel.connect,
+                        selectedLocation = connectViewModel.selectedLocation,
+                        connectStatus = connectStatus,
+                        networkName = networkUser?.networkName,
+                        disconnect = connectViewModel.disconnect,
+                        providerGridPoints = connectViewModel.providerGridPoints,
+                        windowCurrentSize = connectViewModel.windowCurrentSize,
+                        grid = connectViewModel.grid,
+                        loginMode = accountViewModel.loginMode,
+                        animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                        shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                        getStateColor = connectViewModel.getStateColor,
 //            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
-                    launchOverlay = overlayViewModel.launch,
-                    locationsViewModel = locationsViewModel,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel
-                )
-            } else {
+                        launchOverlay = overlayViewModel.launch,
+                        locationsViewModel = locationsViewModel,
+                        displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                        contractStatus = contractStatus,
+                        currentPlan = currentPlan,
+                        displayInsufficientBalance = displayInsufficientBalance,
+                        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                        expandUpgradePlanSheet = expandUpgradePlanSheet
+                    )
+                } else {
 
-                ConnectMainContent(
-                    connectStatus = connectStatus,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    networkName = networkUser?.networkName,
-                    connect = connectViewModel.connect,
-                    disconnect = connectViewModel.disconnect,
-                    providerGridPoints = connectViewModel.providerGridPoints,
-                    windowCurrentSize = connectViewModel.windowCurrentSize,
-                    grid = connectViewModel.grid,
-                    loginMode = accountViewModel.loginMode,
-                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                    getStateColor = connectViewModel.getStateColor,
+                    ConnectMainContent(
+                        connectStatus = connectStatus,
+                        selectedLocation = connectViewModel.selectedLocation,
+                        networkName = networkUser?.networkName,
+                        connect = connectViewModel.connect,
+                        disconnect = connectViewModel.disconnect,
+                        providerGridPoints = connectViewModel.providerGridPoints,
+                        windowCurrentSize = connectViewModel.windowCurrentSize,
+                        grid = connectViewModel.grid,
+                        loginMode = accountViewModel.loginMode,
+                        animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                        shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                        getStateColor = connectViewModel.getStateColor,
 //                checkTriggerPromptReview = checkTriggerPromptReview,
-                    launchOverlay = overlayViewModel.launch,
-                    locationsViewModel = locationsViewModel,
-                    navController = navController,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel
+                        launchOverlay = overlayViewModel.launch,
+                        locationsViewModel = locationsViewModel,
+                        navController = navController,
+                        displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                        contractStatus = contractStatus,
+                        currentPlan = currentPlan,
+                        displayInsufficientBalance = displayInsufficientBalance,
+                        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                        expandUpgradePlanSheet = expandUpgradePlanSheet
+                        // showTopAppBar = showTopAppBar
+                    )
+                }
+
+            }
+
+            // TopAppBar overlay that slides in/out
+            AnimatedVisibility(
+                visible = connectViewModel.showTopAppBar,
+                enter = slideInVertically(initialOffsetY = { -it }),
+                exit = slideOutVertically(targetOffsetY = { -it })
+            ) {
+                TopAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = BlueMedium,
+                    ),
+                    title = {
+                        Text(
+                            stringResource(id = R.string.need_more_data_faster),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    },
+                    actions = {
+                        Button(onClick = {
+                            expandUpgradePlanSheet()
+                        }) {
+                            Text(
+                                stringResource(id = R.string.upgrade_now),
+                                style = TextStyle(color = Pink)
+                            )
+                        }
+                    }
                 )
             }
 
         }
+
+    }
+
+
+    if (isPresentingUpgradePlanSheet) {
+        UpgradePlanBottomSheet(
+            sheetState = upgradePlanSheetState,
+            scope = scope,
+            planViewModel = planViewModel,
+            overlayViewModel = overlayViewModel,
+            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+        )
     }
 }
 
@@ -146,7 +255,12 @@ private fun ConnectTV(
 //    checkTriggerPromptReview: () -> Boolean,
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
-    displayReconnectTunnel: Boolean
+    displayReconnectTunnel: Boolean,
+    contractStatus: ContractStatus?,
+    currentPlan: Plan,
+    displayInsufficientBalance: Boolean,
+    isPollingSubscriptionBalance: Boolean,
+    expandUpgradePlanSheet: () -> Unit
 ) {
 
     Column(
@@ -171,7 +285,12 @@ private fun ConnectTV(
             launchOverlay = launchOverlay,
             locationsViewModel = locationsViewModel,
             navController = navController,
-            displayReconnectTunnel = displayReconnectTunnel
+            displayReconnectTunnel = displayReconnectTunnel,
+            contractStatus = contractStatus,
+            currentPlan = currentPlan,
+            displayInsufficientBalance = displayInsufficientBalance,
+            isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+            expandUpgradePlanSheet = expandUpgradePlanSheet
         )
 
         Column {
@@ -227,7 +346,12 @@ fun ConnectMainContent(
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
     navController: NavController,
-    displayReconnectTunnel: Boolean
+    displayReconnectTunnel: Boolean,
+    displayInsufficientBalance: Boolean,
+    contractStatus: ContractStatus?,
+    currentPlan: Plan,
+    isPollingSubscriptionBalance: Boolean,
+    expandUpgradePlanSheet: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -251,24 +375,12 @@ fun ConnectMainContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .animateContentSize()
             .padding(horizontal = 16.dp)
             .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AccountSwitcher(
-                loginMode,
-                networkName,
-                launchOverlay = launchOverlay
-            )
-        }
 
         Column(
             modifier = Modifier
@@ -296,7 +408,9 @@ fun ConnectMainContent(
                         animatedSuccessPoints = animatedSuccessPoints,
                         shuffleSuccessPoints = shuffleSuccessPoints,
                         getStateColor = getStateColor,
-                        displayReconnectTunnel = displayReconnectTunnel
+                        displayReconnectTunnel = displayReconnectTunnel,
+                        insufficientBalance = displayInsufficientBalance,
+                        isPollingSubscriptionBalance = isPollingSubscriptionBalance
                     )
                 }
 
@@ -307,7 +421,10 @@ fun ConnectMainContent(
                     windowCurrentSize = windowCurrentSize,
                     networkName = networkName,
                     guestMode = loginMode == LoginMode.Guest,
-                    displayReconnectTunnel = displayReconnectTunnel
+                    displayReconnectTunnel = displayReconnectTunnel,
+                    contractStatus = contractStatus,
+                    currentPlan = currentPlan,
+                    isPollingSubscriptionBalance = isPollingSubscriptionBalance
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -368,6 +485,35 @@ fun ConnectMainContent(
                             ) { buttonTextStyle ->
                                 Text(
                                     stringResource(id = R.string.reconnect),
+                                    style = buttonTextStyle,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                    }
+
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        /**
+                         * Insufficient balance, subscribe to fix
+                         */
+                        AnimatedVisibility(
+                            visible = displayInsufficientBalance && !isPollingSubscriptionBalance,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            URButton(
+                                onClick = {
+                                    expandUpgradePlanSheet()
+                                },
+                                style = ButtonStyle.OUTLINE
+                            ) { buttonTextStyle ->
+                                Text(
+                                    "Subscribe to fix",
                                     style = buttonTextStyle,
                                     modifier = Modifier.padding(horizontal = 16.dp)
                                 )
