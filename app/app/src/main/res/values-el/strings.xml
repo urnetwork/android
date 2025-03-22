@@ -224,4 +224,6 @@
     <string name="connected_provider_count">Συνδεδεμένο με %d παρόχους</string>
     <string name="ready_to_connect">Έτοιμο για σύνδεση</string>
     <string name="network_name_ready_to_connect">%s είναι έτοιμο για σύνδεση</string>
+    <string name="need_more_data_faster">Χρειάζεστε περισσότερα δεδομένα, πιο γρήγορα;</string>
+    <string name="upgrade_now">Αναβάθμιση τώρα</string>
 </resources>

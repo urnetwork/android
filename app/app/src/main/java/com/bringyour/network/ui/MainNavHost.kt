@@ -180,7 +180,7 @@ fun MainNavHost(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Black)
-                .padding(top = 36.dp)
+                // .padding(top = 36.dp)
             // .systemBarsPadding()
             // .windowInsetsPadding(WindowInsets.systemBars)
         ) {

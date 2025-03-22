@@ -28,7 +28,9 @@ import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.sdk.ContractStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -76,6 +78,9 @@ class ConnectViewModel @Inject constructor(
     val canvasSize = 248.dp
 
     val shuffledSuccessPoints = mutableListOf<AnimatedSuccessPoint>()
+
+    var showTopAppBar by mutableStateOf(false)
+        private set
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
         successPoints.addAll(
@@ -223,6 +228,8 @@ class ConnectViewModel @Inject constructor(
         }
     }
 
+    private var topAppBarJob: Job? = null
+
     private fun updateConnectionStatus() {
         connectVc?.let { vc ->
             vc.connectionStatus?.let { status ->
@@ -230,9 +237,18 @@ class ConnectViewModel @Inject constructor(
                     viewModelScope.launch {
                         _connectStatus.value = statusFromStr
                         updateDisplayReconnectTunnel()
-//                        if (statusFromStr == ConnectStatus.DISCONNECTED) {
-//                            windowCurrentSize = 0
-//                        }
+
+                        topAppBarJob?.cancel()
+                        if (statusFromStr == ConnectStatus.CONNECTED) {
+                            // Show TopAppBar after 10 seconds when connected
+                            topAppBarJob = viewModelScope.launch {
+                                delay(10000) // 10 second delay
+                                showTopAppBar = true
+                            }
+                        } else {
+                            // Hide TopAppBar immediately for any other status
+                            showTopAppBar = false
+                        }
                     }
                 }
             }

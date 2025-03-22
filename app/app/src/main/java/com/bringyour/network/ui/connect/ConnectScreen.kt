@@ -1,13 +1,17 @@
 package com.bringyour.network.ui.connect
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -49,7 +56,6 @@ import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.UpgradePlanBottomSheet
-import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
@@ -59,8 +65,10 @@ import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
+import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
+import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.isTv
@@ -115,70 +123,106 @@ fun ConnectScreen(
         }
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        contentWindowInsets = WindowInsets(0)
+    ){ innerPadding ->
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-//                .padding(horizontal = 16.dp)
-//                .padding(bottom = 16.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
 
-            if (isTv()) {
-                ConnectTV(
-                    navController = navController,
-                    connect = connectViewModel.connect,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    connectStatus = connectStatus,
-                    networkName = networkUser?.networkName,
-                    disconnect = connectViewModel.disconnect,
-                    providerGridPoints = connectViewModel.providerGridPoints,
-                    windowCurrentSize = connectViewModel.windowCurrentSize,
-                    grid = connectViewModel.grid,
-                    loginMode = accountViewModel.loginMode,
-                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                    getStateColor = connectViewModel.getStateColor,
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+
+                if (isTv()) {
+                    ConnectTV(
+                        navController = navController,
+                        connect = connectViewModel.connect,
+                        selectedLocation = connectViewModel.selectedLocation,
+                        connectStatus = connectStatus,
+                        networkName = networkUser?.networkName,
+                        disconnect = connectViewModel.disconnect,
+                        providerGridPoints = connectViewModel.providerGridPoints,
+                        windowCurrentSize = connectViewModel.windowCurrentSize,
+                        grid = connectViewModel.grid,
+                        loginMode = accountViewModel.loginMode,
+                        animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                        shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                        getStateColor = connectViewModel.getStateColor,
 //            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
-                    launchOverlay = overlayViewModel.launch,
-                    locationsViewModel = locationsViewModel,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                    contractStatus = contractStatus,
-                    currentPlan = currentPlan,
-                    displayInsufficientBalance = displayInsufficientBalance,
-                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                    expandUpgradePlanSheet = expandUpgradePlanSheet
-                )
-            } else {
+                        launchOverlay = overlayViewModel.launch,
+                        locationsViewModel = locationsViewModel,
+                        displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                        contractStatus = contractStatus,
+                        currentPlan = currentPlan,
+                        displayInsufficientBalance = displayInsufficientBalance,
+                        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                        expandUpgradePlanSheet = expandUpgradePlanSheet
+                    )
+                } else {
 
-                ConnectMainContent(
-                    connectStatus = connectStatus,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    networkName = networkUser?.networkName,
-                    connect = connectViewModel.connect,
-                    disconnect = connectViewModel.disconnect,
-                    providerGridPoints = connectViewModel.providerGridPoints,
-                    windowCurrentSize = connectViewModel.windowCurrentSize,
-                    grid = connectViewModel.grid,
-                    loginMode = accountViewModel.loginMode,
-                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                    getStateColor = connectViewModel.getStateColor,
+                    ConnectMainContent(
+                        connectStatus = connectStatus,
+                        selectedLocation = connectViewModel.selectedLocation,
+                        networkName = networkUser?.networkName,
+                        connect = connectViewModel.connect,
+                        disconnect = connectViewModel.disconnect,
+                        providerGridPoints = connectViewModel.providerGridPoints,
+                        windowCurrentSize = connectViewModel.windowCurrentSize,
+                        grid = connectViewModel.grid,
+                        loginMode = accountViewModel.loginMode,
+                        animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                        shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                        getStateColor = connectViewModel.getStateColor,
 //                checkTriggerPromptReview = checkTriggerPromptReview,
-                    launchOverlay = overlayViewModel.launch,
-                    locationsViewModel = locationsViewModel,
-                    navController = navController,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                    contractStatus = contractStatus,
-                    currentPlan = currentPlan,
-                    displayInsufficientBalance = displayInsufficientBalance,
-                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                    expandUpgradePlanSheet = expandUpgradePlanSheet
+                        launchOverlay = overlayViewModel.launch,
+                        locationsViewModel = locationsViewModel,
+                        navController = navController,
+                        displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                        contractStatus = contractStatus,
+                        currentPlan = currentPlan,
+                        displayInsufficientBalance = displayInsufficientBalance,
+                        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                        expandUpgradePlanSheet = expandUpgradePlanSheet
+                        // showTopAppBar = showTopAppBar
+                    )
+                }
+
+            }
+
+            // TopAppBar overlay that slides in/out
+            AnimatedVisibility(
+                visible = connectViewModel.showTopAppBar,
+                enter = slideInVertically(initialOffsetY = { -it }),
+                exit = slideOutVertically(targetOffsetY = { -it })
+            ) {
+                TopAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = BlueMedium,
+                    ),
+                    title = {
+                        Text(
+                            stringResource(id = R.string.need_more_data_faster),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    },
+                    actions = {
+                        Button(onClick = {
+                            expandUpgradePlanSheet()
+                        }) {
+                            Text(
+                                stringResource(id = R.string.upgrade_now),
+                                style = TextStyle(color = Pink)
+                            )
+                        }
+                    }
                 )
             }
 
         }
+
     }
 
 
@@ -331,24 +375,12 @@ fun ConnectMainContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .animateContentSize()
             .padding(horizontal = 16.dp)
             .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AccountSwitcher(
-                loginMode,
-                networkName,
-                launchOverlay = launchOverlay
-            )
-        }
 
         Column(
             modifier = Modifier
