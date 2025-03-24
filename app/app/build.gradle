@@ -298,10 +298,6 @@ dependencies {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:2.1.20'
-}
-
-dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
 
     // serialization
