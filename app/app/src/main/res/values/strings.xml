@@ -206,4 +206,6 @@
     <string name="connected_provider_count">Connected to %d providers</string>
     <string name="ready_to_connect">Ready to connect</string>
     <string name="network_name_ready_to_connect">%s is ready to connect</string>
+    <string name="need_more_data_faster">Need more data, faster?</string>
+    <string name="upgrade_now">Upgrade now</string>
 </resources>

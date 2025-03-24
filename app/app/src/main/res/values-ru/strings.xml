@@ -247,4 +247,6 @@
     <string name="connected_provider_count">Подключено к %d провайдерам</string>
     <string name="ready_to_connect">Готов к подключению</string>
     <string name="network_name_ready_to_connect">%s готова к подключению</string>
+    <string name="need_more_data_faster">Нужно больше данных и быстрее?</string>
+    <string name="upgrade_now">Обновить сейчас</string>
 </resources>
