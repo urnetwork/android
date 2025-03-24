@@ -147,7 +147,6 @@ android {
             isDefault true
             dimension = 'version'
             applicationId 'com.bringyour.network'
-            // versionNameSuffix '-github'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
@@ -308,9 +307,9 @@ dependencies {
     implementation("io.github.funkatronics:multimult:0.2.3")
 }
 
-
-// FIXME set the following for only play and solana_dapp implementation
-
+dependencies {
+    githubImplementation 'org.jetbrains.kotlin:kotlin-reflect:2.1.20'
+}
 
 // circle wallet
 dependencies {
