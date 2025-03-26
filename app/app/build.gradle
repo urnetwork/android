@@ -341,7 +341,6 @@ dependencies {
 }
 
 
-
 // circle wallet
 dependencies {
 /*build:google*/    solana_dappImplementation 'circle.programmablewallet:sdk:1.0.1059'

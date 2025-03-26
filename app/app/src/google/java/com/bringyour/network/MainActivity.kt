@@ -30,14 +30,10 @@ import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
-import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
-import com.google.android.play.core.review.ReviewException
-import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -62,9 +58,7 @@ class MainActivity: AppCompatActivity() {
 
     private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
-    private val promptReviewViewModel: PromptReviewViewModel by viewModels()
     private val planViewModel: PlanViewModel by viewModels()
-    private var reviewManager: ReviewManager? = null
 
     private var sagaActivitySender: ActivityResultSender? = null
 
@@ -127,8 +121,6 @@ class MainActivity: AppCompatActivity() {
 
         sagaActivitySender = ActivityResultSender(this)
 
-        reviewManager = ReviewManagerFactory.create(this)
-
         // used when connecting
         requestPermissionLauncherAndStart =
             registerForActivityResult(
@@ -173,7 +165,6 @@ class MainActivity: AppCompatActivity() {
                 MainNavHost(
                     walletViewModel,
                     settingsViewModel,
-                    promptReviewViewModel,
                     planViewModel,
                     animateIn,
                     targetUrl,
@@ -245,25 +236,6 @@ class MainActivity: AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
-
-        // watch for review prompt
-        lifecycleScope.launch {
-            if (promptReviewViewModel.checkTriggerPromptReview()) {
-                val request = reviewManager?.requestReviewFlow()
-                request?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // We got the ReviewInfo object
-                        val reviewInfo = task.result
-                        launchReviewFlow(reviewInfo)
-                    } else {
-                        // There was some problem, log or handle the error code.
-                        @ReviewErrorCode val reviewErrorCode = (task.getException() as ReviewException).errorCode
-                        Log.i("MainActivity", "error prompting review -> code: $reviewErrorCode")
-                    }
-                }
-            }
-        }
     }
 
     override fun onStop() {
@@ -272,17 +244,6 @@ class MainActivity: AppCompatActivity() {
         val app = application as MainApplication
 
         app.vpnRequestStartListener = null
-    }
-
-    private fun launchReviewFlow(reviewInfo: ReviewInfo) {
-
-        val flow = reviewManager?.launchReviewFlow(this, reviewInfo)
-        flow?.addOnCompleteListener { _ ->
-            // The flow has finished. The API does not indicate whether the user
-            // reviewed or not, or even whether the review dialog was shown. Thus, no
-            // matter the result, we continue our app flow.
-            promptReviewViewModel.enablePromptReview()
-        }
     }
 
     override fun onDestroy() {

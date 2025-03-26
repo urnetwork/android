@@ -247,4 +247,5 @@
     <string name="connected_provider_count">%d개의 제공업체에 연결됨</string>
     <string name="ready_to_connect">연결 준비 완료</string>
     <string name="network_name_ready_to_connect">%s 연결 준비 완료</string>
+    <string name="how_are_we_doing">우리는 어떻게 하고 있나요?</string>
 </resources>
