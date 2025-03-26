@@ -262,7 +262,7 @@ fun ConnectMainContent(
 
                 scope.launch {
                     device.canShowRatingDialog = false
-                    delay(5000)
+                    delay(2000)
                     val activity = context as? android.app.Activity
                     activity?.let {
                         reviewManagerRequest.launchReviewFlow(it)
@@ -271,6 +271,7 @@ fun ConnectMainContent(
                 }
 
             }
+
         }
 
     }
