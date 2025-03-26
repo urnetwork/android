@@ -24,7 +24,6 @@ import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
-import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
@@ -48,7 +47,6 @@ class MainActivity: AppCompatActivity() {
 
     private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
-    private val promptReviewViewModel: PromptReviewViewModel by viewModels()
     private val planViewModel: PlanViewModel by viewModels()
 
     private fun prepareVpnService() {
@@ -152,7 +150,6 @@ class MainActivity: AppCompatActivity() {
                 MainNavHost(
                     walletViewModel,
                     settingsViewModel,
-                    promptReviewViewModel,
                     planViewModel,
                     animateIn,
                     targetUrl,
