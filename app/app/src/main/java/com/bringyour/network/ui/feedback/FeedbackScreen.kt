@@ -115,7 +115,7 @@ fun FeedbackScreen(
 
             if (starCount == 5) {
                 scope.launch {
-                    delay(5000)
+                    delay(1000)
                     val activity = context as? android.app.Activity
                     activity?.let {
                         reviewManagerRequest.launchReviewFlow(it)
