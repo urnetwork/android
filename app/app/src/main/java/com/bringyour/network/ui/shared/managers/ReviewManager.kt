@@ -30,46 +30,41 @@ class ReviewManagerRequest(
     private var reviewInfo: ReviewInfo? = null
 
     init {
-        // Request review information when the class is initialized
         requestReviewFlow()
     }
 
     fun requestReviewFlow() {
 
-        if (device?.shouldShowRatingDialog == true) {
-
             val request: Task<ReviewInfo> = reviewManager.requestReviewFlow()
             request.addOnCompleteListener { task ->
                 reviewInfo = if (task.isSuccessful) {
-                    // We can get the ReviewInfo object
                     task.result
                 } else {
                     @ReviewErrorCode val reviewErrorCode = (task.exception as ReviewException).errorCode
                     Log.i(TAG, "error prompting review -> code: $reviewErrorCode")
-                    // There was some problem, continue regardless of the result.
                     null
                 }
 
-                device.canShowRatingDialog = false
-
             }
-
-        }
 
     }
 
     fun launchReviewFlow(activity: android.app.Activity) {
-        Log.i(TAG, "launchReviewFlow hit")
-        reviewInfo?.let {
-            val flow = reviewManager.launchReviewFlow(activity, it)
-            flow.addOnCompleteListener { _ ->
-                // The flow has finished. The API does not indicate whether the user
-                // reviewed or not, or even whether the review dialog was shown. Thus, no
-                // matter the result, we continue our app flow.
-                requestReviewFlow()
+
+        if (device?.shouldShowRatingDialog == true) {
+
+            reviewInfo?.let {
+                val flow = reviewManager.launchReviewFlow(activity, it)
+                flow.addOnCompleteListener { _ ->
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown. Thus, no
+                    // matter the result, we continue our app flow.
+                    requestReviewFlow()
+                    device.canShowRatingDialog = false
+                }
+            } ?: run {
+                requestReviewFlow() // Ensure reviewInfo is not null
             }
-        } ?: run {
-            requestReviewFlow() // Ensure reviewInfo is not null
         }
     }
 }

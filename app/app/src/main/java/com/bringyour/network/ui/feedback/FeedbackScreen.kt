@@ -306,7 +306,7 @@ private fun FeedbackForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        URTextInputLabel("How are we doing?")
+        URTextInputLabel(stringResource(id = R.string.how_are_we_doing))
 
         Spacer(modifier = Modifier.height(8.dp))
 

@@ -9,9 +9,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.bringyour.sdk.FeedbackViewController
 import com.bringyour.network.DeviceManager
-import com.bringyour.sdk.Device
 import com.bringyour.sdk.DeviceLocal
-import com.bringyour.sdk.DeviceRemote
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -39,7 +37,6 @@ class FeedbackViewModel @Inject constructor(
 
     val setFeedbackMsg: (TextFieldValue) -> Unit = { msg ->
         feedbackMsg = msg
-        Log.i("FeedbackViewModel", "setFeedbackMsg: ${msg.text}")
         validateIsSendEnabled()
     }
 
