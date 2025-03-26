@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 fun WalletsScreen(
     navController: NavHostController,
     walletViewModel: WalletViewModel,
-    activityResultSender: ActivityResultSender,
+    activityResultSender: ActivityResultSender?,
 ) {
 
     val wallets by walletViewModel.wallets.collectAsState()
@@ -120,7 +120,7 @@ fun WalletsScreen(
     unpaidMegaByteCount: String,
     refresh: () -> Unit,
     isRefreshing: Boolean,
-    activityResultSender: ActivityResultSender,
+    activityResultSender: ActivityResultSender?,
     setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit,
     viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
@@ -137,40 +137,46 @@ fun WalletsScreen(
         val iconUri = Uri.parse("favicon.ico")
         val identityName = "URnetwork"
 
-        // Instantiate the MWA client object
-        val walletAdapter = MobileWalletAdapter(
-            connectionIdentity = ConnectionIdentity(
-                identityUri = solanaUri,
-                iconUri = iconUri,
-                identityName = identityName,
-            ),
-        )
-        walletAdapter.blockchain = Solana.Mainnet
 
         scope.launch {
 
             // `connect` dispatches an association intent to MWA-compatible wallet apps.
-            when (val result = walletAdapter.connect(activityResultSender)) {
-                is TransactionResult.Success -> {
-                    val authResult = result.authResult
-                    val account = SolanaPublicKey(authResult.accounts.first().publicKey)
+            activityResultSender?.let { activityResultSender ->
 
-                    Log.i("ConnectWalletSheet", "account is: ${account.base58()}")
+                // Instantiate the MWA client object
+                val walletAdapter = MobileWalletAdapter(
+                    connectionIdentity = ConnectionIdentity(
+                        identityUri = solanaUri,
+                        iconUri = iconUri,
+                        identityName = identityName,
+                    ),
+                )
+                walletAdapter.blockchain = Solana.Mainnet
 
-                    setExternalWalletAddress(TextFieldValue(account.base58()))
-                    // setExternalWalletAddress(TextFieldValue(address))
-                    // since this is taken directly from the solana mobile adapter,
-                    // we can mark this as true without calling our API to validate
-                    setExternalWalletAddressIsValid("SOL", true)
+                when (val result = walletAdapter.connect(activityResultSender)) {
+                    is TransactionResult.Success -> {
+                        val authResult = result.authResult
+                        val account = SolanaPublicKey(authResult.accounts.first().publicKey)
 
-                    linkWallet()
+                        Log.i("ConnectWalletSheet", "account is: ${account.base58()}")
 
-                }
-                is TransactionResult.NoWalletFound -> {
-                    println("No MWA compatible wallet app found on device.")
-                }
-                is TransactionResult.Failure -> {
-                    println("Error connecting to wallet: " + result.e.message)
+                        setExternalWalletAddress(TextFieldValue(account.base58()))
+                        // setExternalWalletAddress(TextFieldValue(address))
+                        // since this is taken directly from the solana mobile adapter,
+                        // we can mark this as true without calling our API to validate
+                        setExternalWalletAddressIsValid("SOL", true)
+
+                        linkWallet()
+
+                    }
+
+                    is TransactionResult.NoWalletFound -> {
+                        println("No MWA compatible wallet app found on device.")
+                    }
+
+                    is TransactionResult.Failure -> {
+                        println("Error connecting to wallet: " + result.e.message)
+                    }
                 }
             }
 

@@ -5,7 +5,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.3'
+        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.4'
     }
 }
 
@@ -14,7 +14,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.20'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.20'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.1.20'
 }
 
 
@@ -24,6 +25,29 @@ import org.yaml.snakeyaml.Yaml
 
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?:
         file("${rootDir.absolutePath}/../..").absolutePath
+
+ext.warpctlPath = { ->
+    def osName = ''
+    def osArch = ''
+    switch (System.getProperty('os.name')) {
+        case 'Linux':
+            osName = 'linux'
+            break
+        case 'Mac OS X':
+            osName = 'darwin'
+            break
+    }
+    switch (System.getProperty('os.arch')) {
+        case 'amd64':
+            osArch = 'amd64'
+            break
+        case 'aarch64':
+            osArch = 'arm64'
+            break
+    }
+
+    "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl"
+}
 
 ext.envSecret = { envName ->
     def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
@@ -53,27 +77,8 @@ android {
         if (warpVersion) {
             warpVersion
         } else {
-            def osName = ''
-            def osArch = ''
-            switch (System.getProperty('os.name')) {
-                case 'Linux':
-                    osName = 'linux'
-                    break
-                case 'Mac OS X':
-                    osName = 'darwin'
-                    break
-            }
-            switch (System.getProperty('os.arch')) {
-                case 'amd64':
-                    osArch = 'amd64'
-                    break
-                case 'aarch64':
-                    osArch = 'arm64'
-                    break
-            }
-
             def b = new ProcessBuilder(
-                    "${bringyourHomeDir}/warp/warpctl/build/${osName}/${osArch}/warpctl",
+                    warpctlPath(),
                     'ls',
                     'version'
             )
@@ -93,15 +98,20 @@ android {
         if (warpVersionCode) {
             warpVersionCode as Integer
         } else {
-            // hours since company founding
-            def companyFounded = new SimpleDateFormat('MM/dd/yyyy').parse('05/23/2023')
-            ((System.currentTimeMillis() - companyFounded.getTime()) / (1000 * 60 * 60)) as Integer
+            def b = new ProcessBuilder(
+                    warpctlPath(),
+                    'ls',
+                    'version-code'
+            )
+            b.redirectErrorStream()
+            def p = b.start()
+            new String(p.inputStream.readAllBytes()).trim() as Integer
         }
     }
 
     namespace 'com.bringyour.network'
     compileSdk 35
-    ndkVersion '27.0.12077973'
+    ndkVersion '28.0.13004108'
 
     defaultConfig {
         applicationId "com.bringyour.network"
@@ -142,70 +152,11 @@ android {
 
     // BuildConfig.FLAVOR
     productFlavors {
-        local {
-            dimension = 'version'
-            applicationId 'com.bringyour.network.local'
-            versionNameSuffix '-local'
-
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"local"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
-            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
-        }
-        dev {
-            dimension = 'version'
-            applicationId 'com.bringyour.network.dev'
-            versionNameSuffix '-dev'
-
-            // set up dns entries for your developer host ip, e.g.
-            //   outerwerld-api.bringyour.com -> 192.168.1.11
-            //   outerwerld-connect.bringyour.com -> 192.168.1.11
-
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            // the env is the host name
-            // the server names will be e.g. outerwerld-lb.bringyour.com, outerwerld-api.bringyour.com, outerwerld-connect.bringyour.com, etc.
-            // to make development easy, set your ip in the DNS
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", "\"${System.env.HOST}\""
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"all"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"all"'
-            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
-        }
-        canary {
-            dimension = 'version'
-            applicationId 'com.bringyour.network.canary'
-            versionNameSuffix '-canary'
-
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"canary"'
-            // use secret so that we can use public routing that only our builds can access
-            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", "\"${envSecret('canary')}\""
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", 'null'
-            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
-        }
         github {
             isDefault true
             dimension = 'version'
             applicationId 'com.bringyour.network'
-            versionNameSuffix '-github'
+//            versionNameSuffix '-github'
 
             buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
@@ -222,7 +173,7 @@ android {
             // this can avoid the need for an initial doh query
             // json string array
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'false'
         }
         play {
             dimension = 'version'
@@ -257,6 +208,24 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+        }
+    }
+
+    sourceSets {
+        github {
+            java {
+                srcDirs += ['src/ungoogle/java']
+            }
+        }
+        play {
+            java {
+                srcDirs += ['src/google/java']
+            }
+        }
+        solana_dapp {
+            java {
+                srcDirs += ['src/google/java']
+            }
         }
     }
 
@@ -301,15 +270,15 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
 
     // serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     // for QR Code generation
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'androidx.biometric:biometric-ktx:1.4.0-alpha02'
 
     // hilt
-    implementation 'com.google.dagger:hilt-android:2.49'
-    kapt 'com.google.dagger:hilt-compiler:2.48'
+    implementation 'com.google.dagger:hilt-android:2.56'
+    kapt 'com.google.dagger:hilt-compiler:2.56'
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
 }
 
@@ -318,12 +287,12 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.15.0'
 
     // jetpack compose
-    def composeBom = platform('androidx.compose:compose-bom:2025.01.01')
+    def composeBom = platform('androidx.compose:compose-bom:2025.03.00')
     implementation composeBom
     androidTestImplementation composeBom
 
-    implementation("androidx.navigation:navigation-compose:2.8.6")
-    implementation "androidx.activity:activity-compose:1.10.0"
+    implementation("androidx.navigation:navigation-compose:2.8.9")
+    implementation "androidx.activity:activity-compose:1.10.1"
 
     // Material Design 3
     implementation 'androidx.compose.material3:material3:1.3.1'
@@ -331,55 +300,67 @@ dependencies {
     implementation 'androidx.compose.material3:material3-window-size-class-android:1.3.1'
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.7.7'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.7.7'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.7.8'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.7.8'
 
     // Android Studio Preview support
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.7.7'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.7.7'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.7.8'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.7.8'
+}
+
+
+// solana saga
+dependencies {
+    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.6")
+    implementation("com.solanamobile:web3-solana:0.2.5")
+    implementation("com.solanamobile:rpc-core:0.2.8")
+    implementation("io.github.funkatronics:multimult:0.2.3")
+}
+
+dependencies {
+    githubImplementation 'org.jetbrains.kotlin:kotlin-reflect:2.1.20'
 }
 
 // circle wallet
 dependencies {
-    implementation 'circle.programmablewallet:sdk:1.0.1059'
-}
-
-dependencies {
-    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.3")
+/*build:google*/    playImplementation 'circle.programmablewallet:sdk:1.0.1059'
 }
 
 // google play
 dependencies {
-    // FIXME only bundle if using google play flavor
-    implementation 'com.google.android.gms:play-services-auth:21.3.0'
-    implementation "com.android.installreferrer:installreferrer:2.2"
+/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.3.0'
+/*build:google*/    playImplementation 'com.android.installreferrer:installreferrer:2.2'
 
     // play store review
-    implementation 'com.google.android.play:review:2.0.2'
-    implementation 'com.google.android.play:review-ktx:2.0.2'
+/*build:google*/    playImplementation 'com.google.android.play:review:2.0.2'
+/*build:google*/    playImplementation 'com.google.android.play:review-ktx:2.0.2'
+
+    // see https://developer.android.com/google/play/billing/integrate#groovy
+/*build:google*/    playImplementation "com.android.billingclient:billing:7.1.1"
+/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:7.1.1"
 }
 
+
+// circle wallet
 dependencies {
-    implementation("com.google.android.play:review:2.0.2")
+/*build:google*/    solana_dappImplementation 'circle.programmablewallet:sdk:1.0.1059'
 }
 
-// google play billing
-// https://developer.android.com/google/play/billing/integrate#groovy
+// google play
 dependencies {
-    // FIXME only bundle if using google play flavor
-    def billing_version = '7.1.1'
-    implementation "com.android.billingclient:billing:$billing_version"
-    implementation "com.android.billingclient:billing-ktx:$billing_version"
+/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.3.0'
+/*build:google*/    solana_dappImplementation 'com.android.installreferrer:installreferrer:2.2'
+
+    // play store review
+/*build:google*/    solana_dappImplementation 'com.google.android.play:review:2.0.2'
+/*build:google*/    solana_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
+
+    // see https://developer.android.com/google/play/billing/integrate#groovy
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:7.1.1"
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:7.1.1"
 }
 
-// solana saga
-dependencies {
-    // FIXME only bundle if using saga flavor
-    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.3")
-    implementation("com.solanamobile:web3-solana:0.2.5")
-    implementation("com.solanamobile:rpc-core:0.2.7")
-    implementation("io.github.funkatronics:multimult:0.2.3")
-}
+
 
 // Allow references to generated code
 kapt {

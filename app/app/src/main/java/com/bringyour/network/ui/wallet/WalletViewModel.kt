@@ -10,7 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import circle.programmablewallet.sdk.WalletSdk
 import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.AccountWallet
 import com.bringyour.sdk.DeviceLocal
@@ -523,4 +522,3 @@ data class WalletValidationState(
     var polygon: Boolean = false
 )
 
-typealias OnWalletExecute = (walletSdk: WalletSdk, userToken: String, encryptionKey: String, challengeId: String) -> Unit
