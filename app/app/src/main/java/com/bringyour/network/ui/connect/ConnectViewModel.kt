@@ -26,6 +26,7 @@ import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
+import com.bringyour.sdk.DeviceLocal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConnectViewModel @Inject constructor(
-    deviceManager: DeviceManager,
+    val deviceManager: DeviceManager,
 ): ViewModel() {
 
     private var connectVc: ConnectViewController? = null
@@ -72,6 +73,9 @@ class ConnectViewModel @Inject constructor(
     val canvasSize = 248.dp
 
     val shuffledSuccessPoints = mutableListOf<AnimatedSuccessPoint>()
+
+    val device: DeviceLocal?
+        get() = this.deviceManager.device
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
         successPoints.addAll(

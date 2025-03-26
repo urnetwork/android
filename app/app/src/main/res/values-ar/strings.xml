@@ -211,4 +211,5 @@
     <string name="connected_provider_count">متصل بـ %d من مزودي الخدمة</string>
     <string name="ready_to_connect">جاهز للاتصال</string>
     <string name="network_name_ready_to_connect">%s جاهزة للاتصال</string>
+    <string name="how_are_we_doing">كيف حالنا؟</string>
 </resources>

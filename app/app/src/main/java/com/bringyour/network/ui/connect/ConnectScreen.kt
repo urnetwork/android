@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,18 +51,20 @@ import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.managers.rememberReviewManager
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
-import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.isTv
+import com.bringyour.sdk.DeviceLocal
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
-    promptReviewViewModel: PromptReviewViewModel,
     overlayViewModel: OverlayViewModel,
     locationsViewModel: LocationsListViewModel,
     navController: NavController,
@@ -99,7 +102,8 @@ fun ConnectScreen(
 //            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
                     launchOverlay = overlayViewModel.launch,
                     locationsViewModel = locationsViewModel,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel
+                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                    device = connectViewModel.device
                 )
             } else {
 
@@ -120,7 +124,8 @@ fun ConnectScreen(
                     launchOverlay = overlayViewModel.launch,
                     locationsViewModel = locationsViewModel,
                     navController = navController,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel
+                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                    device = connectViewModel.device
                 )
             }
 
@@ -146,7 +151,8 @@ private fun ConnectTV(
 //    checkTriggerPromptReview: () -> Boolean,
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
-    displayReconnectTunnel: Boolean
+    displayReconnectTunnel: Boolean,
+    device: DeviceLocal?
 ) {
 
     Column(
@@ -171,7 +177,8 @@ private fun ConnectTV(
             launchOverlay = launchOverlay,
             locationsViewModel = locationsViewModel,
             navController = navController,
-            displayReconnectTunnel = displayReconnectTunnel
+            displayReconnectTunnel = displayReconnectTunnel,
+            device = device
         )
 
         Column {
@@ -227,13 +234,16 @@ fun ConnectMainContent(
     launchOverlay: (OverlayMode) -> Unit,
     locationsViewModel: LocationsListViewModel,
     navController: NavController,
-    displayReconnectTunnel: Boolean
+    displayReconnectTunnel: Boolean,
+    device: DeviceLocal?
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val reviewManagerRequest = rememberReviewManager(device)
 
     LaunchedEffect(connectStatus) {
 
@@ -244,6 +254,16 @@ fun ConnectMainContent(
             ConnectStatus.CONNECTING -> true
             ConnectStatus.DESTINATION_SET -> true
             ConnectStatus.DISCONNECTED -> false
+        }
+
+        if (connectStatus == ConnectStatus.DISCONNECTED || connectStatus == ConnectStatus.CONNECTED) {
+            scope.launch {
+                delay(5000)
+                val activity = context as? android.app.Activity
+                activity?.let {
+                    reviewManagerRequest.launchReviewFlow(it)
+                }
+            }
         }
 
     }
