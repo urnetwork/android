@@ -65,7 +65,6 @@ import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.utils.isTablet
-import com.bringyour.sdk.DeviceLocal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -82,8 +81,7 @@ fun FeedbackScreen(
         launchOverlay = overlayViewModel.launch,
         isSendEnabled = feedbackViewModel.isSendEnabled,
         starCount = feedbackViewModel.starCount,
-        setStarCount = feedbackViewModel.setStarCount,
-        device = feedbackViewModel.device
+        setStarCount = feedbackViewModel.setStarCount
     )
 
 }
@@ -97,12 +95,11 @@ fun FeedbackScreen(
     isSendEnabled: Boolean,
     starCount: Int,
     setStarCount: (Int) -> Unit,
-    device: DeviceLocal?
 ) {
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val reviewManagerRequest = rememberReviewManager(device)
+    val reviewManagerRequest = rememberReviewManager()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -388,8 +385,7 @@ private fun FeedbackScreenPreview() {
                     launchOverlay = {},
                     isSendEnabled = true,
                     starCount = 3,
-                    setStarCount = {},
-                    device = null
+                    setStarCount = {}
                 )
             }
         }

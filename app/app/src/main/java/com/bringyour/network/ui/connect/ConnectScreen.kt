@@ -243,7 +243,7 @@ fun ConnectMainContent(
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val reviewManagerRequest = rememberReviewManager(device)
+    val reviewManagerRequest = rememberReviewManager()
 
     LaunchedEffect(connectStatus) {
 
@@ -257,12 +257,19 @@ fun ConnectMainContent(
         }
 
         if (connectStatus == ConnectStatus.DISCONNECTED || connectStatus == ConnectStatus.CONNECTED) {
-            scope.launch {
-                delay(5000)
-                val activity = context as? android.app.Activity
-                activity?.let {
-                    reviewManagerRequest.launchReviewFlow(it)
+
+            if (device?.shouldShowRatingDialog == true) {
+
+                scope.launch {
+                    device.canShowRatingDialog = false
+                    delay(5000)
+                    val activity = context as? android.app.Activity
+                    activity?.let {
+                        reviewManagerRequest.launchReviewFlow(it)
+                    }
+
                 }
+
             }
         }
 

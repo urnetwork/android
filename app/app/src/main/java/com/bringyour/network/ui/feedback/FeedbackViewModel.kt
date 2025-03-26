@@ -23,9 +23,6 @@ class FeedbackViewModel @Inject constructor(
     var feedbackMsg by mutableStateOf(TextFieldValue())
         private set
 
-    val device: DeviceLocal?
-        get() = this.deviceManager.device
-
     private var isSendingFeedback = false
 
     var starCount by mutableIntStateOf(0)
