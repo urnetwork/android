@@ -2,12 +2,14 @@ package com.bringyour.network.ui.feedback
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.bringyour.sdk.FeedbackViewController
 import com.bringyour.network.DeviceManager
+import com.bringyour.sdk.DeviceLocal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -23,9 +25,15 @@ class FeedbackViewModel @Inject constructor(
 
     private var isSendingFeedback = false
 
+    var starCount by mutableIntStateOf(0)
+        private set
+
+    val setStarCount: (Int) -> Unit = { count ->
+        starCount = count
+    }
+
     val setFeedbackMsg: (TextFieldValue) -> Unit = { msg ->
         feedbackMsg = msg
-        Log.i("FeedbackViewModel", "setFeedbackMsg: ${msg.text}")
         validateIsSendEnabled()
     }
 
