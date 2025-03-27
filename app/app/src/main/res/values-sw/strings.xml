@@ -226,4 +226,11 @@
     <string name="ready_to_connect">Tayari kuunganisha</string>
     <string name="network_name_ready_to_connect">%s iko tayari kuunganisha</string>
     <string name="how_are_we_doing">Tunaendaje?</string>
+    <string name="referral_code">Msimbo wa rufaa</string>
+    <string name="add_referral_extra_rewards">Ongeza msimbo wa rufaa ili kupata zawadi za ziada</string>
+    <string name="add_referral_code">Ongeza msimbo wa rufaa</string>
+    <string name="edit_referral_code">Hariri msimbo wa rufaa</string>
+    <string name="referral_bonus_applied">Bonasi ya rufaa imetumika</string>
+    <string name="apply_bonus">Tumia bonasi</string>
+    <string name="join_urnetwork">Jiunge na\\nURnetwork</string>
 </resources>
