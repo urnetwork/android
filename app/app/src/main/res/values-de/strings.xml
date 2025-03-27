@@ -215,4 +215,11 @@
     <string name="ready_to_connect">Bereit zur Verbindung</string>
     <string name="network_name_ready_to_connect">%s ist bereit zur Verbindung</string>
     <string name="how_are_we_doing">Wie geht es uns?</string>
+    <string name="referral_code">Empfehlungscode</string>
+    <string name="add_referral_extra_rewards">Füge einen Empfehlungscode hinzu, um zusätzliche Belohnungen zu erhalten</string>
+    <string name="add_referral_code">Empfehlungscode hinzufügen</string>
+    <string name="edit_referral_code">Empfehlungscode bearbeiten</string>
+    <string name="referral_bonus_applied">Empfehlungsbonus angewendet</string>
+    <string name="apply_bonus">Bonus anwenden</string>
+    <string name="join_urnetwork">Tritt bei\\nURnetwork</string>
 </resources>

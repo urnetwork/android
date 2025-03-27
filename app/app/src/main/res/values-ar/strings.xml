@@ -212,4 +212,11 @@
     <string name="ready_to_connect">جاهز للاتصال</string>
     <string name="network_name_ready_to_connect">%s جاهزة للاتصال</string>
     <string name="how_are_we_doing">كيف حالنا؟</string>
+    <string name="referral_code">رمز الإحالة</string>
+    <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
+    <string name="add_referral_code">إضافة رمز الإحالة</string>
+    <string name="edit_referral_code">تعديل رمز الإحالة</string>
+    <string name="referral_bonus_applied">تم تطبيق مكافأة الإحالة</string>
+    <string name="apply_bonus">تطبيق المكافأة</string>
+    <string name="join_urnetwork">انضم إلى\\nURnetwork</string>
 </resources>

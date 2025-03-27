@@ -225,4 +225,11 @@
     <string name="ready_to_connect">Έτοιμο για σύνδεση</string>
     <string name="network_name_ready_to_connect">%s είναι έτοιμο για σύνδεση</string>
     <string name="how_are_we_doing">Πώς τα πάμε;</string>
+    <string name="referral_code">Κωδικός παραπομπής</string>
+    <string name="add_referral_extra_rewards">Προσθέστε κωδικό παραπομπής για να κερδίσετε επιπλέον ανταμοιβές</string>
+    <string name="add_referral_code">Προσθήκη κωδικού παραπομπής</string>
+    <string name="edit_referral_code">Επεξεργασία κωδικού παραπομπής</string>
+    <string name="referral_bonus_applied">Εφαρμόστηκε μπόνους παραπομπής</string>
+    <string name="apply_bonus">Εφαρμογή μπόνους</string>
+    <string name="join_urnetwork">Συνδεθείτε στο\\nURnetwork</string>
 </resources>

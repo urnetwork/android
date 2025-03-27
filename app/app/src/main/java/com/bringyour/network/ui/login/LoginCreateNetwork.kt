@@ -1,11 +1,12 @@
 package com.bringyour.network.ui.login
 
+import android.util.Log
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,14 +29,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,18 +48,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -64,6 +72,8 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
+import androidx.compose.ui.Alignment
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
@@ -72,8 +82,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
-import com.bringyour.network.ui.theme.MainTintedBackgroundBase
+import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTv
+import com.bringyour.sdk.Api
 
 // Base class with common parameters
 open class CommonLoginParams(
@@ -116,6 +129,21 @@ fun LoginCreateNetwork(
     loginCreateNetworkViewModel: LoginCreateNetworkViewModel = hiltViewModel()
 ) {
 
+    val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
+
+    LaunchedEffect(params.referralCode) {
+
+        Log.i(TAG, "referral code: ${params.referralCode}")
+
+        params.referralCode?.let { code ->
+            if (code.isNotEmpty()) {
+                loginCreateNetworkViewModel.setReferralCode(TextFieldValue(code))
+                loginCreateNetworkViewModel.validateReferralCode(application?.api, {})
+            }
+        }
+    }
+
     LoginCreateNetwork(
         params,
         navController,
@@ -133,7 +161,15 @@ fun LoginCreateNetwork(
         createNetworkArgs = loginCreateNetworkViewModel.createNetworkArgs,
         networkNameIsValid = loginCreateNetworkViewModel.networkNameIsValid,
         networkNameSupportingText = loginCreateNetworkViewModel.networkNameSupportingText,
-        setNetworkNameSupportingText = loginCreateNetworkViewModel.setNetworkNameSupportingText
+        setNetworkNameSupportingText = loginCreateNetworkViewModel.setNetworkNameSupportingText,
+        presentBonusSheet = loginCreateNetworkViewModel.presentBonusSheet,
+        setPresentBonusSheet = loginCreateNetworkViewModel.setPresentBonusSheet,
+        referralCode = loginCreateNetworkViewModel.referralCode,
+        setReferralCode = loginCreateNetworkViewModel.setReferralCode,
+        validateReferralCode = loginCreateNetworkViewModel.validateReferralCode,
+        isValidReferralCode = loginCreateNetworkViewModel.isValidReferralCode,
+        isValidatingReferralCode = loginCreateNetworkViewModel.isValidatingReferralCode,
+        referralValidationComplete = loginCreateNetworkViewModel.referralValidationComplete
    )
 }
 
@@ -156,7 +192,15 @@ fun LoginCreateNetwork(
     networkNameIsValid: Boolean,
     createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs,
     setNetworkNameSupportingText: (String) -> Unit,
-    networkNameSupportingText: String
+    networkNameSupportingText: String,
+    presentBonusSheet: Boolean,
+    setPresentBonusSheet: (Boolean) -> Unit,
+    referralCode: TextFieldValue,
+    setReferralCode: (TextFieldValue) -> Unit,
+    validateReferralCode: (Api?, (Boolean) -> Unit) -> Unit,
+    isValidReferralCode: Boolean,
+    isValidatingReferralCode: Boolean,
+    referralValidationComplete: Boolean
 ) {
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
@@ -265,6 +309,13 @@ fun LoginCreateNetwork(
     val invalidNetworkNameLength = stringResource(id = R.string.network_name_length_error)
     val networkNameAvailable = stringResource(id = R.string.available)
 
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false,
+        confirmValueChange = { sheetValue ->
+            sheetValue != SheetValue.Expanded
+        }
+    )
+
     LaunchedEffect(networkNameErrorExists, networkNameIsValid, networkName.text) {
         if (networkName.text.isEmpty()) {
             setNetworkNameSupportingText("")
@@ -356,6 +407,9 @@ fun LoginCreateNetwork(
                                 createNetwork()
                             },
                             networkNameSupportingText = networkNameSupportingText,
+                            setPresentBonusSheet = setPresentBonusSheet,
+                            isValidReferralCode = isValidReferralCode,
+                            referralCode = referralCode,
                         )
                     }
                 }
@@ -367,7 +421,6 @@ fun LoginCreateNetwork(
                         .verticalScroll(rememberScrollState())
                         .padding(innerPadding)
                         .padding(16.dp),
-                    // .imePadding(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -378,27 +431,6 @@ fun LoginCreateNetwork(
                             style = MaterialTheme.typography.headlineLarge,
                             textAlign = TextAlign.Center
                         )
-                    }
-
-                    if (params.referralCode != null) {
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    MainTintedBackgroundBase,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .padding(horizontal = 16.dp, vertical = 16.dp)
-
-                        ) {
-                            Text(
-                                stringResource(id = R.string.network_create_bonus_message),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(48.dp))
@@ -420,6 +452,9 @@ fun LoginCreateNetwork(
                             createNetwork()
                         },
                         networkNameSupportingText = networkNameSupportingText,
+                        setPresentBonusSheet = setPresentBonusSheet,
+                        isValidReferralCode = isValidReferralCode,
+                        referralCode = referralCode,
                     )
                 }
             }
@@ -429,6 +464,59 @@ fun LoginCreateNetwork(
 
     if (welcomeOverlayVisible) {
         WelcomeAnimatedOverlayLogin()
+    }
+
+    if (presentBonusSheet) {
+        ModalBottomSheet(
+            modifier = Modifier.wrapContentHeight(),
+            sheetState = sheetState,
+            onDismissRequest = { setPresentBonusSheet(false) },
+            dragHandle = {}
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(bottom = 32.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        stringResource(id = R.string.add_referral_extra_rewards),
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URTextInput(
+                    label = stringResource(id = R.string.referral_code),
+                    value = referralCode,
+                    onValueChange = setReferralCode,
+                    supportingText = if (!isValidatingNetworkName && !isValidReferralCode && referralValidationComplete) "This code is not valid" else "",
+                    isValidating = isValidatingReferralCode,
+                    isValid = (!referralValidationComplete || isValidReferralCode)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(
+                    onClick = {
+                        validateReferralCode(application?.api) { valid ->
+                            if (valid) {
+                                setPresentBonusSheet(false)
+                            }
+                        }
+                    },
+                    enabled = !isValidatingReferralCode && !referralCode.text.isEmpty()
+                ) { buttonTextStyle ->
+                    Text(
+                        stringResource(id = R.string.apply_bonus),
+                        style = buttonTextStyle
+                    )
+                }
+            }
+        }
     }
 
 }
@@ -449,7 +537,10 @@ private fun NetworkCreateForm(
     termsAgreed: Boolean,
     setTermsAgreed: (Boolean) -> Unit,
     isBtnEnabled: Boolean,
-    onCreateNetwork: () -> Unit
+    onCreateNetwork: () -> Unit,
+    setPresentBonusSheet: (Boolean) -> Unit,
+    isValidReferralCode: Boolean,
+    referralCode: TextFieldValue,
 ) {
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
@@ -539,6 +630,35 @@ private fun NetworkCreateForm(
 
             }
 
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+
+                if (isValidReferralCode) {
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = "Valid referral code",
+                        tint = Green,
+                        // modifier = Modifier.size(24.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(stringResource(id = R.string.referral_bonus_applied),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
+
+                } else {
+                    Text("")
+                }
+
+            }
+
             Spacer(modifier = Modifier.height(48.dp))
 
             URButton(
@@ -555,6 +675,29 @@ private fun NetworkCreateForm(
                     contentDescription = "Right Arrow",
                     modifier = Modifier.size(16.dp),
                     tint = if (isBtnEnabled) Color.White else Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = if (referralCode.text.isEmpty()) stringResource(id = R.string.add_referral_code)
+                        else stringResource(id = R.string.edit_referral_code),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .clickable() {
+                            setPresentBonusSheet(true)
+                        }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    style = TextStyle(
+                        color = TextMuted,
+                        fontFamily = ppNeueBitBold,
+                        fontSize = 24.sp
+                    )
                 )
             }
         }
@@ -575,6 +718,8 @@ private fun LoginNetworkCreatePreview() {
     val mockCreateNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs = {
         NetworkCreateArgs()
     }
+
+    val mockValidateReferralCode: (Api?, (Boolean) -> Unit) -> Unit = { _, _ -> }
 
     URNetworkTheme {
         Scaffold(
@@ -602,7 +747,15 @@ private fun LoginNetworkCreatePreview() {
                     createNetworkArgs = mockCreateNetworkArgs,
                     networkNameIsValid = true,
                     networkNameSupportingText = "",
-                    setNetworkNameSupportingText = {}
+                    setNetworkNameSupportingText = {},
+                    presentBonusSheet = false,
+                    setPresentBonusSheet = {},
+                    referralCode = TextFieldValue(""),
+                    setReferralCode = {},
+                    validateReferralCode = mockValidateReferralCode,
+                    isValidReferralCode = true,
+                    isValidatingReferralCode = false,
+                    referralValidationComplete = false
                 )
             }
         }

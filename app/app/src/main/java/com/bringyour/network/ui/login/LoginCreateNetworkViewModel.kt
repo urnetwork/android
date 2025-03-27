@@ -11,13 +11,17 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.sdk.NetworkNameValidationViewController
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.TAG
+import com.bringyour.sdk.Api
+import com.bringyour.sdk.Sdk.parseId
+import com.bringyour.sdk.ValidateReferralCodeArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginCreateNetworkViewModel @Inject constructor(
-    networkSpaceManagerProvider: NetworkSpaceManagerProvider
+    networkSpaceManagerProvider: NetworkSpaceManagerProvider,
 ): ViewModel() {
 
     private var networkNameValidationVc: NetworkNameValidationViewController? = null
@@ -28,7 +32,6 @@ class LoginCreateNetworkViewModel @Inject constructor(
     val setEmailOrPhone: (TextFieldValue) -> Unit = { tfv ->
         emailOrPhone = tfv
     }
-
 
     var networkNameIsValid by mutableStateOf(false)
         private set
@@ -42,6 +45,13 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
     var isValidatingNetworkName by mutableStateOf(false)
         private set
+
+    var presentBonusSheet by mutableStateOf(false)
+        private set
+
+    val setPresentBonusSheet: (Boolean) -> Unit = { pb ->
+        presentBonusSheet = pb
+    }
 
     val setIsValidatingNetworkName: (Boolean) -> Unit = { iv ->
         isValidatingNetworkName = iv
@@ -66,6 +76,57 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
     val setTermsAgreed:(Boolean) -> Unit = { ta ->
         termsAgreed = ta
+    }
+
+    private val _referralCode = mutableStateOf(TextFieldValue(""))
+    val referralCode: TextFieldValue get() = _referralCode.value
+    val setReferralCode: (TextFieldValue) -> Unit = { _referralCode.value = it }
+
+    var isValidReferralCode by mutableStateOf(false)
+        private set
+
+    var isValidatingReferralCode by mutableStateOf(false)
+        private set
+
+    // this is used so we don't display an error state when the form is initialized with a blank value
+    var referralValidationComplete by mutableStateOf(false)
+        private set
+
+    val validateReferralCode: (Api?, (Boolean) -> Unit) -> Unit = { api, onComplete ->
+
+        if (!isValidatingReferralCode) {
+            isValidatingReferralCode = true
+            referralValidationComplete = false
+
+            val args = ValidateReferralCodeArgs()
+
+
+            try {
+                args.referralCode = parseId(_referralCode.value.text)
+
+                api?.validateReferralCode(args) { result, err ->
+                    viewModelScope.launch {
+
+                        if (err != null) {
+                            Log.i(TAG, "validateReferralCode callback err: ${err.message}")
+                            isValidReferralCode = false
+                        }
+
+                        isValidReferralCode = result.isValid
+                        isValidatingReferralCode = false
+                        referralValidationComplete = true
+                        onComplete(isValidReferralCode)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.i(TAG, "${e.message}")
+                isValidReferralCode = false
+                isValidatingReferralCode = false
+                referralValidationComplete = true
+            }
+
+        }
+
     }
 
     var networkNameSupportingText by mutableStateOf("")
@@ -121,8 +182,12 @@ class LoginCreateNetworkViewModel @Inject constructor(
         args.networkName = networkName.text.trim()
         args.terms = termsAgreed
 
-        if (params.referralCode != null) {
-            args.referralCode = Sdk.parseId(params.referralCode)
+        if (!_referralCode.value.text.isEmpty()) {
+            try {
+                args.referralCode = Sdk.parseId(_referralCode.value.text)
+            } catch (e: Exception) {
+                Log.i(TAG, "error parsing referral code: ${e.message}")
+            }
         }
 
         when(params) {
