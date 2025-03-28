@@ -27,13 +27,13 @@ def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?:
         file("${rootDir.absolutePath}/../..").absolutePath
 
 ext.signingSecret = { key ->
-    def f = new File("${bringyourHomeDir}/release/android/signing/app.properties")
-    if (f.exists()) {
+    def signingPropertiesFile = file("${bringyourHomeDir}/release/android/signing/app.properties")
+    if (signingPropertiesFile.exists()) {
         Properties signingProperties = new Properties()
-        signingProperties.load(f.newDataInputStream())
+        signingProperties.load(signingPropertiesFile.newDataInputStream())
         signingProperties.getProperty(key)
     } else {
-        println("WARNING: [${envName}] signing property does not exist, so released cannot be built (${key})")
+        println("WARNING: $key signing property does not exist, so released cannot be built (${signingPropertiesFile})")
         ''
     }
 }
@@ -72,7 +72,7 @@ ext.envSecret = { envName ->
         }
     } else {
         // services file doesn't exist
-        println("WARNING: [${envName}] services file doesn't exist, so the env secret won't be set (${servicesFile})")
+        println("WARNING: ${envName} services file doesn't exist, so the env secret won't be set (${servicesFile})")
         ''
     }
 }
@@ -80,10 +80,10 @@ ext.envSecret = { envName ->
 android {
     ext.appVersion = { ->
         def warpVersion = ''
-        def f = new File("${rootDir.absolutePath}/local.properties")
-        if (f.exists()) {
+        def localPropertiesFile = file("${rootDir.absolutePath}/local.properties")
+        if (localPropertiesFile.exists()) {
             Properties localProperties = new Properties()
-            localProperties.load(f.newDataInputStream())
+            localProperties.load(localPropertiesFile.newDataInputStream())
             warpVersion = localProperties.getProperty('warp.version')
         }
 
@@ -102,10 +102,10 @@ android {
     }
     ext.appVersionCode = { ->
         def warpVersionCode = ''
-        def f = new File("${rootDir.absolutePath}/local.properties")
-        if (f.exists()) {
+        def localPropertiesFile = file("${rootDir.absolutePath}/local.properties")
+        if (localPropertiesFile.exists()) {
             Properties localProperties = new Properties()
-            localProperties.load(f.newDataInputStream())
+            localProperties.load(localPropertiesFile.newDataInputStream())
             warpVersionCode = localProperties.getProperty('warp.version_code')
         }
 
