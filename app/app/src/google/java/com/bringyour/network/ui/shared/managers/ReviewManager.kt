@@ -38,8 +38,7 @@ class ReviewManagerRequest(
             reviewInfo = if (task.isSuccessful) {
                 task.result
             } else {
-                @ReviewErrorCode val reviewErrorCode = (task.exception as ReviewException).errorCode
-                Log.i(TAG, "error prompting review -> code: $reviewErrorCode")
+                Log.i(TAG, "error prompting review")
                 null
             }
 
