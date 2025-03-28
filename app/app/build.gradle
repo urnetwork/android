@@ -26,6 +26,18 @@ import org.yaml.snakeyaml.Yaml
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?:
         file("${rootDir.absolutePath}/../..").absolutePath
 
+ext.signingSecret = { key ->
+    def f = new File("${bringyourHomeDir}/release/android/signing/app.properties")
+    if (f.exists()) {
+        Properties signingProperties = new Properties()
+        signingProperties.load(f.newDataInputStream())
+        signingProperties.getProperty(key)
+    } else {
+        println("WARNING: [${envName}] signing property does not exist, so released cannot be built (${key})")
+        ''
+    }
+}
+
 ext.warpctlPath = { ->
     def osName = ''
     def osArch = ''
@@ -68,9 +80,10 @@ ext.envSecret = { envName ->
 android {
     ext.appVersion = { ->
         def warpVersion = ''
-        if (new File("${rootDir.absolutePath}/local.properties").exists()) {
+        def f = new File("${rootDir.absolutePath}/local.properties")
+        if (f.exists()) {
             Properties localProperties = new Properties()
-            localProperties.load(new File("${rootDir.absolutePath}/local.properties").newDataInputStream())
+            localProperties.load(f.newDataInputStream())
             warpVersion = localProperties.getProperty('warp.version')
         }
 
@@ -89,9 +102,10 @@ android {
     }
     ext.appVersionCode = { ->
         def warpVersionCode = ''
-        if (new File("${rootDir.absolutePath}/local.properties").exists()) {
+        def f = new File("${rootDir.absolutePath}/local.properties")
+        if (f.exists()) {
             Properties localProperties = new Properties()
-            localProperties.load(new File("${rootDir.absolutePath}/local.properties").newDataInputStream())
+            localProperties.load(f.newDataInputStream())
             warpVersionCode = localProperties.getProperty('warp.version_code')
         }
 
@@ -138,13 +152,37 @@ android {
             keyPassword 'android'
             storePassword 'android'
         }
+
+        github {
+            keyAlias 'github'
+            keyPassword signingSecret('github.password')
+            storeFile file("${bringyourHomeDir}/release/android/signing/app.jks")
+            storePassword signingSecret('password')
+        }
+
+        play {
+            keyAlias 'play'
+            keyPassword signingSecret('play.password')
+            storeFile file("${bringyourHomeDir}/release/android/signing/app.jks")
+            storePassword signingSecret('password')
+        }
+
+        solana_dapp {
+            keyAlias 'solana_dapp'
+            keyPassword signingSecret('solana_dapp.password')
+            storeFile file("${bringyourHomeDir}/release/android/signing/app.jks")
+            storePassword signingSecret('password')
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
         }
     }
 
@@ -174,6 +212,8 @@ android {
             // json string array
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'false'
+
+            signingConfig signingConfigs.github
         }
         play {
             dimension = 'version'
@@ -191,6 +231,8 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"circle"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+
+            signingConfig signingConfigs.play
         }
         solana_dapp {
             dimension = 'version'
@@ -208,6 +250,8 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+
+            signingConfig signingConfigs.solana_dapp
         }
     }
 
