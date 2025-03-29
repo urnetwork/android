@@ -3,6 +3,7 @@ package com.bringyour.network.ui.settings
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.AccountPreferencesViewController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,17 +101,18 @@ class SettingsViewModel @Inject constructor(
     }
 
     val addAllowProductUpdatesListener = {
-        viewModelScope.launch {
-            accountPreferencesVc?.let { vc ->
-                vc.addAllowProductUpdatesListener {
+        accountPreferencesVc?.let { vc ->
+            vc.addAllowProductUpdatesListener {
+                viewModelScope.launch {
                     setAllowProductUpdates(vc.allowProductUpdates)
                 }
             }
         }
     }
 
-    val updateAllowProductUpdates: (Boolean) -> Unit = { allow ->
-        accountPreferencesVc?.updateAllowProductUpdates(allow)
+    val toggleAllowProductUpdates: () -> Unit = {
+        val currentAllowProductUpdates = allowProductUpdates
+        accountPreferencesVc?.updateAllowProductUpdates(!currentAllowProductUpdates)
     }
 
     val toggleProvideWhileDisconnected: () -> Unit = {
