@@ -292,7 +292,7 @@ android {
     }
 
     tasks.register('goclientBuild', Exec) {
-        workingDir "${bringyourHomeDir}/sdk"
+        workingDir "${bringyourHomeDir}/sdk/build"
         commandLine 'make', 'init', 'build_android'
         environment 'WARP_VERSION', appVersion()
     }
