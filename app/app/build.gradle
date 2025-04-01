@@ -291,6 +291,7 @@ android {
         kotlinCompilerExtensionVersion = "1.5.13"
     }
 
+    /*
     tasks.register('goclientBuild', Exec) {
         workingDir "${bringyourHomeDir}/sdk/build"
         commandLine 'make', 'init', 'build_android'
@@ -302,6 +303,7 @@ android {
             compileTask -> compileTask.dependsOn goclientBuild
         }
     }
+     */
 }
 
 // local URnetwork SDK
