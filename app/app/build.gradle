@@ -288,14 +288,14 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.13"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
-    /*
     tasks.register('goclientBuild', Exec) {
         workingDir "${bringyourHomeDir}/sdk/build"
         commandLine 'make', 'init', 'build_android'
         environment 'WARP_VERSION', appVersion()
+        environment 'WARP_VERSION_CODE', appVersionCode()
     }
 
     tasks.withType(JavaCompile).tap {
@@ -303,7 +303,6 @@ android {
             compileTask -> compileTask.dependsOn goclientBuild
         }
     }
-     */
 }
 
 // local URnetwork SDK
