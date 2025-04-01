@@ -369,41 +369,41 @@ dependencies {
 
 // circle wallet
 dependencies {
-/*build:google*/    playImplementation 'circle.programmablewallet:sdk:1.0.1059'
+/*ungoogled*/
 }
 
 // google play
 dependencies {
-/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.3.0'
-/*build:google*/    playImplementation 'com.android.installreferrer:installreferrer:2.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // play store review
-/*build:google*/    playImplementation 'com.google.android.play:review:2.0.2'
-/*build:google*/    playImplementation 'com.google.android.play:review-ktx:2.0.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    playImplementation "com.android.billingclient:billing:7.1.1"
-/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:7.1.1"
+/*ungoogled*/
+/*ungoogled*/
 }
 
 
 // circle wallet
 dependencies {
-/*build:google*/    solana_dappImplementation 'circle.programmablewallet:sdk:1.0.1059'
+/*ungoogled*/
 }
 
 // google play
 dependencies {
-/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.3.0'
-/*build:google*/    solana_dappImplementation 'com.android.installreferrer:installreferrer:2.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // play store review
-/*build:google*/    solana_dappImplementation 'com.google.android.play:review:2.0.2'
-/*build:google*/    solana_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:7.1.1"
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:7.1.1"
+/*ungoogled*/
+/*ungoogled*/
 }
 
 
