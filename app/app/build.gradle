@@ -216,6 +216,13 @@ android {
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'false'
 
             signingConfig signingConfigs.github
+
+            // remove x86/amd64 builds from the github build since these are only needed for chromeos
+            // https://developer.android.com/ndk/guides/abis
+            ndk {
+                abiFilters.remove('x86')
+                abiFilters.remove('x86_64')
+            }
         }
         play {
             dimension = 'version'
@@ -324,8 +331,8 @@ dependencies {
     implementation 'androidx.biometric:biometric-ktx:1.4.0-alpha02'
 
     // hilt
-    implementation 'com.google.dagger:hilt-android:2.56'
-    kapt 'com.google.dagger:hilt-compiler:2.56'
+    implementation 'com.google.dagger:hilt-android:2.56.1'
+    kapt 'com.google.dagger:hilt-compiler:2.56.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
 }
 
@@ -334,7 +341,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.15.0'
 
     // jetpack compose
-    def composeBom = platform('androidx.compose:compose-bom:2025.03.00')
+    def composeBom = platform('androidx.compose:compose-bom:2025.03.01')
     implementation composeBom
     androidTestImplementation composeBom
 
