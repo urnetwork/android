@@ -64,7 +64,7 @@ ext.warpctlPath = { ->
 }
 
 ext.envSecret = { envName ->
-    def servicesFile = file("$bringyourHomeDir/vault/$envName/services.yml")
+    def servicesFile = file("$warpHomeDir/vault/$envName/services.yml")
     if (servicesFile.exists()) {
         def services = new Yaml().load(servicesFile.newInputStream())
         if (services.hidden_prefixes && 0 < services.hidden_prefixes.size()) {
