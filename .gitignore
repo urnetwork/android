@@ -5,3 +5,4 @@ app/.gradle
 app/.idea
 **/node_modules
 app/local.properties
+.idea
