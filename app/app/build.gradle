@@ -19,7 +19,6 @@ plugins {
 }
 
 
-import java.text.SimpleDateFormat
 import org.yaml.snakeyaml.Yaml
 
 def warpHomeDir = System.getenv('WARP_HOME') ?:
