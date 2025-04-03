@@ -22,12 +22,14 @@ plugins {
 import java.text.SimpleDateFormat
 import org.yaml.snakeyaml.Yaml
 
+def warpHomeDir = System.getenv('WARP_HOME') ?:
+        file("${rootDir.absolutePath}/../..").absolutePath
 
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?:
         file("${rootDir.absolutePath}/../..").absolutePath
 
 ext.signingSecret = { key ->
-    def signingPropertiesFile = file("${bringyourHomeDir}/release/android/signing/app.properties")
+    def signingPropertiesFile = file("${warpHomeDir}/release/android/signing/app.properties")
     if (signingPropertiesFile.exists()) {
         Properties signingProperties = new Properties()
         signingProperties.load(signingPropertiesFile.newDataInputStream())
@@ -156,21 +158,21 @@ android {
         github {
             keyAlias 'github'
             keyPassword signingSecret('github.password')
-            storeFile file("${bringyourHomeDir}/release/android/signing/app.jks")
+            storeFile file("${warpHomeDir}/release/android/signing/app.jks")
             storePassword signingSecret('password')
         }
 
         play {
             keyAlias 'play'
             keyPassword signingSecret('play.password')
-            storeFile file("${bringyourHomeDir}/release/android/signing/app.jks")
+            storeFile file("${warpHomeDir}/release/android/signing/app.jks")
             storePassword signingSecret('password')
         }
 
         solana_dapp {
             keyAlias 'solana_dapp'
             keyPassword signingSecret('solana_dapp.password')
-            storeFile file("${bringyourHomeDir}/release/android/signing/app.jks")
+            storeFile file("${warpHomeDir}/release/android/signing/app.jks")
             storePassword signingSecret('password')
         }
     }
