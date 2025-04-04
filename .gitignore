@@ -6,3 +6,4 @@ app/.idea
 **/node_modules
 app/local.properties
 .idea
+.kotlin

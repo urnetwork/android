@@ -219,8 +219,8 @@ android {
             // remove x86/amd64 builds from the github build since these are only needed for chromeos
             // https://developer.android.com/ndk/guides/abis
             ndk {
-                abiFilters.remove('x86')
-                abiFilters.remove('x86_64')
+                //noinspection ChromeOsAbiSupport
+                abiFilters = ['armeabi-v7a', 'arm64-v8a']
             }
         }
         play {
@@ -304,6 +304,7 @@ android {
         commandLine 'make', 'init', 'build_android'
         environment 'WARP_VERSION', appVersion()
         environment 'WARP_VERSION_CODE', appVersionCode()
+        environment 'ANDROID_NDK_HOME', android.ndkDirectory
     }
 
     tasks.withType(JavaCompile).tap {
