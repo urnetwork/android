@@ -23,15 +23,15 @@ dependencyResolutionManagement {
         // pwsdk.maven.username=<your github username>
         // pwsdk.maven.password=<your github personal access token with credentials read:packages>
         // see https://developers.circle.com/w3s/android
-/*build:google*/        maven {
-/*build:google*/            url 'https://maven.pkg.github.com/circlefin/w3s-android-sdk'
-/*build:google*/            credentials {
-/*build:google*/                Properties localProperties = new Properties()
-/*build:google*/                localProperties.load(new File("${rootDir.absolutePath}/local.properties").newDataInputStream())
-/*build:google*/                username localProperties.getProperty('pwsdk.maven.username')
-/*build:google*/                password localProperties.getProperty('pwsdk.maven.password')
-/*build:google*/            }
-/*build:google*/        }
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
     }
 }
 rootProject.name = "URnetwork"
