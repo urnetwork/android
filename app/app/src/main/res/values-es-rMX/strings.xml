@@ -224,6 +224,8 @@
     <string name="connected_provider_count">Conectado a %d proveedores</string>
     <string name="ready_to_connect">Listo para conectar</string>
     <string name="network_name_ready_to_connect">%s está listo para conectar</string>
+    <string name="need_more_data_faster">¿Necesitas más datos, más rápido?</string>
+    <string name="upgrade_now">Actualizar ahora</string>
     <string name="how_are_we_doing">¿Cómo lo estamos haciendo?</string>
     <string name="referral_code">Código de referencia</string>
     <string name="add_referral_extra_rewards">Agrega un código de referencia para ganar recompensas adicionales</string>

@@ -225,6 +225,8 @@
     <string name="connected_provider_count">已连接到 %d 个提供商</string>
     <string name="ready_to_connect">准备连接</string>
     <string name="network_name_ready_to_connect">%s 已准备好连接</string>
+    <string name="need_more_data_faster">需要更多数据，更快吗？</string>
+    <string name="upgrade_now">立即升级</string>
     <string name="how_are_we_doing">我们做得怎么样？</string>
     <string name="referral_code">推荐码</string>
     <string name="add_referral_extra_rewards">添加推荐码以获得额外奖励</string>
