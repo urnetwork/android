@@ -227,4 +227,12 @@
     <string name="network_name_ready_to_connect">%s 已准备好连接</string>
     <string name="need_more_data_faster">需要更多数据，更快吗？</string>
     <string name="upgrade_now">立即升级</string>
+    <string name="how_are_we_doing">我们做得怎么样？</string>
+    <string name="referral_code">推荐码</string>
+    <string name="add_referral_extra_rewards">添加推荐码以获得额外奖励</string>
+    <string name="add_referral_code">添加推荐码</string>
+    <string name="edit_referral_code">编辑推荐码</string>
+    <string name="referral_bonus_applied">已应用推荐奖励</string>
+    <string name="apply_bonus">应用奖励</string>
+    <string name="join_urnetwork">加入\\nURnetwork</string>
 </resources>

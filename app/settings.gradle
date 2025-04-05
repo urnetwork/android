@@ -7,7 +7,7 @@ pluginManagement {
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -18,22 +18,21 @@ dependencyResolutionManagement {
 //            dirs "${System.env.HOME}/bringyour/bringyour/client/build/android"
 //        }
 
-        // circle sdk
+        // Circle SDK
+        // *important* you must add the following two properties to your local.properties
+        // pwsdk.maven.username=<your github username>
+        // pwsdk.maven.password=<your github personal access token with credentials read:packages>
         // see https://developers.circle.com/w3s/android
-        maven {
-            Properties properties = new Properties()
-            properties.load(new File(rootDir.absolutePath + "/dependencies.properties").newDataInputStream())
-            url properties.getProperty('pwsdk.maven.url')
-
-            credentials {
-                Properties localProperties = new Properties()
-                localProperties.load(new File(rootDir.absolutePath + "/local.properties").newDataInputStream())
-                username localProperties.getProperty('pwsdk.maven.username')
-                password localProperties.getProperty('pwsdk.maven.password')
-            }
-        }
+/*build:google*/        maven {
+/*build:google*/            url 'https://maven.pkg.github.com/circlefin/w3s-android-sdk'
+/*build:google*/            credentials {
+/*build:google*/                Properties localProperties = new Properties()
+/*build:google*/                localProperties.load(new File("${rootDir.absolutePath}/local.properties").newDataInputStream())
+/*build:google*/                username localProperties.getProperty('pwsdk.maven.username')
+/*build:google*/                password localProperties.getProperty('pwsdk.maven.password')
+/*build:google*/            }
+/*build:google*/        }
     }
 }
-rootProject.name = "BringYour"
+rootProject.name = "URnetwork"
 include ':app'
-

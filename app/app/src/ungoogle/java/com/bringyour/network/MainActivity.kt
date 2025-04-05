@@ -20,24 +20,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingFlowParams
-import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.ProductDetailsResult
-import com.android.billingclient.api.QueryProductDetailsParams
-import com.android.billingclient.api.queryProductDetails
 import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
-import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
-import com.google.android.play.core.review.ReviewException
-import com.google.android.play.core.review.ReviewInfo
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -57,16 +45,9 @@ class MainActivity: AppCompatActivity() {
 
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
-    // used for solana mobile adapter
-    val activityResultSender = ActivityResultSender(this)
-
     private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
-    private val promptReviewViewModel: PromptReviewViewModel by viewModels()
     private val planViewModel: PlanViewModel by viewModels()
-    private var reviewManager: ReviewManager? = null
-
-    private var sagaActivitySender: ActivityResultSender? = null
 
     private fun prepareVpnService() {
         val app = application as MainApplication
@@ -125,10 +106,6 @@ class MainActivity: AppCompatActivity() {
         // allow foreground to be started when the activity is active
         app.allowForeground = true
 
-        sagaActivitySender = ActivityResultSender(this)
-
-        reviewManager = ReviewManagerFactory.create(this)
-
         // used when connecting
         requestPermissionLauncherAndStart =
             registerForActivityResult(
@@ -173,12 +150,11 @@ class MainActivity: AppCompatActivity() {
                 MainNavHost(
                     walletViewModel,
                     settingsViewModel,
-                    promptReviewViewModel,
                     planViewModel,
                     animateIn,
                     targetUrl,
                     defaultLocation,
-                    activityResultSender
+                    null
                 )
             }
         }
@@ -227,43 +203,6 @@ class MainActivity: AppCompatActivity() {
                 }
             }
         }
-
-        // for upgrading plan
-        lifecycleScope.launch {
-            planViewModel.requestPlanUpgrade.collect {
-                upgradePlan()
-            }
-        }
-
-        // for requesting saga wallet
-        lifecycleScope.launch {
-            walletViewModel.requestSagaWallet.collect {
-                requestSagaWallet()
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-
-        // watch for review prompt
-        lifecycleScope.launch {
-            if (promptReviewViewModel.checkTriggerPromptReview()) {
-                val request = reviewManager?.requestReviewFlow()
-                request?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // We got the ReviewInfo object
-                        val reviewInfo = task.result
-                        launchReviewFlow(reviewInfo)
-                    } else {
-                        // There was some problem, log or handle the error code.
-                        @ReviewErrorCode val reviewErrorCode = (task.getException() as ReviewException).errorCode
-                        Log.i("MainActivity", "error prompting review -> code: $reviewErrorCode")
-                    }
-                }
-            }
-        }
     }
 
     override fun onStop() {
@@ -274,17 +213,6 @@ class MainActivity: AppCompatActivity() {
         app.vpnRequestStartListener = null
     }
 
-    private fun launchReviewFlow(reviewInfo: ReviewInfo) {
-
-        val flow = reviewManager?.launchReviewFlow(this, reviewInfo)
-        flow?.addOnCompleteListener { _ ->
-            // The flow has finished. The API does not indicate whether the user
-            // reviewed or not, or even whether the review dialog was shown. Thus, no
-            // matter the result, we continue our app flow.
-            promptReviewViewModel.enablePromptReview()
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
 
@@ -292,25 +220,6 @@ class MainActivity: AppCompatActivity() {
         val app = application as MainApplication
 
         app.allowForeground = false
-    }
-
-    private fun requestSagaWallet() {
-
-        val solanaWalletAdapter = MobileWalletAdapter(
-            connectionIdentity = ConnectionIdentity(
-                identityUri = Uri.parse("https://ur.io"),
-                iconUri = Uri.parse("favicon.svg"),
-                identityName = "URnetwork"
-            )
-        )
-        solanaWalletAdapter.blockchain = Solana.Mainnet
-
-        if (sagaActivitySender != null) {
-            lifecycleScope.launch {
-                val address = getWalletAddress(solanaWalletAdapter, sagaActivitySender!!)
-                walletViewModel.sagaWalletAddressRetrieved(address)
-            }
-        }
     }
 
     private suspend fun getWalletAddress(walletAdapter: MobileWalletAdapter, activitySender: ActivityResultSender): String? {
@@ -328,97 +237,5 @@ class MainActivity: AppCompatActivity() {
                 null
             }
         }
-    }
-
-    private suspend fun upgradePlan() {
-
-        Log.i("MainActivity", "upgrade plan hit")
-
-        val app = application as MainApplication
-
-        val billingClient = planViewModel.billingClient.value
-
-        val activity = this
-
-        val params = QueryProductDetailsParams.newBuilder()
-
-        val productList = listOf(
-            QueryProductDetailsParams.Product.newBuilder()
-                .setProductId("supporter")
-                .setProductType(BillingClient.ProductType.SUBS)
-                .build(),
-        )
-
-        params.setProductList(productList)
-
-        val productDetailsResult: ProductDetailsResult? = withContext(Dispatchers.IO) {
-            billingClient?.queryProductDetails(params.build())
-        }
-
-        // Process the result.
-
-        // An activity reference from which the billing flow will be launched.
-        // val activity : Activity = ...;
-
-        // FIXME find the product details that correspond to the selected plan
-
-        val productDetails = productDetailsResult?.productDetailsList?.find { productDetails: ProductDetails ->
-            productDetails.productId == "supporter"
-        }
-
-        Log.i("MainActivity", "FOUND PRODUCT DETAILS $productDetails")
-
-        if (productDetails == null) {
-
-            planViewModel.setChangePlanError("Product not found.")
-            planViewModel.setInProgress(false)
-
-            return
-        }
-
-        // just choose the first offer
-        val offer = productDetails.subscriptionOfferDetails?.first()
-
-        if (offer == null) {
-
-            planViewModel.setChangePlanError("Offer not found.")
-            planViewModel.setInProgress(false)
-
-            return
-        }
-
-        val productDetailsParamsList = listOf(
-            BillingFlowParams.ProductDetailsParams.newBuilder()
-                // retrieve a value for "productDetails" by calling queryProductDetailsAsync()
-                .setProductDetails(productDetails)
-                // to get an offer token, call ProductDetails.subscriptionOfferDetails()
-                // for a list of offers that are available to the user
-                .setOfferToken(offer.offerToken)
-                .build()
-        )
-
-//        val subscriptionCreatePaymentIdResult: SubscriptionCreatePaymentIdResult? = withContext(
-//            Dispatchers.IO) {
-//            app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs())
-//        }
-
-        app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs()) { result, error ->
-            val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
-                .setProductDetailsParamsList(productDetailsParamsList)
-
-            result?.subscriptionPaymentId?.string()?.let {
-                buildingFlowParamsBuilder.setObfuscatedAccountId(it)
-            }
-
-            val billingFlowParams = buildingFlowParamsBuilder.build()
-
-            // Launch the billing flow
-
-            activity.let { a ->
-                val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
-                Log.i("MainActivity", "billing result: $billingResult")
-            }
-        }
-
     }
 }

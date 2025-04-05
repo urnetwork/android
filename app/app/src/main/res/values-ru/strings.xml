@@ -249,4 +249,12 @@
     <string name="network_name_ready_to_connect">%s готова к подключению</string>
     <string name="need_more_data_faster">Нужно больше данных и быстрее?</string>
     <string name="upgrade_now">Обновить сейчас</string>
+    <string name="how_are_we_doing">Как наши дела?</string>
+    <string name="referral_code">Реферальный код</string>
+    <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные вознаграждения</string>
+    <string name="add_referral_code">Добавить реферальный код</string>
+    <string name="edit_referral_code">Изменить реферальный код</string>
+    <string name="referral_bonus_applied">Реферальный бонус применен</string>
+    <string name="apply_bonus">Применить бонус</string>
+    <string name="join_urnetwork">Присоединяйтесь к\\nURnetwork</string>
 </resources>

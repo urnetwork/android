@@ -122,7 +122,7 @@ fun SettingsScreen(
         requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
         notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
         allowProductUpdates = settingsViewModel.allowProductUpdates,
-        updateAllowProductUpdates = settingsViewModel.updateAllowProductUpdates,
+        toggleAllowProductUpdates = settingsViewModel.toggleAllowProductUpdates,
         provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
         toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
         urIdUrl = settingsViewModel.urIdUrl,
@@ -156,7 +156,7 @@ fun SettingsScreen(
     notificationsPermanentlyDenied: Boolean,
     requestAllowNotifications: () -> Unit,
     allowProductUpdates: Boolean,
-    updateAllowProductUpdates: (Boolean) -> Unit,
+    toggleAllowProductUpdates: () -> Unit,
     provideWhileDisconnected: Boolean,
     toggleProvideWhileDisconnected: () -> Unit,
     urIdUrl: (String) -> String?,
@@ -435,7 +435,7 @@ fun SettingsScreen(
                 URSwitch(
                     checked = allowProductUpdates,
                     toggle = {
-                        updateAllowProductUpdates(!allowProductUpdates)
+                        toggleAllowProductUpdates()
                     },
                 )
             }
@@ -588,6 +588,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingsScreenPreview() {
     val navController = rememberNavController()
+
     URNetworkTheme {
         SettingsScreen(
             navController,
@@ -597,7 +598,7 @@ private fun SettingsScreenPreview() {
             notificationsPermanentlyDenied = false,
             requestAllowNotifications = {},
             allowProductUpdates = true,
-            updateAllowProductUpdates = {},
+            toggleAllowProductUpdates = {},
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
@@ -623,7 +624,7 @@ private fun SettingsScreenSupporterPreview() {
             notificationsPermanentlyDenied = false,
             requestAllowNotifications = {},
             allowProductUpdates = true,
-            updateAllowProductUpdates = {},
+            toggleAllowProductUpdates = {},
             provideWhileDisconnected = false,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
@@ -649,7 +650,7 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             notificationsPermanentlyDenied = true,
             requestAllowNotifications = {},
             allowProductUpdates = true,
-            updateAllowProductUpdates = {},
+            toggleAllowProductUpdates = {},
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
@@ -675,7 +676,7 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             notificationsPermanentlyDenied = false,
             requestAllowNotifications = {},
             allowProductUpdates = false,
-            updateAllowProductUpdates = {},
+            toggleAllowProductUpdates = {},
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
@@ -701,7 +702,7 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             notificationsPermanentlyDenied = false,
             requestAllowNotifications = {},
             allowProductUpdates = false,
-            updateAllowProductUpdates = {},
+            toggleAllowProductUpdates = {},
             provideWhileDisconnected = true,
             toggleProvideWhileDisconnected = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },

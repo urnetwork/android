@@ -60,10 +60,11 @@ import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.managers.rememberReviewManager
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
-import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
+// import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainBorderBase
@@ -73,13 +74,14 @@ import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.isTv
 import com.bringyour.sdk.ContractStatus
+import com.bringyour.sdk.DeviceLocal
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectScreen(
     connectViewModel: ConnectViewModel,
-    promptReviewViewModel: PromptReviewViewModel,
     overlayViewModel: OverlayViewModel,
     locationsViewModel: LocationsListViewModel,
     navController: NavController,
@@ -158,7 +160,8 @@ fun ConnectScreen(
                         currentPlan = currentPlan,
                         displayInsufficientBalance = displayInsufficientBalance,
                         isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                        expandUpgradePlanSheet = expandUpgradePlanSheet
+                        expandUpgradePlanSheet = expandUpgradePlanSheet,
+                        device = connectViewModel.device
                     )
                 } else {
 
@@ -184,7 +187,8 @@ fun ConnectScreen(
                         currentPlan = currentPlan,
                         displayInsufficientBalance = displayInsufficientBalance,
                         isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                        expandUpgradePlanSheet = expandUpgradePlanSheet
+                        expandUpgradePlanSheet = expandUpgradePlanSheet,
+                        device = connectViewModel.device
                         // showTopAppBar = showTopAppBar
                     )
                 }
@@ -260,7 +264,8 @@ private fun ConnectTV(
     currentPlan: Plan,
     displayInsufficientBalance: Boolean,
     isPollingSubscriptionBalance: Boolean,
-    expandUpgradePlanSheet: () -> Unit
+    expandUpgradePlanSheet: () -> Unit,
+    device: DeviceLocal?
 ) {
 
     Column(
@@ -290,7 +295,8 @@ private fun ConnectTV(
             currentPlan = currentPlan,
             displayInsufficientBalance = displayInsufficientBalance,
             isPollingSubscriptionBalance = isPollingSubscriptionBalance,
-            expandUpgradePlanSheet = expandUpgradePlanSheet
+            expandUpgradePlanSheet = expandUpgradePlanSheet,
+            device = device
         )
 
         Column {
@@ -351,13 +357,16 @@ fun ConnectMainContent(
     contractStatus: ContractStatus?,
     currentPlan: Plan,
     isPollingSubscriptionBalance: Boolean,
-    expandUpgradePlanSheet: () -> Unit
+    expandUpgradePlanSheet: () -> Unit,
+    device: DeviceLocal?
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val reviewManagerRequest = rememberReviewManager()
 
     LaunchedEffect(connectStatus) {
 
@@ -368,6 +377,24 @@ fun ConnectMainContent(
             ConnectStatus.CONNECTING -> true
             ConnectStatus.DESTINATION_SET -> true
             ConnectStatus.DISCONNECTED -> false
+        }
+
+        if (connectStatus == ConnectStatus.DISCONNECTED || connectStatus == ConnectStatus.CONNECTED) {
+
+            if (device?.shouldShowRatingDialog == true) {
+
+                scope.launch {
+                    device.canShowRatingDialog = false
+                    delay(2000)
+                    val activity = context as? android.app.Activity
+                    activity?.let {
+                        reviewManagerRequest.launchReviewFlow(it)
+                    }
+
+                }
+
+            }
+
         }
 
     }

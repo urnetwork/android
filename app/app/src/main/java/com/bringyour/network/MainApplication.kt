@@ -17,7 +17,6 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import circle.programmablewallet.sdk.presentation.SettingsManagement
 import com.bringyour.sdk.AccountViewController
 import com.bringyour.sdk.DevicesViewController
 import com.bringyour.sdk.LoginViewController
@@ -84,9 +83,6 @@ class MainApplication : Application() {
 
     @Inject
     lateinit var deviceManager: DeviceManager
-
-    @Inject
-    lateinit var circleWalletManager: CircleWalletManager
 
     @Inject
     lateinit var networkSpaceManagerProvider: NetworkSpaceManagerProvider
@@ -174,10 +170,6 @@ class MainApplication : Application() {
         networkSpaceManagerProvider.setNetworkSpace(networkSpace)
 
         loginVc = Sdk.newLoginViewController(api)
-
-        if (networkSpace.wallet == "circle" || networkSpace.wallet == "all") {
-            initCircleWallet()
-        }
 
         asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt?.let { byClientJwt ->
@@ -484,23 +476,6 @@ class MainApplication : Application() {
         } ?: run {
             Log.i(TAG, "[contract]no contract status")
         }
-    }
-
-    // used only for wallet transfers now
-    // creating new circle wallets has been deprecated
-    private fun initCircleWallet() {
-        val applicationContext = applicationContext ?: return
-
-        val addId = applicationContext.getString(R.string.circle_app_id)
-
-        val settingsManagement = SettingsManagement()
-
-        circleWalletManager.init(
-            applicationContext,
-            addId,
-            settingsManagement,
-        )
-
     }
 
     private fun updateVpnService() {

@@ -59,7 +59,6 @@ import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
-import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
@@ -86,12 +85,11 @@ import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 fun MainNavHost(
     walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
-    promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     animateIn: Boolean,
     targetLink: String?,
     defaultLocation: String?,
-    activityResultSender: ActivityResultSender,
+    activityResultSender: ActivityResultSender?,
     mainNavViewModel: MainNavViewModel = hiltViewModel(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
     overlayViewModel: OverlayViewModel = hiltViewModel(),
@@ -257,7 +255,6 @@ fun MainNavHost(
                                 currentRoute,
                                 previousRoute,
                                 settingsViewModel = settingsViewModel,
-                                promptReviewViewModel = promptReviewViewModel,
                                 planViewModel = planViewModel,
                                 overlayViewModel = overlayViewModel,
                                 navController = navController,
@@ -288,7 +285,6 @@ fun MainNavHost(
                             currentRoute = currentRoute,
                             previousRoute = previousRoute,
                             settingsViewModel = settingsViewModel,
-                            promptReviewViewModel = promptReviewViewModel,
                             planViewModel = planViewModel,
                             overlayViewModel = overlayViewModel,
                             navController = navController,
@@ -330,13 +326,12 @@ fun MainNavContent(
     previousRoute: Route?,
     walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
-    promptReviewViewModel: PromptReviewViewModel,
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
     navController: NavHostController,
     connectViewModel: ConnectViewModel,
     locationsListViewModel: LocationsListViewModel,
-    activityResultSender: ActivityResultSender,
+    activityResultSender: ActivityResultSender?,
     isNavigatingWithinContainer: (Route?, Route?) -> Boolean,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
@@ -429,7 +424,7 @@ fun MainNavContent(
             composable<Route.Connect> {
                 ConnectScreen(
                     connectViewModel,
-                    promptReviewViewModel,
+                    // promptReviewViewModel,
                     overlayViewModel,
                     locationsListViewModel,
                     navController,

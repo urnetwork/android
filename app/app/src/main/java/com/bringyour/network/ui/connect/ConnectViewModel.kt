@@ -27,6 +27,7 @@ import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.sdk.ContractStatus
+import com.bringyour.sdk.DeviceLocal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -38,7 +39,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConnectViewModel @Inject constructor(
-    deviceManager: DeviceManager,
+    val deviceManager: DeviceManager,
 ): ViewModel() {
 
     private var connectVc: ConnectViewController? = null
@@ -81,6 +82,9 @@ class ConnectViewModel @Inject constructor(
 
     var showTopAppBar by mutableStateOf(false)
         private set
+        
+    val device: DeviceLocal?
+        get() = this.deviceManager.device
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
         successPoints.addAll(

@@ -249,5 +249,13 @@
     <string name="network_name_ready_to_connect">%s jest gotowy do połączenia</string>
     <string name="need_more_data_faster">Potrzebujesz więcej danych, szybciej?</string>
     <string name="upgrade_now">Uaktualnij teraz</string>
+    <string name="how_are_we_doing">Jak nam idzie?</string>
+    <string name="referral_code">Kod polecający</string>
+    <string name="add_referral_extra_rewards">Dodaj kod polecający, aby zdobyć dodatkowe nagrody</string>
+    <string name="add_referral_code">Dodaj kod polecający</string>
+    <string name="edit_referral_code">Edytuj kod polecający</string>
+    <string name="referral_bonus_applied">Zastosowano bonus polecający</string>
+    <string name="apply_bonus">Zastosuj bonus</string>
+    <string name="join_urnetwork">Dołącz do\\nURnetwork</string>
 
 </resources>

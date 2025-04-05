@@ -228,4 +228,12 @@
     <string name="network_name_ready_to_connect">%s est prêt à connecter</string>
     <string name="need_more_data_faster">Besoin de plus de données, plus rapidement ?</string>
     <string name="upgrade_now">Mettre à niveau maintenant</string>
+    <string name="how_are_we_doing">Comment allons-nous ?</string>
+    <string name="referral_code">Code de parrainage</string>
+    <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
+    <string name="add_referral_code">Ajouter un code de parrainage</string>
+    <string name="edit_referral_code">Modifier le code de parrainage</string>
+    <string name="referral_bonus_applied">Bonus de parrainage appliqué</string>
+    <string name="apply_bonus">Appliquer le bonus</string>
+    <string name="join_urnetwork">Rejoindre\\nURnetwork</string>
 </resources>

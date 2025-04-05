@@ -249,4 +249,12 @@
     <string name="network_name_ready_to_connect">%s 연결 준비 완료</string>
     <string name="need_more_data_faster">더 많은 데이터를 더 빠르게 원하십니까?</string>
     <string name="upgrade_now">지금 업그레이드하세요</string>
+    <string name="how_are_we_doing">우리는 어떻게 하고 있나요?</string>
+    <string name="referral_code">추천 코드</string>
+    <string name="add_referral_extra_rewards">추가 보상을 얻으려면 추천 코드를 추가하세요</string>
+    <string name="add_referral_code">추천 코드 추가</string>
+    <string name="edit_referral_code">추천 코드 편집</string>
+    <string name="referral_bonus_applied">추천 보너스 적용됨</string>
+    <string name="apply_bonus">보너스 적용</string>
+    <string name="join_urnetwork">가입하기\\nURnetwork</string>
 </resources>

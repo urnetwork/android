@@ -249,4 +249,12 @@
     <string name="network_name_ready_to_connect">%s は接続準備完了です</string>
     <string name="need_more_data_faster">より多くのデータをより速く必要ですか？</string>
     <string name="upgrade_now">今すぐアップグレード</string>
+    <string name="how_are_we_doing">私たちの調子はどうですか？</string>
+    <string name="referral_code">紹介コード</string>
+    <string name="add_referral_extra_rewards">紹介コードを追加して追加の特典を獲得</string>
+    <string name="add_referral_code">紹介コードを追加</string>
+    <string name="edit_referral_code">紹介コードを編集</string>
+    <string name="referral_bonus_applied">紹介ボーナス適用済み</string>
+    <string name="apply_bonus">ボーナスを適用</string>
+    <string name="join_urnetwork">参加する\\nURnetwork</string>
 </resources>
