@@ -197,7 +197,7 @@ fun ConnectScreen(
 
             // TopAppBar overlay that slides in/out
             AnimatedVisibility(
-                visible = connectViewModel.showTopAppBar,
+                visible = connectViewModel.showTopAppBar && currentPlan != Plan.Supporter,
                 enter = slideInVertically(initialOffsetY = { -it }),
                 exit = slideOutVertically(targetOffsetY = { -it })
             ) {

@@ -108,7 +108,6 @@ class SubscriptionBalanceViewModel @Inject constructor(
                     }
                 }
             }
-
         }
     }
 
