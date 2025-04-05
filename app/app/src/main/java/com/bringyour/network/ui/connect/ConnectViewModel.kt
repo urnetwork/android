@@ -288,10 +288,13 @@ class ConnectViewModel @Inject constructor(
 
     val addTunnelListener: () -> Unit = {
 
-        Log.i(TAG, "adding tunnel listener")
+        deviceManager.device?.tunnelStarted?.let { tunnelStarted ->
+            this.tunnelConnected = tunnelStarted
+        } ?: run {
+            this.tunnelConnected = false
+        }
 
         val sub = deviceManager.device?.addTunnelChangeListener { tunnelConnected ->
-            Log.i(TAG, "tunnel listener called: $tunnelConnected")
             this.tunnelConnected = tunnelConnected
             updateDisplayReconnectTunnel()
         }
@@ -307,6 +310,7 @@ class ConnectViewModel @Inject constructor(
     }
 
     val updateDisplayReconnectTunnel: () -> Unit = {
+
         if (this.connectStatus.value == ConnectStatus.CONNECTED && !this.tunnelConnected) {
             this.setDisplayReconnectTunnel(true)
         } else {
