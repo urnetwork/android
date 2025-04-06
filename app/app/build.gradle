@@ -129,7 +129,7 @@ android {
 
     namespace 'com.bringyour.network'
     compileSdk 35
-//    buildToolsVersion '35.0.0'
+    buildToolsVersion '35.0.1'
     ndkVersion '28.0.13004108'
 
     defaultConfig {
@@ -187,9 +187,8 @@ android {
 
         release {
             minifyEnabled false
-            shrinkResources false
-            
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
