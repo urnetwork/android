@@ -129,7 +129,7 @@ android {
 
     namespace 'com.bringyour.network'
     compileSdk 35
-    buildToolsVersion '35.0.1'
+//    buildToolsVersion '35.0.1'
     ndkVersion '28.0.13004108'
 
     defaultConfig {
