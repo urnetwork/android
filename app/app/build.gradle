@@ -227,6 +227,15 @@ android {
                 //noinspection ChromeOsAbiSupport
                 abiFilters = ['armeabi-v7a', 'arm64-v8a']
             }
+
+            // remove opaque google metadata blocks
+            // per https://gitlab.com/fdroid/fdroiddata/-/merge_requests/20797#note_2439129271
+            dependenciesInfo {
+                // Disables dependency metadata when building APKs.
+                includeInApk = false
+                // Disables dependency metadata when building Android App Bundles.
+                includeInBundle = false
+            }
         }
         play {
             dimension = 'version'
@@ -265,6 +274,15 @@ android {
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
 
             signingConfig signingConfigs.solana_dapp
+
+            // remove opaque google metadata blocks
+            // per https://gitlab.com/fdroid/fdroiddata/-/merge_requests/20797#note_2439129271
+            dependenciesInfo {
+                // Disables dependency metadata when building APKs.
+                includeInApk = false
+                // Disables dependency metadata when building Android App Bundles.
+                includeInBundle = false
+            }
         }
     }
 
