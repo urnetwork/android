@@ -322,7 +322,7 @@ android {
         kotlinCompilerExtensionVersion = "1.5.15"
     }
 
-    tasks.register('goclientBuild', Exec) {
+    tasks.register('buildSdk', Exec) {
         workingDir "${bringyourHomeDir}/sdk/build"
         commandLine 'make', 'init', 'build_android'
         environment 'WARP_VERSION', appVersion()
@@ -330,11 +330,15 @@ android {
         environment 'ANDROID_NDK_HOME', android.ndkDirectory
     }
 
-    tasks.withType(JavaCompile).tap {
-        configureEach {
-            compileTask -> compileTask.dependsOn goclientBuild
-        }
+    tasks.register('goclientBuild') {
+        dependsOn buildSdk
     }
+
+//    tasks.withType(JavaCompile).tap {
+//        configureEach {
+//            compileTask -> compileTask.dependsOn buildSdk
+//        }
+//    }
 }
 
 // local URnetwork SDK
