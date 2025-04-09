@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -118,6 +119,8 @@ fun ConnectScreen(
 
     LaunchedEffect(Unit) {
         planViewModel.onUpgradeSuccess.collect {
+
+            Log.i("ConnectScreen", "onUpgradeSuccess")
 
             // poll subscription balance until it's updated
             subscriptionBalanceViewModel.pollSubscriptionBalance()

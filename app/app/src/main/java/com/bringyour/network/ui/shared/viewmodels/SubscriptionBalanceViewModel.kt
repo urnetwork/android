@@ -45,11 +45,17 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     val fetchSubscriptionBalance: () -> Unit = {
 
+        Log.i(TAG, "fetch subscription balance")
+
         if (!isLoading) {
+
+            Log.i(TAG, "fetch subscription balance set loading")
 
             isLoading = true
 
             deviceManager.device?.api?.subscriptionBalance( SubscriptionBalanceCallback { result, err ->
+
+                Log.i(TAG, "fetch subscription balance inside callback")
 
                 runBlocking(Dispatchers.Main.immediate) {
 
@@ -81,6 +87,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     val pollSubscriptionBalance: () -> Unit = {
+
+        Log.i(TAG, "start poll subscription balance")
 
         if (!isPollingSubscriptionBalance) {
 

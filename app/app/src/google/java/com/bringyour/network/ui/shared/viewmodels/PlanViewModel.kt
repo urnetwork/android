@@ -19,6 +19,7 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
+import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -142,6 +143,8 @@ class PlanViewModel @Inject constructor(
             setChangePlanError(null)
 
             if (billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
+
+                Log.i(TAG, "PurchasesUpdatedListener billing response ok")
 
                 if (isSupporter(purchases)) {
                     setCurrentPlan(Plan.Supporter)
