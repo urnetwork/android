@@ -389,7 +389,12 @@ fun LoginInitial(
             ) {
                 Column() {
                     Text(stringResource(id = R.string.something_went_wrong))
-                    Text(stringResource(id = R.string.please_wait))
+
+                    if (loginError != null) {
+                        Text(loginError)
+                    } else {
+                        Text("")
+                    }
                 }
             }
 
