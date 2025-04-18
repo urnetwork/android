@@ -73,6 +73,7 @@ import com.bringyour.network.ui.connect.LocationsListViewModel
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
@@ -177,7 +178,7 @@ fun MainNavHost(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Black)
-                .padding(top = 36.dp)
+                // .padding(top = 36.dp)
             // .systemBarsPadding()
             // .windowInsetsPadding(WindowInsets.systemBars)
         ) {
@@ -334,6 +335,7 @@ fun MainNavContent(
     isNavigatingWithinContainer: (Route?, Route?) -> Boolean,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx = if (isTv())
@@ -426,6 +428,8 @@ fun MainNavContent(
                     overlayViewModel,
                     locationsListViewModel,
                     navController,
+                    subscriptionBalanceViewModel,
+                    planViewModel
                 )
             }
 
@@ -464,6 +468,7 @@ fun MainNavContent(
                     totalPayoutAmountInitialized = walletViewModel.totalPayoutAmountInitialized,
                     walletCount = wallets.size,
                     planViewModel = planViewModel,
+                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     overlayViewModel = overlayViewModel
                 )
             }
@@ -484,7 +489,8 @@ fun MainNavContent(
                 accountViewModel,
                 planViewModel,
                 settingsViewModel,
-                overlayViewModel
+                overlayViewModel,
+                subscriptionBalanceViewModel
             ) }
 
             composable<Route.Wallets>(

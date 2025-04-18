@@ -247,6 +247,8 @@
     <string name="connected_provider_count">%d プロバイダーに接続済み</string>
     <string name="ready_to_connect">接続準備完了</string>
     <string name="network_name_ready_to_connect">%s は接続準備完了です</string>
+    <string name="need_more_data_faster">より多くのデータをより速く必要ですか？</string>
+    <string name="upgrade_now">今すぐアップグレード</string>
     <string name="how_are_we_doing">私たちの調子はどうですか？</string>
     <string name="referral_code">紹介コード</string>
     <string name="add_referral_extra_rewards">紹介コードを追加して追加の特典を獲得</string>

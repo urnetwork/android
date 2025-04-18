@@ -214,6 +214,8 @@
     <string name="connected_provider_count">Mit %d Anbietern verbunden</string>
     <string name="ready_to_connect">Bereit zur Verbindung</string>
     <string name="network_name_ready_to_connect">%s ist bereit zur Verbindung</string>
+    <string name="need_more_data_faster">Benötigen Sie mehr Daten, schneller?</string>
+    <string name="upgrade_now">Jetzt upgraden</string>
     <string name="how_are_we_doing">Wie geht es uns?</string>
     <string name="referral_code">Empfehlungscode</string>
     <string name="add_referral_extra_rewards">Füge einen Empfehlungscode hinzu, um zusätzliche Belohnungen zu erhalten</string>

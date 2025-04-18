@@ -225,6 +225,8 @@
     <string name="connected_provider_count">Imeunganishwa na watoa huduma %d</string>
     <string name="ready_to_connect">Tayari kuunganisha</string>
     <string name="network_name_ready_to_connect">%s iko tayari kuunganisha</string>
+    <string name="need_more_data_faster">Unahitaji data zaidi, haraka zaidi?</string>
+    <string name="upgrade_now">Boresha sasa</string>
     <string name="how_are_we_doing">Tunaendaje?</string>
     <string name="referral_code">Msimbo wa rufaa</string>
     <string name="add_referral_extra_rewards">Ongeza msimbo wa rufaa ili kupata zawadi za ziada</string>

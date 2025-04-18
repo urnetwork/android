@@ -18,7 +18,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.sdk.ContractStatus
 
 @Composable
 fun ConnectStatusIndicator(
@@ -26,22 +28,33 @@ fun ConnectStatusIndicator(
     guestMode: Boolean,
     status: ConnectStatus,
     windowCurrentSize: Int,
-    displayReconnectTunnel: Boolean
+    displayReconnectTunnel: Boolean,
+    contractStatus: ContractStatus?,
+    currentPlan: Plan,
+    isPollingSubscriptionBalance: Boolean
 ) {
 
-    val text = if (displayReconnectTunnel) stringResource(id = R.string.reconnect_tunnel_status_indicator) else when(status) {
-        ConnectStatus.CONNECTED -> stringResource(id = R.string.connected_provider_count, windowCurrentSize)
-        ConnectStatus.CONNECTING -> stringResource(id = R.string.connecting_status_indicator)
-        ConnectStatus.DESTINATION_SET -> stringResource(id = R.string.connecting_status_indicator)
-        ConnectStatus.DISCONNECTED -> if (guestMode) stringResource(id = R.string.ready_to_connect) else if (networkName != null) stringResource(id = R.string.network_name_ready_to_connect, networkName)
-        else ""
+    val text = when {
+        isPollingSubscriptionBalance -> "Processing subscription balance..."
+        contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter -> "Insufficient balance"
+        displayReconnectTunnel -> stringResource(id = R.string.reconnect_tunnel_status_indicator)
+        status == ConnectStatus.CONNECTED -> stringResource(id = R.string.connected_provider_count, windowCurrentSize)
+        status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET ->
+            stringResource(id = R.string.connecting_status_indicator)
+        status == ConnectStatus.DISCONNECTED -> when {
+            guestMode -> stringResource(id = R.string.ready_to_connect)
+            networkName != null -> stringResource(id = R.string.network_name_ready_to_connect, networkName)
+            else -> ""
+        }
+        else -> ""
     }
 
-    val indicatorId = if (displayReconnectTunnel) R.drawable.circle_indicator_yellow else when(status) {
-        ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
-        ConnectStatus.CONNECTING -> R.drawable.circle_indicator_yellow
-        ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
-        ConnectStatus.DISCONNECTED -> R.drawable.circle_indicator_blue
+    val indicatorId = when {
+        displayReconnectTunnel || isPollingSubscriptionBalance || (contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter) -> R.drawable.circle_indicator_yellow
+        status == ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
+        status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
+        status == ConnectStatus.DISCONNECTED -> R.drawable.circle_indicator_blue
+        else -> R.drawable.circle_indicator_blue
     }
 
     val indicatorDescription = if (displayReconnectTunnel) "Reconnect" else when(status) {
@@ -84,7 +97,10 @@ fun ConnectStatusIndicatorDisconnected() {
             windowCurrentSize = 0,
             networkName = "my_network",
             guestMode = false,
-            displayReconnectTunnel = false
+            displayReconnectTunnel = false,
+            contractStatus = null,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false
         )
     }
 }
@@ -98,7 +114,10 @@ fun ConnectStatusIndicatorConnecting() {
             windowCurrentSize = 12,
             networkName = "my_network",
             guestMode = false,
-            displayReconnectTunnel = false
+            displayReconnectTunnel = false,
+            contractStatus = null,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false
         )
     }
 }
@@ -112,7 +131,10 @@ fun ConnectStatusIndicatorConnected() {
             windowCurrentSize = 32,
             networkName = "my_network",
             guestMode = false,
-            displayReconnectTunnel = false
+            displayReconnectTunnel = false,
+            contractStatus = null,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false
         )
     }
 }
@@ -126,7 +148,10 @@ fun ConnectStatusIndicatorGuestMode() {
             windowCurrentSize = 32,
             networkName = "guest1244567",
             guestMode = true,
-            displayReconnectTunnel = false
+            displayReconnectTunnel = false,
+            contractStatus = null,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false
         )
     }
 }
@@ -140,7 +165,27 @@ fun ConnectStatusIndicatorReconnectTunnel() {
             windowCurrentSize = 32,
             networkName = "guest1244567",
             guestMode = false,
-            displayReconnectTunnel = true
+            displayReconnectTunnel = true,
+            contractStatus = null,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ConnectStatusIndicatorPollingSubscriptionBalance() {
+    URNetworkTheme {
+        ConnectStatusIndicator(
+            status = ConnectStatus.CONNECTED,
+            windowCurrentSize = 32,
+            networkName = "guest1244567",
+            guestMode = false,
+            displayReconnectTunnel = true,
+            contractStatus = null,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = true
         )
     }
 }

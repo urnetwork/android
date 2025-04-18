@@ -72,12 +72,13 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
 import com.bringyour.network.TAG
-import com.bringyour.network.ui.account.UpgradePlanBottomSheet
+import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import kotlinx.coroutines.launch
 
@@ -88,11 +89,12 @@ fun SettingsScreen(
     accountViewModel: AccountViewModel,
     planViewModel: PlanViewModel,
     settingsViewModel: SettingsViewModel,
-    overlayViewModel: OverlayViewModel
+    overlayViewModel: OverlayViewModel,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
-    val currentPlan = planViewModel.currentPlan.collectAsState().value
+    val currentPlan = subscriptionBalanceViewModel.currentPlan.collectAsState().value
     val showDeleteAccountDialog = settingsViewModel.showDeleteAccountDialog.collectAsState().value
 
     val scope = rememberCoroutineScope()

@@ -211,6 +211,8 @@
     <string name="connected_provider_count">متصل بـ %d من مزودي الخدمة</string>
     <string name="ready_to_connect">جاهز للاتصال</string>
     <string name="network_name_ready_to_connect">%s جاهزة للاتصال</string>
+    <string name="need_more_data_faster">هل تحتاج إلى المزيد من البيانات وبشكل أسرع؟</string>
+    <string name="upgrade_now">قم بالترقية الآن</string>
     <string name="how_are_we_doing">كيف حالنا؟</string>
     <string name="referral_code">رمز الإحالة</string>
     <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
