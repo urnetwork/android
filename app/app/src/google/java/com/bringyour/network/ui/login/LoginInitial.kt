@@ -72,7 +72,6 @@ import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.BlueMedium
-import com.bringyour.network.utils.isTv
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -145,8 +144,6 @@ fun LoginInitial(
 
     val loginActivity = context as? LoginActivity
 
-    val isTv = isTv()
-
     val onLogin: (AuthLoginResult) -> Unit = { result ->
         navController.navigate("login-password/${result.userAuth}")
     }
@@ -170,16 +167,13 @@ fun LoginInitial(
 
             application?.login(result.network.byJwt)
 
-            if (!isTv) {
+            contentVisible = false
 
-                contentVisible = false
+            delay(500)
 
-                delay(500)
+            welcomeOverlayVisible = true
 
-                welcomeOverlayVisible = true
-
-                delay(2250)
-            }
+            delay(2250)
 
             loginActivity?.authClientAndFinish(
                 { error ->
@@ -212,17 +206,13 @@ fun LoginInitial(
 
                     application.login(result.network.byJwt)
 
-                    if (isTv) {
-                        setGuestModeOverlayVisible(false)
-                    } else {
-                        contentVisible = false
+                    contentVisible = false
 
-                        delay(500)
+                    delay(500)
 
-                        welcomeOverlayVisible = true
+                    welcomeOverlayVisible = true
 
-                        delay(2250)
-                    }
+                    delay(2250)
 
                     loginActivity?.authClientAndFinish(
                         { error ->
@@ -285,100 +275,47 @@ fun LoginInitial(
 
         Scaffold { innerPadding ->
 
-            if (isTv()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding) // need to debug why this is 0
-                        .padding(16.dp)
-                        .imePadding(),
-                ) {
-
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        OnboardingCarousel()
-                        Spacer(modifier = Modifier.width(64.dp))
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .padding(end = 64.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        LoginInitialActions(
-                            userAuth = userAuth,
-                            setUserAuth = setUserAuth,
-                            userAuthInProgress = userAuthInProgress,
-                            isValidUserAuth = isValidUserAuth,
-                            setGuestModeOverlayVisible = setGuestModeOverlayVisible,
-                            googleAuthInProgress = googleAuthInProgress,
-                            onLogin = {
-                                login(
-                                    context,
-                                    application?.api,
-                                    onLogin,
-                                    onNewNetwork,
-                                )
-                            },
-                            onGoogleLogin = {
-                                googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                            },
-                            allowGoogleSso = allowGoogleSso
-                        )
-                    }
-                }
-
-            } else {
-                // mobile + tablet
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(innerPadding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.imePadding()
                 ) {
+                    OnboardingCarousel()
 
-                    Column(
-                        modifier = Modifier.imePadding()
-                    ) {
-                        OnboardingCarousel()
+                    Spacer(modifier = Modifier.height(64.dp))
 
-                        Spacer(modifier = Modifier.height(64.dp))
-
-                        LoginInitialActions(
-                            userAuth = userAuth,
-                            setUserAuth = setUserAuth,
-                            userAuthInProgress = userAuthInProgress,
-                            isValidUserAuth = isValidUserAuth,
-                            setGuestModeOverlayVisible = setGuestModeOverlayVisible,
-                            googleAuthInProgress = googleAuthInProgress,
-                            onLogin = {
-                                login(
-                                    context,
-                                    application?.api,
-                                    onLogin,
-                                    onNewNetwork,
-                                )
-                            },
-                            onGoogleLogin = {
-                                googleSignInLauncher.launch(googleSignInClient.signInIntent)
-                            },
-                            allowGoogleSso = allowGoogleSso
-                        )
-                    }
-
+                    LoginInitialActions(
+                        userAuth = userAuth,
+                        setUserAuth = setUserAuth,
+                        userAuthInProgress = userAuthInProgress,
+                        isValidUserAuth = isValidUserAuth,
+                        setGuestModeOverlayVisible = setGuestModeOverlayVisible,
+                        googleAuthInProgress = googleAuthInProgress,
+                        onLogin = {
+                            login(
+                                context,
+                                application?.api,
+                                onLogin,
+                                onNewNetwork,
+                            )
+                        },
+                        onGoogleLogin = {
+                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                        },
+                        allowGoogleSso = allowGoogleSso
+                    )
                 }
+
             }
+
 
             URSnackBar(
                 type = SnackBarType.ERROR,
@@ -389,7 +326,12 @@ fun LoginInitial(
             ) {
                 Column() {
                     Text(stringResource(id = R.string.something_went_wrong))
-                    Text(stringResource(id = R.string.please_wait))
+
+                    if (loginError != null) {
+                        Text(loginError)
+                    } else {
+                        Text("")
+                    }
                 }
             }
 

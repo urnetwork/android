@@ -13,7 +13,6 @@ import com.bringyour.sdk.NetworkNameValidationViewController
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
 import com.bringyour.sdk.Api
-import com.bringyour.sdk.Sdk.parseId
 import com.bringyour.sdk.ValidateReferralCodeArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -102,7 +101,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
 
             try {
-                args.referralCode = parseId(_referralCode.value.text)
+                args.referralCode = _referralCode.value.text
 
                 api?.validateReferralCode(args) { result, err ->
                     viewModelScope.launch {

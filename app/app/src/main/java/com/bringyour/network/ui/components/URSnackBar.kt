@@ -10,8 +10,11 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,6 +51,8 @@ fun URSnackBar(
     var cumulativeDrag by remember { mutableFloatStateOf(0f) }
     val swipeThreshold = 100f
 
+    val safeAreaInsets = WindowInsets.safeDrawing.asPaddingValues()
+
     LaunchedEffect(isVisible) {
         if (isVisible) {
             delay(10 * 1000)
@@ -64,7 +69,7 @@ fun URSnackBar(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(BlueDark, RoundedCornerShape(12.dp))
+                    // .background(BlueDark, RoundedCornerShape(12.dp))
                     .pointerInput(Unit) {
                         detectVerticalDragGestures(
                             onVerticalDrag = { _, dragAmount ->
@@ -78,10 +83,14 @@ fun URSnackBar(
                             }
                         )
                     }
-                    .padding(16.dp, 16.dp, 24.dp, 16.dp)
+                    .padding(top = safeAreaInsets.calculateTopPadding())
             ) {
                 Row(
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(BlueDark, RoundedCornerShape(12.dp))
+                        .padding(16.dp)
                 ) {
                     Icon(
                         imageVector = if (type == SnackBarType.SUCCESS)
