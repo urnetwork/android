@@ -104,7 +104,8 @@ class MainActivity: AppCompatActivity() {
         val app = application as MainApplication
 
         // allow foreground to be started when the activity is active
-        app.allowForeground = true
+        // FIXME does foreground actually help with provider availability?
+        app.allowForeground = false
 
         // used when connecting
         requestPermissionLauncherAndStart =
