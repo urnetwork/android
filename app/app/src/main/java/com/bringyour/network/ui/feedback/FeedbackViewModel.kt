@@ -30,6 +30,7 @@ class FeedbackViewModel @Inject constructor(
 
     val setStarCount: (Int) -> Unit = { count ->
         starCount = count
+        validateIsSendEnabled()
     }
 
     val setFeedbackMsg: (TextFieldValue) -> Unit = { msg ->
@@ -41,13 +42,11 @@ class FeedbackViewModel @Inject constructor(
         private set
 
     val validateIsSendEnabled = {
-        isSendEnabled = !isSendingFeedback && feedbackMsg.text.isNotEmpty()
+        isSendEnabled = !isSendingFeedback && (feedbackMsg.text.isNotEmpty() || starCount > 0)
     }
 
     val sendFeedback:() -> Unit = {
-        if (feedbackMsg.text.isNotEmpty()) {
-            feedbackVc?.sendFeedback(feedbackMsg.text)
-        }
+        feedbackVc?.sendFeedback(feedbackMsg.text, starCount.toLong())
     }
 
     val addIsSendingListener = {
