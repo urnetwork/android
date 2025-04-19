@@ -340,6 +340,8 @@ private fun FeedbackForm(
 
     Column {
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         URButton(
             onClick = {
                 sendFeedback()

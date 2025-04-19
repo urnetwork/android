@@ -50,14 +50,6 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        val lightTransparentStyle = SystemBarStyle.dark(
-            scrim = TRANSPARENT
-        )
-        enableEdgeToEdge(
-            statusBarStyle = lightTransparentStyle,
-            navigationBarStyle = lightTransparentStyle
-        )
-
         super.onCreate(savedInstanceState)
 
         app = application as MainApplication

@@ -94,6 +94,7 @@ fun AccountScreen(
                 .fillMaxSize()
                 .background(Black)
                 .padding(innerPadding)
+                .padding(16.dp),
         ) {
 
             AccountScreenContent(
