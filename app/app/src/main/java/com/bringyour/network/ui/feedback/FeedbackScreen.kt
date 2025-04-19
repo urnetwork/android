@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.feedback
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -105,7 +106,8 @@ fun FeedbackScreen(
 
 
     val submitFeedback = {
-        if (feedbackMsg.text.isNotEmpty()) {
+        Log.i("feedback screen", "submit feedback")
+        if (feedbackMsg.text.isNotEmpty() || starCount > 0) {
 
             sendFeedback()
 
@@ -194,10 +196,7 @@ fun FeedbackScreen(
                 FeedbackForm(
                     feedbackMsg = feedbackMsg,
                     setFeedbackMsg = setFeedbackMsg,
-                    sendFeedback = {
-                        if (feedbackMsg.text.isNotEmpty()) {
-                            submitFeedback()
-                        }},
+                    sendFeedback = { submitFeedback() },
                     isSendEnabled = isSendEnabled,
                     starCount = starCount,
                     setStarCount = setStarCount
@@ -344,6 +343,7 @@ private fun FeedbackForm(
 
         URButton(
             onClick = {
+                Log.i("feedback", "send feedback")
                 sendFeedback()
                 keyboardController?.hide()
             },

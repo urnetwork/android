@@ -46,6 +46,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     val sendFeedback:() -> Unit = {
+        Log.i("feedback view model", "send feedback")
         feedbackVc?.sendFeedback(feedbackMsg.text, starCount.toLong())
     }
 
