@@ -105,7 +105,8 @@ fun FeedbackScreen(
 
 
     val submitFeedback = {
-        if (feedbackMsg.text.isNotEmpty()) {
+
+        if (feedbackMsg.text.isNotEmpty() || starCount > 0) {
 
             sendFeedback()
 
@@ -194,10 +195,7 @@ fun FeedbackScreen(
                 FeedbackForm(
                     feedbackMsg = feedbackMsg,
                     setFeedbackMsg = setFeedbackMsg,
-                    sendFeedback = {
-                        if (feedbackMsg.text.isNotEmpty()) {
-                            submitFeedback()
-                        }},
+                    sendFeedback = { submitFeedback() },
                     isSendEnabled = isSendEnabled,
                     starCount = starCount,
                     setStarCount = setStarCount
