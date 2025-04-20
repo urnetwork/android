@@ -110,7 +110,8 @@ class MainActivity: AppCompatActivity() {
         val app = application as MainApplication
 
         // allow foreground to be started when the activity is active
-        app.allowForeground = true
+        // FIXME we don't have enough data that foreground mode actually helps the vpn stay alive in the background better
+        app.allowForeground = false
 
         sagaActivitySender = ActivityResultSender(this)
 
