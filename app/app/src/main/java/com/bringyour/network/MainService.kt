@@ -1,4 +1,4 @@
-package com.bringyour.network
+    package com.bringyour.network
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -66,6 +66,11 @@ class MainService : VpnService() {
         if (stop) {
             stop()
         } else if (start) {
+            app.service?.get().let { currentService ->
+                if (currentService != this) {
+                    currentService?.stop()
+                }
+            }
             app.service = WeakReference(this)
 
             val foreground = intent?.getBooleanExtra("foreground", false) ?: false
@@ -400,17 +405,19 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
     fun close() {
         stateLock.lock()
         try {
-            active = false
-            closed.signalAll()
+            if (active) {
+                active = false
+
+                try {
+                    pfd.close()
+                } catch (_: IOException) {
+                }
+
+                closed.signalAll()
+            }
         } finally {
             stateLock.unlock()
         }
-
-        try {
-            pfd.close()
-        } catch (_: IOException) {
-        }
-
     }
 }
 
