@@ -646,14 +646,17 @@ class MainApplication : Application() {
 
         serviceActive = false
         service?.get()?.stop()
+
 //        tunnelRequestStatus = TunnelRequestStatus.Stopped
 
 
-//        val vpnIntent = Intent(this, MainService::class.java)
-//        vpnIntent.putExtra("source", "app")
-//        vpnIntent.putExtra("stop", true)
-//        vpnIntent.putExtra("start", false)
-//        vpnIntent.putExtra("foreground", false)
+        val vpnIntent = Intent(this, MainService::class.java)
+        vpnIntent.putExtra("source", "app")
+        vpnIntent.putExtra("stop", true)
+        vpnIntent.putExtra("start", false)
+        vpnIntent.putExtra("foreground", false)
+        stopService(vpnIntent)
+
 //        try {
 //            // note this cannot be called in OnCreate, or it will prevent the routes from being set up correctly
 //            startService(vpnIntent)
