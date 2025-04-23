@@ -108,6 +108,7 @@ class MainApplication : Application() {
 
 
     var service: WeakReference<MainService>? = null
+    var serviceActive: Boolean = false
 
 
 
@@ -588,6 +589,8 @@ class MainApplication : Application() {
                     vpnRequestStart = true
                     vpnRequestStartListener?.let { it() }
                 } else {
+                    serviceActive = true
+
                     if (foreground) {
                         // use a foreground service to allow notifications
                         if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
@@ -641,6 +644,7 @@ class MainApplication : Application() {
         //
         // using a weak reference to the service is strangely the cleanest approach
 
+        serviceActive = false
         service?.get()?.stop()
 //        tunnelRequestStatus = TunnelRequestStatus.Stopped
 
