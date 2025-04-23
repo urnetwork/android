@@ -63,7 +63,7 @@ class MainService : VpnService() {
         val stop = intent?.getBooleanExtra("stop", false) ?: false
         val start = intent?.getBooleanExtra("start", true) ?: false
 
-        if (stop) {
+        if (stop || !app.serviceActive) {
             stop()
         } else if (start) {
             app.service?.get().let { currentService ->
