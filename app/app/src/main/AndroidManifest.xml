@@ -24,10 +24,6 @@
     <!-- this is included in a Google dependency and we *do not* want it. -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
 
-    <!-- prevent these from ever being added by a dependency -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="remove"/>
-
     <!-- for tv support -->
     <uses-feature android:name="android.hardware.touchscreen"
         android:required="false" />
@@ -36,6 +32,14 @@
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
+
+    <!-- prevent these from ever being added by a dependency -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="remove"/>
+    <uses-feature android:name="android.hardware.location.gps"
+        android:required="false" tools:node="remove"/>
+
+
 
 
     <!--    android:logo="@drawable/logo_by"-->
