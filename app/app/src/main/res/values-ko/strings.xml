@@ -257,4 +257,5 @@
     <string name="referral_bonus_applied">추천 보너스 적용됨</string>
     <string name="apply_bonus">보너스 적용</string>
     <string name="join_urnetwork">가입하기\\nURnetwork</string>
+    <string name="route_local">연결 해제 시 로컬 트래픽 허용</string>
 </resources>

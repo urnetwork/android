@@ -3,7 +3,6 @@ package com.bringyour.network.ui.settings
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +13,6 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.AccountPreferencesViewController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
-import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +44,9 @@ class SettingsViewModel @Inject constructor(
 
     private val _isDeletingAccount = MutableStateFlow(false)
     val isDeletingAccount: StateFlow<Boolean> = _isDeletingAccount
+
+    private val _routeLocal = MutableStateFlow(false)
+    val routeLocal: StateFlow<Boolean> = _routeLocal
 
     var notificationsPermanentlyDenied by mutableStateOf(false)
 
@@ -143,10 +144,20 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    val toggleRouteLocal: () -> Unit = {
+        val currentRouteLocal = routeLocal.value
+        deviceManager.device?.routeLocal = !currentRouteLocal
+        _routeLocal.value = !currentRouteLocal
+    }
+
     init {
         accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
 
         provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
+
+        val routeLocal = deviceManager.device?.routeLocal
+
+        _routeLocal.value = routeLocal == true
 
         addAllowProductUpdatesListener()
 

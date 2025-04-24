@@ -257,5 +257,6 @@
     <string name="referral_bonus_applied">Zastosowano bonus polecający</string>
     <string name="apply_bonus">Zastosuj bonus</string>
     <string name="join_urnetwork">Dołącz do\\nURnetwork</string>
+    <string name="route_local">Zezwalaj na lokalny ruch po rozłączeniu</string>
 
 </resources>

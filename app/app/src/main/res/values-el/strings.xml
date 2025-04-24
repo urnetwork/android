@@ -234,4 +234,5 @@
     <string name="referral_bonus_applied">Εφαρμόστηκε μπόνους παραπομπής</string>
     <string name="apply_bonus">Εφαρμογή μπόνους</string>
     <string name="join_urnetwork">Συνδεθείτε στο\\nURnetwork</string>
+    <string name="route_local">Επιτρέψτε την τοπική κίνηση όταν είστε αποσυνδεδεμένοι</string>
 </resources>

@@ -234,5 +234,6 @@
     <string name="referral_bonus_applied">रेफरल बोनस लागू किया गया</string>
     <string name="apply_bonus">बोनस लागू करें</string>
     <string name="join_urnetwork">शामिल हों\\nURnetwork</string>
+    <string name="route_local">डिस्कनेक्ट होने पर स्थानीय ट्रैफ़िक की अनुमति दें</string>
 
 </resources>
