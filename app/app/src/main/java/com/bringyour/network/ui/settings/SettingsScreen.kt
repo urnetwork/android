@@ -397,15 +397,15 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Route local",
+                    stringResource(id = R.string.route_local),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
 
                 URSwitch(
-                    checked = provideWhileDisconnected,
+                    checked = routeLocal,
                     toggle = {
-                        toggleProvideWhileDisconnected()
+                        toggleRouteLocal()
                     },
                 )
             }

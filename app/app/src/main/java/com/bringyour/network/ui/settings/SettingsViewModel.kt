@@ -147,6 +147,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val toggleRouteLocal: () -> Unit = {
+        Log.i(TAG, "toggle route local")
         val currentRouteLocal = routeLocal.value
         deviceManager.device?.routeLocal = !currentRouteLocal
         _routeLocal.value = !currentRouteLocal
@@ -157,7 +158,10 @@ class SettingsViewModel @Inject constructor(
 
         provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
 
-        _routeLocal.value = deviceManager.device?.routeLocal == true
+        val routeLocal = deviceManager.device?.routeLocal
+        Log.i(TAG, "routeLocal: $routeLocal")
+
+        _routeLocal.value = routeLocal == true
 
         addAllowProductUpdatesListener()
 

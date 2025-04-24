@@ -234,4 +234,5 @@
     <string name="referral_bonus_applied">Bono de referencia aplicado</string>
     <string name="apply_bonus">Aplicar bono</string>
     <string name="join_urnetwork">Únete a\\nURnetwork</string>
+    <string name="route_local">Permitir tráfico local cuando esté desconectado</string>
 </resources>
