@@ -14,6 +14,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
@@ -21,15 +22,11 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.InetAddress
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
-import kotlin.concurrent.withLock
 
-
-// see https://developer.android.com/develop/connectivity/vpn
+    // see https://developer.android.com/develop/connectivity/vpn
 class MainService : VpnService() {
     companion object {
         const val NOTIFICATION_ID = 101
@@ -56,6 +53,9 @@ class MainService : VpnService() {
     private var packetFlow: PacketFlow? = null
     private var foregroundStarted: Boolean = false
 
+    private var windowStatusChangeSub: Sub? = null
+    private var connected: Boolean = false
+
 
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
         val app = application as MainApplication
@@ -74,7 +74,7 @@ class MainService : VpnService() {
             app.service = WeakReference(this)
 
             val foreground = intent?.getBooleanExtra("foreground", false) ?: false
-            val source = intent?.getStringExtra("source") ?: "unknown"
+//            val source = intent?.getStringExtra("source") ?: "unknown"
             val offline = intent?.getBooleanExtra("offline", false) ?: false
 
             if (foreground) {
@@ -101,152 +101,175 @@ class MainService : VpnService() {
             }
             */
 
-            val builder = Builder()
-            builder.setSession("URnetwork")
-            builder.setMtu(1440)
-            builder.setBlocking(true)
-            if (offline) {
-                // when offline, only allow traffic from a fake package name
-                // in this way, the vpn service remains active but no apps detect it as an interface
-                builder.addAllowedApplication("${packageName}.offline")
-            } else {
-                builder.addDisallowedApplication(packageName)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                builder.setMetered(false)
-            }
+            connected = false
 
-            if (clientIpv4 != null) {
-                builder.allowFamily(AF_INET)
-                builder.addAddress(
-                    clientIpv4,
-                    clientIpv4PrefixLength
-                )
-                for (dnsIpv4 in dnsIpv4s) {
-                    builder.addDnsServer(dnsIpv4)
-                }
-                if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                    builder.addRoute("0.0.0.0", 0)
-                    builder.excludeRoute(IpPrefix(InetAddress.getByName("10.0.0.0"), 8))
-                    builder.excludeRoute(IpPrefix(InetAddress.getByName("172.16.0.0"), 12))
-                    builder.excludeRoute(IpPrefix(InetAddress.getByName("192.168.0.0"), 16))
-                } else {
-                    /*
-                    python script:
-
-                    n = [ipaddress.ip_network('0.0.0.0/0')]
-                    for m in [ipaddress.ip_network('10.0.0.0/8'), ipaddress.ip_network('172.16.0.0/12'), ipaddress.ip_network('192.168.0.0/16')]:
-                        n = [
-                            b
-                            for a in n
-                            for b in (list(a.address_exclude(m)) if a.overlaps(m) else [a])
-                        ]
-                    for a in n:
-                        print('builder.addRoute("{}", {})'.format(a.network_address, a.prefixlen))
-                    */
-                    builder.addRoute("224.0.0.0", 3)
-                    builder.addRoute("208.0.0.0", 4)
-                    builder.addRoute("200.0.0.0", 5)
-                    builder.addRoute("196.0.0.0", 6)
-                    builder.addRoute("194.0.0.0", 7)
-                    builder.addRoute("193.0.0.0", 8)
-                    builder.addRoute("192.0.0.0", 9)
-                    builder.addRoute("192.192.0.0", 10)
-                    builder.addRoute("192.128.0.0", 11)
-                    builder.addRoute("192.176.0.0", 12)
-                    builder.addRoute("192.160.0.0", 13)
-                    builder.addRoute("192.172.0.0", 14)
-                    builder.addRoute("192.170.0.0", 15)
-                    builder.addRoute("192.169.0.0", 16)
-                    builder.addRoute("128.0.0.0", 3)
-                    builder.addRoute("176.0.0.0", 4)
-                    builder.addRoute("160.0.0.0", 5)
-                    builder.addRoute("168.0.0.0", 6)
-                    builder.addRoute("174.0.0.0", 7)
-                    builder.addRoute("173.0.0.0", 8)
-                    builder.addRoute("172.128.0.0", 9)
-                    builder.addRoute("172.64.0.0", 10)
-                    builder.addRoute("172.32.0.0", 11)
-                    builder.addRoute("172.0.0.0", 12)
-                    builder.addRoute("64.0.0.0", 2)
-                    builder.addRoute("32.0.0.0", 3)
-                    builder.addRoute("16.0.0.0", 4)
-                    builder.addRoute("0.0.0.0", 5)
-                    builder.addRoute("12.0.0.0", 6)
-                    builder.addRoute("8.0.0.0", 7)
-                    builder.addRoute("11.0.0.0", 8)
-                }
-            }
-            if (clientIpv6 != null) {
-                builder.allowFamily(AF_INET6)
-                builder.addAddress(
-                    clientIpv6,
-                    clientIpv6PrefixLength
-                )
-                for (dnsIpv6 in dnsIpv6s) {
-                    builder.addDnsServer(dnsIpv6)
-                }
-                if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                    builder.addRoute("::", 0)
-                    builder.excludeRoute(IpPrefix(InetAddress.getByName("fd00::"), 8))
-                } else {
-                    /*
-                    python script:
-
-                    n = [ipaddress.ip_network('::/0')]
-                    for m in [ipaddress.ip_network('fd00::/8')]:
-                        n = [
-                            b
-                            for a in n
-                            for b in (list(a.address_exclude(m)) if a.overlaps(m) else [a])
-                        ]
-                    for a in n:
-                        print('builder.addRoute("{}", {})'.format(a.network_address, a.prefixlen))
-                    */
-
-                    builder.addRoute("::", 1)
-                    builder.addRoute("8000::", 2)
-                    builder.addRoute("c000::", 3)
-                    builder.addRoute("e000::", 4)
-                    builder.addRoute("f000::", 5)
-                    builder.addRoute("f800::", 6)
-                    builder.addRoute("fe00::", 7)
-                    builder.addRoute("fc00::", 8)
-                }
-            }
-
-            builder.establish()?.let { pfd ->
-                // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
-                packetFlow?.close()
-                packetFlow = null
-                app.device?.let { device ->
-                    packetFlow = PacketFlow(device, pfd) {
-                        runBlocking(Dispatchers.Main.immediate) {
-                            if (packetFlow == it) {
-                                // unexpected exit
-                                packetFlow = null
-                                device.tunnelStarted = false
-                            }
-                            // else the ended packet flow was replaced by a new one
+            windowStatusChangeSub?.close()
+            windowStatusChangeSub = app.device?.addWindowStatusChangeListener { windowStatus ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    val connected = windowStatus?.let{
+                        0 < it.providerStateAdded
+                    } ?: false
+                    if (this@MainService.connected != connected) {
+                        this@MainService.connected = connected
+                        if (connected) {
+                            updatePfd(offline)
                         }
                     }
-                    device.tunnelStarted = true
-                } ?: run {
-                    try {
-                        pfd.close()
-                    } catch (_: IOException) {
-                    }
                 }
-            } ?: run {
-                Log.i(TAG, "[service]WARNING tunnel was not started. Another existing tunnel may be blocking the start.")
-                // cancel the previous packet flow
-                packetFlow?.close()
-                packetFlow = null
             }
+
+            updatePfd(offline)
         }
 
         // see https://developer.android.com/reference/android/app/Service#START_REDELIVER_INTENT
         return START_REDELIVER_INTENT
+    }
+
+    fun updatePfd(offline: Boolean) {
+        val app = application as MainApplication
+
+        val builder = Builder()
+        builder.setSession("URnetwork")
+        builder.setMtu(1440)
+        builder.setBlocking(true)
+        if (offline) {
+            // when offline, only allow traffic from a fake package name
+            // in this way, the vpn service remains active but no apps detect it as an interface
+            builder.addAllowedApplication("${packageName}.offline")
+        } else {
+            builder.addDisallowedApplication(packageName)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            builder.setMetered(false)
+        }
+
+        if (clientIpv4 != null) {
+            builder.allowFamily(AF_INET)
+            builder.addAddress(
+                clientIpv4,
+                clientIpv4PrefixLength
+            )
+            for (dnsIpv4 in dnsIpv4s) {
+                builder.addDnsServer(dnsIpv4)
+            }
+            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                builder.addRoute("0.0.0.0", 0)
+                builder.excludeRoute(IpPrefix(InetAddress.getByName("10.0.0.0"), 8))
+                builder.excludeRoute(IpPrefix(InetAddress.getByName("172.16.0.0"), 12))
+                builder.excludeRoute(IpPrefix(InetAddress.getByName("192.168.0.0"), 16))
+            } else {
+                /*
+                python script:
+
+                n = [ipaddress.ip_network('0.0.0.0/0')]
+                for m in [ipaddress.ip_network('10.0.0.0/8'), ipaddress.ip_network('172.16.0.0/12'), ipaddress.ip_network('192.168.0.0/16')]:
+                    n = [
+                        b
+                        for a in n
+                        for b in (list(a.address_exclude(m)) if a.overlaps(m) else [a])
+                    ]
+                for a in n:
+                    print('builder.addRoute("{}", {})'.format(a.network_address, a.prefixlen))
+                */
+                builder.addRoute("224.0.0.0", 3)
+                builder.addRoute("208.0.0.0", 4)
+                builder.addRoute("200.0.0.0", 5)
+                builder.addRoute("196.0.0.0", 6)
+                builder.addRoute("194.0.0.0", 7)
+                builder.addRoute("193.0.0.0", 8)
+                builder.addRoute("192.0.0.0", 9)
+                builder.addRoute("192.192.0.0", 10)
+                builder.addRoute("192.128.0.0", 11)
+                builder.addRoute("192.176.0.0", 12)
+                builder.addRoute("192.160.0.0", 13)
+                builder.addRoute("192.172.0.0", 14)
+                builder.addRoute("192.170.0.0", 15)
+                builder.addRoute("192.169.0.0", 16)
+                builder.addRoute("128.0.0.0", 3)
+                builder.addRoute("176.0.0.0", 4)
+                builder.addRoute("160.0.0.0", 5)
+                builder.addRoute("168.0.0.0", 6)
+                builder.addRoute("174.0.0.0", 7)
+                builder.addRoute("173.0.0.0", 8)
+                builder.addRoute("172.128.0.0", 9)
+                builder.addRoute("172.64.0.0", 10)
+                builder.addRoute("172.32.0.0", 11)
+                builder.addRoute("172.0.0.0", 12)
+                builder.addRoute("64.0.0.0", 2)
+                builder.addRoute("32.0.0.0", 3)
+                builder.addRoute("16.0.0.0", 4)
+                builder.addRoute("0.0.0.0", 5)
+                builder.addRoute("12.0.0.0", 6)
+                builder.addRoute("8.0.0.0", 7)
+                builder.addRoute("11.0.0.0", 8)
+            }
+        }
+        if (clientIpv6 != null) {
+            builder.allowFamily(AF_INET6)
+            builder.addAddress(
+                clientIpv6,
+                clientIpv6PrefixLength
+            )
+            for (dnsIpv6 in dnsIpv6s) {
+                builder.addDnsServer(dnsIpv6)
+            }
+            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                builder.addRoute("::", 0)
+                builder.excludeRoute(IpPrefix(InetAddress.getByName("fd00::"), 8))
+            } else {
+                /*
+                python script:
+
+                n = [ipaddress.ip_network('::/0')]
+                for m in [ipaddress.ip_network('fd00::/8')]:
+                    n = [
+                        b
+                        for a in n
+                        for b in (list(a.address_exclude(m)) if a.overlaps(m) else [a])
+                    ]
+                for a in n:
+                    print('builder.addRoute("{}", {})'.format(a.network_address, a.prefixlen))
+                */
+
+                builder.addRoute("::", 1)
+                builder.addRoute("8000::", 2)
+                builder.addRoute("c000::", 3)
+                builder.addRoute("e000::", 4)
+                builder.addRoute("f000::", 5)
+                builder.addRoute("f800::", 6)
+                builder.addRoute("fe00::", 7)
+                builder.addRoute("fc00::", 8)
+            }
+        }
+
+        builder.establish()?.let { pfd ->
+            // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
+            packetFlow?.close()
+            packetFlow = null
+            app.device?.let { device ->
+                packetFlow = PacketFlow(device, pfd) {
+                    runBlocking(Dispatchers.Main.immediate) {
+                        if (packetFlow == it) {
+                            // unexpected exit
+                            packetFlow = null
+                            device.tunnelStarted = false
+                        }
+                        // else the ended packet flow was replaced by a new one
+                    }
+                }
+                device.tunnelStarted = true
+            } ?: run {
+                try {
+                    pfd.close()
+                } catch (_: IOException) {
+                }
+            }
+        } ?: run {
+            Log.i(TAG, "[service]WARNING tunnel was not started. Another existing tunnel may be blocking the start.")
+            // cancel the previous packet flow
+            packetFlow?.close()
+            packetFlow = null
+        }
     }
 
     override fun onDestroy() {
@@ -269,6 +292,9 @@ class MainService : VpnService() {
 
     fun stop() {
         val app = application as MainApplication
+
+        windowStatusChangeSub?.close()
+        windowStatusChangeSub = null
 
         packetFlow?.close()
         packetFlow = null

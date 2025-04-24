@@ -1,12 +1,11 @@
 package com.bringyour.network
 
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.Sub
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.bringyour.sdk.NetworkSpace
-import com.bringyour.sdk.Sub
-import com.bringyour.sdk.ViewControllerManager
 
 @Singleton
 class DeviceManager @Inject constructor() {
@@ -148,6 +147,6 @@ class DeviceManager @Inject constructor() {
     }
 
     private fun getAppVersion(): String {
-        return BuildConfig.VERSION_NAME
+        return "${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
     }
 }
