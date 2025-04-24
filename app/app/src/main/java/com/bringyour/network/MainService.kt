@@ -85,6 +85,8 @@ class MainService : VpnService() {
                 stopForegroundNotification()
             }
 
+            // FIXME just let the user toggle route local which is also called "kill switch"
+            /*
             // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
             var alwaysOn = source != "app"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -97,6 +99,7 @@ class MainService : VpnService() {
                 // turn off local routing
                 app.deviceManager.routeLocal = false
             }
+            */
 
             val builder = Builder()
             builder.setSession("URnetwork")
