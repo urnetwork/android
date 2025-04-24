@@ -130,7 +130,9 @@ fun SettingsScreen(
         showDeleteAccountDialog = showDeleteAccountDialog,
         setShowDeleteAccountDialog = settingsViewModel.setShowDeleteAccountDialog,
         deleteAccount = settingsViewModel.deleteAccount,
-        isDeletingAccount = settingsViewModel.isDeletingAccount.collectAsState().value
+        isDeletingAccount = settingsViewModel.isDeletingAccount.collectAsState().value,
+        routeLocal = settingsViewModel.routeLocal.collectAsState().value,
+        toggleRouteLocal = settingsViewModel.toggleRouteLocal
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -142,7 +144,6 @@ fun SettingsScreen(
             setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
         )
     }
-
 
 }
 
@@ -164,7 +165,9 @@ fun SettingsScreen(
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
     showDeleteAccountDialog: Boolean,
     deleteAccount: (onSuccess: () -> Unit, onFailure: (Exception?) -> Unit) -> Unit,
-    isDeletingAccount: Boolean
+    isDeletingAccount: Boolean,
+    routeLocal: Boolean,
+    toggleRouteLocal: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -385,6 +388,28 @@ fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Route local",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                URSwitch(
+                    checked = provideWhileDisconnected,
+                    toggle = {
+                        toggleProvideWhileDisconnected()
+                    },
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             // allow notifications
@@ -440,7 +465,7 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             Row(
                 modifier = Modifier
@@ -606,7 +631,9 @@ private fun SettingsScreenPreview() {
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
-            isDeletingAccount = false
+            isDeletingAccount = false,
+            routeLocal = false,
+            toggleRouteLocal = {}
         )
     }
 }
@@ -632,7 +659,9 @@ private fun SettingsScreenSupporterPreview() {
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
-            isDeletingAccount = false
+            isDeletingAccount = false,
+            routeLocal = false,
+            toggleRouteLocal = {}
         )
     }
 }
@@ -658,7 +687,9 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
-            isDeletingAccount = false
+            isDeletingAccount = false,
+            routeLocal = false,
+            toggleRouteLocal = {}
         )
     }
 }
@@ -684,7 +715,9 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
-            isDeletingAccount = false
+            isDeletingAccount = false,
+            routeLocal = false,
+            toggleRouteLocal = {}
         )
     }
 }
@@ -710,7 +743,9 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             showDeleteAccountDialog = true,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
-            isDeletingAccount = false
+            isDeletingAccount = false,
+            routeLocal = false,
+            toggleRouteLocal = {}
         )
     }
 }

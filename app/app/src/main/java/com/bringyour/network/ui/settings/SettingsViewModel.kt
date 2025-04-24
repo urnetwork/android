@@ -47,6 +47,9 @@ class SettingsViewModel @Inject constructor(
     private val _isDeletingAccount = MutableStateFlow(false)
     val isDeletingAccount: StateFlow<Boolean> = _isDeletingAccount
 
+    private val _routeLocal = MutableStateFlow(false)
+    val routeLocal: StateFlow<Boolean> = _routeLocal
+
     var notificationsPermanentlyDenied by mutableStateOf(false)
 
     val setNotificationsPermanentlyDenied: (Boolean) -> Unit = { pd ->
@@ -143,10 +146,18 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    val toggleRouteLocal: () -> Unit = {
+        val currentRouteLocal = routeLocal.value
+        deviceManager.device?.routeLocal = !currentRouteLocal
+        _routeLocal.value = !currentRouteLocal
+    }
+
     init {
         accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
 
         provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
+
+        _routeLocal.value = deviceManager.device?.routeLocal == true
 
         addAllowProductUpdatesListener()
 
