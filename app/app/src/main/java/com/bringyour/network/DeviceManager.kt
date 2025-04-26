@@ -52,6 +52,13 @@ class DeviceManager @Inject constructor() {
             device?.provideWhileDisconnected = it
         }
 
+    var allowForeground: Boolean
+        get() = device?.allowForeground!!
+        set(it) {
+            asyncLocalState?.localState?.allowForeground = it
+            device?.allowForeground = it
+        }
+
     var vpnInterfaceWhileOffline: Boolean
         get() = device?.vpnInterfaceWhileOffline!!
         set(it) {
