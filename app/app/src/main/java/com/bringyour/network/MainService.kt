@@ -74,7 +74,7 @@ class MainService : VpnService() {
             app.service = WeakReference(this)
 
             val foreground = intent?.getBooleanExtra("foreground", false) ?: false
-//            val source = intent?.getStringExtra("source") ?: "unknown"
+            val source = intent?.getStringExtra("source") ?: "unknown"
             val offline = intent?.getBooleanExtra("offline", false) ?: false
 
             if (foreground) {
@@ -106,23 +106,45 @@ class MainService : VpnService() {
             windowStatusChangeSub?.close()
             windowStatusChangeSub = app.device?.addWindowStatusChangeListener { windowStatus ->
                 runBlocking(Dispatchers.Main.immediate) {
-                    val connected = windowStatus?.let{
+                    val connected = windowStatus?.let {
                         0 < it.providerStateAdded
                     } ?: false
                     if (this@MainService.connected != connected) {
                         this@MainService.connected = connected
                         if (connected) {
-                            updatePfd(offline)
+                            if (canUpdatePfd(source)) {
+                                updatePfd(offline)
+                            }
                         }
                     }
                 }
             }
 
-            updatePfd(offline)
+            if (canUpdatePfd(source)) {
+                updatePfd(offline)
+            }
         }
 
         // see https://developer.android.com/reference/android/app/Service#START_REDELIVER_INTENT
         return START_REDELIVER_INTENT
+    }
+
+    fun canUpdatePfd(source: String): Boolean {
+        // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
+        var alwaysOn = source != "app"
+        if (Build.VERSION_CODES.Q <= Build.VERSION.SDK_INT) {
+            if (isAlwaysOn) {
+                alwaysOn = true
+            }
+        }
+
+        if (alwaysOn) {
+            // when always on, it appears we cannot recreate the pfd
+            // TODO is there some documentation on this?
+            return !(packetFlow?.isActive() ?: false)
+        } else {
+            return true
+        }
     }
 
     fun updatePfd(offline: Boolean) {
@@ -444,6 +466,15 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
 
                 closed.signalAll()
             }
+        } finally {
+            stateLock.unlock()
+        }
+    }
+
+    fun isActive(): Boolean {
+        stateLock.lock()
+        try {
+            return active
         } finally {
             stateLock.unlock()
         }
