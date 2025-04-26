@@ -25,6 +25,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,6 +88,18 @@ fun AccountScreen(
         isPresentingUpgradePlanSheet = isPresenting
     }
 
+    LaunchedEffect(Unit) {
+        // This code runs when the screen appears
+        subscriptionBalanceViewModel.fetchSubscriptionBalance()
+
+        planViewModel.onUpgradeSuccess.collect {
+
+            // poll subscription balance until it's updated
+            subscriptionBalanceViewModel.pollSubscriptionBalance()
+
+        }
+    }
+
     Scaffold() { innerPadding ->
 
         Column(
@@ -108,7 +121,8 @@ fun AccountScreen(
                 walletCount = walletCount,
                 currentPlan = currentPlan,
                 launchOverlay = overlayViewModel.launch,
-                setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+                setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
+                isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
             )
 
             if (isPresentingUpgradePlanSheet) {
@@ -140,7 +154,8 @@ fun AccountScreenContent(
     walletCount: Int,
     currentPlan: Plan,
     launchOverlay: (OverlayMode) -> Unit,
-    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit
+    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
+    isProcessingUpgrade: Boolean
 ) {
 
     val context = LocalContext.current
@@ -194,7 +209,8 @@ fun AccountScreenContent(
 
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .height(40.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Bottom
                         ) {
@@ -206,9 +222,22 @@ fun AccountScreenContent(
                                 )
                             } else {
 
-                                Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
-                                    style = MaterialTheme.typography.headlineMedium
-                                )
+                                if (isProcessingUpgrade) {
+
+                                    CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .width(24.dp)
+                                            .height(24.dp),
+                                        color = TextMuted,
+                                        trackColor = TextFaint,
+                                        strokeWidth = 2.dp
+                                    )
+
+                                } else {
+                                    Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
+                                        style = MaterialTheme.typography.headlineMedium
+                                    )
+                                }
                             }
 
                             if (loginMode == LoginMode.Guest) {
@@ -230,7 +259,7 @@ fun AccountScreenContent(
                                 )
                             } else {
 
-                                if (currentPlan == Plan.Basic) {
+                                if (currentPlan == Plan.Basic && !isProcessingUpgrade) {
                                     Text(
                                         stringResource(id = R.string.change),
                                         modifier = Modifier
@@ -412,7 +441,8 @@ private fun AccountSupporterAuthenticatedPreview() {
             walletCount = 2,
             currentPlan = Plan.Supporter,
             launchOverlay = {},
-            setIsPresentingUpgradePlanSheet = {}
+            setIsPresentingUpgradePlanSheet = {},
+            isProcessingUpgrade = false
         )
 
     }
@@ -442,7 +472,8 @@ private fun AccountBasicAuthenticatedPreview() {
             currentPlan = Plan.Basic,
             launchOverlay = {},
             upgradePlanSheetState = sheetState,
-            setIsPresentingUpgradePlanSheet = {}
+            setIsPresentingUpgradePlanSheet = {},
+            isProcessingUpgrade = false
         )
 
     }
@@ -472,7 +503,8 @@ private fun AccountGuestPreview() {
             totalPayoutAmountInitialized = true,
             walletCount = 0,
             currentPlan = Plan.Basic,
-            launchOverlay = {}
+            launchOverlay = {},
+            isProcessingUpgrade = false
         )
     }
 }
@@ -500,7 +532,8 @@ private fun AccountGuestNoWalletPreview() {
             totalPayoutAmountInitialized = false,
             walletCount = 0,
             currentPlan = Plan.Basic,
-            launchOverlay = {}
+            launchOverlay = {},
+            isProcessingUpgrade = false
         )
     }
 }

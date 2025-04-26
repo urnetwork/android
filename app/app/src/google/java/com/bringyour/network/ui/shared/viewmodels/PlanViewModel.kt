@@ -9,16 +9,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
-import com.android.billingclient.api.BillingClient.ProductType
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
-import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
-import com.android.billingclient.api.queryPurchasesAsync
 import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -41,12 +38,6 @@ class PlanViewModel @Inject constructor(
 
     private val _onUpgradeSuccess = MutableSharedFlow<Unit>()
     val onUpgradeSuccess: SharedFlow<Unit> = _onUpgradeSuccess.asSharedFlow()
-
-    private val _currentPlan = MutableStateFlow<Plan>(Plan.Basic)
-    val currentPlan: StateFlow<Plan> = _currentPlan.asStateFlow()
-
-    var isLoadingCurrentPlan by mutableStateOf(false)
-        private set
 
     var inProgress by mutableStateOf(false)
         private set
@@ -146,17 +137,10 @@ class PlanViewModel @Inject constructor(
 
                 Log.i(TAG, "PurchasesUpdatedListener billing response ok")
 
-                if (isSupporter(purchases)) {
-                    setCurrentPlan(Plan.Supporter)
-                } else {
-                    setCurrentPlan(Plan.Basic)
-                }
-
                 viewModelScope.launch {
                     _onUpgradeSuccess.emit(Unit)
                 }
 
-                // onSuccess()
             } else if (billingResult.responseCode == BillingResponseCode.USER_CANCELED) {
                 // Handle an error caused by a user cancelling the purchase flow.
                 Log.i("PlanViewModel", "purchases updated listener USER CANCELED")
@@ -170,39 +154,6 @@ class PlanViewModel @Inject constructor(
 
             }
         }
-    }
-
-    val setIsLoadingCurrentPlan: (Boolean) -> Unit = { isLoading ->
-        isLoadingCurrentPlan = isLoading
-    }
-
-    private val fetchPurchases = {
-
-        if (_billingClient.value != null) {
-            setIsLoadingCurrentPlan(true)
-
-            val params = QueryPurchasesParams.newBuilder()
-                .setProductType(ProductType.SUBS)
-
-            viewModelScope.launch {
-                val purchasesResult = _billingClient.value?.queryPurchasesAsync(params.build())
-
-                if (purchasesResult?.purchasesList != null) {
-
-                    if (isSupporter(purchasesResult.purchasesList)) {
-                        setCurrentPlan(Plan.Supporter)
-                    } else {
-                        setCurrentPlan(Plan.Basic)
-                    }
-
-                }
-
-                setIsLoadingCurrentPlan(false)
-
-            }
-
-        }
-
     }
 
     private val fetchSubscriptionPriceInfo: () -> Unit = {
@@ -239,19 +190,6 @@ class PlanViewModel @Inject constructor(
 
         }
 
-
-    }
-
-    val isSupporter: (List<Purchase>) -> Boolean = { purchases ->
-        val planPurchases = purchases.filter { purchase ->
-            "supporter" in purchase.products
-        }
-
-        planPurchases.isNotEmpty()
-    }
-
-    val setCurrentPlan: (Plan) -> Unit = { plan ->
-        _currentPlan.value = plan
     }
 
     val setInProgress: (Boolean) -> Unit = { ip ->
@@ -265,7 +203,6 @@ class PlanViewModel @Inject constructor(
 
     init {
         createBillingClientConnection {
-            fetchPurchases()
             fetchSubscriptionPriceInfo()
         }
     }

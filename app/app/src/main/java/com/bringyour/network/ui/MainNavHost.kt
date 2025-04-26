@@ -86,13 +86,14 @@ fun MainNavHost(
     walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
     planViewModel: PlanViewModel,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
+    overlayViewModel: OverlayViewModel,
     animateIn: Boolean,
     targetLink: String?,
     defaultLocation: String?,
     activityResultSender: ActivityResultSender?,
     mainNavViewModel: MainNavViewModel = hiltViewModel(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
-    overlayViewModel: OverlayViewModel = hiltViewModel(),
     connectViewModel: ConnectViewModel = hiltViewModel(),
     locationsListViewModel: LocationsListViewModel = hiltViewModel()
 ) {
@@ -262,7 +263,8 @@ fun MainNavHost(
                                 connectViewModel = connectViewModel,
                                 locationsListViewModel = locationsListViewModel,
                                 activityResultSender = activityResultSender,
-                                isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer
+                                isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer,
+                                subscriptionBalanceViewModel = subscriptionBalanceViewModel
                             )
                         }
 
@@ -292,17 +294,16 @@ fun MainNavHost(
                             connectViewModel = connectViewModel,
                             locationsListViewModel = locationsListViewModel,
                             activityResultSender = activityResultSender,
-                            isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer
+                            isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer,
+                            subscriptionBalanceViewModel = subscriptionBalanceViewModel
                         )
 
-                        if (!isTv()) {
-                            HorizontalDivider(
-                                modifier = Modifier
-                                    .height(1.dp)
-                                    .fillMaxWidth(),
-                                color = MainBorderBase
-                            )
-                        }
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .height(1.dp)
+                                .fillMaxWidth(),
+                            color = MainBorderBase
+                        )
                     }
                 }
             }
@@ -332,10 +333,10 @@ fun MainNavContent(
     connectViewModel: ConnectViewModel,
     locationsListViewModel: LocationsListViewModel,
     activityResultSender: ActivityResultSender?,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     isNavigatingWithinContainer: (Route?, Route?) -> Boolean,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    subscriptionBalanceViewModel: SubscriptionBalanceViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx = if (isTv())

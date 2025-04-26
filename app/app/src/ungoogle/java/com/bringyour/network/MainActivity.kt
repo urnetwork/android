@@ -1,41 +1,36 @@
 package com.bringyour.network
 
+import android.app.ComponentCaller
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Color.TRANSPARENT
-import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.bringyour.network.ui.MainNavHost
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
-import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
-import com.solana.mobilewalletadapter.clientlib.Solana
 import com.solana.mobilewalletadapter.clientlib.TransactionResult
 import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainActivity: AppCompatActivity() {
@@ -45,9 +40,13 @@ class MainActivity: AppCompatActivity() {
 
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
 
+    var subscriptionUpgradeSuccess: Boolean = false
+
     private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val planViewModel: PlanViewModel by viewModels()
+    private val subscriptionBalanceViewModel: SubscriptionBalanceViewModel by viewModels()
+    private val overlayViewModel: OverlayViewModel by viewModels()
 
     private fun prepareVpnService() {
         val app = application as MainApplication
@@ -130,6 +129,9 @@ class MainActivity: AppCompatActivity() {
         val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
         val targetUrl = intent.getStringExtra("TARGET_URL")
         val defaultLocation = intent.getStringExtra("DEFAULT_LOCATION")
+        subscriptionUpgradeSuccess = intent.getBooleanExtra("UPGRADE_SUBSCRIPTION_SUCCESS", false)
+
+
 
         val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         val isTv = uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
@@ -145,6 +147,8 @@ class MainActivity: AppCompatActivity() {
                     walletViewModel,
                     settingsViewModel,
                     planViewModel,
+                    subscriptionBalanceViewModel,
+                    overlayViewModel,
                     animateIn,
                     targetUrl,
                     defaultLocation,
@@ -196,6 +200,11 @@ class MainActivity: AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        if (subscriptionUpgradeSuccess) {
+            overlayViewModel.launch(OverlayMode.Upgrade)
+            subscriptionBalanceViewModel.pollSubscriptionBalance()
         }
     }
 

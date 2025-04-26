@@ -29,7 +29,9 @@ import com.android.billingclient.api.queryProductDetails
 import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.google.android.play.core.review.ReviewManager
@@ -59,6 +61,8 @@ class MainActivity: AppCompatActivity() {
     private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val planViewModel: PlanViewModel by viewModels()
+    private val subscriptionBalanceViewModel: SubscriptionBalanceViewModel by viewModels()
+    private val overlayViewModel: OverlayViewModel by viewModels()
 
     private var sagaActivitySender: ActivityResultSender? = null
 
@@ -160,6 +164,8 @@ class MainActivity: AppCompatActivity() {
                     walletViewModel,
                     settingsViewModel,
                     planViewModel,
+                    subscriptionBalanceViewModel,
+                    overlayViewModel,
                     animateIn,
                     targetUrl,
                     defaultLocation,
