@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.TAG
+import com.bringyour.network.ui.components.LoginMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,21 +23,34 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlanViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
     private val _onUpgradeSuccess = MutableSharedFlow<Unit>()
     val onUpgradeSuccess: SharedFlow<Unit> = _onUpgradeSuccess.asSharedFlow()
 
-    private val _currentPlan = MutableStateFlow<Plan>(Plan.Basic)
-    val currentPlan: StateFlow<Plan> = _currentPlan.asStateFlow()
+    val triggerUpgradeSuccess: () -> Unit = {
+        viewModelScope.launch {
+            _onUpgradeSuccess.emit(Unit)
+        }
+    }
+
+    var networkId by mutableStateOf<String?>(null)
+        private set
+
+    // fixme: can we pull this from stripe? should we?
+    val formattedSubscriptionPrice = "5.00"
 
     var inProgress by mutableStateOf(false)
         private set
 
-    var formattedSubscriptionPrice by mutableStateOf("")
+    init {
+        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+        val localState = networkSpace?.asyncLocalState
 
-    val upgrade: () -> Unit = {
-
+        localState?.parseByJwt { jwt, _ ->
+            networkId = jwt.networkId.toString()
+        }
     }
 }

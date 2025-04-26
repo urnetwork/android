@@ -65,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
         val action: String? = intent?.action
 
         if (Intent.ACTION_VIEW == action) {
-            Log.i(TAG, "Intent.ACTION_VIEW == action")
+            Log.i(TAG, "Login Activity hitting Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
                 if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c" || u.scheme == "ur") {
                     Log.i(TAG, "createWithUri $u")
@@ -136,6 +136,7 @@ class LoginActivity : AppCompatActivity() {
         }
         val authCode = queryParameters.remove("auth_code")
         val guest = queryParameters.remove("guest").toBoolean()
+        val upgradeSuccess = queryParameters.remove("subscription").toBoolean()
         referralCode = queryParameters.remove("bonus")
         targetUrl = queryParameters.remove("target")
 
@@ -266,9 +267,22 @@ class LoginActivity : AppCompatActivity() {
 
             }
 
+        } else if (upgradeSuccess) {
+            upgradeSubscriptionSuccessStartMain()
         } else if (app.device != null) {
             setLinksAndStartMain(targetUrl, defaultLocation)
         }
+    }
+
+    private fun upgradeSubscriptionSuccessStartMain() {
+        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+
+        intent.putExtra("UPGRADE_SUBSCRIPTION_SUCCESS", true)
+
+        startActivity(intent)
+
+        finish()
     }
 
     private fun setLinksAndStartMain(
