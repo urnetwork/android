@@ -217,4 +217,5 @@
     <string name="apply_bonus">Apply bonus</string>
     <string name="join_urnetwork">Join\\nURnetwork</string>
     <string name="route_local">Allow local traffic when disconnected</string>
+    <string name="manage_subscription">Manage subscription</string>
 </resources>

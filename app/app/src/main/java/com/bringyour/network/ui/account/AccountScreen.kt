@@ -196,7 +196,7 @@ fun AccountScreenContent(
                 .padding(16.dp)
         ) {
             Column() {
-                
+
                 AccountRootSubscription(
                     loginMode = loginMode,
                     currentPlan = currentPlan,

@@ -258,4 +258,5 @@
     <string name="apply_bonus">Применить бонус</string>
     <string name="join_urnetwork">Присоединяйтесь к\\nURnetwork</string>
     <string name="route_local">Разрешить локальный трафик при отключении</string>
+    <string name="manage_subscription">Управление подпиской</string>
 </resources>

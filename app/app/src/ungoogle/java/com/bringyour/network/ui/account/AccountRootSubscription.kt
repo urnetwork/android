@@ -120,7 +120,7 @@ fun AccountRootSubscription(
 
                     if (currentPlan == Plan.Supporter) {
                         Text(
-                            "Manage subscription",
+                            stringResource(id = R.string.manage_subscription),
                             modifier = Modifier
                                 .offset(y = (-8).dp)
                                 .clickable {
