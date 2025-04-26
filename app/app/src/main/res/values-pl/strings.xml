@@ -258,5 +258,6 @@
     <string name="apply_bonus">Zastosuj bonus</string>
     <string name="join_urnetwork">Dołącz do\\nURnetwork</string>
     <string name="route_local">Zezwalaj na lokalny ruch po rozłączeniu</string>
+    <string name="manage_subscription">Zarządzaj subskrypcją</string>
 
 </resources>

@@ -236,4 +236,5 @@
     <string name="apply_bonus">应用奖励</string>
     <string name="join_urnetwork">加入\\nURnetwork</string>
     <string name="route_local">断开连接时允许本地流量</string>
+    <string name="manage_subscription">管理订阅</string>
 </resources>

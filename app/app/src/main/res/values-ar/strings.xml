@@ -222,4 +222,5 @@
     <string name="apply_bonus">تطبيق المكافأة</string>
     <string name="join_urnetwork">انضم إلى\\nURnetwork</string>
     <string name="route_local">السماح بحركة المرور المحلية عند قطع الاتصال</string>
+    <string name="manage_subscription">إدارة الاشتراك</string>
 </resources>
