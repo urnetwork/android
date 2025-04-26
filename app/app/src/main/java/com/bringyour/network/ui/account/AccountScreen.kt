@@ -196,89 +196,23 @@ fun AccountScreenContent(
                 .padding(16.dp)
         ) {
             Column() {
+                
+                AccountRootSubscription(
+                    loginMode = loginMode,
+                    currentPlan = currentPlan,
+                    isProcessingUpgrade = isProcessingUpgrade,
+                    scope = scope,
+                    logout = {
+                        application?.logout()
 
-                // member area
-                Box() {
-                    Column {
-                        Text(
-                            stringResource(id = R.string.member),
-                            style = TextStyle(
-                                color = TextMuted
-                            )
-                        )
+                        val intent = Intent(context, LoginActivity::class.java)
+                        context.startActivity(intent)
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(40.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-
-                            if (loginMode == LoginMode.Guest) {
-                                Text(
-                                    stringResource(id = R.string.guest),
-                                    style = MaterialTheme.typography.headlineMedium
-                                )
-                            } else {
-
-                                if (isProcessingUpgrade) {
-
-                                    CircularProgressIndicator(
-                                        modifier = Modifier
-                                            .width(24.dp)
-                                            .height(24.dp),
-                                        color = TextMuted,
-                                        trackColor = TextFaint,
-                                        strokeWidth = 2.dp
-                                    )
-
-                                } else {
-                                    Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
-                                        style = MaterialTheme.typography.headlineMedium
-                                    )
-                                }
-                            }
-
-                            if (loginMode == LoginMode.Guest) {
-                                Text(
-                                    stringResource(id = R.string.create_account),
-                                    style = TextStyle(
-                                        color = BlueMedium
-                                    ),
-                                    modifier = Modifier
-                                        .offset(y = (-8).dp)
-                                        .clickable {
-                                            application?.logout()
-
-                                            val intent = Intent(context, LoginActivity::class.java)
-                                            context.startActivity(intent)
-
-                                            (context as? Activity)?.finish()
-                                        }
-                                )
-                            } else {
-
-                                if (currentPlan == Plan.Basic && !isProcessingUpgrade) {
-                                    Text(
-                                        stringResource(id = R.string.change),
-                                        modifier = Modifier
-                                            .offset(y = (-8).dp)
-                                            .clickable {
-                                                scope.launch {
-                                                    setIsPresentingUpgradePlanSheet(true)
-                                                    upgradePlanSheetState.expand()
-                                                }
-                                            },
-                                        style = TextStyle(
-                                            color = BlueMedium
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                        (context as? Activity)?.finish()
+                    },
+                    setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
+                    upgradePlanSheetState = upgradePlanSheetState
+                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
