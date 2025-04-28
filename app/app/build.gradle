@@ -325,8 +325,7 @@ android {
     tasks.register('buildSdk', Exec) {
         workingDir "${bringyourHomeDir}/sdk/build"
         commandLine 'make', 'init', 'build_android'
-        environment 'WARP_VERSION', appVersion()
-        environment 'WARP_VERSION_CODE', appVersionCode()
+        environment 'WARP_VERSION', "${appVersion()}+${appVersionCode()}"
         environment 'ANDROID_NDK_HOME', android.ndkDirectory
     }
 
