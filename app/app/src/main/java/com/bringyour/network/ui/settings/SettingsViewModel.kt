@@ -60,6 +60,9 @@ class SettingsViewModel @Inject constructor(
     var provideWhileDisconnected by mutableStateOf(false)
         private set
 
+    var allowForeground by mutableStateOf(false)
+        private set
+
     val setAllowProductUpdates: (Boolean) -> Unit = { allow ->
         allowProductUpdates = allow
     }
@@ -122,6 +125,12 @@ class SettingsViewModel @Inject constructor(
         provideWhileDisconnected = !currentProvideWhileDisconnected
     }
 
+    val toggleAllowForeground: () -> Unit = {
+        val currentAllowForeground = allowForeground
+        deviceManager.allowForeground = !currentAllowForeground
+        provideWhileDisconnected = !currentAllowForeground
+    }
+
     val deleteAccount: (
             onSuccess: () -> Unit,
             onFailure: (Exception?) -> Unit
@@ -154,6 +163,8 @@ class SettingsViewModel @Inject constructor(
         accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
 
         provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
+
+        allowForeground = deviceManager.allowForeground
 
         val routeLocal = deviceManager.device?.routeLocal
 

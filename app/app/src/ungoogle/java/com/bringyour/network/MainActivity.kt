@@ -65,7 +65,7 @@ class MainActivity: AppCompatActivity() {
 
     fun requestPermissionsThenStartVpnServiceWithRestart() {
         val app = application as MainApplication
-        if (app.allowForeground) {
+        if (app.deviceManager.allowForeground) {
             if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
                 if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                     val hasForegroundPermissions = ContextCompat.checkSelfPermission(
@@ -97,7 +97,7 @@ class MainActivity: AppCompatActivity() {
 
         // allow foreground to be started when the activity is active
         // FIXME does foreground actually help with provider availability?
-        app.allowForeground = false
+        // app.allowForeground = false
 
         // used when connecting
         requestPermissionLauncherAndStart =
@@ -220,9 +220,9 @@ class MainActivity: AppCompatActivity() {
         super.onDestroy()
 
         // immutable shadow
-        val app = application as MainApplication
+        // val app = application as MainApplication
 
-        app.allowForeground = false
+        // app.allowForeground = false
     }
 
     private suspend fun getWalletAddress(walletAdapter: MobileWalletAdapter, activitySender: ActivityResultSender): String? {

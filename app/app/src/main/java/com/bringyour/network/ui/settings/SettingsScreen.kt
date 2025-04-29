@@ -132,7 +132,9 @@ fun SettingsScreen(
         deleteAccount = settingsViewModel.deleteAccount,
         isDeletingAccount = settingsViewModel.isDeletingAccount.collectAsState().value,
         routeLocal = settingsViewModel.routeLocal.collectAsState().value,
-        toggleRouteLocal = settingsViewModel.toggleRouteLocal
+        toggleRouteLocal = settingsViewModel.toggleRouteLocal,
+        allowForeground = settingsViewModel.allowForeground,
+        toggleAllowForeground = settingsViewModel.toggleAllowForeground
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -167,13 +169,15 @@ fun SettingsScreen(
     deleteAccount: (onSuccess: () -> Unit, onFailure: (Exception?) -> Unit) -> Unit,
     isDeletingAccount: Boolean,
     routeLocal: Boolean,
-    toggleRouteLocal: () -> Unit
+    toggleRouteLocal: () -> Unit,
+    allowForeground: Boolean,
+    toggleAllowForeground: () -> Unit
 ) {
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val application = context.applicationContext as? MainApplication
-    val allowForeground = remember { mutableStateOf(application?.allowForeground ?: false) }
+//    val allowForeground = remember { mutableStateOf(application?.allowForeground ?: false) }
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
@@ -382,12 +386,11 @@ fun SettingsScreen(
                 )
 
                 URSwitch(
-                    checked = allowForeground.value,
+                    checked = allowForeground,
                     toggle = {
                         Log.i(TAG, "Toggle foreground")
-                        val newValue = !allowForeground.value
-                        allowForeground.value = newValue
-                        application?.allowForeground = newValue
+                        toggleAllowForeground()
+                        application?.resetVpnService()
                     },
                 )
             }
@@ -660,7 +663,9 @@ private fun SettingsScreenPreview() {
             deleteAccount = { onSuccess, onFailure -> },
             isDeletingAccount = false,
             routeLocal = false,
-            toggleRouteLocal = {}
+            toggleRouteLocal = {},
+            allowForeground = false,
+            toggleAllowForeground = {}
         )
     }
 }
@@ -688,7 +693,9 @@ private fun SettingsScreenSupporterPreview() {
             deleteAccount = { onSuccess, onFailure -> },
             isDeletingAccount = false,
             routeLocal = false,
-            toggleRouteLocal = {}
+            toggleRouteLocal = {},
+            allowForeground = false,
+            toggleAllowForeground = {}
         )
     }
 }
@@ -716,7 +723,9 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             deleteAccount = { onSuccess, onFailure -> },
             isDeletingAccount = false,
             routeLocal = false,
-            toggleRouteLocal = {}
+            toggleRouteLocal = {},
+            allowForeground = false,
+            toggleAllowForeground = {}
         )
     }
 }
@@ -744,7 +753,9 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             deleteAccount = { onSuccess, onFailure -> },
             isDeletingAccount = false,
             routeLocal = false,
-            toggleRouteLocal = {}
+            toggleRouteLocal = {},
+            allowForeground = false,
+            toggleAllowForeground = {}
         )
     }
 }
@@ -772,7 +783,9 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             deleteAccount = { onSuccess, onFailure -> },
             isDeletingAccount = false,
             routeLocal = false,
-            toggleRouteLocal = {}
+            toggleRouteLocal = {},
+            allowForeground = false,
+            toggleAllowForeground = {}
         )
     }
 }
