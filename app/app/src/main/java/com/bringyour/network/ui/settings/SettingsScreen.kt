@@ -388,9 +388,8 @@ fun SettingsScreen(
                 URSwitch(
                     checked = allowForeground,
                     toggle = {
-                        Log.i(TAG, "Toggle foreground")
                         toggleAllowForeground()
-                        application?.resetVpnService()
+                        application?.updateVpnService()
                     },
                 )
             }

@@ -479,12 +479,7 @@ class MainApplication : Application() {
         }
     }
 
-    fun resetVpnService() {
-        // stopVpnService()
-        updateVpnService()
-    }
-
-    private fun updateVpnService() {
+    fun updateVpnService() {
         val device = device ?: return
 
         val provideEnabled = device.provideEnabled
