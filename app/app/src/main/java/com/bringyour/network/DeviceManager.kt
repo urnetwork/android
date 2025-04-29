@@ -52,6 +52,13 @@ class DeviceManager @Inject constructor() {
             device?.provideWhileDisconnected = it
         }
 
+    var allowForeground: Boolean
+        get() = device?.allowForeground!!
+        set(it) {
+            asyncLocalState?.localState?.allowForeground = it
+            device?.allowForeground = it
+        }
+
     var vpnInterfaceWhileOffline: Boolean
         get() = device?.vpnInterfaceWhileOffline!!
         set(it) {
@@ -97,6 +104,7 @@ class DeviceManager @Inject constructor() {
         val provideMode = if (provideWhileDisconnected) Sdk.ProvideModePublic else localState.provideMode
         val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
         val canRefer = localState.canRefer
+        val allowForeground = localState.allowForeground
 
         device = Sdk.newDeviceLocalWithDefaults(
             networkSpace,
@@ -128,6 +136,7 @@ class DeviceManager @Inject constructor() {
         device?.provideWhileDisconnected = provideWhileDisconnected
         device?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
         device?.canRefer = canRefer
+        device?.allowForeground = allowForeground
 
 //        connectVc = byDevice?.openConnectViewControllerV0()
     }

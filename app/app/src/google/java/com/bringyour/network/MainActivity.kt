@@ -83,7 +83,7 @@ class MainActivity: AppCompatActivity() {
 
     fun requestPermissionsThenStartVpnServiceWithRestart() {
         val app = application as MainApplication
-        if (app.allowForeground) {
+        if (app.deviceManager.allowForeground) {
             if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
                 if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                     val hasForegroundPermissions = ContextCompat.checkSelfPermission(
@@ -115,7 +115,8 @@ class MainActivity: AppCompatActivity() {
 
         // allow foreground to be started when the activity is active
         // FIXME we don't have enough data that foreground mode actually helps the vpn stay alive in the background better
-        app.allowForeground = false
+        // app.allowForeground = false
+        // app.deviceManager.allowForeground = false
 
         sagaActivitySender = ActivityResultSender(this)
 
@@ -250,9 +251,8 @@ class MainActivity: AppCompatActivity() {
         super.onDestroy()
 
         // immutable shadow
-        val app = application as MainApplication
-
-        app.allowForeground = false
+        // val app = application as MainApplication
+        // app.allowForeground = false
     }
 
     private fun requestSagaWallet() {

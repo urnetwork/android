@@ -58,7 +58,7 @@ class MainApplication : Application() {
 
     var networkSpaceSub: Sub? = null
     // set this to true to use foreground services
-    var allowForeground: Boolean = false
+    // var allowForeground: Boolean = false
 
 //    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
@@ -479,7 +479,7 @@ class MainApplication : Application() {
         }
     }
 
-    private fun updateVpnService() {
+    fun updateVpnService() {
         val device = device ?: return
 
         val provideEnabled = device.provideEnabled
@@ -538,6 +538,8 @@ class MainApplication : Application() {
 
     fun startVpnService() {
         val device = device ?: return
+
+        val allowForeground = deviceManager.allowForeground
 
         // note starting in Android 15, boot completed receivers cannot start foreground services
         // the app will not allow foreground until the activity is explicitly opened
