@@ -480,7 +480,7 @@ class MainApplication : Application() {
     }
 
     fun resetVpnService() {
-        stopVpnService()
+        // stopVpnService()
         updateVpnService()
     }
 

@@ -128,7 +128,7 @@ class SettingsViewModel @Inject constructor(
     val toggleAllowForeground: () -> Unit = {
         val currentAllowForeground = allowForeground
         deviceManager.allowForeground = !currentAllowForeground
-        provideWhileDisconnected = !currentAllowForeground
+        allowForeground = !currentAllowForeground
     }
 
     val deleteAccount: (

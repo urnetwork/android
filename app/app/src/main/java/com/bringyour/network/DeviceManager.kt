@@ -104,6 +104,7 @@ class DeviceManager @Inject constructor() {
         val provideMode = if (provideWhileDisconnected) Sdk.ProvideModePublic else localState.provideMode
         val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
         val canRefer = localState.canRefer
+        val allowForeground = localState.allowForeground
 
         device = Sdk.newDeviceLocalWithDefaults(
             networkSpace,
@@ -135,6 +136,7 @@ class DeviceManager @Inject constructor() {
         device?.provideWhileDisconnected = provideWhileDisconnected
         device?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
         device?.canRefer = canRefer
+        device?.allowForeground = allowForeground
 
 //        connectVc = byDevice?.openConnectViewControllerV0()
     }
