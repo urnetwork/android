@@ -99,7 +99,6 @@ fun LoginInitial(
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-    val coroutineScope = rememberCoroutineScope()
     val loginActivity = context as? LoginActivity
     var contentVisible by remember { mutableStateOf(true) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
@@ -108,7 +107,7 @@ fun LoginInitial(
 
     val onLogin: (AuthLoginResult) -> Unit = { result ->
 
-        coroutineScope.launch {
+        scope.launch {
 
             application?.login(result.network.byJwt)
 
@@ -145,8 +144,6 @@ fun LoginInitial(
 
     val connectSolanaWallet = {
 
-        Log.i("LoginInitial", "connectSolanaWallet")
-
         val solanaUri = Uri.parse("https://ur.io")
         val iconUri = Uri.parse("favicon.ico")
         val identityName = "URnetwork"
@@ -173,7 +170,6 @@ fun LoginInitial(
                 val result = walletAdapter.signIn(
                     activityResultSender,
                     SignInWithSolana.Payload("ur.io", message)
-                    // SignInWithSolana.Payload("solana.com", "Sign in to Ktx Sample App")
                 )
 
                 when (result) {
@@ -211,10 +207,6 @@ fun LoginInitial(
                             Log.i(TAG, "signInResult is null")
                         }
 
-                        // check if user exists
-
-                        // navigate to register or sign user in
-
                     }
                     is TransactionResult.NoWalletFound -> {
                         Log.i("LoginInitial", "No MWA compatible wallet app found on device.")
@@ -224,9 +216,7 @@ fun LoginInitial(
                     }
                 }
             }
-
         }
-
     }
 
     LoginInitial(

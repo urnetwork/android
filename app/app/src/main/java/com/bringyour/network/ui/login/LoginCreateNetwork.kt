@@ -145,29 +145,7 @@ fun LoginCreateNetwork(
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
 
-//    LaunchedEffect(Unit) {
-//
-//        if (params is LoginCreateNetworkParams.LoginCreateSolanaParams) {
-//
-//            val pk = Uri.decode(params.publicKey)
-//            val sm = Uri.decode(params.signedMessage)
-//            val sig = Uri.decode(params.signature)
-//
-//            val verifyResult = verifySolanaSignature(
-//                pk,
-//                sm,
-//                sig
-//            )
-//
-//            Log.i("LoginCreateNetwork", "verify result: $verifyResult")
-//
-//        }
-//
-//    }
-
     LaunchedEffect(params.referralCode) {
-
-        Log.i(TAG, "referral code: ${params.referralCode}")
 
         params.referralCode?.let { code ->
             if (code.isNotEmpty()) {
