@@ -73,7 +73,6 @@ import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.utils.isTv
-import com.bringyour.sdk.Sdk.verifySolanaSignature
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter

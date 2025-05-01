@@ -67,7 +67,6 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.NetworkCreateArgs
-import com.bringyour.sdk.Sdk.verifySolanaSignature
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
@@ -186,12 +185,6 @@ fun LoginInitial(
                             val signatureBase64 = Base64.encodeToString(signatureBytes, Base64.NO_WRAP)
 
                             val signedMessage = it.signedMessage.decodeToString()
-
-                            val verifyResult = verifySolanaSignature(
-                                address,
-                                signedMessage,
-                                signatureBase64
-                            )
 
                             loginViewModel.walletLogin(
                                 context,
