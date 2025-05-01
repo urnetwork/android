@@ -503,8 +503,7 @@ fun LoginInitialActions(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        "Sign in with Solana",
-                        // stringResource(id = R.string.google_auth_btn_text),
+                        stringResource(id = R.string.solana_sign_in),
                         style = buttonTextStyle
                     )
                 }

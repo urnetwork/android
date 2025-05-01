@@ -223,4 +223,5 @@
     <string name="join_urnetwork">انضم إلى\\nURnetwork</string>
     <string name="route_local">السماح بحركة المرور المحلية عند قطع الاتصال</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
+    <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
 </resources>

@@ -259,4 +259,5 @@
     <string name="join_urnetwork">Присоединяйтесь к\\nURnetwork</string>
     <string name="route_local">Разрешить локальный трафик при отключении</string>
     <string name="manage_subscription">Управление подпиской</string>
+    <string name="solana_sign_in">Войти с помощью Solana</string>
 </resources>

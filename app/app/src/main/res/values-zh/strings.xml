@@ -237,4 +237,5 @@
     <string name="join_urnetwork">加入\\nURnetwork</string>
     <string name="route_local">断开连接时允许本地流量</string>
     <string name="manage_subscription">管理订阅</string>
+    <string name="solana_sign_in">使用 Solana 登录</string>
 </resources>
