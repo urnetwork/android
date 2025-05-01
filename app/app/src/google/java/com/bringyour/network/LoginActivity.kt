@@ -20,6 +20,7 @@ import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.sdk.AuthCodeLoginArgs
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +40,8 @@ class LoginActivity : AppCompatActivity() {
     private var referralCode: String? = null
 
     private val loginViewModel: LoginViewModel by viewModels()
+
+    val activityResultSender = ActivityResultSender(this)
 
     private var promptAccountSwitch = false
     private var currentNetworkName: String? = null
@@ -142,7 +145,8 @@ class LoginActivity : AppCompatActivity() {
                     currentNetworkName = currentNetworkName,
                     switchToGuestMode = switchToGuestMode,
                     isLoadingAuthCode = isLoadingAuthCode,
-                    referralCode = referralCode
+                    referralCode = referralCode,
+                    activityResultSender = activityResultSender
                 )
             }
         }

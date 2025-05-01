@@ -26,6 +26,7 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.text.contains
 import kotlin.text.substringBefore
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -36,6 +37,8 @@ class LoginActivity : AppCompatActivity() {
     private var referralCode: String? = null
 
     private val loginViewModel: LoginViewModel by viewModels()
+
+    val activityResultSender = ActivityResultSender(this)
 
     private var promptAccountSwitch = false
     private var currentNetworkName: String? = null
@@ -113,7 +116,8 @@ class LoginActivity : AppCompatActivity() {
                     currentNetworkName = currentNetworkName,
                     switchToGuestMode = switchToGuestMode,
                     isLoadingAuthCode = isLoadingAuthCode,
-                    referralCode = referralCode
+                    referralCode = referralCode,
+                    activityResultSender = activityResultSender
                 )
             }
         }

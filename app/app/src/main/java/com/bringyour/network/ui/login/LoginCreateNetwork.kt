@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import android.net.Uri
 import android.util.Log
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
@@ -87,26 +88,27 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTv
 import com.bringyour.sdk.Api
+import com.bringyour.sdk.Sdk.verifySolanaSignature
 
 // Base class with common parameters
 open class CommonLoginParams(
-    val userAuth: String,
+    // val userAuth: String,
     var referralCode: String?
 )
 
 // Sealed class with specific parameters, properly initializing the base class
 sealed class LoginCreateNetworkParams(
-    userAuth: String,
+    // userAuth: String,
     referralCode: String?
 ) : CommonLoginParams(
-    userAuth,
+    // userAuth,
     referralCode
 ) {
      class LoginCreateUserAuthParams(
-        userAuth: String,
+        val userAuth: String,
         referralCode: String?
     ) : LoginCreateNetworkParams(
-        userAuth,
+        // userAuth,
         referralCode
     )
 
@@ -114,11 +116,22 @@ sealed class LoginCreateNetworkParams(
         val authJwt: String,
         val authJwtType: String,
         val userName: String,
-        userAuth: String,
+        val userAuth: String,
         referralCode: String?
     ) : LoginCreateNetworkParams(
-         userAuth,
+         // userAuth,
          referralCode
+    )
+
+    class LoginCreateSolanaParams(
+        val publicKey: String,
+        val signedMessage: String,
+        val signature: String,
+        // val userAuth: String,
+        referralCode: String?
+    ) : LoginCreateNetworkParams(
+        // userAuth,
+        referralCode
     )
 }
 
@@ -133,8 +146,6 @@ fun LoginCreateNetwork(
     val application = context.applicationContext as? MainApplication
 
     LaunchedEffect(params.referralCode) {
-
-        Log.i(TAG, "referral code: ${params.referralCode}")
 
         params.referralCode?.let { code ->
             if (code.isNotEmpty()) {
@@ -242,6 +253,16 @@ fun LoginCreateNetwork(
                         networkNameIsValid &&
                         termsAgreed
             }
+            is LoginCreateNetworkParams.LoginCreateSolanaParams -> {
+                    (networkName.text.length >= 6) &&
+                    (params.publicKey.isNotEmpty()) &&
+                    (params.signature.isNotEmpty()) &&
+                    (params.signedMessage.isNotEmpty()) &&
+                    !isValidatingNetworkName &&
+                    !networkNameErrorExists &&
+                    networkNameIsValid &&
+                    termsAgreed
+            }
         }
     }
 
@@ -250,59 +271,85 @@ fun LoginCreateNetwork(
     val createNetwork = {
         val args = createNetworkArgs(params)
 
-        application?.api?.networkCreate(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
-                inProgress = false
 
-                if (err != null) {
-                    createNetworkError = err.message
-                } else if (result.error != null) {
-                    createNetworkError = result.error.message
-                } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
-                    createNetworkError = null
+        val verifyResult = verifySolanaSignature(
+            args.walletAuth.publicKey,
+            args.walletAuth.message,
+            args.walletAuth.signature
+        )
 
-                    application.login(result.network.byJwt)
+        Log.i("LoginCreateNetwork", "verify result: $verifyResult")
 
-                    inProgress = true
 
-                    isContentVisible = false
+        if (verifyResult) {
 
-                    delay(500)
+            application?.api?.networkCreate(args) { result, err ->
+                runBlocking(Dispatchers.Main.immediate) {
+                    inProgress = false
 
-                    welcomeOverlayVisible = true
+                    if (err != null) {
+                        createNetworkError = err.message
+                    } else if (result.error != null) {
+                        createNetworkError = result.error.message
+                    } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                        createNetworkError = null
 
-                    delay(2250)
+                        application.login(result.network.byJwt)
 
-                    loginActivity?.authClientAndFinish(
-                        { error ->
-                            inProgress = false
+                        inProgress = true
 
-                            createNetworkError = error
+                        isContentVisible = false
+
+                        delay(500)
+
+                        welcomeOverlayVisible = true
+
+                        delay(2250)
+
+                        loginActivity?.authClientAndFinish(
+                            { error ->
+                                inProgress = false
+
+                                createNetworkError = error
+                            }
+                        )
+                    } else if (result.verificationRequired != null) {
+                        createNetworkError = null
+
+                        // this might be unnecessary
+                        // but following the current fragments
+                        // can probably just use result.verificationRequired.userAuth
+//                    val userAuth = when (params) {
+//                        is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
+//                            params.userAuth
+//                        }
+//
+//                        is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
+//                            result.verificationRequired.userAuth
+//                        }
+//                    }
+
+                        var userAuth: String? = null
+                        if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
+                            userAuth = params.userAuth
+                        } else if (params is LoginCreateNetworkParams.LoginCreateAuthJwtParams) {
+                            userAuth = result.verificationRequired.userAuth
                         }
-                    )
-                } else if (result.verificationRequired != null) {
-                    createNetworkError = null
 
-                    // this might be unnecessary
-                    // but following the current fragments
-                    // can probably just use result.verificationRequired.userAuth
-                    val userAuth = when (params) {
-                        is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-                            params.userAuth
+                        userAuth?.let {
+                            navController.navigate("verify/${it}")
+                        } ?: run {
+                            createNetworkError = "There was a problem parsing user auth for verification"
                         }
 
-                        is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-                            result.verificationRequired.userAuth
-                        }
+                    } else {
+                        createNetworkError = context.getString(R.string.create_network_error)
                     }
-
-                    navController.navigate("verify/${userAuth}")
-
-                } else {
-                    createNetworkError = context.getString(R.string.create_network_error)
                 }
             }
         }
+
+
     }
 
     val networkNameUnavailable = stringResource(id = R.string.network_name_unavailable)

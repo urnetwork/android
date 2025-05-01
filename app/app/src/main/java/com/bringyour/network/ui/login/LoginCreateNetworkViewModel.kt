@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +15,7 @@ import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.ValidateReferralCodeArgs
+import com.bringyour.sdk.WalletAuthArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -198,6 +200,15 @@ class LoginCreateNetworkViewModel @Inject constructor(
                 args.authJwt = params.authJwt
                 args.authJwtType = params.authJwtType
             }
+            is LoginCreateNetworkParams.LoginCreateSolanaParams -> {
+                val walletAuth = WalletAuthArgs()
+                walletAuth.publicKey = Uri.decode(params.publicKey)
+                walletAuth.signature = Uri.decode(params.signature)
+                walletAuth.message = Uri.decode(params.signedMessage)
+                walletAuth.blockchain = "solana"
+                args.walletAuth = walletAuth
+            }
+
         }
 
         args

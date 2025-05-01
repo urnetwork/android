@@ -29,6 +29,7 @@ import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.SwitchAccountScreen
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.utils.isTv
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 
 @Composable
 fun LoginNavHost(
@@ -39,6 +40,7 @@ fun LoginNavHost(
     switchToGuestMode: Boolean,
     isLoadingAuthCode: Boolean,
     referralCode: String?,
+    activityResultSender: ActivityResultSender?,
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
@@ -94,6 +96,7 @@ fun LoginNavHost(
                         LoginInitial(
                             navController,
                             loginViewModel,
+                            activityResultSender
                         )
                     }
 
@@ -113,6 +116,25 @@ fun LoginNavHost(
 
                         val createNetworkParams = LoginCreateNetworkParams.LoginCreateUserAuthParams(
                             userAuth = userAuth,
+                            referralCode = referralCode
+                        )
+
+                        LoginCreateNetwork(
+                            createNetworkParams,
+                            navController
+                        )
+                    }
+
+                    composable("create-network/{walletAddress}/{signedMessage}/{signature}") { backStackEntry ->
+
+                        val walletAddress = backStackEntry.arguments?.getString("walletAddress") ?: ""
+                        val signedMessage = backStackEntry.arguments?.getString("signedMessage") ?: ""
+                        val signature = backStackEntry.arguments?.getString("signature") ?: ""
+
+                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateSolanaParams(
+                            publicKey = walletAddress,
+                            signedMessage = signedMessage,
+                            signature = signature,
                             referralCode = referralCode
                         )
 

@@ -237,4 +237,5 @@
     <string name="join_urnetwork">Jiunge na\\nURnetwork</string>
     <string name="route_local">Ruhusu trafiki ya ndani wakati haujaungwa</string>
     <string name="manage_subscription">Dhibiti usajili</string>
+    <string name="solana_sign_in">Ingia na Solana</string>
 </resources>

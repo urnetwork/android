@@ -218,4 +218,5 @@
     <string name="join_urnetwork">Join\\nURnetwork</string>
     <string name="route_local">Allow local traffic when disconnected</string>
     <string name="manage_subscription">Manage subscription</string>
+    <string name="solana_sign_in">Sign in with Solana</string>
 </resources>

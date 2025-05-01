@@ -259,4 +259,5 @@
     <string name="join_urnetwork">가입하기\\nURnetwork</string>
     <string name="route_local">연결 해제 시 로컬 트래픽 허용</string>
     <string name="manage_subscription">구독 관리</string>
+    <string name="solana_sign_in">Solana로 로그인</string>
 </resources>

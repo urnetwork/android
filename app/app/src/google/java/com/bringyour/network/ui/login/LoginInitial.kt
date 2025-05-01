@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.login
 
 import android.content.Context
+import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,24 +67,157 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.NetworkCreateArgs
+import com.bringyour.sdk.Sdk.verifySolanaSignature
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.BlueMedium
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
+import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
+import com.solana.mobilewalletadapter.clientlib.Solana
+import com.solana.mobilewalletadapter.clientlib.TransactionResult
+import com.solana.mobilewalletadapter.common.signin.SignInWithSolana
+import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.Date
 
 @Composable()
 fun LoginInitial(
     navController: NavController,
     loginViewModel: LoginViewModel,
+    activityResultSender: ActivityResultSender?,
 ) {
+
+    val context = LocalContext.current
+    val application = context.applicationContext as? MainApplication
+    val loginActivity = context as? LoginActivity
+    var contentVisible by remember { mutableStateOf(true) }
+    var welcomeOverlayVisible by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+
+    val onLogin: (AuthLoginResult) -> Unit = { result ->
+
+        scope.launch {
+
+            application?.login(result.network.byJwt)
+
+            contentVisible = false
+
+            delay(500)
+
+            welcomeOverlayVisible = true
+
+            delay(2250)
+
+            loginActivity?.authClientAndFinish(
+                { error ->
+                    loginViewModel.setLoginError(error)
+                }
+            )
+
+        }
+
+    }
+
+    val onCreateNetworkSolana: (
+        publicKey: String,
+        signedMessage: String,
+        signature: String
+            ) -> Unit = { pk, signedMessage, signature ->
+
+        val encodedPublicKey = Uri.encode(pk)
+        val encodedSignedMessage = Uri.encode(signedMessage)
+        val encodedSignature = Uri.encode(signature)
+
+        navController.navigate("create-network/${encodedPublicKey}/${encodedSignedMessage}/${encodedSignature}")
+    }
+
+    val connectSolanaWallet = {
+
+        val solanaUri = Uri.parse("https://ur.io")
+        val iconUri = Uri.parse("favicon.ico")
+        val identityName = "URnetwork"
+
+
+        scope.launch {
+
+            // `connect` dispatches an association intent to MWA-compatible wallet apps.
+            activityResultSender?.let { activityResultSender ->
+
+                // Instantiate the MWA client object
+                val walletAdapter = MobileWalletAdapter(
+                    connectionIdentity = ConnectionIdentity(
+                        identityUri = solanaUri,
+                        iconUri = iconUri,
+                        identityName = identityName,
+                    ),
+                )
+                walletAdapter.blockchain = Solana.Mainnet
+
+                val timestamp = Date().time.toString()
+                val message = "Welcome to URnetwork - $timestamp"
+
+                val result = walletAdapter.signIn(
+                    activityResultSender,
+                    SignInWithSolana.Payload("ur.io", message)
+                )
+
+                when (result) {
+                    is TransactionResult.Success -> {
+
+                        // On success, an `AuthorizationResult` with a `signInResult` object is returned.
+                        val signInResult = result.authResult.signInResult
+
+                        signInResult?.let {
+
+                            val address = SolanaPublicKey(it.publicKey).base58()
+                            
+                            val signatureBytes = it.signature
+                            val signatureBase64 = Base64.encodeToString(signatureBytes, Base64.NO_WRAP)
+
+                            val signedMessage = it.signedMessage.decodeToString()
+
+                            val verifyResult = verifySolanaSignature(
+                                address,
+                                signedMessage,
+                                signatureBase64
+                            )
+
+                            loginViewModel.walletLogin(
+                                context,
+                                application?.api,
+                                address,
+                                signedMessage,
+                                signatureBase64,
+                                onLogin,
+                                onCreateNetworkSolana
+                            )
+
+                        } ?: run {
+                            Log.i(TAG, "signInResult is null")
+                        }
+
+                    }
+                    is TransactionResult.NoWalletFound -> {
+                        Log.i("LoginInitial", "No MWA compatible wallet app found on device.")
+                    }
+                    is TransactionResult.Failure -> {
+                        Log.i("LoginInitial", "Error connecting to wallet: " + result.e.message)
+                    }
+                }
+            }
+        }
+    }
 
     LoginInitial(
         navController,
@@ -97,7 +232,20 @@ fun LoginInitial(
         setLoginError = loginViewModel.setLoginError,
         googleAuthInProgress = loginViewModel.googleAuthInProgress,
         setCreateGuestModeInProgress = loginViewModel.setCreateGuestModeInProgress,
-        allowGoogleSso = loginViewModel.allowGoogleSso
+        allowGoogleSso = loginViewModel.allowGoogleSso,
+        solanaLogin = {
+            connectSolanaWallet()
+                      },
+        solanaAuthInProgress = loginViewModel.solanaAuthInProgress,
+        onLogin = onLogin,
+        contentVisible = contentVisible,
+        setContentVisible = {
+            contentVisible = it
+        },
+        welcomeOverlayVisible = welcomeOverlayVisible,
+        setWelcomeOverlayVisible = {
+            welcomeOverlayVisible = it
+        }
     )
 
 }
@@ -127,24 +275,29 @@ fun LoginInitial(
     googleAuthInProgress: Boolean,
     setGoogleAuthInProgress: (Boolean) -> Unit,
     setCreateGuestModeInProgress: (Boolean) -> Unit,
-    allowGoogleSso: () -> Boolean
+    allowGoogleSso: () -> Boolean,
+    solanaLogin: () -> Unit,
+    solanaAuthInProgress: Boolean,
+    onLogin: (AuthLoginResult) -> Unit,
+    contentVisible: Boolean,
+    setContentVisible: (Boolean) -> Unit,
+    welcomeOverlayVisible: Boolean,
+    setWelcomeOverlayVisible: (Boolean) -> Unit,
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
 
-    var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var guestModeOverlayVisible by remember { mutableStateOf(false) }
 
     val setGuestModeOverlayVisible: (Boolean) -> Unit = { isVisible ->
         guestModeOverlayVisible = isVisible
     }
 
-    var contentVisible by remember { mutableStateOf(true) }
 
     val loginActivity = context as? LoginActivity
 
-    val onLogin: (AuthLoginResult) -> Unit = { result ->
+    val navigateToLoginPassword: (AuthLoginResult) -> Unit = { result ->
         navController.navigate("login-password/${result.userAuth}")
     }
 
@@ -159,31 +312,6 @@ fun LoginInitial(
         .build()
     val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOpts)
 
-    val coroutineScope = rememberCoroutineScope()
-
-    val onLoginGoogle: (AuthLoginResult) -> Unit = { result ->
-
-        coroutineScope.launch {
-
-            application?.login(result.network.byJwt)
-
-            contentVisible = false
-
-            delay(500)
-
-            welcomeOverlayVisible = true
-
-            delay(2250)
-
-            loginActivity?.authClientAndFinish(
-                { error ->
-                    setLoginError(error)
-                }
-            )
-
-        }
-
-    }
 
     val createGuestNetwork = {
         setCreateGuestModeInProgress(true)
@@ -206,11 +334,11 @@ fun LoginInitial(
 
                     application.login(result.network.byJwt)
 
-                    contentVisible = false
+                    setContentVisible(false)
 
                     delay(500)
 
-                    welcomeOverlayVisible = true
+                    setWelcomeOverlayVisible(true)
 
                     delay(2250)
 
@@ -221,7 +349,7 @@ fun LoginInitial(
                             setLoginError(error)
 
                             if (error != null) {
-                                contentVisible = true
+                                setContentVisible(true)
                             }
                         }
                     )
@@ -258,7 +386,7 @@ fun LoginInitial(
                 context,
                 application?.api,
                 account,
-                onLoginGoogle,
+                onLogin,
                 onNetworkCreateGoogle
             )
 
@@ -303,14 +431,16 @@ fun LoginInitial(
                             login(
                                 context,
                                 application?.api,
-                                onLogin,
+                                navigateToLoginPassword,
                                 onNewNetwork,
                             )
                         },
                         onGoogleLogin = {
                             googleSignInLauncher.launch(googleSignInClient.signInIntent)
                         },
-                        allowGoogleSso = allowGoogleSso
+                        allowGoogleSso = allowGoogleSso,
+                        onSolanaLogin = solanaLogin,
+                        solanaAuthInProgress = solanaAuthInProgress
                     )
                 }
 
@@ -365,7 +495,9 @@ fun LoginInitialActions(
     googleAuthInProgress: Boolean,
     onLogin: () -> Unit,
     onGoogleLogin: () -> Unit,
-    allowGoogleSso: () -> Boolean
+    allowGoogleSso: () -> Boolean,
+    onSolanaLogin: () -> Unit,
+    solanaAuthInProgress: Boolean,
 ) {
 
     Row(
@@ -407,47 +539,81 @@ fun LoginInitialActions(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (allowGoogleSso()) {
+            // if (allowGoogleSso()) {
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "or",
+                    color = TextMuted
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Google sign in
+             */
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = {
+                    onGoogleLogin()
+                },
+                enabled = !googleAuthInProgress
+            ) { buttonTextStyle ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+
+                    // todo - this looks a little blurry
+                    Image(
+                        painter = painterResource(id = R.drawable.google_login_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     Text(
-                        "or",
-                        color = TextMuted
+                        stringResource(id = R.string.google_auth_btn_text),
+                        style = buttonTextStyle
                     )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                URButton(
-                    style = ButtonStyle.SECONDARY,
-                    onClick = {
-                        onGoogleLogin()
-                    },
-                    enabled = !googleAuthInProgress
-                ) { buttonTextStyle ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+            /**
+             * Solana Sign in
+             */
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = {
+                    onSolanaLogin()
+                },
+                enabled = !solanaAuthInProgress
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                        // todo - this looks a little blurry
-                        Image(
-                            painter = painterResource(id = R.drawable.google_login_icon),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.solana_logo),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                        Text(
-                            stringResource(id = R.string.google_auth_btn_text),
-                            style = buttonTextStyle
-                        )
-                    }
+                    Text(
+                        stringResource(id = R.string.solana_sign_in),
+                        style = buttonTextStyle
+                    )
                 }
             }
+
+            // }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -551,7 +717,14 @@ private fun LoginInitialPreview() {
                     googleAuthInProgress = false,
                     setGoogleAuthInProgress = {},
                     setCreateGuestModeInProgress = {},
-                    allowGoogleSso = { true }
+                    allowGoogleSso = { true },
+                    solanaAuthInProgress = false,
+                    solanaLogin = {},
+                    onLogin = {},
+                    contentVisible = true,
+                    setContentVisible = {},
+                    welcomeOverlayVisible = false,
+                    setWelcomeOverlayVisible = {}
                 )
             }
         }
@@ -607,7 +780,14 @@ private fun LoginInitialLandscapePreview() {
                     googleAuthInProgress = false,
                     setGoogleAuthInProgress = {},
                     setCreateGuestModeInProgress = {},
-                    allowGoogleSso = { true }
+                    allowGoogleSso = { true },
+                    solanaAuthInProgress = false,
+                    solanaLogin = {},
+                    onLogin = {},
+                    contentVisible = true,
+                    setContentVisible = {},
+                    welcomeOverlayVisible = false,
+                    setWelcomeOverlayVisible = {}
                 )
             }
         }

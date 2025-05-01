@@ -236,4 +236,5 @@
     <string name="join_urnetwork">Únete a\\nURnetwork</string>
     <string name="route_local">Permitir tráfico local cuando esté desconectado</string>
     <string name="manage_subscription">Administrar suscripción</string>
+    <string name="solana_sign_in">Iniciar sesión con Solana</string>
 </resources>

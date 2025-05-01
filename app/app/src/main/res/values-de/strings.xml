@@ -226,4 +226,5 @@
     <string name="join_urnetwork">Tritt bei\\nURnetwork</string>
     <string name="route_local">Lokalen Datenverkehr erlauben, wenn getrenntnURnetwork</string>
     <string name="manage_subscription">Abonnement verwalten</string>
+    <string name="solana_sign_in">Mit Solana anmelden</string>
 </resources>

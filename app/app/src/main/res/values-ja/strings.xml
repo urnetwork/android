@@ -259,4 +259,5 @@
     <string name="join_urnetwork">参加する\\nURnetwork</string>
     <string name="route_local">切断時にローカルトラフィックを許可する</string>
     <string name="manage_subscription">サブスクリプションを管理</string>
+    <string name="solana_sign_in">Solanaでサインイン</string>
 </resources>

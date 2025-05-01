@@ -16,6 +16,7 @@ import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.R
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.WalletAuthArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -49,6 +50,13 @@ class LoginViewModel @Inject constructor(
 
     val setCreateGuestModeInProgress: (Boolean) -> Unit = { inProgress ->
         createGuestModeInProgress = inProgress
+    }
+
+    var solanaAuthInProgress by mutableStateOf(false)
+        private set
+
+    val setSolanaAuthInProgress: (Boolean) -> Unit = { inProgress ->
+        solanaAuthInProgress = inProgress
     }
 
     val login: (
@@ -97,6 +105,59 @@ class LoginViewModel @Inject constructor(
                         delay(200)
                         userAuthInProgress = false
                     }
+                }
+            }
+        }
+    }
+
+    val walletLogin: (
+        context: Context,
+        api: Api?,
+        publicKey: String,
+        signedMessage: String,
+        signature: String,
+        onLogin: (AuthLoginResult) -> Unit,
+        onCreateNetwork: (publicKey: String, signedMessage: String, signature: String) -> Unit
+    ) -> Unit = { ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
+
+        if (!solanaAuthInProgress) {
+
+            setSolanaAuthInProgress(true)
+
+            val args = AuthLoginArgs()
+            val walletAuth = WalletAuthArgs()
+
+            walletAuth.publicKey = publicKey
+            walletAuth.message = signedMessage
+            walletAuth.signature = signature
+            walletAuth.blockchain = "solana"
+
+            args.walletAuth = walletAuth
+
+            api?.authLogin(args) { result, err ->
+                viewModelScope.launch {
+                    // googleAuthInProgress = false
+
+                    if (err != null) {
+                        setLoginError(err.message)
+                    } else if (result.error != null) {
+                        setLoginError(result.error.message)
+                    } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                        setLoginError(null)
+
+                        onLogin(result)
+
+                    } else {
+                        setLoginError(null)
+
+                        onCreateNetwork(
+                            result.walletAuth.publicKey,
+                            result.walletAuth.message,
+                            result.walletAuth.signature
+                        )
+                    }
+
+                    setSolanaAuthInProgress(false)
                 }
             }
         }
