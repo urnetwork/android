@@ -238,4 +238,6 @@
     <string name="route_local">Permitir tráfego local quando desconectado</string>
     <string name="manage_subscription">Gerenciar assinatura</string>
     <string name="solana_sign_in">Entrar com Solana</string>
+    <string name="no_solana_wallets_found">Nenhuma carteira Solana encontrada</string>
+    <string name="no_wallets_found_alert_content">Nenhuma carteira Solana foi encontrada instalada neste dispositivo. Instale uma carteira e tente novamente.</string>
 </resources>

@@ -238,4 +238,6 @@
     <string name="route_local">断开连接时允许本地流量</string>
     <string name="manage_subscription">管理订阅</string>
     <string name="solana_sign_in">使用 Solana 登录</string>
+    <string name="no_solana_wallets_found">未找到 Solana 钱包</string>
+    <string name="no_wallets_found_alert_content">在此设备上未找到已安装的 Solana 钱包。请安装一个钱包，然后重试。</string>
 </resources>

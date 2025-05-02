@@ -239,4 +239,6 @@
     <string name="route_local">Autoriser le trafic local lorsque déconnecté</string>
     <string name="manage_subscription">Gérer l\'abonnement</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>
+    <string name="no_solana_wallets_found">Aucun portefeuille Solana trouvé</string>
+    <string name="no_wallets_found_alert_content">Aucun portefeuille Solana n\'a été trouvé installé sur cet appareil. Veuillez installer un portefeuille et réessayer.</string>
 </resources>

@@ -260,5 +260,7 @@
     <string name="route_local">Zezwalaj na lokalny ruch po rozłączeniu</string>
     <string name="manage_subscription">Zarządzaj subskrypcją</string>
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>
+    <string name="no_solana_wallets_found">Nie znaleziono portfeli Solana</string>
+    <string name="no_wallets_found_alert_content">Nie znaleziono żadnych portfeli Solana zainstalowanych na tym urządzeniu. Zainstaluj portfel i spróbuj ponownie.</string>
 
 </resources>

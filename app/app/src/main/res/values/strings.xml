@@ -219,4 +219,6 @@
     <string name="route_local">Allow local traffic when disconnected</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="solana_sign_in">Sign in with Solana</string>
+    <string name="no_solana_wallets_found">No Solana Wallets Found</string>
+    <string name="no_wallets_found_alert_content">No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
 </resources>

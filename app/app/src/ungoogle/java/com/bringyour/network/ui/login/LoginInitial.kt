@@ -31,13 +31,10 @@ import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.ui.res.painterResource
 import com.bringyour.network.ui.theme.TextMuted
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.widthIn
@@ -45,7 +42,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,6 +95,7 @@ fun LoginInitial(
     val loginActivity = context as? LoginActivity
     var contentVisible by remember { mutableStateOf(true) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var noSolanaWalletsFound by remember { mutableStateOf(false) }
 
     val onLogin: (AuthLoginResult) -> Unit = { result ->
 
@@ -198,9 +195,11 @@ fun LoginInitial(
 
                     }
                     is TransactionResult.NoWalletFound -> {
+                        noSolanaWalletsFound = true
                         Log.i("LoginInitial", "No MWA compatible wallet app found on device.")
                     }
                     is TransactionResult.Failure -> {
+                        loginViewModel.setLoginError("Error connecting to wallet")
                         Log.i("LoginInitial", "Error connecting to wallet: " + result.e.message)
                     }
                 }
@@ -222,7 +221,7 @@ fun LoginInitial(
             connectSolanaWallet()
         },
         solanaAuthInProgress = loginViewModel.solanaAuthInProgress,
-        onLogin = onLogin,
+        // onLogin = onLogin,
         contentVisible = contentVisible,
         setContentVisible = {
             contentVisible = it
@@ -232,6 +231,16 @@ fun LoginInitial(
             welcomeOverlayVisible = it
         }
     )
+
+    if (noSolanaWalletsFound) {
+
+        NoSolanaWalletsAlert(
+            onDismiss = {
+                noSolanaWalletsFound = false
+            }
+        )
+
+    }
 
 }
 
@@ -253,7 +262,7 @@ fun LoginInitial(
     setCreateGuestModeInProgress: (Boolean) -> Unit,
     solanaLogin: () -> Unit,
     solanaAuthInProgress: Boolean,
-    onLogin: (AuthLoginResult) -> Unit,
+    // onLogin: (AuthLoginResult) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
     welcomeOverlayVisible: Boolean,
@@ -600,7 +609,6 @@ private fun LoginInitialPreview() {
                     setCreateGuestModeInProgress = {},
                     solanaAuthInProgress = false,
                     solanaLogin = {},
-                    onLogin = {},
                     contentVisible = true,
                     setContentVisible = {},
                     welcomeOverlayVisible = false,
@@ -649,7 +657,6 @@ private fun LoginInitialLandscapePreview() {
                     setCreateGuestModeInProgress = {},
                     solanaAuthInProgress = false,
                     solanaLogin = {},
-                    onLogin = {},
                     contentVisible = true,
                     setContentVisible = {},
                     welcomeOverlayVisible = false,
