@@ -134,7 +134,10 @@ android {
 
     defaultConfig {
         applicationId "com.bringyour.network"
-        minSdk 24
+        // testing 7 has been particularly challenging because of device availability
+        // 7.1 (25) works but 7.0 (24) has issues
+        // moving the min to 8 (26) for now
+        minSdk 26
         targetSdk 36
         versionCode appVersionCode()
         versionName appVersion()
@@ -254,6 +257,10 @@ android {
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
 
+            ndk {
+                abiFilters = ['x86_64', 'armeabi-v7a', 'arm64-v8a']
+            }
+
             signingConfig signingConfigs.play
         }
         solana_dapp {
@@ -274,6 +281,12 @@ android {
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
 
             signingConfig signingConfigs.solana_dapp
+
+            // solana dapp devices are exclusively arm64-v8a
+            ndk {
+                //noinspection ChromeOsAbiSupport
+                abiFilters = ['arm64-v8a']
+            }
 
             // remove opaque google metadata blocks
             // per https://gitlab.com/fdroid/fdroiddata/-/merge_requests/20797#note_2439129271
@@ -301,6 +314,16 @@ android {
             java {
                 srcDirs += ['src/google/java']
             }
+        }
+    }
+
+    // build 1. APKs per architecture and 2. a fat APK with all architectures
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            universalApk true
         }
     }
 
