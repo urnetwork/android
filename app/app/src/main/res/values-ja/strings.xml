@@ -260,4 +260,6 @@
     <string name="route_local">切断時にローカルトラフィックを許可する</string>
     <string name="manage_subscription">サブスクリプションを管理</string>
     <string name="solana_sign_in">Solanaでサインイン</string>
+    <string name="no_solana_wallets_found">Solanaウォレットが見つかりません</string>
+    <string name="no_wallets_found_alert_content">このデバイスにSolanaウォレットがインストールされていません。ウォレットをインストールして、もう一度お試しください。</string>
 </resources>

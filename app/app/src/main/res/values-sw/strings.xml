@@ -238,4 +238,6 @@
     <string name="route_local">Ruhusu trafiki ya ndani wakati haujaungwa</string>
     <string name="manage_subscription">Dhibiti usajili</string>
     <string name="solana_sign_in">Ingia na Solana</string>
+    <string name="no_solana_wallets_found">Hakuna pochi za Solana zilizopatikana</string>
+    <string name="no_wallets_found_alert_content">Hakuna pochi za Solana zilizopatikana zimewekwa kwenye kifaa hiki. Tafadhali sakinisha pochi na ujaribu tena.</string>
 </resources>

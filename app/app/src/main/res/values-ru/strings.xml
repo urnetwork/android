@@ -260,4 +260,6 @@
     <string name="route_local">Разрешить локальный трафик при отключении</string>
     <string name="manage_subscription">Управление подпиской</string>
     <string name="solana_sign_in">Войти с помощью Solana</string>
+    <string name="no_solana_wallets_found">Кошельки Solana не найдены</string>
+    <string name="no_wallets_found_alert_content">На этом устройстве не найдено установленных кошельков Solana. Пожалуйста, установите кошелек и попробуйте снова.</string>
 </resources>

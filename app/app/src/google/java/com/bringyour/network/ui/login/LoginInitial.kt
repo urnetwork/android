@@ -37,7 +37,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.widthIn
@@ -101,6 +100,7 @@ fun LoginInitial(
     val loginActivity = context as? LoginActivity
     var contentVisible by remember { mutableStateOf(true) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
+    var noSolanaWalletsFound by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -202,9 +202,11 @@ fun LoginInitial(
 
                     }
                     is TransactionResult.NoWalletFound -> {
+                        noSolanaWalletsFound = true
                         Log.i("LoginInitial", "No MWA compatible wallet app found on device.")
                     }
                     is TransactionResult.Failure -> {
+                        loginViewModel.setLoginError("Error connecting to wallet")
                         Log.i("LoginInitial", "Error connecting to wallet: " + result.e.message)
                     }
                 }
@@ -240,6 +242,16 @@ fun LoginInitial(
             welcomeOverlayVisible = it
         }
     )
+
+    if (noSolanaWalletsFound) {
+
+        NoSolanaWalletsAlert(
+            onDismiss = {
+                noSolanaWalletsFound = false
+            }
+        )
+
+    }
 
 }
 

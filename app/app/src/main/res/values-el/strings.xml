@@ -237,4 +237,6 @@
     <string name="route_local">Επιτρέψτε την τοπική κίνηση όταν είστε αποσυνδεδεμένοι</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>
+    <string name="no_solana_wallets_found">Δεν βρέθηκαν πορτοφόλια Solana</string>
+    <string name="no_wallets_found_alert_content">Δεν βρέθηκαν πορτοφόλια Solana εγκατεστημένα σε αυτήν τη συσκευή. Εγκαταστήστε ένα πορτοφόλι και δοκιμάστε ξανά.</string>
 </resources>

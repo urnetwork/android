@@ -227,4 +227,6 @@
     <string name="route_local">Lokalen Datenverkehr erlauben, wenn getrenntnURnetwork</string>
     <string name="manage_subscription">Abonnement verwalten</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>
+    <string name="no_solana_wallets_found">Keine Solana Wallets gefunden</string>
+    <string name="no_wallets_found_alert_content">Es wurden keine Solana Wallets auf diesem Gerät gefunden. Bitte installieren Sie eine Wallet und versuchen Sie es erneut.</string>
 </resources>

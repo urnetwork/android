@@ -224,4 +224,6 @@
     <string name="route_local">السماح بحركة المرور المحلية عند قطع الاتصال</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
+    <string name="no_solana_wallets_found">لم يتم العثور على محافظ Solana</string>
+    <string name="no_wallets_found_alert_content">لم يتم العثور على أي محافظ Solana مثبتة على هذا الجهاز. يرجى تثبيت محفظة والمحاولة مرة أخرى.</string>
 </resources>
