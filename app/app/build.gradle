@@ -22,7 +22,8 @@ plugins {
 import org.yaml.snakeyaml.Yaml
 
 // these are added to the version code for abi-specific builds
-ext.abiVersionCodes = [
+// note the warpctl version code always ends with 0 so that a variant can be added
+ext.abiVersionCodeVariants = [
         'arm64-v8a': 1,
         'armeabi-v7a': 2,
         'x86_64': 3
@@ -375,9 +376,9 @@ android {
         variant.outputs.each { output ->
             def abi = output.getFilter('ABI')
 //            print("CONFIG ABI: $abi")
-            def baseAbiVersionCode = project.ext.abiVersionCodes[abi]
-            if (baseAbiVersionCode != null) {
-                output.versionCodeOverride = project.android.defaultConfig.versionCode + baseAbiVersionCode
+            def versionCodeVariant = project.ext.abiVersionCodeVariants[abi]
+            if (versionCodeVariant != null) {
+                output.versionCodeOverride = project.android.defaultConfig.versionCode + versionCodeVariant
             }
         }
 
