@@ -123,9 +123,7 @@ fun MainNavHost(
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val navSuiteLayoutType = with(adaptiveInfo) {
 
-        if (isTv()) {
-            NavigationSuiteType.NavigationDrawer
-        } else if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
             NavigationSuiteType.NavigationRail
         } else {
             NavigationSuiteType.NavigationBar

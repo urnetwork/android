@@ -1,6 +1,5 @@
 package com.bringyour.network
 
-import android.app.ComponentCaller
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
@@ -39,6 +38,8 @@ class MainActivity: AppCompatActivity() {
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
 
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
+
+    val activityResultSender = ActivityResultSender(this)
 
     var subscriptionUpgradeSuccess: Boolean = false
 
@@ -144,15 +145,15 @@ class MainActivity: AppCompatActivity() {
         setContent {
             URNetworkTheme {
                 MainNavHost(
-                    walletViewModel,
-                    settingsViewModel,
-                    planViewModel,
-                    subscriptionBalanceViewModel,
-                    overlayViewModel,
-                    animateIn,
-                    targetUrl,
-                    defaultLocation,
-                    null
+                    walletViewModel = walletViewModel,
+                    settingsViewModel = settingsViewModel,
+                    planViewModel = planViewModel,
+                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                    overlayViewModel = overlayViewModel,
+                    animateIn = animateIn,
+                    targetLink = targetUrl,
+                    defaultLocation = defaultLocation,
+                    activityResultSender = activityResultSender
                 )
             }
         }
