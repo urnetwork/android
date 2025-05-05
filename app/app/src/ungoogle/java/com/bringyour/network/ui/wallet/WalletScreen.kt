@@ -91,7 +91,11 @@ fun WalletScreen(
         isPayoutWallet = isPayoutWallet,
         blockchain = Blockchain.fromString(accountWallet?.blockchain ?: ""),
         isCircleWallet = !accountWallet?.circleWalletId.isNullOrEmpty(),
-        payouts = payouts.filter { payout -> payout.walletId.equals(accountWallet?.walletId) },
+        payouts = payouts.filter { payout ->
+            accountWallet?.walletId?.let { walletId ->
+                payout.walletId?.equals(walletId) ?: false
+            } ?: false
+        },
         setPayoutWallet = walletViewModel.setPayoutWallet,
         isSettingPayoutWallet = walletViewModel.isSettingPayoutWallet,
         removeWallet = walletViewModel.removeWallet,
