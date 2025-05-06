@@ -294,12 +294,11 @@ fun LoginPasswordForm(
         URTextInput(
             value = password,
             onValueChange = { newValue ->
-                // password = newValue
                 setPassword(newValue)
             },
             placeholder = "*****************",
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
+                keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Go
             ),
             isPassword = true,
