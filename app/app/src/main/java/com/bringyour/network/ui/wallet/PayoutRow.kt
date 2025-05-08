@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,12 +27,17 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Green
+import androidx.compose.material.icons.filled.Schedule
+import com.bringyour.network.utils.formatDecimalString
+import com.bringyour.network.utils.todayFormatted
 
 @Composable
 fun PayoutRow(
     walletAddress: String,
     completeTime: String?,
-    amountUsd: Double
+    amountUsd: Double,
+    payoutByteCount: Long,
+    completed: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -41,7 +47,9 @@ fun PayoutRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Box(
                 modifier = Modifier
                     .width(48.dp)
@@ -52,26 +60,46 @@ fun PayoutRow(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.circle_check),
-                    contentDescription = "Payment complete",
-                    tint = Green
-                )
+
+                if (completed) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.circle_check),
+                        contentDescription = "Payment complete",
+                        tint = Green
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Schedule,
+                        contentDescription = "Payment pending",
+                        tint = TextMuted
+                    )
+                }
+
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column() {
+
+                if (completed) {
+
+                    Text(
+                        "+$amountUsd USDC",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                } else {
+                    Text(
+                        "Pending: ${formatDecimalString(payoutByteCount / (1024.0 * 1024.0), 2)} MB provided",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextMuted
+                    )
+                }
+
+                // Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
-                    "+$amountUsd USDC",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-
-                Text(
-                    completeTime ?: "Pending",
+                    completeTime ?: todayFormatted(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextMuted
                 )
@@ -98,20 +126,26 @@ private fun PayoutRowPreview() {
         PayoutRow(
             "0xb696b7a5e41c9ec487f1b81064ec487261a1c3ddbaff96d5892854c824530ca5",
             "Jan 2",
-            1.25
+            1.25,
+            9876,
+            true
         )
     }
 }
 
+
+
 @Preview
 @Composable
-private fun PayoutRowEmptyCompleteTimePreview() {
+private fun PayoutRowPending() {
 
     URNetworkTheme {
         PayoutRow(
             "0xb696b7a5e41c9ec487f1b81064ec487261a1c3ddbaff96d5892854c824530ca5",
             null,
-            1.25
+            1.25,
+            123456789,
+            false
         )
     }
 }
