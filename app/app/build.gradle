@@ -412,11 +412,11 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.16.0'
 
     // jetpack compose
-    def composeBom = platform('androidx.compose:compose-bom:2025.04.01')
+    def composeBom = platform('androidx.compose:compose-bom:2025.05.00')
     implementation composeBom
     androidTestImplementation composeBom
 
-    implementation("androidx.navigation:navigation-compose:2.8.9")
+    implementation("androidx.navigation:navigation-compose:2.9.0")
     implementation "androidx.activity:activity-compose:1.10.1"
 
     // Material Design 3
@@ -426,12 +426,12 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:1.7.8"
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.8.0'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.8.0'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.8.1'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.8.1'
 
     // Android Studio Preview support
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.8.0'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.8.0'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.8.1'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.8.1'
 }
 
 
