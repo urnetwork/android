@@ -230,7 +230,9 @@ fun PayoutsList(
                 PayoutRow(
                     walletAddress = walletAddress ?: "",
                     completeTime = if (payout.completeTime != null) payout.completeTime.format("Jan 2") else null,
-                    amountUsd = payout.tokenAmount
+                    amountUsd = payout.tokenAmount,
+                    completed = payout.completed,
+                    payoutByteCount = payout.payoutByteCount
                 )
             }
         }

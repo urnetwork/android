@@ -423,6 +423,7 @@ dependencies {
     implementation 'androidx.compose.material3:material3:1.3.2'
     implementation 'androidx.compose.material3:material3-adaptive-navigation-suite-android:1.3.2'
     implementation 'androidx.compose.material3:material3-window-size-class-android:1.3.2'
+    implementation "androidx.compose.material:material-icons-extended:1.7.8"
 
     // UI Tests
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.8.0'
