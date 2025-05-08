@@ -21,6 +21,8 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
 import com.bringyour.network.utils.formatDecimalString
 import com.bringyour.network.utils.roundToDecimals
+import com.bringyour.sdk.VerifySeekerNftHolderArgs
+import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -81,6 +83,12 @@ class WalletViewModel @Inject constructor(
         private set
 
     var isRemovingWallet by mutableStateOf(false)
+        private set
+
+    private val _isSeekerHolder = MutableStateFlow<Boolean>(false)
+    val isSeekerHolder: StateFlow<Boolean> = _isSeekerHolder.asStateFlow()
+
+    var isVerifyingSeekerHolder by mutableStateOf(false)
         private set
 
     private val _wallets = MutableStateFlow<List<AccountWallet>>(emptyList())
@@ -235,6 +243,14 @@ class WalletViewModel @Inject constructor(
 
             for (i in 0 until n) {
                 val wallet = result.get(i)
+
+                if (!_isSeekerHolder.value && wallet.hasSeekerToken) {
+                    viewModelScope.launch {
+                        _isSeekerHolder.value = true
+                    }
+                }
+
+
                 updatedWallets.add(wallet)
                 if (!wallet.circleWalletId.isNullOrEmpty()) {
                     circleWalletExists = true
@@ -415,10 +431,10 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    val pollWallets = {
-        walletVc?.setIsPollingPayoutWallet(true)
-        walletVc?.setIsPollingAccountWallets(true)
-    }
+//    val pollWallets = {
+//        walletVc?.setIsPollingPayoutWallet(true)
+//        walletVc?.setIsPollingAccountWallets(true)
+//    }
 
     // this data depends on transfer_escrow_sweep
     // data is only updated once an hour
@@ -455,17 +471,51 @@ class WalletViewModel @Inject constructor(
 
     }
 
-    val sagaWalletAddressRetrieved: (String?) -> Unit = { address ->
-        if (address != null) {
-            setExternaWalletAddress(TextFieldValue(address))
-            // setExternalWalletAddress(TextFieldValue(address))
-            // since this is taken directly from the saga,
-            // we can mark this as true without calling our API to validate
-            setExternalWalletAddressIsValid("SOL", true)
+//    val sagaWalletAddressRetrieved: (String?) -> Unit = { address ->
+//        if (address != null) {
+//            setExternaWalletAddress(TextFieldValue(address))
+//            // setExternalWalletAddress(TextFieldValue(address))
+//            // since this is taken directly from the saga,
+//            // we can mark this as true without calling our API to validate
+//            setExternalWalletAddressIsValid("SOL", true)
+//
+//            linkWallet()
+//        }
+//        setIsRetrievingSagaWallet(false)
+//    }
 
-            linkWallet()
+    val verifySeekerHolder: (
+        SolanaPublicKey,
+        String,
+        String,
+        (String) -> Unit
+    ) -> Unit = { publicKey, message, signature, onError ->
+
+        if (!isVerifyingSeekerHolder) {
+            isVerifyingSeekerHolder = true
+
+            val args = VerifySeekerNftHolderArgs()
+            args.publicKey = publicKey.string() // should be base58?
+            args.signature = signature
+            args.message = message
+
+            byDevice?.api?.verifySeekerHolder(args) { result, error ->
+
+                viewModelScope.launch {
+                    Log.i(TAG, "[verifySeekerHolder] result = $result, error = $error")
+                    if (result.success) {
+                        _isSeekerHolder.value = true
+                        walletVc?.fetchAccountWallets()
+                    } else {
+                        val errorMessage = result?.error?.message ?: "No Seeker NFT found in wallet ...${publicKey.string().takeLast(7)}"
+                        onError(errorMessage)
+                    }
+                    isVerifyingSeekerHolder = false
+                }
+
+            }
         }
-        setIsRetrievingSagaWallet(false)
+
     }
 
     init {
