@@ -9,9 +9,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class WalletsScreenViewModel @Inject constructor(
-    // private val deviceManager: DeviceManager
-): ViewModel() {
+class WalletsScreenViewModel @Inject constructor(): ViewModel() {
 
     var isPresentedConnectWalletSheet by mutableStateOf(false)
         private set

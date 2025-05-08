@@ -262,4 +262,8 @@
     <string name="solana_sign_in">Solanaでサインイン</string>
     <string name="no_solana_wallets_found">Solanaウォレットが見つかりません</string>
     <string name="no_wallets_found_alert_content">このデバイスにSolanaウォレットがインストールされていません。ウォレットをインストールして、もう一度お試しください。</string>
+    <string name="claim_multiplier">乗数を受け取る</string>
+    <string name="connect_seeker_wallet">シーカー事前予約トークンでウォレットを接続する</string>
+    <string name="verify_seeker_token_btn">シーカー事前予約トークンを認証</string>
+    <string name="seeker_token_verified">シーカー トークンが認証されました - x2 ポイントを獲得中!</string>
 </resources>

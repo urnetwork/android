@@ -239,4 +239,8 @@
     <string name="solana_sign_in">Είσοδος με Solana</string>
     <string name="no_solana_wallets_found">Δεν βρέθηκαν πορτοφόλια Solana</string>
     <string name="no_wallets_found_alert_content">Δεν βρέθηκαν πορτοφόλια Solana εγκατεστημένα σε αυτήν τη συσκευή. Εγκαταστήστε ένα πορτοφόλι και δοκιμάστε ξανά.</string>
+    <string name="claim_multiplier">Αξιώστε τον πολλαπλασιαστή</string>
+    <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Seeker Pre-Order Token</string>
+    <string name="verify_seeker_token_btn">Επαληθεύστε το Seeker Pre-Order Token</string>
+    <string name="seeker_token_verified">Το Seeker Token επαληθεύτηκε - Κερδίζετε x2 πόντους!</string>
 </resources>

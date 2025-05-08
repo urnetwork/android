@@ -229,4 +229,8 @@
     <string name="solana_sign_in">Mit Solana anmelden</string>
     <string name="no_solana_wallets_found">Keine Solana Wallets gefunden</string>
     <string name="no_wallets_found_alert_content">Es wurden keine Solana Wallets auf diesem Gerät gefunden. Bitte installieren Sie eine Wallet und versuchen Sie es erneut.</string>
+    <string name="claim_multiplier">Multiplikator beanspruchen</string>
+    <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Seeker Vorbestellungs-Token</string>
+    <string name="verify_seeker_token_btn">Seeker Vorbestellungs-Token verifizieren</string>
+    <string name="seeker_token_verified">Seeker Token verifiziert - Du verdienst x2 Punkte!</string>
 </resources>

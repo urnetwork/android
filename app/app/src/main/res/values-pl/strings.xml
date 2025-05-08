@@ -262,5 +262,9 @@
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>
     <string name="no_solana_wallets_found">Nie znaleziono portfeli Solana</string>
     <string name="no_wallets_found_alert_content">Nie znaleziono żadnych portfeli Solana zainstalowanych na tym urządzeniu. Zainstaluj portfel i spróbuj ponownie.</string>
+    <string name="claim_multiplier">Odbierz mnożnik</string>
+    <string name="connect_seeker_wallet">Połącz portfel z tokenem zamówienia przedpremierowego Seeker</string>
+    <string name="verify_seeker_token_btn">Zweryfikuj token zamówienia przedpremierowego Seeker</string>
+    <string name="seeker_token_verified">Token Seeker zweryfikowany - zdobywasz x2 punkty!</string>
 
 </resources>

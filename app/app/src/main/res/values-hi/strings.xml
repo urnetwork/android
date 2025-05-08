@@ -239,5 +239,9 @@
     <string name="solana_sign_in">Solana से साइन इन करें</string>
     <string name="no_solana_wallets_found">कोई Solana वॉलेट नहीं मिला</string>
     <string name="no_wallets_found_alert_content">इस डिवाइस पर कोई Solana वॉलेट इंस्टॉल नहीं मिला. कृपया एक वॉलेट इंस्टॉल करें और फिर से प्रयास करें.</string>
+    <string name="claim_multiplier">गुणक का दावा करें</string>
+    <string name="connect_seeker_wallet">सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
+    <string name="verify_seeker_token_btn">सीकर प्री-ऑर्डर टोकन सत्यापित करें</string>
+    <string name="seeker_token_verified">सीकर टोकन सत्यापित - आप x2 अंक अर्जित कर रहे हैं!</string>
 
 </resources>

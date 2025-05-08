@@ -262,4 +262,8 @@
     <string name="solana_sign_in">Solana로 로그인</string>
     <string name="no_solana_wallets_found">솔라나 지갑을 찾을 수 없습니다</string>
     <string name="no_wallets_found_alert_content">이 장치에 설치된 Solana 지갑이 없습니다. 지갑을 설치하고 다시 시도하십시오.</string>
+    <string name="claim_multiplier">배율 받기</string>
+    <string name="connect_seeker_wallet">Seeker 선주문 토큰으로 지갑을 연결하세요</string>
+    <string name="verify_seeker_token_btn">Seeker 선주문 토큰 확인</string>
+    <string name="seeker_token_verified">Seeker 토큰이 확인되었습니다 - x2 포인트를 획득하고 있습니다!</string>
 </resources>
