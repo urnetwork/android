@@ -3,6 +3,7 @@ package com.bringyour.network.ui.settings
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -31,6 +33,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -80,7 +85,17 @@ import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.wallet.WalletViewModel
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
+import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
+import com.solana.mobilewalletadapter.clientlib.Solana
+import com.solana.mobilewalletadapter.clientlib.TransactionResult
+import com.solana.mobilewalletadapter.clientlib.successPayload
+import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +105,9 @@ fun SettingsScreen(
     planViewModel: PlanViewModel,
     settingsViewModel: SettingsViewModel,
     overlayViewModel: OverlayViewModel,
-    subscriptionBalanceViewModel: SubscriptionBalanceViewModel
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
+    activityResultSender: ActivityResultSender?,
+    walletViewModel: WalletViewModel,
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
@@ -105,6 +122,11 @@ fun SettingsScreen(
         isPresentingUpgradePlanSheet = isPresenting
     }
 
+    val solanaUri = Uri.parse("https://ur.io")
+    val iconUri = Uri.parse("favicon.ico")
+    val identityName = "URnetwork"
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val expandUpgradePlanSheet: () -> Unit = {
 
         scope.launch {
@@ -112,6 +134,63 @@ fun SettingsScreen(
             setIsPresentingUpgradePlanSheet(true)
         }
 
+    }
+
+    val signAndVerifySeekerHolder: () -> Unit = {
+        scope.launch {
+
+            // `connect` dispatches an association intent to MWA-compatible wallet apps.
+            activityResultSender?.let { activityResultSender ->
+
+                // Instantiate the MWA client object
+                val walletAdapter = MobileWalletAdapter(
+                    connectionIdentity = ConnectionIdentity(
+                        identityUri = solanaUri,
+                        iconUri = iconUri,
+                        identityName = identityName,
+                    ),
+                )
+                walletAdapter.blockchain = Solana.Mainnet
+
+                val timestamp = Date().time.toString()
+                val message = "Verify Seeker Token Holder - $timestamp"
+                val result = walletAdapter.transact(activityResultSender) { authResult ->
+                    signMessagesDetached(arrayOf(message.toByteArray()), arrayOf((authResult.accounts.first().publicKey)))
+                }
+
+                when (result) {
+                    is TransactionResult.Success -> {
+                        val signedMessageBytes = result.successPayload?.messages?.first()?.signatures?.first()
+                        val signatureBase64 = Base64.encodeToString(signedMessageBytes, Base64.NO_WRAP)
+                        // val message = result.successPayload?.messages?.first()?.message?.decodeToString()
+                        val pk = SolanaPublicKey(result.authResult.accounts.first().publicKey)
+
+                        walletViewModel.verifySeekerHolder(
+                            pk,
+                            message,
+                            signatureBase64
+                        ) { errMsg ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = errMsg,
+                                    withDismissAction = true,
+                                    duration = SnackbarDuration.Indefinite
+                                )
+                            }
+                        }
+
+
+                    }
+                    is TransactionResult.NoWalletFound -> {
+                        println("No MWA compatible wallet app found on device.")
+                    }
+                    is TransactionResult.Failure -> {
+                        println("Error during transaction signing: " + result.e.message)
+                    }
+                }
+            }
+
+        }
     }
 
     SettingsScreen(
@@ -134,7 +213,10 @@ fun SettingsScreen(
         routeLocal = settingsViewModel.routeLocal.collectAsState().value,
         toggleRouteLocal = settingsViewModel.toggleRouteLocal,
         allowForeground = settingsViewModel.allowForeground,
-        toggleAllowForeground = settingsViewModel.toggleAllowForeground
+        toggleAllowForeground = settingsViewModel.toggleAllowForeground,
+        snackbarHostState = snackbarHostState,
+        signAndVerifySeekerHolder = signAndVerifySeekerHolder,
+        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -171,7 +253,10 @@ fun SettingsScreen(
     routeLocal: Boolean,
     toggleRouteLocal: () -> Unit,
     allowForeground: Boolean,
-    toggleAllowForeground: () -> Unit
+    toggleAllowForeground: () -> Unit,
+    snackbarHostState: SnackbarHostState,
+    signAndVerifySeekerHolder: () -> Unit,
+    isSeekerHolder: Boolean
 ) {
 
     val context = LocalContext.current
@@ -184,6 +269,9 @@ fun SettingsScreen(
 
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -532,6 +620,51 @@ fun SettingsScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            /**
+             * Seeker wallet holder
+             */
+            URTextInputLabel("Earning multipliers")
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.claim_multiplier),
+                    // stringResource(id = R.string.connect_seeker_wallet),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                if (isSeekerHolder) {
+                    Icon(
+                        Icons.Filled.Check,
+                        contentDescription = "Multiplier claimed",
+                        tint = Green
+                    )
+                } else {
+                    Text(
+                        "Claim",
+                        modifier = Modifier
+                            .clickable {
+                                signAndVerifySeekerHolder()
+                            },
+                        color = BlueMedium
+                    )
+                }
+
+            }
+
+            Text(
+                stringResource(id = R.string.connect_seeker_wallet),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Row{
@@ -664,7 +797,10 @@ private fun SettingsScreenPreview() {
             routeLocal = false,
             toggleRouteLocal = {},
             allowForeground = false,
-            toggleAllowForeground = {}
+            toggleAllowForeground = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            signAndVerifySeekerHolder = {},
+            isSeekerHolder = false
         )
     }
 }
@@ -694,7 +830,10 @@ private fun SettingsScreenSupporterPreview() {
             routeLocal = false,
             toggleRouteLocal = {},
             allowForeground = false,
-            toggleAllowForeground = {}
+            toggleAllowForeground = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            signAndVerifySeekerHolder = {},
+            isSeekerHolder = false
         )
     }
 }
@@ -724,7 +863,10 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             routeLocal = false,
             toggleRouteLocal = {},
             allowForeground = false,
-            toggleAllowForeground = {}
+            toggleAllowForeground = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            signAndVerifySeekerHolder = {},
+            isSeekerHolder = true
         )
     }
 }
@@ -754,7 +896,10 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             routeLocal = false,
             toggleRouteLocal = {},
             allowForeground = false,
-            toggleAllowForeground = {}
+            toggleAllowForeground = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            signAndVerifySeekerHolder = {},
+            isSeekerHolder = false
         )
     }
 }
@@ -784,7 +929,10 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             routeLocal = false,
             toggleRouteLocal = {},
             allowForeground = false,
-            toggleAllowForeground = {}
+            toggleAllowForeground = {},
+            snackbarHostState = remember { SnackbarHostState() },
+            signAndVerifySeekerHolder = {},
+            isSeekerHolder = false
         )
     }
 }
