@@ -266,5 +266,6 @@
     <string name="connect_seeker_wallet">Połącz portfel z tokenem zamówienia przedpremierowego Seeker</string>
     <string name="verify_seeker_token_btn">Zweryfikuj token zamówienia przedpremierowego Seeker</string>
     <string name="seeker_token_verified">Token Seeker zweryfikowany - zdobywasz x2 punkty!</string>
+    <string name="total_referrals">Liczba wszystkich poleceń</string>
 
 </resources>

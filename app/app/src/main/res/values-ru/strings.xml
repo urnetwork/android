@@ -266,4 +266,5 @@
     <string name="connect_seeker_wallet">Подключите кошелек с токеном предварительного заказа Seeker</string>
     <string name="verify_seeker_token_btn">Подтвердить токен предварительного заказа Seeker</string>
     <string name="seeker_token_verified">окен Seeker подтвержден - Вы получаете x2 очков!</string>
+    <string name="total_referrals">Всего рефералов</string>
 </resources>

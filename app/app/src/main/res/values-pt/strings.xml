@@ -243,5 +243,6 @@
     <string name="connect_seeker_wallet">Conecte uma carteira com o token de pré-venda Seeker</string>
     <string name="verify_seeker_token_btn">Verificar token de pré-venda Seeker</string>
     <string name="seeker_token_verified">Token Seeker Verificado - Você está ganhando x2 pontos!</string>
+    <string name="total_referrals">Total de referências</string>
 
 </resources>

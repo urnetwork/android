@@ -262,7 +262,8 @@ fun MainNavHost(
                                 locationsListViewModel = locationsListViewModel,
                                 activityResultSender = activityResultSender,
                                 isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer,
-                                subscriptionBalanceViewModel = subscriptionBalanceViewModel
+                                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                                referralCodeViewModel = referralCodeViewModel
                             )
                         }
 
@@ -293,7 +294,8 @@ fun MainNavHost(
                             locationsListViewModel = locationsListViewModel,
                             activityResultSender = activityResultSender,
                             isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer,
-                            subscriptionBalanceViewModel = subscriptionBalanceViewModel
+                            subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                            referralCodeViewModel = referralCodeViewModel
                         )
 
                         HorizontalDivider(
@@ -333,6 +335,7 @@ fun MainNavContent(
     activityResultSender: ActivityResultSender?,
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     isNavigatingWithinContainer: (Route?, Route?) -> Boolean,
+    referralCodeViewModel: ReferralCodeViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -500,7 +503,9 @@ fun MainNavContent(
                 WalletsScreen(
                     navController,
                     walletViewModel,
-                    activityResultSender
+                    activityResultSender,
+                    referralCodeViewModel,
+                    overlayViewModel
                 )
             }
 

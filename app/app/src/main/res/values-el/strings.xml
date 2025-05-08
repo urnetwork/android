@@ -243,4 +243,5 @@
     <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Seeker Pre-Order Token</string>
     <string name="verify_seeker_token_btn">Επαληθεύστε το Seeker Pre-Order Token</string>
     <string name="seeker_token_verified">Το Seeker Token επαληθεύτηκε - Κερδίζετε x2 πόντους!</string>
+    <string name="total_referrals">Συνολικές παραπομπές</string>
 </resources>
