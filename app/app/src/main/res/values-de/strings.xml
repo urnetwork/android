@@ -233,4 +233,5 @@
     <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Seeker Vorbestellungs-Token</string>
     <string name="verify_seeker_token_btn">Seeker Vorbestellungs-Token verifizieren</string>
     <string name="seeker_token_verified">Seeker Token verifiziert - Du verdienst x2 Punkte!</string>
+    <string name="total_referrals">Gesamtzahl der Empfehlungen</string>
 </resources>

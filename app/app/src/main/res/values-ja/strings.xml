@@ -266,4 +266,5 @@
     <string name="connect_seeker_wallet">シーカー事前予約トークンでウォレットを接続する</string>
     <string name="verify_seeker_token_btn">シーカー事前予約トークンを認証</string>
     <string name="seeker_token_verified">シーカー トークンが認証されました - x2 ポイントを獲得中!</string>
+    <string name="total_referrals">合計紹介数</string>
 </resources>

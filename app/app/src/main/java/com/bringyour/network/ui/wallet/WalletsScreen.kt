@@ -3,6 +3,7 @@ package com.bringyour.network.ui.wallet
 import android.net.Uri
 import android.util.Base64
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -62,6 +65,9 @@ import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.BlueLight
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
@@ -78,6 +84,8 @@ fun WalletsScreen(
     navController: NavHostController,
     walletViewModel: WalletViewModel,
     activityResultSender: ActivityResultSender?,
+    referralCodeViewModel: ReferralCodeViewModel,
+    overlayViewModel: OverlayViewModel,
 ) {
 
     val wallets by walletViewModel.wallets.collectAsState()
@@ -103,13 +111,18 @@ fun WalletsScreen(
         isRemovingWallet = walletViewModel.isRemovingWallet,
         initializingWallets = walletViewModel.initializingWallets,
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
-        refresh = walletViewModel.refreshWalletsInfo,
+        refresh = {
+            walletViewModel.refreshWalletsInfo()
+            referralCodeViewModel.fetchReferralLink()
+                  },
         isRefreshing = walletViewModel.isRefreshingWallets,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
         activityResultSender = activityResultSender,
         verifySeekerHolder = walletViewModel.verifySeekerHolder,
         isVerifyingSeekerHolder = walletViewModel.isVerifyingSeekerHolder,
-        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value
+        totalReferrals = referralCodeViewModel.totalReferralCount,
+        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
+        launchOverlay = overlayViewModel.launch
     )
 }
 
@@ -143,6 +156,8 @@ fun WalletsScreen(
     ) -> Unit,
     isVerifyingSeekerHolder: Boolean,
     isSeekerHolder: Boolean,
+    totalReferrals: Long,
+    launchOverlay: (OverlayMode) -> Unit,
     viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
 
@@ -342,6 +357,32 @@ fun WalletsScreen(
 
                                     Spacer(modifier = Modifier.width(2.dp))
                                 }
+
+                                HorizontalDivider()
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                    stringResource(id = R.string.total_referrals),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = TextMuted
+                                )
+
+                                Row(
+                                    verticalAlignment = Alignment.Bottom
+                                ) {
+                                    Text(
+                                        "$totalReferrals",
+                                        style = HeadingLargeCondensed,
+                                        modifier = Modifier.clickable {
+                                            launchOverlay(OverlayMode.Refer)
+                                        }
+                                    )
+
+                                    // Spacer(modifier = Modifier.width(2.dp))
+                                }
+
+
                             }
                         }
 

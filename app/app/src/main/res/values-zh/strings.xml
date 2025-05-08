@@ -244,4 +244,5 @@
     <string name="connect_seeker_wallet">连接带有 Seeker 预售代币的钱包</string>
     <string name="verify_seeker_token_btn">验证 Seeker 预售代币</string>
     <string name="seeker_token_verified">Seeker 代币已验证 - 您正在赚取 x2 积分！</string>
+    <string name="total_referrals">推荐总数</string>
 </resources>
