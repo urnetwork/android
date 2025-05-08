@@ -492,7 +492,9 @@ fun MainNavContent(
                 planViewModel,
                 settingsViewModel,
                 overlayViewModel,
-                subscriptionBalanceViewModel
+                subscriptionBalanceViewModel,
+                activityResultSender,
+                walletViewModel
             ) }
 
             composable<Route.Wallets>(

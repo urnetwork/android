@@ -1,7 +1,6 @@
 package com.bringyour.network.ui.wallet
 
 import android.net.Uri
-import android.util.Base64
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,18 +40,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -64,7 +58,6 @@ import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
-import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
@@ -74,10 +67,8 @@ import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
 import com.solana.mobilewalletadapter.clientlib.Solana
 import com.solana.mobilewalletadapter.clientlib.TransactionResult
-import com.solana.mobilewalletadapter.clientlib.successPayload
 import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.launch
-import java.util.Date
 
 @Composable
 fun WalletsScreen(
@@ -118,8 +109,6 @@ fun WalletsScreen(
         isRefreshing = walletViewModel.isRefreshingWallets,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
         activityResultSender = activityResultSender,
-        verifySeekerHolder = walletViewModel.verifySeekerHolder,
-        isVerifyingSeekerHolder = walletViewModel.isVerifyingSeekerHolder,
         totalReferrals = referralCodeViewModel.totalReferralCount,
         isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
         launchOverlay = overlayViewModel.launch
@@ -148,13 +137,6 @@ fun WalletsScreen(
     isRefreshing: Boolean,
     activityResultSender: ActivityResultSender?,
     setExternalWalletAddressIsValid: (chain: String, isValid: Boolean) -> Unit,
-    verifySeekerHolder: (
-        SolanaPublicKey,
-        String,
-        String,
-        (String) -> Unit
-    ) -> Unit,
-    isVerifyingSeekerHolder: Boolean,
     isSeekerHolder: Boolean,
     totalReferrals: Long,
     launchOverlay: (OverlayMode) -> Unit,
@@ -166,7 +148,6 @@ fun WalletsScreen(
     val connectWalletSheetState = rememberModalBottomSheetState()
 
     val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     val solanaUri = Uri.parse("https://ur.io")
     val iconUri = Uri.parse("favicon.ico")
@@ -215,70 +196,9 @@ fun WalletsScreen(
             }
 
         }
-
-    }
-
-    val signAndVerifySeekerHolder = {
-        scope.launch {
-
-            // `connect` dispatches an association intent to MWA-compatible wallet apps.
-            activityResultSender?.let { activityResultSender ->
-
-                // Instantiate the MWA client object
-                val walletAdapter = MobileWalletAdapter(
-                    connectionIdentity = ConnectionIdentity(
-                        identityUri = solanaUri,
-                        iconUri = iconUri,
-                        identityName = identityName,
-                    ),
-                )
-                walletAdapter.blockchain = Solana.Mainnet
-
-                val timestamp = Date().time.toString()
-                val message = "Verify Seeker Token Holder - $timestamp"
-                val result = walletAdapter.transact(activityResultSender) { authResult ->
-                    signMessagesDetached(arrayOf(message.toByteArray()), arrayOf((authResult.accounts.first().publicKey)))
-                }
-
-                when (result) {
-                    is TransactionResult.Success -> {
-                        val signedMessageBytes = result.successPayload?.messages?.first()?.signatures?.first()
-                        val signatureBase64 = Base64.encodeToString(signedMessageBytes, Base64.NO_WRAP)
-                        // val message = result.successPayload?.messages?.first()?.message?.decodeToString()
-                        val pk = SolanaPublicKey(result.authResult.accounts.first().publicKey)
-
-                        verifySeekerHolder(
-                            pk,
-                            message,
-                            signatureBase64
-                        ) { errMsg ->
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = errMsg,
-                                    withDismissAction = true,
-                                    duration = SnackbarDuration.Indefinite
-                                )
-                            }
-                        }
-
-
-                    }
-                    is TransactionResult.NoWalletFound -> {
-                        println("No MWA compatible wallet app found on device.")
-                    }
-                    is TransactionResult.Failure -> {
-                        println("Error during transaction signing: " + result.e.message)
-                    }
-                }
-            }
-
-        }
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -520,7 +440,9 @@ fun WalletsScreen(
                                             WalletCard(
                                                 isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
                                                 blockchain = Blockchain.fromString(wallet.blockchain),
-                                                isPayoutWallet = wallet.walletId.equals(payoutWalletId),
+                                                isPayoutWallet = wallet.walletId.equals(
+                                                    payoutWalletId
+                                                ),
                                                 walletAddress = wallet.walletAddress,
                                                 walletId = wallet.walletId,
                                                 navController = navController,
@@ -535,16 +457,18 @@ fun WalletsScreen(
 
                                 Spacer(modifier = Modifier.height(32.dp))
 
-                                /**
-                                 * Seeker Token Holder handling
-                                 */
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                ) {
-                                    Text(
-                                        stringResource(id = R.string.claim_multiplier)
-                                    )
-                                    if (isSeekerHolder) {
+                                if (isSeekerHolder) {
+
+                                    /**
+                                     * Seeker Token Holder handling
+                                     */
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    ) {
+                                        Text(
+                                            stringResource(id = R.string.claim_multiplier)
+                                        )
+
 
                                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -557,7 +481,7 @@ fun WalletsScreen(
                                                 tint = Color.Unspecified,
                                                 modifier = Modifier
                                                     .width(36.dp)
-                                                    // .padding(12.dp)
+                                                // .padding(12.dp)
                                             )
 
                                             Spacer(modifier = Modifier.width(12.dp))
@@ -568,37 +492,12 @@ fun WalletsScreen(
                                                 fontWeight = FontWeight.Bold
                                             )
                                         }
-                                    } else {
-                                        /**
-                                         * Is not a seeker holder
-                                         */
-
-                                        Text(
-                                            stringResource(id = R.string.connect_seeker_wallet),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = TextMuted
-                                        )
-
-                                        Spacer(modifier = Modifier.height(8.dp))
-
-                                        URButton(
-                                            onClick = {
-                                                signAndVerifySeekerHolder()
-                                            },
-                                            enabled = !isVerifyingSeekerHolder,
-                                            isProcessing = isVerifyingSeekerHolder
-                                        ) {
-                                                buttonTextStyle ->
-                                            Text(stringResource(id = R.string.verify_seeker_token_btn), style = buttonTextStyle)
-                                        }
 
                                     }
 
+                                    Spacer(modifier = Modifier.height(32.dp))
+
                                 }
-
-
-
-                                Spacer(modifier = Modifier.height(32.dp))
 
                                 Column(
                                     modifier = Modifier.padding(16.dp)
