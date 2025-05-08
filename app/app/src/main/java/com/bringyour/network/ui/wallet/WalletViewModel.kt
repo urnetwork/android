@@ -431,10 +431,10 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-//    val pollWallets = {
-//        walletVc?.setIsPollingPayoutWallet(true)
-//        walletVc?.setIsPollingAccountWallets(true)
-//    }
+    val pollWallets = {
+        walletVc?.setIsPollingPayoutWallet(true)
+        walletVc?.setIsPollingAccountWallets(true)
+    }
 
     // this data depends on transfer_escrow_sweep
     // data is only updated once an hour
@@ -471,18 +471,18 @@ class WalletViewModel @Inject constructor(
 
     }
 
-//    val sagaWalletAddressRetrieved: (String?) -> Unit = { address ->
-//        if (address != null) {
-//            setExternaWalletAddress(TextFieldValue(address))
-//            // setExternalWalletAddress(TextFieldValue(address))
-//            // since this is taken directly from the saga,
-//            // we can mark this as true without calling our API to validate
-//            setExternalWalletAddressIsValid("SOL", true)
-//
-//            linkWallet()
-//        }
-//        setIsRetrievingSagaWallet(false)
-//    }
+    val sagaWalletAddressRetrieved: (String?) -> Unit = { address ->
+        if (address != null) {
+            setExternaWalletAddress(TextFieldValue(address))
+            // setExternalWalletAddress(TextFieldValue(address))
+            // since this is taken directly from the saga,
+            // we can mark this as true without calling our API to validate
+            setExternalWalletAddressIsValid("SOL", true)
+
+            linkWallet()
+        }
+        setIsRetrievingSagaWallet(false)
+    }
 
     val verifySeekerHolder: (
         SolanaPublicKey,
