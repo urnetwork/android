@@ -241,7 +241,7 @@
     <string name="no_solana_wallets_found">Hakuna pochi za Solana zilizopatikana</string>
     <string name="no_wallets_found_alert_content">Hakuna pochi za Solana zilizopatikana zimewekwa kwenye kifaa hiki. Tafadhali sakinisha pochi na ujaribu tena.</string>
     <string name="claim_multiplier">Dai Kizidishi</string>
-    <string name="connect_seeker_wallet">Unganisha pochi na Tokeni ya Agizo la Mapema la Seeker</string>
+    <string name="connect_seeker_wallet">Unganisha pochi na Saga Genesis au Tokeni ya Agizo la Mapema la Seeker</string>
     <string name="verify_seeker_token_btn">Thibitisha Tokeni ya Agizo la Mapema la Seeker</string>
     <string name="seeker_token_verified">Tokeni ya Seeker Imethibitishwa - Unapata pointi x2!</string>
     <string name="total_referrals">Jumla ya marejeleo</string>

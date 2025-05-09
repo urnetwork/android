@@ -229,6 +229,6 @@
     <string name="claim_multiplier">المطالبة بالمضاعف</string>
     <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
     <string name="verify_seeker_token_btn">تحقق من رمز Seeker للطلب المسبق</string>
-    <string name="seeker_token_verified">تم التحقق من رمز Seeker - أنت تكسب نقاطًا مضاعفة!</string>
+    <string name="seeker_token_verified">قم بتوصيل محفظة برمز Saga Genesis أو رمز Seeker للطلب المسبق</string>
     <string name="total_referrals">إجمالي الإحالات</string>
 </resources>
