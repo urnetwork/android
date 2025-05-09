@@ -240,7 +240,7 @@
     <string name="no_solana_wallets_found">No se encontraron billeteras de Solana</string>
     <string name="no_wallets_found_alert_content">No se encontraron billeteras de Solana instaladas en este dispositivo. Instale una billetera e intente nuevamente.</string>
     <string name="claim_multiplier">Reclamar multiplicador</string>
-    <string name="connect_seeker_wallet">Conecta una billetera con el token de pre-pedido de Seeker</string>
+    <string name="connect_seeker_wallet">Conecta una billetera con el token Saga Genesis o el token de pre-pedido de Seeker</string>
     <string name="verify_seeker_token_btn">Verificar el token de pre-pedido de Seeker</string>
     <string name="seeker_token_verified">Token de Seeker verificado: ¡estás ganando x2 puntos!</string>
     <string name="total_referrals">Referencias totales</string>

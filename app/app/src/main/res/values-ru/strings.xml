@@ -263,7 +263,7 @@
     <string name="no_solana_wallets_found">Кошельки Solana не найдены</string>
     <string name="no_wallets_found_alert_content">На этом устройстве не найдено установленных кошельков Solana. Пожалуйста, установите кошелек и попробуйте снова.</string>
     <string name="claim_multiplier">Получить множитель</string>
-    <string name="connect_seeker_wallet">Подключите кошелек с токеном предварительного заказа Seeker</string>
+    <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или токеном предварительного заказа Seeker</string>
     <string name="verify_seeker_token_btn">Подтвердить токен предварительного заказа Seeker</string>
     <string name="seeker_token_verified">окен Seeker подтвержден - Вы получаете x2 очков!</string>
     <string name="total_referrals">Всего рефералов</string>

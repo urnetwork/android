@@ -222,7 +222,7 @@
     <string name="no_solana_wallets_found">No Solana Wallets Found</string>
     <string name="no_wallets_found_alert_content">No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
     <string name="claim_multiplier">Claim Multiplier</string>
-    <string name="connect_seeker_wallet">Connect a wallet with the Seeker Pre-Order Token</string>
+    <string name="connect_seeker_wallet">Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
     <string name="verify_seeker_token_btn">Verify Seeker Pre-Order Token</string>
     <string name="seeker_token_verified">Seeker Token Verified - You\'re earning x2 points!</string>
     <string name="total_referrals">Total referrals</string>

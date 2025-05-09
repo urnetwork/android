@@ -240,7 +240,7 @@
     <string name="no_solana_wallets_found">Nenhuma carteira Solana encontrada</string>
     <string name="no_wallets_found_alert_content">Não foram encontradas carteiras Solana instaladas neste dispositivo. Instale uma carteira e tente novamente.</string>
     <string name="claim_multiplier">Reivindicar Multiplicador</string>
-    <string name="connect_seeker_wallet">Conecte uma carteira com o token de pré-venda Seeker</string>
+    <string name="connect_seeker_wallet">Conecte uma carteira com o token Saga Genesis ou o token de pré-venda Seeker</string>
     <string name="verify_seeker_token_btn">Verificar token de pré-venda Seeker</string>
     <string name="seeker_token_verified">Token Seeker Verificado - Você está ganhando x2 pontos!</string>
     <string name="total_referrals">Total de referências</string>
