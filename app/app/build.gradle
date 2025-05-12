@@ -498,3 +498,7 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+hilt {
+    enableAggregatingTask = false
+}
