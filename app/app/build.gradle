@@ -499,6 +499,6 @@ java {
     }
 }
 
-hilt {
-    enableAggregatingTask = false
-}
+//hilt {
+//    enableAggregatingTask = false
+//}
