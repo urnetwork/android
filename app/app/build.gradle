@@ -24,9 +24,9 @@ import org.yaml.snakeyaml.Yaml
 // these are added to the version code for abi-specific builds
 // note the warpctl version code always ends with 0 so that a variant can be added
 ext.abiVersionCodeVariants = [
-        'arm64-v8a': 1,
+        'x86_64': 1,
         'armeabi-v7a': 2,
-        'x86_64': 3
+        'arm64-v8a': 3,
 ]
 
 def warpHomeDir = System.getenv('WARP_HOME') ?:
