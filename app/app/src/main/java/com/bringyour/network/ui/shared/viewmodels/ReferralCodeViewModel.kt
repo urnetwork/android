@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.shared.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -7,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,8 +27,12 @@ class ReferralCodeViewModel @Inject constructor(
     val fetchReferralLink = {
         deviceManager.device?.api?.getNetworkReferralCode { result, error ->
             viewModelScope.launch {
-                referralLink = "https://ur.io/c?bonus=${result.referralCode}"
-                totalReferralCount = result.totalReferrals
+                if (error == null) {
+                    referralLink = "https://ur.io/c?bonus=${result.referralCode}"
+                    totalReferralCount = result.totalReferrals
+                } else {
+                    Log.i(TAG, "Could not fetch referral info: $error")
+                }
             }
         }
     }
