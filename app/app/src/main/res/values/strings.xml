@@ -226,4 +226,5 @@
     <string name="verify_seeker_token_btn">Verify Seeker Pre-Order Token</string>
     <string name="seeker_token_verified">Seeker Token Verified - You\'re earning x2 points!</string>
     <string name="total_referrals">Total referrals</string>
+    <string name="login_verify_check_phone">Check your phone</string>
 </resources>

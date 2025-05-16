@@ -245,4 +245,5 @@
     <string name="verify_seeker_token_btn">验证 Seeker 预售代币</string>
     <string name="seeker_token_verified">Seeker 代币已验证 - 您正在赚取 x2 积分！</string>
     <string name="total_referrals">推荐总数</string>
+    <string name="login_verify_check_phone">检查你的手机</string>
 </resources>

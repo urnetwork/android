@@ -244,4 +244,5 @@
     <string name="verify_seeker_token_btn">Verificar el token de pre-pedido de Seeker</string>
     <string name="seeker_token_verified">Token de Seeker verificado: ¡estás ganando x2 puntos!</string>
     <string name="total_referrals">Referencias totales</string>
+    <string name="login_verify_check_phone">Verifica tu teléfono</string>
 </resources>

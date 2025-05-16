@@ -267,5 +267,6 @@
     <string name="verify_seeker_token_btn">Zweryfikuj token zamówienia przedpremierowego Seeker</string>
     <string name="seeker_token_verified">Token Seeker zweryfikowany - zdobywasz x2 punkty!</string>
     <string name="total_referrals">Liczba wszystkich poleceń</string>
+    <string name="login_verify_check_phone">Sprawdź swój telefon</string>
 
 </resources>

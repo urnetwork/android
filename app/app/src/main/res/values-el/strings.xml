@@ -244,4 +244,5 @@
     <string name="verify_seeker_token_btn">Επαληθεύστε το Seeker Pre-Order Token</string>
     <string name="seeker_token_verified">Το Seeker Token επαληθεύτηκε - Κερδίζετε x2 πόντους!</string>
     <string name="total_referrals">Συνολικές παραπομπές</string>
+    <string name="login_verify_check_phone">Ελέγξτε το τηλέφωνό σας</string>
 </resources>
