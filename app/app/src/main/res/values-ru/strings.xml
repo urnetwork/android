@@ -267,4 +267,5 @@
     <string name="verify_seeker_token_btn">Подтвердить токен предварительного заказа Seeker</string>
     <string name="seeker_token_verified">окен Seeker подтвержден - Вы получаете x2 очков!</string>
     <string name="total_referrals">Всего рефералов</string>
+    <string name="login_verify_check_phone">Проверьте свой телефон</string>
 </resources>

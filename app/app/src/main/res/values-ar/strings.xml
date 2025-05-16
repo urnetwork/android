@@ -231,4 +231,5 @@
     <string name="verify_seeker_token_btn">تحقق من رمز Seeker للطلب المسبق</string>
     <string name="seeker_token_verified">قم بتوصيل محفظة برمز Saga Genesis أو رمز Seeker للطلب المسبق</string>
     <string name="total_referrals">إجمالي الإحالات</string>
+    <string name="login_verify_check_phone">تحقق من هاتفك</string>
 </resources>

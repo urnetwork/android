@@ -245,4 +245,5 @@
     <string name="verify_seeker_token_btn">Thibitisha Tokeni ya Agizo la Mapema la Seeker</string>
     <string name="seeker_token_verified">Tokeni ya Seeker Imethibitishwa - Unapata pointi x2!</string>
     <string name="total_referrals">Jumla ya marejeleo</string>
+    <string name="login_verify_check_phone">Angalia simu yako</string>
 </resources>

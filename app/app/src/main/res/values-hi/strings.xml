@@ -244,5 +244,6 @@
     <string name="verify_seeker_token_btn">सीकर प्री-ऑर्डर टोकन सत्यापित करें</string>
     <string name="seeker_token_verified">सीकर टोकन सत्यापित - आप x2 अंक अर्जित कर रहे हैं!</string>
     <string name="total_referrals">कुल रेफरल</string>
+    <string name="login_verify_check_phone">अपना फ़ोन जांचें</string>
 
 </resources>

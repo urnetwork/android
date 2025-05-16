@@ -267,4 +267,5 @@
     <string name="verify_seeker_token_btn">Seeker 선주문 토큰 확인</string>
     <string name="seeker_token_verified">Seeker 토큰이 확인되었습니다 - x2 포인트를 획득하고 있습니다!</string>
     <string name="total_referrals">총 추천 수</string>
+    <string name="login_verify_check_phone">휴대폰을 확인하세요</string>
 </resources>

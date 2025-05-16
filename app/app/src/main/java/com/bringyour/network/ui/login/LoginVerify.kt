@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
@@ -91,6 +92,7 @@ fun LoginVerify(
     var verifyError by remember { mutableStateOf<String?>(null) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
+    val isEmail = Patterns.EMAIL_ADDRESS.matcher(userAuth).matches()
 
     val resendCode = {
 
@@ -111,8 +113,6 @@ fun LoginVerify(
             }
         }
     }
-
-    val isTv = isTv()
 
     val verify = {
 
@@ -137,15 +137,13 @@ fun LoginVerify(
 
                     verifyInProgress = true
 
-                    if (!isTv) {
-                        isContentVisible = false
+                    isContentVisible = false
 
-                        delay(500)
+                    delay(500)
 
-                        welcomeOverlayVisible = true
+                    welcomeOverlayVisible = true
 
-                        delay(2250)
-                    }
+                    delay(2250)
 
                     loginActivity?.authClientAndFinish({ error ->
                         verifyInProgress = false
@@ -200,121 +198,59 @@ fun LoginVerify(
             }
         ) { innerPadding ->
 
-            if (isTv()) {
-                // mobile or tablet
-                Row(
+            // mobile + tablet
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp)
-                ) {
-
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-
-                        Column {
-                            Text(
-                                stringResource(id = R.string.login_verify_header),
-                                style = MaterialTheme.typography.headlineLarge
-                            )
-                            Spacer(modifier = Modifier.height(32.dp))
-                            Text(
-                                stringResource(id = R.string.login_verify_details),
-                                color = TextMuted
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(64.dp))
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .verticalScroll(rememberScrollState())
-                            .padding(end = 64.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-
-                        Column {
-                            URCodeInput(
-                                value = code,
-                                onValueChange = { newCode ->
-                                    code = newCode
-                                },
-                                codeLength = codeLength,
-                                enabled = !verifyInProgress
-                            )
-
-                            Spacer(modifier = Modifier.height(40.dp))
-
-                            ResendCode(
-                                resendCode = {
-                                    resendCode()
-                                },
-                                resendBtnEnabled = resendBtnEnabled
-                            )
-                        }
-                    }
-                }
-            } else {
-                // mobile + tablet
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(top = 16.dp, start = 16.dp, bottom = 124.dp, end = 16.dp),
-                    contentAlignment = Alignment.Center
+                        .fillMaxHeight()
+                        .widthIn(512.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
                     Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .widthIn(512.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier.imePadding()
                     ) {
+                        Text(
+                            stringResource(id =
+                                if (isEmail) R.string.login_verify_header
+                                else R.string.login_verify_check_phone
+                            ),
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Text(
+                            stringResource(id = R.string.login_verify_details),
+                            color = TextMuted
+                        )
 
-                        Column(
-                            modifier = Modifier.imePadding()
-                        ) {
-                            Text(
-                                stringResource(id = R.string.login_verify_header),
-                                style = MaterialTheme.typography.headlineLarge
-                            )
-                            Spacer(modifier = Modifier.height(32.dp))
-                            Text(
-                                stringResource(id = R.string.login_verify_details),
-                                color = TextMuted
-                            )
+                        Spacer(modifier = Modifier.height(40.dp))
 
-                            Spacer(modifier = Modifier.height(40.dp))
+                        URCodeInput(
+                            value = code,
+                            onValueChange = { newCode ->
+                                code = newCode
+                            },
+                            codeLength = codeLength,
+                            enabled = !verifyInProgress
+                        )
 
-                            URCodeInput(
-                                value = code,
-                                onValueChange = { newCode ->
-                                    code = newCode
-                                },
-                                codeLength = codeLength,
-                                enabled = !verifyInProgress
-                            )
+                        Spacer(modifier = Modifier.height(40.dp))
 
-                            Spacer(modifier = Modifier.height(40.dp))
-
-                            ResendCode(
-                                resendCode = {
-                                    resendCode()
-                                },
-                                resendBtnEnabled = resendBtnEnabled
-                            )
-                        }
+                        ResendCode(
+                            resendCode = {
+                                resendCode()
+                            },
+                            resendBtnEnabled = resendBtnEnabled
+                        )
                     }
                 }
             }
