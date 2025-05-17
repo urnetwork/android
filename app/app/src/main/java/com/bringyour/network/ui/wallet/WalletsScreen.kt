@@ -438,7 +438,6 @@ fun WalletsScreen(
                                         items(wallets) { wallet ->
 
                                             WalletCard(
-                                                isCircleWallet = !wallet.circleWalletId.isNullOrEmpty(),
                                                 blockchain = Blockchain.fromString(wallet.blockchain),
                                                 isPayoutWallet = wallet.walletId.equals(
                                                     payoutWalletId

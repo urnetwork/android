@@ -19,42 +19,30 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
 fun WalletChainIcon(
-    isCircleWallet: Boolean,
     blockchain: Blockchain?
 ) {
 
-    val painterResourceId = if (isCircleWallet) R.drawable.circle_logo
-    else if (blockchain == Blockchain.SOLANA)
+    val painterResourceId = if (blockchain == Blockchain.SOLANA)
         R.drawable.solana_logo
     else
         R.drawable.polygon_logo
 
-    val description = if (isCircleWallet) "Circle Wallet"
-    else if (blockchain == Blockchain.SOLANA)
+    val description = if (blockchain == Blockchain.SOLANA)
         "Solana Wallet"
     else
         "Polygon Wallet"
 
-    val padding = if (isCircleWallet) 12.dp
-    else if (blockchain == Blockchain.SOLANA)
+    val padding = if (blockchain == Blockchain.SOLANA)
         12.dp
     else
         0.dp
 
-    val width = if (isCircleWallet) 32.dp // circle
-    else if (blockchain == Blockchain.SOLANA)
+    val width = if (blockchain == Blockchain.SOLANA)
         32.dp // solana
     else
         54.dp // polygon
 
-    val backgroundColor = if (isCircleWallet)
-        Brush.linearGradient(
-            colors = listOf(
-                Color(0xFF68D7FA),
-                Color(0xFF7EF1B3)
-            )
-        )
-    else if (blockchain == Blockchain.SOLANA)
+    val backgroundColor = if (blockchain == Blockchain.SOLANA)
         Brush.linearGradient(
             colors = listOf(
                 Color(0xFF9945FF),
@@ -85,21 +73,9 @@ fun WalletChainIcon(
 
 @Preview
 @Composable
-private fun WalletChainIconCirclePreview() {
-    URNetworkTheme {
-        WalletChainIcon(
-            isCircleWallet = true,
-            blockchain = Blockchain.POLYGON
-        )
-    }
-}
-
-@Preview
-@Composable
 private fun WalletChainIconPolygonPreview() {
     URNetworkTheme {
         WalletChainIcon(
-            isCircleWallet = false,
             blockchain = Blockchain.POLYGON
         )
     }
@@ -110,7 +86,6 @@ private fun WalletChainIconPolygonPreview() {
 private fun WalletChainIconSolanaPreview() {
     URNetworkTheme {
         WalletChainIcon(
-            isCircleWallet = false,
             blockchain = Blockchain.SOLANA
         )
     }

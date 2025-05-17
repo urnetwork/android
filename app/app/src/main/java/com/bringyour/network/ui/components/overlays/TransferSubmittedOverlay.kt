@@ -19,6 +19,10 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.Yellow
 
+/**
+ * This overlay is deprecated
+ * but we can reuse it in the future for something else
+ */
 @Composable
 fun TransferSubmittedOverlay(
     onDismiss: () -> Unit
