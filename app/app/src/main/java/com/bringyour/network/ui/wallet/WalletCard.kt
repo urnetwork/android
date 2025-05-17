@@ -40,7 +40,6 @@ import com.bringyour.sdk.AccountPayment
 
 @Composable
 fun WalletCard(
-    isCircleWallet: Boolean,
     blockchain: Blockchain?,
     isPayoutWallet: Boolean,
     walletAddress: String,
@@ -56,8 +55,7 @@ fun WalletCard(
         formatDecimalString(walletPayments.sumOf { it.tokenAmount }, 4)
     }
 
-    val walletType = if (isCircleWallet) "Circle"
-        else if (blockchain == Blockchain.SOLANA)
+    val walletType = if (blockchain == Blockchain.SOLANA)
             "Solana"
         else
             "Polygon"
@@ -80,7 +78,7 @@ fun WalletCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            WalletChainIcon(isCircleWallet, blockchain)
+            WalletChainIcon(blockchain)
 
             Column(
                 horizontalAlignment = Alignment.End
@@ -161,30 +159,11 @@ fun WalletCard(
 
 @Preview
 @Composable
-private fun WalletCardCirclePreview() {
-    val navController = rememberNavController()
-
-    URNetworkTheme {
-        WalletCard(
-            isCircleWallet = true,
-            blockchain = Blockchain.POLYGON,
-            isPayoutWallet = true,
-            walletAddress = "0x0000000000000000000000",
-            navController = navController,
-            walletId = null,
-            payouts = listOf()
-        )
-    }
-}
-
-@Preview
-@Composable
 private fun WalletCardSolanaPreview() {
     val navController = rememberNavController()
 
     URNetworkTheme {
         WalletCard(
-            isCircleWallet = false,
             blockchain = Blockchain.SOLANA,
             isPayoutWallet = false,
             walletAddress = "0x0000000000000000000000",
@@ -202,7 +181,6 @@ private fun WalletCardPolygonPreview() {
 
     URNetworkTheme {
         WalletCard(
-            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
             isPayoutWallet = false,
             walletAddress = "0x0000000000000000000000",

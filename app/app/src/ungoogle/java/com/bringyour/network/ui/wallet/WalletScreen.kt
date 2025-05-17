@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.wallet
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,25 +35,16 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.BottomSheetScaffoldState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.AccountWallet
 import com.bringyour.sdk.Id
@@ -64,20 +53,14 @@ import com.bringyour.network.ui.components.URDialog
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.theme.BlueMedium
-import com.bringyour.network.ui.theme.HeadingLargeCondensed
-import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.utils.formatDecimalString
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun WalletScreen(
     navController: NavController,
     accountWallet: AccountWallet?,
-    walletViewModel: WalletViewModel,
-    overlayViewModel: OverlayViewModel
+    walletViewModel: WalletViewModel
 ) {
 
     val payoutWalletId = walletViewModel.payoutWalletId
@@ -90,7 +73,6 @@ fun WalletScreen(
         walletAddress = accountWallet?.walletAddress,
         isPayoutWallet = isPayoutWallet,
         blockchain = Blockchain.fromString(accountWallet?.blockchain ?: ""),
-        isCircleWallet = !accountWallet?.circleWalletId.isNullOrEmpty(),
         payouts = payouts.filter { payout ->
             accountWallet?.walletId?.let { walletId ->
                 payout.walletId?.equals(walletId) ?: false
@@ -103,9 +85,6 @@ fun WalletScreen(
         removeWalletModalVisible = walletViewModel.removeWalletModalVisible,
         openRemoveWalletModal = walletViewModel.openRemoveWalletModal,
         closeRemoveWalletModal = walletViewModel.closeRemoveWalletModal,
-        circleWalletBalance = walletViewModel.circleWalletBalance,
-        setCircleWalletBalance = walletViewModel.setCircleWalletBalance,
-        launchOverlay = overlayViewModel.launch,
         refresh = walletViewModel.refreshWalletInfo,
         isRefreshing = walletViewModel.isRefreshingWallet
     )
@@ -118,7 +97,6 @@ fun WalletScreen(
     walletAddress: String?,
     isPayoutWallet: Boolean,
     blockchain: Blockchain?,
-    isCircleWallet: Boolean,
     payouts: List<AccountPayment>,
     setPayoutWallet: (Id) -> Unit,
     isSettingPayoutWallet: Boolean,
@@ -127,34 +105,27 @@ fun WalletScreen(
     removeWalletModalVisible: Boolean,
     closeRemoveWalletModal: () -> Unit,
     openRemoveWalletModal: () -> Unit,
-    circleWalletBalance: Double,
-    setCircleWalletBalance: (Double) -> Unit,
-    launchOverlay: (OverlayMode) -> Unit,
-    refresh: (Boolean) -> Unit,
+    refresh: () -> Unit,
     isRefreshing: Boolean,
 ) {
 
-    if (isCircleWallet) {
-
-    } else {
-        ExternalWalletScreenContent(
-            navController = navController,
-            walletId = walletId,
-            walletAddress = walletAddress,
-            isPayoutWallet = isPayoutWallet,
-            blockchain = blockchain,
-            payouts = payouts,
-            setPayoutWallet = setPayoutWallet,
-            isSettingPayoutWallet = isSettingPayoutWallet,
-            removeWallet = removeWallet,
-            isRemovingWallet = isRemovingWallet,
-            removeWalletModalVisible = removeWalletModalVisible,
-            closeRemoveWalletModal = closeRemoveWalletModal,
-            openRemoveWalletModal = openRemoveWalletModal,
-            refresh = refresh,
-            isRefreshing = isRefreshing
-        )
-    }
+    ExternalWalletScreenContent(
+        navController = navController,
+        walletId = walletId,
+        walletAddress = walletAddress,
+        isPayoutWallet = isPayoutWallet,
+        blockchain = blockchain,
+        payouts = payouts,
+        setPayoutWallet = setPayoutWallet,
+        isSettingPayoutWallet = isSettingPayoutWallet,
+        removeWallet = removeWallet,
+        isRemovingWallet = isRemovingWallet,
+        removeWalletModalVisible = removeWalletModalVisible,
+        closeRemoveWalletModal = closeRemoveWalletModal,
+        openRemoveWalletModal = openRemoveWalletModal,
+        refresh = refresh,
+        isRefreshing = isRefreshing
+    )
 
 }
 
@@ -162,9 +133,8 @@ fun WalletScreen(
 @Composable
 fun WalletContentScaffold(
     navController: NavController,
-    refresh: (Boolean) -> Unit,
+    refresh: () -> Unit,
     isRefreshing: Boolean,
-    isCircleWallet: Boolean,
     content: @Composable () -> Unit,
 ) {
 
@@ -198,9 +168,7 @@ fun WalletContentScaffold(
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
                 state = refreshState,
-                onRefresh = {
-                    refresh(isCircleWallet)
-                            },
+                onRefresh = refresh,
             ) {
                 content()
             }
@@ -342,7 +310,7 @@ fun ExternalWalletScreenContent(
     removeWalletModalVisible: Boolean,
     closeRemoveWalletModal: () -> Unit,
     openRemoveWalletModal: () -> Unit,
-    refresh: (Boolean) -> Unit,
+    refresh: () -> Unit,
     isRefreshing: Boolean,
 ) {
 
@@ -350,7 +318,6 @@ fun ExternalWalletScreenContent(
         navController,
         refresh,
         isRefreshing,
-        isCircleWallet = false
     ) {
 
         LazyColumn(
@@ -368,7 +335,6 @@ fun ExternalWalletScreenContent(
 
                         WalletChainIcon(
                             blockchain = blockchain,
-                            isCircleWallet = false
                         )
 
                         Spacer(modifier = Modifier.width(16.dp))
@@ -474,9 +440,8 @@ private fun WalletScreenPreview() {
             walletId = null,
             walletAddress = "0x000000000000000",
             isPayoutWallet = false,
-            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
-            payouts = listOf(),
+            payouts = listOf<AccountPayment>(),
             setPayoutWallet = {},
             isSettingPayoutWallet = false,
             removeWallet = {},
@@ -484,9 +449,6 @@ private fun WalletScreenPreview() {
             removeWalletModalVisible = false,
             openRemoveWalletModal = {},
             closeRemoveWalletModal = {},
-            circleWalletBalance = 1.1,
-            setCircleWalletBalance = {},
-            launchOverlay = {},
             refresh = {},
             isRefreshing = false
         )
@@ -505,9 +467,8 @@ private fun WalletScreenIsPayoutPreview() {
             walletId = null,
             walletAddress = "0x000000000000000",
             isPayoutWallet = true,
-            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
-            payouts = listOf(),
+            payouts = listOf<AccountPayment>(),
             setPayoutWallet = {},
             isSettingPayoutWallet = false,
             removeWallet = {},
@@ -515,9 +476,6 @@ private fun WalletScreenIsPayoutPreview() {
             removeWalletModalVisible = false,
             openRemoveWalletModal = {},
             closeRemoveWalletModal = {},
-            circleWalletBalance = 1.1,
-            setCircleWalletBalance = {},
-            launchOverlay = {},
             refresh = {},
             isRefreshing = false
         )
@@ -535,9 +493,8 @@ private fun WalletScreenRemoveWalletPreview() {
             walletId = null,
             walletAddress = "0x000000000000000",
             isPayoutWallet = true,
-            isCircleWallet = false,
             blockchain = Blockchain.POLYGON,
-            payouts = listOf(),
+            payouts = listOf<AccountPayment>(),
             setPayoutWallet = {},
             isSettingPayoutWallet = false,
             removeWallet = {},
@@ -545,9 +502,6 @@ private fun WalletScreenRemoveWalletPreview() {
             removeWalletModalVisible = true,
             openRemoveWalletModal = {},
             closeRemoveWalletModal = {},
-            circleWalletBalance = 1.1,
-            setCircleWalletBalance = {},
-            launchOverlay = {},
             refresh = {},
             isRefreshing = false
         )

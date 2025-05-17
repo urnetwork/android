@@ -523,7 +523,6 @@ fun MainNavContent(
                     navController = navController,
                     accountWallet = accountWallet,
                     walletViewModel = walletViewModel,
-                    overlayViewModel = overlayViewModel
                 )
             }
         }

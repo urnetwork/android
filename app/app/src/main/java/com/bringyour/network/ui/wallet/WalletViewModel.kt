@@ -103,8 +103,6 @@ class WalletViewModel @Inject constructor(
     var totalPayoutAmountInitialized by mutableStateOf(false)
         private set
 
-    var circleWalletBalance by mutableDoubleStateOf(0.0)
-
     private var fetchBytesLastCheckedHour by mutableIntStateOf(0)
 
     val updateNextPayoutDateStr = {
@@ -130,8 +128,8 @@ class WalletViewModel @Inject constructor(
     }
 
     /**
-     * For freshing individual wallet
-     * including payouts and Circle balance
+     * For refreshing individual wallet
+     * including payouts
      */
     var isRefreshingWallet by mutableStateOf(false)
         private set
@@ -154,15 +152,11 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    val refreshWalletInfo: (Boolean) -> Unit = { isCircleWallet ->
+    val refreshWalletInfo: () -> Unit = {
 
         if (!isRefreshingWallet && !isRefreshingWallets && paymentsRefreshed) {
             setIsRefreshingWallet(true)
             paymentsRefreshed = false
-
-            if (isCircleWallet) {
-                fetchCircleWalletInfo()
-            }
 
             walletVc?.fetchPayments()
 
@@ -207,37 +201,12 @@ class WalletViewModel @Inject constructor(
         initializingFirstWallet = isInitializing
     }
 
-    private val fetchCircleWalletInfo = {
-
-        byDevice?.api?.walletBalance { result, error ->
-            if (error != null) {
-                Log.i(TAG, "[wallet] fetch error = $error")
-            } else {
-
-                viewModelScope.launch {
-                    result.walletInfo?.balanceUsdcNanoCents?.let {
-                        Sdk.nanoCentsToUsd(
-                            it
-                        )
-                    }?.let { setCircleWalletBalance(it) }
-
-                }
-            }
-        }
-    }
-
-    val setCircleWalletBalance: (Double) -> Unit = { balance ->
-        circleWalletBalance = balance
-    }
-
     val updateWallets = {
 
         walletVc?.let { vc ->
 
             val result = vc.wallets
             val n = result.len()
-
-            var circleWalletExists = false
 
             val updatedWallets = mutableListOf<AccountWallet>()
 
@@ -250,15 +219,10 @@ class WalletViewModel @Inject constructor(
                     }
                 }
 
-
-                updatedWallets.add(wallet)
-                if (!wallet.circleWalletId.isNullOrEmpty()) {
-                    circleWalletExists = true
+                if (wallet.circleWalletId.isNullOrEmpty()) {
+                    updatedWallets.add(wallet)
                 }
-            }
 
-            if (circleWalletExists) {
-                fetchCircleWalletInfo()
             }
 
             val prevWalletCount = _wallets.value.count()

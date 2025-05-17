@@ -17,7 +17,6 @@ enum class OverlayMode {
     FeedbackSubmitted,
     Onboarding,
     OnboardingGuestMode,
-    TransferSubmitted
 }
 
 @Composable
@@ -100,17 +99,4 @@ fun FullScreenOverlay(
         )
     }
 
-    // Circle transfer submitted
-    AnimatedVisibility(
-        visible = overlayMode == OverlayMode.TransferSubmitted,
-        enter = enterTransition,
-        exit = exitTransition,
-    ) {
-
-        TransferSubmittedOverlay(
-            onDismiss = {
-                overlayViewModel.launch(null)
-            }
-        )
-    }
 }
