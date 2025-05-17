@@ -47,7 +47,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,6 +62,7 @@ import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.login.NoSolanaWalletsAlert
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.BlueLight
@@ -153,6 +157,8 @@ fun WalletsScreen(
     val iconUri = Uri.parse("favicon.ico")
     val identityName = "URnetwork"
 
+    var noSolanaWalletsFound by remember { mutableStateOf(false) }
+
     val connectSolanaWallet = {
 
         scope.launch {
@@ -187,6 +193,7 @@ fun WalletsScreen(
 
                     is TransactionResult.NoWalletFound -> {
                         println("No MWA compatible wallet app found on device.")
+                        noSolanaWalletsFound = true
                     }
 
                     is TransactionResult.Failure -> {
@@ -530,6 +537,16 @@ fun WalletsScreen(
                 walletValidationState = walletValidationState,
                 isProcessingWallet = isProcessingExternalWallet
             )
+        }
+
+        if (noSolanaWalletsFound) {
+
+            NoSolanaWalletsAlert(
+                onDismiss = {
+                    noSolanaWalletsFound = false
+                }
+            )
+
         }
     }
 }
