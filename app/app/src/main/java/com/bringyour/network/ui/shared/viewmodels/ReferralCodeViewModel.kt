@@ -27,7 +27,7 @@ class ReferralCodeViewModel @Inject constructor(
     val fetchReferralLink = {
         deviceManager.device?.api?.getNetworkReferralCode { result, error ->
             viewModelScope.launch {
-                if (error == null) {
+                if (result != null) {
                     referralLink = "https://ur.io/c?bonus=${result.referralCode}"
                     totalReferralCount = result.totalReferrals
                 } else {
