@@ -156,50 +156,6 @@
     <string name="create_network_error">कुछ गलत हो गया. पुनः प्रयास करें.</string>
     <string name="verify_send_error">त्रुटि</string>
 
-    <string name="circlepw_show_pin">PIN दिखाएँ</string>
-    <string name="circlepw_hide_pin">PIN छिपाएँ</string>
-    <string name="circlepw_continue">जारी रखें</string>
-    <string name="circlepw_next">अगला</string>
-    <string name="circlepw_question_label">प्रश्न:</string>
-    <string name="circlepw_answer_label">उत्तर:</string>
-    <string name="circlepw_hint_label">संकेत:</string>
-    <string name="circlepw_hint_tag">संकेत</string>
-    <string name="circlepw_empty"></string>
-    <string name="circlepw_empty_placeholder">-</string>
-    <string name="circlepw_confirm">पुष्टि करें</string>
-    <string name="circlepw_pin_remain_attemps_template">आपके पास %s प्रयास शेष हैं।</string>
-    <string name="circlepw_pin_lock_period_template">आपने सभी PIN प्रयासों का उपयोग कर लिया है। कृपया बाद में पुनः प्रयास करने के लिए %s मिनट प्रतीक्षा करें।</string>
-    <string name="circlepw_answer_remain_attemps_template">आपके पास %s प्रयास शेष हैं।</string>
-    <string name="circlepw_answer_lock_period_template">कृपया बाद में पुनः प्रयास करने के लिए %s मिनट प्रतीक्षा करें।</string>
-
-    <string name="circlepw_enter_pincode_subhead">हमें बताएं कि क्या यह वास्तव में आप हैं।</string>
-    <string name="circlepw_enter_pincode_forgot_pin">PIN भूल गए?</string>
-
-    <string name="circlepw_new_pincode_subhead">आपके PIN में दोहराए जाने वाले (जैसे 000000) या लगातार (जैसे 123456) नंबर नहीं हो सकते हैं।</string>
-    <string name="circlepw_confirm_pincode_headline">पुष्टि करने के लिए अपना PIN दोबारा दर्ज करें</string>
-    <string name="circlepw_confirm_pincode_subhead"></string>
-    <string name="circlepw_security_intros_description">यदि आप अपना PIN भूल जाते हैं तो वॉलेट एक्सेस रिकवर करने का यही एकमात्र तरीका है। एक्सेस रिकवरी के लिए 2 सुरक्षा प्रश्न चुनें और उत्तर प्रदान करें।</string>
-
-    <string name="circlepw_security_questions_title">रिकवरी का तरीका</string>
-    <string name="circlepw_security_questions_required_mark">*</string>
-    <string name="circlepw_security_questions_question_placeholder">एक प्रश्न चुनें</string>
-    <string name="circlepw_security_questions_answer_header">उत्तर प्रदान करें</string>
-    <string name="circlepw_security_questions_answer_placeholder">अपना उत्तर यहाँ लिखें</string>
-    <string name="circlepw_security_questions_answer_hint_header">उत्तर के लिए संकेत प्रदान करें (वैकल्पिक)</string>
-    <string name="circlepw_security_questions_answer_hint_placeholder">अपना संकेत यहाँ लिखें</string>
-
-    <string name="circlepw_select_question_title">एक प्रश्न चुनें</string>
-    <string name="circlepw_security_summary_title">सारांश</string>
-
-    <string name="circlepw_security_confirm_title">पुष्टीकरण</string>
-    <string name="circlepw_security_confirm_headline">अपने प्रश्नों को सुरक्षित रखें</string>
-    <string name="circlepw_security_confirm_input_headline">आगे बढ़ने के लिए "I agree" टाइप करें:</string>
-    <string name="circlepw_security_confirm_input_placeholder">यहां "I agree" टाइप करें</string>
-    <string name="circlepw_security_confirm_input_match">मैं सहमत हूँ</string>
-
-    <string name="circlepw_recover_pincode_answer_input_header">अपना उत्तर यहाँ दर्ज करें</string>
-    <string name="circlepw_recover_pincode_answer_input_placeholder">अपना उत्तर यहाँ लिखें</string>
-
     <string name="connections">कनेक्शन</string>
     <string name="provide_disconnected">डिस्कनेक्ट होने पर प्रदान करें</string>
     <string name="unpaid_mb">अवैतनिक मेगाबाइट प्रदान किए गए</string>

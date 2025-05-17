@@ -157,50 +157,6 @@
     <string name="create_network_error">Algo deu errado. Tente novamente.</string>
     <string name="verify_send_error">Erro</string>
 
-    <string name="circlepw_show_pin">Mostrar PIN</string>
-    <string name="circlepw_hide_pin">Ocultar PIN</string>
-    <string name="circlepw_continue">Continuar</string>
-    <string name="circlepw_next">Próximo</string>
-    <string name="circlepw_question_label">Pergunta:</string>
-    <string name="circlepw_answer_label">Resposta:</string>
-    <string name="circlepw_hint_label">Dica:</string>
-    <string name="circlepw_hint_tag">Dica</string>
-    <string name="circlepw_empty"></string>
-    <string name="circlepw_empty_placeholder">-</string>
-    <string name="circlepw_confirm">Confirmar</string>
-    <string name="circlepw_pin_remain_attemps_template">Você tem %s tentativas restantes.</string>
-    <string name="circlepw_pin_lock_period_template">Você usou todas as tentativas de PIN. Aguarde %s minutos para tentar novamente mais tarde.</string>
-    <string name="circlepw_answer_remain_attemps_template">Você tem %s tentativas restantes.</string>
-    <string name="circlepw_answer_lock_period_template">Aguarde %s minutos para tentar novamente mais tarde.</string>
-
-    <string name="circlepw_enter_pincode_subhead">Deixe-nos saber se é realmente você.</string>
-    <string name="circlepw_enter_pincode_forgot_pin">Esqueceu o PIN?</string>
-
-    <string name="circlepw_new_pincode_subhead">Seu PIN não pode ter números repetidos (ex. 000000) ou consecutivos (ex. 123456).</string>
-    <string name="circlepw_confirm_pincode_headline">Digite seu PIN novamente para confirmar</string>
-    <string name="circlepw_confirm_pincode_subhead"></string>
-    <string name="circlepw_security_intros_description">Esta é a única maneira de recuperar o acesso à carteira se você esquecer seu PIN. Escolha 2 perguntas de segurança e forneça respostas para recuperação de acesso.</string>
-
-    <string name="circlepw_security_questions_title">Método de recuperação</string>
-    <string name="circlepw_security_questions_required_mark">*</string>
-    <string name="circlepw_security_questions_question_placeholder">Selecione uma pergunta</string>
-    <string name="circlepw_security_questions_answer_header">Forneça uma resposta</string>
-    <string name="circlepw_security_questions_answer_placeholder">Digite sua resposta aqui</string>
-    <string name="circlepw_security_questions_answer_hint_header">Forneça uma dica de resposta (opcional)</string>
-    <string name="circlepw_security_questions_answer_hint_placeholder">Digite sua dica aqui</string>
-
-    <string name="circlepw_select_question_title">Selecione uma pergunta</string>
-    <string name="circlepw_security_summary_title">Resumo</string>
-
-    <string name="circlepw_security_confirm_title">Confirmação</string>
-    <string name="circlepw_security_confirm_headline">Mantenha suas perguntas seguras</string>
-    <string name="circlepw_security_confirm_input_headline">Digite \"I agree\" para prosseguir:</string>
-    <string name="circlepw_security_confirm_input_placeholder">Digite \"I agree\" aqui</string>
-    <string name="circlepw_security_confirm_input_match">Concordo</string>
-
-    <string name="circlepw_recover_pincode_answer_input_header">Digite sua resposta aqui</string>
-    <string name="circlepw_recover_pincode_answer_input_placeholder">Digite sua resposta aqui</string>
-
     <string name="connections">Conexões</string>
     <string name="provide_disconnected">Fornecer offline</string>
     <string name="unpaid_mb">Megabytes não pagos fornecidos</string>

@@ -158,50 +158,6 @@
     <string name="create_network_error">Quelque chose s\'est mal passé. Réessayez.</string>
     <string name="verify_send_error">Erreur</string>
 
-    <string name="circlepw_show_pin">Afficher le code PIN</string>
-    <string name="circlepw_hide_pin">Masquer le code PIN</string>
-    <string name="circlepw_continue">Continuer</string>
-    <string name="circlepw_next">Suivant</string>
-    <string name="circlepw_question_label">Question :</string>
-    <string name="circlepw_answer_label">Réponse :</string>
-    <string name="circlepw_hint_label">Indice :</string>
-    <string name="circlepw_hint_tag">Indice</string>
-    <string name="circlepw_empty"></string>
-    <string name="circlepw_empty_placeholder">-</string>
-    <string name="circlepw_confirm">Confirmer</string>
-    <string name="circlepw_pin_remain_attemps_template">Il vous reste %s tentatives.</string>
-    <string name="circlepw_pin_lock_period_template">Vous avez utilisé toutes vos tentatives de code PIN. Veuillez patienter %s minutes avant de réessayer.</string>
-    <string name="circlepw_answer_remain_attemps_template">Il vous reste %s tentatives.</string>
-    <string name="circlepw_answer_lock_period_template">Veuillez patienter %s minutes avant de réessayer.</string>
-
-    <string name="circlepw_enter_pincode_subhead">Faites-nous savoir si c’est bien vous.</string>
-    <string name="circlepw_enter_pincode_forgot_pin">Code PIN oublié ?</string>
-
-    <string name="circlepw_new_pincode_subhead">Votre code PIN ne peut pas contenir de nombres répétés (par ex., 000000) ou consécutifs (par ex., 123456).</string>
-    <string name="circlepw_confirm_pincode_headline">Saisissez à nouveau votre code PIN pour confirmer</string>
-    <string name="circlepw_confirm_pincode_subhead"></string>
-    <string name="circlepw_security_intros_description">C’est le seul moyen de récupérer l’accès au portefeuille si vous oubliez votre code PIN. Choisissez 2 questions de sécurité et fournissez des réponses pour la récupération de l’accès.</string>
-
-    <string name="circlepw_security_questions_title">Méthode de récupération</string>
-    <string name="circlepw_security_questions_required_mark">*</string>
-    <string name="circlepw_security_questions_question_placeholder">Sélectionnez une question</string>
-    <string name="circlepw_security_questions_answer_header">Fournissez une réponse</string>
-    <string name="circlepw_security_questions_answer_placeholder">Saisissez votre réponse ici</string>
-    <string name="circlepw_security_questions_answer_hint_header">Fournissez un indice de réponse (facultatif)</string>
-    <string name="circlepw_security_questions_answer_hint_placeholder">Saisissez votre indice ici</string>
-
-    <string name="circlepw_select_question_title">Sélectionnez une question</string>
-    <string name="circlepw_security_summary_title">Résumé</string>
-
-    <string name="circlepw_security_confirm_title">Confirmation</string>
-    <string name="circlepw_security_confirm_headline">Conservez vos questions en lieu sûr</string>
-    <string name="circlepw_security_confirm_input_headline">Saisissez « I agree » pour continuer :</string>
-    <string name="circlepw_security_confirm_input_placeholder">Saisissez « I agree » ici</string>
-    <string name="circlepw_security_confirm_input_match">Je suis d’accord</string>
-
-    <string name="circlepw_recover_pincode_answer_input_header">Saisissez votre réponse ici</string>
-    <string name="circlepw_recover_pincode_answer_input_placeholder">Saisissez votre réponse ici</string>
-
     <string name="connections">Connexions</string>
     <string name="provide_disconnected">Fournir hors ligne</string>
     <string name="unpaid_mb">Mégaoctets non payés fournis</string>

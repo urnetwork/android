@@ -157,50 +157,6 @@
     <string name="create_network_error">Kuna kitu kilienda vibaya. Jaribu tena.</string>
     <string name="verify_send_error">Hitilafu</string>
 
-    <string name="circlepw_show_pin">Onyesha PIN</string>
-    <string name="circlepw_hide_pin">Ficha PIN</string>
-    <string name="circlepw_continue">Endelea</string>
-    <string name="circlepw_next">Inayofuata</string>
-    <string name="circlepw_question_label">Swali:</string>
-    <string name="circlepw_answer_label">Jibu:</string>
-    <string name="circlepw_hint_label">Dokezo:</string>
-    <string name="circlepw_hint_tag">Dokezo</string>
-    <string name="circlepw_empty"></string>
-    <string name="circlepw_empty_placeholder">-</string>
-    <string name="circlepw_confirm">Thibitisha</string>
-    <string name="circlepw_pin_remain_attemps_template">Una %s majaribio yaliyosalia.</string>
-    <string name="circlepw_pin_lock_period_template">Umetumia majaribio yote ya PIN. Tafadhali subiri kwa %s dakika ili kujaribu tena baadaye.</string>
-    <string name="circlepw_answer_remain_attemps_template">Una %s majaribio yaliyosalia.</string>
-    <string name="circlepw_answer_lock_period_template">Tafadhali subiri kwa %s dakika ili kujaribu tena baadaye.</string>
-
-    <string name="circlepw_enter_pincode_subhead">Tujuze ikiwa ni wewe kweli.</string>
-    <string name="circlepw_enter_pincode_forgot_pin">Umesahau PIN?</string>
-
-    <string name="circlepw_new_pincode_subhead">PIN yako haiwezi kuwa na nambari zinazojirudia (km. 000000) au zinazofuatana (km. 123456).</string>
-    <string name="circlepw_confirm_pincode_headline">Ingiza tena PIN yako ili kuthibitisha</string>
-    <string name="circlepw_confirm_pincode_subhead"></string>
-    <string name="circlepw_security_intros_description">Hii ndiyo njia pekee ya kurejesha ufikiaji wa pochi ikiwa utasahau PIN yako. Chagua maswali 2 ya usalama na utoe majibu kwa ajili ya kurejesha ufikiaji.</string>
-
-    <string name="circlepw_security_questions_title">Njia ya kurejesha</string>
-    <string name="circlepw_security_questions_required_mark">*</string>
-    <string name="circlepw_security_questions_question_placeholder">Chagua swali moja</string>
-    <string name="circlepw_security_questions_answer_header">Toa jibu</string>
-    <string name="circlepw_security_questions_answer_placeholder">Andika jibu lako hapa</string>
-    <string name="circlepw_security_questions_answer_hint_header">Toa dokezo la jibu (si lazima)</string>
-    <string name="circlepw_security_questions_answer_hint_placeholder">Andika dokezo lako hapa</string>
-
-    <string name="circlepw_select_question_title">Chagua swali moja</string>
-    <string name="circlepw_security_summary_title">Muhtasari</string>
-
-    <string name="circlepw_security_confirm_title">Uthibitisho</string>
-    <string name="circlepw_security_confirm_headline">Weka maswali yako salama</string>
-    <string name="circlepw_security_confirm_input_headline">Andika \"I agree\" ili kuendelea:</string>
-    <string name="circlepw_security_confirm_input_placeholder">Andika \"I agree\" hapa</string>
-    <string name="circlepw_security_confirm_input_match">Nakubali</string>
-
-    <string name="circlepw_recover_pincode_answer_input_header">Andika jibu lako hapa</string>
-    <string name="circlepw_recover_pincode_answer_input_placeholder">Andika jibu lako hapa</string>
-
     <string name="connections">Miunganisho</string>
     <string name="provide_disconnected">Toa wakati hujaunganishwa</string>
     <string name="unpaid_mb">Megabytes ambazo hazijalipwa zimetolewa</string>
