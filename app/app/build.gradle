@@ -448,6 +448,15 @@ dependencies {
 
 // google play
 dependencies {
+    // force dependencies with known CVE vulnerabilities to newer versions
+    // CVE-2022-2390
+    // CVE-2022-2390
+    // CVE-2022-2390
+/*build:google*/        playImplementation 'com.google.android.gms:play-services-location:21.3.0'
+/*build:google*/        playImplementation 'com.google.android.gms:play-services-places-placereport:17.1.0'
+/*build:google*/        //noinspection GradleDependency
+/*build:google*/        playImplementation 'com.google.android.gms:play-services-fido:21.2.0'
+
 /*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.3.0'
 /*build:google*/    playImplementation 'com.android.installreferrer:installreferrer:2.2'
 
@@ -462,6 +471,15 @@ dependencies {
 
 // google play
 dependencies {
+    // force dependencies with known CVE vulnerabilities to newer versions
+    // CVE-2022-2390
+    // CVE-2022-2390
+    // CVE-2022-2390
+/*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-location:21.3.0'
+/*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-places-placereport:17.1.0'
+/*build:google*/        //noinspection GradleDependency
+/*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
+
 /*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.3.0'
 /*build:google*/    solana_dappImplementation 'com.android.installreferrer:installreferrer:2.2'
 
