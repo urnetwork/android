@@ -108,8 +108,16 @@ class MainApplication : Application() {
 
 
     var service: WeakReference<MainService>? = null
-    var serviceActive: Boolean = false
-
+    private var _serviceActive: Boolean = false
+    val serviceActiveMonitor = Object()
+    var serviceActive: Boolean
+        get() = synchronized(serviceActiveMonitor) {
+            return _serviceActive
+        }
+        set(it) = synchronized(serviceActiveMonitor) {
+            _serviceActive = it
+            serviceActiveMonitor.notifyAll()
+        }
 
 
     override fun onCreate() {
@@ -647,6 +655,9 @@ class MainApplication : Application() {
         // using a weak reference to the service is strangely the cleanest approach
 
         serviceActive = false
+        synchronized(serviceActiveMonitor) {
+            serviceActiveMonitor.notifyAll()
+        }
         service?.get()?.stop()
 
 //        tunnelRequestStatus = TunnelRequestStatus.Stopped
@@ -671,6 +682,7 @@ class MainApplication : Application() {
 
 
     }
+
 }
 
 //enum class TunnelRequestStatus {
