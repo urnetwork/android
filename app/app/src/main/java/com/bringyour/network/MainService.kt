@@ -73,9 +73,9 @@ class MainService : VpnService() {
             }
             app.service = WeakReference(this)
 
-            val foreground = intent?.getBooleanExtra("foreground", false) ?: false
-            val source = intent?.getStringExtra("source") ?: "unknown"
-            val offline = intent?.getBooleanExtra("offline", false) ?: false
+            val foreground = intent.getBooleanExtra("foreground", false)
+            val source = intent.getStringExtra("source") ?: "unknown"
+            val offline = intent.getBooleanExtra("offline", false)
 
             if (foreground) {
                 startForegroundNotification("On")
@@ -122,6 +122,29 @@ class MainService : VpnService() {
 
             if (canUpdatePfd(source)) {
                 updatePfd(offline)
+            }
+        }
+
+        thread {
+            var done: Boolean = false
+            while (!done) {
+                runBlocking(Dispatchers.Main.immediate) {
+                    if (packetFlow == null) {
+                        done = true
+                    }
+                }
+                if (!done) {
+                    synchronized(app.serviceActiveMonitor) {
+                        if (!app.serviceActive) {
+                            done = true
+                        }
+                        app.serviceActiveMonitor.wait(1000, 0)
+                    }
+                } else {
+                    runBlocking(Dispatchers.Main.immediate) {
+                        stop()
+                    }
+                }
             }
         }
 
@@ -325,7 +348,9 @@ class MainService : VpnService() {
         stopForegroundNotification()
         stopSelf()
 
-        app.service = null
+        if (app.service?.get() == this) {
+            app.service = null
+        }
     }
 
 
