@@ -227,4 +227,9 @@
     <string name="seeker_token_verified">Seeker Token Verified - You\'re earning x2 points!</string>
     <string name="total_referrals">Total referrals</string>
     <string name="login_verify_check_phone">Check your phone</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="current_ranking">Current Ranking</string>
+    <string name="net_provided">Net Provided</string>
+    <string name="display_network_on_leaderboard">Display network on leaderboard</string>
+    <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
 </resources>

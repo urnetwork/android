@@ -202,4 +202,9 @@
     <string name="seeker_token_verified">Token Seeker Verificado - Você está ganhando x2 pontos!</string>
     <string name="total_referrals">Total de indicações</string>
     <string name="login_verify_check_phone">Verifique seu telefone</string>
+    <string name="leaderboard">Placar de Líderes</string>
+    <string name="current_ranking">Classificação Atual</string>
+    <string name="net_provided">Rede Fornecida</string>
+    <string name="display_network_on_leaderboard">Exibir rede no placar de líderes</string>
+    <string name="leaderboard_description">O placar de líderes é a soma dos últimos 4 pagamentos. Ele é atualizado a cada ciclo de pagamento.</string>
 </resources>

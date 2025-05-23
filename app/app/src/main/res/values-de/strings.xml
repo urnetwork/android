@@ -202,4 +202,9 @@
     <string name="seeker_token_verified">Seeker Token verifiziert - Du verdienst x2 Punkte!</string>
     <string name="total_referrals">Gesamtzahl der Empfehlungen</string>
     <string name="login_verify_check_phone">Überprüfe dein Telefon</string>
+    <string name="leaderboard">Bestenliste</string>
+    <string name="current_ranking">Aktuelles Ranking</string>
+    <string name="net_provided">Bereitgestelltes Netz</string>
+    <string name="display_network_on_leaderboard">Netzwerk in Bestenliste anzeigen</string>
+    <string name="leaderboard_description">Die Bestenliste ist die Summe der letzten 4 Zahlungen. Sie wird bei jedem Zahlungszyklus aktualisiert.</string>
 </resources>

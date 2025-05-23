@@ -13,6 +13,7 @@ import com.bringyour.network.TAG
 import com.bringyour.sdk.GetLeaderboardArgs
 import com.bringyour.sdk.GetNetworkRankingResult
 import com.bringyour.sdk.LeaderboardEarner
+import com.bringyour.sdk.SetNetworkRankingPublicArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -52,6 +53,8 @@ class LeaderboardViewModel @Inject constructor(
     var isNetworkRankingPublic by mutableStateOf(false)
         private set
 
+    private var isSettingNetworkRankingPublic = false
+
     /**
      * For refreshing content
      */
@@ -80,6 +83,16 @@ class LeaderboardViewModel @Inject constructor(
         private set
 
     /**
+     * Display error snackbar
+     */
+    var displayErrorMsg by mutableStateOf(false)
+        private set
+
+    val setDisplayErrorMsg: (Boolean) -> Unit = {
+        displayErrorMsg = it
+    }
+
+    /**
      * Used for initialization and pull to refresh
      */
     fun fetchLeaderboardData() {
@@ -88,7 +101,6 @@ class LeaderboardViewModel @Inject constructor(
         }
 
         isLoading = true
-        errorOccurred = false
 
         viewModelScope.launch {
             try {
@@ -120,7 +132,7 @@ class LeaderboardViewModel @Inject constructor(
                 isInitializing = false
             } catch (e: Exception) {
                 Log.e(TAG, "Error in fetchLeaderboardData", e)
-                errorOccurred = true
+                setDisplayErrorMsg(true)
                 isLoading = false
                 isInitializing = false
             }
@@ -190,8 +202,6 @@ class LeaderboardViewModel @Inject constructor(
                         earners.add(result.earners.get(i))
                     }
 
-                    // _leaderboardEntries.value = earners
-
                     // You need Result.success(Result.success(Unit)) because the coroutine expects a Result of your function's return type,
                     // which is itself a Result<Unit>.
                     continuation.resumeWith(Result.success(Result.success(earners)))
@@ -203,7 +213,47 @@ class LeaderboardViewModel @Inject constructor(
         }
     }
 
-    private val setNetworkRankingVisibility: (Boolean) -> Unit = {}
+    suspend fun toggleNetworkRankingVisibility() {
+
+        val isPublic = !isNetworkRankingPublic
+
+        if (isSettingNetworkRankingPublic) {
+            return
+        }
+
+        isSettingNetworkRankingPublic = true
+
+        try {
+            suspendCancellableCoroutine { continuation ->
+                val args = SetNetworkRankingPublicArgs()
+                args.isPublic = isPublic
+                deviceManager.device?.api?.setNetworkLeaderboardPublic(args) { result, error ->
+                    if (error != null) {
+                        continuation.resumeWith(Result.failure(error))
+                        return@setNetworkLeaderboardPublic
+                    }
+
+                    if (result.error != null) {
+                        val resultError = IllegalStateException("get leaderboard: result error: ${result.error.message}")
+                        continuation.resumeWith(Result.failure(resultError))
+                        return@setNetworkLeaderboardPublic
+                    }
+
+                    continuation.resumeWith(Result.success(Result.success(Unit)))
+                } ?: continuation.resumeWith(Result.failure(IllegalStateException("Device or API is null")))
+            }
+        } catch (e: Exception) {
+            setDisplayErrorMsg(true)
+            Result.failure(e)
+        }
+
+        isNetworkRankingPublic = isPublic
+
+        getLeaderboard()
+
+        isSettingNetworkRankingPublic = false
+
+    }
 
     val formatDataProvided: (Float) -> String = { mib ->
         val formatter = java.text.NumberFormat.getNumberInstance().apply {

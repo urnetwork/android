@@ -202,4 +202,9 @@
     <string name="seeker_token_verified">Tokeni ya Seeker Imethibitishwa - Unapata pointi x2!</string>
     <string name="total_referrals">Jumla ya marejeleo</string>
     <string name="login_verify_check_phone">Angalia simu yako</string>
+    <string name="leaderboard">Ubao wa wanaoongoza</string>
+    <string name="current_ranking">Nafasi ya Sasa</string>
+    <string name="net_provided">Data Zilizotolewa</string>
+    <string name="display_network_on_leaderboard">Onyesha mtandao kwenye ubao wa wanaoongoza</string>
+    <string name="leaderboard_description">Ubao wa wanaoongoza ni jumla ya malipo 4 yaliyopita. Husasishwa kila mzunguko wa malipo.</string>
 </resources>

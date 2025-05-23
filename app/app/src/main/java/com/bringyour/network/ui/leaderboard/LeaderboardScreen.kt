@@ -18,23 +18,32 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.theme.Green500
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.LeaderboardEarner
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,8 +52,25 @@ fun LeaderboardScreen(
 ) {
 
     val refreshState = rememberPullToRefreshState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val leaderboardEntries = leaderboardViewModel.leaderboardEntries.collectAsState()
 
-    Scaffold() { innerPadding ->
+
+    LaunchedEffect(leaderboardViewModel.displayErrorMsg) {
+        if (leaderboardViewModel.displayErrorMsg) {
+            snackbarHostState.showSnackbar(
+                message = "Something went wrong",
+                withDismissAction = true,
+            )
+            leaderboardViewModel.setDisplayErrorMsg(false)
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+    ) { innerPadding ->
 
         PullToRefreshBox(
             isRefreshing = leaderboardViewModel.isLoading,
@@ -57,19 +83,19 @@ fun LeaderboardScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    // .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
-                // .padding(16.dp),
             ) {
 
                 item {
                     LeaderboardHeader(
                         networkRank = leaderboardViewModel.networkRank,
-                        netProvidedFormatted = leaderboardViewModel.netProvidedFormatted
+                        netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
+                        networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
+                        toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility
                     )
                 }
 
-                itemsIndexed(leaderboardViewModel.leaderboardEntries.value) { index, entry ->
+                itemsIndexed(leaderboardEntries.value) { index, entry ->
                     Column {
                         HorizontalDivider()
                         LeaderboardEntry(
@@ -84,7 +110,6 @@ fun LeaderboardScreen(
                     HorizontalDivider()
                 }
 
-
             }
         }
 
@@ -95,13 +120,17 @@ fun LeaderboardScreen(
 @Composable
 private fun LeaderboardHeader(
     networkRank: Int,
-    netProvidedFormatted: String
+    netProvidedFormatted: String,
+    networkRankingPublic: Boolean,
+    toggleNetworkRankingPublic: suspend () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier.padding(16.dp),
     ) {
         Text(
-            "Leaderboard",
+            stringResource(id = R.string.leaderboard),
             style = MaterialTheme.typography.headlineSmall,
         )
 
@@ -122,7 +151,7 @@ private fun LeaderboardHeader(
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "Current Ranking",
+                    stringResource(id = R.string.current_ranking),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextMuted
                 )
@@ -142,7 +171,7 @@ private fun LeaderboardHeader(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    "Net Provided",
+                    stringResource(id = R.string.net_provided),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextMuted
                 )
@@ -155,7 +184,6 @@ private fun LeaderboardHeader(
                         style = HeadingLargeCondensed,
                     )
 
-                    // Spacer(modifier = Modifier.width(2.dp))
                 }
 
                 HorizontalDivider()
@@ -169,16 +197,19 @@ private fun LeaderboardHeader(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Display network on leaderboard",
+                        stringResource(id = R.string.display_network_on_leaderboard),
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White
                     )
 
                     URSwitch(
-                        checked = true,
+                        checked = networkRankingPublic,
                         toggle = {
-//                            toggleAllowForeground()
-//                            application?.updateVpnService()
+
+                            scope.launch {
+                                toggleNetworkRankingPublic()
+                            }
+
                         },
                     )
                 }
@@ -192,7 +223,7 @@ private fun LeaderboardHeader(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            "The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.",
+            stringResource(id = R.string.leaderboard_description),
             style = MaterialTheme.typography.bodyMedium,
             color = TextMuted
         )

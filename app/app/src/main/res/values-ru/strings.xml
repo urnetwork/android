@@ -224,4 +224,9 @@
     <string name="seeker_token_verified">окен Seeker подтвержден - Вы получаете x2 очков!</string>
     <string name="total_referrals">Всего рефералов</string>
     <string name="login_verify_check_phone">Проверьте свой телефон</string>
+    <string name="leaderboard">Таблица лидеров</string>
+    <string name="current_ranking">Текущий рейтинг</string>
+    <string name="net_provided">Предоставлено сети</string>
+    <string name="display_network_on_leaderboard">Отображать сеть в таблице лидеров</string>
+    <string name="leaderboard_description">Таблица лидеров представляет собой сумму последних 4 платежей. Она обновляется каждый платежный цикл.</string>
 </resources>

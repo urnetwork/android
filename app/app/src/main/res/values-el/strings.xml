@@ -201,4 +201,9 @@
     <string name="seeker_token_verified">Το Seeker Token επαληθεύτηκε - Κερδίζετε x2 πόντους!</string>
     <string name="total_referrals">Συνολικές παραπομπές</string>
     <string name="login_verify_check_phone">Ελέγξτε το τηλέφωνό σας</string>
+    <string name="leaderboard">Πίνακας κατάταξης</string>
+    <string name="current_ranking">Τρέχουσα κατάταξη</string>
+    <string name="net_provided">Παρεχόμενο Δίκτυο</string>
+    <string name="display_network_on_leaderboard">Εμφάνιση δικτύου στον πίνακα κατάταξης</string>
+    <string name="leaderboard_description">Ο πίνακας κατάταξης είναι το άθροισμα των τελευταίων 4 πληρωμών. Ενημερώνεται κάθε κύκλο πληρωμής.</string>
 </resources>
