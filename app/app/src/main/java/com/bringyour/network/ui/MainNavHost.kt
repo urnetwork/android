@@ -70,6 +70,7 @@ import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.nestedLinkBottomSheet.NestedLinkBottomSheet
 import com.bringyour.network.ui.connect.BrowseLocationsScreen
 import com.bringyour.network.ui.connect.LocationsListViewModel
+import com.bringyour.network.ui.leaderboard.LeaderboardScreen
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
@@ -455,6 +456,13 @@ fun MainNavContent(
             FeedbackScreen(
                 overlayViewModel = overlayViewModel
             )
+        }
+
+        composable<Route.Leaderboard>(
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            LeaderboardScreen()
         }
 
         navigation<Route.AccountContainer>(
