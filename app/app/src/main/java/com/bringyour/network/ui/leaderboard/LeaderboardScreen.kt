@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -72,45 +73,63 @@ fun LeaderboardScreen(
         },
     ) { innerPadding ->
 
-        PullToRefreshBox(
-            isRefreshing = leaderboardViewModel.isLoading,
-            state = refreshState,
-            onRefresh = {
-                leaderboardViewModel.fetchLeaderboardData()
-                        },
-        ) {
+        if (leaderboardViewModel.isInitializing) {
 
-            LazyColumn(
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+            }
+
+        } else {
+            /**
+             * Data initialized
+             */
+
+            PullToRefreshBox(
+                isRefreshing = leaderboardViewModel.isLoading,
+                state = refreshState,
+                onRefresh = {
+                    leaderboardViewModel.fetchLeaderboardData()
+                },
             ) {
 
-                item {
-                    LeaderboardHeader(
-                        networkRank = leaderboardViewModel.networkRank,
-                        netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
-                        networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
-                        toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility
-                    )
-                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
 
-                itemsIndexed(leaderboardEntries.value) { index, entry ->
-                    Column {
-                        HorizontalDivider()
-                        LeaderboardEntry(
-                            entry,
-                            rank = index + 1,
-                            netProvidedFormatted = leaderboardViewModel.formatDataProvided(entry.netMiBCount),
-                            isNetworkRow = leaderboardViewModel.networkId == entry.networkId.toString()
+                    item {
+                        LeaderboardHeader(
+                            networkRank = leaderboardViewModel.networkRank,
+                            netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
+                            networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
+                            toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility
                         )
                     }
-                }
-                item {
-                    HorizontalDivider()
-                }
 
+                    itemsIndexed(leaderboardEntries.value) { index, entry ->
+                        Column {
+                            HorizontalDivider()
+                            LeaderboardEntry(
+                                entry,
+                                rank = index + 1,
+                                netProvidedFormatted = leaderboardViewModel.formatDataProvided(entry.netMiBCount),
+                                isNetworkRow = leaderboardViewModel.networkId == entry.networkId.toString()
+                            )
+                        }
+                    }
+                    item {
+                        HorizontalDivider()
+                    }
+
+                }
             }
+
         }
 
     }

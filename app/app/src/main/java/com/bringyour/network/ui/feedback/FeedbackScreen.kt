@@ -127,7 +127,7 @@ fun FeedbackScreen(
             setStarCount(0)
         }
     }
-    Scaffold() { innerPadding ->
+    Scaffold { innerPadding ->
 
         if (isTablet() && !isLandscape) {
             Column(
@@ -186,7 +186,7 @@ fun FeedbackScreen(
                 modifier = Modifier
                     .width(512.dp)
                     .fillMaxHeight()
-                    .padding(horizontal = 16.dp)
+                    .padding(16.dp)
                     .padding(innerPadding)
                     .imePadding(),
                 verticalArrangement = Arrangement.SpaceBetween
