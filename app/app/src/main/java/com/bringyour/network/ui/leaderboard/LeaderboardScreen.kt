@@ -95,12 +95,12 @@ fun LeaderboardScreen(
                 onRefresh = {
                     leaderboardViewModel.fetchLeaderboardData()
                 },
+                modifier = Modifier.padding(innerPadding)
             ) {
 
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
                 ) {
 
                     item {
