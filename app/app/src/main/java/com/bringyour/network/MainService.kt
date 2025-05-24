@@ -297,12 +297,16 @@ class MainService : VpnService() {
                         if (packetFlow == it) {
                             // unexpected exit
                             packetFlow = null
-                            device.tunnelStarted = false
+                            if (app.service?.get() == this@MainService) {
+                                device.tunnelStarted = false
+                            }
                         }
                         // else the ended packet flow was replaced by a new one
                     }
                 }
-                device.tunnelStarted = true
+                if (app.service?.get() == this@MainService) {
+                    device.tunnelStarted = true
+                }
             } ?: run {
                 try {
                     pfd.close()
