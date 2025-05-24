@@ -259,7 +259,7 @@ private fun LeaderboardEntry(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (isNetworkRow) FontWeight.ExtraBold else FontWeight.Normal,
                 color = if (isNetworkRow) Green500 else TextMuted,
-                modifier = Modifier.width(36.dp),
+                modifier = Modifier.width(42.dp),
                 textAlign = TextAlign.Start
             )
 
