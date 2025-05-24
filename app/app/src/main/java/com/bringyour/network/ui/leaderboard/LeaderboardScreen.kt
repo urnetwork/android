@@ -159,7 +159,7 @@ private fun LeaderboardHeader(
                     verticalAlignment = Alignment.Bottom
                 ) {
                     Text(
-                        "#${networkRank}",
+                        if (networkRank > 0) "#${networkRank}" else "-",
                         style = HeadingLargeCondensed
                     )
 
