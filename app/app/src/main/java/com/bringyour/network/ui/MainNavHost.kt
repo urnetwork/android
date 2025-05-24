@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.StackedLineChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -42,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -80,6 +83,7 @@ import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
 import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import com.bringyour.network.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -199,7 +203,13 @@ fun MainNavHost(
                                 } else {
                                     screen.unselectedIcon
                                 }
-                                Icon(painterResource(id = iconRes), contentDescription = screen.description)
+
+                                if (screen.route == Route.Leaderboard) {
+                                    Icon(imageVector = Icons.Filled.StackedLineChart, contentDescription = stringResource(id = R.string.leaderboard))
+                                } else {
+                                    Icon(painterResource(id = iconRes), contentDescription = screen.description)
+                                }
+
                             },
                             selected = screen == currentTopLevelRoute,
                             onClick = {
