@@ -203,4 +203,9 @@
     <string name="seeker_token_verified">Jeton Seeker vérifié - Vous gagnez x2 points !</string>
     <string name="total_referrals">Nombre total de parrainages</string>
     <string name="login_verify_check_phone">Vérifiez votre téléphone</string>
+    <string name="leaderboard">Classement</string>
+    <string name="current_ranking">Classement actuel</string>
+    <string name="net_provided">Données Fournies</string>
+    <string name="display_network_on_leaderboard">Afficher le réseau dans le classement</string>
+    <string name="leaderboard_description">Le classement est la somme des 4 derniers paiements. Il est mis à jour à chaque cycle de paiement.</string>
 </resources>

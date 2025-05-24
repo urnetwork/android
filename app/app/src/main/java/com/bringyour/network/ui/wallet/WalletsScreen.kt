@@ -246,14 +246,6 @@ fun WalletsScreen(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("URwallet", style = MaterialTheme.typography.headlineSmall)
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
 
                         Box(
                             modifier = Modifier

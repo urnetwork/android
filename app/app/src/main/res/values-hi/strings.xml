@@ -201,5 +201,10 @@
     <string name="seeker_token_verified">सीकर टोकन सत्यापित - आप x2 अंक अर्जित कर रहे हैं!</string>
     <string name="total_referrals">कुल रेफरल</string>
     <string name="login_verify_check_phone">अपना फ़ोन जांचें</string>
+    <string name="leaderboard">लीडरबोर्ड</string>
+    <string name="current_ranking">वर्तमान रैंकिंग</string>
+    <string name="net_provided">प्रदान किया गया नेट</string>
+    <string name="display_network_on_leaderboard">लीडरबोर्ड पर नेटवर्क प्रदर्शित करें</string>
+    <string name="leaderboard_description">लीडरबोर्ड पिछले 4 भुगतानों का योग है। यह प्रत्येक भुगतान चक्र में अपडेट किया जाता है।</string>
 
 </resources>

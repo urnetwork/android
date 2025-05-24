@@ -201,4 +201,9 @@
     <string name="seeker_token_verified">Token de Seeker verificado: ¡estás ganando x2 puntos!</string>
     <string name="total_referrals">Referencias totales</string>
     <string name="login_verify_check_phone">Verifica tu teléfono</string>
+    <string name="leaderboard">Tabla de clasificación</string>
+    <string name="current_ranking">Clasificación actual</string>
+    <string name="net_provided">Red Proporcionada</string>
+    <string name="display_network_on_leaderboard">Mostrar red en la tabla de clasificación</string>
+    <string name="leaderboard_description">La tabla de clasificación es la suma de los últimos 4 pagos. Se actualiza en cada ciclo de pago.</string>
 </resources>

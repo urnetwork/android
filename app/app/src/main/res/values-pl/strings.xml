@@ -224,5 +224,10 @@
     <string name="seeker_token_verified">Token Seeker zweryfikowany - zdobywasz x2 punkty!</string>
     <string name="total_referrals">Liczba wszystkich poleceń</string>
     <string name="login_verify_check_phone">Sprawdź swój telefon</string>
+    <string name="leaderboard">Tablica wyników</string>
+    <string name="current_ranking">Aktualny ranking</string>
+    <string name="net_provided">Dostarczona sieć</string>
+    <string name="display_network_on_leaderboard">Wyświetlaj sieć w tablicy wyników</string>
+    <string name="leaderboard_description">Tablica wyników to suma ostatnich 4 płatności. Jest aktualizowana w każdym cyklu płatności.</string>
 
 </resources>

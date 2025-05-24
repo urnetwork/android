@@ -224,4 +224,9 @@
     <string name="seeker_token_verified">Seeker 토큰이 확인되었습니다 - x2 포인트를 획득하고 있습니다!</string>
     <string name="total_referrals">총 추천 수</string>
     <string name="login_verify_check_phone">휴대폰을 확인하세요</string>
+    <string name="leaderboard">리더보드</string>
+    <string name="current_ranking">현재 순위</string>
+    <string name="net_provided">제공된 넷</string>
+    <string name="display_network_on_leaderboard">리더보드에 네트워크 표시</string>
+    <string name="leaderboard_description">리더보드는 최근 4번의 결제 합계입니다. 각 결제 주기마다 업데이트됩니다.</string>
 </resources>

@@ -65,6 +65,7 @@ sealed class Route {
     @Serializable object Connect : Route()
     @Serializable object BrowseLocations : Route()
     @Serializable object AccountContainer : Route()
+    @Serializable object Leaderboard: Route()
     @Serializable object Account : Route()
     @Serializable object Support : Route()
     @Serializable object Profile : Route()
@@ -91,6 +92,12 @@ enum class TopLevelScaffoldRoutes(
         R.drawable.main_nav_user,
         "Account",
         route = Route.AccountContainer
+    ),
+    LEADERBOARD(
+        R.drawable.main_nav_user_filled,
+        R.drawable.main_nav_user,
+        "Leaderboard",
+        route = Route.Leaderboard
     ),
     SUPPORT(
         R.drawable.main_nav_chat_filled,

@@ -201,4 +201,9 @@
     <string name="seeker_token_verified">قم بتوصيل محفظة برمز Saga Genesis أو رمز Seeker للطلب المسبق</string>
     <string name="total_referrals">إجمالي الإحالات</string>
     <string name="login_verify_check_phone">تحقق من هاتفك</string>
+    <string name="leaderboard">لوحة الصدارة</string>
+    <string name="current_ranking">الترتيب الحالي</string>
+    <string name="net_provided">البيانات المقدمة</string>
+    <string name="display_network_on_leaderboard">عرض الشبكة على لوحة الصدارة</string>
+    <string name="leaderboard_description">لوحة الصدارة هي مجموع آخر 4 دفعات. يتم تحديثها كل دورة دفع.</string>
 </resources>
