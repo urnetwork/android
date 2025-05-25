@@ -126,7 +126,7 @@ class MainService : VpnService() {
         }
 
         thread {
-            var done: Boolean = false
+            var done = false
             while (!done) {
                 runBlocking(Dispatchers.Main.immediate) {
                     if (packetFlow == null) {
@@ -414,24 +414,29 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
 
         thread {
             try {
-
                 val fis = FileInputStream(pfd.fileDescriptor)
                 val fos = FileOutputStream(pfd.fileDescriptor)
-
+                val packetWriteMonitor = Object()
                 val receiveSub = deviceLocal.addReceivePacket { ipVersion, ipProtocol, packet ->
-                    try {
-                        fos.write(packet)
-                    } catch (_: IOException) {
+                    var done = false
+                    synchronized(packetWriteMonitor) {
                         try {
-                            fos.close()
+                            fos.write(packet)
                         } catch (_: IOException) {
+                            try {
+                                fos.close()
+                            } catch (_: IOException) {
+                            }
+                            done = true
                         }
+                    }
+                    if (done) {
                         close()
                     }
                 }
                 try {
 
-                    thread {
+                    val t = thread {
                         try {
                             val buffer = ByteArray(2048)
                             while (true) {
@@ -452,6 +457,7 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
                             close()
                         }
                     }
+                    t.priority = Thread.MAX_PRIORITY
 
                     stateLock.lock()
                     try {
