@@ -367,8 +367,14 @@ class MainActivity: AppCompatActivity() {
             val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
                 .setProductDetailsParamsList(productDetailsParamsList)
 
+            Log.i(TAG, "result: $result")
+
+            Log.i(TAG, "error: ${error.message}")
+
             result?.subscriptionPaymentId?.string()?.let {
                 buildingFlowParamsBuilder.setObfuscatedAccountId(it)
+            } ?: run {
+                Log.i(TAG, "result?.subscriptionPaymentId not found")
             }
 
             val billingFlowParams = buildingFlowParamsBuilder.build()
