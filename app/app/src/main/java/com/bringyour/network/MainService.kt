@@ -438,13 +438,13 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
 
                     val t = thread {
                         try {
-                            val buffer = ByteArray(2048)
                             while (true) {
-                                val n = fis.read(buffer)
+                                val p = Sdk.messagePoolGet(2024)
+                                val n = fis.read(p)
 
                                 if (0 < n) {
                                     // note sendPacket makes a copy of the buffer
-                                    val success = deviceLocal.sendPacket(buffer, n)
+                                    val success = deviceLocal.sendPacketNoCopy(p, n)
                                     if (!success) {
                                         Log.i(TAG, "[service]send packet dropped")
                                     }
