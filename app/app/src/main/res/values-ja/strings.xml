@@ -229,4 +229,5 @@
     <string name="net_provided">提供済みネット</string>
     <string name="display_network_on_leaderboard">リーダーボードにネットワークを表示</string>
     <string name="leaderboard_description">リーダーボードは過去4回の支払いの合計です。支払いサイクルごとに更新されます。</string>
+    <string name="total_account_points">アカウントの合計ポイント</string>
 </resources>

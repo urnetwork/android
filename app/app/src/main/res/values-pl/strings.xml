@@ -229,5 +229,6 @@
     <string name="net_provided">Dostarczona sieć</string>
     <string name="display_network_on_leaderboard">Wyświetlaj sieć w tablicy wyników</string>
     <string name="leaderboard_description">Tablica wyników to suma ostatnich 4 płatności. Jest aktualizowana w każdym cyklu płatności.</string>
+    <string name="total_account_points">Łączna liczba punktów konta</string>
 
 </resources>

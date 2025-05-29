@@ -84,6 +84,7 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
+import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -349,6 +350,7 @@ fun MainNavContent(
     referralCodeViewModel: ReferralCodeViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
+    accountPointsViewModel: AccountPointsViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx = if (isTv())
@@ -525,7 +527,9 @@ fun MainNavContent(
                     walletViewModel,
                     activityResultSender,
                     referralCodeViewModel,
-                    overlayViewModel
+                    overlayViewModel,
+                    totalAccountPoints = accountPointsViewModel.totalAccountPoints,
+                    fetchAccountPoints = accountPointsViewModel.fetchAccountPoints
                 )
             }
 
