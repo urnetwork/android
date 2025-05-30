@@ -81,6 +81,8 @@ fun WalletsScreen(
     activityResultSender: ActivityResultSender?,
     referralCodeViewModel: ReferralCodeViewModel,
     overlayViewModel: OverlayViewModel,
+    totalAccountPoints: Int,
+    fetchAccountPoints: () -> Unit?
 ) {
 
     val wallets by walletViewModel.wallets.collectAsState()
@@ -109,13 +111,16 @@ fun WalletsScreen(
         refresh = {
             walletViewModel.refreshWalletsInfo()
             referralCodeViewModel.fetchReferralLink()
+            fetchAccountPoints()
                   },
         isRefreshing = walletViewModel.isRefreshingWallets,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
         activityResultSender = activityResultSender,
         totalReferrals = referralCodeViewModel.totalReferralCount,
         isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
-        launchOverlay = overlayViewModel.launch
+        launchOverlay = overlayViewModel.launch,
+        totalAccountPoints = totalAccountPoints,
+        fetchAccountPoints = fetchAccountPoints
     )
 }
 
@@ -144,6 +149,8 @@ fun WalletsScreen(
     isSeekerHolder: Boolean,
     totalReferrals: Long,
     launchOverlay: (OverlayMode) -> Unit,
+    totalAccountPoints: Int,
+    fetchAccountPoints: () -> Unit?,
     viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
 
@@ -281,26 +288,61 @@ fun WalletsScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                Text(
-                                    stringResource(id = R.string.total_referrals),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = TextMuted
-                                )
-
                                 Row(
-                                    verticalAlignment = Alignment.Bottom
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(
-                                        "$totalReferrals",
-                                        style = HeadingLargeCondensed,
-                                        modifier = Modifier.clickable {
-                                            launchOverlay(OverlayMode.Refer)
+                                    /**
+                                     * Total referrals
+                                     */
+                                    Column {
+                                        Text(
+                                            stringResource(id = R.string.total_referrals),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = TextMuted
+                                        )
+
+                                        Row(
+                                            verticalAlignment = Alignment.Bottom
+                                        ) {
+                                            Text(
+                                                "$totalReferrals",
+                                                style = HeadingLargeCondensed,
+                                                modifier = Modifier.clickable {
+                                                    launchOverlay(OverlayMode.Refer)
+                                                }
+                                            )
+
+                                            // Spacer(modifier = Modifier.width(2.dp))
                                         }
-                                    )
+                                    }
 
-                                    // Spacer(modifier = Modifier.width(2.dp))
+                                    /**
+                                     *  Total Account Points
+                                     */
+                                    Column {
+                                        Text(
+                                            stringResource(id = R.string.total_account_points),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = TextMuted
+                                        )
+
+                                        Row(
+                                            verticalAlignment = Alignment.Bottom
+                                        ) {
+                                            Text(
+                                                "$totalAccountPoints",
+                                                style = HeadingLargeCondensed,
+//                                                modifier = Modifier.clickable {
+//                                                  // todo: navigate to account points screen
+//                                                }
+                                            )
+
+                                            // Spacer(modifier = Modifier.width(2.dp))
+                                        }
+                                    }
+
                                 }
-
 
                             }
                         }
