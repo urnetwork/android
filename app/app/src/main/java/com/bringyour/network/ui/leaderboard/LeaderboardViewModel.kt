@@ -249,7 +249,14 @@ class LeaderboardViewModel @Inject constructor(
 
         isNetworkRankingPublic = isPublic
 
-        getLeaderboard()
+        viewModelScope.launch {
+            val leaderboardDeferred = async { getLeaderboard() }
+            val leaderboardResult = leaderboardDeferred.await()
+
+            leaderboardResult.onSuccess { earners ->
+                _leaderboardEntries.value = earners
+            }
+        }
 
         isSettingNetworkRankingPublic = false
 
