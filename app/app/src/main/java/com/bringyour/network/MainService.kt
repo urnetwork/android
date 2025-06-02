@@ -56,6 +56,8 @@ class MainService : VpnService() {
     private var windowStatusChangeSub: Sub? = null
     private var connected: Boolean = false
 
+    private var closeMonitorStarted: Boolean = false
+
 
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
         val app = application as MainApplication
@@ -125,28 +127,7 @@ class MainService : VpnService() {
             }
         }
 
-        thread {
-            var done = false
-            while (!done) {
-                runBlocking(Dispatchers.Main.immediate) {
-                    if (packetFlow == null) {
-                        done = true
-                    }
-                }
-                if (!done) {
-                    synchronized(app.serviceActiveMonitor) {
-                        if (!app.serviceActive) {
-                            done = true
-                        }
-                        app.serviceActiveMonitor.wait(1000, 0)
-                    }
-                } else {
-                    runBlocking(Dispatchers.Main.immediate) {
-                        stop()
-                    }
-                }
-            }
-        }
+        startCloseMonitor()
 
         // see https://developer.android.com/reference/android/app/Service#START_REDELIVER_INTENT
         return START_REDELIVER_INTENT
@@ -347,12 +328,12 @@ class MainService : VpnService() {
 
         packetFlow?.close()
         packetFlow = null
-        app.device?.tunnelStarted = false
 
         stopForegroundNotification()
         stopSelf()
 
         if (app.service?.get() == this) {
+            app.device?.tunnelStarted = false
             app.service = null
         }
     }
@@ -400,6 +381,36 @@ class MainService : VpnService() {
         }
     }
 
+        private fun startCloseMonitor() {
+            val app = application as MainApplication
+            if (!closeMonitorStarted) {
+                closeMonitorStarted = true
+
+                thread {
+                    var done = false
+                    while (!done) {
+                        runBlocking(Dispatchers.Main.immediate) {
+                            if (app.service?.get() != this@MainService) {
+                                done = true
+                            }
+                        }
+                        if (!done) {
+                            synchronized(app.serviceActiveMonitor) {
+                                if (!app.serviceActive) {
+                                    done = true
+                                }
+                                app.serviceActiveMonitor.wait(1000, 0)
+                            }
+                        } else {
+                            runBlocking(Dispatchers.Main.immediate) {
+                                stop()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 }
 
 
@@ -422,7 +433,8 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
                     synchronized(packetWriteMonitor) {
                         try {
                             fos.write(packet)
-                        } catch (_: IOException) {
+                        } catch (e: IOException) {
+                            Log.e(TAG, "write error = ${e}")
                             try {
                                 fos.close()
                             } catch (_: IOException) {
@@ -438,19 +450,26 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
 
                     val t = thread {
                         try {
+                            var p = ByteArray(2048)
                             while (true) {
-                                val p = Sdk.messagePoolGet(2024)
+//                                val p = Sdk.messagePoolGetRaw(2048)
+//                                val n = fis.read(p, 0, 2048)
+
                                 val n = fis.read(p)
 
                                 if (0 < n) {
                                     // note sendPacket makes a copy of the buffer
-                                    val success = deviceLocal.sendPacketNoCopy(p, n)
+//                                    val success = deviceLocal.sendPacketNoCopy(p, n)
+                                    val success = deviceLocal.sendPacket(p, n)
                                     if (!success) {
                                         Log.i(TAG, "[service]send packet dropped")
+//                                        Sdk.messagePoolReturn(p)
                                     }
                                 }
                             }
-                        } catch (_: IOException) {
+                        } catch (e: IOException) {
+                            Log.e(TAG, "read error = ${e}")
+                        } finally {
                             try {
                                 fis.close()
                             } catch (_: IOException) { }
