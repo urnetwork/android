@@ -13,12 +13,11 @@ import android.system.OsConstants.AF_INET6
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.IoLoop
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.InetAddress
@@ -420,91 +419,97 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
     val closed: Condition = stateLock.newCondition()
     var active: Boolean = true
 
+    val ioLoop: IoLoop = Sdk.newIoLoop(deviceLocal, pfd.fd)
+
 
     init {
 
-        thread {
+        val t = thread {
             try {
-                val fis = FileInputStream(pfd.fileDescriptor)
-                val fos = FileOutputStream(pfd.fileDescriptor)
-                val packetWriteMonitor = Object()
-                val receiveSub = deviceLocal.addReceivePacket { ipVersion, ipProtocol, packet ->
-                    var done = false
-                    synchronized(packetWriteMonitor) {
-                        try {
-                            fos.write(packet)
-                        } catch (e: IOException) {
-                            Log.e(TAG, "write error = ${e}")
-                            try {
-                                fos.close()
-                            } catch (_: IOException) {
-                            }
-                            done = true
-                        }
-                    }
-                    if (done) {
-                        close()
-                    }
-                }
-                try {
+                ioLoop.run()
+//                val fis = FileInputStream(pfd.fileDescriptor)
+//                val fos = FileOutputStream(pfd.fileDescriptor)
+//                val packetWriteMonitor = Object()
+//                val receiveSub = deviceLocal.addReceivePacket { ipVersion, ipProtocol, packet ->
+//                    var done = false
+//                    synchronized(packetWriteMonitor) {
+//                        try {
+//                            fos.write(packet)
+//                        } catch (e: IOException) {
+//                            Log.e(TAG, "write error = ${e}")
+//                            try {
+//                                fos.close()
+//                            } catch (_: IOException) {
+//                            }
+//                            done = true
+//                        }
+//                    }
+//                    if (done) {
+//                        close()
+//                    }
+//                }
+//                try {
+//
+//                    val t = thread {
+//                        try {
+//                            var p = ByteArray(2048)
+//                            while (true) {
+////                                val p = Sdk.messagePoolGetRaw(2048)
+////                                val n = fis.read(p, 0, 2048)
+//
+//                                val n = fis.read(p)
+//
+//                                if (0 < n) {
+//                                    // note sendPacket makes a copy of the buffer
+////                                    val success = deviceLocal.sendPacketNoCopy(p, n)
+//                                    val success = deviceLocal.sendPacket(p, n)
+//                                    if (!success) {
+//                                        Log.i(TAG, "[service]send packet dropped")
+////                                        Sdk.messagePoolReturn(p)
+//                                    }
+//                                }
+//                            }
+//                        } catch (e: IOException) {
+//                            Log.e(TAG, "read error = ${e}")
+//                        } finally {
+//                            try {
+//                                fis.close()
+//                            } catch (_: IOException) { }
+//                            close()
+//                        }
+//                    }
+//                    t.priority = Thread.MAX_PRIORITY
+//
+//                    stateLock.lock()
+//                    try {
+//                        while (active) {
+//                            closed.await()
+//                        }
+//                    } finally {
+//                        stateLock.unlock()
+//                    }
+//
+//                } finally {
+//                    receiveSub.close()
+//
+//                    try {
+//                        fos.close()
+//                    } catch (_: IOException) {
+//                    }
+//                    try {
+//                        fis.close()
+//                    } catch (_: IOException) {
+//                    }
+//                }
 
-                    val t = thread {
-                        try {
-                            var p = ByteArray(2048)
-                            while (true) {
-//                                val p = Sdk.messagePoolGetRaw(2048)
-//                                val n = fis.read(p, 0, 2048)
 
-                                val n = fis.read(p)
-
-                                if (0 < n) {
-                                    // note sendPacket makes a copy of the buffer
-//                                    val success = deviceLocal.sendPacketNoCopy(p, n)
-                                    val success = deviceLocal.sendPacket(p, n)
-                                    if (!success) {
-                                        Log.i(TAG, "[service]send packet dropped")
-//                                        Sdk.messagePoolReturn(p)
-                                    }
-                                }
-                            }
-                        } catch (e: IOException) {
-                            Log.e(TAG, "read error = ${e}")
-                        } finally {
-                            try {
-                                fis.close()
-                            } catch (_: IOException) { }
-                            close()
-                        }
-                    }
-                    t.priority = Thread.MAX_PRIORITY
-
-                    stateLock.lock()
-                    try {
-                        while (active) {
-                            closed.await()
-                        }
-                    } finally {
-                        stateLock.unlock()
-                    }
-
-                } finally {
-                    receiveSub.close()
-
-                    try {
-                        fos.close()
-                    } catch (_: IOException) {
-                    }
-                    try {
-                        fis.close()
-                    } catch (_: IOException) {
-                    }
-                }
             } finally {
                 close()
 
                 endCallback(this@PacketFlow)
             }
         }
+        t.priority = Thread.MAX_PRIORITY
     }
 
     fun close() {
@@ -512,6 +517,8 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
         try {
             if (active) {
                 active = false
+
+                ioLoop.close()
 
                 try {
                     pfd.close()
