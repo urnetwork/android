@@ -232,4 +232,5 @@
     <string name="net_provided">Net Provided</string>
     <string name="display_network_on_leaderboard">Display network on leaderboard</string>
     <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
+    <string name="total_account_points">Total account points</string>
 </resources>

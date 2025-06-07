@@ -229,4 +229,5 @@
     <string name="net_provided">제공된 넷</string>
     <string name="display_network_on_leaderboard">리더보드에 네트워크 표시</string>
     <string name="leaderboard_description">리더보드는 최근 4번의 결제 합계입니다. 각 결제 주기마다 업데이트됩니다.</string>
+    <string name="total_account_points">총 계정 포인트</string>
 </resources>
