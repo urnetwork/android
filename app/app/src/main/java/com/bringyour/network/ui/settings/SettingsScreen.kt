@@ -108,6 +108,7 @@ fun SettingsScreen(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     activityResultSender: ActivityResultSender?,
     walletViewModel: WalletViewModel,
+    bonusReferralCode: String
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
@@ -216,7 +217,8 @@ fun SettingsScreen(
         toggleAllowForeground = settingsViewModel.toggleAllowForeground,
         snackbarHostState = snackbarHostState,
         signAndVerifySeekerHolder = signAndVerifySeekerHolder,
-        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value
+        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
+        bonusReferralCode = bonusReferralCode
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -256,7 +258,8 @@ fun SettingsScreen(
     toggleAllowForeground: () -> Unit,
     snackbarHostState: SnackbarHostState,
     signAndVerifySeekerHolder: () -> Unit,
-    isSeekerHolder: Boolean
+    isSeekerHolder: Boolean,
+    bonusReferralCode: String
 ) {
 
     val context = LocalContext.current
@@ -382,6 +385,9 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            /**
+             * URid
+             */
             URTextInputLabel(
                 text = "URid"
             )
@@ -448,6 +454,44 @@ fun SettingsScreen(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 8.dp)
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.content_copy),
+                    contentDescription = "Copy",
+                    tint = TextMuted,
+                    modifier = Modifier.width(16.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+
+            /**
+             * Referral code
+             */
+            URTextInputLabel(
+                text = stringResource(id = R.string.referral_code)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color(0x1AFFFFFF),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clickable {
+                        clipboardManager.setText(AnnotatedString(bonusReferralCode))
+                    }
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+
+                ) {
+                Text(
+                    bonusReferralCode,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
                 )
 
                 Icon(
@@ -800,7 +844,8 @@ private fun SettingsScreenPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123"
         )
     }
 }
@@ -833,7 +878,8 @@ private fun SettingsScreenSupporterPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123"
         )
     }
 }
@@ -866,7 +912,8 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = true
+            isSeekerHolder = true,
+            bonusReferralCode = "ABC123"
         )
     }
 }
@@ -899,7 +946,8 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123"
         )
     }
 }
@@ -932,7 +980,8 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123"
         )
     }
 }

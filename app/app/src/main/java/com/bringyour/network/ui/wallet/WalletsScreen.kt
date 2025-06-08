@@ -108,7 +108,7 @@ fun WalletsScreen(
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
         refresh = {
             walletViewModel.refreshWalletsInfo()
-            referralCodeViewModel.fetchReferralLink()
+            referralCodeViewModel.fetchReferralCode()
                   },
         isRefreshing = walletViewModel.isRefreshingWallets,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,

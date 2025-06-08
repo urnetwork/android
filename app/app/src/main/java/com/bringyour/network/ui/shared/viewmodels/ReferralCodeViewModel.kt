@@ -18,17 +18,17 @@ class ReferralCodeViewModel @Inject constructor(
     deviceManager: DeviceManager,
 ): ViewModel() {
 
-    var referralLink by mutableStateOf<String?>(null)
+    var referralCode by mutableStateOf("")
         private set
 
     var totalReferralCount by mutableLongStateOf(0)
         private set
 
-    val fetchReferralLink = {
+    val fetchReferralCode = {
         deviceManager.device?.api?.getNetworkReferralCode { result, error ->
             viewModelScope.launch {
                 if (result != null) {
-                    referralLink = "https://ur.io/c?bonus=${result.referralCode}"
+                    referralCode = result.referralCode
                     totalReferralCount = result.totalReferrals
                 } else {
                     Log.i(TAG, "Could not fetch referral info: $error")
@@ -38,7 +38,7 @@ class ReferralCodeViewModel @Inject constructor(
     }
 
     init {
-        fetchReferralLink()
+        fetchReferralCode()
     }
 
 }
