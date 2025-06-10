@@ -181,7 +181,7 @@
 
     <string name="connections">연결</string>
     <string name="provide_disconnected">오프라인 상태에서 제공</string>
-    <string name="unpaid_mb">미지급 메가바이트 제공됨</string>
+    <string name="unpaid_data_provided">미지급 데이터가 제공됨</string>
     <string name="payouts_amount_threshold">지급은 2주마다 발생하며 지급을 받으려면 최소 금액을 제공해야 합니다.</string>
     <string name="open_nested_link">%1$s에 연결하고 링크 %2$s을(를) 엽니다</string>
     <string name="connect_and_open">연결하고 링크를 엽니다</string>

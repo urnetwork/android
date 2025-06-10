@@ -262,7 +262,7 @@ fun WalletsScreen(
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(
-                                    stringResource(id = R.string.unpaid_mb),
+                                    stringResource(id = R.string.unpaid_data_provided),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = TextMuted
                                 )

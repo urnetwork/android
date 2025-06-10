@@ -159,7 +159,7 @@
 
     <string name="connections">Miunganisho</string>
     <string name="provide_disconnected">Toa wakati hujaunganishwa</string>
-    <string name="unpaid_mb">Megabytes ambazo hazijalipwa zimetolewa</string>
+    <string name="unpaid_data_provided">Data isiyolipiwa imetolewa</string>
     <string name="payouts_amount_threshold">Malipo hutolewa kila baada ya wiki mbili, na yanahitaji kiwango cha chini kilichotolewa ili kupokea malipo.</string>
     <string name="open_nested_link">Unganisha kwa %1$s na ufungue kiungo %2$s</string>
     <string name="connect_and_open">Unganisha na ufungue kiungo</string>

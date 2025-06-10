@@ -181,7 +181,7 @@
 
     <string name="connections">接続</string>
     <string name="provide_disconnected">オフラインで提供</string>
-    <string name="unpaid_mb">未払いのメガバイトを提供</string>
+    <string name="unpaid_data_provided">未払いのデータが提供されました</string>
     <string name="payouts_amount_threshold">支払いは2週間ごとに行われ、支払いを受け取るには最低額を提供する必要があります。</string>
     <string name="open_nested_link">%1$sに接続してリンク%2$sを開く</string>
     <string name="connect_and_open">接続してリンクを開く</string>
