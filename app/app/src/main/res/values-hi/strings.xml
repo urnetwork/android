@@ -158,7 +158,7 @@
 
     <string name="connections">कनेक्शन</string>
     <string name="provide_disconnected">डिस्कनेक्ट होने पर प्रदान करें</string>
-    <string name="unpaid_mb">अवैतनिक मेगाबाइट प्रदान किए गए</string>
+    <string name="unpaid_data_provided">िना भुगतान का डेटा प्रदान किया गया</string>
     <string name="payouts_amount_threshold">भुगतान हर दो सप्ताह में होता है, और भुगतान प्राप्त करने के लिए न्यूनतम राशि प्रदान करना आवश्यक है।</string>
     <string name="open_nested_link">%1$s से कनेक्ट करें और लिंक %2$s खोलें</string>
     <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>

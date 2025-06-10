@@ -158,7 +158,7 @@
 
     <string name="connections">Conexões</string>
     <string name="provide_disconnected">Fornecer offline</string>
-    <string name="unpaid_mb">Megabytes não pagos fornecidos</string>
+    <string name="unpaid_data_provided">Dados não pagos fornecidos</string>
     <string name="payouts_amount_threshold">Os pagamentos ocorrem a cada duas semanas e exigem um valor mínimo fornecido para receber um pagamento.</string>
     <string name="open_nested_link">Conectar a %1$s e abrir link %2$s</string>
     <string name="connect_and_open">Conectar e abrir link</string>
