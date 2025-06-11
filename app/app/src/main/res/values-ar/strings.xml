@@ -206,4 +206,7 @@
     <string name="net_provided">البيانات المقدمة</string>
     <string name="display_network_on_leaderboard">عرض الشبكة على لوحة الصدارة</string>
     <string name="leaderboard_description">لوحة الصدارة هي مجموع آخر 4 دفعات. يتم تحديثها كل دورة دفع.</string>
+    <string name="enter_network_referral_code">أدخل رمز الإحالة للشبكة</string>
+    <string name="update_referral_network">تحديث شبكة الإحالة</string>
+    <string name="update">تحديث</string>
 </resources>

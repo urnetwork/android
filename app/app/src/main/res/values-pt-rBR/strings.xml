@@ -207,4 +207,7 @@
     <string name="net_provided">Rede Fornecida</string>
     <string name="display_network_on_leaderboard">Exibir rede no placar de líderes</string>
     <string name="leaderboard_description">O placar de líderes é a soma dos últimos 4 pagamentos. Ele é atualizado a cada ciclo de pagamento.</string>
+    <string name="enter_network_referral_code">Insira o código de indicação da rede</string>
+    <string name="update_referral_network">Atualizar rede de indicações</string>
+    <string name="update">Atualizar</string>
 </resources>

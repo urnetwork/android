@@ -207,4 +207,7 @@
     <string name="net_provided">Data Zilizotolewa</string>
     <string name="display_network_on_leaderboard">Onyesha mtandao kwenye ubao wa wanaoongoza</string>
     <string name="leaderboard_description">Ubao wa wanaoongoza ni jumla ya malipo 4 yaliyopita. Husasishwa kila mzunguko wa malipo.</string>
+    <string name="enter_network_referral_code">Weka msimbo wa rufaa wa mtandao</string>
+    <string name="update_referral_network">Sasisha mtandao wa rufaa</string>
+    <string name="update">Sasisha</string>
 </resources>

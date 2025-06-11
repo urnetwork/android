@@ -206,5 +206,8 @@
     <string name="net_provided">Rede Fornecida</string>
     <string name="display_network_on_leaderboard">Exibir rede no quadro de líderes</string>
     <string name="leaderboard_description">O quadro de líderes é a soma dos últimos 4 pagamentos. É atualizado a cada ciclo de pagamento.</string>
+    <string name="enter_network_referral_code">Insira o código de referência da rede</string>
+    <string name="update_referral_network">Atualizar rede de referências</string>
+    <string name="update">Atualizar</string>
 
 </resources>

@@ -3,6 +3,7 @@ package com.bringyour.network.ui.settings
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,8 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.AccountPreferencesViewController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.TAG
+import com.bringyour.sdk.ReferralNetwork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +37,9 @@ class SettingsViewModel @Inject constructor(
 
     private val _requestPermission = MutableStateFlow(false)
     val requestPermission: StateFlow<Boolean> = _requestPermission
+
+    private val _referralNetwork = MutableStateFlow<ReferralNetwork?>(null)
+    val referralNetwork: StateFlow<ReferralNetwork?> = _referralNetwork
 
     private val _showDeleteAccountDialog = MutableStateFlow(false)
     val showDeleteAccountDialog: StateFlow<Boolean> = _showDeleteAccountDialog
@@ -159,6 +165,28 @@ class SettingsViewModel @Inject constructor(
         _routeLocal.value = !currentRouteLocal
     }
 
+    val fetchReferralNetwork: () -> Unit = {
+
+        deviceManager.device?.api?.getReferralNetwork { result, error ->
+
+            if (error != null) {
+                Log.i(TAG, "Error fetching referral network: ${error.message}")
+                return@getReferralNetwork
+            }
+
+            if (result.error != null) {
+                Log.i(TAG, "Result error fetching referral network: ${result.error.message}")
+                return@getReferralNetwork
+            }
+
+            viewModelScope.launch {
+                _referralNetwork.value = result.network
+            }
+
+        }
+
+    }
+
     init {
         accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
 
@@ -173,6 +201,8 @@ class SettingsViewModel @Inject constructor(
         addAllowProductUpdatesListener()
 
         accountPreferencesVc?.start()
+
+        fetchReferralNetwork()
     }
 
 }
