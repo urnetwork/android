@@ -232,4 +232,7 @@
     <string name="net_provided">Net Provided</string>
     <string name="display_network_on_leaderboard">Display network on leaderboard</string>
     <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
+    <string name="enter_network_referral_code">Enter network referral code</string>
+    <string name="update_referral_network">Update referral network</string>
+    <string name="update">Update</string>
 </resources>

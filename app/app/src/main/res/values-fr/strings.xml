@@ -208,4 +208,7 @@
     <string name="net_provided">Données Fournies</string>
     <string name="display_network_on_leaderboard">Afficher le réseau dans le classement</string>
     <string name="leaderboard_description">Le classement est la somme des 4 derniers paiements. Il est mis à jour à chaque cycle de paiement.</string>
+    <string name="enter_network_referral_code">" Entrez le code de parrainage réseau"</string>
+    <string name="update_referral_network">Mettre à jour le réseau de parrainage</string>
+    <string name="update">Mettre à jour</string>
 </resources>
