@@ -206,6 +206,7 @@
     <string name="net_provided">Red Proporcionada</string>
     <string name="display_network_on_leaderboard">Mostrar red en la tabla de clasificación</string>
     <string name="leaderboard_description">La tabla de clasificación es la suma de los últimos 4 pagos. Se actualiza en cada ciclo de pago.</string>
+    <string name="total_account_points">Puntos totales de la cuenta</string>
     <string name="enter_network_referral_code">Introduce el código de referido de la red</string>
     <string name="update_referral_network">Actualizar red de referidos</string>
     <string name="update">Actualizar</string>

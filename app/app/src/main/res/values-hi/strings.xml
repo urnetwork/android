@@ -206,6 +206,7 @@
     <string name="net_provided">प्रदान किया गया नेट</string>
     <string name="display_network_on_leaderboard">लीडरबोर्ड पर नेटवर्क प्रदर्शित करें</string>
     <string name="leaderboard_description">लीडरबोर्ड पिछले 4 भुगतानों का योग है। यह प्रत्येक भुगतान चक्र में अपडेट किया जाता है।</string>
+    <string name="total_account_points">कुल खाता अंक</string>
     <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
     <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
     <string name="update">अपडेट करें</string>

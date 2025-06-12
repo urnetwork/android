@@ -229,6 +229,7 @@
     <string name="net_provided">Предоставлено сети</string>
     <string name="display_network_on_leaderboard">Отображать сеть в таблице лидеров</string>
     <string name="leaderboard_description">Таблица лидеров представляет собой сумму последних 4 платежей. Она обновляется каждый платежный цикл.</string>
+    <string name="total_account_points">Всего баллов на аккаунте</string>
     <string name="enter_network_referral_code">Введите сетевой реферальный код</string>
     <string name="update_referral_network">Обновить реферальную сеть</string>
     <string name="update">Обновить</string>

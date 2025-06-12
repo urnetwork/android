@@ -207,6 +207,7 @@
     <string name="net_provided">已提供网络量</string>
     <string name="display_network_on_leaderboard">在排行榜上显示网络</string>
     <string name="leaderboard_description">排行榜是最近 4 次付款的总和。它会在每个付款周期更新。</string>
+    <string name="total_account_points">账户总积分</string>
     <string name="enter_network_referral_code">输入网络推荐码</string>
     <string name="update_referral_network">更新推荐网络</string>
     <string name="update">更新</string>

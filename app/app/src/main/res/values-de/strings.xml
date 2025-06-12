@@ -207,6 +207,7 @@
     <string name="net_provided">Bereitgestelltes Netz</string>
     <string name="display_network_on_leaderboard">Netzwerk in Bestenliste anzeigen</string>
     <string name="leaderboard_description">Die Bestenliste ist die Summe der letzten 4 Zahlungen. Sie wird bei jedem Zahlungszyklus aktualisiert.</string>
+    <string name="total_account_points">Gesamtpunkte des Kontos</string>
     <string name="enter_network_referral_code">Netzwerbe-Empfehlungscode eingeben</string>
     <string name="update_referral_network">Empfehlungsnetzwerk aktualisieren</string>
     <string name="update">Aktualisieren</string>

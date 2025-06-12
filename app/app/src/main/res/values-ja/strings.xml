@@ -229,6 +229,7 @@
     <string name="net_provided">提供済みネット</string>
     <string name="display_network_on_leaderboard">リーダーボードにネットワークを表示</string>
     <string name="leaderboard_description">リーダーボードは過去4回の支払いの合計です。支払いサイクルごとに更新されます。</string>
+    <string name="total_account_points">アカウントの合計ポイント</string>
     <string name="enter_network_referral_code">ネットワーク紹介コードを入力してください</string>
     <string name="update_referral_network">紹介ネットワークを更新する</string>
     <string name="update">更新</string>
