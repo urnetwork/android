@@ -158,7 +158,7 @@
 
     <string name="connections">Conexões</string>
     <string name="provide_disconnected">Fornecer offline</string>
-    <string name="unpaid_mb">Megabytes não pagos fornecidos</string>
+    <string name="unpaid_data_provided">Dados não pagos fornecidos</string>
     <string name="payouts_amount_threshold">Os pagamentos ocorrem a cada duas semanas e exigem um valor mínimo fornecido para receber um pagamento.</string>
     <string name="open_nested_link">Conectar a %1$s e abrir link %2$s</string>
     <string name="connect_and_open">Conectar e abrir link</string>
@@ -207,5 +207,12 @@
     <string name="display_network_on_leaderboard">Exibir rede no quadro de líderes</string>
     <string name="leaderboard_description">O quadro de líderes é a soma dos últimos 4 pagamentos. É atualizado a cada ciclo de pagamento.</string>
     <string name="total_account_points">Total de pontos da conta</string>
+    <string name="enter_network_referral_code">Insira o código de referência da rede</string>
+    <string name="update_referral_network">Atualizar rede de referências</string>
+    <string name="update">Atualizar</string>
+    <string name="unlink_referral_network">Desvincular rede de referências</string>
+    <string name="unlink">Desvincular</string>
+    <string name="current_network_referral">Rede de referências atual</string>
+    <string name="unlink_alert_description">Ao desvincular a sua rede de referências, deixará de poder ganhar pontos de %1$s</string>
 
 </resources>

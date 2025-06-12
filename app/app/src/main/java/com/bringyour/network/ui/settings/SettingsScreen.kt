@@ -80,6 +80,7 @@ import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.settings.updateReferralNetworkBottomSheet.UpdateReferralNetworkBottomSheet
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -108,11 +109,13 @@ fun SettingsScreen(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     activityResultSender: ActivityResultSender?,
     walletViewModel: WalletViewModel,
+    bonusReferralCode: String
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
     val currentPlan = subscriptionBalanceViewModel.currentPlan.collectAsState().value
     val showDeleteAccountDialog = settingsViewModel.showDeleteAccountDialog.collectAsState().value
+    val referralNetwork = settingsViewModel.referralNetwork.collectAsState().value
 
     val scope = rememberCoroutineScope()
 
@@ -120,6 +123,12 @@ fun SettingsScreen(
     var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
     val setIsPresentingUpgradePlanSheet: (Boolean) -> Unit = { isPresenting ->
         isPresentingUpgradePlanSheet = isPresenting
+    }
+
+    val updateReferralNetworkSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isPresentingUpdateReferralNetworkSheet by remember { mutableStateOf(false) }
+    val setIsPresentingUpdateReferralNetworkSheet: (Boolean) -> Unit = { isPresenting ->
+        isPresentingUpdateReferralNetworkSheet = isPresenting
     }
 
     val solanaUri = Uri.parse("https://ur.io")
@@ -134,6 +143,13 @@ fun SettingsScreen(
             setIsPresentingUpgradePlanSheet(true)
         }
 
+    }
+
+    val expandUpdateNetworkReferralSheet: () -> Unit = {
+        scope.launch {
+            updateReferralNetworkSheetState.expand()
+            setIsPresentingUpdateReferralNetworkSheet(true)
+        }
     }
 
     val signAndVerifySeekerHolder: () -> Unit = {
@@ -216,7 +232,10 @@ fun SettingsScreen(
         toggleAllowForeground = settingsViewModel.toggleAllowForeground,
         snackbarHostState = snackbarHostState,
         signAndVerifySeekerHolder = signAndVerifySeekerHolder,
-        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value
+        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
+        bonusReferralCode = bonusReferralCode,
+        referralNetworkName = referralNetwork?.name,
+        expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -226,6 +245,34 @@ fun SettingsScreen(
             planViewModel = planViewModel,
             overlayViewModel = overlayViewModel,
             setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+        )
+    }
+
+    if (isPresentingUpdateReferralNetworkSheet) {
+        UpdateReferralNetworkBottomSheet(
+            sheetState = updateReferralNetworkSheetState,
+            setIsPresenting = setIsPresentingUpdateReferralNetworkSheet,
+            onSuccess = {
+                setIsPresentingUpdateReferralNetworkSheet(false)
+                settingsViewModel.fetchReferralNetwork()
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Referral network updated",
+                        withDismissAction = true,
+                         duration = SnackbarDuration.Short
+                    )
+                }
+            },
+            onError = { errMsg ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = errMsg,
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            },
+            referralNetworkName = referralNetwork?.name
         )
     }
 
@@ -256,7 +303,10 @@ fun SettingsScreen(
     toggleAllowForeground: () -> Unit,
     snackbarHostState: SnackbarHostState,
     signAndVerifySeekerHolder: () -> Unit,
-    isSeekerHolder: Boolean
+    isSeekerHolder: Boolean,
+    bonusReferralCode: String,
+    referralNetworkName: String?,
+    expandUpdateNetworkReferralSheet: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -382,6 +432,9 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            /**
+             * URid
+             */
             URTextInputLabel(
                 text = "URid"
             )
@@ -459,6 +512,72 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+
+
+            /**
+             * Referral code
+             */
+            URTextInputLabel(
+                text = stringResource(id = R.string.referral_code)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color(0x1AFFFFFF),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clickable {
+                        clipboardManager.setText(AnnotatedString(bonusReferralCode))
+                    }
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+
+                ) {
+                Text(
+                    bonusReferralCode,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.content_copy),
+                    contentDescription = "Copy",
+                    tint = TextMuted,
+                    modifier = Modifier.width(16.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            /**
+             * Update referral network
+             */
+            URTextInputLabel("Referral network")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    referralNetworkName ?: "None",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                Text(
+                    "Update",
+                    modifier = Modifier
+                        .clickable {
+                            expandUpdateNetworkReferralSheet()
+                        },
+                    color = BlueMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             URTextInputLabel("General")
             Row(
@@ -800,7 +919,10 @@ private fun SettingsScreenPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123",
+            referralNetworkName = "parent_network",
+            expandUpdateNetworkReferralSheet = {}
         )
     }
 }
@@ -833,7 +955,10 @@ private fun SettingsScreenSupporterPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123",
+            referralNetworkName = null,
+            expandUpdateNetworkReferralSheet = {}
         )
     }
 }
@@ -866,7 +991,10 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = true
+            isSeekerHolder = true,
+            bonusReferralCode = "ABC123",
+            referralNetworkName = "parent_network",
+            expandUpdateNetworkReferralSheet = {}
         )
     }
 }
@@ -899,7 +1027,10 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123",
+            referralNetworkName = "parent_network",
+            expandUpdateNetworkReferralSheet = {}
         )
     }
 }
@@ -932,7 +1063,10 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
-            isSeekerHolder = false
+            isSeekerHolder = false,
+            bonusReferralCode = "ABC123",
+            referralNetworkName = null,
+            expandUpdateNetworkReferralSheet = {}
         )
     }
 }

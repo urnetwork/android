@@ -160,7 +160,7 @@
 
     <string name="connections">Connexions</string>
     <string name="provide_disconnected">Fournir hors ligne</string>
-    <string name="unpaid_mb">Mégaoctets non payés fournis</string>
+    <string name="unpaid_data_provided">Données non payées fournies</string>
     <string name="payouts_amount_threshold">Les paiements ont lieu toutes les deux semaines et nécessitent un montant minimum fourni pour recevoir un paiement.</string>
     <string name="open_nested_link">Se connecter à %1$s et ouvrir le lien %2$s</string>
     <string name="connect_and_open">Se connecter et ouvrir le lien</string>
@@ -209,4 +209,11 @@
     <string name="display_network_on_leaderboard">Afficher le réseau dans le classement</string>
     <string name="leaderboard_description">Le classement est la somme des 4 derniers paiements. Il est mis à jour à chaque cycle de paiement.</string>
     <string name="total_account_points">Total des points du compte</string>
+    <string name="enter_network_referral_code">" Entrez le code de parrainage réseau"</string>
+    <string name="update_referral_network">Mettre à jour le réseau de parrainage</string>
+    <string name="update">Mettre à jour</string>
+    <string name="unlink_referral_network">Dissocier le réseau de parrainage</string>
+    <string name="unlink">Dissocier</string>
+    <string name="current_network_referral">Réseau de parrainage actuel</string>
+    <string name="unlink_alert_description">En dissociant votre réseau de parrainage, vous ne pourrez plus gagner de points depuis %1$s</string>
 </resources>

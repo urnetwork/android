@@ -159,7 +159,7 @@
 
     <string name="connections">连接</string>
     <string name="provide_disconnected">离线提供</string>
-    <string name="unpaid_mb">已提供的未付兆字节</string>
+    <string name="unpaid_data_provided">" 提供了未付费数据"</string>
     <string name="payouts_amount_threshold">付款每两周进行一次，并且需要提供最低金额才能收到付款。</string>
     <string name="open_nested_link">连接到 %1$s 并打开链接 %2$s</string>
     <string name="connect_and_open">连接并打开链接</string>
@@ -208,4 +208,11 @@
     <string name="display_network_on_leaderboard">在排行榜上显示网络</string>
     <string name="leaderboard_description">排行榜是最近 4 次付款的总和。它会在每个付款周期更新。</string>
     <string name="total_account_points">账户总积分</string>
+    <string name="enter_network_referral_code">输入网络推荐码</string>
+    <string name="update_referral_network">更新推荐网络</string>
+    <string name="update">更新</string>
+    <string name="unlink_referral_network">解除推荐网络关联</string>
+    <string name="unlink">解除关联</string>
+    <string name="current_network_referral">当前推荐网络</string>
+    <string name="unlink_alert_description">解除推荐网络关联后，您将无法再从%1$s获得积分</string>
 </resources>

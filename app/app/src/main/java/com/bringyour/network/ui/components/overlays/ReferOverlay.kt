@@ -65,7 +65,7 @@ fun ReferOverlay(
 
     ReferOverlay(
         onDismiss,
-        referralLink = referralCodeViewModel.referralLink
+        referralLink = "https://ur.io/c?bonus=${referralCodeViewModel.referralCode}"
     )
 }
 

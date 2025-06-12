@@ -13,12 +13,11 @@ import android.system.OsConstants.AF_INET6
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.IoLoop
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.InetAddress
@@ -55,6 +54,8 @@ class MainService : VpnService() {
 
     private var windowStatusChangeSub: Sub? = null
     private var connected: Boolean = false
+
+    private var closeMonitorStarted: Boolean = false
 
 
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
@@ -125,28 +126,7 @@ class MainService : VpnService() {
             }
         }
 
-        thread {
-            var done = false
-            while (!done) {
-                runBlocking(Dispatchers.Main.immediate) {
-                    if (packetFlow == null) {
-                        done = true
-                    }
-                }
-                if (!done) {
-                    synchronized(app.serviceActiveMonitor) {
-                        if (!app.serviceActive) {
-                            done = true
-                        }
-                        app.serviceActiveMonitor.wait(1000, 0)
-                    }
-                } else {
-                    runBlocking(Dispatchers.Main.immediate) {
-                        stop()
-                    }
-                }
-            }
-        }
+        startCloseMonitor()
 
         // see https://developer.android.com/reference/android/app/Service#START_REDELIVER_INTENT
         return START_REDELIVER_INTENT
@@ -347,12 +327,12 @@ class MainService : VpnService() {
 
         packetFlow?.close()
         packetFlow = null
-        app.device?.tunnelStarted = false
 
         stopForegroundNotification()
         stopSelf()
 
         if (app.service?.get() == this) {
+            app.device?.tunnelStarted = false
             app.service = null
         }
     }
@@ -400,6 +380,36 @@ class MainService : VpnService() {
         }
     }
 
+        private fun startCloseMonitor() {
+            val app = application as MainApplication
+            if (!closeMonitorStarted) {
+                closeMonitorStarted = true
+
+                thread {
+                    var done = false
+                    while (!done) {
+                        runBlocking(Dispatchers.Main.immediate) {
+                            if (app.service?.get() != this@MainService) {
+                                done = true
+                            }
+                        }
+                        if (!done) {
+                            synchronized(app.serviceActiveMonitor) {
+                                if (!app.serviceActive) {
+                                    done = true
+                                }
+                                app.serviceActiveMonitor.wait(1000, 0)
+                            }
+                        } else {
+                            runBlocking(Dispatchers.Main.immediate) {
+                                stop()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 }
 
 
@@ -409,83 +419,19 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
     val closed: Condition = stateLock.newCondition()
     var active: Boolean = true
 
+    val ioLoop: IoLoop = Sdk.newIoLoop(deviceLocal, pfd.fd)
+
 
     init {
-
-        thread {
+        val t = thread {
             try {
-                val fis = FileInputStream(pfd.fileDescriptor)
-                val fos = FileOutputStream(pfd.fileDescriptor)
-                val packetWriteMonitor = Object()
-                val receiveSub = deviceLocal.addReceivePacket { ipVersion, ipProtocol, packet ->
-                    var done = false
-                    synchronized(packetWriteMonitor) {
-                        try {
-                            fos.write(packet)
-                        } catch (_: IOException) {
-                            try {
-                                fos.close()
-                            } catch (_: IOException) {
-                            }
-                            done = true
-                        }
-                    }
-                    if (done) {
-                        close()
-                    }
-                }
-                try {
-
-                    val t = thread {
-                        try {
-                            val buffer = ByteArray(2048)
-                            while (true) {
-                                val n = fis.read(buffer)
-
-                                if (0 < n) {
-                                    // note sendPacket makes a copy of the buffer
-                                    val success = deviceLocal.sendPacket(buffer, n)
-                                    if (!success) {
-                                        Log.i(TAG, "[service]send packet dropped")
-                                    }
-                                }
-                            }
-                        } catch (_: IOException) {
-                            try {
-                                fis.close()
-                            } catch (_: IOException) { }
-                            close()
-                        }
-                    }
-                    t.priority = Thread.MAX_PRIORITY
-
-                    stateLock.lock()
-                    try {
-                        while (active) {
-                            closed.await()
-                        }
-                    } finally {
-                        stateLock.unlock()
-                    }
-
-                } finally {
-                    receiveSub.close()
-
-                    try {
-                        fos.close()
-                    } catch (_: IOException) {
-                    }
-                    try {
-                        fis.close()
-                    } catch (_: IOException) {
-                    }
-                }
+                ioLoop.run()
             } finally {
                 close()
-
                 endCallback(this@PacketFlow)
             }
         }
+        t.priority = Thread.MAX_PRIORITY
     }
 
     fun close() {
@@ -493,6 +439,8 @@ private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor
         try {
             if (active) {
                 active = false
+
+                ioLoop.close()
 
                 try {
                     pfd.close()

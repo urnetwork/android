@@ -158,7 +158,7 @@
 
     <string name="connections">कनेक्शन</string>
     <string name="provide_disconnected">डिस्कनेक्ट होने पर प्रदान करें</string>
-    <string name="unpaid_mb">अवैतनिक मेगाबाइट प्रदान किए गए</string>
+    <string name="unpaid_data_provided">िना भुगतान का डेटा प्रदान किया गया</string>
     <string name="payouts_amount_threshold">भुगतान हर दो सप्ताह में होता है, और भुगतान प्राप्त करने के लिए न्यूनतम राशि प्रदान करना आवश्यक है।</string>
     <string name="open_nested_link">%1$s से कनेक्ट करें और लिंक %2$s खोलें</string>
     <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>
@@ -207,5 +207,12 @@
     <string name="display_network_on_leaderboard">लीडरबोर्ड पर नेटवर्क प्रदर्शित करें</string>
     <string name="leaderboard_description">लीडरबोर्ड पिछले 4 भुगतानों का योग है। यह प्रत्येक भुगतान चक्र में अपडेट किया जाता है।</string>
     <string name="total_account_points">कुल खाता अंक</string>
+    <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
+    <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
+    <string name="update">अपडेट करें</string>
+    <string name="unlink_referral_network">रेफ़रल नेटवर्क को अनलिंक करें</string>
+    <string name="unlink">अनलिंक करें</string>
+    <string name="current_network_referral">वर्तमान रेफ़रल नेटवर्क</string>
+    <string name="unlink_alert_description">जब आप अपने रेफ़रल नेटवर्क को अनलिंक करते हैं, तो आप अब %1$s से अंक अर्जित नहीं कर पाएंगे</string>
 
 </resources>

@@ -181,7 +181,7 @@
 
     <string name="connections">Połączenia</string>
     <string name="provide_disconnected">Dostarczaj w trybie offline</string>
-    <string name="unpaid_mb">Nieopłacone megabajty dostarczone</string>
+    <string name="unpaid_data_provided">Dostarczono nieopłacone dane</string>
     <string name="payouts_amount_threshold">Wypłaty następują co dwa tygodnie i wymagają minimalnej kwoty dostarczonej, aby otrzymać wypłatę.</string>
     <string name="open_nested_link">Połącz z %1$s i otwórz link %2$s</string>
     <string name="connect_and_open">Połącz i otwórz link</string>
@@ -230,5 +230,12 @@
     <string name="display_network_on_leaderboard">Wyświetlaj sieć w tablicy wyników</string>
     <string name="leaderboard_description">Tablica wyników to suma ostatnich 4 płatności. Jest aktualizowana w każdym cyklu płatności.</string>
     <string name="total_account_points">Łączna liczba punktów konta</string>
+    <string name="enter_network_referral_code">Wprowadź kod polecenia sieci</string>
+    <string name="update_referral_network">Zaktualizuj sieć poleceń</string>
+    <string name="update">Aktualizuj</string>
+    <string name="unlink_referral_network">Odłącz sieć poleceń</string>
+    <string name="unlink">Odłącz</string>
+    <string name="current_network_referral">Obecna sieć poleceń</string>
+    <string name="unlink_alert_description">Po odłączeniu swojej sieci poleceń nie będziesz już mógł zdobywać punktów z %1$s</string>
 
 </resources>

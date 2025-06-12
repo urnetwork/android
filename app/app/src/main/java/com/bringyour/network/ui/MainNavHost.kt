@@ -514,7 +514,8 @@ fun MainNavContent(
                 overlayViewModel,
                 subscriptionBalanceViewModel,
                 activityResultSender,
-                walletViewModel
+                walletViewModel,
+                bonusReferralCode = referralCodeViewModel.referralCode
             ) }
 
             composable<Route.Wallets>(

@@ -133,7 +133,7 @@
     <string name="make_default">Make default</string>
     <string name="payout_wallets">Payout Wallets</string>
     <string name="chains_supported">Solana and Polygon wallets are currently supported</string>
-    <string name="unpaid_mb">Unpaid megabytes provided</string>
+    <string name="unpaid_data_provided">Unpaid data provided</string>
     <string name="payouts_amount_threshold">Payouts occur every two weeks, and require a minimum amount provided to receive a payout.</string>
 
     <!-- Transfer Submitted Overlay -->
@@ -233,4 +233,11 @@
     <string name="display_network_on_leaderboard">Display network on leaderboard</string>
     <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
     <string name="total_account_points">Total account points</string>
+    <string name="enter_network_referral_code">Enter network referral code</string>
+    <string name="update_referral_network">Update referral network</string>
+    <string name="update">Update</string>
+    <string name="unlink_referral_network">Unlink referral network</string>
+    <string name="unlink">Unlink</string>
+    <string name="current_network_referral">Current network referral</string>
+    <string name="unlink_alert_description">When unlinking your referral network, you will no longer be able to earn points from %1$s</string>
 </resources>

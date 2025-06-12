@@ -158,7 +158,7 @@
 
     <string name="connections">Conexiones</string>
     <string name="provide_disconnected">Proporcionar sin conexión</string>
-    <string name="unpaid_mb">Megabytes no pagados proporcionados</string>
+    <string name="unpaid_data_provided">Datos no pagados proporcionados</string>
     <string name="payouts_amount_threshold">Los pagos se realizan cada dos semanas y requieren una cantidad mínima proporcionada para recibir un pago.</string>
     <string name="open_nested_link">Conectar a %1$s y abrir enlace %2$s</string>
     <string name="connect_and_open">Conectar y abrir enlace</string>
@@ -207,4 +207,11 @@
     <string name="display_network_on_leaderboard">Mostrar red en la tabla de clasificación</string>
     <string name="leaderboard_description">La tabla de clasificación es la suma de los últimos 4 pagos. Se actualiza en cada ciclo de pago.</string>
     <string name="total_account_points">Puntos totales de la cuenta</string>
+    <string name="enter_network_referral_code">Introduce el código de referido de la red</string>
+    <string name="update_referral_network">Actualizar red de referidos</string>
+    <string name="update">Actualizar</string>
+    <string name="unlink_referral_network">Desvincular red de referidos</string>
+    <string name="unlink">Desvincular</string>
+    <string name="current_network_referral">Red de referidos actual</string>
+    <string name="unlink_alert_description">Al desvincular tu red de referidos, ya no podrás ganar puntos de %1$</string>
 </resources>

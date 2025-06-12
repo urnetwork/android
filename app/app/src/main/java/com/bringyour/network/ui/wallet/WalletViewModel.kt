@@ -20,6 +20,7 @@ import com.bringyour.sdk.WalletViewController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
 import com.bringyour.network.utils.formatDecimalString
+import com.bringyour.network.utils.formatUnpaidByteCount
 import com.bringyour.network.utils.roundToDecimals
 import com.bringyour.sdk.VerifySeekerNftHolderArgs
 import com.solana.publickey.SolanaPublicKey
@@ -413,7 +414,7 @@ class WalletViewModel @Inject constructor(
     val addUnpaidByteCountListener = {
         walletVc?.addUnpaidByteCountListener{ ubc ->
             viewModelScope.launch(Dispatchers.Main) {
-                unpaidMegaByteCount = formatDecimalString(ubc / (1024.0 * 1024.0), 2)
+                unpaidMegaByteCount = formatUnpaidByteCount(ubc.toDouble())
                 transferStatsRefreshed = true
                 if (isRefreshingWallets && paymentsRefreshed) {
                         setIsRefreshingWallets(false)

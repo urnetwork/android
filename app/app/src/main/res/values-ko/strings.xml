@@ -181,7 +181,7 @@
 
     <string name="connections">연결</string>
     <string name="provide_disconnected">오프라인 상태에서 제공</string>
-    <string name="unpaid_mb">미지급 메가바이트 제공됨</string>
+    <string name="unpaid_data_provided">미지급 데이터가 제공됨</string>
     <string name="payouts_amount_threshold">지급은 2주마다 발생하며 지급을 받으려면 최소 금액을 제공해야 합니다.</string>
     <string name="open_nested_link">%1$s에 연결하고 링크 %2$s을(를) 엽니다</string>
     <string name="connect_and_open">연결하고 링크를 엽니다</string>
@@ -230,4 +230,11 @@
     <string name="display_network_on_leaderboard">리더보드에 네트워크 표시</string>
     <string name="leaderboard_description">리더보드는 최근 4번의 결제 합계입니다. 각 결제 주기마다 업데이트됩니다.</string>
     <string name="total_account_points">총 계정 포인트</string>
+    <string name="enter_network_referral_code">네트워크 추천 코드를 입력하세요</string>
+    <string name="update_referral_network">추천 네트워크 업데이트</string>
+    <string name="update">업데이트</string>
+    <string name="unlink_referral_network">추천 네트워크 연결 해제</string>
+    <string name="unlink">연결 해제</string>
+    <string name="current_network_referral">현재 추천 네트워크</string>
+    <string name="unlink_alert_description">추천 네트워크 연결을 해제하면 더 이상 %1$s에서 포인트를 얻을 수 없습니다</string>
 </resources>

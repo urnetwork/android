@@ -183,12 +183,8 @@ class LoginCreateNetworkViewModel @Inject constructor(
         args.networkName = networkName.text.trim()
         args.terms = termsAgreed
 
-        if (!_referralCode.value.text.isEmpty()) {
-            try {
-                args.referralCode = Sdk.parseId(_referralCode.value.text)
-            } catch (e: Exception) {
-                Log.i(TAG, "error parsing referral code: ${e.message}")
-            }
+        if (isValidReferralCode && !isValidatingReferralCode) {
+            args.referralCode = _referralCode.value.text
         }
 
         when(params) {

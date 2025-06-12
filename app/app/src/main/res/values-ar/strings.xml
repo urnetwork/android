@@ -157,7 +157,7 @@
 
     <string name="connections">الاتصالات</string>
     <string name="provide_disconnected">توفير أثناء عدم الاتصال</string>
-    <string name="unpaid_mb">ميغابايت غير مدفوعة مقدمة</string>
+    <string name="unpaid_data_provided">تم توفير بيانات غير مدفوعة</string>
     <string name="payouts_amount_threshold">تحدث عمليات الدفع كل أسبوعين ، وتتطلب حدًا أدنى من المبلغ المقدم لتلقي دفعة.</string>
     <string name="open_nested_link">الاتصال بـ %1$s وفتح الرابط %2$s</string>
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
@@ -207,4 +207,11 @@
     <string name="display_network_on_leaderboard">عرض الشبكة على لوحة الصدارة</string>
     <string name="leaderboard_description">لوحة الصدارة هي مجموع آخر 4 دفعات. يتم تحديثها كل دورة دفع.</string>
     <string name="total_account_points">إجمالي نقاط الحساب</string>
+    <string name="enter_network_referral_code">أدخل رمز الإحالة للشبكة</string>
+    <string name="update_referral_network">تحديث شبكة الإحالة</string>
+    <string name="update">تحديث</string>
+    <string name="unlink_referral_network">فك ارتباط شبكة الإحالة</string>
+    <string name="unlink">فك الارتباط</string>
+    <string name="current_network_referral">شبكة الإحالة الحالية</string>
+    <string name="unlink_alert_description">" عند فك ارتباط شبكة الإحالة الخاصة بك، لن تتمكن بعد الآن من كسب النقاط من1$s"</string>
 </resources>
