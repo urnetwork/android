@@ -211,4 +211,8 @@
     <string name="enter_network_referral_code">" Entrez le code de parrainage réseau"</string>
     <string name="update_referral_network">Mettre à jour le réseau de parrainage</string>
     <string name="update">Mettre à jour</string>
+    <string name="unlink_referral_network">Dissocier le réseau de parrainage</string>
+    <string name="unlink">Dissocier</string>
+    <string name="current_network_referral">Réseau de parrainage actuel</string>
+    <string name="unlink_alert_description">En dissociant votre réseau de parrainage, vous ne pourrez plus gagner de points depuis %1$s</string>
 </resources>

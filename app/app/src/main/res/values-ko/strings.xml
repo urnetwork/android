@@ -232,4 +232,8 @@
     <string name="enter_network_referral_code">네트워크 추천 코드를 입력하세요</string>
     <string name="update_referral_network">추천 네트워크 업데이트</string>
     <string name="update">업데이트</string>
+    <string name="unlink_referral_network">추천 네트워크 연결 해제</string>
+    <string name="unlink">연결 해제</string>
+    <string name="current_network_referral">현재 추천 네트워크</string>
+    <string name="unlink_alert_description">추천 네트워크 연결을 해제하면 더 이상 %1$s에서 포인트를 얻을 수 없습니다</string>
 </resources>

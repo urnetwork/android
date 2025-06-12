@@ -30,6 +30,13 @@ class UpdateReferralNetworkBottomSheetViewModel @Inject constructor(
 
     var codeInputSupportingText by mutableStateOf("")
 
+    var displayUnlinkAlert by mutableStateOf(false)
+        private set
+
+    val setDisplayUnlinkAlert: (Boolean) -> Unit = { display ->
+        displayUnlinkAlert = display
+    }
+
     val updateReferralNetwork: (() -> Unit, (String) -> Unit) -> Unit = { onSuccess, onFailure ->
 
         if (!_isUpdatingReferralNetwork.value) {
@@ -73,4 +80,21 @@ class UpdateReferralNetworkBottomSheetViewModel @Inject constructor(
 
     }
 
+    fun unlinkReferralNetwork(
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        deviceManager.device?.api?.unlinkReferralNetwork { _, error ->
+
+            if (error != null) {
+                Log.e(TAG, "error unlinking referral network: ${error.message}")
+                onError()
+
+                return@unlinkReferralNetwork
+            }
+
+            onSuccess()
+
+        }
+    }
 }

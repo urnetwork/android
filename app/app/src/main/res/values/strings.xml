@@ -235,4 +235,8 @@
     <string name="enter_network_referral_code">Enter network referral code</string>
     <string name="update_referral_network">Update referral network</string>
     <string name="update">Update</string>
+    <string name="unlink_referral_network">Unlink referral network</string>
+    <string name="unlink">Unlink</string>
+    <string name="current_network_referral">Current network referral</string>
+    <string name="unlink_alert_description">When unlinking your referral network, you will no longer be able to earn points from %1$s</string>
 </resources>

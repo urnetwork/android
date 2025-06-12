@@ -209,4 +209,8 @@
     <string name="enter_network_referral_code">Εισαγάγετε τον κωδικό παραπομπής δικτύου</string>
     <string name="update_referral_network">Ενημέρωση δικτύου παραπομπών</string>
     <string name="update">Ενημέρωση</string>
+    <string name="unlink_referral_network">Αποσύνδεση δικτύου παραπομπών</string>
+    <string name="unlink">Αποσύνδεση</string>
+    <string name="current_network_referral">Τρέχον δίκτυο παραπομπών</string>
+    <string name="unlink_alert_description">Όταν αποσυνδέετε το δίκτυο παραπομπών σας, δεν θα μπορείτε πλέον να κερδίζετε πόντους από το %1$s</string>
 </resources>

@@ -210,4 +210,8 @@
     <string name="enter_network_referral_code">Insira o código de indicação da rede</string>
     <string name="update_referral_network">Atualizar rede de indicações</string>
     <string name="update">Atualizar</string>
+    <string name="unlink_referral_network">Desvincular rede de indicações</string>
+    <string name="unlink">Desvincular</string>
+    <string name="current_network_referral">Rede de indicações atual</string>
+    <string name="unlink_alert_description">Ao desvincular sua rede de indicações, você não poderá mais ganhar pontos de %1$s</string>
 </resources>

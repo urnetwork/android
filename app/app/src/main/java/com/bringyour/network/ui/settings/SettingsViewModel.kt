@@ -176,6 +176,9 @@ class SettingsViewModel @Inject constructor(
 
             if (result.error != null) {
                 Log.i(TAG, "Result error fetching referral network: ${result.error.message}")
+                viewModelScope.launch {
+                    _referralNetwork.value = result.network
+                }
                 return@getReferralNetwork
             }
 

@@ -209,5 +209,9 @@
     <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
     <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
     <string name="update">अपडेट करें</string>
+    <string name="unlink_referral_network">रेफ़रल नेटवर्क को अनलिंक करें</string>
+    <string name="unlink">अनलिंक करें</string>
+    <string name="current_network_referral">वर्तमान रेफ़रल नेटवर्क</string>
+    <string name="unlink_alert_description">जब आप अपने रेफ़रल नेटवर्क को अनलिंक करते हैं, तो आप अब %1$s से अंक अर्जित नहीं कर पाएंगे</string>
 
 </resources>

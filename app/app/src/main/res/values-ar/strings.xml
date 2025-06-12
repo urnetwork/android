@@ -209,4 +209,8 @@
     <string name="enter_network_referral_code">أدخل رمز الإحالة للشبكة</string>
     <string name="update_referral_network">تحديث شبكة الإحالة</string>
     <string name="update">تحديث</string>
+    <string name="unlink_referral_network">فك ارتباط شبكة الإحالة</string>
+    <string name="unlink">فك الارتباط</string>
+    <string name="current_network_referral">شبكة الإحالة الحالية</string>
+    <string name="unlink_alert_description">" عند فك ارتباط شبكة الإحالة الخاصة بك، لن تتمكن بعد الآن من كسب النقاط من1$s"</string>
 </resources>

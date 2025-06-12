@@ -210,4 +210,8 @@
     <string name="enter_network_referral_code">Weka msimbo wa rufaa wa mtandao</string>
     <string name="update_referral_network">Sasisha mtandao wa rufaa</string>
     <string name="update">Sasisha</string>
+    <string name="unlink_referral_network">Ondoa kiungo cha mtandao wa rufaa</string>
+    <string name="unlink">Ondoa kiungo</string>
+    <string name="current_network_referral">Mtandao wa rufaa wa sasa</string>
+    <string name="unlink_alert_description">Ukiondoa kiungo cha mtandao wako wa rufaa, hutaweza tena kupata pointi kutoka %1$s</string>
 </resources>
