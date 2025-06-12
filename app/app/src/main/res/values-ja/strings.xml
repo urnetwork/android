@@ -232,4 +232,8 @@
     <string name="enter_network_referral_code">ネットワーク紹介コードを入力してください</string>
     <string name="update_referral_network">紹介ネットワークを更新する</string>
     <string name="update">更新</string>
+    <string name="unlink_referral_network">紹介ネットワークのリンクを解除する</string>
+    <string name="unlink">リンク解除</string>
+    <string name="current_network_referral">現在の紹介ネットワーク</string>
+    <string name="unlink_alert_description">紹介ネットワークのリンクを解除すると、%1$s からポイントを獲得できなくなります</string>
 </resources>

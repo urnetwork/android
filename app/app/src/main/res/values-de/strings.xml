@@ -210,4 +210,8 @@
     <string name="enter_network_referral_code">Netzwerbe-Empfehlungscode eingeben</string>
     <string name="update_referral_network">Empfehlungsnetzwerk aktualisieren</string>
     <string name="update">Aktualisieren</string>
+    <string name="unlink_referral_network">Empfehlungsnetzwerk trennen</string>
+    <string name="unlink">Trennen</string>
+    <string name="current_network_referral">Aktuelles Empfehlungsnetzwerk</string>
+    <string name="unlink_alert_description">Wenn Sie Ihr Empfehlungsnetzwerk trennen, können Sie keine Punkte mehr von %1$s erhalten</string>
 </resources>

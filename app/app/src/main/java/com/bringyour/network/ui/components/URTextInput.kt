@@ -65,7 +65,6 @@ fun URTextInput(
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
 
     val underlineColor = when {
         !enabled -> Color.Transparent
@@ -93,36 +92,8 @@ fun URTextInput(
                         cursorBrush = SolidColor(Blue500),
                         textStyle = TextStyle(color = Color.LightGray),
                         modifier = Modifier
-                            // .weight(1f)
-                            // .imePadding()
                             .fillMaxWidth()
-                            .background(Color.Transparent)
-//                            .focusable()
-//                            .onFocusChanged {
-////                                if (it.isFocused) {
-////                                }
-//                                coroutineScope.launch {
-//                                    isFocused = it.isFocused
-//                                    if (it.isFocused) {
-//
-//                                    }
-//                                }
-//                            }
-
-//                            .then(
-//                                if (enabled) {
-//                                    Modifier
-//                                        .focusable()
-//                                        .onFocusChanged { state ->
-//                                            Log.i("URTextInput", "focus changed: ${state.isFocused}")
-//                                            isFocused = state.isFocused
-//                                        }
-//                                } else {
-//                                    Modifier
-//                                }
-//                            )
-                            // should not be focusable if disabled
-                            ,
+                            .background(Color.Transparent),
                         decorationBox = { innerTextField ->
                             if (value.text.isEmpty()) {
                                 Text(

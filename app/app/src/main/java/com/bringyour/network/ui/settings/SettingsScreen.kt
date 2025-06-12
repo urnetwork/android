@@ -271,7 +271,8 @@ fun SettingsScreen(
                         duration = SnackbarDuration.Short
                     )
                 }
-            }
+            },
+            referralNetworkName = referralNetwork?.name
         )
     }
 

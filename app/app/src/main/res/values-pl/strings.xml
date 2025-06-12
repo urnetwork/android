@@ -232,5 +232,9 @@
     <string name="enter_network_referral_code">Wprowadź kod polecenia sieci</string>
     <string name="update_referral_network">Zaktualizuj sieć poleceń</string>
     <string name="update">Aktualizuj</string>
+    <string name="unlink_referral_network">Odłącz sieć poleceń</string>
+    <string name="unlink">Odłącz</string>
+    <string name="current_network_referral">Obecna sieć poleceń</string>
+    <string name="unlink_alert_description">Po odłączeniu swojej sieci poleceń nie będziesz już mógł zdobywać punktów z %1$s</string>
 
 </resources>
