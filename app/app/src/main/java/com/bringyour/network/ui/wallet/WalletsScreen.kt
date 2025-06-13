@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -54,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -61,11 +63,13 @@ import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
+import com.bringyour.network.ui.components.buttonTextStyle
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.login.NoSolanaWalletsAlert
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.BlueLight
+import com.bringyour.network.utils.formatDecimalString
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -81,7 +85,10 @@ fun WalletsScreen(
     activityResultSender: ActivityResultSender?,
     referralCodeViewModel: ReferralCodeViewModel,
     overlayViewModel: OverlayViewModel,
-    totalAccountPoints: Int,
+    totalAccountPoints: Double,
+    payoutPoints: Double,
+    referralPoints: Double,
+    multiplierPoints: Double,
     fetchAccountPoints: () -> Unit?
 ) {
 
@@ -120,7 +127,9 @@ fun WalletsScreen(
         isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
         launchOverlay = overlayViewModel.launch,
         totalAccountPoints = totalAccountPoints,
-        fetchAccountPoints = fetchAccountPoints
+        payoutPoints = payoutPoints,
+        referralPoints = referralPoints,
+        multiplierPoints = multiplierPoints
     )
 }
 
@@ -149,8 +158,10 @@ fun WalletsScreen(
     isSeekerHolder: Boolean,
     totalReferrals: Long,
     launchOverlay: (OverlayMode) -> Unit,
-    totalAccountPoints: Int,
-    fetchAccountPoints: () -> Unit?,
+    totalAccountPoints: Double,
+    payoutPoints: Double,
+    referralPoints: Double,
+    multiplierPoints: Double,
     viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
 
@@ -317,31 +328,6 @@ fun WalletsScreen(
                                         }
                                     }
 
-                                    /**
-                                     *  Total Account Points
-                                     */
-                                    Column {
-                                        Text(
-                                            stringResource(id = R.string.total_account_points),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = TextMuted
-                                        )
-
-                                        Row(
-                                            verticalAlignment = Alignment.Bottom
-                                        ) {
-                                            Text(
-                                                "$totalAccountPoints",
-                                                style = HeadingLargeCondensed,
-//                                                modifier = Modifier.clickable {
-//                                                  // todo: navigate to account points screen
-//                                                }
-                                            )
-
-                                            // Spacer(modifier = Modifier.width(2.dp))
-                                        }
-                                    }
-
                                 }
 
                             }
@@ -497,13 +483,143 @@ fun WalletsScreen(
 
                                 Spacer(modifier = Modifier.height(32.dp))
 
+                                /**
+                                 * Account points
+                                 */
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        stringResource(id = R.string.account_points),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+
+
+                                /**
+                                 * Account points breakdown
+                                 */
+                                Column(
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .padding(bottom = 16.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                color = MainTintedBackgroundBase,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(
+                                                start = 16.dp,
+                                                top = 16.dp,
+                                                bottom = 10.dp, // hacky due to line-height issue
+                                                end = 16.dp
+                                            )
+                                    ) {
+                                        Column(modifier = Modifier.fillMaxWidth()) {
+                                            Text(
+                                                stringResource(id = R.string.points_breakdown),
+                                                style = buttonTextStyle,
+                                                color = Color.White
+                                            )
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+
+                                                Column {
+                                                    Text(
+                                                        stringResource(id = R.string.payouts),
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = TextMuted
+                                                    )
+
+                                                    Text(
+                                                        "$payoutPoints",
+                                                        style = HeadingLargeCondensed
+                                                    )
+                                                }
+
+                                                Column {
+                                                    Text(
+                                                        "Seeker",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = TextMuted
+                                                    )
+
+                                                    Text(
+                                                        "$multiplierPoints",
+                                                        style = HeadingLargeCondensed
+                                                    )
+                                                }
+
+                                                Column {
+                                                    Text(
+                                                        stringResource(id = R.string.referral),
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = TextMuted
+                                                    )
+
+                                                    Text(
+                                                        "$referralPoints",
+                                                        style = HeadingLargeCondensed
+                                                    )
+                                                }
+
+                                            }
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            HorizontalDivider()
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            Row(
+                                                verticalAlignment = Alignment.Bottom,
+                                            ) {
+
+                                                Text(
+                                                    "$totalAccountPoints",
+                                                    style = HeadingLargeCondensed
+                                                )
+
+                                                Spacer(modifier = Modifier.width(6.dp))
+
+                                                Text(
+                                                    stringResource(id = R.string.net_points_earned),
+                                                    modifier = Modifier.offset(y = (-10).dp),
+                                                    style = TextStyle(
+                                                        color = TextMuted
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+
                                 if (isSeekerHolder) {
 
                                     /**
                                      * Seeker Token Holder handling
                                      */
                                     Column(
-                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp)
+                                            .background(
+                                                color = MainTintedBackgroundBase,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(16.dp)
+
                                     ) {
                                         Text(
                                             stringResource(id = R.string.claim_multiplier)

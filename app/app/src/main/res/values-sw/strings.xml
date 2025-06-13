@@ -215,4 +215,9 @@
     <string name="unlink">Ondoa kiungo</string>
     <string name="current_network_referral">Mtandao wa rufaa wa sasa</string>
     <string name="unlink_alert_description">Ukiondoa kiungo cha mtandao wako wa rufaa, hutaweza tena kupata pointi kutoka %1$s</string>
+    <string name="account_points">Pointi za akaunti</string>
+    <string name="points_breakdown">Muhtasari wa pointi</string>
+    <string name="payouts">Malipo</string>
+    <string name="referral">Rufaa</string>
+    <string name="net_points_earned">Jumla ya pointi zilizopatikana</string>
 </resources>

@@ -529,7 +529,10 @@ fun MainNavContent(
                     activityResultSender,
                     referralCodeViewModel,
                     overlayViewModel,
-                    totalAccountPoints = accountPointsViewModel.totalAccountPoints,
+                    totalAccountPoints = accountPointsViewModel.totalAccountPoints.collectAsState().value,
+                    payoutPoints = accountPointsViewModel.payoutPoints.collectAsState().value,
+                    referralPoints = accountPointsViewModel.referralPoints.collectAsState().value,
+                    multiplierPoints = accountPointsViewModel.multiplierPoints.collectAsState().value,
                     fetchAccountPoints = accountPointsViewModel.fetchAccountPoints
                 )
             }

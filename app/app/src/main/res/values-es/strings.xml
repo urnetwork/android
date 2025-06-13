@@ -214,4 +214,9 @@
     <string name="unlink">Desvincular</string>
     <string name="current_network_referral">Red de referidos actual</string>
     <string name="unlink_alert_description">Al desvincular tu red de referidos, ya no podrás ganar puntos de %1$</string>
+    <string name="account_points">Puntos de la cuenta</string>
+    <string name="points_breakdown">Desglose de puntos</string>
+    <string name="payouts">Pagos</string>
+    <string name="referral">Referido</string>
+    <string name="net_points_earned">Puntos netos obtenidos</string>
 </resources>

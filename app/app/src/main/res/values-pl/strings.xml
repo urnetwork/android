@@ -237,5 +237,10 @@
     <string name="unlink">Odłącz</string>
     <string name="current_network_referral">Obecna sieć poleceń</string>
     <string name="unlink_alert_description">Po odłączeniu swojej sieci poleceń nie będziesz już mógł zdobywać punktów z %1$s</string>
+    <string name="account_points">Punkty konta</string>
+    <string name="points_breakdown">Szczegółowy podział punktów</string>
+    <string name="payouts">Wypłaty</string>
+    <string name="referral">Polecenie</string>
+    <string name="net_points_earned">Zarobione punkty netto</string>
 
 </resources>

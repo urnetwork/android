@@ -237,4 +237,9 @@
     <string name="unlink">リンク解除</string>
     <string name="current_network_referral">現在の紹介ネットワーク</string>
     <string name="unlink_alert_description">紹介ネットワークのリンクを解除すると、%1$s からポイントを獲得できなくなります</string>
+    <string name="account_points">アカウントポイント</string>
+    <string name="points_breakdown">ポイントの内訳</string>
+    <string name="payouts">支払い</string>
+    <string name="referral">紹介</string>
+    <string name="net_points_earned">純獲得ポイント</string>
 </resources>

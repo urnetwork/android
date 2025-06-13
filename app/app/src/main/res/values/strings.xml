@@ -240,4 +240,9 @@
     <string name="unlink">Unlink</string>
     <string name="current_network_referral">Current network referral</string>
     <string name="unlink_alert_description">When unlinking your referral network, you will no longer be able to earn points from %1$s</string>
+    <string name="account_points">Account points</string>
+    <string name="points_breakdown">Points breakdown</string>
+    <string name="payouts">Payouts</string>
+    <string name="referral">Referral</string>
+    <string name="net_points_earned">net points earned</string>
 </resources>

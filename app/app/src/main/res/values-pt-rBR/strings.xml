@@ -215,4 +215,9 @@
     <string name="unlink">Desvincular</string>
     <string name="current_network_referral">Rede de indicações atual</string>
     <string name="unlink_alert_description">Ao desvincular sua rede de indicações, você não poderá mais ganhar pontos de %1$s</string>
+    <string name="account_points">Pontos da conta</string>
+    <string name="points_breakdown">Detalhamento dos pontos</string>
+    <string name="payouts">Pagamentos</string>
+    <string name="referral">Indicação</string>
+    <string name="net_points_earned">Pontos líquidos ganhos</string>
 </resources>

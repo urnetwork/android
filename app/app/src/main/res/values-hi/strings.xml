@@ -214,5 +214,10 @@
     <string name="unlink">अनलिंक करें</string>
     <string name="current_network_referral">वर्तमान रेफ़रल नेटवर्क</string>
     <string name="unlink_alert_description">जब आप अपने रेफ़रल नेटवर्क को अनलिंक करते हैं, तो आप अब %1$s से अंक अर्जित नहीं कर पाएंगे</string>
+    <string name="account_points">खाता अंक</string>
+    <string name="points_breakdown">अंक विवरण</string>
+    <string name="payouts">भुगतान</string>
+    <string name="referral">रेफ़रल</string>
+    <string name="net_points_earned">अर्जित शुद्ध अंक</string>
 
 </resources>
