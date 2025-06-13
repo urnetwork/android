@@ -237,4 +237,9 @@
     <string name="unlink">연결 해제</string>
     <string name="current_network_referral">현재 추천 네트워크</string>
     <string name="unlink_alert_description">추천 네트워크 연결을 해제하면 더 이상 %1$s에서 포인트를 얻을 수 없습니다</string>
+    <string name="account_points">계정 포인트</string>
+    <string name="points_breakdown">포인트 내역</string>
+    <string name="payouts">지급</string>
+    <string name="referral">추천</string>
+    <string name="net_points_earned">순 포인트 획득</string>
 </resources>

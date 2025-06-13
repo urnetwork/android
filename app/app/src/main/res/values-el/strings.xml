@@ -214,4 +214,9 @@
     <string name="unlink">Αποσύνδεση</string>
     <string name="current_network_referral">Τρέχον δίκτυο παραπομπών</string>
     <string name="unlink_alert_description">Όταν αποσυνδέετε το δίκτυο παραπομπών σας, δεν θα μπορείτε πλέον να κερδίζετε πόντους από το %1$s</string>
+    <string name="account_points">Πόντοι λογαριασμού</string>
+    <string name="points_breakdown">Ανάλυση πόντων</string>
+    <string name="payouts">Πληρωμές</string>
+    <string name="referral">Παραπομπή</string>
+    <string name="net_points_earned">Καθαροί πόντοι που κερδήθηκαν</string>
 </resources>

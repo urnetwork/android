@@ -216,4 +216,9 @@
     <string name="unlink">Dissocier</string>
     <string name="current_network_referral">Réseau de parrainage actuel</string>
     <string name="unlink_alert_description">En dissociant votre réseau de parrainage, vous ne pourrez plus gagner de points depuis %1$s</string>
+    <string name="account_points">Points du compte</string>
+    <string name="points_breakdown">Répartition des points</string>
+    <string name="payouts">Paiements</string>
+    <string name="referral">Parrainage</string>
+    <string name="net_points_earned">Points nets gagnés</string>
 </resources>

@@ -237,4 +237,9 @@
     <string name="unlink">Отключить</string>
     <string name="current_network_referral">Текущая реферальная сеть</string>
     <string name="unlink_alert_description">После отключения вашей реферальной сети вы больше не сможете получать баллы от %1$s</string>
+    <string name="account_points">" Баллы аккаунта"</string>
+    <string name="points_breakdown">Разбивка баллов</string>
+    <string name="payouts">Выплаты</string>
+    <string name="referral">Реферал</string>
+    <string name="net_points_earned">Заработано чистых баллов</string>
 </resources>

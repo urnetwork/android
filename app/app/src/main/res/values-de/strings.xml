@@ -215,4 +215,9 @@
     <string name="unlink">Trennen</string>
     <string name="current_network_referral">Aktuelles Empfehlungsnetzwerk</string>
     <string name="unlink_alert_description">Wenn Sie Ihr Empfehlungsnetzwerk trennen, können Sie keine Punkte mehr von %1$s erhalten</string>
+    <string name="account_points">Kontopunkte</string>
+    <string name="points_breakdown">Punkteübersicht</string>
+    <string name="payouts">Auszahlungen</string>
+    <string name="referral">Empfehlung</string>
+    <string name="net_points_earned">Netto-Punkte verdient</string>
 </resources>

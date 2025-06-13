@@ -214,4 +214,9 @@
     <string name="unlink">فك الارتباط</string>
     <string name="current_network_referral">شبكة الإحالة الحالية</string>
     <string name="unlink_alert_description">" عند فك ارتباط شبكة الإحالة الخاصة بك، لن تتمكن بعد الآن من كسب النقاط من1$s"</string>
+    <string name="account_points">نقاط الحساب</string>
+    <string name="points_breakdown">تفصيل النقاط</string>
+    <string name="payouts">المدفوعات</string>
+    <string name="referral">إحالة</string>
+    <string name="net_points_earned">صافي النقاط المكتسبة</string>
 </resources>
