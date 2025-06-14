@@ -1,18 +1,16 @@
 package com.bringyour.network.ui.shared.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.sdk.AccountPoint
 import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class AccountPointsViewModel
@@ -42,7 +40,7 @@ constructor(
                 return@getAccountPoints
             }
 
-            val n = result.accountPoints.len()
+            val n = result.accountPoints?.len() ?: 0
 
             val accountPoints = mutableListOf<AccountPoint>()
             var totalAccountPoints = 0.0
