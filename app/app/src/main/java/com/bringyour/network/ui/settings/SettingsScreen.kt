@@ -235,7 +235,8 @@ fun SettingsScreen(
         isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
         bonusReferralCode = bonusReferralCode,
         referralNetworkName = referralNetwork?.name,
-        expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet
+        expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet,
+        version = settingsViewModel.version
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -306,7 +307,8 @@ fun SettingsScreen(
     isSeekerHolder: Boolean,
     bonusReferralCode: String,
     referralNetworkName: String?,
-    expandUpdateNetworkReferralSheet: () -> Unit
+    expandUpdateNetworkReferralSheet: () -> Unit,
+    version: String,
 ) {
 
     val context = LocalContext.current
@@ -742,6 +744,26 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             /**
+             * Version
+             */
+            URTextInputLabel("Version and build info")
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    version,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            /**
              * Seeker wallet holder
              */
             URTextInputLabel("Earning multipliers")
@@ -922,7 +944,8 @@ private fun SettingsScreenPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -958,7 +981,8 @@ private fun SettingsScreenSupporterPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -994,7 +1018,8 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             isSeekerHolder = true,
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -1030,7 +1055,8 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -1066,7 +1092,8 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }

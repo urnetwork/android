@@ -16,6 +16,7 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
 import com.bringyour.sdk.ReferralNetwork
+import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,6 +77,9 @@ class SettingsViewModel @Inject constructor(
     val urIdUrl: (String) -> String? = { clientId ->
         networkSpaceManagerProvider.getNetworkSpace()?.connectLinkUrl(clientId)
     }
+
+    var version by mutableStateOf("")
+        private set
 
     fun onPermissionResult(isGranted: Boolean) {
         _permissionGranted.value = isGranted
@@ -206,6 +210,9 @@ class SettingsViewModel @Inject constructor(
         accountPreferencesVc?.start()
 
         fetchReferralNetwork()
+
+        version = Sdk.getVersion()
+
     }
 
 }
