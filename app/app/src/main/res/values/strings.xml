@@ -245,4 +245,7 @@
     <string name="payouts">Payouts</string>
     <string name="referral">Referral</string>
     <string name="net_points_earned">net points earned</string>
+    <string name="version_info">Version and build info</string>
+    <string name="earning_multipliers">Earning multipliers</string>
+    <string name="claim">Claim</string>
 </resources>

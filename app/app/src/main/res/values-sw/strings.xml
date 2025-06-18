@@ -220,4 +220,7 @@
     <string name="payouts">Malipo</string>
     <string name="referral">Rufaa</string>
     <string name="net_points_earned">Jumla ya pointi zilizopatikana</string>
+    <string name="version_info">Taarifa za toleo na ujenzi</string>
+    <string name="earning_multipliers">Vizidishi vya mapato</string>
+    <string name="claim">DAI</string>
 </resources>

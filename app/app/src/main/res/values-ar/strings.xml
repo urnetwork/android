@@ -219,4 +219,7 @@
     <string name="payouts">المدفوعات</string>
     <string name="referral">إحالة</string>
     <string name="net_points_earned">صافي النقاط المكتسبة</string>
+    <string name="version_info">معلومات الإصدار والبناء</string>
+    <string name="earning_multipliers">مضاعفات الأرباح</string>
+    <string name="claim">مطالبة</string>
 </resources>

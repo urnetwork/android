@@ -242,4 +242,7 @@
     <string name="payouts">Выплаты</string>
     <string name="referral">Реферал</string>
     <string name="net_points_earned">Заработано чистых баллов</string>
+    <string name="version_info">Информация о версии и сборке</string>
+    <string name="earning_multipliers">Множители заработка</string>
+    <string name="claim">Получить</string>
 </resources>

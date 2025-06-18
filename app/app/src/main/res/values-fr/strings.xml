@@ -221,4 +221,7 @@
     <string name="payouts">Paiements</string>
     <string name="referral">Parrainage</string>
     <string name="net_points_earned">Points nets gagnés</string>
+    <string name="version_info">Informations sur la version et la build</string>
+    <string name="earning_multipliers">Multiplicateurs de gains</string>
+    <string name="claim">Réclamer</string>
 </resources>

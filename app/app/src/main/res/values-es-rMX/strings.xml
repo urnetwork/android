@@ -219,4 +219,7 @@
     <string name="payouts">Pagos</string>
     <string name="referral">Referido</string>
     <string name="net_points_earned">Puntos netos obtenidos</string>
+    <string name="version_info">Información de versión y compilación</string>
+    <string name="earning_multipliers">Multiplicadores de ganancias</string>
+    <string name="claim">Reclamar</string>
 </resources>

@@ -235,7 +235,8 @@ fun SettingsScreen(
         isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
         bonusReferralCode = bonusReferralCode,
         referralNetworkName = referralNetwork?.name,
-        expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet
+        expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet,
+        version = settingsViewModel.version
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -306,7 +307,8 @@ fun SettingsScreen(
     isSeekerHolder: Boolean,
     bonusReferralCode: String,
     referralNetworkName: String?,
-    expandUpdateNetworkReferralSheet: () -> Unit
+    expandUpdateNetworkReferralSheet: () -> Unit,
+    version: String,
 ) {
 
     val context = LocalContext.current
@@ -742,9 +744,29 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             /**
+             * Version
+             */
+            URTextInputLabel(stringResource(id = R.string.version_info))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    version.ifEmpty { "0.0.0" },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            /**
              * Seeker wallet holder
              */
-            URTextInputLabel("Earning multipliers")
+            URTextInputLabel(stringResource(id = R.string.earning_multipliers))
 
             Row(
                 modifier = Modifier
@@ -754,7 +776,6 @@ fun SettingsScreen(
             ) {
                 Text(
                     stringResource(id = R.string.claim_multiplier),
-                    // stringResource(id = R.string.connect_seeker_wallet),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
@@ -767,7 +788,7 @@ fun SettingsScreen(
                     )
                 } else {
                     Text(
-                        "Claim",
+                        stringResource(id = R.string.claim),
                         modifier = Modifier
                             .clickable {
                                 signAndVerifySeekerHolder()
@@ -922,7 +943,8 @@ private fun SettingsScreenPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -958,7 +980,8 @@ private fun SettingsScreenSupporterPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -994,7 +1017,8 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             isSeekerHolder = true,
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -1030,7 +1054,8 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }
@@ -1066,7 +1091,8 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             isSeekerHolder = false,
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
-            expandUpdateNetworkReferralSheet = {}
+            expandUpdateNetworkReferralSheet = {},
+            version = "1.2.3"
         )
     }
 }

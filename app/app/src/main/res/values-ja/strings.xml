@@ -242,4 +242,7 @@
     <string name="payouts">支払い</string>
     <string name="referral">紹介</string>
     <string name="net_points_earned">純獲得ポイント</string>
+    <string name="version_info">バージョンおよびビルド情報</string>
+    <string name="earning_multipliers">獲得ポイントの倍率</string>
+    <string name="claim">受け取る</string>
 </resources>

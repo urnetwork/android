@@ -220,4 +220,7 @@
     <string name="payouts">Auszahlungen</string>
     <string name="referral">Empfehlung</string>
     <string name="net_points_earned">Netto-Punkte verdient</string>
+    <string name="version_info">Versions- und Build-Informationen</string>
+    <string name="earning_multipliers">Verdienst-Multiplikatoren</string>
+    <string name="claim">Einlösen</string>
 </resources>

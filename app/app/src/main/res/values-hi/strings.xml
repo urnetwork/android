@@ -219,5 +219,8 @@
     <string name="payouts">भुगतान</string>
     <string name="referral">रेफ़रल</string>
     <string name="net_points_earned">अर्जित शुद्ध अंक</string>
+    <string name="version_info">संस्करण और बिल्ड जानकारी</string>
+    <string name="earning_multipliers">कमाई गुणक</string>
+    <string name="claim">दावा करें</string>
 
 </resources>

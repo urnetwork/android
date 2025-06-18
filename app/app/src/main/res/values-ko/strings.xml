@@ -242,4 +242,7 @@
     <string name="payouts">지급</string>
     <string name="referral">추천</string>
     <string name="net_points_earned">순 포인트 획득</string>
+    <string name="version_info">버전 및 빌드 정보</string>
+    <string name="earning_multipliers">수익 배수</string>
+    <string name="claim">받기</string>
 </resources>

@@ -220,4 +220,7 @@
     <string name="payouts">Pagamentos</string>
     <string name="referral">Indicação</string>
     <string name="net_points_earned">Pontos líquidos ganhos</string>
+    <string name="version_info">Informações de versão e build</string>
+    <string name="earning_multipliers">Multiplicadores de ganhos</string>
+    <string name="claim">Resgatar</string>
 </resources>
