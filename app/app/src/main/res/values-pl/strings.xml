@@ -242,5 +242,8 @@
     <string name="payouts">Wypłaty</string>
     <string name="referral">Polecenie</string>
     <string name="net_points_earned">Zarobione punkty netto</string>
+    <string name="version_info">Informacje o wersji i kompilacji</string>
+    <string name="earning_multipliers">Mnożniki zarobków</string>
+    <string name="claim">Odbierz</string>
 
 </resources>

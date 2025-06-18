@@ -220,4 +220,7 @@
     <string name="payouts">支付</string>
     <string name="referral">推荐</string>
     <string name="net_points_earned">净赚积分</string>
+    <string name="version_info">版本和构建信息</string>
+    <string name="earning_multipliers">收益倍增器</string>
+    <string name="claim">领取</string>
 </resources>

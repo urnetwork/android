@@ -746,7 +746,7 @@ fun SettingsScreen(
             /**
              * Version
              */
-            URTextInputLabel("Version and build info")
+            URTextInputLabel(stringResource(id = R.string.version_info))
 
             Row(
                 modifier = Modifier
@@ -755,7 +755,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    version,
+                    version.ifEmpty { "0.0.0" },
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
@@ -766,7 +766,7 @@ fun SettingsScreen(
             /**
              * Seeker wallet holder
              */
-            URTextInputLabel("Earning multipliers")
+            URTextInputLabel(stringResource(id = R.string.earning_multipliers))
 
             Row(
                 modifier = Modifier
@@ -776,7 +776,6 @@ fun SettingsScreen(
             ) {
                 Text(
                     stringResource(id = R.string.claim_multiplier),
-                    // stringResource(id = R.string.connect_seeker_wallet),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
@@ -789,7 +788,7 @@ fun SettingsScreen(
                     )
                 } else {
                     Text(
-                        "Claim",
+                        stringResource(id = R.string.claim),
                         modifier = Modifier
                             .clickable {
                                 signAndVerifySeekerHolder()

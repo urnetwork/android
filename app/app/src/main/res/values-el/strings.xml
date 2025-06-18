@@ -219,4 +219,7 @@
     <string name="payouts">Πληρωμές</string>
     <string name="referral">Παραπομπή</string>
     <string name="net_points_earned">Καθαροί πόντοι που κερδήθηκαν</string>
+    <string name="version_info">Πληροφορίες έκδοσης και κατασκευής</string>
+    <string name="earning_multipliers">Πολλαπλασιαστές κερδών</string>
+    <string name="claim">Απαίτηση</string>
 </resources>
