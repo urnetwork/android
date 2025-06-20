@@ -199,7 +199,6 @@
     <string name="claim_multiplier">Multiplikator beanspruchen</string>
     <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Saga Genesis oder Seeker Vorbestellungs-Token</string>
     <string name="verify_seeker_token_btn">Seeker Vorbestellungs-Token verifizieren</string>
-    <string name="seeker_token_verified">Seeker Token verifiziert - Du verdienst x2 Punkte!</string>
     <string name="total_referrals">Gesamtzahl der Empfehlungen</string>
     <string name="login_verify_check_phone">Überprüfe dein Telefon</string>
     <string name="leaderboard">Bestenliste</string>
@@ -223,4 +222,7 @@
     <string name="version_info">Versions- und Build-Informationen</string>
     <string name="earning_multipliers">Verdienst-Multiplikatoren</string>
     <string name="claim">Einlösen</string>
+    <string name="seeker_token_verified">Seeker-Token verifiziert!</string>
+    <string name="earnings_doubled">Du verdienst x2 Punkte</string>
+    <string name="reliability">Zuverlässigkeit</string>
 </resources>

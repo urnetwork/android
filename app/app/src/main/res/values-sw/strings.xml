@@ -199,7 +199,6 @@
     <string name="claim_multiplier">Dai Kizidishi</string>
     <string name="connect_seeker_wallet">Unganisha pochi na Saga Genesis au Tokeni ya Agizo la Mapema la Seeker</string>
     <string name="verify_seeker_token_btn">Thibitisha Tokeni ya Agizo la Mapema la Seeker</string>
-    <string name="seeker_token_verified">Tokeni ya Seeker Imethibitishwa - Unapata pointi x2!</string>
     <string name="total_referrals">Jumla ya marejeleo</string>
     <string name="login_verify_check_phone">Angalia simu yako</string>
     <string name="leaderboard">Ubao wa wanaoongoza</string>
@@ -223,4 +222,7 @@
     <string name="version_info">Taarifa za toleo na ujenzi</string>
     <string name="earning_multipliers">Vizidishi vya mapato</string>
     <string name="claim">DAI</string>
+    <string name="seeker_token_verified">Tokeni ya Seeker imethibitishwa!</string>
+    <string name="earnings_doubled">Unapata pointi x2</string>
+    <string name="reliability">Uaminifu</string>
 </resources>

@@ -221,7 +221,6 @@
     <string name="claim_multiplier">Получить множитель</string>
     <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или токеном предварительного заказа Seeker</string>
     <string name="verify_seeker_token_btn">Подтвердить токен предварительного заказа Seeker</string>
-    <string name="seeker_token_verified">окен Seeker подтвержден - Вы получаете x2 очков!</string>
     <string name="total_referrals">Всего рефералов</string>
     <string name="login_verify_check_phone">Проверьте свой телефон</string>
     <string name="leaderboard">Таблица лидеров</string>
@@ -245,4 +244,7 @@
     <string name="version_info">Информация о версии и сборке</string>
     <string name="earning_multipliers">Множители заработка</string>
     <string name="claim">Получить</string>
+    <string name="seeker_token_verified">Токен Seeker подтверждён!</string>
+    <string name="earnings_doubled">Вы зарабатываете x2 баллов</string>
+    <string name="reliability">Надёжность</string>
 </resources>

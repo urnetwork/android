@@ -221,7 +221,6 @@
     <string name="claim_multiplier">Odbierz mnożnik</string>
     <string name="connect_seeker_wallet">Połącz portfel z tokenem Saga Genesis lub tokenem zamówienia przedpremierowego Seeker</string>
     <string name="verify_seeker_token_btn">Zweryfikuj token zamówienia przedpremierowego Seeker</string>
-    <string name="seeker_token_verified">Token Seeker zweryfikowany - zdobywasz x2 punkty!</string>
     <string name="total_referrals">Liczba wszystkich poleceń</string>
     <string name="login_verify_check_phone">Sprawdź swój telefon</string>
     <string name="leaderboard">Tablica wyników</string>
@@ -245,5 +244,8 @@
     <string name="version_info">Informacje o wersji i kompilacji</string>
     <string name="earning_multipliers">Mnożniki zarobków</string>
     <string name="claim">Odbierz</string>
+    <string name="seeker_token_verified">Token Seeker zweryfikowany!</string>
+    <string name="earnings_doubled">Zarabiasz x2 punkty</string>
+    <string name="reliability">Niezawodność</string>
 
 </resources>

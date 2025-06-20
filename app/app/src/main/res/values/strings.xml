@@ -224,7 +224,6 @@
     <string name="claim_multiplier">Claim Multiplier</string>
     <string name="connect_seeker_wallet">Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
     <string name="verify_seeker_token_btn">Verify Seeker Pre-Order Token</string>
-    <string name="seeker_token_verified">Seeker Token Verified - You\'re earning x2 points!</string>
     <string name="total_referrals">Total referrals</string>
     <string name="login_verify_check_phone">Check your phone</string>
     <string name="leaderboard">Leaderboard</string>
@@ -248,4 +247,7 @@
     <string name="version_info">Version and build info</string>
     <string name="earning_multipliers">Earning multipliers</string>
     <string name="claim">Claim</string>
+    <string name="seeker_token_verified">Seeker Token Verified!</string>
+    <string name="earnings_doubled">You\'re earning x2 points</string>
+    <string name="reliability">Reliability</string>
 </resources>

@@ -221,7 +221,6 @@
     <string name="claim_multiplier">乗数を受け取る</string>
     <string name="connect_seeker_wallet">Saga Genesisまたはシーカー事前予約トークンでウォレットを接続する</string>
     <string name="verify_seeker_token_btn">シーカー事前予約トークンを認証</string>
-    <string name="seeker_token_verified">シーカー トークンが認証されました - x2 ポイントを獲得中!</string>
     <string name="total_referrals">合計紹介数</string>
     <string name="login_verify_check_phone">携帯電話を確認してください</string>
     <string name="leaderboard">リーダーボード</string>
@@ -245,4 +244,7 @@
     <string name="version_info">バージョンおよびビルド情報</string>
     <string name="earning_multipliers">獲得ポイントの倍率</string>
     <string name="claim">受け取る</string>
+    <string name="seeker_token_verified">Seekerトークンが認証されました！</string>
+    <string name="earnings_doubled">あなたは x2 ポイントを獲得しています</string>
+    <string name="reliability">信頼性</string>
 </resources>
