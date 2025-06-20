@@ -198,7 +198,6 @@
     <string name="claim_multiplier">गुणक का दावा करें</string>
     <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
     <string name="verify_seeker_token_btn">सीकर प्री-ऑर्डर टोकन सत्यापित करें</string>
-    <string name="seeker_token_verified">सीकर टोकन सत्यापित - आप x2 अंक अर्जित कर रहे हैं!</string>
     <string name="total_referrals">कुल रेफरल</string>
     <string name="login_verify_check_phone">अपना फ़ोन जांचें</string>
     <string name="leaderboard">लीडरबोर्ड</string>
@@ -222,5 +221,8 @@
     <string name="version_info">संस्करण और बिल्ड जानकारी</string>
     <string name="earning_multipliers">कमाई गुणक</string>
     <string name="claim">दावा करें</string>
+    <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
+    <string name="earnings_doubled">आप x2 अंक कमा रहे हैं</string>
+    <string name="reliability">विश्वसनीयता</string>
 
 </resources>

@@ -199,7 +199,6 @@
     <string name="claim_multiplier">领取倍数</string>
     <string name="connect_seeker_wallet">连接带有 Saga Genesis 或 Seeker 预售代币的钱包</string>
     <string name="verify_seeker_token_btn">验证 Seeker 预售代币</string>
-    <string name="seeker_token_verified">Seeker 代币已验证 - 您正在赚取 x2 积分！</string>
     <string name="total_referrals">推荐总数</string>
     <string name="login_verify_check_phone">检查你的手机</string>
     <string name="leaderboard">排行榜</string>
@@ -223,4 +222,7 @@
     <string name="version_info">版本和构建信息</string>
     <string name="earning_multipliers">收益倍增器</string>
     <string name="claim">领取</string>
+    <string name="seeker_token_verified">Seeker 令牌已验证</string>
+    <string name="earnings_doubled">你正在获得 x2 积分</string>
+    <string name="reliability">可靠性</string>
 </resources>

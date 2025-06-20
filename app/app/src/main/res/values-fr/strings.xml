@@ -200,7 +200,6 @@
     <string name="claim_multiplier">Réclamer le multiplicateur</string>
     <string name="connect_seeker_wallet">Connectez un portefeuille avec le jeton Saga Genesis ou le jeton de précommande Seeker</string>
     <string name="verify_seeker_token_btn">Vérifier le jeton de précommande Seeker</string>
-    <string name="seeker_token_verified">Jeton Seeker vérifié - Vous gagnez x2 points !</string>
     <string name="total_referrals">Nombre total de parrainages</string>
     <string name="login_verify_check_phone">Vérifiez votre téléphone</string>
     <string name="leaderboard">Classement</string>
@@ -224,4 +223,7 @@
     <string name="version_info">Informations sur la version et la build</string>
     <string name="earning_multipliers">Multiplicateurs de gains</string>
     <string name="claim">Réclamer</string>
+    <string name="seeker_token_verified">Jeton Seeker vérifié !</string>
+    <string name="earnings_doubled">Vous gagnez x2 points</string>
+    <string name="reliability">Fiabilité</string>
 </resources>

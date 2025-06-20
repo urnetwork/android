@@ -198,7 +198,6 @@
     <string name="claim_multiplier">Αξιώστε τον πολλαπλασιαστή</string>
     <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Saga Genesis ή το Seeker Pre-Order Token</string>
     <string name="verify_seeker_token_btn">Επαληθεύστε το Seeker Pre-Order Token</string>
-    <string name="seeker_token_verified">Το Seeker Token επαληθεύτηκε - Κερδίζετε x2 πόντους!</string>
     <string name="total_referrals">Συνολικές παραπομπές</string>
     <string name="login_verify_check_phone">Ελέγξτε το τηλέφωνό σας</string>
     <string name="leaderboard">Πίνακας κατάταξης</string>
@@ -222,4 +221,7 @@
     <string name="version_info">Πληροφορίες έκδοσης και κατασκευής</string>
     <string name="earning_multipliers">Πολλαπλασιαστές κερδών</string>
     <string name="claim">Απαίτηση</string>
+    <string name="seeker_token_verified">Το διακριτικό Seeker επαληθεύτηκε!</string>
+    <string name="earnings_doubled">Κερδίζετε x2 πόντους</string>
+    <string name="reliability">Αξιοπιστία</string>
 </resources>
