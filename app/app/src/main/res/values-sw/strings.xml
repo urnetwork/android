@@ -225,4 +225,7 @@
     <string name="seeker_token_verified">Tokeni ya Seeker imethibitishwa!</string>
     <string name="earnings_doubled">Unapata pointi x2</string>
     <string name="reliability">Uaminifu</string>
+    <string name="browse_locations">Vinjari maeneo</string>
+    <string name="none">Hakuna</string>
+    <string name="send_feedback">Tuma maoni yako moja kwa moja au jiunge na %1$s yetu kwa msaada wa moja kwa moja.</string>
 </resources>

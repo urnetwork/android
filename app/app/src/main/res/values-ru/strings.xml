@@ -247,4 +247,7 @@
     <string name="seeker_token_verified">Токен Seeker подтверждён!</string>
     <string name="earnings_doubled">Вы зарабатываете x2 баллов</string>
     <string name="reliability">Надёжность</string>
+    <string name="browse_locations">Просмотреть локации</string>
+    <string name="none">Нет</string>
+    <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему %1$s для получения прямой поддержки.</string>
 </resources>

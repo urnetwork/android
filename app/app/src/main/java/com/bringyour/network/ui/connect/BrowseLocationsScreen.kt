@@ -19,7 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 
@@ -39,7 +41,7 @@ fun BrowseLocationsScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Browse Locations",
+                        stringResource(id = R.string.browse_locations),
                         style = TopBarTitleTextStyle
                     )
                 },

@@ -224,4 +224,7 @@
     <string name="seeker_token_verified">تم التحقق من رمز Seeker!</string>
     <string name="earnings_doubled">أنت تكسب نقاط x2</string>
     <string name="reliability">الموثوقية</string>
+    <string name="browse_locations">تصفح المواقع</string>
+    <string name="none">لا يوجد</string>
+    <string name="send_feedback">1$s الخاص بنا للحصول على دعم مباشر.</string>
 </resources>

@@ -12,7 +12,7 @@
     <string name="try_guest_mode"> Wypróbuj tryb gościa</string>
     <string name="enter">Wejdź</string>
     <string name="step_in">Wejdź do internetu, jakim powinien być.</string>
-    <string name="nicely_done">Dobrze zrobione!</string>
+    <string name="nicely_done">Dobra Robota</string>
     <string name="available">Dostępne</string>
 
     <!-- Formularz tworzenia sieci -->
@@ -247,5 +247,8 @@
     <string name="seeker_token_verified">Token Seeker zweryfikowany!</string>
     <string name="earnings_doubled">Zarabiasz x2 punkty</string>
     <string name="reliability">Niezawodność</string>
+    <string name="browse_locations">Przeglądaj lokalizacje</string>
+    <string name="none">Brak</string>
+    <string name="send_feedback">Prześlij nam swoją opinię bezpośrednio lub dołącz do naszego %1$s, aby uzyskać bezpośrednie wsparcie.</string>
 
 </resources>

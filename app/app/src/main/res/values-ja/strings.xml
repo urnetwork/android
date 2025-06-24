@@ -247,4 +247,7 @@
     <string name="seeker_token_verified">Seekerトークンが認証されました！</string>
     <string name="earnings_doubled">あなたは x2 ポイントを獲得しています</string>
     <string name="reliability">信頼性</string>
+    <string name="browse_locations">ロケーションを閲覧</string>
+    <string name="none">なし</string>
+    <string name="send_feedback">ご意見を直接お送りいただくか、直接サポートのために私たちの%1$sにご参加ください。</string>
 </resources>

@@ -224,4 +224,7 @@
     <string name="seeker_token_verified">Το διακριτικό Seeker επαληθεύτηκε!</string>
     <string name="earnings_doubled">Κερδίζετε x2 πόντους</string>
     <string name="reliability">Αξιοπιστία</string>
+    <string name="browse_locations">Περιήγηση σε τοποθεσίες</string>
+    <string name="none">Κανένα</string>
+    <string name="send_feedback">Στείλτε μας τα σχόλιά σας απευθείας ή μπείτε στο %1$s μας για άμεση υποστήριξη.</string>
 </resources>

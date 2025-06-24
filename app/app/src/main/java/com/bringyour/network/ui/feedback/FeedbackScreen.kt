@@ -220,29 +220,18 @@ private fun FeedbackForm(
     val supportUrl = "https://discord.com/invite/RUNZXMwPRK"
 
     val uriHandler = LocalUriHandler.current
+    
+    val discordText = "Discord"
+    val feedbackFull = stringResource(id = R.string.send_feedback, discordText)
+
+    val startIndex = feedbackFull.indexOf(discordText)
+    val endIndex = startIndex + discordText.length
 
     val feedbackAnnotatedString = buildAnnotatedString {
-        withStyle(
-            style = MaterialTheme.typography.bodyLarge.toSpanStyle()
-                .copy(color = Color.White)
-        ) {
-            append("Send us your feedback directly or ")
-
-            pushStringAnnotation(
-                tag = "URL",
-                annotation = supportUrl
-            )
-            withStyle(
-                style = SpanStyle(
-                    color = Pink
-                )
-            ) {
-                append("join our Discord ")
-            }
-
-            append("for direct support.")
-
-            pop()
+        withStyle(style = MaterialTheme.typography.bodyLarge.toSpanStyle().copy(color = Color.White)) {
+            append(feedbackFull)
+            addStyle(SpanStyle(color = Pink), startIndex, endIndex)
+            addStringAnnotation("URL", supportUrl, startIndex, endIndex)
         }
     }
 

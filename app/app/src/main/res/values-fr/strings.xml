@@ -226,4 +226,7 @@
     <string name="seeker_token_verified">Jeton Seeker vérifié !</string>
     <string name="earnings_doubled">Vous gagnez x2 points</string>
     <string name="reliability">Fiabilité</string>
+    <string name="browse_locations">Parcourir les emplacements</string>
+    <string name="none">Aucun</string>
+    <string name="send_feedback">Envoyez-nous directement vos retours ou rejoignez notre %1$s pour un support direct.</string>
 </resources>

@@ -250,4 +250,7 @@
     <string name="seeker_token_verified">Seeker Token Verified!</string>
     <string name="earnings_doubled">You\'re earning x2 points</string>
     <string name="reliability">Reliability</string>
+    <string name="browse_locations">Browse Locations</string>
+    <string name="none">None</string>
+    <string name="send_feedback">Send us your feedback directly or join our Discord for direct support.</string>
 </resources>
