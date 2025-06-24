@@ -21,7 +21,6 @@ import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.InetAddress
-import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
@@ -156,7 +155,8 @@ class MainService : VpnService() {
         val builder = Builder()
         builder.setSession("URnetwork")
         builder.setMtu(1440)
-        builder.setBlocking(true)
+        builder.setBlocking(false)
+        builder.setUnderlyingNetworks(null)
         if (offline) {
             // when offline, only allow traffic from a fake package name
             // in this way, the vpn service remains active but no apps detect it as an interface
@@ -400,11 +400,10 @@ class MainService : VpnService() {
                                 }
                                 app.serviceActiveMonitor.wait(1000, 0)
                             }
-                        } else {
-                            runBlocking(Dispatchers.Main.immediate) {
-                                stop()
-                            }
                         }
+                    }
+                    runBlocking(Dispatchers.Main.immediate) {
+                        stop()
                     }
                 }
             }
@@ -413,44 +412,31 @@ class MainService : VpnService() {
 }
 
 
-private class PacketFlow(deviceLocal: DeviceLocal, val pfd: ParcelFileDescriptor, endCallback: (packetFlow: PacketFlow)->Unit) {
+private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, endCallback: (packetFlow: PacketFlow)->Unit) {
 
     val stateLock = ReentrantLock()
-    val closed: Condition = stateLock.newCondition()
+//    val closed: Condition = stateLock.newCondition()
     var active: Boolean = true
 
-    val ioLoop: IoLoop = Sdk.newIoLoop(deviceLocal, pfd.fd)
-
-
-    init {
-        val t = thread {
-            try {
-                ioLoop.run()
-            } finally {
-                close()
-                endCallback(this@PacketFlow)
-            }
-        }
-        t.priority = Thread.MAX_PRIORITY
+    val ioLoop: IoLoop = Sdk.newIoLoop(deviceLocal, pfd.detachFd()) {
+        close()
+        endCallback(this@PacketFlow)
     }
 
     fun close() {
+        var closed = false
         stateLock.lock()
         try {
             if (active) {
                 active = false
-
-                ioLoop.close()
-
-                try {
-                    pfd.close()
-                } catch (_: IOException) {
-                }
-
-                closed.signalAll()
+                closed = true
+//                closed.signalAll()
             }
         } finally {
             stateLock.unlock()
+        }
+        if (closed) {
+            ioLoop.close()
         }
     }
 
