@@ -5,15 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Color.TRANSPARENT
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -26,7 +23,6 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
-import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -34,8 +30,7 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
+import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -285,7 +280,7 @@ class MainActivity: AppCompatActivity() {
                 null
             }
             is TransactionResult.Failure -> {
-                Log.i("SolanaViewModel", "Error connecting to wallet: " + result.e.message)
+                Log.i("SolanaViewModel", "Error connecting to wallet: ${result.e}")
                 null
             }
         }
@@ -366,10 +361,6 @@ class MainActivity: AppCompatActivity() {
         app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs()) { result, error ->
             val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
                 .setProductDetailsParamsList(productDetailsParamsList)
-
-            Log.i(TAG, "result: $result")
-
-            Log.i(TAG, "error: ${error.message}")
 
             result?.subscriptionPaymentId?.string()?.let {
                 buildingFlowParamsBuilder.setObfuscatedAccountId(it)

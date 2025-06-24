@@ -207,7 +207,7 @@ fun LoginInitial(
                     }
                     is TransactionResult.Failure -> {
                         loginViewModel.setLoginError("Error connecting to wallet")
-                        Log.i("LoginInitial", "Error connecting to wallet: " + result.e.message)
+                        Log.i("LoginInitial", "Error connecting to wallet: ${result.e}")
                     }
                 }
             }

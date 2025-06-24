@@ -237,7 +237,7 @@ class MainActivity: AppCompatActivity() {
                 null
             }
             is TransactionResult.Failure -> {
-                Log.i("SolanaViewModel", "Error connecting to wallet: " + result.e.message)
+                Log.i("SolanaViewModel", "Error connecting to wallet: ${result.e}")
                 null
             }
         }

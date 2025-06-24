@@ -201,7 +201,7 @@ fun SettingsScreen(
                         println("No MWA compatible wallet app found on device.")
                     }
                     is TransactionResult.Failure -> {
-                        println("Error during transaction signing: " + result.e.message)
+                        println("Error during transaction signing: ${result.e}")
                     }
                 }
             }

@@ -208,7 +208,7 @@ fun WalletsScreen(
                     }
 
                     is TransactionResult.Failure -> {
-                        println("Error connecting to wallet: " + result.e.message)
+                        println("Error connecting to wallet: ${result.e}")
                     }
                 }
             }
