@@ -211,7 +211,7 @@ class SettingsViewModel @Inject constructor(
 
         fetchReferralNetwork()
 
-        version = Sdk.getVersion()
+        version = Sdk.Version
 
     }
 
