@@ -218,7 +218,20 @@ class MainActivity: AppCompatActivity() {
         // for upgrading plan
         lifecycleScope.launch {
             planViewModel.requestPlanUpgrade.collect {
-                upgradePlan()
+
+
+                var networkId: String? = null
+                val networkSpace = app.networkSpaceManagerProvider.getNetworkSpace()
+                networkSpace?.asyncLocalState?.parseByJwt { jwt, _ ->
+                    if (jwt.networkId != null) {
+                        networkId = jwt.networkId?.idStr
+                    }
+                }
+
+                networkId?.let { upgradePlan(it) }
+                    ?: run {
+                        planViewModel.setChangePlanError("Network ID not found")
+                    }
             }
         }
 
@@ -286,7 +299,7 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    private suspend fun upgradePlan() {
+    private suspend fun upgradePlan(networkId: String) {
 
         Log.i("MainActivity", "upgrade plan hit")
 
@@ -358,25 +371,37 @@ class MainActivity: AppCompatActivity() {
 //            app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs())
 //        }
 
-        app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs()) { result, error ->
-            val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
-                .setProductDetailsParamsList(productDetailsParamsList)
+        val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
+            .setProductDetailsParamsList(productDetailsParamsList)
 
-            result?.subscriptionPaymentId?.string()?.let {
-                buildingFlowParamsBuilder.setObfuscatedAccountId(it)
-            } ?: run {
-                Log.i(TAG, "result?.subscriptionPaymentId not found")
-            }
+        buildingFlowParamsBuilder.setObfuscatedAccountId(networkId)
 
-            val billingFlowParams = buildingFlowParamsBuilder.build()
+        val billingFlowParams = buildingFlowParamsBuilder.build()
 
-            // Launch the billing flow
-
-            activity.let { a ->
-                val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
-                Log.i("MainActivity", "billing result: $billingResult")
-            }
+        activity.let { a ->
+            val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
+            Log.i("MainActivity", "billing result: $billingResult")
         }
+
+//        app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs()) { result, error ->
+//            val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
+//                .setProductDetailsParamsList(productDetailsParamsList)
+//
+//            result?.subscriptionPaymentId?.string()?.let {
+//                buildingFlowParamsBuilder.setObfuscatedAccountId(it)
+//            } ?: run {
+//                Log.i(TAG, "result?.subscriptionPaymentId not found")
+//            }
+//
+//            val billingFlowParams = buildingFlowParamsBuilder.build()
+//
+//            // Launch the billing flow
+//
+//            activity.let { a ->
+//                val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
+//                Log.i("MainActivity", "billing result: $billingResult")
+//            }
+//        }
 
     }
 }
