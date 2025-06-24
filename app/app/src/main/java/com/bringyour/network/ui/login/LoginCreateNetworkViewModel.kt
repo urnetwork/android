@@ -8,12 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.sdk.Sdk
-import com.bringyour.sdk.NetworkCreateArgs
-import com.bringyour.sdk.NetworkNameValidationViewController
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
 import com.bringyour.sdk.Api
+import com.bringyour.sdk.NetworkCreateArgs
+import com.bringyour.sdk.NetworkNameValidationViewController
+import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.ValidateReferralCodeArgs
 import com.bringyour.sdk.WalletAuthArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -113,7 +113,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
                             isValidReferralCode = false
                         }
 
-                        isValidReferralCode = result.isValid
+                        isValidReferralCode = result?.isValid ?: false
                         isValidatingReferralCode = false
                         referralValidationComplete = true
                         onComplete(isValidReferralCode)
