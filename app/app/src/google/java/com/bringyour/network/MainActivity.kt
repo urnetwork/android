@@ -383,25 +383,5 @@ class MainActivity: AppCompatActivity() {
             Log.i("MainActivity", "billing result: $billingResult")
         }
 
-//        app.api?.subscriptionCreatePaymentId(SubscriptionCreatePaymentIdArgs()) { result, error ->
-//            val buildingFlowParamsBuilder = BillingFlowParams.newBuilder()
-//                .setProductDetailsParamsList(productDetailsParamsList)
-//
-//            result?.subscriptionPaymentId?.string()?.let {
-//                buildingFlowParamsBuilder.setObfuscatedAccountId(it)
-//            } ?: run {
-//                Log.i(TAG, "result?.subscriptionPaymentId not found")
-//            }
-//
-//            val billingFlowParams = buildingFlowParamsBuilder.build()
-//
-//            // Launch the billing flow
-//
-//            activity.let { a ->
-//                val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
-//                Log.i("MainActivity", "billing result: $billingResult")
-//            }
-//        }
-
     }
 }
