@@ -410,37 +410,34 @@ class MainApplication : Application() {
 
 
         deviceRouteLocalSub = device?.addRouteLocalChangeListener {
-            runBlocking(Dispatchers.Main.immediate) {
-//                this@MainApplication.connectEnabled = connectEnabled
+            Handler(Looper.getMainLooper()).post {
                 updateVpnService()
             }
         }
         deviceProvideSub = device?.addProvideChangeListener {
-            runBlocking(Dispatchers.Main.immediate) {
-//                this@MainApplication.provideEnabled = provideEnabled
+            Handler(Looper.getMainLooper()).post {
                 updateVpnService()
             }
         }
         deviceProvidePausedSub = device?.addProvidePausedChangeListener {
-            runBlocking(Dispatchers.Main.immediate) {
+            Handler(Looper.getMainLooper()).post {
                 updateVpnService()
             }
         }
         deviceOfflineSub = device?.addOfflineChangeListener { _, _ ->
-            runBlocking(Dispatchers.Main.immediate) {
+            Handler(Looper.getMainLooper()).post {
                 updateVpnService()
             }
         }
         deviceConnectSub = device?.addConnectChangeListener {
-            runBlocking(Dispatchers.Main.immediate) {
-//                this@MainApplication.connectEnabled = connectEnabled
+            Handler(Looper.getMainLooper()).post {
                 updateVpnService()
             }
         }
 
 
         tunnelChangeSub = device?.addTunnelChangeListener { tunnelStarted ->
-            runBlocking(Dispatchers.Main.immediate) {
+            Handler(Looper.getMainLooper()).post {
                 updateTunnelStarted()
 
                 if (!tunnelStarted) {
@@ -451,7 +448,7 @@ class MainApplication : Application() {
             }
         }
         contractStatusChangeSub = device?.addContractStatusChangeListener {
-            runBlocking(Dispatchers.Main.immediate) {
+            Handler(Looper.getMainLooper()).post {
                 updateContractStatus()
             }
         }
@@ -459,12 +456,11 @@ class MainApplication : Application() {
         addOfflineCallback()
         addNetworkCallback()
 
-        updateTunnelStarted()
-        updateContractStatus()
-
         // *important* calling startService for a VpnService in OnCreate will *not* correctly set up the routes
         // we need to delay this after onCreate for the routes to set up correctly (wtf)
         Handler(Looper.getMainLooper()).post {
+            updateTunnelStarted()
+            updateContractStatus()
             updateVpnService()
         }
 
@@ -563,82 +559,87 @@ class MainApplication : Application() {
 
         val device = device ?: return
 
+        if (!serviceActive) {
 
-        val offline = device.offline
-        val vpnInterfaceWhileOffline = device.vpnInterfaceWhileOffline
+            val offline = device.offline
+            val vpnInterfaceWhileOffline = device.vpnInterfaceWhileOffline
 
-        val vpnIntent = Intent(this, MainService::class.java)
-        vpnIntent.putExtra("source", "app")
-        vpnIntent.putExtra("stop", false)
-        vpnIntent.putExtra("start", true)
-        vpnIntent.putExtra("foreground", foreground)
-        vpnIntent.putExtra("offline", offline && !vpnInterfaceWhileOffline)
+            val vpnIntent = Intent(this, MainService::class.java)
+            vpnIntent.putExtra("source", "app")
+            vpnIntent.putExtra("stop", false)
+            vpnIntent.putExtra("start", true)
+            vpnIntent.putExtra("foreground", foreground)
+            vpnIntent.putExtra("offline", offline && !vpnInterfaceWhileOffline)
 
-        try {
-            if (VpnService.prepare(this) != null) {
-                // prepare returns an intent when the user must grant additional permissions
-                // the ui will check `vpnRequestStart` and start again when the permissions have been set up
-                vpnRequestStart = true
-                vpnRequestStartListener?.let { it() }
-            } else {
-                // important: start the vpn service in the application context
-
-                fun hasForegroundPermissions(): Boolean {
-                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                        val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                            this,
-                            android.Manifest.permission.POST_NOTIFICATIONS
-                        ) == PackageManager.PERMISSION_GRANTED
-                        return hasForegroundPermissions
-                    } else {
-                        return true
-                    }
-                }
-
-                if (foreground && !hasForegroundPermissions()) {
+            try {
+                if (VpnService.prepare(this) != null) {
+                    // prepare returns an intent when the user must grant additional permissions
+                    // the ui will check `vpnRequestStart` and start again when the permissions have been set up
                     vpnRequestStart = true
                     vpnRequestStartListener?.let { it() }
                 } else {
-                    serviceActive = true
+                    // important: start the vpn service in the application context
 
-                    if (foreground) {
-                        // use a foreground service to allow notifications
+                    fun hasForegroundPermissions(): Boolean {
                         if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                            try {
-                                startForegroundService(vpnIntent)
-                            } catch (e: ForegroundServiceStartNotAllowedException) {
-                                startService(vpnIntent)
-                            }
-                        } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
-                            try {
-                                ContextCompat.startForegroundService(this, vpnIntent)
-                            } catch (e: ForegroundServiceStartNotAllowedException) {
-                                startService(vpnIntent)
-                            }
+                            val hasForegroundPermissions = ContextCompat.checkSelfPermission(
+                                this,
+                                android.Manifest.permission.POST_NOTIFICATIONS
+                            ) == PackageManager.PERMISSION_GRANTED
+                            return hasForegroundPermissions
                         } else {
-                            ContextCompat.startForegroundService(this, vpnIntent)
+                            return true
                         }
-                    } else {
-                        startService(vpnIntent)
                     }
 
+                    if (foreground && !hasForegroundPermissions()) {
+                        vpnRequestStart = true
+                        vpnRequestStartListener?.let { it() }
+                    } else {
+                        serviceActive = true
+
+                        if (foreground) {
+                            // use a foreground service to allow notifications
+                            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                                try {
+                                    startForegroundService(vpnIntent)
+                                } catch (e: ForegroundServiceStartNotAllowedException) {
+                                    startService(vpnIntent)
+                                }
+                            } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
+                                try {
+                                    ContextCompat.startForegroundService(this, vpnIntent)
+                                } catch (e: ForegroundServiceStartNotAllowedException) {
+                                    startService(vpnIntent)
+                                }
+                            } else {
+                                ContextCompat.startForegroundService(this, vpnIntent)
+                            }
+                        } else {
+                            startService(vpnIntent)
+                        }
+
 //                    tunnelRequestStatus = TunnelRequestStatus.Started
-                    vpnRequestStart = false
+                        vpnRequestStart = false
+                    }
                 }
+            } catch (e: Exception) {
+                Log.i(
+                    TAG,
+                    "Error trying to communicate with the vpn service to start: ${e.message}"
+                )
+                vpnRequestStart = true
+                // do not request start here
+                // that could lead to a loop
             }
-        } catch (e: Exception) {
-            Log.i(
-                TAG,
-                "Error trying to communicate with the vpn service to start: ${e.message}"
-            )
-            vpnRequestStart = true
-            // do not request start here
-            // that could lead to a loop
         }
     }
 
     private fun stopVpnService() {
         vpnRequestStart = false
+
+        val device = device ?: return
+
 
 //        if (tunnelRequestStatus == TunnelRequestStatus.Stopped) {
 //            return
@@ -654,11 +655,39 @@ class MainApplication : Application() {
         //
         // using a weak reference to the service is strangely the cleanest approach
 
-        serviceActive = false
-        synchronized(serviceActiveMonitor) {
-            serviceActiveMonitor.notifyAll()
+
+        // TODO stop should return once the tunnel is torn down
+//        device?.addTunnelChangeListener {
+//            synchronized(serviceActiveMonitor) {
+//                serviceActiveMonitor.notifyAll()
+//            }
+//        }
+
+
+
+//        val s = Semaphore(0)
+//        var sub: Sub? = null
+//        if (!device.tunnelStarted) {
+//            s.release()
+//        } else {
+//            sub = device.addTunnelChangeListener {
+//                if (!device.tunnelStarted) {
+//                    s.release()
+//                }
+//            }
+//        }
+
+        if (serviceActive) {
+            serviceActive = false
+            service?.get()?.stop()
+            synchronized(serviceActiveMonitor) {
+                serviceActiveMonitor.notifyAll()
+            }
         }
-        service?.get()?.stop()
+
+
+        // wait for the tunnel to shut down
+
 
 //        tunnelRequestStatus = TunnelRequestStatus.Stopped
 
