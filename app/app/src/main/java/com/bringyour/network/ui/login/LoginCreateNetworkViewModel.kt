@@ -111,9 +111,10 @@ class LoginCreateNetworkViewModel @Inject constructor(
                         if (err != null) {
                             Log.i(TAG, "validateReferralCode callback err: ${err.message}")
                             isValidReferralCode = false
+                        } else {
+                            isValidReferralCode = result?.isValid ?: false
                         }
 
-                        isValidReferralCode = result?.isValid ?: false
                         isValidatingReferralCode = false
                         referralValidationComplete = true
                         onComplete(isValidReferralCode)
