@@ -564,7 +564,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    referralNetworkName ?: "None",
+                    referralNetworkName ?: stringResource(id = R.string.none),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )

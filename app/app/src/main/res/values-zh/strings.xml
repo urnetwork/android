@@ -225,4 +225,7 @@
     <string name="seeker_token_verified">Seeker 令牌已验证</string>
     <string name="earnings_doubled">你正在获得 x2 积分</string>
     <string name="reliability">可靠性</string>
+    <string name="browse_locations">浏览位置</string>
+    <string name="none">无</string>
+    <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>
 </resources>

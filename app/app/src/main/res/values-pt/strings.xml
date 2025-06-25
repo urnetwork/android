@@ -224,5 +224,8 @@
     <string name="seeker_token_verified">Token Seeker verificado!</string>
     <string name="earnings_doubled">Está a ganhar x2 pontos</string>
     <string name="reliability">Fiabilidade</string>
+    <string name="browse_locations">Explorar locais</string>
+    <string name="none">Nenhum</string>
+    <string name="send_feedback">Envie-nos o seu feedback diretamente ou junte-se ao nosso %1$s para suporte direto.</string>
 
 </resources>

@@ -224,5 +224,8 @@
     <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
     <string name="earnings_doubled">आप x2 अंक कमा रहे हैं</string>
     <string name="reliability">विश्वसनीयता</string>
+    <string name="browse_locations">" स्थान ब्राउज़ करें"</string>
+    <string name="none">कोई नहीं</string>
+    <string name="send_feedback">हमें सीधे अपनी प्रतिक्रिया भेजें या सीधे समर्थन के लिए हमारे %1$s से जुड़ें।</string>
 
 </resources>
