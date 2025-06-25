@@ -219,19 +219,33 @@ class MainActivity: AppCompatActivity() {
         lifecycleScope.launch {
             planViewModel.requestPlanUpgrade.collect {
 
+                Log.i(TAG, "requestPlanUpgrade triggered")
 
-                var networkId: String? = null
+                // var networkId: String? = null
                 val networkSpace = app.networkSpaceManagerProvider.getNetworkSpace()
-                networkSpace?.asyncLocalState?.parseByJwt { jwt, _ ->
-                    if (jwt.networkId != null) {
-                        networkId = jwt.networkId?.idStr
-                    }
+
+                if (networkSpace == null) {
+                    Log.i(TAG, "network space is null")
+                    return@collect
                 }
 
-                networkId?.let { upgradePlan(it) }
-                    ?: run {
-                        planViewModel.setChangePlanError("Network ID not found")
+                val localState = networkSpace.asyncLocalState
+
+                if (localState == null) {
+                    Log.i(TAG, "network space is null")
+                    return@collect
+                }
+
+                localState.parseByJwt { jwt, _ ->
+
+                    Log.i(TAG, "jwt.network id is ${jwt.networkId.idStr}")
+                    if (jwt.networkId != null) {
+
+                        lifecycleScope.launch {
+                            upgradePlan(jwt.networkId.idStr)
+                        }
                     }
+                }
             }
         }
 
