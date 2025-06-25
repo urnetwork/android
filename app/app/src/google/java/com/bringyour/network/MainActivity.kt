@@ -317,13 +317,6 @@ class MainActivity: AppCompatActivity() {
 
         Log.i("MainActivity", "upgrade plan hit")
 
-        if (planViewModel.isRequestingPlanUpgrade) {
-            Log.i("MainActivity", "requesting plan upgrade already in progress, returning")
-            return
-        }
-
-        planViewModel.setIsRequestingPlanUpgrade(true)
-
         val app = application as MainApplication
 
         val billingClient = planViewModel.billingClient.value
