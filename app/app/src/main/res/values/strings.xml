@@ -253,4 +253,5 @@
     <string name="browse_locations">Browse Locations</string>
     <string name="none">None</string>
     <string name="send_feedback">Send us your feedback directly or join our Discord for direct support.</string>
+    <string name="referral_network">Referral network</string>
 </resources>

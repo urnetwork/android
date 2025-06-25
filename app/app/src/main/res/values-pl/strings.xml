@@ -250,5 +250,6 @@
     <string name="browse_locations">Przeglądaj lokalizacje</string>
     <string name="none">Brak</string>
     <string name="send_feedback">Prześlij nam swoją opinię bezpośrednio lub dołącz do naszego %1$s, aby uzyskać bezpośrednie wsparcie.</string>
+    <string name="referral_network">Sieć poleceń</string>
 
 </resources>

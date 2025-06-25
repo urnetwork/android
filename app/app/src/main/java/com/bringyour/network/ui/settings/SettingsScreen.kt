@@ -556,7 +556,7 @@ fun SettingsScreen(
             /**
              * Update referral network
              */
-            URTextInputLabel("Referral network")
+            URTextInputLabel(stringResource(id = R.string.referral_network))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),

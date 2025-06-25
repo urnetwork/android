@@ -228,4 +228,5 @@
     <string name="browse_locations">浏览位置</string>
     <string name="none">无</string>
     <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>
+    <string name="referral_network">推荐网络</string>
 </resources>

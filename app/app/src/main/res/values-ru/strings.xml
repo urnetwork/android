@@ -250,4 +250,5 @@
     <string name="browse_locations">Просмотреть локации</string>
     <string name="none">Нет</string>
     <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему %1$s для получения прямой поддержки.</string>
+    <string name="referral_network">Реферальная сеть</string>
 </resources>

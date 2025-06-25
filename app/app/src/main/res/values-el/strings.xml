@@ -227,4 +227,5 @@
     <string name="browse_locations">Περιήγηση σε τοποθεσίες</string>
     <string name="none">Κανένα</string>
     <string name="send_feedback">Στείλτε μας τα σχόλιά σας απευθείας ή μπείτε στο %1$s μας για άμεση υποστήριξη.</string>
+    <string name="referral_network">Δίκτυο παραπομπών</string>
 </resources>
