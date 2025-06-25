@@ -229,4 +229,5 @@
     <string name="browse_locations">Parcourir les emplacements</string>
     <string name="none">Aucun</string>
     <string name="send_feedback">Envoyez-nous directement vos retours ou rejoignez notre %1$s pour un support direct.</string>
+    <string name="referral_network">Réseau de parrainage</string>
 </resources>

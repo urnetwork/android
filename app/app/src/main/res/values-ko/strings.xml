@@ -250,4 +250,5 @@
     <string name="browse_locations">위치 둘러보기</string>
     <string name="none">없음</string>
     <string name="send_feedback">직접 피드백을 보내주시거나, 직접 지원을 위해 저희 %1$s에 참여하세요.</string>
+    <string name="referral_network">추천 네트워크</string>
 </resources>

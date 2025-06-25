@@ -227,4 +227,5 @@
     <string name="browse_locations">Explorar ubicaciones</string>
     <string name="none">Ninguno</string>
     <string name="send_feedback">Envíanos tus comentarios directamente o únete a nuestro %1$s para soporte directo.</string>
+    <string name="referral_network">Red de referidos</string>
 </resources>
