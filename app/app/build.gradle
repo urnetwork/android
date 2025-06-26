@@ -14,8 +14,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.21'
-    id 'org.jetbrains.kotlin.plugin.compose' version '2.1.21'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.0'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.0'
 }
 
 
@@ -440,10 +440,10 @@ dependencies {
 
 // solana saga
 dependencies {
-    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.7")
+    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.8")
     implementation("com.solanamobile:web3-solana:0.2.5")
     implementation("com.solanamobile:rpc-core:0.2.8")
-    implementation("io.github.funkatronics:multimult:0.2.3")
+    implementation("io.github.funkatronics:multimult:0.2.4")
 }
 
 // google play
