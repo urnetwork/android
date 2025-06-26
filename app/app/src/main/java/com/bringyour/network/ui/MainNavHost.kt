@@ -84,6 +84,8 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
+import com.bringyour.network.ui.payout.PayoutScreen
+import com.bringyour.network.ui.shared.viewmodels.AccountPointEvent
 import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -549,6 +551,26 @@ fun MainNavContent(
                     navController = navController,
                     accountWallet = accountWallet,
                     walletViewModel = walletViewModel,
+                )
+            }
+
+            composable<Route.Payout>(
+                enterTransition = { nestedEnterTransition() },
+                popExitTransition = { nestedPopExitTransition() }
+            ) { backStackEntry ->
+
+                val payoutRoute: Route.Payout = backStackEntry.toRoute()
+                val payoutId = payoutRoute.id
+                val accountPayment = walletViewModel.getPayoutById(payoutId)
+
+                PayoutScreen(
+                    accountPayment = accountPayment,
+                    navController = navController,
+                    totalAccountPoints = accountPointsViewModel.getTotalPointsByPaymentId(payoutId),
+                    multiplierPoints = accountPointsViewModel.getPayoutEventPointsByPaymentId(payoutId, AccountPointEvent.PAYOUT_MULTIPLIER),
+                    referralPoints = accountPointsViewModel.getPayoutEventPointsByPaymentId(payoutId, AccountPointEvent.PAYOUT_LINKED_ACCOUNT),
+                    payoutPoints = accountPointsViewModel.getPayoutEventPointsByPaymentId(payoutId, AccountPointEvent.PAYOUT),
+                    holdsMultiplier = walletViewModel.isSeekerHolder.collectAsState().value
                 )
             }
         }

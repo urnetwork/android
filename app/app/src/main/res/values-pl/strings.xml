@@ -251,5 +251,10 @@
     <string name="none">Brak</string>
     <string name="send_feedback">Prześlij nam swoją opinię bezpośrednio lub dołącz do naszego %1$s, aby uzyskać bezpośrednie wsparcie.</string>
     <string name="referral_network">Sieć poleceń</string>
+    <string name="pending_payout">Oczekująca wypłata</string>
+    <string name="amount">Kwota</string>
+    <string name="wallet_address">Adres portfela</string>
+    <string name="transaction">Transakcja</string>
+    <string name="date_payout">Wypłata %1$s</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.wallet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,23 +32,36 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Green
 import androidx.compose.material.icons.filled.Schedule
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.ui.Route
 import com.bringyour.network.utils.formatDecimalString
 import com.bringyour.network.utils.todayFormatted
+import com.bringyour.sdk.Id
 
 @Composable
 fun PayoutRow(
+    navController: NavHostController,
     walletAddress: String,
     completeTime: String?,
     amountUsd: Double,
     payoutByteCount: Long,
-    completed: Boolean
+    completed: Boolean,
+    id: Id
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(
+                vertical = 8.dp,
+                horizontal = 16.dp
+            )
+            .clickable {
+                navController.navigate(Route.Payout(id.idStr))
+            },
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+
     ) {
 
         Row(
@@ -84,7 +101,7 @@ fun PayoutRow(
                 if (completed) {
 
                     Text(
-                        "+$amountUsd USDC",
+                        "+${formatDecimalString(amountUsd, 2)} USDC",
                         style = MaterialTheme.typography.bodyLarge
                     )
 
@@ -107,11 +124,10 @@ fun PayoutRow(
         }
 
         Row {
-            Text(
-                "***${walletAddress.takeLast(7)}",
-                style = TextStyle(
-                    color = TextMuted
-                )
+            Icon(
+                Icons.Filled.ChevronRight,
+                contentDescription = if (completed) "Payment on $completeTime" else "Pending payment",
+                tint = TextMuted
             )
         }
 
@@ -124,11 +140,13 @@ private fun PayoutRowPreview() {
 
     URNetworkTheme {
         PayoutRow(
+            rememberNavController(),
             "0xb696b7a5e41c9ec487f1b81064ec487261a1c3ddbaff96d5892854c824530ca5",
             "Jan 2",
             1.25,
             9876,
-            true
+            true,
+            Id()
         )
     }
 }
@@ -141,11 +159,13 @@ private fun PayoutRowPending() {
 
     URNetworkTheme {
         PayoutRow(
+            rememberNavController(),
             "0xb696b7a5e41c9ec487f1b81064ec487261a1c3ddbaff96d5892854c824530ca5",
             null,
             1.25,
             123456789,
-            false
+            false,
+            Id()
         )
     }
 }

@@ -393,7 +393,7 @@ fun WalletsScreen(
 
                                 Row(
                                     modifier = Modifier
-                                        .padding(16.dp)
+                                        .padding(horizontal = 16.dp)
                                         .fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
@@ -483,7 +483,7 @@ fun WalletsScreen(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp)
+                                        .padding(horizontal = 16.dp)
                                 ) {
                                     Text(
                                         stringResource(id = R.string.account_points),
@@ -495,19 +495,24 @@ fun WalletsScreen(
                                 /**
                                  * Account points breakdown
                                  */
-                                AccountPoints(
-                                    holdsMultiplier = isSeekerHolder,
-                                    totalAccountPoints = totalAccountPoints,
-                                    payoutPoints = payoutPoints,
-                                    multiplierPoints = multiplierPoints,
-                                    referralPoints = referralPoints
-                                )
+                                Box(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    AccountPoints(
+                                        holdsMultiplier = isSeekerHolder,
+                                        totalAccountPoints = totalAccountPoints,
+                                        payoutPoints = payoutPoints,
+                                        multiplierPoints = multiplierPoints,
+                                        referralPoints = referralPoints
+                                    )
+                                }
 
                                 Column(
-                                    modifier = Modifier.padding(16.dp)
+                                    // modifier = Modifier.padding(16.dp)
                                 ) {
                                     WalletsPayoutsList(
                                         payouts,
+                                        navController
                                     )
                                 }
                             }

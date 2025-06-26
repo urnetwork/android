@@ -228,4 +228,9 @@
     <string name="none">Κανένα</string>
     <string name="send_feedback">Στείλτε μας τα σχόλιά σας απευθείας ή μπείτε στο %1$s μας για άμεση υποστήριξη.</string>
     <string name="referral_network">Δίκτυο παραπομπών</string>
+    <string name="pending_payout">Εκκρεμής πληρωμή</string>
+    <string name="amount">Ποσό</string>
+    <string name="wallet_address">Διεύθυνση πορτοφολιού</string>
+    <string name="transaction">Συναλλαγή</string>
+    <string name="date_payout">Πληρωμή %1$s</string>
 </resources>

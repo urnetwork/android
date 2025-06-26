@@ -254,4 +254,9 @@
     <string name="none">None</string>
     <string name="send_feedback">Send us your feedback directly or join our Discord for direct support.</string>
     <string name="referral_network">Referral network</string>
+    <string name="pending_payout">Pending payout</string>
+    <string name="amount">Amount</string>
+    <string name="wallet_address">Wallet Address</string>
+    <string name="transaction">Transaction</string>
+    <string name="date_payout">%1$s Payout</string>
 </resources>

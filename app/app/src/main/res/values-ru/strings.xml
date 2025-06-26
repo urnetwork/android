@@ -251,4 +251,9 @@
     <string name="none">Нет</string>
     <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему %1$s для получения прямой поддержки.</string>
     <string name="referral_network">Реферальная сеть</string>
+    <string name="pending_payout">Ожидающая выплата</string>
+    <string name="amount">Сумма</string>
+    <string name="wallet_address">Адрес кошелька</string>
+    <string name="transaction">Транзакция</string>
+    <string name="date_payout">Выплата %1$s</string>
 </resources>
