@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -184,16 +187,22 @@ fun PayoutsList(
 
     if (payouts.isNotEmpty()) {
 
-        Text(
-            stringResource(id = R.string.earnings),
-            style = MaterialTheme.typography.bodyLarge
-        )
+        Row (
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                stringResource(id = R.string.earnings),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Column {
 
             for (payout in payouts) {
+
+                HorizontalDivider()
 
                 PayoutRow(
                     navController = navController as NavHostController,
@@ -324,7 +333,6 @@ fun ExternalWalletScreenContent(
 
         LazyColumn(
             modifier = Modifier
-                .padding(16.dp)
                 .fillMaxSize()
         ) {
 
@@ -332,7 +340,9 @@ fun ExternalWalletScreenContent(
                 Column {
 
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     ) {
 
                         WalletChainIcon(
@@ -357,41 +367,51 @@ fun ExternalWalletScreenContent(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    if (!isPayoutWallet) {
-                        URButton(
-                            onClick = {
-                                if (walletId != null) {
-                                    setPayoutWallet(walletId)
-                                }
-                            },
-                            enabled = !isSettingPayoutWallet && walletId != null
-                        ) { buttonTextStyle ->
-                            Text(
-                                stringResource(id = R.string.make_default),
-                                style = buttonTextStyle
-                            )
+                    Row(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        if (!isPayoutWallet) {
+                            URButton(
+                                onClick = {
+                                    if (walletId != null) {
+                                        setPayoutWallet(walletId)
+                                    }
+                                },
+                                enabled = !isSettingPayoutWallet && walletId != null
+                            ) { buttonTextStyle ->
+                                Text(
+                                    stringResource(id = R.string.make_default),
+                                    style = buttonTextStyle
+                                )
+                            }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    URButton(
-                        onClick = {
-                            openRemoveWalletModal()
-                        },
-                        style = ButtonStyle.OUTLINE,
-                        enabled = !removeWalletModalVisible
-                    ) { buttonTextStyle ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                stringResource(id = R.string.remove),
-                                style = buttonTextStyle
-                            )
+                    Row(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        URButton(
+                            onClick = {
+                                openRemoveWalletModal()
+                            },
+                            style = ButtonStyle.OUTLINE,
+                            enabled = !removeWalletModalVisible
+                        ) { buttonTextStyle ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    stringResource(id = R.string.remove),
+                                    style = buttonTextStyle
+                                )
+                            }
                         }
+
                     }
+
                     Spacer(modifier = Modifier.height(32.dp))
                 }
 
