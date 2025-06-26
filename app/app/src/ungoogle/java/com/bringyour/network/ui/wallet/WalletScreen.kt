@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -21,40 +22,38 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.TopBarTitleTextStyle
-import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.ui.theme.ppNeueBitBold
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import com.bringyour.sdk.AccountPayment
-import com.bringyour.sdk.AccountWallet
-import com.bringyour.sdk.Id
-import com.bringyour.network.R
 import com.bringyour.network.ui.components.URDialog
-import com.bringyour.network.ui.components.overlays.OverlayMode
-import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.theme.ppNeueBitBold
+import com.bringyour.sdk.AccountPayment
+import com.bringyour.sdk.AccountWallet
+import com.bringyour.sdk.Id
 
 @Composable
 fun WalletScreen(
@@ -178,6 +177,7 @@ fun WalletContentScaffold(
 
 @Composable
 fun PayoutsList(
+    navController: NavController,
     payouts: List<AccountPayment>,
     walletAddress: String?,
 ) {
@@ -196,11 +196,13 @@ fun PayoutsList(
             for (payout in payouts) {
 
                 PayoutRow(
+                    navController = navController as NavHostController,
                     walletAddress = walletAddress ?: "",
                     completeTime = if (payout.completeTime != null) payout.completeTime.format("Jan 2") else null,
                     amountUsd = payout.tokenAmount,
                     completed = payout.completed,
-                    payoutByteCount = payout.payoutByteCount
+                    payoutByteCount = payout.payoutByteCount,
+                    id = payout.paymentId
                 )
             }
         }
@@ -397,6 +399,7 @@ fun ExternalWalletScreenContent(
 
             item {
                 PayoutsList(
+                    navController,
                     payouts,
                     walletAddress
                 )
