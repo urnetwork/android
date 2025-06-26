@@ -251,4 +251,9 @@
     <string name="none">なし</string>
     <string name="send_feedback">ご意見を直接お送りいただくか、直接サポートのために私たちの%1$sにご参加ください。</string>
     <string name="referral_network">紹介ネットワーク</string>
+    <string name="pending_payout">保留中の支払い</string>
+    <string name="amount">金額</string>
+    <string name="wallet_address">ウォレットアドレス</string>
+    <string name="transaction">トランザクション</string>
+    <string name="date_payout">%1$s の支払い</string>
 </resources>

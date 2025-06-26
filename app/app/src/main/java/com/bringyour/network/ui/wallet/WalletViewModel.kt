@@ -371,6 +371,14 @@ class WalletViewModel @Inject constructor(
 
     }
 
+    val getPayoutById: (String) -> AccountPayment? = { id ->
+        val payout = _payouts.value.find { payout ->
+                payout.paymentId.string() == id
+        }
+
+        payout
+    }
+
     val addPayoutsListener = {
         viewModelScope.launch {
             walletVc?.addPaymentsListener {

@@ -251,4 +251,9 @@
     <string name="none">없음</string>
     <string name="send_feedback">직접 피드백을 보내주시거나, 직접 지원을 위해 저희 %1$s에 참여하세요.</string>
     <string name="referral_network">추천 네트워크</string>
+    <string name="pending_payout">보류 중인 지급</string>
+    <string name="amount">금액</string>
+    <string name="wallet_address">지갑 주소</string>
+    <string name="transaction">트랜잭션</string>
+    <string name="date_payout">%1$s 지급</string>
 </resources>

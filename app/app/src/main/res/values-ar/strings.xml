@@ -228,4 +228,9 @@
     <string name="none">لا يوجد</string>
     <string name="send_feedback">1$s الخاص بنا للحصول على دعم مباشر.</string>
     <string name="referral_network">شبكة الإحالة</string>
+    <string name="pending_payout">دفعة معلقة</string>
+    <string name="amount">المبلغ</string>
+    <string name="wallet_address">عنوان المحفظة</string>
+    <string name="transaction">المعاملة</string>
+    <string name="date_payout">" دفعة %1$s"</string>
 </resources>

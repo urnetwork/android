@@ -229,4 +229,9 @@
     <string name="none">Hakuna</string>
     <string name="send_feedback">Tuma maoni yako moja kwa moja au jiunge na %1$s yetu kwa msaada wa moja kwa moja.</string>
     <string name="referral_network">Mtandao wa rufaa</string>
+    <string name="pending_payout">Malipo yanayosubiri</string>
+    <string name="amount">Kiasi</string>
+    <string name="wallet_address">Anwani ya pochi</string>
+    <string name="transaction">Muamala</string>
+    <string name="date_payout">Malipo ya %1$s</string>
 </resources>

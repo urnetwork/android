@@ -228,5 +228,10 @@
     <string name="none">कोई नहीं</string>
     <string name="send_feedback">हमें सीधे अपनी प्रतिक्रिया भेजें या सीधे समर्थन के लिए हमारे %1$s से जुड़ें।</string>
     <string name="referral_network">रेफ़रल नेटवर्क</string>
+    <string name="pending_payout">लंबित भुगतान</string>
+    <string name="amount">राशि</string>
+    <string name="wallet_address">वॉलेट पता</string>
+    <string name="transaction">लेन-देन</string>
+    <string name="date_payout">%1$s भुगतान</string>
 
 </resources>

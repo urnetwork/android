@@ -228,5 +228,10 @@
     <string name="none">Nenhum</string>
     <string name="send_feedback">Envie-nos o seu feedback diretamente ou junte-se ao nosso %1$s para suporte direto.</string>
     <string name="referral_network">Rede de referências</string>
+    <string name="pending_payout">Pagamento pendente</string>
+    <string name="amount">Quantia</string>
+    <string name="wallet_address">Endereço da carteira</string>
+    <string name="transaction">Transação</string>
+    <string name="date_payout">Pagamento de %1$s</string>
 
 </resources>

@@ -228,4 +228,9 @@
     <string name="none">Ninguno</string>
     <string name="send_feedback">Envíanos tus comentarios directamente o únete a nuestro %1$s para soporte directo.</string>
     <string name="referral_network">Red de referidos</string>
+    <string name="pending_payout">Pago pendiente</string>
+    <string name="amount">Monto</string>
+    <string name="wallet_address">Dirección de la billetera</string>
+    <string name="transaction">Transacción</string>
+    <string name="date_payout">Pago del %1$s</string>
 </resources>

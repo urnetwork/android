@@ -229,4 +229,9 @@
     <string name="none">Keine</string>
     <string name="send_feedback">Senden Sie uns Ihr Feedback direkt oder treten Sie unserem %1$s bei, um direkten Support zu erhalten.</string>
     <string name="referral_network">Empfehlungsnetzwerk</string>
+    <string name="pending_payout">Ausstehende Auszahlung</string>
+    <string name="amount">Betrag</string>
+    <string name="wallet_address">Wallet-Adresse</string>
+    <string name="transaction">Transaktion</string>
+    <string name="date_payout">Auszahlung am %1$s</string>
 </resources>

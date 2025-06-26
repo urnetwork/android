@@ -2,6 +2,7 @@ package com.bringyour.network.ui
 
 import androidx.lifecycle.ViewModel
 import com.bringyour.network.R
+import com.bringyour.sdk.AccountPayment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,6 +73,7 @@ sealed class Route {
     @Serializable object Settings : Route()
     @Serializable object Wallets : Route()
     @Serializable data class Wallet(val id: String) : Route()
+    @Serializable data class Payout(val id: String) : Route()
 }
 
 

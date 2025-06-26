@@ -230,4 +230,9 @@
     <string name="none">Aucun</string>
     <string name="send_feedback">Envoyez-nous directement vos retours ou rejoignez notre %1$s pour un support direct.</string>
     <string name="referral_network">Réseau de parrainage</string>
+    <string name="pending_payout">Paiement en attente</string>
+    <string name="amount">Montant</string>
+    <string name="wallet_address">Adresse du portefeuille</string>
+    <string name="transaction">Transaction</string>
+    <string name="date_payout">Paiement du %1$s</string>
 </resources>

@@ -229,4 +229,9 @@
     <string name="none">无</string>
     <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>
     <string name="referral_network">推荐网络</string>
+    <string name="pending_payout">待支付款项</string>
+    <string name="amount">金额</string>
+    <string name="wallet_address">钱包地址</string>
+    <string name="transaction">交易</string>
+    <string name="date_payout">%1$s 支付</string>
 </resources>

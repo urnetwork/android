@@ -78,6 +78,22 @@ constructor(
         }
     }
 
+    val getTotalPointsByPaymentId: (String) -> Double = { id ->
+        _accountPoints.value
+            .filter { ap ->
+                ap.accountPaymentId.idStr == id
+            }
+            .sumOf { accountPoint -> Sdk.nanoPointsToPoints(accountPoint.pointValue) }
+    }
+
+    val getPayoutEventPointsByPaymentId: (String, AccountPointEvent) -> Double = { id, event ->
+        _accountPoints.value
+            .filter { ap ->
+                ap.accountPaymentId.idStr == id && AccountPointEvent.fromString(ap.event) == AccountPointEvent.PAYOUT
+            }
+            .sumOf { accountPoint -> Sdk.nanoPointsToPoints(accountPoint.pointValue) }
+    }
+
     init {
         fetchAccountPoints()
     }
