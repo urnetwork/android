@@ -497,7 +497,8 @@ fun LoginInitialActions(
                 onClick = {
                     onSolanaLogin()
                 },
-                enabled = !solanaAuthInProgress
+                enabled = !solanaAuthInProgress,
+                isProcessing = solanaAuthInProgress
             ) { buttonTextStyle ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically

@@ -574,7 +574,8 @@ fun LoginInitialActions(
                 onClick = {
                     onGoogleLogin()
                 },
-                enabled = !googleAuthInProgress
+                enabled = !googleAuthInProgress,
+                isProcessing = googleAuthInProgress
             ) { buttonTextStyle ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically
