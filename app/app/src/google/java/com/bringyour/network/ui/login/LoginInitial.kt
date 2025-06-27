@@ -61,6 +61,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthLoginResult
@@ -103,6 +104,12 @@ fun LoginInitial(
     var noSolanaWalletsFound by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        if (loginViewModel.solanaAuthInProgress) {
+            loginViewModel.setSolanaAuthInProgress(false)
+        }
+    }
 
     val onLogin: (AuthLoginResult) -> Unit = { result ->
 
@@ -567,7 +574,8 @@ fun LoginInitialActions(
                 onClick = {
                     onGoogleLogin()
                 },
-                enabled = !googleAuthInProgress
+                enabled = !googleAuthInProgress,
+                isProcessing = googleAuthInProgress
             ) { buttonTextStyle ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -598,7 +606,8 @@ fun LoginInitialActions(
                 onClick = {
                     onSolanaLogin()
                 },
-                enabled = !solanaAuthInProgress
+                enabled = !solanaAuthInProgress,
+                isProcessing = solanaAuthInProgress
             ) { buttonTextStyle ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically
