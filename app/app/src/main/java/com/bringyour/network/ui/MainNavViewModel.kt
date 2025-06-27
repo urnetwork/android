@@ -2,7 +2,6 @@ package com.bringyour.network.ui
 
 import androidx.lifecycle.ViewModel
 import com.bringyour.network.R
-import com.bringyour.sdk.AccountPayment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,29 +23,9 @@ class MainNavViewModel @Inject constructor(): ViewModel() {
     val currentRoute: StateFlow<Route?> = _currentRoute.asStateFlow()
 
     val setCurrentRoute: (Route?) -> Unit = { route ->
-        _previousRoute.value = _currentRoute.value
         _currentRoute.value = route
     }
 
-    private val _previousRoute = MutableStateFlow<Route?>(null)
-    val previousRoute: StateFlow<Route?> = _previousRoute.asStateFlow()
-
-    private val findContainerRoute: (Route?) -> TopLevelScaffoldRoutes = { route ->
-
-        when(route) {
-            is Route.ConnectContainer, is Route.Connect, is Route.BrowseLocations -> TopLevelScaffoldRoutes.CONNECT_CONTAINER
-            is Route.Support -> TopLevelScaffoldRoutes.SUPPORT
-            else -> TopLevelScaffoldRoutes.ACCOUNT_CONTAINER
-        }
-
-    }
-
-    val isNavigatingWithinContainer: (Route?, Route?) -> Boolean = { currentRoute, targetRoute ->
-        val currentRouteContainer = findContainerRoute(currentRoute)
-        val targetRouteContainer = findContainerRoute(targetRoute)
-
-        currentRouteContainer == targetRouteContainer
-    }
 }
 
 @Serializable
