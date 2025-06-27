@@ -1,19 +1,16 @@
 package com.bringyour.network.ui.login
 
-import android.net.Uri
 import android.util.Log
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -86,21 +83,17 @@ import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.ppNeueBitBold
-import com.bringyour.network.utils.isTv
 import com.bringyour.sdk.Api
 
 // Base class with common parameters
 open class CommonLoginParams(
-    // val userAuth: String,
     var referralCode: String?
 )
 
 // Sealed class with specific parameters, properly initializing the base class
 sealed class LoginCreateNetworkParams(
-    // userAuth: String,
     referralCode: String?
 ) : CommonLoginParams(
-    // userAuth,
     referralCode
 ) {
      class LoginCreateUserAuthParams(
@@ -126,10 +119,8 @@ sealed class LoginCreateNetworkParams(
         val publicKey: String,
         val signedMessage: String,
         val signature: String,
-        // val userAuth: String,
         referralCode: String?
     ) : LoginCreateNetworkParams(
-        // userAuth,
         referralCode
     )
 }
@@ -228,8 +219,17 @@ fun LoginCreateNetwork(
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(inProgress, params, networkName.text, password.text, termsAgreed) {
-        isBtnEnabled  = when(params) {
+    LaunchedEffect(
+        inProgress,
+        params,
+        networkName.text,
+        password.text,
+        termsAgreed,
+        networkNameIsValid,
+        networkNameErrorExists
+    ) {
+
+        isBtnEnabled = when(params) {
             is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
                 !inProgress &&
                         (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
@@ -269,21 +269,21 @@ fun LoginCreateNetwork(
 
     val createNetwork = {
         val args = createNetworkArgs(params)
+        inProgress = true
 
         application?.api?.networkCreate(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
-                inProgress = false
 
                 if (err != null) {
                     createNetworkError = err.message
+                    inProgress = false
                 } else if (result.error != null) {
                     createNetworkError = result.error.message
+                    inProgress = false
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     createNetworkError = null
 
                     application.login(result.network.byJwt)
-
-                    inProgress = true
 
                     isContentVisible = false
 
@@ -303,19 +303,6 @@ fun LoginCreateNetwork(
                 } else if (result.verificationRequired != null) {
                     createNetworkError = null
 
-                    // this might be unnecessary
-                    // but following the current fragments
-                    // can probably just use result.verificationRequired.userAuth
-//                    val userAuth = when (params) {
-//                        is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-//                            params.userAuth
-//                        }
-//
-//                        is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-//                            result.verificationRequired.userAuth
-//                        }
-//                    }
-
                     var userAuth: String? = null
                     if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
                         userAuth = params.userAuth
@@ -329,8 +316,11 @@ fun LoginCreateNetwork(
                         createNetworkError = "There was a problem parsing user auth for verification"
                     }
 
+                    inProgress = false
+
                 } else {
                     createNetworkError = context.getString(R.string.create_network_error)
+                    inProgress = false
                 }
             }
         }
@@ -388,108 +378,51 @@ fun LoginCreateNetwork(
             }
         ) { innerPadding ->
 
-            if (isTv()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding) // need to debug why this is 0
-                        .padding(16.dp)
-                        .imePadding(),
-                ) {
+            // mobile or tablet
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Text(
-                            "Join\nURnetwork",
-                            style = MaterialTheme.typography.headlineLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.width(64.dp))
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .verticalScroll(rememberScrollState())
-                            .padding(end = 64.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-
-                        NetworkCreateForm(
-                            params = params,
-                            emailOrPhone = emailOrPhone,
-                            networkName = networkName,
-                            setNetworkName = setNetworkName,
-                            validateNetworkName = validateNetworkName,
-                            isValidatingNetworkName = isValidatingNetworkName,
-                            networkNameErrorExists = networkNameErrorExists,
-                            password = password,
-                            setPassword = setPassword,
-                            termsAgreed = termsAgreed,
-                            setTermsAgreed = setTermsAgreed,
-                            isBtnEnabled = isBtnEnabled,
-                            onCreateNetwork = {
-                                createNetwork()
-                            },
-                            networkNameSupportingText = networkNameSupportingText,
-                            setPresentBonusSheet = setPresentBonusSheet,
-                            isValidReferralCode = isValidReferralCode,
-                            referralCode = referralCode,
-                        )
-                    }
-                }
-            } else {
-                // mobile or tablet
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(innerPadding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Row {
-                        Text(
-                            "Join\nURnetwork",
-                            style = MaterialTheme.typography.headlineLarge,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(48.dp))
-
-                    NetworkCreateForm(
-                        params = params,
-                        emailOrPhone = emailOrPhone,
-                        networkName = networkName,
-                        setNetworkName = setNetworkName,
-                        validateNetworkName = validateNetworkName,
-                        isValidatingNetworkName = isValidatingNetworkName,
-                        networkNameErrorExists = networkNameErrorExists,
-                        password = password,
-                        setPassword = setPassword,
-                        termsAgreed = termsAgreed,
-                        setTermsAgreed = setTermsAgreed,
-                        isBtnEnabled = isBtnEnabled,
-                        onCreateNetwork = {
-                            createNetwork()
-                        },
-                        networkNameSupportingText = networkNameSupportingText,
-                        setPresentBonusSheet = setPresentBonusSheet,
-                        isValidReferralCode = isValidReferralCode,
-                        referralCode = referralCode,
+                Row {
+                    Text(
+                        "Join\nURnetwork",
+                        style = MaterialTheme.typography.headlineLarge,
+                        textAlign = TextAlign.Center
                     )
                 }
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                NetworkCreateForm(
+                    params = params,
+                    emailOrPhone = emailOrPhone,
+                    networkName = networkName,
+                    setNetworkName = setNetworkName,
+                    validateNetworkName = validateNetworkName,
+                    isValidatingNetworkName = isValidatingNetworkName,
+                    networkNameErrorExists = networkNameErrorExists,
+                    password = password,
+                    setPassword = setPassword,
+                    termsAgreed = termsAgreed,
+                    setTermsAgreed = setTermsAgreed,
+                    isBtnEnabled = isBtnEnabled,
+                    onCreateNetwork = {
+                        createNetwork()
+                    },
+                    networkNameSupportingText = networkNameSupportingText,
+                    setPresentBonusSheet = setPresentBonusSheet,
+                    isValidReferralCode = isValidReferralCode,
+                    referralCode = referralCode,
+                    isInProgress = inProgress
+                )
             }
+
         }
     }
 
@@ -540,7 +473,7 @@ fun LoginCreateNetwork(
                             }
                         }
                     },
-                    enabled = !isValidatingReferralCode && !referralCode.text.isEmpty()
+                    enabled = !isValidatingReferralCode && referralCode.text.isNotEmpty()
                 ) { buttonTextStyle ->
                     Text(
                         stringResource(id = R.string.apply_bonus),
@@ -550,10 +483,8 @@ fun LoginCreateNetwork(
             }
         }
     }
-
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NetworkCreateForm(
     params: LoginCreateNetworkParams,
@@ -569,6 +500,7 @@ private fun NetworkCreateForm(
     termsAgreed: Boolean,
     setTermsAgreed: (Boolean) -> Unit,
     isBtnEnabled: Boolean,
+    isInProgress: Boolean,
     onCreateNetwork: () -> Unit,
     setPresentBonusSheet: (Boolean) -> Unit,
     isValidReferralCode: Boolean,
@@ -695,10 +627,10 @@ private fun NetworkCreateForm(
 
             URButton(
                 onClick = {
-                    // createNetwork()
                     onCreateNetwork()
                 },
-                enabled = isBtnEnabled
+                enabled = isBtnEnabled && !isInProgress,
+                isProcessing = isInProgress
             ) { buttonTextStyle ->
                 Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
                 Spacer(modifier = Modifier.width(4.dp))

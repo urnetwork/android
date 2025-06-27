@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -78,7 +77,6 @@ fun LoginPassword(
     val context = LocalContext.current
     val app = context.applicationContext as? MainApplication
     val loginActivity = context as? LoginActivity
-    // var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
     val user = TextFieldValue(userAuth)
     var password by remember { mutableStateOf(TextFieldValue()) }
     var inProgress by remember { mutableStateOf(false) }
@@ -142,6 +140,7 @@ fun LoginPassword(
 
                 } else {
                     loginError = context.getString(R.string.login_error)
+                    inProgress = false
                 }
             }
         }
@@ -173,89 +172,35 @@ fun LoginPassword(
             }
         ) { innerPadding ->
 
-            if (isTv()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(16.dp),
-                ) {
+                Text(
+                    stringResource(id = R.string.login_password_header),
+                    style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+                )
 
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Text(
-                            stringResource(id = R.string.login_password_header),
-                            style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
-                        )
-                        Spacer(modifier = Modifier.width(64.dp))
+                Spacer(modifier = Modifier.height(64.dp))
+
+                LoginPasswordForm(
+                    user = user,
+                    password = password,
+                    setPassword = { password = it },
+                    login = login,
+                    inProgress = inProgress,
+                    loginError = loginError,
+                    onResetPassword = {
+                        navController.navigate("reset-password/${userAuth}")
                     }
-
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .padding(end = 64.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-
-                        LoginPasswordForm(
-                            user = user,
-                            password = password,
-                            setPassword = { tfv ->
-                                password = tfv
-                            },
-                            login = login,
-                            inProgress = inProgress,
-                            loginError = loginError,
-                            onResetPassword = {
-                                navController.navigate("reset-password/${userAuth}")
-                            }
-                        )
-                    }
-                }
-
-
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(innerPadding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Text(
-                        stringResource(id = R.string.login_password_header),
-                        style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
-                    )
-
-                    Spacer(modifier = Modifier.height(64.dp))
-
-                    LoginPasswordForm(
-                        user = user,
-                        password = password,
-                        setPassword = { tfv ->
-                            password = tfv
-                        },
-                        login = login,
-                        inProgress = inProgress,
-                        loginError = loginError,
-                        onResetPassword = {
-                            navController.navigate("reset-password/${userAuth}")
-                        }
-                    )
-                }
+                )
             }
-
         }
     }
 
@@ -356,17 +301,6 @@ fun LoginPasswordForm(
                     onResetPassword()
                 }
             )
-//            ClickableText(
-//                text = AnnotatedString(stringResource(id = R.string.reset_it)),
-//                onClick = {
-//                    // navController.navigate("reset-password/${userAuth}")
-//                    onResetPassword()
-//                },
-//                style = TextStyle(
-//                    color = BlueMedium,
-//                    fontSize = 16.sp
-//                )
-//            )
         }
     }
 }

@@ -212,7 +212,9 @@ class LoginViewModel @Inject constructor(
                         )
                     }
 
-                    setSolanaAuthInProgress(false)
+                    // we can leave the spinner going while we navigate to the next page
+                    // it will reset
+                    // setSolanaAuthInProgress(false)
                 }
             }
         }
