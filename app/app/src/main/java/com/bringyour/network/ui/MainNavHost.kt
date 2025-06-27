@@ -1,10 +1,14 @@
 package com.bringyour.network.ui
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -108,7 +112,6 @@ fun MainNavHost(
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
     val currentRoute by mainNavViewModel.currentRoute.collectAsState()
-    val previousRoute by mainNavViewModel.previousRoute.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -265,8 +268,6 @@ fun MainNavHost(
                     ) {
                         Row {
                             MainNavContent(
-                                currentRoute,
-                                previousRoute,
                                 settingsViewModel = settingsViewModel,
                                 planViewModel = planViewModel,
                                 overlayViewModel = overlayViewModel,
@@ -275,7 +276,6 @@ fun MainNavHost(
                                 connectViewModel = connectViewModel,
                                 locationsListViewModel = locationsListViewModel,
                                 activityResultSender = activityResultSender,
-                                isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer,
                                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                                 referralCodeViewModel = referralCodeViewModel
                             )
@@ -297,8 +297,6 @@ fun MainNavHost(
                         modifier = Modifier.padding(bottom = 1.dp)
                     ) {
                         MainNavContent(
-                            currentRoute = currentRoute,
-                            previousRoute = previousRoute,
                             settingsViewModel = settingsViewModel,
                             planViewModel = planViewModel,
                             overlayViewModel = overlayViewModel,
@@ -307,7 +305,6 @@ fun MainNavHost(
                             connectViewModel = connectViewModel,
                             locationsListViewModel = locationsListViewModel,
                             activityResultSender = activityResultSender,
-                            isNavigatingWithinContainer = mainNavViewModel.isNavigatingWithinContainer,
                             subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                             referralCodeViewModel = referralCodeViewModel
                         )
@@ -337,8 +334,6 @@ fun MainNavHost(
 
 @Composable
 fun MainNavContent(
-    currentRoute: Route?,
-    previousRoute: Route?,
     walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
     planViewModel: PlanViewModel,
@@ -348,7 +343,6 @@ fun MainNavContent(
     locationsListViewModel: LocationsListViewModel,
     activityResultSender: ActivityResultSender?,
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
-    isNavigatingWithinContainer: (Route?, Route?) -> Boolean,
     referralCodeViewModel: ReferralCodeViewModel,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
@@ -358,8 +352,6 @@ fun MainNavContent(
     val canvasSizePx = if (isTv())
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).div(2).toPx() } else
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
-
-    val isTv = isTv()
 
     val wallets by walletViewModel.wallets.collectAsState()
 
@@ -386,51 +378,9 @@ fun MainNavContent(
         )
     }
 
-    val nestedPopEnterTransition = fadeIn(animationSpec = tween(300))
-
-    val nestedEnterTransition = {
-
-        val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
-        val isWithinContainer = isNavigatingWithinContainer(previousRoute, destinationRoute)
-
-        if (!isWithinContainer) {
-            EnterTransition.None
-        } else {
-            slideInHorizontally(
-                initialOffsetX = { fullWidth -> fullWidth },
-                animationSpec = tween(durationMillis = 300)
-            ) + fadeIn(animationSpec = tween(300))
-        }
-    }
-
-    val nestedPopExitTransition = {
-
-        val destinationRoute = Route.fromString(navController.currentDestination?.route ?: "")
-        val isWithinContainer = isNavigatingWithinContainer(currentRoute, destinationRoute)
-
-        if (!isWithinContainer) {
-            ExitTransition.None
-        } else {
-            slideOutHorizontally(
-                targetOffsetX = { fullWidth -> fullWidth },
-                animationSpec = tween(durationMillis = 300)
-            )
-        }
-    }
-
     NavHost(
         navController = navController,
         startDestination = Route.ConnectContainer,
-        enterTransition = {
-            if (isTv) {
-                slideInHorizontally(
-                    initialOffsetX = { fullWidth -> fullWidth },
-                    animationSpec = tween(durationMillis = 300)
-                ) + fadeIn(animationSpec = tween(300))
-            } else {
-                EnterTransition.None
-            }
-        }
     ) {
 
         navigation<Route.ConnectContainer>(
@@ -441,7 +391,6 @@ fun MainNavContent(
             composable<Route.Connect> {
                 ConnectScreen(
                     connectViewModel,
-                    // promptReviewViewModel,
                     overlayViewModel,
                     locationsListViewModel,
                     navController,
@@ -451,9 +400,10 @@ fun MainNavContent(
             }
 
             composable<Route.BrowseLocations>(
-                enterTransition = { nestedEnterTransition() },
-                popEnterTransition = { nestedPopEnterTransition },
-                popExitTransition = { nestedPopExitTransition() }
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
             ) {
                 BrowseLocationsScreen(
                     navController = navController,
@@ -497,8 +447,10 @@ fun MainNavContent(
                 )
             }
             composable<Route.Profile>(
-                enterTransition = { nestedEnterTransition() },
-                popExitTransition = { nestedPopExitTransition() }
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
             ) { ProfileScreen(
                 navController,
                 accountViewModel,
@@ -506,8 +458,10 @@ fun MainNavContent(
                 overlayViewModel
             ) }
             composable<Route.Settings>(
-                enterTransition = { nestedEnterTransition() },
-                popExitTransition = { nestedPopExitTransition() }
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
             ) { SettingsScreen(
                 navController,
                 accountViewModel,
@@ -521,9 +475,10 @@ fun MainNavContent(
             ) }
 
             composable<Route.Wallets>(
-                enterTransition = { nestedEnterTransition() },
-                popEnterTransition = { nestedPopEnterTransition },
-                popExitTransition = { nestedPopExitTransition() }
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
             ) {
                 WalletsScreen(
                     navController,
@@ -540,8 +495,10 @@ fun MainNavContent(
             }
 
             composable<Route.Wallet>(
-                enterTransition = { nestedEnterTransition() },
-                popExitTransition = { nestedPopExitTransition() }
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
             ) { backStackEntry ->
 
                 val wallet: Route.Wallet = backStackEntry.toRoute()
@@ -555,8 +512,10 @@ fun MainNavContent(
             }
 
             composable<Route.Payout>(
-                enterTransition = { nestedEnterTransition() },
-                popExitTransition = { nestedPopExitTransition() }
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
             ) { backStackEntry ->
 
                 val payoutRoute: Route.Payout = backStackEntry.toRoute()
@@ -574,5 +533,62 @@ fun MainNavContent(
                 )
             }
         }
+    }
+}
+
+private const val ANIMATION_DURATION = 280
+private const val HORIZONTAL_OFFSET_FACTOR = 0.07f // Subtle horizontal movement (7% of screen width)
+
+object NavigationAnimations {
+    // Forward navigation (entering a new screen) - fade in with subtle slide from right
+    fun enterTransition(): AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+        fadeIn(
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION,
+                easing = LinearOutSlowInEasing
+            )
+        ) + slideInHorizontally(
+            initialOffsetX = { fullWidth -> (fullWidth * HORIZONTAL_OFFSET_FACTOR).toInt() },
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION,
+                easing = LinearOutSlowInEasing
+            )
+        )
+    }
+
+    // Forward navigation (exiting the current screen) - simple fade out
+    fun exitTransition(): AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+        fadeOut(
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION * 3/4,  // Slightly faster to feel responsive
+                easing = FastOutLinearInEasing
+            )
+        )
+    }
+
+    // Back navigation (entering previous screen) - fade in with subtle slide from left
+    fun popEnterTransition(): AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+        fadeIn(
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION,
+                easing = LinearOutSlowInEasing
+            )
+        )
+    }
+
+    // Back navigation (exiting current screen) - fade out with subtle slide to right
+    fun popExitTransition(): AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+        fadeOut(
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION,
+                easing = FastOutLinearInEasing
+            )
+        ) + slideOutHorizontally(
+            targetOffsetX = { fullWidth -> (fullWidth * HORIZONTAL_OFFSET_FACTOR).toInt() },
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION,
+                easing = FastOutLinearInEasing
+            )
+        )
     }
 }
