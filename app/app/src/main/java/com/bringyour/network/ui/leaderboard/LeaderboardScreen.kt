@@ -56,7 +56,6 @@ fun LeaderboardScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val leaderboardEntries = leaderboardViewModel.leaderboardEntries.collectAsState()
 
-
     LaunchedEffect(leaderboardViewModel.displayErrorMsg) {
         if (leaderboardViewModel.displayErrorMsg) {
             snackbarHostState.showSnackbar(
@@ -262,6 +261,14 @@ private fun LeaderboardEntry(
 
     val isPrivate = !row.isPublic
 
+    val networkName = if (isPrivate)
+        "Private Network"
+    else
+        if (row.containsProfanity)
+            "${row.networkName.first()}${"*".repeat(row.networkName.length - 2)}${row.networkName.last()}"
+        else
+            row.networkName
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -285,7 +292,7 @@ private fun LeaderboardEntry(
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = if (isPrivate) "Private Network" else row.networkName,
+                text = networkName,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (isNetworkRow) FontWeight.ExtraBold else FontWeight.Normal,
                 color = when {
