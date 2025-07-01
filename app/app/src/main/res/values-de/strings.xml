@@ -160,7 +160,7 @@
     <string name="connections">Verbindungen</string>
     <string name="provide_disconnected">Offline bereitstellen</string>
     <string name="unpaid_data_provided">" Unbezahlte Daten bereitgestellt"</string>
-    <string name="payouts_amount_threshold">Auszahlungen erfolgen alle zwei Wochen und erfordern einen Mindestbetrag, der bereitgestellt werden muss, um eine Auszahlung zu erhalten.</string>
+    <string name="payouts_amount_threshold">Auszahlungen erfolgen jede Woche und erfordern einen Mindestbetrag, um eine Auszahlung zu erhalten.</string>
     <string name="open_nested_link">Verbinden mit %1$s und Link %2$s öffnen</string>
     <string name="connect_and_open">Verbinden und Link öffnen</string>
     <string name="connect_to_location">Mit %1$s verbinden</string>

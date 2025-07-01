@@ -160,7 +160,7 @@
     <string name="connections">Conexiones</string>
     <string name="provide_disconnected">Proporcionar sin conexión</string>
     <string name="unpaid_data_provided">Datos no pagados proporcionados</string>
-    <string name="payouts_amount_threshold">Los pagos se realizan cada dos semanas y requieren una cantidad mínima proporcionada para recibir un pago.</string>
+    <string name="payouts_amount_threshold">Los pagos se realizan cada semana y requieren un monto mínimo para recibir un pago.</string>
     <string name="open_nested_link">Conectar a %1$s y abrir enlace %2$s</string>
     <string name="connect_and_open">Conectar y abrir enlace</string>
     <string name="no_locations_found">No se encontraron ubicaciones</string>

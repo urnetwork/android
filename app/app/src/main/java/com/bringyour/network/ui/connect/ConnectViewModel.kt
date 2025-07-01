@@ -106,7 +106,7 @@ constructor(
                         ),
                         AnimatedSuccessPoint(
                                 initialOffset =
-                                        Offset(canvasSizePx.times(2.5f), canvasSizePx.times(3.25f)),
+                                        Offset(canvasSizePx.times(2.55f), canvasSizePx.times(3.3f)),
                                 targetOffset = Offset(canvasSizePx.times(2), canvasSizePx.times(2)),
                                 color = Pink,
                                 radius = canvasSizePx
