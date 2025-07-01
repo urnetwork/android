@@ -13,12 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.sdk.ConnectGrid
-import com.bringyour.sdk.ConnectLocation
-import com.bringyour.sdk.ConnectViewController
-import com.bringyour.sdk.Id
-import com.bringyour.sdk.ProviderGridPoint
-import com.bringyour.sdk.Sub
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.theme.BlueLight
@@ -26,35 +20,44 @@ import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
+import com.bringyour.sdk.ConnectGrid
+import com.bringyour.sdk.ConnectLocation
+import com.bringyour.sdk.ConnectViewController
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.Id
+import com.bringyour.sdk.ProviderGridPoint
+import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
-class ConnectViewModel @Inject constructor(
-    val deviceManager: DeviceManager,
-): ViewModel() {
+class ConnectViewModel
+@Inject
+constructor(
+        val deviceManager: DeviceManager,
+) : ViewModel() {
 
     private var connectVc: ConnectViewController? = null
 
     private val subs = mutableListOf<Sub>()
 
     private val _connectStatus = MutableStateFlow(ConnectStatus.DISCONNECTED)
-    val connectStatus: StateFlow<ConnectStatus> get() = _connectStatus
+    val connectStatus: StateFlow<ConnectStatus>
+        get() = _connectStatus
 
     var selectedLocation by mutableStateOf<ConnectLocation?>(null)
         private set
 
     var windowCurrentSize by mutableIntStateOf(0)
         private set
-    
+
     var providerGridPoints by mutableStateOf<Map<Id, ProviderGridPoint>>(mapOf())
         private set
 
@@ -72,7 +75,8 @@ class ConnectViewModel @Inject constructor(
     }
 
     private val _contractStatus = MutableStateFlow<ContractStatus?>(null)
-    val contractStatus: StateFlow<ContractStatus?> get() = _contractStatus
+    val contractStatus: StateFlow<ContractStatus?>
+        get() = _contractStatus
 
     private val successPoints = mutableListOf<AnimatedSuccessPoint>()
 
@@ -82,75 +86,56 @@ class ConnectViewModel @Inject constructor(
 
     var showTopAppBar by mutableStateOf(false)
         private set
-        
+
     val device: DeviceLocal?
         get() = this.deviceManager.device
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
         successPoints.addAll(
-            listOf(
-                AnimatedSuccessPoint(
-                    initialOffset = Offset(
-                        -canvasSizePx.times(1.1f),
-                        canvasSizePx.times(0.95f)
-                    ),
-                    targetOffset = Offset(
-                        canvasSizePx.times(.4f),
-                        canvasSizePx.times(0.95f)
-                    ),
-                    color = Red,
-                    radius = canvasSizePx
-                ),
-                AnimatedSuccessPoint(
-                    initialOffset = Offset(
-                        canvasSizePx.times(2.5f),
-                        canvasSizePx.times(3.25f)
-                    )
-                    ,
-                    targetOffset = Offset(
-                        canvasSizePx.times(2),
-                        canvasSizePx.times(2)
-                    ),
-                    color = Pink,
-                    radius = canvasSizePx
-                ),
-                AnimatedSuccessPoint(
-                    initialOffset = Offset(
-                        canvasSizePx.times(3.5f),
-                        canvasSizePx.times(0.3f)
-                    ),
-                    targetOffset = Offset(
-                        canvasSizePx.times(2.25f),
-                        canvasSizePx.times(0.8f)
-                    ),
-                    color = Green,
-                    radius = canvasSizePx
-                ),
-                AnimatedSuccessPoint(
-                    initialOffset = Offset(
-                        canvasSizePx.times(0.8f),
-                        -canvasSizePx.times(1.5f)
-                    ),
-                    targetOffset = Offset(
-                        canvasSizePx.times(0.8f),
-                        canvasSizePx.times(0.05f)
-                    ),
-                    color = Yellow,
-                    radius = canvasSizePx
-                ),
-                AnimatedSuccessPoint(
-                    initialOffset = Offset(
-                        -canvasSizePx.times(1.5f),
-                        canvasSizePx.times(3f)
-                    ),
-                    targetOffset = Offset(
-                        canvasSizePx.times(.75f),
-                        canvasSizePx.times(2.25f)
-                    ),
-                    color = BlueLight,
-                    radius = canvasSizePx
-                ),
-            )
+                listOf(
+                        AnimatedSuccessPoint(
+                                initialOffset =
+                                        Offset(
+                                                -canvasSizePx.times(1.1f),
+                                                canvasSizePx.times(0.95f)
+                                        ),
+                                targetOffset =
+                                        Offset(canvasSizePx.times(.4f), canvasSizePx.times(0.95f)),
+                                color = Red,
+                                radius = canvasSizePx
+                        ),
+                        AnimatedSuccessPoint(
+                                initialOffset =
+                                        Offset(canvasSizePx.times(2.5f), canvasSizePx.times(3.25f)),
+                                targetOffset = Offset(canvasSizePx.times(2), canvasSizePx.times(2)),
+                                color = Pink,
+                                radius = canvasSizePx
+                        ),
+                        AnimatedSuccessPoint(
+                                initialOffset =
+                                        Offset(canvasSizePx.times(3.5f), canvasSizePx.times(0.3f)),
+                                targetOffset =
+                                        Offset(canvasSizePx.times(2.25f), canvasSizePx.times(0.8f)),
+                                color = Green,
+                                radius = canvasSizePx
+                        ),
+                        AnimatedSuccessPoint(
+                                initialOffset =
+                                        Offset(canvasSizePx.times(0.8f), -canvasSizePx.times(1.5f)),
+                                targetOffset =
+                                        Offset(canvasSizePx.times(0.8f), canvasSizePx.times(0.05f)),
+                                color = Yellow,
+                                radius = canvasSizePx
+                        ),
+                        AnimatedSuccessPoint(
+                                initialOffset =
+                                        Offset(-canvasSizePx.times(1.5f), canvasSizePx.times(3f)),
+                                targetOffset =
+                                        Offset(canvasSizePx.times(.75f), canvasSizePx.times(2.25f)),
+                                color = BlueLight,
+                                radius = canvasSizePx
+                        ),
+                )
         )
     }
 
@@ -168,38 +153,32 @@ class ConnectViewModel @Inject constructor(
     }
 
     private fun addListener(listener: (ConnectViewController) -> Sub) {
-        connectVc?.let {
-            subs.add(listener(it))
-        }
+        connectVc?.let { subs.add(listener(it)) }
     }
 
     private val addGridListener = {
-        addListener { vc ->
-            vc.addGridListener {
-                viewModelScope.launch {
-                    updateGrid()
-
-                }
-            }
-        }
+        addListener { vc -> vc.addGridListener { viewModelScope.launch { updateGrid() } } }
     }
 
     private val addContractStatusListener = {
+
+        // initialize contract status
+        _contractStatus.value = deviceManager.device?.contractStatus
+
         deviceManager.device?.addContractStatusChangeListener {
+
             viewModelScope.launch {
-
                 _contractStatus.value = deviceManager.device?.contractStatus
-
-                Log.i(TAG, "contract listener updated with: ${_contractStatus.value}")
 
                 // contract status is updated when the user tries and connects
                 // if they have insufficient balance, disconnect them
-                if (_contractStatus.value?.insufficientBalance == true && _connectStatus.value != ConnectStatus.DISCONNECTED) {
+                if (_contractStatus.value?.insufficientBalance == true &&
+                    _connectStatus.value != ConnectStatus.DISCONNECTED
+                ) {
                     disconnect()
                 }
             }
         }
-
     }
 
     private fun updateGrid() {
@@ -245,10 +224,11 @@ class ConnectViewModel @Inject constructor(
                         topAppBarJob?.cancel()
                         if (statusFromStr == ConnectStatus.CONNECTED) {
                             // Show TopAppBar after 10 seconds when connected
-                            topAppBarJob = viewModelScope.launch {
-                                delay(10000) // 10 second delay
-                                showTopAppBar = true
-                            }
+                            topAppBarJob =
+                                    viewModelScope.launch {
+                                        delay(10000) // 10 second delay
+                                        showTopAppBar = true
+                                    }
                         } else {
                             // Hide TopAppBar immediately for any other status
                             showTopAppBar = false
@@ -260,34 +240,21 @@ class ConnectViewModel @Inject constructor(
     }
 
     val addConnectionStatusListener = {
-        addListener { vc ->
-            vc.addConnectionStatusListener {
-                updateConnectionStatus()
-            }
-        }
+        addListener { vc -> vc.addConnectionStatusListener { updateConnectionStatus() } }
     }
 
     private fun updateSelectedLocation() {
 
-        connectVc?.let {
-            selectedLocation = it.selectedLocation
-        }
+        connectVc?.let { selectedLocation = it.selectedLocation }
     }
 
     val addSelectedLocationListener = {
-        addListener { vc ->
-            vc.addSelectedLocationListener {
-                updateSelectedLocation()
-            }
-        }
+        addListener { vc -> vc.addSelectedLocationListener { updateSelectedLocation() } }
     }
 
-    val disconnect: () -> Unit = {
-        connectVc?.disconnect()
-    }
+    val disconnect: () -> Unit = { connectVc?.disconnect() }
 
     val addTunnelListener: () -> Unit = {
-
         val tunnelStarted = deviceManager.device?.tunnelStarted
 
         if (tunnelStarted == true) {
@@ -295,10 +262,11 @@ class ConnectViewModel @Inject constructor(
             updateDisplayReconnectTunnel()
         }
 
-        val sub = deviceManager.device?.addTunnelChangeListener { tunnelConnected ->
-            this.tunnelConnected = tunnelConnected
-            updateDisplayReconnectTunnel()
-        }
+        val sub =
+                deviceManager.device?.addTunnelChangeListener { tunnelConnected ->
+                    this.tunnelConnected = tunnelConnected
+                    updateDisplayReconnectTunnel()
+                }
 
         // unwrap sub
         if (sub == null) {
@@ -307,11 +275,9 @@ class ConnectViewModel @Inject constructor(
         } else {
             this.subs.add(sub)
         }
-
     }
 
     val updateDisplayReconnectTunnel: () -> Unit = {
-
         if (this.connectStatus.value == ConnectStatus.CONNECTED && !this.tunnelConnected) {
             this.setDisplayReconnectTunnel(true)
         } else {
@@ -323,19 +289,14 @@ class ConnectViewModel @Inject constructor(
 
         connectVc = deviceManager.device?.openConnectViewController()
 
-
-//        addProviderGridPointChangedListener()
         addTunnelListener()
 
         addSelectedLocationListener()
         addGridListener()
         addConnectionStatusListener()
         addContractStatusListener()
-//        addWindowEventSizeListener()
-
 
         update()
-
     }
 
     fun update() {
@@ -347,14 +308,12 @@ class ConnectViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        subs.forEach { sub ->
-            sub.close()
-        }
+        subs.forEach { sub -> sub.close() }
         subs.clear()
 
-//        connectVc?.let {
-//            byDeviceManager.getByDevice()?.closeViewController(it)
-//        }
+        //        connectVc?.let {
+        //            byDeviceManager.getByDevice()?.closeViewController(it)
+        //        }
 
         viewModelScope.cancel()
     }
@@ -389,7 +348,6 @@ enum class ConnectStatus {
 }
 
 enum class ProviderPointState {
-
     IN_EVALUATION,
     EVALUATION_FAILED,
     NOT_ADDED,
@@ -413,7 +371,8 @@ enum class ProviderPointState {
 data class AnimatedSuccessPoint(
     val initialOffset: Offset,
     val targetOffset: Offset,
-    val center: Animatable<Offset, AnimationVector2D> = Animatable(Offset(-500f, 0f), Offset.VectorConverter),
+    val center: Animatable<Offset, AnimationVector2D> =
+            Animatable(Offset(-500f, 0f), Offset.VectorConverter),
     val color: Color,
     val radius: Float
 )
