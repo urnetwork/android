@@ -161,7 +161,7 @@
     <string name="connections">Connexions</string>
     <string name="provide_disconnected">Fournir hors ligne</string>
     <string name="unpaid_data_provided">Données non payées fournies</string>
-    <string name="payouts_amount_threshold">Les paiements ont lieu toutes les deux semaines et nécessitent un montant minimum fourni pour recevoir un paiement.</string>
+    <string name="payouts_amount_threshold">Les paiements ont lieu chaque semaine et nécessitent un montant minimum pour être reçus.</string>
     <string name="open_nested_link">Se connecter à %1$s et ouvrir le lien %2$s</string>
     <string name="connect_and_open">Se connecter et ouvrir le lien</string>
     <string name="connect_to_location">Se connecter à %1$s</string>

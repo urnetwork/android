@@ -182,7 +182,7 @@
     <string name="connections">Подключения</string>
     <string name="provide_disconnected">Предоставлять в автономном режиме</string>
     <string name="unpaid_data_provided">Предоставлены неоплаченные данные</string>
-    <string name="payouts_amount_threshold">Выплаты производятся каждые две недели и требуют минимальной суммы, чтобы получить выплату.</string>
+    <string name="payouts_amount_threshold">Выплаты происходят каждую неделю и требуют минимальной суммы для получения выплаты.</string>
     <string name="open_nested_link">Подключиться к %1$s и открыть ссылку %2$s</string>
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
     <string name="connect_to_location">Подключиться к %1$s</string>

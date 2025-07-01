@@ -158,7 +158,7 @@
     <string name="connections">الاتصالات</string>
     <string name="provide_disconnected">توفير أثناء عدم الاتصال</string>
     <string name="unpaid_data_provided">تم توفير بيانات غير مدفوعة</string>
-    <string name="payouts_amount_threshold">تحدث عمليات الدفع كل أسبوعين ، وتتطلب حدًا أدنى من المبلغ المقدم لتلقي دفعة.</string>
+    <string name="payouts_amount_threshold">تحدث الدفعات كل أسبوع، ويتطلب الحصول على دفعة توفير حد أدنى من المبلغ.</string>
     <string name="open_nested_link">الاتصال بـ %1$s وفتح الرابط %2$s</string>
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>

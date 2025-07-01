@@ -134,7 +134,7 @@
     <string name="payout_wallets">Payout Wallets</string>
     <string name="chains_supported">Solana and Polygon wallets are currently supported</string>
     <string name="unpaid_data_provided">Unpaid data provided</string>
-    <string name="payouts_amount_threshold">Payouts occur every two weeks, and require a minimum amount provided to receive a payout.</string>
+    <string name="payouts_amount_threshold">Payouts occur every week, and require a minimum amount provided to receive a payout.</string>
 
     <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Transfer Submitted</string>

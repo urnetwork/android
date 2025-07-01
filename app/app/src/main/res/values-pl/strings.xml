@@ -182,7 +182,7 @@
     <string name="connections">Połączenia</string>
     <string name="provide_disconnected">Dostarczaj w trybie offline</string>
     <string name="unpaid_data_provided">Dostarczono nieopłacone dane</string>
-    <string name="payouts_amount_threshold">Wypłaty następują co dwa tygodnie i wymagają minimalnej kwoty dostarczonej, aby otrzymać wypłatę.</string>
+    <string name="payouts_amount_threshold">Wypłaty odbywają się co tydzień i wymagają podania minimalnej kwoty, aby je otrzymać.</string>
     <string name="open_nested_link">Połącz z %1$s i otwórz link %2$s</string>
     <string name="connect_and_open">Połącz i otwórz link</string>
     <string name="connect_to_location">Połącz z %1$s</string>
