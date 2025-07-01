@@ -145,7 +145,7 @@ fun ConnectButton(
              * Polling subscription balance
              */
             AnimatedVisibility(
-                visible = insufficientBalance && !isPollingSubscriptionBalance,
+                visible = insufficientBalance && isPollingSubscriptionBalance,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
@@ -159,15 +159,17 @@ fun ConnectButton(
                 }
             }
 
-            ConnectingButtonContent(
-                providerGridPoints = providerGridPoints,
-                grid = grid,
-                status = updatedStatus,
-                animatedSuccessPoints = animatedSuccessPoints,
-                shuffleSuccessPoints = shuffleSuccessPoints,
-                getStateColor = getStateColor,
-                displayReconnectTunnel = displayReconnectTunnel
-            )
+            if (!insufficientBalance) {
+                ConnectingButtonContent(
+                    providerGridPoints = providerGridPoints,
+                    grid = grid,
+                    status = updatedStatus,
+                    animatedSuccessPoints = animatedSuccessPoints,
+                    shuffleSuccessPoints = shuffleSuccessPoints,
+                    getStateColor = getStateColor,
+                    displayReconnectTunnel = displayReconnectTunnel
+                )
+            }
 
         }
 
@@ -176,7 +178,7 @@ fun ConnectButton(
             contentDescription = "Connect Mask",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(if (isTv()) 256.dp else 512.dp)
+                .size(512.dp)
                 .align(Alignment.Center)
                 .zIndex(1f)
         )
@@ -644,7 +646,7 @@ private fun DisconnectedButtonContent() {
     ) {
 
         Text(
-            stringResource(id = if (isTv()) R.string.connect else R.string.tap_to_connect),
+            stringResource(id = R.string.tap_to_connect),
             style = TextStyle(
                 fontSize = 20.sp,
                 lineHeight = 20.sp,
@@ -662,8 +664,8 @@ private fun DisconnectedButtonContent() {
 @Composable
 fun TapToConnectAnimation() {
 
-    val initialSize = if (isTv()) 28f else 56f
-    val targetSize = if (isTv()) 41f else 82f
+    val initialSize = 56f
+    val targetSize = 82f
     val size = remember { Animatable(initialSize) }
     val alpha = remember { Animatable(1f) }
 
@@ -690,7 +692,7 @@ fun TapToConnectAnimation() {
     }
 
     Box(
-        modifier = Modifier.size(if (isTv()) 41.dp else 82.dp),
+        modifier = Modifier.size(82.dp),
         contentAlignment = Alignment.Center,
     ) {
 
@@ -703,18 +705,18 @@ fun TapToConnectAnimation() {
 
         Box(
             modifier = Modifier
-                .size(if (isTv()) 28.dp else 56.dp)
+                .size(56.dp)
                 .background(color = BlueMedium, shape = CircleShape)
         ) {
             Box(
                 modifier = Modifier
-                    .size(if (isTv()) 26.dp else 52.dp)
+                    .size(52.dp)
                     .background(color = Black, shape = CircleShape)
                     .align(Alignment.Center)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(if (isTv()) 24.dp else 48.dp)
+                        .size(48.dp)
                         .background(color = BlueMedium, shape = CircleShape)
                         .align(Alignment.Center)
                 )
@@ -804,6 +806,27 @@ private fun ConnectButtonPollingBalancePreview() {
             displayReconnectTunnel = false,
             insufficientBalance = true,
             isPollingSubscriptionBalance = true
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun InvalidInsufficientBalanceState() {
+    val mockGetStateColor: (ProviderPointState?) -> Color = { Red }
+
+    URNetworkTheme {
+        ConnectButton(
+            onClick = {},
+            updatedStatus = ConnectStatus.CONNECTING,
+            providerGridPoints = mapOf(),
+            grid = null,
+            animatedSuccessPoints = listOf(),
+            shuffleSuccessPoints = {},
+            getStateColor = mockGetStateColor,
+            displayReconnectTunnel = false,
+            insufficientBalance = true,
+            isPollingSubscriptionBalance = false
         )
     }
 }

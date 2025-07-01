@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -68,12 +67,10 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 // import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
-import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.utils.isTv
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
 import kotlinx.coroutines.delay
@@ -140,62 +137,32 @@ fun ConnectScreen(
                     .padding(innerPadding)
             ) {
 
-                if (isTv()) {
-                    ConnectTV(
-                        navController = navController,
-                        connect = connectViewModel.connect,
-                        selectedLocation = connectViewModel.selectedLocation,
-                        connectStatus = connectStatus,
-                        networkName = networkUser?.networkName,
-                        disconnect = connectViewModel.disconnect,
-                        providerGridPoints = connectViewModel.providerGridPoints,
-                        windowCurrentSize = connectViewModel.windowCurrentSize,
-                        grid = connectViewModel.grid,
-                        loginMode = accountViewModel.loginMode,
-                        animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                        shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                        getStateColor = connectViewModel.getStateColor,
-//            checkTriggerPromptReview = promptReviewViewModel.checkTriggerPromptReview,
-                        launchOverlay = overlayViewModel.launch,
-                        locationsViewModel = locationsViewModel,
-                        displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                        contractStatus = contractStatus,
-                        currentPlan = currentPlan,
-                        displayInsufficientBalance = displayInsufficientBalance,
-                        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                        expandUpgradePlanSheet = expandUpgradePlanSheet,
-                        device = connectViewModel.device
-                    )
-                } else {
-
-                    ConnectMainContent(
-                        connectStatus = connectStatus,
-                        selectedLocation = connectViewModel.selectedLocation,
-                        networkName = networkUser?.networkName,
-                        connect = connectViewModel.connect,
-                        disconnect = connectViewModel.disconnect,
-                        providerGridPoints = connectViewModel.providerGridPoints,
-                        windowCurrentSize = connectViewModel.windowCurrentSize,
-                        grid = connectViewModel.grid,
-                        loginMode = accountViewModel.loginMode,
-                        animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                        shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                        getStateColor = connectViewModel.getStateColor,
+                ConnectMainContent(
+                    connectStatus = connectStatus,
+                    selectedLocation = connectViewModel.selectedLocation,
+                    networkName = networkUser?.networkName,
+                    connect = connectViewModel.connect,
+                    disconnect = connectViewModel.disconnect,
+                    providerGridPoints = connectViewModel.providerGridPoints,
+                    windowCurrentSize = connectViewModel.windowCurrentSize,
+                    grid = connectViewModel.grid,
+                    loginMode = accountViewModel.loginMode,
+                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                    getStateColor = connectViewModel.getStateColor,
 //                checkTriggerPromptReview = checkTriggerPromptReview,
-                        launchOverlay = overlayViewModel.launch,
-                        locationsViewModel = locationsViewModel,
-                        navController = navController,
-                        displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                        contractStatus = contractStatus,
-                        currentPlan = currentPlan,
-                        displayInsufficientBalance = displayInsufficientBalance,
-                        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                        expandUpgradePlanSheet = expandUpgradePlanSheet,
-                        device = connectViewModel.device
-                        // showTopAppBar = showTopAppBar
-                    )
-                }
-
+                    launchOverlay = overlayViewModel.launch,
+                    locationsViewModel = locationsViewModel,
+                    navController = navController,
+                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                    contractStatus = contractStatus,
+                    currentPlan = currentPlan,
+                    displayInsufficientBalance = displayInsufficientBalance,
+                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                    expandUpgradePlanSheet = expandUpgradePlanSheet,
+                    device = connectViewModel.device
+                    // showTopAppBar = showTopAppBar
+                )
             }
 
             // TopAppBar overlay that slides in/out
@@ -229,7 +196,6 @@ fun ConnectScreen(
             }
 
         }
-
     }
 
 
@@ -241,100 +207,6 @@ fun ConnectScreen(
             overlayViewModel = overlayViewModel,
             setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
         )
-    }
-}
-
-@Composable
-private fun ConnectTV(
-    navController: NavController,
-    connectStatus: ConnectStatus,
-    selectedLocation: ConnectLocation?,
-    networkName: String?,
-    grid: ConnectGrid?,
-    providerGridPoints: Map<Id, ProviderGridPoint>,
-    windowCurrentSize: Int,
-    connect: (ConnectLocation?) -> Unit,
-    disconnect: () -> Unit?,
-    loginMode: LoginMode,
-    animatedSuccessPoints: List<AnimatedSuccessPoint>,
-    shuffleSuccessPoints: () -> Unit,
-    getStateColor: (ProviderPointState?) -> Color,
-//    checkTriggerPromptReview: () -> Boolean,
-    launchOverlay: (OverlayMode) -> Unit,
-    locationsViewModel: LocationsListViewModel,
-    displayReconnectTunnel: Boolean,
-    contractStatus: ContractStatus?,
-    currentPlan: Plan,
-    displayInsufficientBalance: Boolean,
-    isPollingSubscriptionBalance: Boolean,
-    expandUpgradePlanSheet: () -> Unit,
-    device: DeviceLocal?
-) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-    ) {
-
-        ConnectMainContent(
-            connectStatus = connectStatus,
-            selectedLocation = selectedLocation,
-            networkName = networkName,
-            connect = connect,
-            disconnect = disconnect,
-            providerGridPoints = providerGridPoints,
-            windowCurrentSize = windowCurrentSize,
-            grid = grid,
-            loginMode = loginMode,
-            animatedSuccessPoints = animatedSuccessPoints,
-            shuffleSuccessPoints = shuffleSuccessPoints,
-            getStateColor = getStateColor,
-//                    checkTriggerPromptReview = checkTriggerPromptReview,
-            launchOverlay = launchOverlay,
-            locationsViewModel = locationsViewModel,
-            navController = navController,
-            displayReconnectTunnel = displayReconnectTunnel,
-            contractStatus = contractStatus,
-            currentPlan = currentPlan,
-            displayInsufficientBalance = displayInsufficientBalance,
-            isPollingSubscriptionBalance = isPollingSubscriptionBalance,
-            expandUpgradePlanSheet = expandUpgradePlanSheet,
-            device = device
-        )
-
-        Column {
-            HorizontalDivider(
-                modifier = Modifier
-                    .height(1.dp)
-                    .fillMaxWidth(),
-                color = MainBorderBase
-            )
-
-            if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
-                ProviderRow(
-                    location = "Best available provider",
-                    onClick = {
-                        navController.navigate(Route.BrowseLocations)
-                    },
-                    color = Red400
-                )
-            } else {
-
-                val key =
-                    if (selectedLocation.countryCode.isNullOrEmpty()) selectedLocation.connectLocationId.toString()
-                    else selectedLocation.countryCode
-
-                ProviderRow(
-                    location = selectedLocation.name,
-                    providerCount = selectedLocation.providerCount,
-                    onClick = {
-                        navController.navigate(Route.BrowseLocations)
-                    },
-                    color = locationsViewModel.getLocationColor(key)
-                )
-            }
-
-        }
     }
 }
 
@@ -472,7 +344,7 @@ fun ConnectMainContent(
                          * Disconnect Button
                          */
                         AnimatedVisibility(
-                            visible = disconnectBtnVisible && !displayReconnectTunnel,
+                            visible = disconnectBtnVisible && !displayReconnectTunnel && !displayInsufficientBalance,
                             enter = fadeIn(),
                             exit = fadeOut()
                         ) {
