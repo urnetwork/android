@@ -49,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.TAG
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.Id
@@ -115,6 +116,9 @@ fun ConnectScreen(
     }
 
     LaunchedEffect(Unit) {
+
+        connectViewModel.refreshContractStatus()
+
         planViewModel.onUpgradeSuccess.collect {
 
             Log.i("ConnectScreen", "onUpgradeSuccess")

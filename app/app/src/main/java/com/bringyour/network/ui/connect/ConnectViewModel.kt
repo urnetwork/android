@@ -160,15 +160,20 @@ constructor(
         addListener { vc -> vc.addGridListener { viewModelScope.launch { updateGrid() } } }
     }
 
+    val refreshContractStatus = {
+        _contractStatus.value = deviceManager.device?.contractStatus
+    }
+
     private val addContractStatusListener = {
 
         // initialize contract status
-        _contractStatus.value = deviceManager.device?.contractStatus
+        refreshContractStatus()
 
         deviceManager.device?.addContractStatusChangeListener {
 
             viewModelScope.launch {
-                _contractStatus.value = deviceManager.device?.contractStatus
+
+                refreshContractStatus()
 
                 // contract status is updated when the user tries and connects
                 // if they have insufficient balance, disconnect them
