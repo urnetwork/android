@@ -13,14 +13,6 @@ class DeviceManager @Inject constructor() {
     var device: DeviceLocal? = null
         private set
 
-//    var vcManager: ViewControllerManager? = null
-//        private set
-
-//    val byDevice = byDeviceManager.getByDevice()
-//    var connectVc: ConnectViewControllerV0? = null
-//        private set
-//        connectVc?.start()
-
     val networkSpace get() = device?.networkSpace
     val asyncLocalState get() = device?.networkSpace?.asyncLocalState
 
@@ -66,28 +58,7 @@ class DeviceManager @Inject constructor() {
             device?.vpnInterfaceWhileOffline = it
         }
 
-
-//    var provideMode: Long
-//        get() = byDevice?.provideMode!!
-//        set(it) {
-//            asyncLocalState?.localState?.provideMode = it
-//            byDevice?.provideMode = it
-//        }
-
-    // note that view controllers that set location should also save the state
-//    var connectLocation: ConnectLocation?
-//        get() = byDevice?.connectLocation
-//        set(it) {
-//            asyncLocalState?.localState?.connectLocation = connectLocation
-//            byDevice?.connectLocation = it
-//        }
-
-
-
-
-
     fun initDevice(
-        // byApi: BringYourApi?,
         networkSpace: NetworkSpace?,
         byClientJwt: String,
         deviceDescription: String,
@@ -99,6 +70,7 @@ class DeviceManager @Inject constructor() {
         val instanceId = localState.instanceId!!
         val routeLocal = localState.routeLocal
         val connectLocation = localState.connectLocation
+        val defaultLocation = localState.defaultLocation // when user selects location, disconnects, restarts app, we want to persist the location
         val canShowRatingDialog = localState.canShowRatingDialog
         val provideWhileDisconnected = localState.provideWhileDisconnected
         val provideMode = if (provideWhileDisconnected) Sdk.ProvideModePublic else localState.provideMode
@@ -115,7 +87,6 @@ class DeviceManager @Inject constructor() {
             instanceId,
             false
         )
-//        vcManager = Sdk.newViewControllerManager(device)
 
         localState.provideSecretKeys?.let {
             device?.loadProvideSecretKeys(it)
@@ -132,25 +103,15 @@ class DeviceManager @Inject constructor() {
         device?.routeLocal = routeLocal
         device?.provideMode = provideMode
         device?.connectLocation = connectLocation
+        device?.defaultLocation = defaultLocation
         device?.canShowRatingDialog = canShowRatingDialog
         device?.provideWhileDisconnected = provideWhileDisconnected
         device?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
         device?.canRefer = canRefer
         device?.allowForeground = allowForeground
-
-//        connectVc = byDevice?.openConnectViewControllerV0()
     }
 
-//    fun getByDevice(): BringYourDevice? {
-//        return byDevice
-//    }
-
     fun clearDevice() {
-//        connectVc?.let {
-//            byDevice?.closeViewController(it)
-//        }
-//        connectVc = null
-
         device?.close()
         device = null
     }
