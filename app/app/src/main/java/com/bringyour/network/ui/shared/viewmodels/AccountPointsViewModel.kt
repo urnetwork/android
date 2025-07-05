@@ -89,7 +89,7 @@ constructor(
     val getPayoutEventPointsByPaymentId: (String, AccountPointEvent) -> Double = { id, event ->
         _accountPoints.value
             .filter { ap ->
-                ap.accountPaymentId.idStr == id && AccountPointEvent.fromString(ap.event) == AccountPointEvent.PAYOUT
+                ap.accountPaymentId.idStr == id && AccountPointEvent.fromString(ap.event) == event
             }
             .sumOf { accountPoint -> Sdk.nanoPointsToPoints(accountPoint.pointValue) }
     }
