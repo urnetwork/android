@@ -1,129 +1,131 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name" translatable="false">URnetwork</string>
     <string name="title_login">Вход</string>
 
-    <!-- Начальный экран входа -->
-    <string name="user_auth_label">Электронная почта или телефон</string>
-    <string name="user_auth_placeholder">Введите номер телефона или адрес электронной почты</string>
+    <!-- Login initial -->
+    <string name="user_auth_label">Email или телефон</string>
+    <string name="user_auth_placeholder">Введите номер телефона или email</string>
     <string name="get_started">Начать</string>
     <string name="google_auth_btn_text">Войти через Google</string>
-    <string name="commitment_issues">Не хотите обязательств? </string>
+    <string name="commitment_issues">Не хотите регистрироваться? </string>
     <string name="try_guest_mode"> Попробуйте гостевой режим</string>
     <string name="enter">Войти</string>
-    <string name="step_in">Шагните в интернет таким, каким он должен быть.</string>
-    <string name="nicely_done">Отлично!</string>
-    <string name="available">Доступно</string>
+    <string name="step_in">Откройте для себя интернет таким, каким он должен быть.</string>
+    <string name="nicely_done">Отлично</string>
 
-    <!-- Форма создания сети -->
+
+    <!-- Create Network Form -->
     <string name="name_label">Имя</string>
     <string name="name_placeholder">Ваше имя</string>
-    <string name="network_name_label">Название сети</string>
+    <string name="network_name_label">Имя сети</string>
     <string name="network_name_placeholder">Название вашей сети</string>
-    <string name="network_name_length_error">Имена сетей должны содержать не менее 6 символов.</string>
-    <string name="network_name_unavailable">Имя сети недоступно.</string>
+    <string name="network_name_length_error">Название сети должно содержать не менее 6 символов</string>
+    <string name="network_name_unavailable">Имя сети недоступно</string>
     <string name="password_label">Пароль</string>
     <string name="password_support_txt">Пароль должен содержать не менее 12 символов</string>
     <string name="continue_txt">Продолжить</string>
+    <string name="available">Доступно</string>
 
-    <!-- Пароль для входа -->
+    <!-- Login password -->
     <string name="login_password_header">Рады видеть\nвас снова</string>
     <string name="forget_password">Забыли пароль?</string>
-    <string name="reset_it">Сбросить его</string>
+    <string name="reset_it">Восстановить</string>
 
-    <!-- Забыли пароль -->
+    <!-- Forgot password -->
     <string name="forgot_password">Забыли пароль?</string>
-    <string name="check_junk_mail">Возможно, вам нужно проверить папку со спамом или разблокировать no-reply@ur.io</string>
+    <string name="check_junk_mail">Возможно, вам потребуется проверить папку «Спам» или разблокировать no-reply@ur.io</string>
     <string name="send_reset_link">Отправить ссылку для сброса</string>
 
-    <!-- Ссылка для сброса отправлена -->
+    <!-- Reset link sent -->
     <string name="reset_link_sent">Ссылка для сброса отправлена</string>
     <string name="reset_link_sent_to">Ссылка для сброса отправлена на </string>
     <string name="resend_reset_link">Отправить ссылку повторно</string>
     <string name="sent">Отправлено!</string>
 
-    <!-- Проверка входа -->
-    <string name="login_verify_header">У вас есть сообщение</string>
-    <string name="login_verify_details">Подтвердите, кто вы. Введите код, который мы\nвам отправили, чтобы подтвердить вашу личность.</string>
-    <string name="dont_see_it">Не видите его?</string>
+    <!-- Login verify -->
+    <string name="login_verify_header">Вам письмо</string>
+    <string name="login_verify_details">Подтвердите, что это вы. Введите код,\nкоторый мы отправили, для проверки вашей личности.</string>
+    <string name="dont_see_it">Не видите письмо?</string>
     <string name="resend_verify_code">Отправить код повторно</string>
 
-    <!-- Экран кошельков -->
+    <!-- Wallets Screen -->
     <string name="connect_external_wallet">Подключить внешний кошелек</string>
-    <string name="connect_external_wallet_supported_chains">В настоящее время поддерживаются адреса USDC на Solana и Polygon.</string>
+    <string name="connect_external_wallet_supported_chains">В настоящее время поддерживаются адреса USDC в сетях Solana и Polygon.</string>
     <string name="wallet_address_label">Адрес кошелька</string>
     <string name="wallet_address_placeholder">Скопируйте и вставьте сюда</string>
-    <string name="total_payouts">общие выплаты</string>
+    <string name="total_payouts">всего выплат</string>
     <string name="wallets">Кошельки</string>
     <string name="add_wallet">Добавить кошелек</string>
 
-    <!-- Настройка кошелька -->
-    <string name="setup_circle_wallet">Настроить кошелек Circle</string>
+    <!-- Setup Wallet -->
+    <string name="setup_circle_wallet">Настроить Circle Wallet</string>
     <string name="connect_saga_wallet">Подключить кошелек Saga</string>
 
-    <!-- Профиль -->
+    <!-- Profile -->
     <string name="something_went_wrong">Что-то пошло не так.</string>
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
     <string name="change_password">Изменить пароль</string>
     <string name="edit_profile">Редактировать профиль</string>
     <string name="save">Сохранить</string>
 
-    <!-- Настройка кошелька -->
-    <string name="share_with_others">Вы делитесь с другими, мы делимся с вами. Зарабатывайте часть дохода, когда предоставляете данные другим в сети.</string>
-    <string name="start_earning">Чтобы начать зарабатывать, подключите свой криптовалютный кошелек к URnetwork или настройте его с помощью Circle.</string>
+    <!-- Setup wallet -->
+    <string name="share_with_others">Вы делитесь с другими, мы делимся с вами. Получайте долю дохода, предоставляя данные другим участникам сети.</string>
+    <string name="start_earning">Чтобы начать зарабатывать, подключите свой криптовалютный кошелек к URnetwork или создайте новый с помощью Circle.</string>
 
-    <!-- Экран перевода Circle Wallet -->
-    <string name="circle_transfer_topbar_title">Перевести USDC</string>
+    <!-- Circle Wallet Transfer Screen -->
+    <string name="circle_transfer_topbar_title">Перевод USDC</string>
     <string name="circle_transfer_header">Перевод на внешний кошелек</string>
     <string name="circle_transfer_fee_coverage">URnetwork покрывает ваши комиссии за перевод.</string>
     <string name="transfer">Перевести</string>
     <string name="insufficient_funds">Недостаточно средств</string>
 
-    <!-- Подключение -->
-    <string name="tap_to_connect">Нажмите, чтобы подключиться</string>
+    <!-- Connect -->
+    <string name="tap_to_connect">Нажмите для подключения</string>
 
-    <!-- Список локаций -->
+    <!-- Locations List -->
     <string name="promoted_locations">Продвигаемые локации</string>
     <string name="best_available_provider">Лучший доступный провайдер</string>
     <string name="countries">Страны</string>
     <string name="devices">Устройства</string>
-    <string name="search_placeholder">Поиск всех локаций</string>
-    <string name="check_internet">Проверьте подключение к интернету</string>
-    <string name="no_providers_found">Провайдеры не найдены.</string>
-    <string name="tap_to_refetch">Нажмите, чтобы попытаться определить местоположение.</string>
+    <string name="search_placeholder">Поиск по всем локациям</string>
+    <string name="check_internet">Проверьте ваше интернет-соединение</string>
+    <string name="no_providers_found">Нам не удалось найти провайдеров.</string>
+    <string name="tap_to_refetch">Нажмите, чтобы повторить попытку получения локации.</string>
     <string name="cities">Города</string>
     <string name="regions">Регионы</string>
-    <string name="top_matches">Наиболее подходящие</string>
+    <string name="top_matches">Лучшие совпадения</string>
 
-    <!-- Экран аккаунта -->
+    <!-- Account Screen -->
     <string name="account">Аккаунт</string>
     <string name="profile">Профиль</string>
     <string name="settings">Настройки</string>
     <string name="wallet">Кошелек</string>
-    <string name="refer_and_earn">Пригласить и заработать</string>
+    <string name="refer_and_earn">Приглашайте и зарабатывайте</string>
     <string name="set_up_wallet">Настроить кошелек</string>
     <string name="guest">Гость</string>
-    <string name="supporter">Поддерживающий</string>
-    <string name="free">Бесплатный</string>
+    <string name="supporter">Спонсор</string>
+    <string name="free">Бесплатно</string>
     <string name="create_account">Создать аккаунт</string>
     <string name="member">Участник</string>
 
-    <!-- Оверлей обновления подписки -->
-    <string name="plan">План</string>
-    <string name="upgrade_subscription">Обновить подписку</string>
+    <!-- Upgrade subscription overlay -->
+    <string name="plan">Тариф</string>
+    <string name="upgrade_subscription">Улучшить подписку</string>
     <string name="support_us">Поддержите нас в создании нового типа сети, которая дает, а не забирает.</string>
-    <string name="unlock_speed">Вы разблокируете еще более высокую скорость и первыми получите доступ к новым функциям, таким как надежные меры против цензуры и контроль данных.</string>
+    <string name="unlock_speed">Вы получите доступ к еще более высоким скоростям и первым получите новые функции, такие как надежные меры по борьбе с цензурой и контроль данных.</string>
     <string name="join_the_movement">Присоединяйтесь к движению</string>
 
-    <!-- Оверлей гостевого режима -->
+    <!-- Guest mode overlay -->
     <string name="in_guest_mode">Вы в гостевом режиме</string>
-    <string name="start_earning_join">Чтобы начать зарабатывать, присоединитесь к сети</string>
+    <string name="start_earning_join">Чтобы начать зарабатывать, присоединяйтесь к сети</string>
 
-    <!-- Оверлей приглашения -->
+    <!-- Refer overlay -->
     <string name="refer_friends_header">Пригласить друзей</string>
-    <string name="refer_friends_detail">Больше связей помогают нашему сообществу оставаться анонимным (и помогают вам зарабатывать!)</string>
+    <string name="refer_friends_detail">Больше подключений помогают нашему сообществу оставаться анонимным (и помогают вам зарабатывать!)</string>
 
-    <!-- Экран кошелька -->
+
+    <!-- Wallet Screen -->
     <string name="balance">Баланс</string>
     <string name="transfer_funds">Перевести средства</string>
     <string name="no_payouts_found">Для этого кошелька не найдено выплат</string>
@@ -131,129 +133,130 @@
     <string name="make_default">Сделать по умолчанию</string>
     <string name="payout_wallets">Кошельки для выплат</string>
     <string name="chains_supported">В настоящее время поддерживаются кошельки Solana и Polygon</string>
+    <string name="unpaid_data_provided">Предоставленные неоплаченные данные</string>
+    <string name="payouts_amount_threshold">Выплаты производятся еженедельно и требуют предоставления минимального объема данных для получения выплаты.</string>
 
-    <!-- Оверлей отправленного перевода -->
+    <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Перевод отправлен</string>
-    <string name="transfer_submitted_details">Ваш перевод инициирован и будет завершен после обработки транзакции в блокчейне.</string>
+    <string name="transfer_submitted_details">Ваш перевод инициирован и будет завершен после обработки транзакции в сети.</string>
 
-    <!-- Карусель онбординга -->
-    <string name="see_world_content">Смотрите весь\nконтент мира</string>
-    <string name="see_world_content_description">Смотрите весь контент мира с URnetwork</string>
+    <!-- Onboarding Carousel -->
+    <string name="see_world_content">Смотрите контент\nсо всего мира</string>
+    <string name="see_world_content_description">Смотрите контент со всего мира с URnetwork</string>
     <string name="stay_private_description">Оставайтесь полностью приватными и анонимными с URnetwork</string>
     <string name="stay_private">Оставайтесь\nполностью\nприватными и\nанонимными</string>
-    <string name="build_right_description">Создавайте интернет правильным образом с URnetwork</string>
-    <string name="build_right">Создавайте\nинтернет\nправильным\nобразом</string>
+    <string name="build_right_description">Стройте интернет правильно вместе с URnetwork</string>
+    <string name="build_right">Стройте\nинтернет\nправильно</string>
     <string name="with_urnetwork">с URnetwork</string>
 
-    <!-- Настройки -->
-    <string name="unlock_supporter_tooltip">Разблокируйте еще более высокую скорость и первыми получите доступ к новым функциям.</string>
-    <string name="become_supporter">Стать поддерживающим</string>
+    <!-- Settings -->
+    <string name="unlock_supporter_tooltip">Получите доступ к еще более высоким скоростям и первым пробуйте новые функции.</string>
+    <string name="become_supporter">Стать спонсором</string>
     <string name="notifications_label">Уведомления</string>
-    <string name="receive_notifications">Получать уведомления о подключениях</string>
+    <string name="receive_notifications">Получать уведомления о подключении</string>
     <string name="connectivity_label">Подключение</string>
     <string name="allow_local_connections">Разрешить локальные подключения</string>
     <string name="stay_in_touch">Оставайтесь на связи</string>
-    <string name="send_product_updates">Отправлять мне обновления продукта</string>
+    <string name="send_product_updates">Присылайте мне обновления продукта</string>
     <string name="join_community_discord">Присоединяйтесь к сообществу в</string>
-    <string name="update_notification_settings">Обновите разрешения уведомлений в настройках Android</string>
+    <string name="update_notification_settings">Обновите разрешения для уведомлений в настройках Android</string>
+    <string name="connections">Подключения</string>
+    <string name="provide_disconnected">Предоставлять данные при отключении</string>
 
-    <!-- Экран обратной связи -->
-    <string name="feedback_header">Связаться с нами</string>
-    <string name="feedback_label">Поле для обратной связи</string>
-    <string name="feedback_placeholder">Расскажите нам, что вы действительно думаете</string>
+    <!-- Feedback Screen -->
+    <string name="feedback_header">Свяжитесь с нами</string>
+    <string name="feedback_label">Поле для отзыва</string>
+    <string name="feedback_placeholder">Расскажите нам, что вы думаете на самом деле</string>
 
-    <!-- Призыв к действию -->
+    <!-- Call to action -->
     <string name="cancel">Отмена</string>
-    <string name="connect">Подключиться</string>
+    <string name="connect">Подключить</string>
     <string name="remove">Удалить</string>
     <string name="change">Изменить</string>
     <string name="share">Поделиться</string>
     <string name="copy">Копировать</string>
     <string name="send">Отправить</string>
+    <string name="dismiss">Закрыть</string>
 
-    <string name="login_error_auth_allowed">Пожалуйста, войдите с помощью одного из: %s.</string>
-    <string name="login_error">Что-то пошло не так. Попробуйте снова.</string>
-    <string name="login_client_error">Что-то пошло не так при аутентификации клиента. Попробуйте снова.</string>
-    <string name="network_name_check_error">Недоступно. Должно отличаться от существующей сети как минимум на 3 символа. Сделайте его уникальным или длиннее.</string>
-    <string name="verify_error">Что-то пошло не так. Попробуйте снова.</string>
-    <string name="create_network_error">Что-то пошло не так. Попробуйте снова.</string>
+    <string name="login_error_auth_allowed">Пожалуйста, войдите, используя один из следующих способов: %s.</string>
+    <string name="login_error">Что-то пошло не так. Попробуйте еще раз.</string>
+    <string name="login_client_error">Произошла ошибка при аутентификации клиента. Попробуйте еще раз.</string>
+    <string name="network_name_check_error">Недоступно. Имя должно отличаться от существующего как минимум на 3 символа. Сделайте его уникальнее или длиннее.</string>
+    <string name="verify_error">Что-то пошло не так. Попробуйте еще раз.</string>
+    <string name="create_network_error">Что-то пошло не так. Попробуйте еще раз.</string>
     <string name="verify_send_error">Ошибка</string>
-
-    <string name="connections">Подключения</string>
-    <string name="provide_disconnected">Предоставлять в автономном режиме</string>
-    <string name="unpaid_data_provided">Предоставлены неоплаченные данные</string>
-    <string name="payouts_amount_threshold">Выплаты происходят каждую неделю и требуют минимальной суммы для получения выплаты.</string>
+    <string name="asset_statements" translatable="false">[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
     <string name="open_nested_link">Подключиться к %1$s и открыть ссылку %2$s</string>
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
     <string name="connect_to_location">Подключиться к %1$s</string>
-    <string name="no_locations_found">Местоположения не найдены</string>
-    <string name="no_locations_found_detail">Извините, нам не удалось найти местоположения, связанные с %1$s.</string>
-    <string name="dismiss">Закрыть</string>
+    <string name="no_locations_found">Локации не найдены</string>
+    <string name="no_locations_found_detail">К сожалению, нам не удалось найти локации, связанные с %1$s.</string>
+
     <string name="switch_account">Сменить аккаунт</string>
     <string name="switch_account_details">Вы хотите отключиться от %1$s и сменить аккаунт?</string>
-    <string name="auth_code_loading">Загрузка кода аутентификации</string>
-    <string name="network_create_bonus_message">Кто-то пригласил вас присоединиться 🥳\\nПолучите свой бонус, создав сеть!</string>
+    <string name="auth_code_loading">Загрузка кода авторизации</string>
+    <string name="network_create_bonus_message">Кто-то пригласил вас присоединиться 🥳 \nПолучите свой бонус, создав сеть!</string>
     <string name="delete_account">Удалить аккаунт</string>
     <string name="sorry_to_see_you_go">Нам жаль, что вы уходите!</string>
-    <string name="are_you_sure_delete_account">Вы уверены, что хотите удалить свою учетную запись?</string>
+    <string name="are_you_sure_delete_account">Вы уверены, что хотите удалить свой аккаунт?</string>
     <string name="reconnect_tunnel_status_indicator">VPN-туннель отключен 😓</string>
     <string name="disconnect">Отключить</string>
-    <string name="reconnect">Переподключиться</string>
+    <string name="reconnect">Переподключить</string>
     <string name="connecting_status_indicator">Подключение к провайдерам...</string>
     <string name="connected_provider_count">Подключено к %d провайдерам</string>
-    <string name="ready_to_connect">Готов к подключению</string>
-    <string name="network_name_ready_to_connect">%s готова к подключению</string>
-    <string name="need_more_data_faster">Нужно больше данных и быстрее?</string>
-    <string name="upgrade_now">Обновить сейчас</string>
-    <string name="how_are_we_doing">Как наши дела?</string>
+    <string name="ready_to_connect">Готово к подключению</string>
+    <string name="network_name_ready_to_connect">%s готово к подключению</string>
+    <string name="need_more_data_faster">Нужно больше данных и выше скорость?</string>
+    <string name="upgrade_now">Улучшить сейчас</string>
+    <string name="how_are_we_doing">Как наши успехи?</string>
     <string name="referral_code">Реферальный код</string>
-    <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные вознаграждения</string>
+    <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные награды</string>
     <string name="add_referral_code">Добавить реферальный код</string>
     <string name="edit_referral_code">Изменить реферальный код</string>
     <string name="referral_bonus_applied">Реферальный бонус применен</string>
     <string name="apply_bonus">Применить бонус</string>
-    <string name="join_urnetwork">Присоединяйтесь к\\nURnetwork</string>
+    <string name="join_urnetwork">Присоединяйтесь к\nURnetwork</string>
     <string name="route_local">Разрешить локальный трафик при отключении</string>
     <string name="manage_subscription">Управление подпиской</string>
-    <string name="solana_sign_in">Войти с помощью Solana</string>
+    <string name="solana_sign_in">Войти через Solana</string>
     <string name="no_solana_wallets_found">Кошельки Solana не найдены</string>
     <string name="no_wallets_found_alert_content">На этом устройстве не найдено установленных кошельков Solana. Пожалуйста, установите кошелек и попробуйте снова.</string>
     <string name="claim_multiplier">Получить множитель</string>
-    <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или токеном предварительного заказа Seeker</string>
-    <string name="verify_seeker_token_btn">Подтвердить токен предварительного заказа Seeker</string>
+    <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или Seeker Pre-Order</string>
+    <string name="verify_seeker_token_btn">Проверить токен Seeker Pre-Order</string>
     <string name="total_referrals">Всего рефералов</string>
     <string name="login_verify_check_phone">Проверьте свой телефон</string>
     <string name="leaderboard">Таблица лидеров</string>
     <string name="current_ranking">Текущий рейтинг</string>
-    <string name="net_provided">Предоставлено сети</string>
+    <string name="net_provided">Предоставлено (нетто)</string>
     <string name="display_network_on_leaderboard">Отображать сеть в таблице лидеров</string>
-    <string name="leaderboard_description">Таблица лидеров представляет собой сумму последних 4 платежей. Она обновляется каждый платежный цикл.</string>
-    <string name="total_account_points">Всего баллов на аккаунте</string>
-    <string name="enter_network_referral_code">Введите сетевой реферальный код</string>
+    <string name="leaderboard_description">Таблица лидеров представляет собой сумму последних 4 платежей. Она обновляется в каждом платежном цикле.</string>
+    <string name="total_account_points">Всего очков аккаунта</string>
+    <string name="enter_network_referral_code">Введите реферальный код сети</string>
     <string name="update_referral_network">Обновить реферальную сеть</string>
     <string name="update">Обновить</string>
-    <string name="unlink_referral_network">Отключить реферальную сеть</string>
-    <string name="unlink">Отключить</string>
+    <string name="unlink_referral_network">Отвязать реферальную сеть</string>
+    <string name="unlink">Отвязать</string>
     <string name="current_network_referral">Текущая реферальная сеть</string>
-    <string name="unlink_alert_description">После отключения вашей реферальной сети вы больше не сможете получать баллы от %1$s</string>
-    <string name="account_points">" Баллы аккаунта"</string>
-    <string name="points_breakdown">Разбивка баллов</string>
+    <string name="unlink_alert_description">После отвязки реферальной сети вы больше не сможете зарабатывать очки от %1$s</string>
+    <string name="account_points">Очки аккаунта</string>
+    <string name="points_breakdown">Разбивка очков</string>
     <string name="payouts">Выплаты</string>
     <string name="referral">Реферал</string>
-    <string name="net_points_earned">Заработано чистых баллов</string>
+    <string name="net_points_earned">заработано очков (нетто)</string>
     <string name="version_info">Информация о версии и сборке</string>
     <string name="earning_multipliers">Множители заработка</string>
     <string name="claim">Получить</string>
-    <string name="seeker_token_verified">Токен Seeker подтверждён!</string>
-    <string name="earnings_doubled">Вы зарабатываете x2 баллов</string>
-    <string name="reliability">Надёжность</string>
-    <string name="browse_locations">Просмотреть локации</string>
+    <string name="seeker_token_verified">Токен Seeker проверен!</string>
+    <string name="earnings_doubled">Вы зарабатываете x2 очков</string>
+    <string name="reliability">Надежность</string>
+    <string name="browse_locations">Просмотр локаций</string>
     <string name="none">Нет</string>
-    <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему %1$s для получения прямой поддержки.</string>
+    <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему Discord для прямой поддержки.</string>
     <string name="referral_network">Реферальная сеть</string>
-    <string name="pending_payout">Ожидающая выплата</string>
+    <string name="pending_payout">Ожидаемая выплата</string>
     <string name="amount">Сумма</string>
     <string name="wallet_address">Адрес кошелька</string>
     <string name="transaction">Транзакция</string>
-    <string name="date_payout">Выплата %1$s</string>
+    <string name="date_payout">Выплата за %1$s</string>
 </resources>
