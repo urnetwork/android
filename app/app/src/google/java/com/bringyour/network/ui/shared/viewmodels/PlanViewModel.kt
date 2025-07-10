@@ -11,8 +11,8 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
@@ -100,7 +100,7 @@ class PlanViewModel @Inject constructor(
 
         _billingClient.value = BillingClient.newBuilder(context)
             .setListener(pul)
-            .enablePendingPurchases()
+            .enablePendingPurchases(PendingPurchasesParams.newBuilder().build())
             .build()
 
         _billingClient.value?.startConnection(object : BillingClientStateListener {
