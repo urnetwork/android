@@ -100,7 +100,12 @@ class PlanViewModel @Inject constructor(
 
         _billingClient.value = BillingClient.newBuilder(context)
             .setListener(pul)
-            .enablePendingPurchases(PendingPurchasesParams.newBuilder().build())
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder()
+                    .enableOneTimeProducts()
+                    .enablePrepaidPlans()
+                    .build()
+            )
             .build()
 
         _billingClient.value?.startConnection(object : BillingClientStateListener {
