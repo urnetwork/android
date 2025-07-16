@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
-import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.ppNeueBitBold
 
@@ -70,7 +69,6 @@ fun UpdateReferralNetworkBottomSheet(
                 )
             },
             onDismissRequest = {
-                // onDismissRequest()
                 viewModel.setDisplayUnlinkAlert(false)
             },
             confirmButton = {
