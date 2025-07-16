@@ -1,7 +1,8 @@
 package com.bringyour.network.ui.components
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
@@ -14,7 +15,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -33,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.utils.isTv
+import androidx.core.net.toUri
 
 @Composable
 fun TermsCheckbox(
@@ -116,18 +115,16 @@ fun TermsCheckbox(
                     tag = "URL", start = offset, end = offset
                 ).firstOrNull()?.let { annotation ->
                     // open the link in browser
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
-                    context.startActivity(intent)
+                    val intent = Intent(Intent.ACTION_VIEW, annotation.item.toUri())
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        Toast.makeText(context, "No app found to handle this link", Toast.LENGTH_SHORT).show()
+                    }
                 }
             },
             style = MaterialTheme.typography.bodyMedium.copy(color = TextMuted),
         )
-    }
-
-    if (focusRequester != null && isTv()) {
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
     }
 
 }
