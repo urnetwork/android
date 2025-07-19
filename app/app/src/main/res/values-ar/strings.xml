@@ -233,4 +233,7 @@
     <string name="wallet_address">عنوان المحفظة</string>
     <string name="transaction">المعاملة</string>
     <string name="date_payout">" دفعة %1$s"</string>
+    <string name="auto">تلقائي</string>
+    <string name="always">دائمًا</string>
+    <string name="never">أبدًا</string>
 </resources>

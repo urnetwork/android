@@ -233,4 +233,7 @@
     <string name="wallet_address">Διεύθυνση πορτοφολιού</string>
     <string name="transaction">Συναλλαγή</string>
     <string name="date_payout">Πληρωμή %1$s</string>
+    <string name="auto">Αυτόματο</string>
+    <string name="always">Πάντα</string>
+    <string name="never">Ποτέ</string>
 </resources>

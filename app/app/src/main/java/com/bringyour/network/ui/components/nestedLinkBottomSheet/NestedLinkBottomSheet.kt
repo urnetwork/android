@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.connect.ConnectStatus
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.connect.FilterLocationsState
+import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.TextFaint

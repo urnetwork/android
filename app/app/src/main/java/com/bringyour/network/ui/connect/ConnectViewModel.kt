@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
@@ -14,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
-import com.bringyour.network.TAG
+import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
@@ -160,9 +159,7 @@ constructor(
         addListener { vc -> vc.addGridListener { viewModelScope.launch { updateGrid() } } }
     }
 
-    val refreshContractStatus = {
-        _contractStatus.value = deviceManager.device?.contractStatus
-    }
+    val refreshContractStatus = { _contractStatus.value = deviceManager.device?.contractStatus }
 
     private val addContractStatusListener = {
 
@@ -170,15 +167,13 @@ constructor(
         refreshContractStatus()
 
         deviceManager.device?.addContractStatusChangeListener {
-
             viewModelScope.launch {
-
                 refreshContractStatus()
 
                 // contract status is updated when the user tries and connects
                 // if they have insufficient balance, disconnect them
                 if (_contractStatus.value?.insufficientBalance == true &&
-                    _connectStatus.value != ConnectStatus.DISCONNECTED
+                                _connectStatus.value != ConnectStatus.DISCONNECTED
                 ) {
                     disconnect()
                 }
@@ -199,10 +194,11 @@ constructor(
                 updateProviderGridPoints[point.clientId] = point
             }
             providerGridPoints = updateProviderGridPoints
-        } ?: run {
-            windowCurrentSize = 0
-            providerGridPoints = mapOf()
         }
+                ?: run {
+                    windowCurrentSize = 0
+                    providerGridPoints = mapOf()
+                }
     }
 
     val getStateColor: (ProviderPointState?) -> Color = { state ->
@@ -324,34 +320,6 @@ constructor(
     }
 }
 
-enum class ConnectStatus {
-    DISCONNECTED,
-    CONNECTING,
-    DESTINATION_SET,
-    CONNECTED;
-
-    companion object {
-        fun fromString(value: String): ConnectStatus? {
-            return when (value.uppercase()) {
-                "DISCONNECTED" -> DISCONNECTED
-                "CONNECTING" -> CONNECTING
-                "DESTINATION_SET" -> DESTINATION_SET
-                "CONNECTED" -> CONNECTED
-                else -> null
-            }
-        }
-
-        fun toString(value: ConnectStatus): String {
-            return when (value) {
-                DISCONNECTED -> "DISCONNECTED"
-                CONNECTING -> "CONNECTING"
-                DESTINATION_SET -> "DESTINATION_SET"
-                CONNECTED -> "CONNECTED"
-            }
-        }
-    }
-}
-
 enum class ProviderPointState {
     IN_EVALUATION,
     EVALUATION_FAILED,
@@ -374,10 +342,10 @@ enum class ProviderPointState {
 }
 
 data class AnimatedSuccessPoint(
-    val initialOffset: Offset,
-    val targetOffset: Offset,
-    val center: Animatable<Offset, AnimationVector2D> =
-            Animatable(Offset(-500f, 0f), Offset.VectorConverter),
-    val color: Color,
-    val radius: Float
+        val initialOffset: Offset,
+        val targetOffset: Offset,
+        val center: Animatable<Offset, AnimationVector2D> =
+                Animatable(Offset(-500f, 0f), Offset.VectorConverter),
+        val color: Color,
+        val radius: Float
 )

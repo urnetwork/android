@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sdk
@@ -37,11 +38,11 @@ class DeviceManager @Inject constructor() {
             device?.canShowRatingDialog = it
         }
 
-    var provideWhileDisconnected: Boolean
-        get() = device?.provideWhileDisconnected!!
+    var provideControlMode: ProvideControlMode
+        get() = ProvideControlMode.fromString(device?.provideControlMode!!) ?: ProvideControlMode.AUTO
         set(it) {
-            asyncLocalState?.localState?.provideWhileDisconnected = it
-            device?.provideWhileDisconnected = it
+            asyncLocalState?.localState?.provideControlMode = ProvideControlMode.toString(it)
+            device?.provideControlMode = ProvideControlMode.toString(it)
         }
 
     var allowForeground: Boolean
@@ -72,8 +73,8 @@ class DeviceManager @Inject constructor() {
         val connectLocation = localState.connectLocation
         val defaultLocation = localState.defaultLocation // when user selects location, disconnects, restarts app, we want to persist the location
         val canShowRatingDialog = localState.canShowRatingDialog
-        val provideWhileDisconnected = localState.provideWhileDisconnected
-        val provideMode = if (provideWhileDisconnected) Sdk.ProvideModePublic else localState.provideMode
+        val provideControlMode = ProvideControlMode.fromString(localState.provideControlMode) ?: ProvideControlMode.AUTO
+        val provideMode = if (provideControlMode == ProvideControlMode.ALWAYS) Sdk.ProvideModePublic else localState.provideMode
         val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
         val canRefer = localState.canRefer
         val allowForeground = localState.allowForeground
@@ -105,7 +106,7 @@ class DeviceManager @Inject constructor() {
         device?.connectLocation = connectLocation
         device?.defaultLocation = defaultLocation
         device?.canShowRatingDialog = canShowRatingDialog
-        device?.provideWhileDisconnected = provideWhileDisconnected
+        device?.provideControlMode = ProvideControlMode.toString(provideControlMode)
         device?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
         device?.canRefer = canRefer
         device?.allowForeground = allowForeground

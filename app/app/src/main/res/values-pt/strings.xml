@@ -233,5 +233,8 @@
     <string name="wallet_address">Endereço da carteira</string>
     <string name="transaction">Transação</string>
     <string name="date_payout">Pagamento de %1$s</string>
+    <string name="auto">Automático</string>
+    <string name="always">Sempre</string>
+    <string name="never">Nunca</string>
 
 </resources>

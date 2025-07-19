@@ -256,5 +256,8 @@
     <string name="wallet_address">Adres portfela</string>
     <string name="transaction">Transakcja</string>
     <string name="date_payout">Wypłata %1$s</string>
+    <string name="auto">Automatycznie</string>
+    <string name="always">Zawsze</string>
+    <string name="never">Nigdy</string>
 
 </resources>

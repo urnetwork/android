@@ -235,4 +235,7 @@
     <string name="wallet_address">Adresse du portefeuille</string>
     <string name="transaction">Transaction</string>
     <string name="date_payout">Paiement du %1$s</string>
+    <string name="auto">Automatique</string>
+    <string name="always">Toujours</string>
+    <string name="never">Jamais</string>
 </resources>

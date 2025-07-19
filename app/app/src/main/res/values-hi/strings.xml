@@ -233,5 +233,8 @@
     <string name="wallet_address">वॉलेट पता</string>
     <string name="transaction">लेन-देन</string>
     <string name="date_payout">%1$s भुगतान</string>
+    <string name="auto">स्वचालित</string>
+    <string name="always">हमेशा</string>
+    <string name="never">कभी नहीं</string>
 
 </resources>
