@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
+import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
@@ -321,34 +322,6 @@ constructor(
         //        }
 
         viewModelScope.cancel()
-    }
-}
-
-enum class ConnectStatus {
-    DISCONNECTED,
-    CONNECTING,
-    DESTINATION_SET,
-    CONNECTED;
-
-    companion object {
-        fun fromString(value: String): ConnectStatus? {
-            return when (value.uppercase()) {
-                "DISCONNECTED" -> DISCONNECTED
-                "CONNECTING" -> CONNECTING
-                "DESTINATION_SET" -> DESTINATION_SET
-                "CONNECTED" -> CONNECTED
-                else -> null
-            }
-        }
-
-        fun toString(value: ConnectStatus): String {
-            return when (value) {
-                DISCONNECTED -> "DISCONNECTED"
-                CONNECTING -> "CONNECTING"
-                DESTINATION_SET -> "DESTINATION_SET"
-                CONNECTED -> "CONNECTED"
-            }
-        }
     }
 }
 

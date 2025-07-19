@@ -259,4 +259,7 @@
     <string name="wallet_address">Адрес кошелька</string>
     <string name="transaction">Транзакция</string>
     <string name="date_payout">Выплата за %1$s</string>
+    <string name="auto">Автоматически</string>
+    <string name="always">Всегда</string>
+    <string name="never">Никогда</string>
 </resources>

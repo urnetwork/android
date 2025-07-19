@@ -52,6 +52,7 @@ import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.Id
 import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.R
+import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red

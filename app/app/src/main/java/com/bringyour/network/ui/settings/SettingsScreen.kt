@@ -32,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -81,6 +82,7 @@ import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.settings.updateReferralNetworkBottomSheet.UpdateReferralNetworkBottomSheet
+import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -218,8 +220,8 @@ fun SettingsScreen(
         notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
         allowProductUpdates = settingsViewModel.allowProductUpdates,
         toggleAllowProductUpdates = settingsViewModel.toggleAllowProductUpdates,
-        provideWhileDisconnected = settingsViewModel.provideWhileDisconnected,
-        toggleProvideWhileDisconnected = settingsViewModel.toggleProvideWhileDisconnected,
+        provideControlMode = settingsViewModel.provideControlMode,
+        setProvideControlMode = settingsViewModel.setProvideControlMode,
         urIdUrl = settingsViewModel.urIdUrl,
         expandUpgradePlanSheet = expandUpgradePlanSheet,
         showDeleteAccountDialog = showDeleteAccountDialog,
@@ -290,8 +292,8 @@ fun SettingsScreen(
     requestAllowNotifications: () -> Unit,
     allowProductUpdates: Boolean,
     toggleAllowProductUpdates: () -> Unit,
-    provideWhileDisconnected: Boolean,
-    toggleProvideWhileDisconnected: () -> Unit,
+    provideControlMode: ProvideControlMode,
+    setProvideControlMode: (ProvideControlMode) -> Unit,
     urIdUrl: (String) -> String?,
     expandUpgradePlanSheet: () -> Unit,
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
@@ -606,11 +608,10 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             URTextInputLabel(text = stringResource(id = R.string.connections))
-            Row(
+
+            Column(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     stringResource(id = R.string.provide_disconnected),
@@ -618,12 +619,22 @@ fun SettingsScreen(
                     color = Color.White
                 )
 
-                URSwitch(
-                    checked = provideWhileDisconnected,
-                    toggle = {
-                        toggleProvideWhileDisconnected()
-                    },
-                )
+                ProvideControlMode.entries.forEach { mode ->
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (mode == provideControlMode),
+                            onClick = { setProvideControlMode(mode) }
+                        )
+                        Text(
+                            stringResource(id = ProvideControlMode.toStringResourceId(mode)),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+
             }
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -926,8 +937,8 @@ private fun SettingsScreenPreview() {
             requestAllowNotifications = {},
             allowProductUpdates = true,
             toggleAllowProductUpdates = {},
-            provideWhileDisconnected = true,
-            toggleProvideWhileDisconnected = {},
+            provideControlMode = ProvideControlMode.AUTO,
+            setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
             expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
@@ -963,8 +974,8 @@ private fun SettingsScreenSupporterPreview() {
             requestAllowNotifications = {},
             allowProductUpdates = true,
             toggleAllowProductUpdates = {},
-            provideWhileDisconnected = false,
-            toggleProvideWhileDisconnected = {},
+            provideControlMode = ProvideControlMode.AUTO,
+            setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
             expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
@@ -1000,8 +1011,8 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             requestAllowNotifications = {},
             allowProductUpdates = true,
             toggleAllowProductUpdates = {},
-            provideWhileDisconnected = true,
-            toggleProvideWhileDisconnected = {},
+            provideControlMode = ProvideControlMode.AUTO,
+            setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
             expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
@@ -1037,8 +1048,8 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             requestAllowNotifications = {},
             allowProductUpdates = false,
             toggleAllowProductUpdates = {},
-            provideWhileDisconnected = true,
-            toggleProvideWhileDisconnected = {},
+            provideControlMode = ProvideControlMode.AUTO,
+            setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
             expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
@@ -1074,8 +1085,8 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             requestAllowNotifications = {},
             allowProductUpdates = false,
             toggleAllowProductUpdates = {},
-            provideWhileDisconnected = true,
-            toggleProvideWhileDisconnected = {},
+            provideControlMode = ProvideControlMode.AUTO,
+            setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
             expandUpgradePlanSheet = {},
             showDeleteAccountDialog = true,

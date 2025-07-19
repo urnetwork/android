@@ -256,4 +256,7 @@
     <string name="wallet_address">ウォレットアドレス</string>
     <string name="transaction">トランザクション</string>
     <string name="date_payout">%1$s の支払い</string>
+    <string name="auto">自動</string>
+    <string name="always">常に</string>
+    <string name="never">決して</string>
 </resources>

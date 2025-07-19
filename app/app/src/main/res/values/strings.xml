@@ -259,4 +259,7 @@
     <string name="wallet_address">Wallet Address</string>
     <string name="transaction">Transaction</string>
     <string name="date_payout">%1$s Payout</string>
+    <string name="auto">Auto</string>
+    <string name="always">Always</string>
+    <string name="never">Never</string>
 </resources>

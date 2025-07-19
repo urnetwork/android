@@ -256,4 +256,7 @@
     <string name="wallet_address">지갑 주소</string>
     <string name="transaction">트랜잭션</string>
     <string name="date_payout">%1$s 지급</string>
+    <string name="auto">자동</string>
+    <string name="always">항상</string>
+    <string name="never">절대</string>
 </resources>

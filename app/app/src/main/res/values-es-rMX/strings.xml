@@ -233,4 +233,7 @@
     <string name="wallet_address">Dirección de la billetera</string>
     <string name="transaction">Transacción</string>
     <string name="date_payout">Pago del %1$s</string>
+    <string name="auto">Automático</string>
+    <string name="always">Siempre</string>
+    <string name="never">Nunca</string>
 </resources>

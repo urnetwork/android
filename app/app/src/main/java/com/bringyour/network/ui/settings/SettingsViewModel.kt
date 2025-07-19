@@ -15,6 +15,7 @@ import com.bringyour.sdk.AccountPreferencesViewController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
+import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,7 +65,9 @@ class SettingsViewModel @Inject constructor(
     var allowProductUpdates by mutableStateOf(false)
         private set
 
-    var provideWhileDisconnected by mutableStateOf(false)
+//    var provideWhileDisconnected by mutableStateOf(false)
+//        private set
+    var provideControlMode by mutableStateOf(ProvideControlMode.AUTO)
         private set
 
     var allowForeground by mutableStateOf(false)
@@ -129,10 +132,9 @@ class SettingsViewModel @Inject constructor(
         accountPreferencesVc?.updateAllowProductUpdates(!currentAllowProductUpdates)
     }
 
-    val toggleProvideWhileDisconnected: () -> Unit = {
-        val currentProvideWhileDisconnected = provideWhileDisconnected
-        deviceManager.provideWhileDisconnected = !currentProvideWhileDisconnected
-        provideWhileDisconnected = !currentProvideWhileDisconnected
+    val setProvideControlMode: (ProvideControlMode) -> Unit = { mode ->
+        deviceManager.provideControlMode = mode
+        this.provideControlMode = mode
     }
 
     val toggleAllowForeground: () -> Unit = {
@@ -197,7 +199,8 @@ class SettingsViewModel @Inject constructor(
     init {
         accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
 
-        provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
+        // provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
+        provideControlMode = deviceManager.provideControlMode
 
         allowForeground = deviceManager.allowForeground
 

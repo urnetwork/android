@@ -234,4 +234,7 @@
     <string name="wallet_address">Wallet-Adresse</string>
     <string name="transaction">Transaktion</string>
     <string name="date_payout">Auszahlung am %1$s</string>
+    <string name="auto">Automatisch</string>
+    <string name="always">Immer</string>
+    <string name="never">Nie</string>
 </resources>

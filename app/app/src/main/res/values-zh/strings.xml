@@ -234,4 +234,7 @@
     <string name="wallet_address">钱包地址</string>
     <string name="transaction">交易</string>
     <string name="date_payout">%1$s 支付</string>
+    <string name="auto">自动</string>
+    <string name="always">始终</string>
+    <string name="never">从不</string>
 </resources>

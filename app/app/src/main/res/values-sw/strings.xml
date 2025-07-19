@@ -234,4 +234,7 @@
     <string name="wallet_address">Anwani ya pochi</string>
     <string name="transaction">Muamala</string>
     <string name="date_payout">Malipo ya %1$s</string>
+    <string name="auto">Moja kwa moja</string>
+    <string name="always">Daima</string>
+    <string name="never">Kamwe</string>
 </resources>
