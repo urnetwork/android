@@ -65,8 +65,6 @@ class SettingsViewModel @Inject constructor(
     var allowProductUpdates by mutableStateOf(false)
         private set
 
-//    var provideWhileDisconnected by mutableStateOf(false)
-//        private set
     var provideControlMode by mutableStateOf(ProvideControlMode.AUTO)
         private set
 
@@ -198,8 +196,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
-
-        // provideWhileDisconnected = deviceManager.device?.provideWhileDisconnected ?: false
+        
         provideControlMode = deviceManager.provideControlMode
 
         allowForeground = deviceManager.allowForeground
