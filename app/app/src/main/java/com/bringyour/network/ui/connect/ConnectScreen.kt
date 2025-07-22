@@ -59,9 +59,11 @@ import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.managers.rememberReviewManager
+import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
@@ -87,6 +89,7 @@ fun ConnectScreen(
     navController: NavController,
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     planViewModel: PlanViewModel,
+    bundleStore: BundleStore?,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val scope = rememberCoroutineScope()
@@ -107,6 +110,12 @@ fun ConnectScreen(
         isPresentingUpgradePlanSheet = isPresenting
     }
 
+    var promptSolanaReview by remember { mutableStateOf(false) }
+
+    val setPromptSolanaReview: (Boolean) -> Unit = {
+        promptSolanaReview = it
+    }
+
     val expandUpgradePlanSheet: () -> Unit = {
 
         scope.launch {
@@ -114,6 +123,19 @@ fun ConnectScreen(
             setIsPresentingUpgradePlanSheet(true)
         }
 
+    }
+
+    val reviewManagerRequest = rememberReviewManager()
+    val context = LocalContext.current
+
+    val promptReview = {
+        val activity = context as? android.app.Activity
+        activity?.let {
+            reviewManagerRequest.launchReviewFlow(
+                activity = it,
+                bundleStore
+            )
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -128,6 +150,7 @@ fun ConnectScreen(
             subscriptionBalanceViewModel.pollSubscriptionBalance()
 
         }
+
     }
 
     Scaffold(
@@ -165,7 +188,14 @@ fun ConnectScreen(
                     displayInsufficientBalance = displayInsufficientBalance,
                     isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                     expandUpgradePlanSheet = expandUpgradePlanSheet,
-                    device = connectViewModel.device
+                    device = connectViewModel.device,
+                    promptReview = {
+                        if (bundleStore == BundleStore.SOLANA_DAPP) {
+                            setPromptSolanaReview(true)
+                        } else {
+                            promptReview()
+                        }
+                    }
                     // showTopAppBar = showTopAppBar
                 )
             }
@@ -213,6 +243,18 @@ fun ConnectScreen(
             setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
         )
     }
+
+
+    if (promptSolanaReview) {
+        PromptSolanaDAppStoreReview(
+            promptReview = {
+                promptReview()
+            },
+            dismiss = {
+                setPromptSolanaReview(false)
+            }
+        )
+    }
 }
 
 @Composable
@@ -238,7 +280,8 @@ fun ConnectMainContent(
     currentPlan: Plan,
     isPollingSubscriptionBalance: Boolean,
     expandUpgradePlanSheet: () -> Unit,
-    device: DeviceLocal?
+    device: DeviceLocal?, // fixme, we don't need to pass the entire device
+    promptReview: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -246,7 +289,6 @@ fun ConnectMainContent(
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectBtnVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val reviewManagerRequest = rememberReviewManager()
 
     LaunchedEffect(connectStatus) {
 
@@ -266,10 +308,8 @@ fun ConnectMainContent(
                 scope.launch {
                     device.canShowRatingDialog = false
                     delay(2000)
-                    val activity = context as? android.app.Activity
-                    activity?.let {
-                        reviewManagerRequest.launchReviewFlow(it)
-                    }
+
+                    promptReview()
 
                 }
 

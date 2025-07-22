@@ -31,6 +31,13 @@ class FeedbackViewModel @Inject constructor(
         validateIsSendEnabled()
     }
 
+    var promptSolanaReview by mutableStateOf(false)
+        private set
+
+    val setPromptSolanaReview: (Boolean) -> Unit = {
+        promptSolanaReview = it
+    }
+
     val setFeedbackMsg: (TextFieldValue) -> Unit = { msg ->
         feedbackMsg = msg
         validateIsSendEnabled()

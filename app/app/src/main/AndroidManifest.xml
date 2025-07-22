@@ -129,4 +129,14 @@
         </receiver>
     </application>
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data
+                android:host="details"
+                android:scheme="solanadappstore" />
+        </intent>
+    </queries>
+
 </manifest>

@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
@@ -100,6 +101,8 @@ class MainActivity: AppCompatActivity() {
         // FIXME does foreground actually help with provider availability?
         // app.allowForeground = false
 
+        val bundleStore = app.device?.networkSpace?.store?.let { BundleStore.fromString(value = it) }
+
         // used when connecting
         requestPermissionLauncherAndStart =
             registerForActivityResult(
@@ -133,12 +136,8 @@ class MainActivity: AppCompatActivity() {
         subscriptionUpgradeSuccess = intent.getBooleanExtra("UPGRADE_SUBSCRIPTION_SUCCESS", false)
 
 
-
-        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-        val isTv = uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
-
         // disable animation in if mobile or tablet
-        if (Build.VERSION.SDK_INT >= 34 && !isTv) {
+        if (Build.VERSION.SDK_INT >= 34) {
             overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
         }
 
@@ -153,7 +152,8 @@ class MainActivity: AppCompatActivity() {
                     animateIn = animateIn,
                     targetLink = targetUrl,
                     defaultLocation = defaultLocation,
-                    activityResultSender = activityResultSender
+                    activityResultSender = activityResultSender,
+                    bundleStore = bundleStore
                 )
             }
         }
