@@ -89,6 +89,7 @@ import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
 import com.bringyour.network.ui.payout.PayoutScreen
+import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.AccountPointEvent
 import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
 
@@ -104,6 +105,7 @@ fun MainNavHost(
     targetLink: String?,
     defaultLocation: String?,
     activityResultSender: ActivityResultSender?,
+    bundleStore: BundleStore?,
     mainNavViewModel: MainNavViewModel = hiltViewModel(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
     connectViewModel: ConnectViewModel = hiltViewModel(),
@@ -255,7 +257,6 @@ fun MainNavHost(
                                 mainNavViewModel.setCurrentTopLevelRoute(screen)
                             },
                             colors = navItemColors,
-                            label = { if (isTv()) Text(screen.description) else Text("") }
                         )
                     }
                 }
@@ -277,7 +278,8 @@ fun MainNavHost(
                                 locationsListViewModel = locationsListViewModel,
                                 activityResultSender = activityResultSender,
                                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                                referralCodeViewModel = referralCodeViewModel
+                                referralCodeViewModel = referralCodeViewModel,
+                                bundleStore = bundleStore
                             )
                         }
 
@@ -306,7 +308,8 @@ fun MainNavHost(
                             locationsListViewModel = locationsListViewModel,
                             activityResultSender = activityResultSender,
                             subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                            referralCodeViewModel = referralCodeViewModel
+                            referralCodeViewModel = referralCodeViewModel,
+                            bundleStore = bundleStore
                         )
 
                         HorizontalDivider(
@@ -322,7 +325,7 @@ fun MainNavHost(
     }
 
     WelcomeAnimatedMainOverlay(
-        animateIn = animateIn && !isTv()
+        animateIn = animateIn
     )
 
     FullScreenOverlay(
@@ -344,13 +347,13 @@ fun MainNavContent(
     activityResultSender: ActivityResultSender?,
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     referralCodeViewModel: ReferralCodeViewModel,
+    bundleStore: BundleStore?,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
     accountPointsViewModel: AccountPointsViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
-    val canvasSizePx = if (isTv())
-        with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).div(2).toPx() } else
+    val canvasSizePx =
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
 
     val wallets by walletViewModel.wallets.collectAsState()
@@ -395,7 +398,8 @@ fun MainNavContent(
                     locationsListViewModel,
                     navController,
                     subscriptionBalanceViewModel,
-                    planViewModel
+                    planViewModel,
+                    bundleStore
                 )
             }
 
@@ -418,7 +422,8 @@ fun MainNavContent(
             exitTransition = { ExitTransition.None }
         ) {
             FeedbackScreen(
-                overlayViewModel = overlayViewModel
+                overlayViewModel = overlayViewModel,
+                bundleStore = bundleStore
             )
         }
 

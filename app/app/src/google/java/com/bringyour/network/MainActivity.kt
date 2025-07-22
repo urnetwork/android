@@ -25,6 +25,7 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
@@ -115,6 +116,8 @@ class MainActivity: AppCompatActivity() {
 
         sagaActivitySender = ActivityResultSender(this)
 
+        val bundleStore = app.device?.networkSpace?.store?.let { BundleStore.fromString(value = it) }
+
         // used when connecting
         requestPermissionLauncherAndStart =
             registerForActivityResult(
@@ -146,11 +149,8 @@ class MainActivity: AppCompatActivity() {
         val targetUrl = intent.getStringExtra("TARGET_URL")
         val defaultLocation = intent.getStringExtra("DEFAULT_LOCATION")
 
-        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-        val isTv = uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
-
         // disable animation in if mobile or tablet
-        if (Build.VERSION.SDK_INT >= 34 && !isTv) {
+        if (Build.VERSION.SDK_INT >= 34) {
             overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
         }
 
@@ -165,7 +165,8 @@ class MainActivity: AppCompatActivity() {
                     animateIn,
                     targetUrl,
                     defaultLocation,
-                    activityResultSender
+                    activityResultSender,
+                    bundleStore
                 )
             }
         }

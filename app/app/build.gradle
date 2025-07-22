@@ -283,7 +283,7 @@ android {
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"solana_dapp"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'

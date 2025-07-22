@@ -56,11 +56,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.managers.rememberReviewManager
+import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -70,8 +72,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun FeedbackScreen(
-    feedbackViewModel: FeedbackViewModel = hiltViewModel(),
     overlayViewModel: OverlayViewModel,
+    bundleStore: BundleStore?,
+    feedbackViewModel: FeedbackViewModel = hiltViewModel(),
 ) {
 
     FeedbackScreen(
@@ -81,7 +84,10 @@ fun FeedbackScreen(
         launchOverlay = overlayViewModel.launch,
         isSendEnabled = feedbackViewModel.isSendEnabled,
         starCount = feedbackViewModel.starCount,
-        setStarCount = feedbackViewModel.setStarCount
+        setStarCount = feedbackViewModel.setStarCount,
+        bundleStore = bundleStore,
+        promptSolanaReview = feedbackViewModel.promptSolanaReview,
+        setPromptSolanaReview = feedbackViewModel.setPromptSolanaReview
     )
 
 }
@@ -95,6 +101,9 @@ fun FeedbackScreen(
     isSendEnabled: Boolean,
     starCount: Int,
     setStarCount: (Int) -> Unit,
+    bundleStore: BundleStore?,
+    promptSolanaReview: Boolean,
+    setPromptSolanaReview: (Boolean) -> Unit
 ) {
 
     val configuration = LocalConfiguration.current
@@ -102,6 +111,16 @@ fun FeedbackScreen(
     val reviewManagerRequest = rememberReviewManager()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val promptReview = {
+        val activity = context as? android.app.Activity
+        activity?.let {
+            reviewManagerRequest.launchReviewFlow(
+                activity = it,
+                bundleStore
+            )
+        }
+    }
 
 
     val submitFeedback = {
@@ -117,10 +136,15 @@ fun FeedbackScreen(
             if (starCount == 5) {
                 scope.launch {
                     delay(1000)
-                    val activity = context as? android.app.Activity
-                    activity?.let {
-                        reviewManagerRequest.launchReviewFlow(it)
+
+                    if (bundleStore == BundleStore.SOLANA_DAPP) {
+                        // prompt dialog to navigate to review
+                        setPromptSolanaReview(true)
+                    } else {
+                        // PLAY - launch native review prompt
+                        promptReview()
                     }
+
                 }
             }
 
@@ -203,6 +227,17 @@ fun FeedbackScreen(
             }
         }
 
+    }
+    
+    if (promptSolanaReview) {
+        PromptSolanaDAppStoreReview(
+            promptReview = {
+                promptReview()
+            },
+            dismiss = {
+                setPromptSolanaReview(false)
+            }
+        )
     }
 
 }
@@ -374,7 +409,10 @@ private fun FeedbackScreenPreview() {
                     launchOverlay = {},
                     isSendEnabled = true,
                     starCount = 3,
-                    setStarCount = {}
+                    setStarCount = {},
+                    bundleStore = null,
+                    promptSolanaReview = false,
+                    setPromptSolanaReview = {}
                 )
             }
         }

@@ -236,5 +236,9 @@
     <string name="auto">स्वचालित</string>
     <string name="always">हमेशा</string>
     <string name="never">कभी नहीं</string>
+    <string name="yes">हाँ</string>
+    <string name="no">नहीं</string>
+    <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
+    <string name="review_our_app">क्या आप हमारे ऐप की समीक्षा करना चाहेंगे?</string>
 
 </resources>

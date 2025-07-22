@@ -262,4 +262,8 @@
     <string name="auto">Auto</string>
     <string name="always">Always</string>
     <string name="never">Never</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
+    <string name="review_our_app">Would you like to review our app?</string>
 </resources>

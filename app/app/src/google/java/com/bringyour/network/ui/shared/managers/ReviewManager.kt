@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.shared.managers
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -8,9 +10,11 @@ import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.android.play.core.review.ReviewInfo
 import androidx.compose.runtime.remember
 import com.bringyour.network.TAG
+import com.bringyour.network.ui.shared.models.BundleStore
 import com.google.android.gms.tasks.Task
 import com.google.android.play.core.review.ReviewException
 import com.google.android.play.core.review.model.ReviewErrorCode
+import androidx.core.net.toUri
 
 @Composable
 fun rememberReviewManager(): ReviewManagerRequest {
@@ -31,7 +35,7 @@ class ReviewManagerRequest(
         requestReviewFlow()
     }
 
-    fun requestReviewFlow() {
+    private fun requestReviewFlow() {
 
         val request: Task<ReviewInfo> = reviewManager.requestReviewFlow()
         request.addOnCompleteListener { task ->
@@ -46,19 +50,37 @@ class ReviewManagerRequest(
 
     }
 
-    fun launchReviewFlow(activity: android.app.Activity) {
+    fun launchReviewFlow(
+        activity: android.app.Activity,
+        bundleStore: BundleStore?
+    ) {
 
-        reviewInfo?.let {
-            val flow = reviewManager.launchReviewFlow(activity, it)
-            flow.addOnCompleteListener { _ ->
-                // The flow has finished. The API does not indicate whether the user
-                // reviewed or not, or even whether the review dialog was shown. Thus, no
-                // matter the result, we continue our app flow.
-                requestReviewFlow()
+        if (bundleStore == BundleStore.SOLANA_DAPP) {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = "solanadappstore://details?id=com.bringyour.network".toUri()
             }
-        } ?: run {
-            requestReviewFlow() // Ensure reviewInfo is not null
+            activity.packageManager?.let { pm ->
+                intent.resolveActivity(pm)?.let {
+                    activity.startActivity(intent)
+                }
+            }
+        } else {
+            // play store
+
+            reviewInfo?.let {
+                val flow = reviewManager.launchReviewFlow(activity, it)
+                flow.addOnCompleteListener { _ ->
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown. Thus, no
+                    // matter the result, we continue our app flow.
+                    requestReviewFlow()
+                }
+            } ?: run {
+                requestReviewFlow() // Ensure reviewInfo is not null
+            }
         }
+
+
     }
 
 }

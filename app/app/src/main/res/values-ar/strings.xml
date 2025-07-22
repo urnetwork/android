@@ -236,4 +236,8 @@
     <string name="auto">تلقائي</string>
     <string name="always">دائمًا</string>
     <string name="never">أبدًا</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+    <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
+    <string name="review_our_app">هل ترغب في مراجعة تطبيقنا؟</string>
 </resources>

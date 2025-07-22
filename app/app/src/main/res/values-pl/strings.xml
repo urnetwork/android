@@ -259,5 +259,9 @@
     <string name="auto">Automatycznie</string>
     <string name="always">Zawsze</string>
     <string name="never">Nigdy</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+    <string name="enjoying_urnetwork">Czy podoba Ci się URnetwork?</string>
+    <string name="review_our_app">Czy chciałbyś ocenić naszą aplikację?</string>
 
 </resources>
