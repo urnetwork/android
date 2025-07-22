@@ -262,4 +262,8 @@
     <string name="auto">Автоматически</string>
     <string name="always">Всегда</string>
     <string name="never">Никогда</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="enjoying_urnetwork">Вам нравится URnetwork?</string>
+    <string name="review_our_app">" Хотели бы вы оставить отзыв о нашем приложении?"</string>
 </resources>

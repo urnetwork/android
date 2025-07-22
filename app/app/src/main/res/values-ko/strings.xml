@@ -259,4 +259,8 @@
     <string name="auto">자동</string>
     <string name="always">항상</string>
     <string name="never">절대</string>
+    <string name="yes">예</string>
+    <string name="no">아니요</string>
+    <string name="enjoying_urnetwork">URnetwork가 마음에 드시나요?</string>
+    <string name="review_our_app">저희 앱을 리뷰하시겠어요?</string>
 </resources>

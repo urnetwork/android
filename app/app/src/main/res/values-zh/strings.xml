@@ -237,4 +237,8 @@
     <string name="auto">自动</string>
     <string name="always">始终</string>
     <string name="never">从不</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="enjoying_urnetwork">喜欢 URnetwork 吗？</string>
+    <string name="review_our_app">您愿意评价我们的应用吗？</string>
 </resources>

@@ -259,4 +259,8 @@
     <string name="auto">自動</string>
     <string name="always">常に</string>
     <string name="never">決して</string>
+    <string name="yes">はい</string>
+    <string name="no">いいえ</string>
+    <string name="enjoying_urnetwork">URnetworkを楽しんでいますか？</string>
+    <string name="review_our_app">私たちのアプリをレビューしていただけますか？</string>
 </resources>

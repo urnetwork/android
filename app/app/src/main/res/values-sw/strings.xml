@@ -237,4 +237,8 @@
     <string name="auto">Moja kwa moja</string>
     <string name="always">Daima</string>
     <string name="never">Kamwe</string>
+    <string name="yes">Ndiyo</string>
+    <string name="no">Hapana</string>
+    <string name="enjoying_urnetwork">Unafurahia URnetwork?</string>
+    <string name="review_our_app">Je, ungependa kukagua programu yetu?</string>
 </resources>

@@ -236,4 +236,8 @@
     <string name="auto">Automático</string>
     <string name="always">Siempre</string>
     <string name="never">Nunca</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="enjoying_urnetwork">¿Disfrutas de URnetwork?</string>
+    <string name="review_our_app">¿Te gustaría valorar nuestra aplicación?</string>
 </resources>

@@ -4,6 +4,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.bringyour.network.R
 
 @Composable
 fun PromptSolanaDAppStoreReview(
@@ -13,10 +15,10 @@ fun PromptSolanaDAppStoreReview(
 
     AlertDialog(
         title = {
-            Text(text = "Enjoying URnetwork?")
+            Text(text = stringResource(id = R.string.enjoying_urnetwork))
         },
         text = {
-            Text(text = "Would you like to review our app?")
+            Text(text = stringResource(id = R.string.review_our_app))
         },
         onDismissRequest = {
             dismiss()
@@ -27,7 +29,7 @@ fun PromptSolanaDAppStoreReview(
                     promptReview()
                 }
             ) {
-                Text("Yes")
+                Text(stringResource(id = R.string.yes))
             }
         },
         dismissButton = {
@@ -36,7 +38,7 @@ fun PromptSolanaDAppStoreReview(
                     dismiss()
                 }
             ) {
-                Text("No")
+                Text(stringResource(id = R.string.no))
             }
         }
     )

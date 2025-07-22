@@ -236,4 +236,8 @@
     <string name="auto">Αυτόματο</string>
     <string name="always">Πάντα</string>
     <string name="never">Ποτέ</string>
+    <string name="yes">Ναι</string>
+    <string name="no">Όχι</string>
+    <string name="enjoying_urnetwork">Απολαμβάνετε το URnetwork;</string>
+    <string name="review_our_app">Θα θέλατε να αξιολογήσετε την εφαρμογή μας;</string>
 </resources>
