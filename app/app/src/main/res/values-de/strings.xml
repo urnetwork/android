@@ -48,7 +48,6 @@
     <string name="wallets">Wallets</string>
     <string name="add_wallet">Wallet hinzufügen</string>
 
-    <string name="setup_circle_wallet">Circle Wallet einrichten</string>
     <string name="connect_saga_wallet">Saga Wallet verbinden</string>
 
     <string name="something_went_wrong">Etwas ist schiefgelaufen.</string>

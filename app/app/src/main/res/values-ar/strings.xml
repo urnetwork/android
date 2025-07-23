@@ -49,7 +49,6 @@
     <string name="wallets">محافظ</string>
     <string name="add_wallet">إضافة محفظة</string>
 
-    <string name="setup_circle_wallet">إعداد محفظة Circle</string>
     <string name="connect_saga_wallet">ربط محفظة Saga</string>
 
     <string name="something_went_wrong">حدث خطأ ما.</string>

@@ -50,7 +50,6 @@
     <string name="wallets">वॉलेट</string>
     <string name="add_wallet">वॉलेट जोड़ें</string>
 
-    <string name="setup_circle_wallet">Circle वॉलेट सेट करें</string>
     <string name="connect_saga_wallet">Saga वॉलेट कनेक्ट करें</string>
 
     <string name="something_went_wrong">कुछ गलत हो गया।</string>

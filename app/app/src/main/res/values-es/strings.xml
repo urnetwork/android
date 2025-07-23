@@ -48,7 +48,6 @@
     <string name="wallets">Billeteras</string>
     <string name="add_wallet">Añadir una billetera</string>
 
-    <string name="setup_circle_wallet">Configurar la billetera Circle</string>
     <string name="connect_saga_wallet">Conectar la billetera Saga</string>
 
     <string name="something_went_wrong">Algo salió mal.</string>

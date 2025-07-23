@@ -49,7 +49,6 @@
     <string name="wallets">Πορτοφόλια</string>
     <string name="add_wallet">Προσθήκη πορτοφολιού</string>
 
-    <string name="setup_circle_wallet">Ρύθμιση πορτοφολιού Circle</string>
     <string name="connect_saga_wallet">Σύνδεση πορτοφολιού Saga</string>
 
     <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
