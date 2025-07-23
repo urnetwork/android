@@ -1,0 +1,269 @@
+<resources>
+
+    <string name="app_name" translatable="false">URnetwork</string>
+    <string name="title_login">Login</string>
+
+    <!-- Login initial -->
+    <string name="user_auth_label">E-mail of telefoon</string>
+    <string name="user_auth_placeholder">Voer je telefoonnummer of e-mailadres in</string>
+    <string name="get_started">Aan de slag</string>
+    <string name="google_auth_btn_text">Log in met google</string>
+    <string name="commitment_issues">Problemen met commitment? </string>
+    <string name="try_guest_mode"> Probeer de gastmodus</string>
+    <string name="enter">Enter</string>
+    <string name="step_in">Stap het internet binnen zoals het hoort te zijn.</string>
+    <string name="nicely_done">Goed gedaan</string>
+
+
+    <!-- Create Network Form -->
+    <string name="name_label">Naam</string>
+    <string name="name_placeholder">Jouw naam</string>
+    <string name="network_name_label">Netwerk naam</string>
+    <string name="network_name_placeholder">Jouw netwerk naam</string>
+    <string name="network_name_length_error">Netwerknamen moeten uit 6 of meer tekens bestaan</string>
+    <string name="network_name_unavailable">Netwerknaam niet beschikbaar</string>
+    <string name="password_label">Wachtwoord</string>
+    <string name="password_support_txt">Wachtwoord moet minstens 12 tekens bevatten</string>
+    <string name="continue_txt">Doorgaan</string>
+    <string name="available">Beschikbaar</string>
+
+    <!-- Login password -->
+    <string name="login_password_header">Het is fijn om\nje weer te zien</string>
+    <string name="forget_password">Wachtwoord vergeten?</string>
+    <string name="reset_it">Reset het</string>
+
+    <!-- Forgot password -->
+    <string name="forgot_password">Wachtwoord vergeten?</string>
+    <string name="check_junk_mail">Mogelijk moet u uw spammap controleren of no-reply@ur.io deblokkeren</string>
+    <string name="send_reset_link">Herstellink verzenden</string>
+
+    <!-- Reset link sent -->
+    <string name="reset_link_sent">Herstellink verzonden</string>
+    <string name="reset_link_sent_to">Herstellink verzonden naar </string>
+    <string name="resend_reset_link">Link opnieuw versturen</string>
+    <string name="sent">Verstuurd!</string>
+
+    <!-- Login verify -->
+    <string name="login_verify_header">Je\ hebt mail</string>
+    <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
+    <string name="dont_see_it">Zie je het niet?</string>
+    <string name="resend_verify_code">Code opnieuw versturen</string>
+
+    <!-- Wallets Screen -->
+    <string name="connect_external_wallet">Externe wallet verbinden</string>
+    <string name="connect_external_wallet_supported_chains">USDC-adressen op Solana en Polygon worden momenteel ondersteund.</string>
+    <string name="wallet_address_label">Wallet adres</string>
+    <string name="wallet_address_placeholder">Kopieer en plak hier</string>
+    <string name="total_payouts">totale uitbetalingen</string>
+    <string name="wallets">Wallets</string>
+    <string name="add_wallet">Voeg wallet toe</string>
+
+    <!-- Setup Wallet -->
+    <string name="setup_circle_wallet">Circle Wallet instellen</string>
+    <string name="connect_saga_wallet">Saga wallet verbinden</string>
+
+    <!-- Profile -->
+    <string name="something_went_wrong">Er is iets misgegaan.</string>
+    <string name="please_wait">Wacht alstublieft een paar minuten en probeer het opnieuw.</string>
+    <string name="change_password">Verander Wachtwoord</string>
+    <string name="edit_profile">Profiel bewerken</string>
+    <string name="save">Opslaan</string>
+
+    <!-- Setup wallet -->
+    <string name="share_with_others">Jij deelt met anderen, wij delen met jou. Verdien een deel van de opbrengsten wanneer je gegevens deelt met anderen in het netwerk.</string>
+    <string name="start_earning">Om te beginnen met verdienen, verbind je cryptocurrency-wallet met URnetwork of stel er een in via Circle.</string>
+
+    <!-- Circle Wallet Transfer Screen -->
+    <string name="circle_transfer_topbar_title">USDC overdragen</string>
+    <string name="circle_transfer_header">Overdragen naar externe wallet</string>
+    <string name="circle_transfer_fee_coverage">URnetwork betaalt je overdrachtskosten.</string>
+    <string name="transfer">Overdragen</string>
+    <string name="insufficient_funds">Onvoldoende saldo</string>
+
+    <!-- Connect -->
+    <string name="tap_to_connect">Tik om te verbinden</string>
+
+    <!-- Locations List -->
+    <string name="promoted_locations">Uitgelichte locaties</string>
+    <string name="best_available_provider">Beste beschikbare aanbieder</string>
+    <string name="countries">Landen</string>
+    <string name="devices">Apparaten</string>
+    <string name="search_placeholder">Zoek naar alle locaties</string>
+    <string name="check_internet">Controleer je internetverbinding</string>
+    <string name="no_providers_found">We konden geen aanbieders vinden.</string>
+    <string name="tap_to_refetch">Tik om te proberen de locatie op te halen.</string>
+    <string name="cities">Steden</string>
+    <string name="regions">Regio's</string>
+    <string name="top_matches">Beste matches</string>
+
+    <!-- Account Screen -->
+    <string name="account">Account</string>
+    <string name="profile">Profiel</string>
+    <string name="settings">Instellingen</string>
+    <string name="wallet">Wallet</string>
+    <string name="refer_and_earn">Verwijs door en verdien</string>
+    <string name="set_up_wallet">Wallet instellen</string>
+    <string name="guest">Gast</string>
+    <string name="supporter">Supporter</string>
+    <string name="free">Gratis</string>
+    <string name="create_account">Account creëren</string>
+    <string name="member">Lid</string>
+
+    <!-- Upgrade subscription overlay -->
+    <string name="plan">Plan</string>
+    <string name="upgrade_subscription">Abonnement upgraden</string>
+    <string name="support_us">Steun ons bij het bouwen van een nieuw soort netwerk dat geeft in plaats van neemt.</string>
+    <string name="unlock_speed">Je krijgt nog snellere snelheden en als eerste toegang tot nieuwe functies zoals krachtige anti-censuurmaatregelen en datacontrole.</string>
+    <string name="join_the_movement">Doe mee aan de beweging</string>
+
+    <!-- Guest mode overlay -->
+    <string name="in_guest_mode">Je bent in de gastmodus</string>
+    <string name="start_earning_join">Om te beginnen met verdienen, sluit je aan bij ons netwerk</string>
+
+    <!-- Refer overlay -->
+    <string name="refer_friends_header">Vrienden doorverwijzen</string>
+    <string name="refer_friends_detail">Meer verbindingen helpen onze community anoniem te blijven (en helpen je verdienen!)</string>
+
+
+    <!-- Wallet Screen -->
+    <string name="balance">Saldo</string>
+    <string name="transfer_funds">Gelden overmaken</string>
+    <string name="no_payouts_found">Geen uitbetalingen gevonden voor deze wallet</string>
+    <string name="earnings">Opbrengsten</string>
+    <string name="make_default">Als standaard instellen</string>
+    <string name="payout_wallets">Uitbetalingswallets</string>
+    <string name="chains_supported">Solana en Polygon-wallets worden momenteel ondersteund</string>
+    <string name="unpaid_data_provided">Onbetaalde data geleverd</string>
+    <string name="payouts_amount_threshold">Uitbetalingen vinden wekelijks plaats en vereisen een minimale hoeveelheid om een uitbetaling te ontvangen.</string>
+
+    <!-- Transfer Submitted Overlay -->
+    <string name="transfer_submitted">Overdracht ingediend</string>
+    <string name="transfer_submitted_details">Je overdracht is gestart en wordt voltooid zodra de transactie op de blockchain is verwerkt.</string>
+
+    <!-- Onboarding Carousel -->
+    <string name="see_world_content">Bekijk alle\ninhoud van de wereld</string>
+    <string name="see_world_content_description">Bekijk alle inhoud van de wereld met URnetwork</string>
+    <string name="stay_private_description">Blijf volledig privé en anoniem met URnetwork</string>
+    <string name="stay_private">Blijf\nvolledig\nprivé en\nanoniem</string>
+    <string name="build_right_description">Bouw het internet op de juiste manier met URnetwork</string>
+    <string name="build_right">Bouw het\ninternet op de\njuiste manier</string>
+    <string name="with_urnetwork">Met URnetwork</string>
+
+    <!-- Settings -->
+    <string name="unlock_supporter_tooltip">Ontgrendel nog hogere snelheden en als eerste toegang tot nieuwe functies.</string>
+    <string name="become_supporter">Word een supporter</string>
+    <string name="notifications_label">Notificaties</string>
+    <string name="receive_notifications">Ontvang verbindingsmeldingen</string>
+    <string name="connectivity_label">Verbondenheid</string>
+    <string name="allow_local_connections">Sta lokale verbindingen toe</string>
+    <string name="stay_in_touch">Blijf in contact</string>
+    <string name="send_product_updates">Stuur mij productupdates</string>
+    <string name="join_community_discord">Sluit je aan bij de community op</string>
+    <string name="update_notification_settings">Werk meldingsrechten bij in je Android-instellingen</string>
+    <string name="connections">Verbindingen</string>
+    <string name="provide_disconnected">Beschikbaar stellen zonder verbinding</string>
+
+    <!-- Feedback Screen -->
+    <string name="feedback_header">Neem contact op</string>
+    <string name="feedback_label">Vak voor feedback</string>
+    <string name="feedback_placeholder">Vertel ons eerlijk wat je ervan vindt"</string>
+
+    <!-- Call to action -->
+    <string name="cancel">Annuleren</string>
+    <string name="connect">Verbinden</string>
+    <string name="remove">Verwijderen</string>
+    <string name="change">Veranderen</string>
+    <string name="share">Delen</string>
+    <string name="copy">Kopiëren</string>
+    <string name="send">Verstuur</string>
+    <string name="dismiss">Sluiten</string>
+
+    <string name="login_error_auth_allowed">Log in met één van de volgende opties: %s.</string>
+    <string name="login_error">Er is iets misgegaan. Probeer het opnieuw.</string>
+    <string name="login_client_error">Er ging iets mis bij de authenticatie. Probeer het opnieuw.</string>
+    <string name="network_name_check_error">Niet beschikbaar. Moet minstens 3 tekens verschillen van een bestaand netwerk. Maak het uniek of langer.</string>
+    <string name="verify_error">Er is iets misgegaan. Probeer het opnieuw.</string>
+    <string name="create_network_error">Er is iets misgegaan. Probeer het opnieuw.</string>
+    <string name="verify_send_error">Failed</string>
+    <string name="asset_statements" translatable="false">[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
+    <string name="open_nested_link">Verbind met %1$s en open link %2$s</string>
+    <string name="connect_and_open">Verbind en open de link</string>
+    <string name="connect_to_location">Verbind met %1$s</string>
+    <string name="no_locations_found">Geen locaties gevonden</string>
+    <string name="no_locations_found_detail">Helaas, we hebben geen locaties gevonden gerelateerd aan %1$s.</string>
+
+    <string name="switch_account">Account wisselen</string>
+    <string name="switch_account_details">Wil je de verbinding met %1$s verbreken en van account wisselen?</string>
+    <string name="auth_code_loading">Authenticatiecode laden</string>
+    <string name="network_create_bonus_message">Iemand heeft je uitgenodigd! 🥳\nOntvang je bonus door een netwerk aan te maken.</string>
+    <string name="delete_account">Verwijder Account</string>
+    <string name="sorry_to_see_you_go">Het spijt ons dat je weggaat!</string>
+    <string name="are_you_sure_delete_account">Weet je zeker dat je je account wilt verwijderen?</string>
+    <string name="reconnect_tunnel_status_indicator">VPN-tunnel verbroken 😓</string>
+    <string name="disconnect">Verbinding verbreken</string>
+    <string name="reconnect">Opnieuw verbinden</string>
+    <string name="connecting_status_indicator">Verbinden met providers...</string>
+    <string name="connected_provider_count">Verbonden met %d providers</string>
+    <string name="ready_to_connect">Klaar om te verbinden</string>
+    <string name="network_name_ready_to_connect">%s is klaar om te verbinden</string>
+    <string name="need_more_data_faster">Meer data, sneller nodig?</string>
+    <string name="upgrade_now">Upgrade nu</string>
+    <string name="how_are_we_doing">Hoe gaat het met ons?</string>
+    <string name="referral_code">Referentiecode</string>
+    <string name="add_referral_extra_rewards">Voeg een referentiecode toe en verdien extra beloningen</string>
+    <string name="add_referral_code">Referentiecode toevoegen</string>
+    <string name="edit_referral_code">Referentiecode bewerken</string>
+    <string name="referral_bonus_applied">Referentiecode toegepast</string>
+    <string name="apply_bonus">Bonus toepassen</string>
+    <string name="join_urnetwork">Sluit je aan\nbij URnetwork</string>
+    <string name="route_local">Sta lokaal verkeer toe bij onderbroken verbinding</string>
+    <string name="manage_subscription">Abonnement beheren</string>
+    <string name="solana_sign_in">Inloggen met Solana</string>
+    <string name="no_solana_wallets_found">Geen Solana wallets gevonden</string>
+    <string name="no_wallets_found_alert_content">Er zijn geen Solana wallets geïnstalleerd op dit apparaat. Installeer een portemonnee en probeer het opnieuw.</string>
+    <string name="claim_multiplier">Claim je vermenigvuldiger</string>
+    <string name="connect_seeker_wallet">Koppel een wallet met het Saga Genesis- of Seeker Pre-Order Token</string>
+    <string name="verify_seeker_token_btn">Verifieer je Seeker Pre-Order Token</string>
+    <string name="total_referrals">Totaal aantal doorverwijzingen</string>
+    <string name="login_verify_check_phone">Controleer je telefoon</string>
+    <string name="leaderboard">Scorebord</string>
+    <string name="current_ranking">Huidige Scorebord</string>
+    <string name="net_provided">Geleverd netwerk</string>
+    <string name="display_network_on_leaderboard">Toon netwerk op het scorebord</string>
+    <string name="leaderboard_description">Het scorebord toont de som van de laatste 4 betalingen. Deze wordt elke betalingscyclus bijgewerkt.</string>
+    <string name="total_account_points">Totaal punten saldo</string>
+    <string name="enter_network_referral_code">Referentiecode ingeven</string>
+    <string name="update_referral_network">Referentienetwerk bijwerken</string>
+    <string name="update">Bijwerken</string>
+    <string name="unlink_referral_network">Referentienetwerk ontkoppelen</string>
+    <string name="unlink">Ontkoppelen</string>
+    <string name="current_network_referral">Huidige netwerk-referentie</string>
+    <string name="unlink_alert_description">Als je je referentienetwerk ontkoppelt, kun je geen punten meer verdienen van %1$s</string>
+    <string name="account_points">Accountpunten</string>
+    <string name="points_breakdown">Puntenoverzicht</string>
+    <string name="payouts">Uitbetalingen</string>
+    <string name="referral">Doorverwijzing</string>
+    <string name="net_points_earned">Totale punten verdiend</string>
+    <string name="version_info">Versie en build informatie</string>
+    <string name="earning_multipliers">Verdienvermenigvuldigers</string>
+    <string name="claim">Opeisen</string>
+    <string name="seeker_token_verified">Seeker Token geverifieerd!</string>
+    <string name="earnings_doubled">Je verdient x2 punten</string>
+    <string name="reliability">Betrouwbaarheid</string>
+    <string name="browse_locations">Locaties bekijken</string>
+    <string name="none">Geen</string>
+    <string name="send_feedback">Stuur je feedback rechtstreeks naar ons of sluit je aan bij onze Discord voor directe hulp.</string>
+    <string name="referral_network">Referentienetwerk</string>
+    <string name="pending_payout">Uitbetaling in behandeling</string>
+    <string name="amount">Bedrag</string>
+    <string name="wallet_address">Walletadres</string>
+    <string name="transaction">Transactie</string>
+    <string name="date_payout">%1$s Uitbetaling</string>
+    <string name="auto">Auto</string>
+    <string name="always">Altijd</string>
+    <string name="never">Nooit</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nee</string>
+    <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
+    <string name="review_our_app">Wil je onze app beoordelen?</string>
+</resources>
