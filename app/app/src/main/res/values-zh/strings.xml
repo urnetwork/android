@@ -50,7 +50,6 @@
     <string name="wallets">钱包</string>
     <string name="add_wallet">添加钱包</string>
 
-    <string name="setup_circle_wallet">设置 Circle 钱包</string>
     <string name="connect_saga_wallet">连接 Saga 钱包</string>
 
     <string name="something_went_wrong">出了些问题。</string>

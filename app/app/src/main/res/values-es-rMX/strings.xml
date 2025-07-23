@@ -50,7 +50,6 @@
     <string name="wallets">Carteras</string>
     <string name="add_wallet">Añadir una cartera</string>
 
-    <string name="setup_circle_wallet">Configurar la cartera Circle</string>
     <string name="connect_saga_wallet">Conectar la cartera Saga</string>
 
     <string name="something_went_wrong">Algo salió mal.</string>

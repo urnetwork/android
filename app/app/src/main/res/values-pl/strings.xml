@@ -58,7 +58,6 @@
     <string name="add_wallet">Dodaj portfel</string>
 
     <!-- Konfiguracja portfela -->
-    <string name="setup_circle_wallet">Skonfiguruj portfel Circle</string>
     <string name="connect_saga_wallet">Połącz portfel Saga</string>
 
     <!-- Profil -->

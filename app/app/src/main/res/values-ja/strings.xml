@@ -58,7 +58,6 @@
     <string name="add_wallet">ウォレットを追加</string>
 
     <!-- ウォレットのセットアップ -->
-    <string name="setup_circle_wallet">Circleウォレットをセットアップ</string>
     <string name="connect_saga_wallet">Sagaウォレットを接続</string>
 
     <!-- プロフィール -->

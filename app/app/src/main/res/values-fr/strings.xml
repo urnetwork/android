@@ -51,7 +51,6 @@
     <string name="wallets">Portefeuilles</string>
     <string name="add_wallet">Ajouter un portefeuille</string>
 
-    <string name="setup_circle_wallet">Configurer le portefeuille Circle</string>
     <string name="connect_saga_wallet">Connecter le portefeuille Saga</string>
 
     <string name="something_went_wrong">Quelque chose s\'est mal passé.</string>

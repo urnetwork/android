@@ -59,7 +59,6 @@
     <string name="add_wallet">Voeg wallet toe</string>
 
     <!-- Setup Wallet -->
-    <string name="setup_circle_wallet">Circle Wallet instellen</string>
     <string name="connect_saga_wallet">Saga wallet verbinden</string>
 
     <!-- Profile -->
@@ -93,7 +92,7 @@
     <string name="no_providers_found">We konden geen aanbieders vinden.</string>
     <string name="tap_to_refetch">Tik om te proberen de locatie op te halen.</string>
     <string name="cities">Steden</string>
-    <string name="regions">Regio's</string>
+    <string name="regions">Regio\'s</string>
     <string name="top_matches">Beste matches</string>
 
     <!-- Account Screen -->
