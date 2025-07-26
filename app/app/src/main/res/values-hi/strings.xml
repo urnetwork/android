@@ -239,5 +239,8 @@
     <string name="no">नहीं</string>
     <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
     <string name="review_our_app">क्या आप हमारे ऐप की समीक्षा करना चाहेंगे?</string>
+    <string name="used_data_key">उपयोग किया गया</string>
+    <string name="pending_data_key">लंबित</string>
+    <string name="available_data_key">उपलब्ध</string>
 
 </resources>

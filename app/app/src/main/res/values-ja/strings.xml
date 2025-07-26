@@ -262,4 +262,7 @@
     <string name="no">いいえ</string>
     <string name="enjoying_urnetwork">URnetworkを楽しんでいますか？</string>
     <string name="review_our_app">私たちのアプリをレビューしていただけますか？</string>
+    <string name="used_data_key">使用済み</string>
+    <string name="pending_data_key">保留中</string>
+    <string name="available_data_key">利用可能</string>
 </resources>

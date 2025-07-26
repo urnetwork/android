@@ -2,6 +2,7 @@ package com.bringyour.network.ui.shared.viewmodels
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -41,24 +42,34 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     private var isLoading = false
 
-    private var activeBalanceByteCount: Long = 0
+    var availableBalanceByteCount by mutableLongStateOf(0)
+        private set
+
+    var pendingBalanceByteCount by mutableLongStateOf(0)
+        private set
+
+    var usedBalanceByteCount by mutableLongStateOf(0)
+        private set
+
+    var isRefreshingSubscriptionBalance by mutableStateOf(false)
+        private set
+
+    val refreshSubscriptionBalance: () -> Unit = {
+        if (!isRefreshingSubscriptionBalance) {
+            isRefreshingSubscriptionBalance = true
+            fetchSubscriptionBalance()
+        }
+    }
 
     val fetchSubscriptionBalance: () -> Unit = {
 
-        Log.i(TAG, "fetch subscription balance")
-
         if (!isLoading) {
-
-            Log.i(TAG, "fetch subscription balance set loading")
 
             isLoading = true
 
             deviceManager.device?.api?.subscriptionBalance( SubscriptionBalanceCallback { result, err ->
 
-                Log.i(TAG, "fetch subscription balance inside callback")
-
-                runBlocking(Dispatchers.Main.immediate) {
-
+                viewModelScope.launch {
                     if (err != null) {
                         Log.i(TAG, "error fetching subscription balance: $err")
                     } else {
@@ -68,22 +79,24 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             Log.i(TAG, "current plan: $plan")
                         } ?: setCurrentPlan(Plan.Basic)
 
-                        activeBalanceByteCount = result.balanceByteCount
+                        availableBalanceByteCount = result.balanceByteCount
+                        pendingBalanceByteCount = result.openTransferByteCount
+                        usedBalanceByteCount = result.startBalanceByteCount - availableBalanceByteCount - pendingBalanceByteCount
+
                     }
 
                     isLoading = false
-
+                    isRefreshingSubscriptionBalance = false
                 }
 
             })
 
         }
 
-
     }
 
     private fun isSupporterWithBalance(): Boolean {
-        return currentPlan.value == Plan.Supporter && activeBalanceByteCount > 0
+        return currentPlan.value == Plan.Supporter && availableBalanceByteCount > 0
     }
 
     val pollSubscriptionBalance: () -> Unit = {

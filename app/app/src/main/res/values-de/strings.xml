@@ -240,4 +240,7 @@
     <string name="no">Nein</string>
     <string name="enjoying_urnetwork">Gefällt dir URnetwork?</string>
     <string name="review_our_app">Möchten Sie unsere App bewerten?</string>
+    <string name="used_data_key">Utilisiert</string>
+    <string name="pending_data_key">Ausstehend</string>
+    <string name="available_data_key">Verfügbar</string>
 </resources>

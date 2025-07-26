@@ -262,5 +262,8 @@
     <string name="no">Nie</string>
     <string name="enjoying_urnetwork">Czy podoba Ci się URnetwork?</string>
     <string name="review_our_app">Czy chciałbyś ocenić naszą aplikację?</string>
+    <string name="used_data_key">Wykorzystane</string>
+    <string name="pending_data_key">Oczekujące</string>
+    <string name="available_data_key">Dostępne</string>
 
 </resources>

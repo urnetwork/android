@@ -265,4 +265,7 @@
     <string name="no">No</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
     <string name="review_our_app">Would you like to review our app?</string>
+    <string name="used_data_key">Used</string>
+    <string name="pending_data_key">Pending</string>
+    <string name="available_data_key">Available</string>
 </resources>

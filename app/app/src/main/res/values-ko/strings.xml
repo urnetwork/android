@@ -262,4 +262,7 @@
     <string name="no">아니요</string>
     <string name="enjoying_urnetwork">URnetwork가 마음에 드시나요?</string>
     <string name="review_our_app">저희 앱을 리뷰하시겠어요?</string>
+    <string name="used_data_key">사용됨</string>
+    <string name="pending_data_key">대기 중</string>
+    <string name="available_data_key">사용 가능</string>
 </resources>
