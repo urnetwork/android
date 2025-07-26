@@ -265,4 +265,7 @@
     <string name="no">Нет</string>
     <string name="enjoying_urnetwork">Вам нравится URnetwork?</string>
     <string name="review_our_app">" Хотели бы вы оставить отзыв о нашем приложении?"</string>
+    <string name="used_data_key">Использовано</string>
+    <string name="pending_data_key">В ожидании</string>
+    <string name="available_data_key">Доступно</string>
 </resources>

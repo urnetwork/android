@@ -241,4 +241,7 @@
     <string name="no">Non</string>
     <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
     <string name="review_our_app">Souhaitez-vous évaluer notre application ?</string>
+    <string name="used_data_key">Utilisé</string>
+    <string name="pending_data_key">En attente</string>
+    <string name="available_data_key">Disponible</string>
 </resources>

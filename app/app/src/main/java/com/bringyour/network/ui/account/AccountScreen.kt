@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +54,7 @@ import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.UpgradePlanBottomSheet
+import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
@@ -89,6 +92,8 @@ fun AccountScreen(
         isPresentingUpgradePlanSheet = isPresenting
     }
 
+    val refreshState = rememberPullToRefreshState()
+
     LaunchedEffect(Unit) {
         // This code runs when the screen appears
         subscriptionBalanceViewModel.fetchSubscriptionBalance()
@@ -103,40 +108,57 @@ fun AccountScreen(
 
     Scaffold() { innerPadding ->
 
-        Column(
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .background(Black)
                 .padding(innerPadding)
-                .padding(16.dp),
         ) {
+            PullToRefreshBox(
+                isRefreshing = subscriptionBalanceViewModel.isRefreshingSubscriptionBalance,
+                state = refreshState,
+                onRefresh = subscriptionBalanceViewModel.refreshSubscriptionBalance,
+            ) {
 
-            AccountScreenContent(
-                loginMode = accountViewModel.loginMode,
-                navController = navController,
-                upgradePlanSheetState = upgradePlanSheetState,
-                scope = scope,
-                networkName = networkUser?.networkName,
-                totalPayoutAmount = totalPayoutAmount,
-                totalPayoutAmountInitialized = totalPayoutAmountInitialized,
-                walletCount = walletCount,
-                currentPlan = currentPlan,
-                launchOverlay = overlayViewModel.launch,
-                setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
-                isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-            )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .background(Black)
+                        // .padding(innerPadding)
+                        .padding(16.dp),
+                ) {
 
-            if (isPresentingUpgradePlanSheet) {
-                UpgradePlanBottomSheet(
-                    sheetState = upgradePlanSheetState,
-                    scope = scope,
-                    planViewModel = planViewModel,
-                    overlayViewModel = overlayViewModel,
-                    setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
-                )
+                    AccountScreenContent(
+                        loginMode = accountViewModel.loginMode,
+                        navController = navController,
+                        upgradePlanSheetState = upgradePlanSheetState,
+                        scope = scope,
+                        networkName = networkUser?.networkName,
+                        totalPayoutAmount = totalPayoutAmount,
+                        totalPayoutAmountInitialized = totalPayoutAmountInitialized,
+                        walletCount = walletCount,
+                        currentPlan = currentPlan,
+                        launchOverlay = overlayViewModel.launch,
+                        setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
+                        isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                        usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
+                        pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
+                        availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount
+                    )
+
+                    if (isPresentingUpgradePlanSheet) {
+                        UpgradePlanBottomSheet(
+                            sheetState = upgradePlanSheetState,
+                            scope = scope,
+                            planViewModel = planViewModel,
+                            overlayViewModel = overlayViewModel,
+                            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+                        )
+                    }
+
+                }
             }
-
         }
 
     }
@@ -157,7 +179,10 @@ fun AccountScreenContent(
     currentPlan: Plan,
     launchOverlay: (OverlayMode) -> Unit,
     setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
-    isProcessingUpgrade: Boolean
+    isProcessingUpgrade: Boolean,
+    usedBytes: Long,
+    availableBytes: Long,
+    pendingBytes: Long
 ) {
 
     val context = LocalContext.current
@@ -217,6 +242,14 @@ fun AccountScreenContent(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
+
+                UsageBar(
+                    usedBytes = usedBytes,
+                    pendingBytes = pendingBytes,
+                    availableBytes = availableBytes
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 HorizontalDivider()
 
@@ -385,7 +418,10 @@ private fun AccountSupporterAuthenticatedPreview() {
                     currentPlan = Plan.Supporter,
                     launchOverlay = {},
                     setIsPresentingUpgradePlanSheet = {},
-                    isProcessingUpgrade = false
+                    isProcessingUpgrade = false,
+                    usedBytes = 30_000,
+                    pendingBytes = 10_000,
+                    availableBytes = 60_000
                 )
             }
         }
@@ -425,7 +461,10 @@ private fun AccountBasicAuthenticatedPreview() {
                     launchOverlay = {},
                     upgradePlanSheetState = sheetState,
                     setIsPresentingUpgradePlanSheet = {},
-                    isProcessingUpgrade = false
+                    isProcessingUpgrade = false,
+                    usedBytes = 30_000,
+                    pendingBytes = 10_000,
+                    availableBytes = 60_000
                 )
             }
         }
@@ -464,7 +503,10 @@ private fun AccountGuestPreview() {
                     walletCount = 0,
                     currentPlan = Plan.Basic,
                     launchOverlay = {},
-                    isProcessingUpgrade = false
+                    isProcessingUpgrade = false,
+                    usedBytes = 30_000,
+                    pendingBytes = 10_000,
+                    availableBytes = 60_000
                 )
             }
         }
@@ -502,7 +544,10 @@ private fun AccountGuestNoWalletPreview() {
                     walletCount = 0,
                     currentPlan = Plan.Basic,
                     launchOverlay = {},
-                    isProcessingUpgrade = false
+                    isProcessingUpgrade = false,
+                    usedBytes = 30_000,
+                    pendingBytes = 10_000,
+                    availableBytes = 60_000
                 )
             }
         }

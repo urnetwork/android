@@ -239,4 +239,7 @@
     <string name="no">لا</string>
     <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
     <string name="review_our_app">هل ترغب في مراجعة تطبيقنا؟</string>
+    <string name="used_data_key">مستخدم</string>
+    <string name="pending_data_key">معلّق</string>
+    <string name="available_data_key">متاح</string>
 </resources>

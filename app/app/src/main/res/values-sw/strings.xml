@@ -240,4 +240,7 @@
     <string name="no">Hapana</string>
     <string name="enjoying_urnetwork">Unafurahia URnetwork?</string>
     <string name="review_our_app">Je, ungependa kukagua programu yetu?</string>
+    <string name="used_data_key">Imetumika</string>
+    <string name="pending_data_key">Inasubiri</string>
+    <string name="available_data_key">Inapatikana</string>
 </resources>

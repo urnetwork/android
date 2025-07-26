@@ -265,4 +265,7 @@
     <string name="no">Nee</string>
     <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
     <string name="review_our_app">Wil je onze app beoordelen?</string>
+    <string name="used_data_key">Gebruikt</string>
+    <string name="pending_data_key">In behandeling</string>
+    <string name="available_data_key">Beschikbaar</string>
 </resources>
