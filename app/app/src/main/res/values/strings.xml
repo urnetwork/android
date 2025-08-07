@@ -268,4 +268,7 @@
     <string name="used_data_key">Used</string>
     <string name="pending_data_key">Pending</string>
     <string name="available_data_key">Available</string>
+    <string name="no_blocked_locations">No blocked locations</string>
+    <string name="blocked_locations">Blocked Locations</string>
+    <string name="add_blocked_location">Add blocked location</string>
 </resources>

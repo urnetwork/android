@@ -268,4 +268,7 @@
     <string name="used_data_key">Gebruikt</string>
     <string name="pending_data_key">In behandeling</string>
     <string name="available_data_key">Beschikbaar</string>
+    <string name="no_blocked_locations">Geen geblokkeerde locaties</string>
+    <string name="blocked_locations">Geblokkeerde locaties</string>
+    <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
 </resources>

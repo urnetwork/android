@@ -53,6 +53,7 @@ sealed class Route {
     @Serializable object Wallets : Route()
     @Serializable data class Wallet(val id: String) : Route()
     @Serializable data class Payout(val id: String) : Route()
+    @Serializable object BlockedRegions: Route()
 }
 
 

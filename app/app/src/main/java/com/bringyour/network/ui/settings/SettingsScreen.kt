@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
@@ -78,6 +79,7 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
 import com.bringyour.network.TAG
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
@@ -111,7 +113,7 @@ fun SettingsScreen(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     activityResultSender: ActivityResultSender?,
     walletViewModel: WalletViewModel,
-    bonusReferralCode: String
+    bonusReferralCode: String,
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
@@ -656,6 +658,30 @@ fun SettingsScreen(
                     toggle = {
                         toggleRouteLocal()
                     },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.BlockedRegions)
+                    }
+                    .padding(vertical = 6.dp)
+                ,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.blocked_locations),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Keyboard Arrow Right",
+                    tint = TextMuted
                 )
             }
 

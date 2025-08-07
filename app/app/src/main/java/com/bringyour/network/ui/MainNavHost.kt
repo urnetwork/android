@@ -88,6 +88,7 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
+import com.bringyour.network.ui.blocked_regions.BlockedRegionsScreen
 import com.bringyour.network.ui.payout.PayoutScreen
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.AccountPointEvent
@@ -478,6 +479,19 @@ fun MainNavContent(
                 walletViewModel,
                 bonusReferralCode = referralCodeViewModel.referralCode
             ) }
+
+            composable<Route.BlockedRegions>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                BlockedRegionsScreen(
+                    navController = navController,
+                    countries = locationsListViewModel.connectCountries,
+                    getLocationColor = locationsListViewModel.getLocationColor
+                )
+            }
 
             composable<Route.Wallets>(
                 enterTransition = NavigationAnimations.enterTransition(),

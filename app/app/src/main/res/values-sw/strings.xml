@@ -243,4 +243,7 @@
     <string name="used_data_key">Imetumika</string>
     <string name="pending_data_key">Inasubiri</string>
     <string name="available_data_key">Inapatikana</string>
+    <string name="no_blocked_locations">Hakuna maeneo yaliyofungwa</string>
+    <string name="blocked_locations">Maeneo yaliyofungwa</string>
+    <string name="add_blocked_location">Ongeza eneo lililofungwa</string>
 </resources>

@@ -242,4 +242,7 @@
     <string name="used_data_key">Χρησιμοποιημένα</string>
     <string name="pending_data_key">Σε εκκρεμότητα</string>
     <string name="available_data_key">Διαθέσιμα</string>
+    <string name="no_blocked_locations">Δεν υπάρχουν αποκλεισμένες τοποθεσίες</string>
+    <string name="blocked_locations">Αποκλεισμένες τοποθεσίες</string>
+    <string name="add_blocked_location">Προσθήκη αποκλεισμένης τοποθεσίας</string>
 </resources>

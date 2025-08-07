@@ -243,4 +243,7 @@
     <string name="used_data_key">已用</string>
     <string name="pending_data_key">待处理</string>
     <string name="available_data_key">可用</string>
+    <string name="no_blocked_locations">没有被屏蔽的位置</string>
+    <string name="blocked_locations">被屏蔽的位置</string>
+    <string name="add_blocked_location">添加被屏蔽的位置</string>
 </resources>
