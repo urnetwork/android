@@ -87,7 +87,7 @@ class BlockedRegionsViewModel @Inject constructor(
 
     val blockRegion: (Id, String, String) -> Unit = { id, name, countryCode ->
 
-        if (!_isProcessing.value) {
+        if (!_isProcessing.value && !isInList(id)) {
 
             _isProcessing.value = true
 
