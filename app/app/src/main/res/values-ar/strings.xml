@@ -242,4 +242,7 @@
     <string name="used_data_key">مستخدم</string>
     <string name="pending_data_key">معلّق</string>
     <string name="available_data_key">متاح</string>
+    <string name="no_blocked_locations">لا توجد مواقع محجوبة</string>
+    <string name="blocked_locations">المواقع المحجوبة</string>
+    <string name="add_blocked_location">إضافة موقع محجوب</string>
 </resources>

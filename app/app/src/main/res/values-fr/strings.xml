@@ -244,4 +244,7 @@
     <string name="used_data_key">Utilisé</string>
     <string name="pending_data_key">En attente</string>
     <string name="available_data_key">Disponible</string>
+    <string name="no_blocked_locations">Aucun emplacement bloqué</string>
+    <string name="blocked_locations">Emplacements bloqués</string>
+    <string name="add_blocked_location">Ajouter un emplacement bloqué</string>
 </resources>

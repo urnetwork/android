@@ -242,5 +242,8 @@
     <string name="used_data_key">उपयोग किया गया</string>
     <string name="pending_data_key">लंबित</string>
     <string name="available_data_key">उपलब्ध</string>
+    <string name="no_blocked_locations">कोई अवरुद्ध स्थान नहीं</string>
+    <string name="blocked_locations">अवरुद्ध स्थान</string>
+    <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
 
 </resources>

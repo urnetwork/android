@@ -242,4 +242,7 @@
     <string name="used_data_key">Usado</string>
     <string name="pending_data_key">Pendiente</string>
     <string name="available_data_key">Disponible</string>
+    <string name="no_blocked_locations">No hay ubicaciones bloqueadas</string>
+    <string name="blocked_locations">Ubicaciones bloqueadas</string>
+    <string name="add_blocked_location">Agregar ubicación bloqueada</string>
 </resources>

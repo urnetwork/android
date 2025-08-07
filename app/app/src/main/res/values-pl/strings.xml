@@ -265,5 +265,8 @@
     <string name="used_data_key">Wykorzystane</string>
     <string name="pending_data_key">Oczekujące</string>
     <string name="available_data_key">Dostępne</string>
+    <string name="no_blocked_locations">Brak zablokowanych lokalizacji</string>
+    <string name="blocked_locations">Zablokowane lokalizacje</string>
+    <string name="add_blocked_location">Dodaj zablokowaną lokalizację</string>
 
 </resources>

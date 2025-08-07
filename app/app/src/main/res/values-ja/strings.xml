@@ -265,4 +265,7 @@
     <string name="used_data_key">使用済み</string>
     <string name="pending_data_key">保留中</string>
     <string name="available_data_key">利用可能</string>
+    <string name="no_blocked_locations">ブロックされた場所はありません</string>
+    <string name="blocked_locations">ブロックされた場所</string>
+    <string name="add_blocked_location">ブロックされた場所を追加</string>
 </resources>
