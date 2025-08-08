@@ -183,6 +183,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
         args.userName = ""
         args.networkName = networkName.text.trim()
         args.terms = termsAgreed
+        args.verifyOtpNumeric = true
 
         if (isValidReferralCode && !isValidatingReferralCode) {
             args.referralCode = _referralCode.value.text
