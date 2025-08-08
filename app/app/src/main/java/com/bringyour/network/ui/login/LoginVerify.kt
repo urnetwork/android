@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.login
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -42,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,14 +53,11 @@ import com.bringyour.sdk.AuthVerifySendArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URCodeInput
-import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -76,7 +72,7 @@ fun LoginVerify(
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
     val loginActivity = context as? LoginActivity
-    val codeLength = 8
+    val codeLength = 6
     var code by remember { mutableStateOf(List(codeLength) { "" }) }
     var resendInProgress by remember { mutableStateOf(false) }
     var markResendAsSent by remember { mutableStateOf(false) }
@@ -100,12 +96,15 @@ fun LoginVerify(
 
         val args = AuthVerifySendArgs()
         args.userAuth = userAuth
+        args.useNumeric = true
 
         application?.api?.authVerifySend(args) { _, err ->
             runBlocking(Dispatchers.Main.immediate) {
 
                 resendInProgress = false
                 markResendAsSent = true
+
+                Toast.makeText(context, "Verification code sent", Toast.LENGTH_SHORT).show()
 
                 if (err != null) {
                     resendError = context.getString(R.string.verify_send_error)
@@ -165,7 +164,7 @@ fun LoginVerify(
 
         val codeStr = code.joinToString("")
 
-        if (codeStr.length == 8 && !verifyInProgress) {
+        if (codeStr.length == codeLength && !verifyInProgress) {
             verify()
         }
 
@@ -253,33 +252,6 @@ fun LoginVerify(
                         )
                     }
                 }
-            }
-        }
-    }
-
-    URSnackBar(
-        type = if (markResendAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
-        isVisible = verifyError != null,
-        onDismiss = {
-            if (verifyError != null) {
-                verifyError = null
-            }
-            if (resendError != null) {
-                resendError = null
-            }
-            if (markResendAsSent) {
-                markResendAsSent = false
-            }
-        }
-    ) {
-        if (markResendAsSent) {
-            Column() {
-                Text("Verification email sent to $userAuth")
-            }
-        } else {
-            Column() {
-                Text(stringResource(id = R.string.something_went_wrong))
-                Text(stringResource(id = R.string.please_wait))
             }
         }
     }
