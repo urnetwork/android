@@ -246,4 +246,5 @@
     <string name="no_blocked_locations">Keine blockierten Standorte</string>
     <string name="blocked_locations">Blockierte Standorte</string>
     <string name="add_blocked_location">Blockierten Standort hinzufügen</string>
+    <string name="verified_project_on">Verifiziertes Projekt auf %1$s</string>
 </resources>

@@ -271,4 +271,5 @@
     <string name="no_blocked_locations">Нет заблокированных локаций</string>
     <string name="blocked_locations">Заблокированные локации</string>
     <string name="add_blocked_location">Добавить заблокированную локацию</string>
+    <string name="verified_project_on">Проверенный проект на %1$s</string>
 </resources>
