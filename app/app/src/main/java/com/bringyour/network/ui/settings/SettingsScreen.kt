@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Outbound
+import androidx.compose.material.icons.automirrored.outlined.Outbound
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
@@ -52,14 +55,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,6 +108,7 @@ import com.solana.mobilewalletadapter.clientlib.successPayload
 import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.launch
 import java.util.Date
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -323,6 +331,8 @@ fun SettingsScreen(
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
 
+    val depinHubStr = "DePIN Hub"
+    val depinHubLink = "https://depinhub.io/projects/urnetwork"
 
     Scaffold(
         snackbarHost = {
@@ -766,14 +776,69 @@ fun SettingsScreen(
                 }
                 IconButton(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(discordInviteLink))
+                        val intent = Intent(Intent.ACTION_VIEW, discordInviteLink.toUri())
                         context.startActivity(intent)
                     },
                     modifier = Modifier.size(20.dp)
                 ) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.Outbound,
                         contentDescription = "Right Arrow",
-                        tint = Color.White,
+                        tint = TextMuted,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.depin_hub),
+                        contentDescription = "Image description",
+                        modifier = Modifier.size(24.dp),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    Spacer(modifier = Modifier.width(2.dp))
+
+                    Text(
+                        text = buildAnnotatedString {
+                            val fullText = stringResource(R.string.verified_project_on,
+                                depinHubStr)
+                            val startIndex = fullText.indexOf(depinHubStr)
+
+                            append(fullText.substring(0, startIndex))
+                            withStyle(style = SpanStyle(color = BlueMedium)) {
+                                append(depinHubStr)
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+
+                }
+
+                IconButton(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, depinHubLink.toUri())
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.size(20.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.Outbound,
+                        contentDescription = "Right Arrow",
+                        tint = TextMuted,
                     )
                 }
             }

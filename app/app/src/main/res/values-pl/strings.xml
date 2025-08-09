@@ -268,5 +268,6 @@
     <string name="no_blocked_locations">Brak zablokowanych lokalizacji</string>
     <string name="blocked_locations">Zablokowane lokalizacje</string>
     <string name="add_blocked_location">Dodaj zablokowaną lokalizację</string>
+    <string name="verified_project_on">Zweryfikowany projekt na %1$s</string>
 
 </resources>

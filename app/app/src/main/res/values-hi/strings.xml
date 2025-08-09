@@ -245,5 +245,6 @@
     <string name="no_blocked_locations">कोई अवरुद्ध स्थान नहीं</string>
     <string name="blocked_locations">अवरुद्ध स्थान</string>
     <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
+    <string name="verified_project_on">%1$s पर सत्यापित परियोजना</string>
 
 </resources>

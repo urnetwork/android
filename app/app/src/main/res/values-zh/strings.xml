@@ -246,4 +246,5 @@
     <string name="no_blocked_locations">没有被屏蔽的位置</string>
     <string name="blocked_locations">被屏蔽的位置</string>
     <string name="add_blocked_location">添加被屏蔽的位置</string>
+    <string name="verified_project_on">在 %1$s 上已验证的项目</string>
 </resources>

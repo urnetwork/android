@@ -271,4 +271,5 @@
     <string name="no_blocked_locations">No blocked locations</string>
     <string name="blocked_locations">Blocked Locations</string>
     <string name="add_blocked_location">Add blocked location</string>
+    <string name="verified_project_on">Verified project on %1$s</string>
 </resources>
