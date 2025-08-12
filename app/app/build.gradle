@@ -320,7 +320,7 @@ android {
         }
         solana_dapp {
             java {
-                srcDirs += ['src/google/java']
+                srcDirs += ['src/solana/java']
             }
         }
     }

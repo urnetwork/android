@@ -24,7 +24,7 @@ class ReviewManagerRequest(
 
     fun launchReviewFlow(
         activity: android.app.Activity,
-        bundleStore: BundleStore?
+//        bundleStore: BundleStore?
     ) {
 
     }
