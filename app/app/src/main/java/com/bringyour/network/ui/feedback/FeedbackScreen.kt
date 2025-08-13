@@ -117,7 +117,7 @@ fun FeedbackScreen(
         activity?.let {
             reviewManagerRequest.launchReviewFlow(
                 activity = it,
-                bundleStore
+//                bundleStore
             )
         }
     }

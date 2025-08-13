@@ -133,7 +133,7 @@ fun ConnectScreen(
         activity?.let {
             reviewManagerRequest.launchReviewFlow(
                 activity = it,
-                bundleStore
+//                bundleStore
             )
         }
     }
