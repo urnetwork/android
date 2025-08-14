@@ -17,6 +17,7 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.AccountViewController
 import com.bringyour.sdk.DevicesViewController
 import com.bringyour.sdk.LoginViewController
@@ -287,8 +288,20 @@ class MainApplication : Application() {
             // 2025-01 drop the non-metered requirement. This appears to limit some networks globally
 //            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
 
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+        /**
+         * restrict to wifi if provideNetworkMode == wifi or device is null
+         */
+        device?.let {
+            if (ProvideNetworkMode.fromString(it.provideNetworkMode) == ProvideNetworkMode.WIFI) {
+                networkRequestBuilder
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+            }
+        } ?: run {
+            networkRequestBuilder
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+        }
 
 //            .build()
 
@@ -432,6 +445,9 @@ class MainApplication : Application() {
         deviceProvideNetworkSub = device?.addProvideNetworkModeChangeListener {
 
             Handler(Looper.getMainLooper()).post {
+
+                addNetworkCallback()
+
                 updateVpnService()
             }
         }
