@@ -248,4 +248,5 @@
     <string name="blocked_locations">Emplacements bloqués</string>
     <string name="add_blocked_location">Ajouter un emplacement bloqué</string>
     <string name="verified_project_on">Projet vérifié sur %1$s</string>
+    <string name="allow_providing_cell">Autoriser la fourniture sur le réseau cellulaire</string>
 </resources>

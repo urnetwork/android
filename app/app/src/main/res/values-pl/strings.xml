@@ -269,5 +269,6 @@
     <string name="blocked_locations">Zablokowane lokalizacje</string>
     <string name="add_blocked_location">Dodaj zablokowaną lokalizację</string>
     <string name="verified_project_on">Zweryfikowany projekt na %1$s</string>
+    <string name="allow_providing_cell">Zezwól na udostępnianie w sieci komórkowej</string>
 
 </resources>

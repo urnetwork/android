@@ -247,4 +247,5 @@
     <string name="blocked_locations">Localizações bloqueadas</string>
     <string name="add_blocked_location">Adicionar localização bloqueada</string>
     <string name="verified_project_on">Projeto verificado no %1$s</string>
+    <string name="allow_providing_cell">Permitir fornecer na rede celular</string>
 </resources>
