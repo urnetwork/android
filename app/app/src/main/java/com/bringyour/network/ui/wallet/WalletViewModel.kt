@@ -476,7 +476,12 @@ class WalletViewModel @Inject constructor(
 
                 viewModelScope.launch {
                     Log.i(TAG, "[verifySeekerHolder] result = $result, error = $error")
-                    if (result.success) {
+
+                    if (error != null) {
+                        return@launch
+                    }
+
+                    if (result != null && result.success) {
                         _isSeekerHolder.value = true
                         walletVc?.fetchAccountWallets()
                     } else {

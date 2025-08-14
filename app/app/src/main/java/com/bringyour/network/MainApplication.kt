@@ -17,6 +17,7 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.AccountViewController
 import com.bringyour.sdk.DevicesViewController
 import com.bringyour.sdk.LoginViewController
@@ -63,6 +64,8 @@ class MainApplication : Application() {
 //    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
     var deviceProvidePausedSub: Sub? = null
+
+    var deviceProvideNetworkSub: Sub? = null
     var deviceOfflineSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
@@ -285,8 +288,21 @@ class MainApplication : Application() {
             // 2025-01 drop the non-metered requirement. This appears to limit some networks globally
 //            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
 
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+        /**
+         * restrict to wifi if provideNetworkMode == wifi or device is null
+         */
+        device?.let {
+            if (ProvideNetworkMode.fromString(it.provideNetworkMode) == ProvideNetworkMode.WIFI) {
+                networkRequestBuilder
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+            }
+        } ?: run {
+            networkRequestBuilder
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+        }
+
 //            .build()
 
 
@@ -349,6 +365,8 @@ class MainApplication : Application() {
         deviceProvideSub = null
         deviceProvidePausedSub?.close()
         deviceProvidePausedSub = null
+        deviceProvideNetworkSub?.close()
+        deviceProvideNetworkSub = null
         deviceOfflineSub?.close()
         deviceOfflineSub = null
         deviceConnectSub?.close()
@@ -424,6 +442,15 @@ class MainApplication : Application() {
                 updateVpnService()
             }
         }
+        deviceProvideNetworkSub = device?.addProvideNetworkModeChangeListener {
+
+            Handler(Looper.getMainLooper()).post {
+
+                addNetworkCallback()
+
+                updateVpnService()
+            }
+        }
         deviceOfflineSub = device?.addOfflineChangeListener { _, _ ->
             Handler(Looper.getMainLooper()).post {
                 updateVpnService()
@@ -490,6 +517,7 @@ class MainApplication : Application() {
         val providePaused = device.providePaused
         val connectEnabled = device.connectEnabled
         val routeLocal = device.routeLocal
+        val provideNetworkMode = device.provideNetworkMode
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()

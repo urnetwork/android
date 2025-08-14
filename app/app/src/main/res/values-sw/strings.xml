@@ -247,4 +247,5 @@
     <string name="blocked_locations">Maeneo yaliyofungwa</string>
     <string name="add_blocked_location">Ongeza eneo lililofungwa</string>
     <string name="verified_project_on">Mradi uliothibitishwa kwenye %1$s</string>
+    <string name="allow_providing_cell">Ruhusu utoaji kwenye mtandao wa simu</string>
 </resources>

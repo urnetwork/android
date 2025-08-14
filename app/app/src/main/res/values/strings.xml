@@ -272,4 +272,5 @@
     <string name="blocked_locations">Blocked Locations</string>
     <string name="add_blocked_location">Add blocked location</string>
     <string name="verified_project_on">Verified project on %1$s</string>
+    <string name="allow_providing_cell">Allow providing on cellular network</string>
 </resources>

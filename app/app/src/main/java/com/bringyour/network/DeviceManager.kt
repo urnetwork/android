@@ -1,6 +1,7 @@
 package com.bringyour.network
 
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sdk
@@ -45,6 +46,13 @@ class DeviceManager @Inject constructor() {
             device?.provideControlMode = ProvideControlMode.toString(it)
         }
 
+    var provideNetworkMode: ProvideNetworkMode
+        get() = ProvideNetworkMode.fromString(device?.provideNetworkMode!!) ?: ProvideNetworkMode.WIFI
+        set(it) {
+            asyncLocalState?.localState?.provideNetworkMode = ProvideNetworkMode.toString(it)
+            device?.provideNetworkMode = ProvideNetworkMode.toString(it)
+        }
+
     var allowForeground: Boolean
         get() = device?.allowForeground!!
         set(it) {
@@ -74,6 +82,7 @@ class DeviceManager @Inject constructor() {
         val defaultLocation = localState.defaultLocation // when user selects location, disconnects, restarts app, we want to persist the location
         val canShowRatingDialog = localState.canShowRatingDialog
         val provideControlMode = ProvideControlMode.fromString(localState.provideControlMode) ?: ProvideControlMode.AUTO
+        val provideNetworkMode = ProvideNetworkMode.fromString(localState.provideNetworkMode) ?: ProvideNetworkMode.WIFI
         val provideMode = if (provideControlMode == ProvideControlMode.ALWAYS) Sdk.ProvideModePublic else localState.provideMode
         val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
         val canRefer = localState.canRefer
@@ -110,6 +119,7 @@ class DeviceManager @Inject constructor() {
         device?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
         device?.canRefer = canRefer
         device?.allowForeground = allowForeground
+        device?.provideNetworkMode = ProvideNetworkMode.toString(provideNetworkMode)
     }
 
     fun clearDevice() {

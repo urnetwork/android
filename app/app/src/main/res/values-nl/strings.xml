@@ -272,4 +272,5 @@
     <string name="blocked_locations">Geblokkeerde locaties</string>
     <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
     <string name="verified_project_on">Geverifieerd project op %1$s</string>
+    <string name="allow_providing_cell">Toestaan op mobiel netwerk</string>
 </resources>
