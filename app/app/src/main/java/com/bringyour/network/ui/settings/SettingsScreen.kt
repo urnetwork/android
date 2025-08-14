@@ -248,7 +248,9 @@ fun SettingsScreen(
         bonusReferralCode = bonusReferralCode,
         referralNetworkName = referralNetwork?.name,
         expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet,
-        version = settingsViewModel.version
+        version = settingsViewModel.version,
+        allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
+        toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell
     )
 
     if (isPresentingUpgradePlanSheet) {
@@ -321,6 +323,8 @@ fun SettingsScreen(
     referralNetworkName: String?,
     expandUpdateNetworkReferralSheet: () -> Unit,
     version: String,
+    allowProvideCell: Boolean,
+    toggleProvideCell: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -651,6 +655,34 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            /**
+             * Allow providing on cell networks
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.allow_providing_cell),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                URSwitch(
+                    checked = allowProvideCell,
+                    toggle = {
+                        toggleProvideCell()
+                    },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
+             * Allow local traffic
+             */
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -1046,7 +1078,9 @@ private fun SettingsScreenPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {}
         )
     }
 }
@@ -1083,7 +1117,9 @@ private fun SettingsScreenSupporterPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {}
         )
     }
 }
@@ -1120,7 +1156,9 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {}
         )
     }
 }
@@ -1157,7 +1195,9 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {}
         )
     }
 }
@@ -1194,7 +1234,9 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {}
         )
     }
 }

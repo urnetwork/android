@@ -63,6 +63,8 @@ class MainApplication : Application() {
 //    var byDevice: BringYourDevice? = null
     var deviceProvideSub: Sub? = null
     var deviceProvidePausedSub: Sub? = null
+
+    var deviceProvideNetworkSub: Sub? = null
     var deviceOfflineSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
@@ -287,6 +289,7 @@ class MainApplication : Application() {
 
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+
 //            .build()
 
 
@@ -349,6 +352,8 @@ class MainApplication : Application() {
         deviceProvideSub = null
         deviceProvidePausedSub?.close()
         deviceProvidePausedSub = null
+        deviceProvideNetworkSub?.close()
+        deviceProvideNetworkSub = null
         deviceOfflineSub?.close()
         deviceOfflineSub = null
         deviceConnectSub?.close()
@@ -424,6 +429,12 @@ class MainApplication : Application() {
                 updateVpnService()
             }
         }
+        deviceProvideNetworkSub = device?.addProvideNetworkModeChangeListener {
+
+            Handler(Looper.getMainLooper()).post {
+                updateVpnService()
+            }
+        }
         deviceOfflineSub = device?.addOfflineChangeListener { _, _ ->
             Handler(Looper.getMainLooper()).post {
                 updateVpnService()
@@ -490,6 +501,7 @@ class MainApplication : Application() {
         val providePaused = device.providePaused
         val connectEnabled = device.connectEnabled
         val routeLocal = device.routeLocal
+        val provideNetworkMode = device.provideNetworkMode
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()
