@@ -34,6 +34,9 @@ constructor(
     private val _referralPoints = MutableStateFlow<Double>(0.0)
     val referralPoints: StateFlow<Double> = _referralPoints.asStateFlow()
 
+    private val _reliabilityPoints = MutableStateFlow<Double>(0.0)
+    val reliabilityPoints: StateFlow<Double> = _reliabilityPoints.asStateFlow()
+
     val fetchAccountPoints = {
         deviceManager.device?.api?.getAccountPoints { result, error ->
             if (error != null) {
@@ -47,6 +50,7 @@ constructor(
             var payoutPoints = 0.0
             var referralPoints = 0.0
             var multiplierPoints = 0.0
+            var reliabilityPoints = 0.0
 
             for (i in 0 until n) {
 
@@ -64,6 +68,7 @@ constructor(
                         AccountPointEvent.PAYOUT -> payoutPoints += pointValue
                         AccountPointEvent.PAYOUT_LINKED_ACCOUNT -> referralPoints += pointValue
                         AccountPointEvent.PAYOUT_MULTIPLIER -> multiplierPoints += pointValue
+                        AccountPointEvent.PAYOUT_RELIABILITY -> reliabilityPoints += pointValue
                     }
                 }
             }
@@ -74,6 +79,7 @@ constructor(
                 _payoutPoints.value = payoutPoints
                 _referralPoints.value = referralPoints
                 _multiplierPoints.value = multiplierPoints
+                _reliabilityPoints.value = reliabilityPoints
             }
         }
     }
@@ -102,7 +108,8 @@ constructor(
 enum class AccountPointEvent {
     PAYOUT,
     PAYOUT_LINKED_ACCOUNT,
-    PAYOUT_MULTIPLIER;
+    PAYOUT_MULTIPLIER,
+    PAYOUT_RELIABILITY;
 
     companion object {
         fun fromString(value: String): AccountPointEvent? {
@@ -110,6 +117,7 @@ enum class AccountPointEvent {
                 "PAYOUT" -> PAYOUT
                 "PAYOUT_LINKED_ACCOUNT" -> PAYOUT_LINKED_ACCOUNT
                 "PAYOUT_MULTIPLIER" -> PAYOUT_MULTIPLIER
+                "PAYOUT_RELIABILITY" -> PAYOUT_RELIABILITY
                 else -> null
             }
         }

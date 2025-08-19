@@ -509,6 +509,7 @@ fun MainNavContent(
                     payoutPoints = accountPointsViewModel.payoutPoints.collectAsState().value,
                     referralPoints = accountPointsViewModel.referralPoints.collectAsState().value,
                     multiplierPoints = accountPointsViewModel.multiplierPoints.collectAsState().value,
+                    reliabilityPoints = accountPointsViewModel.reliabilityPoints.collectAsState().value,
                     fetchAccountPoints = accountPointsViewModel.fetchAccountPoints
                 )
             }
@@ -548,7 +549,9 @@ fun MainNavContent(
                     multiplierPoints = accountPointsViewModel.getPayoutEventPointsByPaymentId(payoutId, AccountPointEvent.PAYOUT_MULTIPLIER),
                     referralPoints = accountPointsViewModel.getPayoutEventPointsByPaymentId(payoutId, AccountPointEvent.PAYOUT_LINKED_ACCOUNT),
                     payoutPoints = accountPointsViewModel.getPayoutEventPointsByPaymentId(payoutId, AccountPointEvent.PAYOUT),
-                    holdsMultiplier = walletViewModel.isSeekerHolder.collectAsState().value
+                    holdsMultiplier = walletViewModel.isSeekerHolder.collectAsState().value,
+                    reliabilityPoints = accountPointsViewModel.getPayoutEventPointsByPaymentId(payoutId,
+                        AccountPointEvent.PAYOUT_RELIABILITY)
                 )
             }
         }

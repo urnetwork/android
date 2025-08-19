@@ -45,6 +45,7 @@ fun PayoutScreen(
     payoutPoints: Double,
     multiplierPoints: Double,
     referralPoints: Double,
+    reliabilityPoints: Double,
     totalAccountPoints: Double,
     holdsMultiplier: Boolean
 ) {
@@ -102,6 +103,7 @@ fun PayoutScreen(
                     payoutPoints = payoutPoints,
                     multiplierPoints = multiplierPoints,
                     referralPoints = referralPoints,
+                    reliabilityPoints = reliabilityPoints,
                     totalAccountPoints = totalAccountPoints
                 )
 

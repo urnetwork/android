@@ -82,6 +82,7 @@ fun WalletsScreen(
     payoutPoints: Double,
     referralPoints: Double,
     multiplierPoints: Double,
+    reliabilityPoints: Double,
     fetchAccountPoints: () -> Unit?
 ) {
 
@@ -122,7 +123,8 @@ fun WalletsScreen(
         totalAccountPoints = totalAccountPoints,
         payoutPoints = payoutPoints,
         referralPoints = referralPoints,
-        multiplierPoints = multiplierPoints
+        multiplierPoints = multiplierPoints,
+        reliabilityPoints = reliabilityPoints
     )
 }
 
@@ -155,6 +157,7 @@ fun WalletsScreen(
     payoutPoints: Double,
     referralPoints: Double,
     multiplierPoints: Double,
+    reliabilityPoints: Double,
     viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
 
@@ -503,7 +506,8 @@ fun WalletsScreen(
                                         totalAccountPoints = totalAccountPoints,
                                         payoutPoints = payoutPoints,
                                         multiplierPoints = multiplierPoints,
-                                        referralPoints = referralPoints
+                                        referralPoints = referralPoints,
+                                        reliabilityPoints = reliabilityPoints
                                     )
                                 }
 

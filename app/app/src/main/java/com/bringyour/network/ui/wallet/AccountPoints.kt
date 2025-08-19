@@ -40,6 +40,7 @@ fun AccountPoints(
         payoutPoints: Double,
         multiplierPoints: Double,
         referralPoints: Double,
+        reliabilityPoints: Double,
         totalAccountPoints: Double
 ) {
     Column() {
@@ -97,7 +98,7 @@ fun AccountPoints(
                                 color = TextMuted
                         )
 
-                        Text("0", style = HeadingLargeCondensed)
+                        Text(String.format(Locale.US, "%,.0f", reliabilityPoints), style = HeadingLargeCondensed)
                     }
                 }
 
