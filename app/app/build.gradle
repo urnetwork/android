@@ -14,8 +14,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.0'
-    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.10'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.10'
 }
 
 
@@ -409,10 +409,10 @@ dependencies {
 
 // compose
 dependencies {
-    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.core:core-ktx:1.17.0'
 
     // jetpack compose
-    def composeBom = platform('androidx.compose:compose-bom:2025.07.00')
+    def composeBom = platform('androidx.compose:compose-bom:2025.08.00')
     implementation composeBom
     androidTestImplementation composeBom
 
@@ -425,12 +425,12 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:1.7.8"
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.8.3'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.8.3'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.9.0'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.9.0'
 
     // Android Studio Preview support
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.8.3'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.8.3'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.9.0'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.9.0'
 
     // reflect
     implementation 'org.jetbrains.kotlin:kotlin-reflect:2.1.20'
@@ -439,7 +439,7 @@ dependencies {
 
 // solana saga
 dependencies {
-    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.0.8")
+    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0")
     implementation("com.solanamobile:web3-solana:0.2.5")
     implementation("com.solanamobile:rpc-core:0.2.8")
     implementation("io.github.funkatronics:multimult:0.2.4")
