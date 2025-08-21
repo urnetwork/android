@@ -247,4 +247,12 @@
     <string name="blocked_locations">Localizações bloqueadas</string>
     <string name="add_blocked_location">Adicionar localização bloqueada</string>
     <string name="verified_project_on">Projeto verificado no %1$s</string>
+    <string name="general">Geral</string>
+    <string name="show_icon_when_connected">Mostrar o ícone UR quando conectado</string>
+    <string name="authentication">Autenticação</string>
+    <string name="auth_code">Código de autenticação</string>
+    <string name="create">Criar</string>
+    <string name="auth_code_expires">O código de autenticação expira após 5 minutos</string>
+    <string name="auth_code_created">Código de autenticação criado</string>
+    <string name="copy_auth_code">Copiar código de autenticação</string>
 </resources>

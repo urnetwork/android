@@ -247,4 +247,12 @@
     <string name="blocked_locations">被屏蔽的位置</string>
     <string name="add_blocked_location">添加被屏蔽的位置</string>
     <string name="verified_project_on">在 %1$s 上已验证的项目</string>
+    <string name="general">常规</string>
+    <string name="show_icon_when_connected">连接时显示 UR 图标</string>
+    <string name="authentication">认证</string>
+    <string name="auth_code">验证码</string>
+    <string name="create">创建</string>
+    <string name="auth_code_expires">验证码在5分钟后过期</string>
+    <string name="auth_code_created">验证码已创建</string>
+    <string name="copy_auth_code">复制验证码</string>
 </resources>

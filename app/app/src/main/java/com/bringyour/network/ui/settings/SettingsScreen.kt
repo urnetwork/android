@@ -128,6 +128,8 @@ fun SettingsScreen(
     val currentPlan = subscriptionBalanceViewModel.currentPlan.collectAsState().value
     val showDeleteAccountDialog = settingsViewModel.showDeleteAccountDialog.collectAsState().value
     val referralNetwork = settingsViewModel.referralNetwork.collectAsState().value
+    val isPresentingAuthCodeDialog = settingsViewModel.isPresentingAuthCodeDialog.collectAsState().value
+    val authCode = settingsViewModel.authCode.collectAsState().value
 
     val scope = rememberCoroutineScope()
 
@@ -147,6 +149,8 @@ fun SettingsScreen(
     val iconUri = Uri.parse("favicon.ico")
     val identityName = "URnetwork"
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val clipboardManager = LocalClipboardManager.current
 
     val expandUpgradePlanSheet: () -> Unit = {
 
@@ -248,8 +252,25 @@ fun SettingsScreen(
         bonusReferralCode = bonusReferralCode,
         referralNetworkName = referralNetwork?.name,
         expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet,
-        version = settingsViewModel.version
+        version = settingsViewModel.version,
+        authCodeCreate = settingsViewModel.authCodeCreate,
+        authCode = authCode,
+        isCreatingAuthCode = settingsViewModel.isCreatingAuthCode.collectAsState().value,
+        setDisplayAuthCodeDialog = settingsViewModel.setIsPresentingAuthCodeDialog
     )
+
+    if (isPresentingAuthCodeDialog) {
+        AuthCodeCreateDialog(
+            authCode = authCode,
+            onDismissRequest = {
+                settingsViewModel.setIsPresentingAuthCodeDialog(false)
+            },
+            copyAuthCode = {
+                clipboardManager.setText(AnnotatedString(authCode ?: ""))
+                settingsViewModel.setIsPresentingAuthCodeDialog(false)
+            }
+        )
+    }
 
     if (isPresentingUpgradePlanSheet) {
         UpgradePlanBottomSheet(
@@ -321,6 +342,10 @@ fun SettingsScreen(
     referralNetworkName: String?,
     expandUpdateNetworkReferralSheet: () -> Unit,
     version: String,
+    authCodeCreate: () -> Unit,
+    authCode: String?,
+    isCreatingAuthCode: Boolean,
+    setDisplayAuthCodeDialog: (Boolean) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -584,7 +609,7 @@ fun SettingsScreen(
                 )
 
                 Text(
-                    "Update",
+                    stringResource(id = R.string.update),
                     modifier = Modifier
                         .clickable {
                             expandUpdateNetworkReferralSheet()
@@ -595,7 +620,10 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            URTextInputLabel("General")
+            /**
+             * Auth code
+             */
+            URTextInputLabel(stringResource(id = R.string.authentication))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -603,7 +631,41 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Show UR icon when connected",
+                    stringResource(id = R.string.auth_code),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                Text(
+                    stringResource(id = R.string.create),
+                    modifier = Modifier
+                        .clickable {
+                            authCodeCreate()
+                            setDisplayAuthCodeDialog(true)
+                        },
+                    color = BlueMedium
+                )
+            }
+            Text(
+                stringResource(id = R.string.auth_code_expires),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            /**
+             * General
+             */
+            URTextInputLabel(stringResource(id = R.string.general))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.show_icon_when_connected),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
@@ -1046,7 +1108,11 @@ private fun SettingsScreenPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            authCodeCreate = {},
+            authCode = null,
+            isCreatingAuthCode = false,
+            setDisplayAuthCodeDialog = {}
         )
     }
 }
@@ -1083,7 +1149,11 @@ private fun SettingsScreenSupporterPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            authCodeCreate = {},
+            authCode = null,
+            isCreatingAuthCode = false,
+            setDisplayAuthCodeDialog = {}
         )
     }
 }
@@ -1120,7 +1190,11 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            authCodeCreate = {},
+            authCode = null,
+            isCreatingAuthCode = false,
+            setDisplayAuthCodeDialog = {}
         )
     }
 }
@@ -1157,7 +1231,11 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            authCodeCreate = {},
+            authCode = null,
+            isCreatingAuthCode = false,
+            setDisplayAuthCodeDialog = {}
         )
     }
 }
@@ -1194,7 +1272,11 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             bonusReferralCode = "ABC123",
             referralNetworkName = null,
             expandUpdateNetworkReferralSheet = {},
-            version = "1.2.3"
+            version = "1.2.3",
+            authCodeCreate = {},
+            authCode = null,
+            isCreatingAuthCode = false,
+            setDisplayAuthCodeDialog = {}
         )
     }
 }

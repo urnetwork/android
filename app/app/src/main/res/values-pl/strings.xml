@@ -269,5 +269,13 @@
     <string name="blocked_locations">Zablokowane lokalizacje</string>
     <string name="add_blocked_location">Dodaj zablokowaną lokalizację</string>
     <string name="verified_project_on">Zweryfikowany projekt na %1$s</string>
+    <string name="general">Ogólne</string>
+    <string name="show_icon_when_connected">Pokaż ikonę UR po połączeniu</string>
+    <string name="authentication">Uwierzytelnianie</string>
+    <string name="auth_code">Kod uwierzytelniający</string>
+    <string name="create">Utwórz</string>
+    <string name="auth_code_expires">Kod uwierzytelniający wygasa po 5 minutach</string>
+    <string name="auth_code_created">Kod uwierzytelniający został utworzony</string>
+    <string name="copy_auth_code">Skopiuj kod uwierzytelniający</string>
 
 </resources>

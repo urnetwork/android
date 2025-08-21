@@ -246,4 +246,12 @@
     <string name="blocked_locations">Αποκλεισμένες τοποθεσίες</string>
     <string name="add_blocked_location">Προσθήκη αποκλεισμένης τοποθεσίας</string>
     <string name="verified_project_on">Επαληθευμένο έργο στο %1$s</string>
+    <string name="general">Γενικά</string>
+    <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
+    <string name="authentication">Ταυτοποίηση</string>
+    <string name="auth_code">Κωδικός ταυτοποίησης</string>
+    <string name="create">Δημιουργία</string>
+    <string name="auth_code_expires">Ο κωδικός ταυτοποίησης λήγει μετά από 5 λεπτά</string>
+    <string name="auth_code_created">Ο κωδικός ταυτοποίησης δημιουργήθηκε</string>
+    <string name="copy_auth_code">Αντιγραφή κωδικού ταυτοποίησης</string>
 </resources>

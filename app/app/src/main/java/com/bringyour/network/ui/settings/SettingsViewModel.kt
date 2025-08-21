@@ -16,6 +16,7 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -81,6 +82,19 @@ class SettingsViewModel @Inject constructor(
 
     var version by mutableStateOf("")
         private set
+
+    private val _isCreatingAuthCode = MutableStateFlow(false)
+    val isCreatingAuthCode: StateFlow<Boolean> = _isCreatingAuthCode
+
+    private val _authCode = MutableStateFlow<String?>(null)
+    val authCode: StateFlow<String?> = _authCode
+
+    private val _isPresentingAuthCodeDialog = MutableStateFlow(false)
+    val isPresentingAuthCodeDialog: StateFlow<Boolean> = _isPresentingAuthCodeDialog
+
+    val setIsPresentingAuthCodeDialog: (Boolean) -> Unit = {
+        _isPresentingAuthCodeDialog.value = it
+    }
 
     fun onPermissionResult(isGranted: Boolean) {
         _permissionGranted.value = isGranted
@@ -188,6 +202,39 @@ class SettingsViewModel @Inject constructor(
 
             viewModelScope.launch {
                 _referralNetwork.value = result.network
+            }
+
+        }
+
+    }
+
+    val authCodeCreate: () -> Unit = {
+
+        if (!_isCreatingAuthCode.value) {
+
+            _authCode.value = null
+            _isCreatingAuthCode.value = true
+
+            val args = AuthCodeCreateArgs()
+            args.durationMinutes = 5.0
+            args.uses = 1
+            deviceManager.device?.api?.authCodeCreate(args) { result, error ->
+
+                if (error != null) {
+                    Log.i(TAG, "error creating auth code: ${error.message}")
+                    return@authCodeCreate
+                }
+
+                if (result.error != null) {
+                    Log.i(TAG, "result error creating auth code: ${result.error.message}")
+                    return@authCodeCreate
+                }
+
+                viewModelScope.launch {
+                    _authCode.value = result.authCode
+                    _isCreatingAuthCode.value = false
+                }
+
             }
 
         }
