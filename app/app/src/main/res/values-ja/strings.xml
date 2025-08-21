@@ -269,4 +269,12 @@
     <string name="blocked_locations">ブロックされた場所</string>
     <string name="add_blocked_location">ブロックされた場所を追加</string>
     <string name="verified_project_on">%1$sで認証されたプロジェクト</string>
+    <string name="general">一般</string>
+    <string name="show_icon_when_connected">接続時にURアイコンを表示</string>
+    <string name="authentication">認証</string>
+    <string name="auth_code">認証コード</string>
+    <string name="create">作成</string>
+    <string name="auth_code_expires">認証コードは5分後に失効します</string>
+    <string name="auth_code_created">認証コードが作成されました</string>
+    <string name="copy_auth_code">認証コードをコピー</string>
 </resources>

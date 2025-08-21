@@ -272,4 +272,12 @@
     <string name="blocked_locations">Geblokkeerde locaties</string>
     <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
     <string name="verified_project_on">Geverifieerd project op %1$s</string>
+    <string name="general">Algemeen</string>
+    <string name="show_icon_when_connected">Toon UR-pictogram bij verbinding</string>
+    <string name="authentication">Authenticatie</string>
+    <string name="auth_code">Auth-code</string>
+    <string name="create">Maken</string>
+    <string name="auth_code_expires">Auth-code verloopt na 5 minuten</string>
+    <string name="auth_code_created">Auth-code aangemaakt</string>
+    <string name="copy_auth_code">Auth-code kopiëren</string>
 </resources>

@@ -272,4 +272,12 @@
     <string name="blocked_locations">Blocked Locations</string>
     <string name="add_blocked_location">Add blocked location</string>
     <string name="verified_project_on">Verified project on %1$s</string>
+    <string name="general">General</string>
+    <string name="show_icon_when_connected">Show UR icon when connected</string>
+    <string name="authentication">Authentication</string>
+    <string name="auth_code">Auth code</string>
+    <string name="create">Create</string>
+    <string name="auth_code_expires">Auth code expires after 5 minutes</string>
+    <string name="auth_code_created">Auth code created</string>
+    <string name="copy_auth_code">Copy Auth Code</string>
 </resources>

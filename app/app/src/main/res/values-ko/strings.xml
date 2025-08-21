@@ -269,4 +269,12 @@
     <string name="blocked_locations">차단된 위치</string>
     <string name="add_blocked_location">차단된 위치 추가</string>
     <string name="verified_project_on">%1$s에서 인증된 프로젝트</string>
+    <string name="general">일반</string>
+    <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
+    <string name="authentication">인증</string>
+    <string name="auth_code">인증 코드</string>
+    <string name="create">생성</string>
+    <string name="auth_code_expires">인증 코드는 5분 후에 만료됩니다</string>
+    <string name="auth_code_created">인증 코드가 생성되었습니다</string>
+    <string name="copy_auth_code">인증 코드 복사</string>
 </resources>

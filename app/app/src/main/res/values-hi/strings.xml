@@ -246,5 +246,13 @@
     <string name="blocked_locations">अवरुद्ध स्थान</string>
     <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
     <string name="verified_project_on">%1$s पर सत्यापित परियोजना</string>
+    <string name="general">सामान्य</string>
+    <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
+    <string name="authentication">प्रमाणीकरण</string>
+    <string name="auth_code">ऑथ कोड</string>
+    <string name="create">बनाएँ</string>
+    <string name="auth_code_expires">ऑथ कोड 5 मिनट बाद समाप्त हो जाता है</string>
+    <string name="auth_code_created">ऑथ कोड बनाया गया</string>
+    <string name="copy_auth_code">ऑथ कोड कॉपी करें</string>
 
 </resources>

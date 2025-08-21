@@ -247,4 +247,12 @@
     <string name="blocked_locations">Maeneo yaliyofungwa</string>
     <string name="add_blocked_location">Ongeza eneo lililofungwa</string>
     <string name="verified_project_on">Mradi uliothibitishwa kwenye %1$s</string>
+    <string name="general">Jumla</string>
+    <string name="show_icon_when_connected">Onyesha ikoni ya UR wakati umeunganishwa</string>
+    <string name="authentication">Uthibitishaji</string>
+    <string name="auth_code">Nambari ya uthibitishaji</string>
+    <string name="create">Tengeneza</string>
+    <string name="auth_code_expires">Nambari ya uthibitishaji inaisha baada ya dakika 5</string>
+    <string name="auth_code_created">Nambari ya uthibitishaji imeundwa</string>
+    <string name="copy_auth_code">Nakili nambari ya uthibitishaji</string>
 </resources>
