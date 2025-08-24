@@ -158,7 +158,7 @@
     <string name="connections">Συνδέσεις</string>
     <string name="provide_disconnected">Παροχή ενώ είστε εκτός σύνδεσης</string>
     <string name="unpaid_data_provided">Παρέχονται μη πληρωμένα δεδομένα</string>
-    <string name="payouts_amount_threshold">Οι πληρωμές πραγματοποιούνται κάθε εβδομάδα και απαιτείται ένα ελάχιστο ποσό για να λάβετε πληρωμή.</string>
+    <string name="payouts_amount_threshold">Οι πληρωμές πραγματοποιούνται κάθε Κυριακή στις 00:00 UTC και απαιτούν την επίτευξη ενός ελάχιστου ορίου USDC.</string>
     <string name="open_nested_link">Σύνδεση με %1$s και άνοιγμα συνδέσμου %2$s</string>
     <string name="connect_and_open">Σύνδεση και άνοιγμα συνδέσμου</string>
     <string name="connect_to_location">Σύνδεση με %1$s</string>

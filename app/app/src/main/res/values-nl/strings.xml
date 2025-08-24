@@ -133,7 +133,7 @@
     <string name="payout_wallets">Uitbetalingswallets</string>
     <string name="chains_supported">Solana en Polygon-wallets worden momenteel ondersteund</string>
     <string name="unpaid_data_provided">Onbetaalde data geleverd</string>
-    <string name="payouts_amount_threshold">Uitbetalingen vinden wekelijks plaats en vereisen een minimale hoeveelheid om een uitbetaling te ontvangen.</string>
+    <string name="payouts_amount_threshold">Uitbetalingen vinden elke zondag om 00:00 UTC plaats en vereisen het behalen van een minimale USDC-drempel.</string>
 
     <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Overdracht ingediend</string>

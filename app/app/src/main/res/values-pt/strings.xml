@@ -113,6 +113,7 @@
     <string name="payout_wallets">Carteiras de pagamento</string>
     <string name="chains_supported">Carteiras Solana e Polygon são compatíveis no momento</string>
 
+    <string name="payouts_amount_threshold">Os pagamentos ocorrem todos os domingos às 00:00 UTC e exigem atingir um limite mínimo de USDC.</string>
     <string name="transfer_submitted">Transferência enviada</string>
     <string name="transfer_submitted_details">Sua transferência foi iniciada e será concluída assim que a transação for processada na cadeia.</string>
 
@@ -158,7 +159,6 @@
     <string name="connections">Conexões</string>
     <string name="provide_disconnected">Fornecer offline</string>
     <string name="unpaid_data_provided">Dados não pagos fornecidos</string>
-    <string name="payouts_amount_threshold">Os pagamentos ocorrem todas as semanas e exigem um valor mínimo para serem recebidos.</string>
     <string name="open_nested_link">Conectar a %1$s e abrir link %2$s</string>
     <string name="connect_and_open">Conectar e abrir link</string>
     <string name="connect_to_location">Conectar a %1$s</string>
