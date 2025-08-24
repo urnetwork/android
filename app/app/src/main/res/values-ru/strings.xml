@@ -133,7 +133,7 @@
     <string name="payout_wallets">Кошельки для выплат</string>
     <string name="chains_supported">В настоящее время поддерживаются кошельки Solana и Polygon</string>
     <string name="unpaid_data_provided">Предоставленные неоплаченные данные</string>
-    <string name="payouts_amount_threshold">Выплаты производятся еженедельно и требуют предоставления минимального объема данных для получения выплаты.</string>
+    <string name="payouts_amount_threshold">Выплаты происходят каждое воскресенье в 00:00 UTC и требуют достижения минимального порога USDC.</string>
 
     <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Перевод отправлен</string>
