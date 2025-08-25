@@ -156,7 +156,6 @@
     <string name="verify_send_error">त्रुटि</string>
 
     <string name="connections">कनेक्शन</string>
-    <string name="provide_disconnected">डिस्कनेक्ट होने पर प्रदान करें</string>
     <string name="unpaid_data_provided">िना भुगतान का डेटा प्रदान किया गया</string>
     <string name="payouts_amount_threshold">भुगतान हर रविवार 00:00 UTC पर होते हैं, और न्यूनतम USDC सीमा पूरी करनी होती है।</string>
     <string name="open_nested_link">%1$s से कनेक्ट करें और लिंक %2$s खोलें</string>
@@ -254,5 +253,6 @@
     <string name="auth_code_expires">ऑथ कोड 5 मिनट बाद समाप्त हो जाता है</string>
     <string name="auth_code_created">ऑथ कोड बनाया गया</string>
     <string name="copy_auth_code">ऑथ कोड कॉपी करें</string>
+    <string name="provide_mode">प्रदान मोड</string>
 
 </resources>

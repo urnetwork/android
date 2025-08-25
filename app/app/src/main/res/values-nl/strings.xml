@@ -160,7 +160,6 @@
     <string name="join_community_discord">Sluit je aan bij de community op</string>
     <string name="update_notification_settings">Werk meldingsrechten bij in je Android-instellingen</string>
     <string name="connections">Verbindingen</string>
-    <string name="provide_disconnected">Beschikbaar stellen zonder verbinding</string>
 
     <!-- Feedback Screen -->
     <string name="feedback_header">Neem contact op</string>
@@ -280,4 +279,5 @@
     <string name="auth_code_expires">Auth-code verloopt na 5 minuten</string>
     <string name="auth_code_created">Auth-code aangemaakt</string>
     <string name="copy_auth_code">Auth-code kopiëren</string>
+    <string name="provide_mode">Leveringsmodus</string>
 </resources>

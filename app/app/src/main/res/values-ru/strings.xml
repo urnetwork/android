@@ -160,7 +160,6 @@
     <string name="join_community_discord">Присоединяйтесь к сообществу в</string>
     <string name="update_notification_settings">Обновите разрешения для уведомлений в настройках Android</string>
     <string name="connections">Подключения</string>
-    <string name="provide_disconnected">Предоставлять данные при отключении</string>
 
     <!-- Feedback Screen -->
     <string name="feedback_header">Свяжитесь с нами</string>
@@ -280,4 +279,5 @@
     <string name="auth_code_expires">Код аутентификации истекает через 5 минут</string>
     <string name="auth_code_created">Код аутентификации создан</string>
     <string name="copy_auth_code">Скопировать код аутентификации</string>
+    <string name="provide_mode">Режим предоставления</string>
 </resources>

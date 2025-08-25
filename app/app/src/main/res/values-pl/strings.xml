@@ -179,7 +179,6 @@
     <string name="verify_send_error">Błąd</string>
 
     <string name="connections">Połączenia</string>
-    <string name="provide_disconnected">Dostarczaj w trybie offline</string>
     <string name="unpaid_data_provided">Dostarczono nieopłacone dane</string>
     <string name="payouts_amount_threshold">Wypłaty odbywają się w każdą niedzielę o 00:00 UTC i wymagają spełnienia minimalnego progu USDC.</string>
     <string name="open_nested_link">Połącz z %1$s i otwórz link %2$s</string>
@@ -277,5 +276,6 @@
     <string name="auth_code_expires">Kod uwierzytelniający wygasa po 5 minutach</string>
     <string name="auth_code_created">Kod uwierzytelniający został utworzony</string>
     <string name="copy_auth_code">Skopiuj kod uwierzytelniający</string>
+    <string name="provide_mode">Tryb udostępniania</string>
 
 </resources>

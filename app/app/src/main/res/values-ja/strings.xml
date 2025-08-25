@@ -179,7 +179,6 @@
     <string name="verify_send_error">エラー</string>
 
     <string name="connections">接続</string>
-    <string name="provide_disconnected">オフラインで提供</string>
     <string name="unpaid_data_provided">未払いのデータが提供されました</string>
     <string name="payouts_amount_threshold">支払いは毎週日曜日の00:00 UTCに行われ、最低USDC基準を満たす必要があります。</string>
     <string name="open_nested_link">%1$sに接続してリンク%2$sを開く</string>
@@ -277,4 +276,5 @@
     <string name="auth_code_expires">認証コードは5分後に失効します</string>
     <string name="auth_code_created">認証コードが作成されました</string>
     <string name="copy_auth_code">認証コードをコピー</string>
+    <string name="provide_mode">提供モード</string>
 </resources>
