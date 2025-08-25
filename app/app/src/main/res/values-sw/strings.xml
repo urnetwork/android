@@ -157,7 +157,6 @@
     <string name="verify_send_error">Hitilafu</string>
 
     <string name="connections">Miunganisho</string>
-    <string name="provide_disconnected">Toa wakati hujaunganishwa</string>
     <string name="unpaid_data_provided">Data isiyolipiwa imetolewa</string>
     <string name="payouts_amount_threshold">Malipo hufanyika kila Jumapili saa 00:00 UTC, na yanahitaji kufikia kizingiti cha chini cha USDC.</string>
     <string name="open_nested_link">Unganisha kwa %1$s na ufungue kiungo %2$s</string>
@@ -255,4 +254,5 @@
     <string name="auth_code_expires">Nambari ya uthibitishaji inaisha baada ya dakika 5</string>
     <string name="auth_code_created">Nambari ya uthibitishaji imeundwa</string>
     <string name="copy_auth_code">Nakili nambari ya uthibitishaji</string>
+    <string name="provide_mode">Hali ya utoaji</string>
 </resources>

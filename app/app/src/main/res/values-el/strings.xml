@@ -156,7 +156,6 @@
     <string name="verify_send_error">Σφάλμα</string>
 
     <string name="connections">Συνδέσεις</string>
-    <string name="provide_disconnected">Παροχή ενώ είστε εκτός σύνδεσης</string>
     <string name="unpaid_data_provided">Παρέχονται μη πληρωμένα δεδομένα</string>
     <string name="payouts_amount_threshold">Οι πληρωμές πραγματοποιούνται κάθε Κυριακή στις 00:00 UTC και απαιτούν την επίτευξη ενός ελάχιστου ορίου USDC.</string>
     <string name="open_nested_link">Σύνδεση με %1$s και άνοιγμα συνδέσμου %2$s</string>
@@ -254,4 +253,5 @@
     <string name="auth_code_expires">Ο κωδικός ταυτοποίησης λήγει μετά από 5 λεπτά</string>
     <string name="auth_code_created">Ο κωδικός ταυτοποίησης δημιουργήθηκε</string>
     <string name="copy_auth_code">Αντιγραφή κωδικού ταυτοποίησης</string>
+    <string name="provide_mode">Λειτουργία παροχής</string>
 </resources>

@@ -158,7 +158,6 @@
     <string name="verify_send_error">Erreur</string>
 
     <string name="connections">Connexions</string>
-    <string name="provide_disconnected">Fournir hors ligne</string>
     <string name="unpaid_data_provided">Données non payées fournies</string>
     <string name="payouts_amount_threshold">Les paiements ont lieu chaque dimanche à 00h00 UTC et nécessitent d’atteindre un seuil minimum de USDC.</string>
     <string name="open_nested_link">Se connecter à %1$s et ouvrir le lien %2$s</string>
@@ -256,4 +255,5 @@
     <string name="auth_code_expires">Le code d’authentification expire après 5 minutes</string>
     <string name="auth_code_created">Code d’authentification créé</string>
     <string name="copy_auth_code">Copier le code d’authentification</string>
+    <string name="provide_mode">Mode de fourniture</string>
 </resources>

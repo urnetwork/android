@@ -688,7 +688,7 @@ fun SettingsScreen(
                     .fillMaxWidth(),
             ) {
                 Text(
-                    stringResource(id = R.string.provide_disconnected),
+                    stringResource(id = R.string.provide_mode),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )

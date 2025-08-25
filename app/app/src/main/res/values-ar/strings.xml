@@ -155,7 +155,6 @@
     <string name="verify_send_error">خطأ</string>
 
     <string name="connections">الاتصالات</string>
-    <string name="provide_disconnected">توفير أثناء عدم الاتصال</string>
     <string name="unpaid_data_provided">تم توفير بيانات غير مدفوعة</string>
     <string name="payouts_amount_threshold">تحدث الدفعات كل يوم أحد في الساعة 00:00 بتوقيت UTC، ويتطلب ذلك تحقيق حد أدنى من USDC.</string>
     <string name="open_nested_link">الاتصال بـ %1$s وفتح الرابط %2$s</string>
@@ -254,4 +253,5 @@
     <string name="auth_code_expires">رمز المصادقة ينتهي بعد 5 دقائق</string>
     <string name="auth_code_created">تم إنشاء رمز المصادقة</string>
     <string name="copy_auth_code">نسخ رمز المصادقة</string>
+    <string name="provide_mode">وضع التوفير</string>
 </resources>

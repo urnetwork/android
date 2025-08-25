@@ -157,7 +157,6 @@
     <string name="verify_send_error">Fehler</string>
 
     <string name="connections">Verbindungen</string>
-    <string name="provide_disconnected">Offline bereitstellen</string>
     <string name="unpaid_data_provided">" Unbezahlte Daten bereitgestellt"</string>
     <string name="payouts_amount_threshold">Auszahlungen erfolgen jeden Sonntag um 00:00 UTC und erfordern das Erreichen eines Mindest-USDC-Schwellenwerts.</string>
     <string name="open_nested_link">Verbinden mit %1$s und Link %2$s öffnen</string>
@@ -255,4 +254,5 @@
     <string name="auth_code_expires">Authentifizierungscode läuft nach 5 Minuten ab</string>
     <string name="auth_code_created">Authentifizierungscode erstellt</string>
     <string name="copy_auth_code">Authentifizierungscode kopieren</string>
+    <string name="provide_mode">Bereitstellungsmodus</string>
 </resources>
