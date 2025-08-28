@@ -156,9 +156,8 @@
     <string name="verify_send_error">Σφάλμα</string>
 
     <string name="connections">Συνδέσεις</string>
-    <string name="provide_disconnected">Παροχή ενώ είστε εκτός σύνδεσης</string>
     <string name="unpaid_data_provided">Παρέχονται μη πληρωμένα δεδομένα</string>
-    <string name="payouts_amount_threshold">Οι πληρωμές πραγματοποιούνται κάθε εβδομάδα και απαιτείται ένα ελάχιστο ποσό για να λάβετε πληρωμή.</string>
+    <string name="payouts_amount_threshold">Οι πληρωμές πραγματοποιούνται κάθε Κυριακή στις 00:00 UTC και απαιτούν την επίτευξη ενός ελάχιστου ορίου USDC.</string>
     <string name="open_nested_link">Σύνδεση με %1$s και άνοιγμα συνδέσμου %2$s</string>
     <string name="connect_and_open">Σύνδεση και άνοιγμα συνδέσμου</string>
     <string name="connect_to_location">Σύνδεση με %1$s</string>
@@ -247,4 +246,13 @@
     <string name="add_blocked_location">Προσθήκη αποκλεισμένης τοποθεσίας</string>
     <string name="verified_project_on">Επαληθευμένο έργο στο %1$s</string>
     <string name="allow_providing_cell">Να επιτρέπεται η παροχή στο κυψελοειδές δίκτυο</string>
+    <string name="general">Γενικά</string>
+    <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
+    <string name="authentication">Ταυτοποίηση</string>
+    <string name="auth_code">Κωδικός ταυτοποίησης</string>
+    <string name="create">Δημιουργία</string>
+    <string name="auth_code_expires">Ο κωδικός ταυτοποίησης λήγει μετά από 5 λεπτά</string>
+    <string name="auth_code_created">Ο κωδικός ταυτοποίησης δημιουργήθηκε</string>
+    <string name="copy_auth_code">Αντιγραφή κωδικού ταυτοποίησης</string>
+    <string name="provide_mode">Λειτουργία παροχής</string>
 </resources>

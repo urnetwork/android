@@ -155,9 +155,8 @@
     <string name="verify_send_error">خطأ</string>
 
     <string name="connections">الاتصالات</string>
-    <string name="provide_disconnected">توفير أثناء عدم الاتصال</string>
     <string name="unpaid_data_provided">تم توفير بيانات غير مدفوعة</string>
-    <string name="payouts_amount_threshold">تحدث الدفعات كل أسبوع، ويتطلب الحصول على دفعة توفير حد أدنى من المبلغ.</string>
+    <string name="payouts_amount_threshold">تحدث الدفعات كل يوم أحد في الساعة 00:00 بتوقيت UTC، ويتطلب ذلك تحقيق حد أدنى من USDC.</string>
     <string name="open_nested_link">الاتصال بـ %1$s وفتح الرابط %2$s</string>
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>
@@ -247,4 +246,13 @@
     <string name="add_blocked_location">إضافة موقع محجوب</string>
     <string name="verified_project_on">" مشروع موثّق على %1$s"</string>
     <string name="allow_providing_cell">السماح بالتوفير على شبكة الجوال</string>
+    <string name="general">عام</string>
+    <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
+    <string name="authentication">المصادقة</string>
+    <string name="auth_code">رمز المصادقة</string>
+    <string name="create">إنشاء</string>
+    <string name="auth_code_expires">رمز المصادقة ينتهي بعد 5 دقائق</string>
+    <string name="auth_code_created">تم إنشاء رمز المصادقة</string>
+    <string name="copy_auth_code">نسخ رمز المصادقة</string>
+    <string name="provide_mode">وضع التوفير</string>
 </resources>

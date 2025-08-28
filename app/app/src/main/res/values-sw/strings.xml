@@ -157,9 +157,8 @@
     <string name="verify_send_error">Hitilafu</string>
 
     <string name="connections">Miunganisho</string>
-    <string name="provide_disconnected">Toa wakati hujaunganishwa</string>
     <string name="unpaid_data_provided">Data isiyolipiwa imetolewa</string>
-    <string name="payouts_amount_threshold">Malipo hufanyika kila wiki, na yanahitaji kiasi cha chini ili kupokea malipo.</string>
+    <string name="payouts_amount_threshold">Malipo hufanyika kila Jumapili saa 00:00 UTC, na yanahitaji kufikia kizingiti cha chini cha USDC.</string>
     <string name="open_nested_link">Unganisha kwa %1$s na ufungue kiungo %2$s</string>
     <string name="connect_and_open">Unganisha na ufungue kiungo</string>
     <string name="connect_to_location">Unganisha kwa %1$s</string>
@@ -248,4 +247,13 @@
     <string name="add_blocked_location">Ongeza eneo lililofungwa</string>
     <string name="verified_project_on">Mradi uliothibitishwa kwenye %1$s</string>
     <string name="allow_providing_cell">Ruhusu utoaji kwenye mtandao wa simu</string>
+    <string name="general">Jumla</string>
+    <string name="show_icon_when_connected">Onyesha ikoni ya UR wakati umeunganishwa</string>
+    <string name="authentication">Uthibitishaji</string>
+    <string name="auth_code">Nambari ya uthibitishaji</string>
+    <string name="create">Tengeneza</string>
+    <string name="auth_code_expires">Nambari ya uthibitishaji inaisha baada ya dakika 5</string>
+    <string name="auth_code_created">Nambari ya uthibitishaji imeundwa</string>
+    <string name="copy_auth_code">Nakili nambari ya uthibitishaji</string>
+    <string name="provide_mode">Hali ya utoaji</string>
 </resources>

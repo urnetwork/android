@@ -179,9 +179,8 @@
     <string name="verify_send_error">오류</string>
 
     <string name="connections">연결</string>
-    <string name="provide_disconnected">오프라인 상태에서 제공</string>
     <string name="unpaid_data_provided">미지급 데이터가 제공됨</string>
-    <string name="payouts_amount_threshold">지급은 매주 이루어지며, 지급을 받으려면 최소 금액이 필요합니다.</string>
+    <string name="payouts_amount_threshold">지급은 매주 일요일 00:00 UTC에 이루어지며, 최소 USDC 기준을 충족해야 합니다.</string>
     <string name="open_nested_link">%1$s에 연결하고 링크 %2$s을(를) 엽니다</string>
     <string name="connect_and_open">연결하고 링크를 엽니다</string>
     <string name="connect_to_location">%1$s에 연결</string>
@@ -270,4 +269,13 @@
     <string name="add_blocked_location">차단된 위치 추가</string>
     <string name="verified_project_on">%1$s에서 인증된 프로젝트</string>
     <string name="allow_providing_cell">셀룰러 네트워크에서 제공 허용</string>
+    <string name="general">일반</string>
+    <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
+    <string name="authentication">인증</string>
+    <string name="auth_code">인증 코드</string>
+    <string name="create">생성</string>
+    <string name="auth_code_expires">인증 코드는 5분 후에 만료됩니다</string>
+    <string name="auth_code_created">인증 코드가 생성되었습니다</string>
+    <string name="copy_auth_code">인증 코드 복사</string>
+    <string name="provide_mode">제공 모드</string>
 </resources>

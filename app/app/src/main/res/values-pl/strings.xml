@@ -179,9 +179,8 @@
     <string name="verify_send_error">Błąd</string>
 
     <string name="connections">Połączenia</string>
-    <string name="provide_disconnected">Dostarczaj w trybie offline</string>
     <string name="unpaid_data_provided">Dostarczono nieopłacone dane</string>
-    <string name="payouts_amount_threshold">Wypłaty odbywają się co tydzień i wymagają podania minimalnej kwoty, aby je otrzymać.</string>
+    <string name="payouts_amount_threshold">Wypłaty odbywają się w każdą niedzielę o 00:00 UTC i wymagają spełnienia minimalnego progu USDC.</string>
     <string name="open_nested_link">Połącz z %1$s i otwórz link %2$s</string>
     <string name="connect_and_open">Połącz i otwórz link</string>
     <string name="connect_to_location">Połącz z %1$s</string>
@@ -270,5 +269,14 @@
     <string name="add_blocked_location">Dodaj zablokowaną lokalizację</string>
     <string name="verified_project_on">Zweryfikowany projekt na %1$s</string>
     <string name="allow_providing_cell">Zezwól na udostępnianie w sieci komórkowej</string>
+    <string name="general">Ogólne</string>
+    <string name="show_icon_when_connected">Pokaż ikonę UR po połączeniu</string>
+    <string name="authentication">Uwierzytelnianie</string>
+    <string name="auth_code">Kod uwierzytelniający</string>
+    <string name="create">Utwórz</string>
+    <string name="auth_code_expires">Kod uwierzytelniający wygasa po 5 minutach</string>
+    <string name="auth_code_created">Kod uwierzytelniający został utworzony</string>
+    <string name="copy_auth_code">Skopiuj kod uwierzytelniający</string>
+    <string name="provide_mode">Tryb udostępniania</string>
 
 </resources>

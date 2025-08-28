@@ -133,7 +133,7 @@
     <string name="payout_wallets">Payout Wallets</string>
     <string name="chains_supported">Solana and Polygon wallets are currently supported</string>
     <string name="unpaid_data_provided">Unpaid data provided</string>
-    <string name="payouts_amount_threshold">Payouts occur every week, and require a minimum amount provided to receive a payout.</string>
+    <string name="payouts_amount_threshold">Payouts occur every Sunday at 00:00 UTC, and require meeting a minimum USDC threshold.</string>
 
     <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Transfer Submitted</string>
@@ -160,7 +160,6 @@
     <string name="join_community_discord">Join the community on</string>
     <string name="update_notification_settings">Update notifications permissions in your Android Settings</string>
     <string name="connections">Connections</string>
-    <string name="provide_disconnected">Provide while disconnected</string>
 
     <!-- Feedback Screen -->
     <string name="feedback_header">Get in touch</string>
@@ -273,4 +272,13 @@
     <string name="add_blocked_location">Add blocked location</string>
     <string name="verified_project_on">Verified project on %1$s</string>
     <string name="allow_providing_cell">Allow providing on cellular network</string>
+    <string name="general">General</string>
+    <string name="show_icon_when_connected">Show UR icon when connected</string>
+    <string name="authentication">Authentication</string>
+    <string name="auth_code">Auth code</string>
+    <string name="create">Create</string>
+    <string name="auth_code_expires">Auth code expires after 5 minutes</string>
+    <string name="auth_code_created">Auth code created</string>
+    <string name="copy_auth_code">Copy Auth Code</string>
+    <string name="provide_mode">Provide mode</string>
 </resources>

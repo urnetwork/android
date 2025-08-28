@@ -133,7 +133,7 @@
     <string name="payout_wallets">Uitbetalingswallets</string>
     <string name="chains_supported">Solana en Polygon-wallets worden momenteel ondersteund</string>
     <string name="unpaid_data_provided">Onbetaalde data geleverd</string>
-    <string name="payouts_amount_threshold">Uitbetalingen vinden wekelijks plaats en vereisen een minimale hoeveelheid om een uitbetaling te ontvangen.</string>
+    <string name="payouts_amount_threshold">Uitbetalingen vinden elke zondag om 00:00 UTC plaats en vereisen het behalen van een minimale USDC-drempel.</string>
 
     <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Overdracht ingediend</string>
@@ -160,7 +160,6 @@
     <string name="join_community_discord">Sluit je aan bij de community op</string>
     <string name="update_notification_settings">Werk meldingsrechten bij in je Android-instellingen</string>
     <string name="connections">Verbindingen</string>
-    <string name="provide_disconnected">Beschikbaar stellen zonder verbinding</string>
 
     <!-- Feedback Screen -->
     <string name="feedback_header">Neem contact op</string>
@@ -273,4 +272,13 @@
     <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
     <string name="verified_project_on">Geverifieerd project op %1$s</string>
     <string name="allow_providing_cell">Toestaan op mobiel netwerk</string>
+    <string name="general">Algemeen</string>
+    <string name="show_icon_when_connected">Toon UR-pictogram bij verbinding</string>
+    <string name="authentication">Authenticatie</string>
+    <string name="auth_code">Auth-code</string>
+    <string name="create">Maken</string>
+    <string name="auth_code_expires">Auth-code verloopt na 5 minuten</string>
+    <string name="auth_code_created">Auth-code aangemaakt</string>
+    <string name="copy_auth_code">Auth-code kopiëren</string>
+    <string name="provide_mode">Leveringsmodus</string>
 </resources>

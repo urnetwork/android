@@ -157,9 +157,8 @@
     <string name="verify_send_error">错误</string>
 
     <string name="connections">连接</string>
-    <string name="provide_disconnected">离线提供</string>
     <string name="unpaid_data_provided">" 提供了未付费数据"</string>
-    <string name="payouts_amount_threshold">支付每周进行，且需要达到最低金额才能收到支付。</string>
+    <string name="payouts_amount_threshold">支付在每周日 00:00 UTC 进行，并且需要达到最低 USDC 门槛。</string>
     <string name="open_nested_link">连接到 %1$s 并打开链接 %2$s</string>
     <string name="connect_and_open">连接并打开链接</string>
     <string name="connect_to_location">连接到 %1$s</string>
@@ -248,4 +247,13 @@
     <string name="add_blocked_location">添加被屏蔽的位置</string>
     <string name="verified_project_on">在 %1$s 上已验证的项目</string>
     <string name="allow_providing_cell">允许在蜂窝网络上提供</string>
+    <string name="general">常规</string>
+    <string name="show_icon_when_connected">连接时显示 UR 图标</string>
+    <string name="authentication">认证</string>
+    <string name="auth_code">验证码</string>
+    <string name="create">创建</string>
+    <string name="auth_code_expires">验证码在5分钟后过期</string>
+    <string name="auth_code_created">验证码已创建</string>
+    <string name="copy_auth_code">复制验证码</string>
+    <string name="provide_mode">提供模式</string>
 </resources>

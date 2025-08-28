@@ -156,9 +156,8 @@
     <string name="verify_send_error">Error</string>
 
     <string name="connections">Conexiones</string>
-    <string name="provide_disconnected">Proporcionar sin conexión</string>
     <string name="unpaid_data_provided">Datos no pagados proporcionados</string>
-    <string name="payouts_amount_threshold">Los pagos se realizan cada semana y requieren un monto mínimo para recibir un pago.</string>
+    <string name="payouts_amount_threshold">Los pagos se realizan cada domingo a las 00:00 UTC y requieren cumplir con un umbral mínimo de USDC.</string>
     <string name="open_nested_link">Conectar a %1$s y abrir enlace %2$s</string>
     <string name="connect_and_open">Conectar y abrir enlace</string>
     <string name="connect_to_location">Conectar a %1$s</string>
@@ -247,4 +246,13 @@
     <string name="add_blocked_location">Agregar ubicación bloqueada</string>
     <string name="verified_project_on">Proyecto verificado en %1$s</string>
     <string name="allow_providing_cell">Permitir proporcionar en la red celular</string>
+    <string name="general">General</string>
+    <string name="show_icon_when_connected">Mostrar el ícono UR cuando esté conectado</string>
+    <string name="authentication">Autenticación</string>
+    <string name="auth_code">Código de autenticación</string>
+    <string name="create">Crear</string>
+    <string name="auth_code_expires">El código de autenticación expira después de 5 minutos</string>
+    <string name="auth_code_created">Código de autenticación creado</string>
+    <string name="copy_auth_code">Copiar código de autenticación</string>
+    <string name="provide_mode">Modo de provisión</string>
 </resources>
