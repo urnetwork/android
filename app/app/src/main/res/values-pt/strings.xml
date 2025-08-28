@@ -254,5 +254,8 @@
     <string name="auth_code_created">Código de autenticação criado</string>
     <string name="copy_auth_code">Copiar código de autenticação</string>
     <string name="provide_mode">Modo de fornecimento</string>
+    <string name="reliability_weight">Peso de fiabilidade</string>
+    <string name="total_clients">Total de clientes</string>
+    <string name="average_reliability">Fiabilidade média</string>
 
 </resources>

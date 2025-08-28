@@ -280,4 +280,7 @@
     <string name="auth_code_created">Код аутентификации создан</string>
     <string name="copy_auth_code">Скопировать код аутентификации</string>
     <string name="provide_mode">Режим предоставления</string>
+    <string name="reliability_weight">надёжности</string>
+    <string name="total_clients">Всего клиентов</string>
+    <string name="average_reliability">Средняя надёжность</string>
 </resources>

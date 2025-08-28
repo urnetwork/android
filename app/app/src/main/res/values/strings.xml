@@ -280,4 +280,7 @@
     <string name="auth_code_created">Auth code created</string>
     <string name="copy_auth_code">Copy Auth Code</string>
     <string name="provide_mode">Provide mode</string>
+    <string name="reliability_weight">Reliability Weight</string>
+    <string name="total_clients">Total Clients</string>
+    <string name="average_reliability">Average reliability</string>
 </resources>

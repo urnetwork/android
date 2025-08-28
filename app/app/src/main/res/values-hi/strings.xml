@@ -254,5 +254,8 @@
     <string name="auth_code_created">ऑथ कोड बनाया गया</string>
     <string name="copy_auth_code">ऑथ कोड कॉपी करें</string>
     <string name="provide_mode">प्रदान मोड</string>
+    <string name="reliability_weight">िश्वसनीयता भार</string>
+    <string name="total_clients">कुल क्लाइंट्स</string>
+    <string name="average_reliability">औसत विश्वसनीयता</string>
 
 </resources>

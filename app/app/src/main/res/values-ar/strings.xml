@@ -254,4 +254,7 @@
     <string name="auth_code_created">تم إنشاء رمز المصادقة</string>
     <string name="copy_auth_code">نسخ رمز المصادقة</string>
     <string name="provide_mode">وضع التوفير</string>
+    <string name="reliability_weight">وزن الموثوقية</string>
+    <string name="total_clients">إجمالي العملاء</string>
+    <string name="average_reliability">متوسط الموثوقية</string>
 </resources>
