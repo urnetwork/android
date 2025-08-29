@@ -268,6 +268,7 @@
     <string name="blocked_locations">차단된 위치</string>
     <string name="add_blocked_location">차단된 위치 추가</string>
     <string name="verified_project_on">%1$s에서 인증된 프로젝트</string>
+    <string name="allow_providing_cell">셀룰러 네트워크에서 제공 허용</string>
     <string name="general">일반</string>
     <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
     <string name="authentication">인증</string>

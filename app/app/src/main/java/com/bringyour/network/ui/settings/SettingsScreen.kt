@@ -253,6 +253,8 @@ fun SettingsScreen(
         referralNetworkName = referralNetwork?.name,
         expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet,
         version = settingsViewModel.version,
+        allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
+        toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
         authCodeCreate = settingsViewModel.authCodeCreate,
         authCode = authCode,
         isCreatingAuthCode = settingsViewModel.isCreatingAuthCode.collectAsState().value,
@@ -342,6 +344,8 @@ fun SettingsScreen(
     referralNetworkName: String?,
     expandUpdateNetworkReferralSheet: () -> Unit,
     version: String,
+    allowProvideCell: Boolean,
+    toggleProvideCell: () -> Unit,
     authCodeCreate: () -> Unit,
     authCode: String?,
     isCreatingAuthCode: Boolean,
@@ -713,6 +717,34 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            /**
+             * Allow providing on cell networks
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.allow_providing_cell),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                URSwitch(
+                    checked = allowProvideCell,
+                    toggle = {
+                        toggleProvideCell()
+                    },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
+             * Allow local traffic
+             */
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -1109,6 +1141,8 @@ private fun SettingsScreenPreview() {
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {},
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
@@ -1150,6 +1184,8 @@ private fun SettingsScreenSupporterPreview() {
             referralNetworkName = null,
             expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {},
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
@@ -1191,6 +1227,8 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {},
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
@@ -1232,6 +1270,8 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             referralNetworkName = "parent_network",
             expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {},
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
@@ -1273,6 +1313,8 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             referralNetworkName = null,
             expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
+            allowProvideCell = true,
+            toggleProvideCell = {},
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,

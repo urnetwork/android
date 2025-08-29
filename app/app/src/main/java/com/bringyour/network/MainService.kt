@@ -1,5 +1,6 @@
     package com.bringyour.network
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -25,7 +26,8 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
     // see https://developer.android.com/develop/connectivity/vpn
-class MainService : VpnService() {
+    @SuppressLint("VpnServicePolicy")
+    class MainService : VpnService() {
     companion object {
         const val NOTIFICATION_ID = 101
         const val NOTIFICATION_CHANNEL_ID = "URnetwork"
@@ -101,7 +103,13 @@ class MainService : VpnService() {
             }
             */
 
-            connected = false
+            connected = app.device?.windowStatus?.let {
+                0 < it.providerStateAdded
+            } ?: false
+
+            if (canUpdatePfd(source)) {
+                updatePfd(offline)
+            }
 
             windowStatusChangeSub?.close()
             windowStatusChangeSub = app.device?.addWindowStatusChangeListener { windowStatus ->
@@ -118,10 +126,6 @@ class MainService : VpnService() {
                         }
                     }
                 }
-            }
-
-            if (canUpdatePfd(source)) {
-                updatePfd(offline)
             }
         }
 
@@ -339,17 +343,15 @@ class MainService : VpnService() {
 
 
     private fun startForegroundNotification(message: String) {
-        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-            val notificationManager = getSystemService(
-                    NOTIFICATION_SERVICE
-                    ) as NotificationManager
-            notificationManager.createNotificationChannel(
-                NotificationChannel(
-                    NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_ID,
-                    NotificationManager.IMPORTANCE_HIGH
-                )
+        val notificationManager = getSystemService(
+                NOTIFICATION_SERVICE
+                ) as NotificationManager
+        notificationManager.createNotificationChannel(
+            NotificationChannel(
+                NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_ID,
+                NotificationManager.IMPORTANCE_HIGH
             )
-        }
+        )
 
         val pendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->

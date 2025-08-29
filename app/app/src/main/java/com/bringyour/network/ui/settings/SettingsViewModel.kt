@@ -16,6 +16,7 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.Sdk
@@ -82,6 +83,25 @@ class SettingsViewModel @Inject constructor(
 
     var version by mutableStateOf("")
         private set
+
+    /**
+     * Allow providing on cell networks
+     */
+    private val _allowProvideOnCell = MutableStateFlow(false)
+    val allowProvideOnCell: StateFlow<Boolean> = _allowProvideOnCell
+
+    val toggleAllowProvideOnCell: () -> Unit = {
+        val currentValue = _allowProvideOnCell.value
+
+        val newValue = if (currentValue) {
+            ProvideNetworkMode.WIFI
+        } else {
+            ProvideNetworkMode.ALL
+        }
+
+        deviceManager.provideNetworkMode = newValue
+        _allowProvideOnCell.value = !currentValue
+    }
 
     private val _isCreatingAuthCode = MutableStateFlow(false)
     val isCreatingAuthCode: StateFlow<Boolean> = _isCreatingAuthCode
@@ -251,6 +271,8 @@ class SettingsViewModel @Inject constructor(
         val routeLocal = deviceManager.device?.routeLocal
 
         _routeLocal.value = routeLocal == true
+
+        _allowProvideOnCell.value = deviceManager.provideNetworkMode == ProvideNetworkMode.ALL
 
         addAllowProductUpdatesListener()
 

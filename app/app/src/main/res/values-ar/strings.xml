@@ -245,6 +245,7 @@
     <string name="blocked_locations">المواقع المحجوبة</string>
     <string name="add_blocked_location">إضافة موقع محجوب</string>
     <string name="verified_project_on">" مشروع موثّق على %1$s"</string>
+    <string name="allow_providing_cell">السماح بالتوفير على شبكة الجوال</string>
     <string name="general">عام</string>
     <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
     <string name="authentication">المصادقة</string>

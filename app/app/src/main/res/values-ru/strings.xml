@@ -271,6 +271,7 @@
     <string name="blocked_locations">Заблокированные локации</string>
     <string name="add_blocked_location">Добавить заблокированную локацию</string>
     <string name="verified_project_on">Проверенный проект на %1$s</string>
+    <string name="allow_providing_cell">Разрешить предоставление в сотовой сети</string>
     <string name="general">Общие</string>
     <string name="show_icon_when_connected">Показывать значок UR при подключении</string>
     <string name="authentication">Аутентификация</string>

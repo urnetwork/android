@@ -246,6 +246,7 @@
     <string name="blocked_locations">Blockierte Standorte</string>
     <string name="add_blocked_location">Blockierten Standort hinzufügen</string>
     <string name="verified_project_on">Verifiziertes Projekt auf %1$s</string>
+    <string name="allow_providing_cell">Bereitstellung über das Mobilfunknetz erlauben</string>
     <string name="general">Allgemein</string>
     <string name="show_icon_when_connected">UR-Symbol bei Verbindung anzeigen</string>
     <string name="authentication">Authentifizierung</string>

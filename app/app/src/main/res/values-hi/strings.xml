@@ -245,6 +245,7 @@
     <string name="blocked_locations">अवरुद्ध स्थान</string>
     <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
     <string name="verified_project_on">%1$s पर सत्यापित परियोजना</string>
+    <string name="allow_providing_cell">सेलुलर नेटवर्क पर प्रदान करने की अनुमति दें</string>
     <string name="general">सामान्य</string>
     <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
     <string name="authentication">प्रमाणीकरण</string>
@@ -260,5 +261,4 @@
     <string name="country_multipliers">" देश गुणक"</string>
     <string name="country">देश</string>
     <string name="multiplier">गुणक</string>
-
 </resources>

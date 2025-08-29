@@ -245,6 +245,7 @@
     <string name="blocked_locations">Αποκλεισμένες τοποθεσίες</string>
     <string name="add_blocked_location">Προσθήκη αποκλεισμένης τοποθεσίας</string>
     <string name="verified_project_on">Επαληθευμένο έργο στο %1$s</string>
+    <string name="allow_providing_cell">Να επιτρέπεται η παροχή στο κυψελοειδές δίκτυο</string>
     <string name="general">Γενικά</string>
     <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
     <string name="authentication">Ταυτοποίηση</string>
