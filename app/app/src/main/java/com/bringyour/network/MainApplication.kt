@@ -73,8 +73,11 @@ class MainApplication : Application() {
     var tunnelChangeSub: Sub? = null
     var contractStatusChangeSub: Sub? = null
 
+    var provideNetworkModeSub: Sub? = null
+
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
+
 
 
     // use one set of view controllers across the entire app
@@ -207,20 +210,26 @@ class MainApplication : Application() {
             var connectedNetwork: Network? = null
 
             override fun onAvailable(network: Network) {
-                super.onAvailable(network)
+                runBlocking(Dispatchers.Main.immediate) {
+                    Log.i(TAG, "network available device = $network")
+                    connectedNetwork = network
+                    device?.offline = false
+                }
+            }
 
-                Log.i(TAG, "network available device = $network")
-                connectedNetwork = network
-                device?.offline = false
+            override fun onUnavailable() {
+                runBlocking(Dispatchers.Main.immediate) {
+                    device?.offline = true
+                }
             }
 
             override fun onLost(network: Network) {
-                super.onLost(network)
-
-                if (network == connectedNetwork) {
-                    Log.i(TAG, "network lost device = $network")
-                    connectedNetwork = null
-                    device?.offline = true
+                runBlocking(Dispatchers.Main.immediate) {
+                    if (network == connectedNetwork) {
+                        Log.i(TAG, "network lost device = $network")
+                        connectedNetwork = null
+                        device?.offline = true
+                    }
                 }
             }
         }
@@ -233,7 +242,7 @@ class MainApplication : Application() {
 
         val connectivityManager =
             getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-        connectivityManager.requestNetwork(networkRequest, offlineCallback!!)
+        connectivityManager.requestNetwork(networkRequest, offlineCallback!!, 100)
 
     }
 
@@ -253,30 +262,44 @@ class MainApplication : Application() {
             var connectedNetwork: Network? = null
 
             override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-
-                Log.i(TAG, "network available device = $network")
-                connectedNetwork = network
-                device?.providePaused = false
+                runBlocking(Dispatchers.Main.immediate) {
+                    Log.i(TAG, "network available device = $network")
+                    connectedNetwork = network
+                    device?.providePaused = false
+                }
             }
 
-//            override fun onCapabilitiesChanged(
-//                network: Network,
-//                networkCapabilities: NetworkCapabilities
-//            ) {
-//                super.onCapabilitiesChanged(network, networkCapabilities)
-//
-////                val metered = !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-////                bydevice.providePaused = metered
-//            }
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                val internet = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                val ethernet = !networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                val wifi = !networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+
+                device?.let {
+                    val networkReady = if (ProvideNetworkMode.fromString(it.provideNetworkMode) == ProvideNetworkMode.WIFI) {
+                        internet && (ethernet || wifi)
+                    } else {
+                        internet
+                    }
+                    it.providePaused = !networkReady
+                }
+            }
+
+            override fun onUnavailable() {
+                runBlocking(Dispatchers.Main.immediate) {
+                    device?.providePaused = true
+                }
+            }
 
             override fun onLost(network: Network) {
-                super.onLost(network)
-
-                if (network == connectedNetwork) {
-                    Log.i(TAG, "network lost device = $network")
-                    connectedNetwork = null
-                    device?.providePaused = true
+                runBlocking(Dispatchers.Main.immediate) {
+                    if (network == connectedNetwork) {
+                        Log.i(TAG, "network lost device = $network")
+                        connectedNetwork = null
+                        device?.providePaused = true
+                    }
                 }
             }
         }
@@ -314,7 +337,7 @@ class MainApplication : Application() {
 
         val connectivityManager =
             getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-        connectivityManager.requestNetwork(networkRequest, networkCallback!!)
+        connectivityManager.requestNetwork(networkRequest, networkCallback!!, 100)
 
     }
 
@@ -330,7 +353,7 @@ class MainApplication : Application() {
 
     fun login(byJwt: String) {
         asyncLocalState?.localState?.byJwt = byJwt
-        api?.setByJwt(byJwt)
+        api?.byJwt = byJwt
     }
 
     fun loginClient(byClientJwt: String) {
@@ -377,6 +400,8 @@ class MainApplication : Application() {
         tunnelChangeSub = null
         contractStatusChangeSub?.close()
         contractStatusChangeSub = null
+        provideNetworkModeSub?.close()
+        provideNetworkModeSub = null
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -480,6 +505,12 @@ class MainApplication : Application() {
             }
         }
 
+        provideNetworkModeSub = device?.addProvideNetworkModeChangeListener {
+            Handler(Looper.getMainLooper()).post {
+                addNetworkCallback()
+            }
+        }
+
         addOfflineCallback()
         addNetworkCallback()
 
@@ -517,7 +548,6 @@ class MainApplication : Application() {
         val providePaused = device.providePaused
         val connectEnabled = device.connectEnabled
         val routeLocal = device.routeLocal
-        val provideNetworkMode = device.provideNetworkMode
 
         if (provideEnabled || connectEnabled || !routeLocal) {
             startVpnService()
@@ -525,7 +555,7 @@ class MainApplication : Application() {
             if (provideEnabled && !providePaused) {
                 if (wakeLock == null) {
                     wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
-                        newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "bringyour::provide").apply {
+                        newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "urnetwork::provide").apply {
                             acquire()
                         }
                     }
@@ -541,7 +571,7 @@ class MainApplication : Application() {
                             wifiLockMode = WifiManager.WIFI_MODE_FULL_HIGH_PERF
                         }
 
-                        createWifiLock(wifiLockMode, "bringyour::provide").apply {
+                        createWifiLock(wifiLockMode, "urnetwork::provide").apply {
                             acquire()
                         }
                     }
@@ -626,6 +656,10 @@ class MainApplication : Application() {
                     } else {
                         serviceActive = true
 
+//                    tunnelRequestStatus = TunnelRequestStatus.Started
+                        vpnRequestStart = false
+
+
                         if (foreground) {
                             // use a foreground service to allow notifications
                             if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
@@ -647,8 +681,6 @@ class MainApplication : Application() {
                             startService(vpnIntent)
                         }
 
-//                    tunnelRequestStatus = TunnelRequestStatus.Started
-                        vpnRequestStart = false
                     }
                 }
             } catch (e: Exception) {
