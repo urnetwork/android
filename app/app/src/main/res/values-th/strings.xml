@@ -115,7 +115,6 @@
     <string name="join_community_discord">เข้าร่วมชุมชนได้บน</string>
     <string name="update_notification_settings">อัพเดตสิทธิ์การแจ้งเตือนบนการตั้งค่า Android ของคุณ</string>
     <string name="connections">การเชื่อมต่อ</string>
-    <string name="provide_disconnected">เปิดให้บริการ (Provide) แม้ไม่ได้เชื่อมต่อแล้ว</string>
     <string name="feedback_header">ติดต่อเรา</string>
     <string name="feedback_label">กล่องแสดงความเห็น</string>
     <string name="feedback_placeholder">บอกเราหน่อยสิว่ามีความเห็นอย่างไร</string>
@@ -213,4 +212,27 @@
     <string name="no">ไม่</string>
     <string name="enjoying_urnetwork">สนุกกับการใช้ URnetwork ไหม?</string>
     <string name="review_our_app">ช่วยรีวิวแอปของพวกเราได้หรือเปล่า?</string>
+    <string name="used_data_key">ใช้แล้ว</string>
+    <string name="pending_data_key">รอดำเนินการ</string>
+    <string name="available_data_key">พร้อมใช้งาน</string>
+    <string name="no_blocked_locations">ไม่มีตำแหน่งที่ถูกบล็อก</string>
+    <string name="blocked_locations">ตำแหน่งที่ถูกบล็อก</string>
+    <string name="add_blocked_location">เพิ่มตำแหน่งที่ถูกบล็อก</string>
+    <string name="verified_project_on">โปรเจกต์ที่ได้รับการยืนยันบน %1$s</string>
+    <string name="allow_providing_cell">อนุญาตให้ให้บริการบนเครือข่ายมือถือ</string>
+    <string name="general">ทั่วไป</string>
+    <string name="show_icon_when_connected">แสดงไอคอน UR เมื่อเชื่อมต่อ</string>
+    <string name="authentication">การยืนยันตัวตน</string>
+    <string name="auth_code">รหัสยืนยัน</string>
+    <string name="create">สร้าง</string>
+    <string name="auth_code_expires">รหัสยืนยันจะหมดอายุใน 5 นาที</string>
+    <string name="auth_code_created">สร้างรหัสยืนยันแล้ว</string>
+    <string name="copy_auth_code">คัดลอกรหัสยืนยัน</string>
+    <string name="provide_mode">โหมดการให้บริการ</string>
+    <string name="reliability_weight">น้ำหนักความน่าเชื่อถือ</string>
+    <string name="total_clients">จำนวนไคลเอนต์ทั้งหมด</string>
+    <string name="average_reliability">ความน่าเชื่อถือเฉลี่ย</string>
+    <string name="country_multipliers">ตัวคูณตามประเทศ</string>
+    <string name="country">ประเทศ</string>
+    <string name="multiplier">ตัวคูณ</string>
 </resources>
