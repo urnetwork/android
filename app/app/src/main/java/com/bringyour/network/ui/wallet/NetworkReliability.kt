@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -36,6 +38,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ChartKey
 import com.bringyour.network.ui.components.buttonTextStyle
 import com.bringyour.network.ui.theme.Green
@@ -190,6 +193,7 @@ private fun CountryMultipliers(
 @Composable
 private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
     val weights = remember { mutableStateListOf<Double>() }
+    val averageWeightLine = remember { mutableStateListOf<Double>() }
     val mean = remember { mutableDoubleStateOf(0.0) }
     val totalClients = remember { mutableStateListOf<Long>() }
 
@@ -203,13 +207,20 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
             weights.addAll(sampledWeights)
         }
 
+        // Create average line with the same mean value for each point
+        val arr = mutableListOf<Double>()
+        for (i in 0 until weights.count()) {
+            arr.add(mean.doubleValue)
+        }
+        averageWeightLine.clear()
+        averageWeightLine.addAll(arr)
+
         totalClients.clear()
         if (reliabilityWindow.totalClientCounts != null) {
             val sampledClients = sdkIntListToArray(reliabilityWindow.totalClientCounts)
                 .filterIndexed { index, _ -> index % 4 == 0 }
             totalClients.addAll(sampledClients)
         }
-
     }
 
     // Skip drawing if data is empty
@@ -220,11 +231,15 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
     val weightsColor = remember { Pink.copy(alpha = 0.6f) }
     val clientsColor = remember { Green }
     val gridLineColor = remember { TextMuted.copy(alpha = 0.5f) }
+    val averageLineColor = remember { TextMuted } // Use TextMuted or any color you prefer
     val rightPadding = 50f
 
     val weightsData = remember(weights) { weights.map { it.toFloat() } }
+    // Fixed: Use averageWeightLine instead of weights
+    val averageWeightsData = remember(averageWeightLine) { averageWeightLine.map { it.toFloat() } }
     val clientsData = remember(totalClients) { totalClients.map { it.toFloat() } }
 
+    // Use the same scale factors for weights and average line to ensure they align properly
     val maxWeightValue = remember(weightsData) { weightsData.maxOrNull() ?: 1f }
     val minWeightValue = remember(weightsData) { weightsData.minOrNull() ?: 0f }
     val maxClientsValue = remember(clientsData) { clientsData.maxOrNull() ?: 1f }
@@ -239,7 +254,6 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
     }
 
     Column {
-
         Text(
             stringResource(id = R.string.average_reliability),
             style = MaterialTheme.typography.bodyMedium,
@@ -254,7 +268,6 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                 .height(96.dp)
                 .graphicsLayer() // Enable hardware acceleration
         ) {
-
             Canvas(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -309,7 +322,41 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                     ))
                 }
 
-                // use Path instead of drawing individual lines
+                // pre-calculate average weight points - use same scale factor as weights
+                val averageWeightPoints = mutableListOf<Offset>()
+                averageWeightsData.forEachIndexed { index, value ->
+                    averageWeightPoints.add(Offset(
+                        x = index * pointSpacing,
+                        y = size.height - ((value - minWeightValue) * weightScaleFactor)
+                    ))
+                }
+
+                // Draw average weight line first (so it's behind the other lines)
+                if (averageWeightPoints.size > 1) {
+                    // Use dashed path for average line to distinguish it
+                    val dashPathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+
+                    val averageWeightPath = Path()
+                    // Fixed: Use averageWeightPoints instead of clientPoints
+                    averageWeightPath.moveTo(averageWeightPoints[0].x, averageWeightPoints[0].y)
+
+                    for (i in 1 until averageWeightPoints.size) {
+                        averageWeightPath.lineTo(averageWeightPoints[i].x, averageWeightPoints[i].y)
+                    }
+
+                    drawPath(
+                        path = averageWeightPath,
+                        color = averageLineColor,
+                        style = Stroke(
+                            width = 2f,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round,
+                            pathEffect = dashPathEffect
+                        )
+                    )
+                }
+
+                // total clients points
                 if (clientPoints.size > 1) {
                     val clientPath = Path()
                     clientPath.moveTo(clientPoints[0].x, clientPoints[0].y)
@@ -346,8 +393,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Row {
-
-            // used
+            // Weights line
             ChartKey(
                 label = stringResource(id = R.string.reliability_weight),
                 color = weightsColor
@@ -355,12 +401,26 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // pending
+            // Total clients line
             ChartKey(
                 label = stringResource(id = R.string.total_clients),
                 color = clientsColor
             )
-        }
 
+            // You may want to add a key for the average line as well
+            Spacer(modifier = Modifier.width(8.dp))
+
+            ChartKey(
+                label = stringResource(id = R.string.average_reliability)
+                    // title case
+                    .split(" ")
+                    .joinToString(separator = " ") {
+                        it.lowercase().replaceFirstChar { char ->
+                            char.titlecase()
+                        }
+                    },
+                color = averageLineColor
+            )
+        }
     }
 }
