@@ -281,4 +281,10 @@
     <string name="auth_code_created">Auth-code aangemaakt</string>
     <string name="copy_auth_code">Auth-code kopiëren</string>
     <string name="provide_mode">Leveringsmodus</string>
+    <string name="reliability_weight">Betrouwbaarheidsgewicht</string>
+    <string name="total_clients">Totaal aantal clients</string>
+    <string name="average_reliability">Gemiddelde betrouwbaarheid</string>
+    <string name="country_multipliers">Landmultipliers</string>
+    <string name="country">Land</string>
+    <string name="multiplier">Vermenigvuldiger</string>
 </resources>

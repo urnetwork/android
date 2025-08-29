@@ -255,4 +255,10 @@
     <string name="auth_code_created">Código de autenticación creado</string>
     <string name="copy_auth_code">Copiar código de autenticación</string>
     <string name="provide_mode">Modo de provisión</string>
+    <string name="reliability_weight">Peso de fiabilidad</string>
+    <string name="total_clients">Total de clientes</string>
+    <string name="average_reliability">Fiabilidad promedio</string>
+    <string name="country_multipliers">Multiplicadores por país</string>
+    <string name="country">País</string>
+    <string name="multiplier">Multiplicador</string>
 </resources>

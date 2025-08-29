@@ -278,5 +278,11 @@
     <string name="auth_code_created">Kod uwierzytelniający został utworzony</string>
     <string name="copy_auth_code">Skopiuj kod uwierzytelniający</string>
     <string name="provide_mode">Tryb udostępniania</string>
+    <string name="reliability_weight">Waga niezawodności</string>
+    <string name="total_clients">Łączna liczba klientów</string>
+    <string name="average_reliability">Średnia niezawodność</string>
+    <string name="country_multipliers">Mnożniki krajów</string>
+    <string name="country">Kraj</string>
+    <string name="multiplier">Mnożnik</string>
 
 </resources>

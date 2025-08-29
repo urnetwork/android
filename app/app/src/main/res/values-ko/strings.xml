@@ -278,4 +278,10 @@
     <string name="auth_code_created">인증 코드가 생성되었습니다</string>
     <string name="copy_auth_code">인증 코드 복사</string>
     <string name="provide_mode">제공 모드</string>
+    <string name="reliability_weight">신뢰성 가중치</string>
+    <string name="total_clients">전체 클라이언트</string>
+    <string name="average_reliability">평균 신뢰성</string>
+    <string name="country_multipliers">국가별 배수</string>
+    <string name="country">국가</string>
+    <string name="multiplier">배수</string>
 </resources>
