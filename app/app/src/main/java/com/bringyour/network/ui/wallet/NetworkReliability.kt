@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.wallet
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,14 +35,15 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
-import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ChartKey
 import com.bringyour.network.ui.components.buttonTextStyle
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
+import com.bringyour.network.ui.theme.OffWhite
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.sdkFloat64ListToArray
@@ -69,7 +69,8 @@ fun NetworkReliability(
 
             val cm = countryMultipliersList?.get(i)
 
-            if (cm != null && cm.reliabilityMultiplier > 1.0) {
+//            if (cm != null && cm.reliabilityMultiplier > 1.0) {
+            if (cm != null) {
                 list.add(cm)
             }
 
@@ -132,6 +133,8 @@ private fun CountryMultipliers(
     countryMultipliers: List<CountryMultiplier>
 ) {
 
+    val highlightMultiplierThreshold = 2.0
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -174,13 +177,21 @@ private fun CountryMultipliers(
 
                 Text(
                     countryMultiplier.country,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (countryMultiplier.reliabilityMultiplier >= highlightMultiplierThreshold) FontWeight.Bold else FontWeight.Normal,
+                    color = if (countryMultiplier.reliabilityMultiplier >= highlightMultiplierThreshold) Green else OffWhite
                 )
 
-                Text(
-                    "x${countryMultiplier.reliabilityMultiplier}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row {
+
+                    Text(
+                        "x${countryMultiplier.reliabilityMultiplier}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = if (countryMultiplier.reliabilityMultiplier >= highlightMultiplierThreshold) FontWeight.Bold else FontWeight.Normal,
+                        color = if (countryMultiplier.reliabilityMultiplier >= highlightMultiplierThreshold) Green else OffWhite
+                    )
+
+                }
 
             }
 
