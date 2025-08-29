@@ -259,4 +259,7 @@
     <string name="reliability_weight">Poids de fiabilité</string>
     <string name="total_clients">Nombre total de clients</string>
     <string name="average_reliability">Fiabilité moyenne</string>
+    <string name="country_multipliers">Multiplicateurs par pays</string>
+    <string name="country">Pays</string>
+    <string name="multiplier">Multiplicateur</string>
 </resources>

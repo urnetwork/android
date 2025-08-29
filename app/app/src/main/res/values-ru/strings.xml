@@ -283,4 +283,7 @@
     <string name="reliability_weight">надёжности</string>
     <string name="total_clients">Всего клиентов</string>
     <string name="average_reliability">Средняя надёжность</string>
+    <string name="country_multipliers">Множители по странам</string>
+    <string name="country">Страна</string>
+    <string name="multiplier">Множитель</string>
 </resources>

@@ -258,4 +258,7 @@
     <string name="reliability_weight">Uzito wa uaminifu</string>
     <string name="total_clients">Jumla ya wateja</string>
     <string name="average_reliability">Uaminifu wa wastani</string>
+    <string name="country_multipliers">Vizidishi vya nchi</string>
+    <string name="country">Nchi</string>
+    <string name="multiplier">Vizidishi</string>
 </resources>

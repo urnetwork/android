@@ -2,6 +2,7 @@ package com.bringyour.network.ui.wallet
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,12 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ChartKey
+import com.bringyour.network.ui.components.buttonTextStyle
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
@@ -37,6 +45,7 @@ import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.sdkFloat64ListToArray
 import com.bringyour.network.utils.sdkIntListToArray
+import com.bringyour.sdk.CountryMultiplier
 import com.bringyour.sdk.ReliabilityWindow
 import java.util.Locale
 
@@ -45,39 +54,135 @@ fun NetworkReliability(
     reliabilityWindow: ReliabilityWindow?
 ) {
 
-    Column {
-        Box(
-            modifier =
-                Modifier
-                    .background(
-                        color = MainTintedBackgroundBase,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(
-                        start = 16.dp,
-                        top = 16.dp,
-                        bottom = 10.dp,
-                        end = 16.dp
-                    )
-        ) {
+    val countryMultipliers = remember { mutableStateListOf<CountryMultiplier>() }
 
-            if (reliabilityWindow != null) {
+    LaunchedEffect(reliabilityWindow) {
+        val countryMultipliersList = reliabilityWindow?.countryMultipliers
+
+        val n = countryMultipliersList?.len() ?: 0
+        val list = mutableListOf<CountryMultiplier>()
+
+        for (i in 0 until n) {
+
+            val cm = countryMultipliersList?.get(i)
+
+            if (cm != null && cm.reliabilityMultiplier > 1.0) {
+                list.add(cm)
+            }
+
+        }
+
+        countryMultipliers.clear()
+        countryMultipliers.addAll(list)
+    }
+
+    Box(
+        modifier =
+            Modifier
+                .background(
+                    color = MainTintedBackgroundBase,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(16.dp)
+    ) {
+
+        if (reliabilityWindow != null) {
+
+            Column {
                 NetworkReliabilityChart(reliabilityWindow)
-            } else {
-                // loading indicator
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(96.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = TextMuted
+
+                if (countryMultipliers.count() > 0) {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    HorizontalDivider()
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    CountryMultipliers(
+                        countryMultipliers
                     )
+
                 }
+
+            }
+
+        } else {
+            // loading indicator
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = TextMuted
+                )
             }
         }
+    }
+
+}
+
+@Composable
+private fun CountryMultipliers(
+    countryMultipliers: List<CountryMultiplier>
+) {
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Text(
+            stringResource(id = R.string.country_multipliers),
+            style = buttonTextStyle,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Text(
+                stringResource(id = R.string.country),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+
+            Text(
+                stringResource(id = R.string.multiplier),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+
+        }
+
+        for (countryMultiplier in countryMultipliers) {
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                Text(
+                    countryMultiplier.country,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Text(
+                    "x${countryMultiplier.reliabilityMultiplier}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+            }
+
+        }
+
     }
 
 }
@@ -104,6 +209,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                 .filterIndexed { index, _ -> index % 4 == 0 }
             totalClients.addAll(sampledClients)
         }
+
     }
 
     // Skip drawing if data is empty
@@ -185,7 +291,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                     )
                 }
 
-                // Pre-calculate client points for better performance
+                // Pre-calculate client points
                 val clientPoints = mutableListOf<Offset>()
                 clientsData.forEachIndexed { index, value ->
                     clientPoints.add(Offset(
@@ -194,7 +300,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                     ))
                 }
 
-                // Pre-calculate weight points for better performance
+                // Pre-calculate weight points
                 val weightPoints = mutableListOf<Offset>()
                 weightsData.forEachIndexed { index, value ->
                     weightPoints.add(Offset(
@@ -203,29 +309,41 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                     ))
                 }
 
-                // Draw client lines in one pass
-                for (i in 0 until clientPoints.size - 1) {
-                    drawLine(
+                // use Path instead of drawing individual lines
+                if (clientPoints.size > 1) {
+                    val clientPath = Path()
+                    clientPath.moveTo(clientPoints[0].x, clientPoints[0].y)
+
+                    for (i in 1 until clientPoints.size) {
+                        clientPath.lineTo(clientPoints[i].x, clientPoints[i].y)
+                    }
+
+                    drawPath(
+                        path = clientPath,
                         color = clientsColor,
-                        start = clientPoints[i],
-                        end = clientPoints[i + 1],
-                        strokeWidth = 5f
+                        style = Stroke(width = 5f, cap = StrokeCap.Round, join = StrokeJoin.Round)
                     )
                 }
 
-                // Draw weight lines in one pass
-                for (i in 0 until weightPoints.size - 1) {
-                    drawLine(
+                // draw weights
+                if (weightPoints.size > 1) {
+                    val weightPath = Path()
+                    weightPath.moveTo(weightPoints[0].x, weightPoints[0].y)
+
+                    for (i in 1 until weightPoints.size) {
+                        weightPath.lineTo(weightPoints[i].x, weightPoints[i].y)
+                    }
+
+                    drawPath(
+                        path = weightPath,
                         color = weightsColor,
-                        start = weightPoints[i],
-                        end = weightPoints[i + 1],
-                        strokeWidth = 5f
+                        style = Stroke(width = 5f, cap = StrokeCap.Round, join = StrokeJoin.Round)
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Row {
 

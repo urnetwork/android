@@ -257,4 +257,7 @@
     <string name="reliability_weight">Βάρος αξιοπιστίας</string>
     <string name="total_clients">Συνολικοί πελάτες</string>
     <string name="average_reliability">Μέση αξιοπιστία</string>
+    <string name="country_multipliers">Πολλαπλασιαστές χώρας</string>
+    <string name="country">Χώρα</string>
+    <string name="multiplier">Πολλαπλασιαστής</string>
 </resources>

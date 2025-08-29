@@ -258,4 +258,7 @@
     <string name="reliability_weight">Zuverlässigkeitsgewicht</string>
     <string name="total_clients">Gesamtanzahl Clients</string>
     <string name="average_reliability">Durchschnittliche Zuverlässigkeit</string>
+    <string name="country_multipliers">Länder-Multiplikatoren</string>
+    <string name="country">Land</string>
+    <string name="multiplier">Multiplikator</string>
 </resources>

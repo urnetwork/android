@@ -280,4 +280,7 @@
     <string name="reliability_weight">신뢰성 가중치</string>
     <string name="total_clients">전체 클라이언트</string>
     <string name="average_reliability">평균 신뢰성</string>
+    <string name="country_multipliers">국가별 배수</string>
+    <string name="country">국가</string>
+    <string name="multiplier">배수</string>
 </resources>

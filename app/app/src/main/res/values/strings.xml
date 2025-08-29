@@ -283,4 +283,7 @@
     <string name="reliability_weight">Reliability Weight</string>
     <string name="total_clients">Total Clients</string>
     <string name="average_reliability">Average reliability</string>
+    <string name="country_multipliers">Country multipliers</string>
+    <string name="country">Country</string>
+    <string name="multiplier">Multiplier</string>
 </resources>

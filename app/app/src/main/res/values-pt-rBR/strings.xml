@@ -258,4 +258,7 @@
     <string name="reliability_weight">Peso de confiabilidade</string>
     <string name="total_clients">Total de clientes</string>
     <string name="average_reliability">Confiabilidade média</string>
+    <string name="country_multipliers">Multiplicadores por país</string>
+    <string name="country">País</string>
+    <string name="multiplier">Multiplicador</string>
 </resources>
