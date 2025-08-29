@@ -70,6 +70,8 @@ fun NetworkReliability(
             val cm = countryMultipliersList?.get(i)
 
             if (cm != null && cm.reliabilityMultiplier > 1.0) {
+                list.add(cm)
+            }
 
         }
 
