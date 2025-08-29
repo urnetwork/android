@@ -115,7 +115,6 @@
     <string name="join_community_discord">Připojte se ke komunitě na</string>
     <string name="update_notification_settings">Aktualizace oprávnění k oznámení v nastavení systému Android</string>
     <string name="connections">Připojení</string>
-    <string name="provide_disconnected">Poskytování při odpojení</string>
     <string name="feedback_header">Spojte se s námi</string>
     <string name="feedback_label">Pole pro zpětnou vazbu</string>
     <string name="feedback_placeholder">Řekněte nám, jak se skutečně cítíte</string>
@@ -216,4 +215,24 @@
     <string name="used_data_key">Použité</string>
     <string name="pending_data_key">Čekající</string>
     <string name="available_data_key">Dostupné</string>
+    <string name="no_blocked_locations">Žádné blokované lokality</string>
+    <string name="blocked_locations">Blokované lokality</string>
+    <string name="add_blocked_location">Přidat blokovanou lokalitu</string>
+    <string name="verified_project_on">Ověřený projekt na %1$s</string>
+    <string name="allow_providing_cell">Povolit poskytování na mobilní síti</string>
+    <string name="general">Obecné</string>
+    <string name="show_icon_when_connected">Zobrazit ikonu UR po připojení</string>
+    <string name="authentication">Ověření</string>
+    <string name="auth_code">Ověřovací kód</string>
+    <string name="create">Vytvořit</string>
+    <string name="auth_code_expires">Ověřovací kód vyprší po 5 minutách</string>
+    <string name="auth_code_created">Ověřovací kód vytvořen</string>
+    <string name="copy_auth_code">Kopírovat ověřovací kód</string>
+    <string name="provide_mode">Režim poskytování</string>
+    <string name="reliability_weight">Váha spolehlivosti</string>
+    <string name="total_clients">Celkový počet klientů</string>
+    <string name="average_reliability">Průměrná spolehlivost</string>
+    <string name="country_multipliers">Násobitele podle zemí</string>
+    <string name="country">Země</string>
+    <string name="multiplier">Násobitel</string>
 </resources>
