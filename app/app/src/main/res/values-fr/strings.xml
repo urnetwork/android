@@ -256,4 +256,10 @@
     <string name="auth_code_created">Code d’authentification créé</string>
     <string name="copy_auth_code">Copier le code d’authentification</string>
     <string name="provide_mode">Mode de fourniture</string>
+    <string name="reliability_weight">Poids de fiabilité</string>
+    <string name="total_clients">Nombre total de clients</string>
+    <string name="average_reliability">Fiabilité moyenne</string>
+    <string name="country_multipliers">Multiplicateurs par pays</string>
+    <string name="country">Pays</string>
+    <string name="multiplier">Multiplicateur</string>
 </resources>

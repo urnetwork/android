@@ -9,18 +9,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,7 +22,6 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
-import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
@@ -154,7 +147,7 @@ fun UsageBar(
         Row {
 
             // used
-            UsageBarKey(
+            ChartKey(
                 label = stringResource(id = R.string.used_data_key),
                 color = usedColor
             )
@@ -162,7 +155,7 @@ fun UsageBar(
             Spacer(modifier = Modifier.width(8.dp))
 
             // pending
-            UsageBarKey(
+            ChartKey(
                 label = stringResource(id = R.string.pending_data_key),
                 color = pendingColor
             )
@@ -170,42 +163,12 @@ fun UsageBar(
             Spacer(modifier = Modifier.width(8.dp))
 
             // available
-            UsageBarKey(
+            ChartKey(
                 label = stringResource(id = R.string.available_data_key),
                 color = availableColor
             )
-
         }
     }
-}
-
-@Composable
-private fun UsageBarKey(
-    label: String,
-    color: Color
-) {
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        // circle
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(color)
-        )
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextMuted
-        )
-    }
-
 }
 
 @Preview

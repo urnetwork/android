@@ -277,4 +277,10 @@
     <string name="auth_code_created">認証コードが作成されました</string>
     <string name="copy_auth_code">認証コードをコピー</string>
     <string name="provide_mode">提供モード</string>
+    <string name="reliability_weight">信頼性の重み</string>
+    <string name="total_clients">クライアント合計</string>
+    <string name="average_reliability">平均信頼性</string>
+    <string name="country_multipliers">国別倍率</string>
+    <string name="country">国</string>
+    <string name="multiplier">倍率</string>
 </resources>

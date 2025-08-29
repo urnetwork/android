@@ -63,6 +63,7 @@ import com.bringyour.network.ui.login.NoSolanaWalletsAlert
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.BlueLight
+import com.bringyour.sdk.ReliabilityWindow
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -70,6 +71,7 @@ import com.solana.mobilewalletadapter.clientlib.Solana
 import com.solana.mobilewalletadapter.clientlib.TransactionResult
 import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 @Composable
 fun WalletsScreen(
@@ -88,6 +90,7 @@ fun WalletsScreen(
 
     val wallets by walletViewModel.wallets.collectAsState()
     val payouts by walletViewModel.payouts.collectAsState()
+    val reliabilityWindow by walletViewModel.reliabilityWindow.collectAsState()
 
     LaunchedEffect(Unit) {
         walletViewModel.fetchTransferStats()
@@ -124,7 +127,8 @@ fun WalletsScreen(
         payoutPoints = payoutPoints,
         referralPoints = referralPoints,
         multiplierPoints = multiplierPoints,
-        reliabilityPoints = reliabilityPoints
+        reliabilityPoints = reliabilityPoints,
+        reliabilityWindow = reliabilityWindow
     )
 }
 
@@ -158,6 +162,7 @@ fun WalletsScreen(
     referralPoints: Double,
     multiplierPoints: Double,
     reliabilityPoints: Double,
+    reliabilityWindow: ReliabilityWindow?,
     viewModel: WalletsScreenViewModel = hiltViewModel()
 ) {
 
@@ -167,7 +172,7 @@ fun WalletsScreen(
 
     val scope = rememberCoroutineScope()
 
-    val solanaUri = Uri.parse("https://ur.io")
+    val solanaUri = "https://ur.io".toUri()
     val iconUri = Uri.parse("favicon.ico")
     val identityName = "URnetwork"
 
@@ -511,9 +516,34 @@ fun WalletsScreen(
                                     )
                                 }
 
-                                Column(
-                                    // modifier = Modifier.padding(16.dp)
+                                Spacer(modifier = Modifier.height(32.dp))
+
+                                /**
+                                 * Reliability Chart
+                                 */
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
                                 ) {
+                                    Text(
+                                        stringResource(id = R.string.reliability),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+
+                                Box(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    NetworkReliability(
+                                        reliabilityWindow
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(32.dp))
+
+                                Column{
                                     WalletsPayoutsList(
                                         payouts,
                                         navController

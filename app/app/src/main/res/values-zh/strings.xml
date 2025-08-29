@@ -255,4 +255,10 @@
     <string name="auth_code_created">验证码已创建</string>
     <string name="copy_auth_code">复制验证码</string>
     <string name="provide_mode">提供模式</string>
+    <string name="reliability_weight">可靠性权重</string>
+    <string name="total_clients">客户端总数</string>
+    <string name="average_reliability">平均可靠性</string>
+    <string name="country_multipliers">国家倍增器</string>
+    <string name="country">国家</string>
+    <string name="multiplier">倍增器</string>
 </resources>
