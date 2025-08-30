@@ -323,6 +323,11 @@ class SettingsViewModel @Inject constructor(
 
         addProvidePausedListener()
 
+        deviceManager.device?.let { device ->
+            _providePaused.value = device.providePaused
+            _provideEnabled.value = device.provideEnabled
+        }
+
     }
 
 }
