@@ -213,7 +213,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
         if (reliabilityWindow.reliabilityWeights != null) {
             // performance is kind of bad rendering all points, so we subsample data
             val sampledWeights = sdkFloat64ListToArray(reliabilityWindow.reliabilityWeights)
-                 .filterIndexed { index, _ -> index % 4 == 0 }
+//                 .filterIndexed { index, _ -> index % 4 == 0 }
             weights.addAll(sampledWeights)
         }
 
@@ -228,7 +228,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
         clients.clear()
         if (reliabilityWindow.clientCounts != null) {
             val sampledClients = sdkIntListToArray(reliabilityWindow.clientCounts)
-                 .filterIndexed { index, _ -> index % 4 == 0 }
+//                 .filterIndexed { index, _ -> index % 4 == 0 }
             clients.addAll(sampledClients)
         }
     }
