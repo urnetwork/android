@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,9 @@ import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
+import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.theme.Red
+import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.Sdk
@@ -41,6 +45,12 @@ class SettingsViewModel @Inject constructor(
 
     private val _requestPermission = MutableStateFlow(false)
     val requestPermission: StateFlow<Boolean> = _requestPermission
+
+    private val _provideEnabled = MutableStateFlow(false)
+    val provideEnabled: StateFlow<Boolean> = _provideEnabled
+
+    private val _providePaused = MutableStateFlow(false)
+    val providePaused: StateFlow<Boolean> = _providePaused
 
     private val _referralNetwork = MutableStateFlow<ReferralNetwork?>(null)
     val referralNetwork: StateFlow<ReferralNetwork?> = _referralNetwork
@@ -261,6 +271,33 @@ class SettingsViewModel @Inject constructor(
 
     }
 
+    val addProvideEnabledListener: () -> Unit = {
+        deviceManager.device?.let { device ->
+            device.addProvideChangeListener {
+                viewModelScope.launch {
+                    _provideEnabled.value = device.provideEnabled
+                }
+            }
+        }
+    }
+
+    val addProvidePausedListener: () -> Unit = {
+        deviceManager.device?.let { device ->
+            device.addProvidePausedChangeListener {
+                viewModelScope.launch {
+                    _providePaused.value = device.providePaused
+                }
+            }
+        }
+    }
+
+    val provideIndicatorColor: Color
+        get() = when {
+            !provideEnabled.value -> Red
+            providePaused.value -> Yellow
+            else -> Green
+        }
+
     init {
         accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
         
@@ -281,6 +318,10 @@ class SettingsViewModel @Inject constructor(
         fetchReferralNetwork()
 
         version = Sdk.Version
+
+        addProvideEnabledListener()
+
+        addProvidePausedListener()
 
     }
 
