@@ -284,5 +284,6 @@
     <string name="country_multipliers">Mnożniki krajów</string>
     <string name="country">Kraj</string>
     <string name="multiplier">Mnożnik</string>
+    <string name="clients">Klienci</string>
 
 </resources>

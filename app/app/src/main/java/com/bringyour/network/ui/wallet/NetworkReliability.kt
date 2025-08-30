@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,7 +85,7 @@ fun NetworkReliability(
                     color = MainTintedBackgroundBase,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(16.dp)
+                //  .padding(16.dp)
     ) {
 
         if (reliabilityWindow != null) {
@@ -205,7 +204,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
     val weights = remember { mutableStateListOf<Double>() }
     val averageWeightLine = remember { mutableStateListOf<Double>() }
     val mean = remember { mutableDoubleStateOf(0.0) }
-    val totalClients = remember { mutableStateListOf<Long>() }
+    val clients = remember { mutableStateListOf<Long>() }
 
     LaunchedEffect(reliabilityWindow) {
         mean.doubleValue = reliabilityWindow.meanReliabilityWeight
@@ -225,29 +224,28 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
         averageWeightLine.clear()
         averageWeightLine.addAll(arr)
 
-        totalClients.clear()
-        if (reliabilityWindow.totalClientCounts != null) {
-            val sampledClients = sdkIntListToArray(reliabilityWindow.totalClientCounts)
+        clients.clear()
+        if (reliabilityWindow.clientCounts != null) {
+            val sampledClients = sdkIntListToArray(reliabilityWindow.clientCounts)
                 .filterIndexed { index, _ -> index % 4 == 0 }
-            totalClients.addAll(sampledClients)
+            clients.addAll(sampledClients)
         }
     }
 
     // Skip drawing if data is empty
-    if (weights.isEmpty() || totalClients.isEmpty()) {
+    if (weights.isEmpty() || clients.isEmpty()) {
         return
     }
 
     val weightsColor = remember { Pink.copy(alpha = 0.6f) }
     val clientsColor = remember { Green }
     val gridLineColor = remember { TextMuted.copy(alpha = 0.5f) }
-    val averageLineColor = remember { TextMuted } // Use TextMuted or any color you prefer
+    val averageLineColor = remember { TextMuted }
     val rightPadding = 50f
 
     val weightsData = remember(weights) { weights.map { it.toFloat() } }
-    // Fixed: Use averageWeightLine instead of weights
     val averageWeightsData = remember(averageWeightLine) { averageWeightLine.map { it.toFloat() } }
-    val clientsData = remember(totalClients) { totalClients.map { it.toFloat() } }
+    val clientsData = remember(clients) { clients.map { it.toFloat() } }
 
     // Use the same scale factors for weights and average line to ensure they align properly
     val maxWeightValue = remember(weightsData) { weightsData.maxOrNull() ?: 1f }
@@ -270,7 +268,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
             color = TextMuted
         )
 
-        Text("${String.format(Locale.US, "%,.2f", mean.doubleValue * 100)}%", style = HeadingLargeCondensed)
+        Text("${String.format(Locale.US, "%,.2f", mean.doubleValue)}", style = HeadingLargeCondensed)
 
         Box(
             modifier = Modifier
@@ -366,7 +364,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                     )
                 }
 
-                // total clients points
+                // clients points
                 if (clientPoints.size > 1) {
                     val clientPath = Path()
                     clientPath.moveTo(clientPoints[0].x, clientPoints[0].y)
@@ -413,7 +411,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
 
             // Total clients line
             ChartKey(
-                label = stringResource(id = R.string.total_clients),
+                stringResource(id = R.string.clients),
                 color = clientsColor
             )
 

@@ -287,4 +287,5 @@
     <string name="country_multipliers">Landmultipliers</string>
     <string name="country">Land</string>
     <string name="multiplier">Vermenigvuldiger</string>
+    <string name="clients">Clients</string>
 </resources>

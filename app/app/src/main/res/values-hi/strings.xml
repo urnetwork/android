@@ -261,4 +261,5 @@
     <string name="country_multipliers">" देश गुणक"</string>
     <string name="country">देश</string>
     <string name="multiplier">गुणक</string>
+    <string name="clients">क्लाइंट्स</string>
 </resources>

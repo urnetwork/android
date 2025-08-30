@@ -261,4 +261,5 @@
     <string name="country_multipliers">Πολλαπλασιαστές χώρας</string>
     <string name="country">Χώρα</string>
     <string name="multiplier">Πολλαπλασιαστής</string>
+    <string name="clients">Πελάτες</string>
 </resources>

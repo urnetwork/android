@@ -235,4 +235,5 @@
     <string name="country_multipliers">ตัวคูณตามประเทศ</string>
     <string name="country">ประเทศ</string>
     <string name="multiplier">ตัวคูณ</string>
+    <string name="clients">ไคลเอ็นต์</string>
 </resources>

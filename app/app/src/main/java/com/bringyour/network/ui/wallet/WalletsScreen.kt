@@ -331,6 +331,12 @@ fun WalletsScreen(
 
                                 }
 
+                                HorizontalDivider()
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                NetworkReliability(reliabilityWindow)
+
                             }
                         }
 
@@ -513,31 +519,6 @@ fun WalletsScreen(
                                         multiplierPoints = multiplierPoints,
                                         referralPoints = referralPoints,
                                         reliabilityPoints = reliabilityPoints
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(32.dp))
-
-                                /**
-                                 * Reliability Chart
-                                 */
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp)
-                                ) {
-                                    Text(
-                                        stringResource(id = R.string.reliability),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                }
-
-                                Box(
-                                    modifier = Modifier.padding(16.dp)
-                                ) {
-                                    NetworkReliability(
-                                        reliabilityWindow
                                     )
                                 }
 

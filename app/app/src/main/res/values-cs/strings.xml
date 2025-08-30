@@ -235,4 +235,5 @@
     <string name="country_multipliers">Násobitele podle zemí</string>
     <string name="country">Země</string>
     <string name="multiplier">Násobitel</string>
+    <string name="clients">Klienti</string>
 </resources>
