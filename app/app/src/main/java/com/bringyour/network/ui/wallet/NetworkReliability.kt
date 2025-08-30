@@ -50,6 +50,7 @@ import com.bringyour.network.utils.sdkIntListToArray
 import com.bringyour.sdk.CountryMultiplier
 import com.bringyour.sdk.ReliabilityWindow
 import java.util.Locale
+import kotlin.math.ceil
 
 @Composable
 fun NetworkReliability(
@@ -212,7 +213,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
         if (reliabilityWindow.reliabilityWeights != null) {
             // performance is kind of bad rendering all points, so we subsample data
             val sampledWeights = sdkFloat64ListToArray(reliabilityWindow.reliabilityWeights)
-                .filterIndexed { index, _ -> index % 4 == 0 }
+                 .filterIndexed { index, _ -> index % 4 == 0 }
             weights.addAll(sampledWeights)
         }
 
@@ -227,7 +228,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
         clients.clear()
         if (reliabilityWindow.clientCounts != null) {
             val sampledClients = sdkIntListToArray(reliabilityWindow.clientCounts)
-                .filterIndexed { index, _ -> index % 4 == 0 }
+                 .filterIndexed { index, _ -> index % 4 == 0 }
             clients.addAll(sampledClients)
         }
     }
@@ -247,11 +248,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
     val averageWeightsData = remember(averageWeightLine) { averageWeightLine.map { it.toFloat() } }
     val clientsData = remember(clients) { clients.map { it.toFloat() } }
 
-    // Use the same scale factors for weights and average line to ensure they align properly
-    val maxWeightValue = remember(weightsData) { weightsData.maxOrNull() ?: 1f }
-    val minWeightValue = remember(weightsData) { weightsData.minOrNull() ?: 0f }
     val maxClientsValue = remember(clientsData) { clientsData.maxOrNull() ?: 1f }
-    val minClientsValue = remember(clientsData) { clientsData.minOrNull() ?: 0f }
 
     val textPaint = remember {
         android.graphics.Paint().apply {
@@ -281,19 +278,31 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
             ) {
                 val chartWidth = size.width - rightPadding
 
-                val weightScaleFactor = if (maxWeightValue - minWeightValue == 0f) 1f
-                else (size.height * 0.9f) / (maxWeightValue - minWeightValue)
+                // Use a single scale for both lines based on client count
+                val maxClient = maxClientsValue.toInt()
+                val niceStepSize = when {
+                    maxClient <= 5 -> 1    // For values up to 5, use steps of 1
+                    maxClient <= 10 -> 2   // For values up to 10, use steps of 2
+                    maxClient <= 20 -> 5   // For values up to 20, use steps of 5
+                    maxClient <= 50 -> 10  // For values up to 50, use steps of 10
+                    maxClient <= 100 -> 20 // For values up to 100, use steps of 20
+                    else -> ceil(maxClient / 5f).toInt() // For larger values, divide by 5
+                }
 
-                val clientsScaleFactor = if (maxClientsValue - minClientsValue == 0f) 1f
-                else (size.height * 0.9f) / (maxClientsValue - minClientsValue)
+                // Calculate steps based on the nice step size
+                val maxClientRounded = ceil(maxClient / niceStepSize.toFloat()) * niceStepSize
+                val steps = (maxClientRounded / niceStepSize).toInt()
 
+                // Single scale factor for both client and weight data
+                val scaleFactor = (size.height * 0.9f) / maxClientRounded
                 val pointSpacing = if (weightsData.size > 1) chartWidth / (weightsData.size - 1) else chartWidth
-                val yStep = (maxWeightValue - minWeightValue) / 4
 
-                // Draw grid lines
-                for (i in 0..4) {
-                    val yValue = minClientsValue + i * yStep
-                    val yPosition = size.height - ((yValue - minClientsValue) * clientsScaleFactor)
+                // Draw grid lines and labels
+                for (i in 0..steps) {
+                    val yValue = i * niceStepSize.toFloat()
+
+                    // Calculate Y position with common scaling
+                    val yPosition = size.height - (yValue * scaleFactor)
 
                     // Draw grid line at this position
                     drawLine(
@@ -303,49 +312,46 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                         strokeWidth = 1f
                     )
 
-                    // Draw Y-axis label
+                    // draw Y-axis label as integer
                     drawContext.canvas.nativeCanvas.drawText(
-                        String.format("%.2f", yValue),
+                        yValue.toInt().toString(), // Format as integer
                         chartWidth + 10f,
                         yPosition + 8f,
                         textPaint
                     )
                 }
 
-                // Pre-calculate client points
+                // calculate client points
                 val clientPoints = mutableListOf<Offset>()
                 clientsData.forEachIndexed { index, value ->
                     clientPoints.add(Offset(
                         x = index * pointSpacing,
-                        y = size.height - ((value - minClientsValue) * clientsScaleFactor)
+                        y = size.height - (value * scaleFactor)
                     ))
                 }
 
-                // Pre-calculate weight points
+                // calcuate weight points
                 val weightPoints = mutableListOf<Offset>()
                 weightsData.forEachIndexed { index, value ->
                     weightPoints.add(Offset(
                         x = index * pointSpacing,
-                        y = size.height - ((value - minWeightValue) * weightScaleFactor)
+                        y = size.height - (value.toFloat() * scaleFactor)
                     ))
                 }
 
-                // pre-calculate average weight points - use same scale factor as weights
+                // calculate average weight points
                 val averageWeightPoints = mutableListOf<Offset>()
                 averageWeightsData.forEachIndexed { index, value ->
                     averageWeightPoints.add(Offset(
                         x = index * pointSpacing,
-                        y = size.height - ((value - minWeightValue) * weightScaleFactor)
+                        y = size.height - (value.toFloat() * scaleFactor)
                     ))
                 }
 
-                // Draw average weight line first (so it's behind the other lines)
                 if (averageWeightPoints.size > 1) {
-                    // Use dashed path for average line to distinguish it
                     val dashPathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
 
                     val averageWeightPath = Path()
-                    // Fixed: Use averageWeightPoints instead of clientPoints
                     averageWeightPath.moveTo(averageWeightPoints[0].x, averageWeightPoints[0].y)
 
                     for (i in 1 until averageWeightPoints.size) {
@@ -364,7 +370,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
                     )
                 }
 
-                // clients points
+                // draw clients points
                 if (clientPoints.size > 1) {
                     val clientPath = Path()
                     clientPath.moveTo(clientPoints[0].x, clientPoints[0].y)
@@ -401,7 +407,7 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Row {
-            // Weights line
+
             ChartKey(
                 label = stringResource(id = R.string.reliability_weight),
                 color = weightsColor
@@ -409,13 +415,11 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Total clients line
             ChartKey(
                 stringResource(id = R.string.clients),
                 color = clientsColor
             )
 
-            // You may want to add a key for the average line as well
             Spacer(modifier = Modifier.width(8.dp))
 
             ChartKey(
