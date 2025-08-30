@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -258,7 +260,8 @@ fun SettingsScreen(
         authCodeCreate = settingsViewModel.authCodeCreate,
         authCode = authCode,
         isCreatingAuthCode = settingsViewModel.isCreatingAuthCode.collectAsState().value,
-        setDisplayAuthCodeDialog = settingsViewModel.setIsPresentingAuthCodeDialog
+        setDisplayAuthCodeDialog = settingsViewModel.setIsPresentingAuthCodeDialog,
+        provideIndicatorColor = settingsViewModel.provideIndicatorColor
     )
 
     if (isPresentingAuthCodeDialog) {
@@ -349,7 +352,8 @@ fun SettingsScreen(
     authCodeCreate: () -> Unit,
     authCode: String?,
     isCreatingAuthCode: Boolean,
-    setDisplayAuthCodeDialog: (Boolean) -> Unit
+    setDisplayAuthCodeDialog: (Boolean) -> Unit,
+    provideIndicatorColor: Color
 ) {
 
     val context = LocalContext.current
@@ -691,11 +695,24 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
             ) {
-                Text(
-                    stringResource(id = R.string.provide_mode),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(color = provideIndicatorColor, shape = CircleShape)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        stringResource(id = R.string.provide_mode),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                }
 
                 ProvideControlMode.entries.forEach { mode ->
                     Row(
@@ -1146,7 +1163,8 @@ private fun SettingsScreenPreview() {
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
-            setDisplayAuthCodeDialog = {}
+            setDisplayAuthCodeDialog = {},
+            provideIndicatorColor = Green
         )
     }
 }
@@ -1189,7 +1207,8 @@ private fun SettingsScreenSupporterPreview() {
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
-            setDisplayAuthCodeDialog = {}
+            setDisplayAuthCodeDialog = {},
+            provideIndicatorColor = Green
         )
     }
 }
@@ -1232,7 +1251,8 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
-            setDisplayAuthCodeDialog = {}
+            setDisplayAuthCodeDialog = {},
+            provideIndicatorColor = Green
         )
     }
 }
@@ -1275,7 +1295,8 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
-            setDisplayAuthCodeDialog = {}
+            setDisplayAuthCodeDialog = {},
+            provideIndicatorColor = Green
         )
     }
 }
@@ -1318,7 +1339,8 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             authCodeCreate = {},
             authCode = null,
             isCreatingAuthCode = false,
-            setDisplayAuthCodeDialog = {}
+            setDisplayAuthCodeDialog = {},
+            provideIndicatorColor = Green
         )
     }
 }
