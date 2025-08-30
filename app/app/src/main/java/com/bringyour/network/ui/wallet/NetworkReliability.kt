@@ -292,8 +292,8 @@ private fun NetworkReliabilityChart(reliabilityWindow: ReliabilityWindow) {
 
                 // Draw grid lines
                 for (i in 0..4) {
-                    val yValue = minWeightValue + i * yStep
-                    val yPosition = size.height - ((yValue - minWeightValue) * weightScaleFactor)
+                    val yValue = minClientsValue + i * yStep
+                    val yPosition = size.height - ((yValue - minClientsValue) * clientsScaleFactor)
 
                     // Draw grid line at this position
                     drawLine(
