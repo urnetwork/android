@@ -261,4 +261,5 @@
     <string name="country_multipliers">Multiplicadores por país</string>
     <string name="country">País</string>
     <string name="multiplier">Multiplicador</string>
+    <string name="clients">Clientes</string>
 </resources>

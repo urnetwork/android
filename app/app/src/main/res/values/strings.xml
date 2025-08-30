@@ -287,4 +287,5 @@
     <string name="country_multipliers">Country multipliers</string>
     <string name="country">Country</string>
     <string name="multiplier">Multiplier</string>
+    <string name="clients">Clients</string>
 </resources>

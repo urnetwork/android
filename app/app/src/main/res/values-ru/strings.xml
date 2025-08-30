@@ -287,4 +287,5 @@
     <string name="country_multipliers">Множители по странам</string>
     <string name="country">Страна</string>
     <string name="multiplier">Множитель</string>
+    <string name="clients">Клиенты</string>
 </resources>

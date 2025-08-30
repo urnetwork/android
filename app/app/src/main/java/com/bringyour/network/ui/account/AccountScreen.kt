@@ -125,7 +125,6 @@ fun AccountScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .background(Black)
-                        // .padding(innerPadding)
                         .padding(16.dp),
                 ) {
 
@@ -192,7 +191,6 @@ fun AccountScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(Black)
-            // .padding(horizontal = 16.dp)
             .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.Top
     ) {
