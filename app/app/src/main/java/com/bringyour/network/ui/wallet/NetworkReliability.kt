@@ -184,7 +184,7 @@ private fun CountryMultipliers(
                 Row {
 
                     Text(
-                        "x${countryMultiplier.reliabilityMultiplier}",
+                        String.format(Locale.US, "x%,.2f",countryMultiplier.reliabilityMultiplier),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if (countryMultiplier.reliabilityMultiplier >= highlightMultiplierThreshold) FontWeight.Bold else FontWeight.Normal,
                         color = if (countryMultiplier.reliabilityMultiplier >= highlightMultiplierThreshold) Green else OffWhite
