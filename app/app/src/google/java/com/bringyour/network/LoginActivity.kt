@@ -71,24 +71,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
 
-        }
-
-//        // for testing
-//        if (true) {
-//            // create new uri
-//            val uri = Uri.Builder()
-//                .scheme("https")
-//                .authority("ur.io")
-//                .appendPath("c")
-//                .appendQueryParameter("japan", "")
-//                .appendQueryParameter("guest", "true")
-//                // .appendPath("/c?japan&guest=true")
-//                .build()
-//            createWithUri(uri)
-//        }
-
-        // FIXME google play referrer
-        else if (app.device != null) {
+        } else if (app.device != null) {
             navigateToMain()
             return
         } else if (app.deviceManager.canRefer) {
