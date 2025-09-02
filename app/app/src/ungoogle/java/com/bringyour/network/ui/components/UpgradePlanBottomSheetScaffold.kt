@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -32,9 +32,11 @@ import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
+import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTablet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -80,10 +82,11 @@ fun UpgradePlanBottomSheet(
     ) {
 
         UpgradePlanSheetContent(
-            upgrade = {
+            upgradeStripe = {
                 uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${planViewModel.networkId}")
                 // closeSheet()
                       },
+            upgradeSolana = {},
             upgradeInProgress = planViewModel.inProgress,
             formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice
         )
@@ -96,7 +99,8 @@ fun UpgradePlanBottomSheet(
 @Composable
 private fun UpgradePlanSheetContent(
     upgradeInProgress: Boolean,
-    upgrade: () -> Unit,
+    upgradeStripe: () -> Unit,
+    upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
 ) {
 
@@ -178,21 +182,46 @@ private fun UpgradePlanSheetContent(
         Spacer(modifier = Modifier.height(64.dp))
 
         Column {
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 URButton(
                     onClick = {
-                        upgrade()
+                        upgradeStripe()
                     },
                     enabled = !upgradeInProgress,
                     isProcessing = upgradeInProgress
                 ) { buttonTextStyle ->
                     Text(
-                        stringResource(id = R.string.join_the_movement),
+                        // stringResource(id = R.string.join_the_movement),
+                        "Join with Stripe",
                         style = buttonTextStyle
                     )
                 }
+
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TextButton(
+                    onClick = {
+                        upgradeSolana()
+                    }
+                ) {
+                    Text(
+                        "Pay with Solana Wallet",
+                        color = BlueMedium,
+                        fontFamily = ppNeueBitBold,
+                        fontSize = 24.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
         }
     }
 }
@@ -204,7 +233,8 @@ private fun UpgradePlanSheetContentPreview() {
 
     URNetworkTheme {
         UpgradePlanSheetContent(
-            upgrade = {},
+            upgradeStripe = {},
+            upgradeSolana = {},
             upgradeInProgress = false,
             formattedSubscriptionPrice = "$5.00"
         )
