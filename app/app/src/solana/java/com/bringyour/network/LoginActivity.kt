@@ -68,6 +68,9 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
 
+        } else if(app.device != null) {
+            navigateToMain()
+            return
         } else if (app.deviceManager.canRefer) {
             // fresh install, async check the install referrer
             // see https://developer.android.com/google/play/installreferrer/library
