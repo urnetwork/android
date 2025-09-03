@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,8 +39,22 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTablet
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
+import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
+import com.solana.mobilewalletadapter.clientlib.Solana
+import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import com.solana.mobilewalletadapter.clientlib.*
+import com.solana.programs.MemoProgram
+import com.solana.programs.SystemProgram
+import com.solana.transaction.Message
+import com.solana.transaction.Transaction
+import com.solana.rpccore.JsonRpcDriver
+import com.solana.networking.HttpNetworkDriver
+import com.solana.networking.Rpc20Driver
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +64,7 @@ fun UpgradePlanBottomSheet(
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
     setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
+    activityResultSender: ActivityResultSender?,
     // pollSubscriptionBalance: () -> Unit
 ) {
 
@@ -69,6 +85,56 @@ fun UpgradePlanBottomSheet(
         }
     }
 
+    val upgradeWithSolana = {
+        val solanaUri = Uri.parse("https://ur.io")
+        val iconUri = Uri.parse("favicon.ico")
+        val identityName = "URnetwork"
+
+
+        scope.launch {
+
+            // `connect` dispatches an association intent to MWA-compatible wallet apps.
+            activityResultSender?.let { sender ->
+
+                // Instantiate the MWA client object
+                val walletAdapter = MobileWalletAdapter(
+                    connectionIdentity = ConnectionIdentity(
+                        identityUri = solanaUri,
+                        iconUri = iconUri,
+                        identityName = identityName,
+                    ),
+                )
+                walletAdapter.blockchain = Solana.Mainnet
+
+
+                val result = walletAdapter.transact(sender) { authResult ->
+                    // Build a transaction using web3-solana classes
+                    val account = SolanaPublicKey(authResult.accounts.first().publicKey)
+
+                    val rpcClient = SolanaRpcClient("https://api.devnet.solana.com", KtorNetworkDriver())
+                    val blockhasResponse = rpcClient.getLatestBlockhash()
+
+
+                    val tx = Message.Builder()
+                        .addInstruction(
+                        MemoProgram.publishMemo(
+                            account,
+                            "solana:CckxW6C1CjsxYcXSiDbk7NYfPLhfqAm3kSB5LEZunnSE?amount=5&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+                            )
+                        )
+                        .setRecentBlockhash("")
+                        .build()
+
+
+
+                    // Issue a 'signTransactions' request
+                    signAndSendTransactions(arrayOf(tx.serialize()));
+                }
+
+            }
+        }
+    }
+
     ModalBottomSheet(
         onDismissRequest = { setIsPresentingUpgradePlanSheet(false) },
         sheetState = sheetState,
@@ -86,7 +152,7 @@ fun UpgradePlanBottomSheet(
                 uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${planViewModel.networkId}")
                 // closeSheet()
                       },
-            upgradeSolana = {},
+            upgradeSolana = upgradeWithSolana,
             upgradeInProgress = planViewModel.inProgress,
             formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice
         )

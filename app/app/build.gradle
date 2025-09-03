@@ -441,7 +441,7 @@ dependencies {
 dependencies {
     implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0")
     implementation("com.solanamobile:web3-solana:0.2.5")
-    implementation("com.solanamobile:rpc-core:0.2.8")
+    implementation("com.solanamobile:rpc-core:0.2.9")
     implementation("io.github.funkatronics:multimult:0.2.4")
 }
 
