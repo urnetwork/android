@@ -5,7 +5,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.4'
+        classpath group: 'org.yaml', name: 'snakeyaml', version: '2.5'
     }
 }
 
@@ -433,7 +433,7 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling:1.9.0'
 
     // reflect
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:2.1.20'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:2.2.0'
 }
 
 
@@ -441,7 +441,7 @@ dependencies {
 dependencies {
     implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0")
     implementation("com.solanamobile:web3-solana:0.2.5")
-    implementation("com.solanamobile:rpc-core:0.2.8")
+    implementation("com.solanamobile:rpc-core:0.2.9")
     implementation("io.github.funkatronics:multimult:0.2.4")
 }
 
