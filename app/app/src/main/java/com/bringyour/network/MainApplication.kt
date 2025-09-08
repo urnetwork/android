@@ -659,27 +659,32 @@ class MainApplication : Application() {
 //                    tunnelRequestStatus = TunnelRequestStatus.Started
                         vpnRequestStart = false
 
-
-                        if (foreground) {
-                            // use a foreground service to allow notifications
-                            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                                try {
-                                    startForegroundService(vpnIntent)
-                                } catch (e: ForegroundServiceStartNotAllowedException) {
+                        // delaying the tunnel start seems to help with stability
+                        Handler(mainLooper).postDelayed({
+                            if (this@MainApplication.serviceActive) {
+                                if (foreground) {
+                                    // use a foreground service to allow notifications
+                                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                                        try {
+                                            startForegroundService(vpnIntent)
+                                        } catch (e: ForegroundServiceStartNotAllowedException) {
+                                            startService(vpnIntent)
+                                        }
+                                    } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
+                                        try {
+                                            ContextCompat.startForegroundService(this, vpnIntent)
+                                        } catch (e: ForegroundServiceStartNotAllowedException) {
+                                            startService(vpnIntent)
+                                        }
+                                    } else {
+                                        ContextCompat.startForegroundService(this, vpnIntent)
+                                    }
+                                } else {
                                     startService(vpnIntent)
                                 }
-                            } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
-                                try {
-                                    ContextCompat.startForegroundService(this, vpnIntent)
-                                } catch (e: ForegroundServiceStartNotAllowedException) {
-                                    startService(vpnIntent)
-                                }
-                            } else {
-                                ContextCompat.startForegroundService(this, vpnIntent)
                             }
-                        } else {
-                            startService(vpnIntent)
-                        }
+                        }, 200)
+
 
                     }
                 }
@@ -698,7 +703,7 @@ class MainApplication : Application() {
     private fun stopVpnService() {
         vpnRequestStart = false
 
-        val device = device ?: return
+//        val device = device ?: return
 
 
 //        if (tunnelRequestStatus == TunnelRequestStatus.Stopped) {

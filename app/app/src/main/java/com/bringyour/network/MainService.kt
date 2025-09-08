@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.IpPrefix
 import android.net.VpnService
 import android.os.Build
+import android.os.Handler
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants.AF_INET
 import android.system.OsConstants.AF_INET6
@@ -120,9 +121,12 @@ import kotlin.concurrent.thread
                     if (this@MainService.connected != connected) {
                         this@MainService.connected = connected
                         if (connected) {
-                            if (canUpdatePfd(source)) {
-                                updatePfd(offline)
-                            }
+                            // delaying the tunnel reset seems to help with stability
+                            Handler(mainLooper).postDelayed({
+                                if (this@MainService.connected && canUpdatePfd(source)) {
+                                    updatePfd(offline)
+                                }
+                            }, 200)
                         }
                     }
                 }
