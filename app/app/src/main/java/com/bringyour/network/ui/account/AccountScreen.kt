@@ -78,13 +78,20 @@ fun AccountScreen(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
-    walletCount: Int
+    walletCount: Int,
+    setPendingSolanaSubscriptionReference: (String?) -> Unit,
+    createSolanaPaymentIntent: (
+        reference: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) -> Unit
 ) {
 
     val scope = rememberCoroutineScope()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
     val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
+    val currentStore by subscriptionBalanceViewModel.currentStore.collectAsState()
 
     val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
@@ -98,16 +105,16 @@ fun AccountScreen(
         // This code runs when the screen appears
         subscriptionBalanceViewModel.fetchSubscriptionBalance()
 
-        planViewModel.onUpgradeSuccess.collect {
-
-            // poll subscription balance until it's updated
-            subscriptionBalanceViewModel.pollSubscriptionBalance()
-
-        }
+//        planViewModel.onUpgradeSuccess.collect {
+//
+//            // poll subscription balance until it's updated
+//            subscriptionBalanceViewModel.pollSubscriptionBalance()
+//
+//        }
     }
 
-    Scaffold() { innerPadding ->
 
+    Scaffold() { innerPadding ->
 
         Box(
             modifier = Modifier
@@ -138,9 +145,12 @@ fun AccountScreen(
                         totalPayoutAmountInitialized = totalPayoutAmountInitialized,
                         walletCount = walletCount,
                         currentPlan = currentPlan,
+                        currentStore = currentStore,
                         launchOverlay = overlayViewModel.launch,
                         setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
                         isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                        isCheckingSolanaTransaction = subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState().value,
+                        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPolling,
                         usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                         pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
                         availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount
@@ -152,7 +162,9 @@ fun AccountScreen(
                             scope = scope,
                             planViewModel = planViewModel,
                             overlayViewModel = overlayViewModel,
-                            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+                            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
+                            setPendingSolanaSubscriptionReference = setPendingSolanaSubscriptionReference,
+                            createSolanaPaymentIntent = createSolanaPaymentIntent
                         )
                     }
 
@@ -176,9 +188,12 @@ fun AccountScreenContent(
     totalPayoutAmountInitialized: Boolean,
     walletCount: Int,
     currentPlan: Plan,
+    currentStore: String?,
     launchOverlay: (OverlayMode) -> Unit,
     setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
-    isProcessingUpgrade: Boolean,
+    isProcessingUpgrade: Boolean, // checking for Stripe, Apple, Play
+    isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
+    isPollingSubscriptionBalance: Boolean,
     usedBytes: Long,
     availableBytes: Long,
     pendingBytes: Long
@@ -225,7 +240,7 @@ fun AccountScreenContent(
                 AccountRootSubscription(
                     loginMode = loginMode,
                     currentPlan = currentPlan,
-                    isProcessingUpgrade = isProcessingUpgrade,
+                    currentStore = currentStore,
                     scope = scope,
                     logout = {
                         application?.logout()
@@ -236,7 +251,10 @@ fun AccountScreenContent(
                         (context as? Activity)?.finish()
                     },
                     setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
-                    upgradePlanSheetState = upgradePlanSheetState
+                    upgradePlanSheetState = upgradePlanSheetState,
+                    isProcessingUpgrade = isProcessingUpgrade,
+                    isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -419,7 +437,10 @@ private fun AccountSupporterAuthenticatedPreview() {
                     isProcessingUpgrade = false,
                     usedBytes = 30_000,
                     pendingBytes = 10_000,
-                    availableBytes = 60_000
+                    availableBytes = 60_000,
+                    isCheckingSolanaTransaction = false,
+                    isPollingSubscriptionBalance = false,
+                    currentStore = null
                 )
             }
         }
@@ -462,7 +483,10 @@ private fun AccountBasicAuthenticatedPreview() {
                     isProcessingUpgrade = false,
                     usedBytes = 30_000,
                     pendingBytes = 10_000,
-                    availableBytes = 60_000
+                    availableBytes = 60_000,
+                    isCheckingSolanaTransaction = false,
+                    isPollingSubscriptionBalance = false,
+                    currentStore = null
                 )
             }
         }
@@ -504,7 +528,10 @@ private fun AccountGuestPreview() {
                     isProcessingUpgrade = false,
                     usedBytes = 30_000,
                     pendingBytes = 10_000,
-                    availableBytes = 60_000
+                    availableBytes = 60_000,
+                    isCheckingSolanaTransaction = false,
+                    isPollingSubscriptionBalance = false,
+                    currentStore = null
                 )
             }
         }
@@ -545,7 +572,10 @@ private fun AccountGuestNoWalletPreview() {
                     isProcessingUpgrade = false,
                     usedBytes = 30_000,
                     pendingBytes = 10_000,
-                    availableBytes = 60_000
+                    availableBytes = 60_000,
+                    isCheckingSolanaTransaction = false,
+                    isPollingSubscriptionBalance = false,
+                    currentStore = null
                 )
             }
         }

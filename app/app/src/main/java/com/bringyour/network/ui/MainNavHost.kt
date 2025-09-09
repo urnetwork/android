@@ -30,7 +30,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
@@ -43,6 +42,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -51,7 +51,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -85,7 +88,6 @@ import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.wallet.WalletScreen
 import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
-import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
 import com.bringyour.network.ui.blocked_regions.BlockedRegionsScreen
@@ -93,6 +95,8 @@ import com.bringyour.network.ui.payout.PayoutScreen
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.AccountPointEvent
 import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
+import com.bringyour.network.ui.shared.viewmodels.SolanaPaymentViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -284,7 +288,7 @@ fun MainNavHost(
                             )
                         }
 
-                        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT && !isTv()) {
+                        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                             HorizontalDivider(
                                 modifier = Modifier
                                     .height(1.dp)
@@ -351,7 +355,8 @@ fun MainNavContent(
     bundleStore: BundleStore?,
     accountViewModel: AccountViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    accountPointsViewModel: AccountPointsViewModel = hiltViewModel()
+    accountPointsViewModel: AccountPointsViewModel = hiltViewModel(),
+    solanaPaymentViewModel: SolanaPaymentViewModel = hiltViewModel()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx =
@@ -359,8 +364,22 @@ fun MainNavContent(
 
     val wallets by walletViewModel.wallets.collectAsState()
 
+    val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
+
+        planViewModel.onUpgradeSuccess.collect {
+
+            // poll subscription balance until it's updated
+            subscriptionBalanceViewModel.pollSubscriptionBalance()
+
+        }
+
     }
 
     LifecycleResumeEffect(Unit) {
@@ -368,6 +387,31 @@ fun MainNavContent(
 
         onPauseOrDispose {
         }
+    }
+
+    /**
+     * This is for listening to Solana Wallet subscriptions
+     * If there is a pending sub reference + the app regains focus, we start polling the subscription balance
+     */
+    DisposableEffect(lifecycleOwner, pendingSolanaSubReference) {
+
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (!pendingSolanaSubReference.isNullOrEmpty()) {
+                    scope.launch {
+                        // poll subscription balance until it's updated
+                        subscriptionBalanceViewModel.pollSolanaTransaction()
+                        solanaPaymentViewModel.setPendingSolanaSubscriptionReference(null)
+                    }
+                }
+            }
+        }
+
+        if (pendingSolanaSubReference != null) {
+            lifecycleOwner.lifecycle.addObserver(observer)
+        }
+
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
 
@@ -400,7 +444,9 @@ fun MainNavContent(
                     navController,
                     subscriptionBalanceViewModel,
                     planViewModel,
-                    bundleStore
+                    bundleStore,
+                    setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
+                    createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
                 )
             }
 
@@ -449,7 +495,9 @@ fun MainNavContent(
                     walletCount = wallets.size,
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                    overlayViewModel = overlayViewModel
+                    overlayViewModel = overlayViewModel,
+                    setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
+                    createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
                 )
             }
             composable<Route.Profile>(
@@ -477,7 +525,9 @@ fun MainNavContent(
                 subscriptionBalanceViewModel,
                 activityResultSender,
                 walletViewModel,
-                bonusReferralCode = referralCodeViewModel.referralCode
+                bonusReferralCode = referralCodeViewModel.referralCode,
+                setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
+                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
             ) }
 
             composable<Route.BlockedRegions>(

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
+import com.bringyour.sdk.ReliabilityWindow
 import com.bringyour.sdk.SubscriptionBalanceCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -29,8 +31,11 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _currentPlan = MutableStateFlow(Plan.Basic)
     val currentPlan: StateFlow<Plan> get() = _currentPlan
 
+    private val _currentStore = MutableStateFlow<String?>(null)
+    val currentStore: StateFlow<String?> get() = _currentStore
+
     private var pollingJob: Job? = null
-    private var pollingInterval: Long = 5000 // 5 seconds in milliseconds
+    private var pollingInterval: Long = 5000 // 5 seconds
 
 
     val setCurrentPlan: (Plan) -> Unit = { plan ->
@@ -39,6 +44,15 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     var isPollingSubscriptionBalance by mutableStateOf(false)
         private set
+
+    private val _isCheckingSolanaTransaction = MutableStateFlow<Boolean>(false)
+    val isCheckingSolanaTransaction: StateFlow<Boolean> = _isCheckingSolanaTransaction.asStateFlow()
+
+
+    val isPolling: Boolean
+        get() = _isCheckingSolanaTransaction.value || isPollingSubscriptionBalance
+
+
 
     private var isLoading = false
 
@@ -63,6 +77,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     val fetchSubscriptionBalance: () -> Unit = {
 
+        Log.i(TAG, "fetchSubscriptionBalance called")
+
         if (!isLoading) {
 
             isLoading = true
@@ -78,6 +94,11 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             setCurrentPlan(Plan.fromString(plan))
                             Log.i(TAG, "current plan: $plan")
                         } ?: setCurrentPlan(Plan.Basic)
+
+                        result?.currentSubscription?.store.let { store ->
+                            Log.i(TAG, "setting store as $store")
+                            _currentStore.value = store
+                        }
 
                         availableBalanceByteCount = result.balanceByteCount
                         pendingBalanceByteCount = result.openTransferByteCount
@@ -99,35 +120,53 @@ class SubscriptionBalanceViewModel @Inject constructor(
         return currentPlan.value == Plan.Supporter && availableBalanceByteCount > 0
     }
 
-    val pollSubscriptionBalance: () -> Unit = {
+    /**
+     * This is used when we have evidence of a payment (ie Stripe, Apple, Play)
+     */
+    fun pollSubscriptionBalance(maxDurationMs: Long = 120_000L) {
+        if (isPolling) return
 
-        Log.i(TAG, "start poll subscription balance")
+        Log.i(TAG, "start poll subscription balance (max ${maxDurationMs}ms)")
+        isPollingSubscriptionBalance = true
 
-        if (!isPollingSubscriptionBalance) {
+        createPollingJob(maxDurationMs)
+    }
 
-            isPollingSubscriptionBalance = true
+    /**
+     * When we regain focus from a wallet, and there is a solana payment reference id (in SolanaPaymentViewModel), start polling
+     * This is different than pollSubscriptionBalance, as do not know if the user submitted a transaction or not
+     * So we want to display a different pending message, and poll for a little less time
+     */
+    fun pollSolanaTransaction(maxDurationMs: Long = 20_000L) {
+        if (isPolling) return
 
-            // Start polling in a coroutine
-            pollingJob = viewModelScope.launch {
-                // Initial fetch
+        _isCheckingSolanaTransaction.value = true
+
+        createPollingJob(maxDurationMs)
+    }
+
+    val createPollingJob: (maxDurationMs: Long) -> Unit = { maxDurationMs ->
+        pollingJob = viewModelScope.launch {
+            val deadline = System.currentTimeMillis() + maxDurationMs
+
+            fetchSubscriptionBalance()
+            if (isSupporterWithBalance()) {
+                stopPolling()
+                return@launch
+            }
+
+            while (isPolling && isActive && System.currentTimeMillis() < deadline) {
+                delay(pollingInterval)
                 fetchSubscriptionBalance()
-
-                // Check if we can stop polling
                 if (isSupporterWithBalance()) {
                     stopPolling()
-                    return@launch
+                    break
                 }
+            }
 
-                // Continue polling at intervals
-                while (isPollingSubscriptionBalance && isActive) {
-                    delay(pollingInterval)
-                    fetchSubscriptionBalance()
-
-                    if (isSupporterWithBalance()) {
-                        stopPolling()
-                        break
-                    }
-                }
+            if (isPolling) {
+                Log.i(TAG, "polling timed out after ${maxDurationMs}ms")
+                stopPolling()
             }
         }
     }
@@ -137,6 +176,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
             pollingJob?.cancel()
             pollingJob = null
             isPollingSubscriptionBalance = false
+            _isCheckingSolanaTransaction.value = false
         }
     }
 

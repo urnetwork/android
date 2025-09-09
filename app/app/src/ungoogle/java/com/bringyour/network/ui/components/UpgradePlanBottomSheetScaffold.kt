@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.components
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -39,21 +41,10 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTablet
-import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
-import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
-import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
-import com.solana.mobilewalletadapter.clientlib.Solana
-import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.solana.mobilewalletadapter.clientlib.*
-import com.solana.programs.MemoProgram
-import com.solana.programs.SystemProgram
-import com.solana.transaction.Message
-import com.solana.transaction.Transaction
-import com.solana.rpccore.JsonRpcDriver
-import com.solana.networking.HttpNetworkDriver
-import com.solana.networking.Rpc20Driver
+import com.funkatronics.encoders.Base58
+import java.security.SecureRandom
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,11 +55,16 @@ fun UpgradePlanBottomSheet(
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
     setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
-    activityResultSender: ActivityResultSender?,
-    // pollSubscriptionBalance: () -> Unit
+    setPendingSolanaSubscriptionReference: (String) -> Unit,
+    createSolanaPaymentIntent: (
+        reference: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) -> Unit
 ) {
 
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
 
     val closeSheet: () -> Unit = {
         scope.launch { sheetState.hide() }.invokeOnCompletion {
@@ -85,54 +81,53 @@ fun UpgradePlanBottomSheet(
         }
     }
 
-    val upgradeWithSolana = {
-        val solanaUri = Uri.parse("https://ur.io")
-        val iconUri = Uri.parse("favicon.ico")
-        val identityName = "URnetwork"
+    val promptWalletTransaction: (reference: String) -> Unit = { reference ->
 
+        val recipient = "74UNdYRpvakSABaYHSZMQNaXBVtA6eY9Nt8chcqocKe7"
+        val amountDecimal = "0.1" // 5.000000 USDC
+        val usdcMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // mainnet USDC
 
-        scope.launch {
+        val label = "URnetwork"
+        val message = "Yearly Supporter Subscription"
+        val memo = ""
 
-            // `connect` dispatches an association intent to MWA-compatible wallet apps.
-            activityResultSender?.let { sender ->
-
-                // Instantiate the MWA client object
-                val walletAdapter = MobileWalletAdapter(
-                    connectionIdentity = ConnectionIdentity(
-                        identityUri = solanaUri,
-                        iconUri = iconUri,
-                        identityName = identityName,
-                    ),
-                )
-                walletAdapter.blockchain = Solana.Mainnet
-
-
-                val result = walletAdapter.transact(sender) { authResult ->
-                    // Build a transaction using web3-solana classes
-                    val account = SolanaPublicKey(authResult.accounts.first().publicKey)
-
-                    val rpcClient = SolanaRpcClient("https://api.devnet.solana.com", KtorNetworkDriver())
-                    val blockhasResponse = rpcClient.getLatestBlockhash()
-
-
-                    val tx = Message.Builder()
-                        .addInstruction(
-                        MemoProgram.publishMemo(
-                            account,
-                            "solana:CckxW6C1CjsxYcXSiDbk7NYfPLhfqAm3kSB5LEZunnSE?amount=5&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-                            )
-                        )
-                        .setRecentBlockhash("")
-                        .build()
-
-
-
-                    // Issue a 'signTransactions' request
-                    signAndSendTransactions(arrayOf(tx.serialize()));
-                }
-
-            }
+        val url = buildString {
+            append("solana:")
+            append(recipient)
+            append("?amount="); append(amountDecimal)
+            append("&spl-token="); append(usdcMint)
+            append("&reference="); append(reference)
+            append("&label="); append(Uri.encode(label))
+            append("&message="); append(Uri.encode(message))
+            append("&memo="); append(Uri.encode(memo))
         }
+
+        uriHandler.openUri(url)
+
+        setPendingSolanaSubscriptionReference(reference)
+
+        closeSheet()
+
+    }
+
+    val upgradeWithSolana: () -> Unit = {
+
+        val bytes = ByteArray(32)
+        SecureRandom().nextBytes(bytes)
+        val reference = Base58.encodeToString(bytes)
+
+        createSolanaPaymentIntent(
+            reference,
+            {
+                // on success
+                promptWalletTransaction(reference)
+            },
+            {
+                // on error
+                Toast.makeText(context, "Error creating payment reference", Toast.LENGTH_SHORT).show()
+            }
+        )
+
     }
 
     ModalBottomSheet(
