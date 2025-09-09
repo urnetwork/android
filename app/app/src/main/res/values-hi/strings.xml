@@ -262,4 +262,8 @@
     <string name="country">देश</string>
     <string name="multiplier">गुणक</string>
     <string name="clients">क्लाइंट्स</string>
+    <string name="pay_with_solana_wallet">Solana वॉलेट से भुगतान करें</string>
+    <string name="pay_with_stripe">Stripe के साथ जुड़ें</string>
+    <string name="checking_solana_transactions">Solana लेन-देन की जांच हो रही है</string>
+    <string name="processing_payment">भुगतान संसाधित हो रहा है</string>
 </resources>

@@ -288,4 +288,8 @@
     <string name="country">Country</string>
     <string name="multiplier">Multiplier</string>
     <string name="clients">Clients</string>
+    <string name="pay_with_solana_wallet">Pay with Solana Wallet</string>
+    <string name="pay_with_stripe">Join with Stripe</string>
+    <string name="checking_solana_transactions">Checking for Solana Transactions</string>
+    <string name="processing_payment">Processing payment</string>
 </resources>

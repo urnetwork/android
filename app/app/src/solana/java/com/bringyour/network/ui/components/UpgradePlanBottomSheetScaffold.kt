@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.components
 
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,10 +18,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -31,12 +39,16 @@ import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
+import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTablet
+import com.funkatronics.encoders.Base58
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.security.SecureRandom
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,10 +57,25 @@ fun UpgradePlanBottomSheet(
     scope: CoroutineScope,
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
-    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit
+    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
+    setPendingSolanaSubscriptionReference: (String) -> Unit,
+    createSolanaPaymentIntent: (
+        reference: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) -> Unit
 ) {
 
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+
+    val closeSheet: () -> Unit = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                setIsPresentingUpgradePlanSheet(false)
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         planViewModel.onUpgradeSuccess.collect {
@@ -61,6 +88,55 @@ fun UpgradePlanBottomSheet(
             }
 
         }
+    }
+
+    val promptWalletTransaction: (reference: String) -> Unit = { reference ->
+
+        val recipient = "74UNdYRpvakSABaYHSZMQNaXBVtA6eY9Nt8chcqocKe7"
+        val amountDecimal = "0.1" // 5.000000 USDC
+        val usdcMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // mainnet USDC
+
+        val label = "URnetwork"
+        val message = "Yearly Supporter Subscription"
+        val memo = ""
+
+        val url = buildString {
+            append("solana:")
+            append(recipient)
+            append("?amount="); append(amountDecimal)
+            append("&spl-token="); append(usdcMint)
+            append("&reference="); append(reference)
+            append("&label="); append(Uri.encode(label))
+            append("&message="); append(Uri.encode(message))
+            append("&memo="); append(Uri.encode(memo))
+        }
+
+        uriHandler.openUri(url)
+
+        setPendingSolanaSubscriptionReference(reference)
+
+        closeSheet()
+
+    }
+
+    val upgradeWithSolana: () -> Unit = {
+
+        val bytes = ByteArray(32)
+        SecureRandom().nextBytes(bytes)
+        val reference = Base58.encodeToString(bytes)
+
+        createSolanaPaymentIntent(
+            reference,
+            {
+                // on success
+                promptWalletTransaction(reference)
+            },
+            {
+                // on error
+                Toast.makeText(context, "Error creating payment reference", Toast.LENGTH_SHORT).show()
+            }
+        )
+
     }
 
     ModalBottomSheet(
@@ -76,9 +152,11 @@ fun UpgradePlanBottomSheet(
     ) {
 
         UpgradePlanSheetContent(
-            upgrade = {
+            upgradeStripe = {
                 uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${planViewModel.networkId}")
+                // closeSheet()
             },
+            upgradeSolana = upgradeWithSolana,
             upgradeInProgress = planViewModel.inProgress,
             formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice
         )
@@ -91,11 +169,14 @@ fun UpgradePlanBottomSheet(
 @Composable
 private fun UpgradePlanSheetContent(
     upgradeInProgress: Boolean,
-    upgrade: () -> Unit,
+    upgradeStripe: () -> Unit,
+    upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
 ) {
 
     val colModifier = Modifier
+
+    var isPromptingSolanaPayment by remember { mutableStateOf(false) }
 
     if (!isTablet()) {
         colModifier.fillMaxSize()
@@ -173,21 +254,47 @@ private fun UpgradePlanSheetContent(
         Spacer(modifier = Modifier.height(64.dp))
 
         Column {
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 URButton(
                     onClick = {
-                        upgrade()
+                        upgradeStripe()
                     },
                     enabled = !upgradeInProgress,
                     isProcessing = upgradeInProgress
                 ) { buttonTextStyle ->
                     Text(
-                        stringResource(id = R.string.join_the_movement),
+                        stringResource(id = R.string.pay_with_stripe),
                         style = buttonTextStyle
                     )
                 }
+
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TextButton(
+                    onClick = {
+                        isPromptingSolanaPayment = true
+                        upgradeSolana()
+                    },
+                    enabled = !isPromptingSolanaPayment
+                ) {
+                    Text(
+                        stringResource(id = R.string.pay_with_solana_wallet),
+                        color = BlueMedium,
+                        fontFamily = ppNeueBitBold,
+                        fontSize = 24.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
         }
     }
 }
@@ -199,7 +306,8 @@ private fun UpgradePlanSheetContentPreview() {
 
     URNetworkTheme {
         UpgradePlanSheetContent(
-            upgrade = {},
+            upgradeStripe = {},
+            upgradeSolana = {},
             upgradeInProgress = false,
             formattedSubscriptionPrice = "$5.00"
         )

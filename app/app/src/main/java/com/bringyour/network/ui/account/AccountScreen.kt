@@ -164,7 +164,8 @@ fun AccountScreen(
                             overlayViewModel = overlayViewModel,
                             setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
                             setPendingSolanaSubscriptionReference = setPendingSolanaSubscriptionReference,
-                            createSolanaPaymentIntent = createSolanaPaymentIntent
+                            createSolanaPaymentIntent = createSolanaPaymentIntent,
+
                         )
                     }
 

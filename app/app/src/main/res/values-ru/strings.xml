@@ -288,4 +288,8 @@
     <string name="country">Страна</string>
     <string name="multiplier">Множитель</string>
     <string name="clients">Клиенты</string>
+    <string name="pay_with_solana_wallet">Оплатить через кошелек Solana</string>
+    <string name="pay_with_stripe">Присоединиться через Stripe</string>
+    <string name="checking_solana_transactions">Проверка транзакций Solana</string>
+    <string name="processing_payment">Обработка платежа</string>
 </resources>

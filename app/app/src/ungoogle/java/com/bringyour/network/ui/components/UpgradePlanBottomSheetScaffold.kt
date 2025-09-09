@@ -21,6 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -165,6 +169,8 @@ private fun UpgradePlanSheetContent(
     formattedSubscriptionPrice: String,
 ) {
 
+    var isPromptingSolanaPayment by remember { mutableStateOf(false) }
+
     val colModifier = Modifier
 
     if (!isTablet()) {
@@ -253,8 +259,7 @@ private fun UpgradePlanSheetContent(
                     isProcessing = upgradeInProgress
                 ) { buttonTextStyle ->
                     Text(
-                        // stringResource(id = R.string.join_the_movement),
-                        "Join with Stripe",
+                         stringResource(id = R.string.pay_with_stripe),
                         style = buttonTextStyle
                     )
                 }
@@ -269,11 +274,13 @@ private fun UpgradePlanSheetContent(
             ) {
                 TextButton(
                     onClick = {
+                        isPromptingSolanaPayment = true
                         upgradeSolana()
-                    }
+                    },
+                    enabled = !isPromptingSolanaPayment
                 ) {
                     Text(
-                        "Pay with Solana Wallet",
+                        stringResource(id = R.string.pay_with_solana_wallet),
                         color = BlueMedium,
                         fontFamily = ppNeueBitBold,
                         fontSize = 24.sp

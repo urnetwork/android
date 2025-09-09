@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -34,7 +35,10 @@ import kotlinx.coroutines.launch
 fun AccountRootSubscription(
     loginMode: LoginMode,
     currentPlan: Plan,
+    currentStore: String?,
     isProcessingUpgrade: Boolean,
+    isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
+    isPollingSubscriptionBalance: Boolean,
     scope: CoroutineScope,
     logout: () -> Unit,
     setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
@@ -65,16 +69,30 @@ fun AccountRootSubscription(
                     )
                 } else {
 
-                    if (isProcessingUpgrade) {
+                    if (isPollingSubscriptionBalance) {
 
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .width(24.dp)
-                                .height(24.dp),
-                            color = TextMuted,
-                            trackColor = TextFaint,
-                            strokeWidth = 2.dp
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp),
+                                color = TextMuted,
+                                trackColor = TextFaint,
+                                strokeWidth = 2.dp
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(if (isCheckingSolanaTransaction) stringResource(id = R.string.checking_solana_transactions)
+                                else stringResource(id = R.string.processing_payment),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = TextMuted
+                            )
+
+                        }
 
                     } else {
                         Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
@@ -97,7 +115,7 @@ fun AccountRootSubscription(
                     )
                 } else {
 
-                    if (currentPlan == Plan.Basic && !isProcessingUpgrade) {
+                    if (currentPlan == Plan.Basic  && !isPollingSubscriptionBalance) {
                         Text(
                             stringResource(id = R.string.change),
                             modifier = Modifier

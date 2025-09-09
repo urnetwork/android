@@ -90,7 +90,7 @@ fun AccountRootSubscription(
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            Text(if (isCheckingSolanaTransaction) "Checking for Solana Transactions" else "Processing payment",
+                            Text(if (isCheckingSolanaTransaction) stringResource(id = R.string.checking_solana_transactions) else stringResource(id = R.string.processing_payment),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = TextMuted
                             )

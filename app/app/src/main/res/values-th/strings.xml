@@ -236,4 +236,8 @@
     <string name="country">ประเทศ</string>
     <string name="multiplier">ตัวคูณ</string>
     <string name="clients">ไคลเอ็นต์</string>
+    <string name="pay_with_solana_wallet">ชำระเงินด้วยกระเป๋าเงิน Solana</string>
+    <string name="pay_with_stripe">เข้าร่วมด้วย Stripe</string>
+    <string name="checking_solana_transactions">กำลังตรวจสอบธุรกรรม Solana</string>
+    <string name="processing_payment">กำลังดำเนินการชำระเงิน</string>
 </resources>

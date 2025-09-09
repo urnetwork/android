@@ -44,7 +44,14 @@ fun UpgradePlanBottomSheet(
     scope: CoroutineScope,
     planViewModel: PlanViewModel,
     overlayViewModel: OverlayViewModel,
-    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit
+    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
+    setPendingSolanaSubscriptionReference: (String?) -> Unit,
+    createSolanaPaymentIntent: (
+        reference: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) -> Unit
+    // createSolanaPaymentIntent
 ) {
 
     LaunchedEffect(Unit) {
