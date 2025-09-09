@@ -392,6 +392,10 @@ fun AccountScreenContent(
         )
         HorizontalDivider()
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        URNodeCarousel()
+
     }
 }
 
