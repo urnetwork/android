@@ -288,4 +288,8 @@
     <string name="country">Land</string>
     <string name="multiplier">Vermenigvuldiger</string>
     <string name="clients">Clients</string>
+    <string name="pay_with_solana_wallet">Betalen met Solana Wallet</string>
+    <string name="pay_with_stripe">Lid worden met Stripe</string>
+    <string name="checking_solana_transactions">Controleren op Solana-transacties</string>
+    <string name="processing_payment">Betaling wordt verwerkt</string>
 </resources>

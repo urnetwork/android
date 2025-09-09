@@ -34,7 +34,10 @@ import kotlinx.coroutines.launch
 fun AccountRootSubscription(
     loginMode: LoginMode,
     currentPlan: Plan,
+    currentStore: String?,
     isProcessingUpgrade: Boolean,
+    isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
+    isPollingSubscriptionBalance: Boolean,
     scope: CoroutineScope,
     logout: () -> Unit,
     setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,

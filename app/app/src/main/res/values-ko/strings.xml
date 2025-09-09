@@ -285,4 +285,8 @@
     <string name="country">국가</string>
     <string name="multiplier">배수</string>
     <string name="clients">클라이언트</string>
+    <string name="pay_with_solana_wallet">Solana 지갑으로 결제</string>
+    <string name="pay_with_stripe">Stripe로 가입하기</string>
+    <string name="checking_solana_transactions">Solana 거래 확인 중</string>
+    <string name="processing_payment">결제 처리 중</string>
 </resources>

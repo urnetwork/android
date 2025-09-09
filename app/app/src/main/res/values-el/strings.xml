@@ -262,4 +262,8 @@
     <string name="country">Χώρα</string>
     <string name="multiplier">Πολλαπλασιαστής</string>
     <string name="clients">Πελάτες</string>
+    <string name="pay_with_solana_wallet">Πληρώστε με το πορτοφόλι Solana</string>
+    <string name="pay_with_stripe">Εγγραφείτε με Stripe</string>
+    <string name="checking_solana_transactions">Έλεγχος για συναλλαγές Solana</string>
+    <string name="processing_payment">Επεξεργασία πληρωμής</string>
 </resources>

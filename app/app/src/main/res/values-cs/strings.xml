@@ -236,4 +236,8 @@
     <string name="country">Země</string>
     <string name="multiplier">Násobitel</string>
     <string name="clients">Klienti</string>
+    <string name="pay_with_solana_wallet">Zaplaťte pomocí peněženky Solana</string>
+    <string name="pay_with_stripe">Připojit se pomocí Stripe</string>
+    <string name="checking_solana_transactions">Kontrola transakcí Solana</string>
+    <string name="processing_payment">Zpracovává se platba</string>
 </resources>

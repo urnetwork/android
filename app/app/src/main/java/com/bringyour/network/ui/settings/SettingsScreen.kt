@@ -124,6 +124,12 @@ fun SettingsScreen(
     activityResultSender: ActivityResultSender?,
     walletViewModel: WalletViewModel,
     bonusReferralCode: String,
+    setPendingSolanaSubscriptionReference: (String?) -> Unit,
+    createSolanaPaymentIntent: (
+        reference: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) -> Unit,
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
@@ -283,7 +289,9 @@ fun SettingsScreen(
             scope = scope,
             planViewModel = planViewModel,
             overlayViewModel = overlayViewModel,
-            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
+            setPendingSolanaSubscriptionReference = setPendingSolanaSubscriptionReference,
+            createSolanaPaymentIntent = createSolanaPaymentIntent
         )
     }
 

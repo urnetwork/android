@@ -77,6 +77,7 @@ import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
+import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -90,6 +91,12 @@ fun ConnectScreen(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     planViewModel: PlanViewModel,
     bundleStore: BundleStore?,
+    setPendingSolanaSubscriptionReference: (String?) -> Unit,
+    createSolanaPaymentIntent: (
+        reference: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) -> Unit,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     val scope = rememberCoroutineScope()
@@ -141,15 +148,6 @@ fun ConnectScreen(
     LaunchedEffect(Unit) {
 
         connectViewModel.refreshContractStatus()
-
-        planViewModel.onUpgradeSuccess.collect {
-
-            Log.i("ConnectScreen", "onUpgradeSuccess")
-
-            // poll subscription balance until it's updated
-            subscriptionBalanceViewModel.pollSubscriptionBalance()
-
-        }
 
     }
 
@@ -240,7 +238,10 @@ fun ConnectScreen(
             scope = scope,
             planViewModel = planViewModel,
             overlayViewModel = overlayViewModel,
-            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet
+            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
+            setPendingSolanaSubscriptionReference = setPendingSolanaSubscriptionReference,
+            createSolanaPaymentIntent = createSolanaPaymentIntent
+            // activityResultSender = activityResultSender
         )
     }
 

@@ -262,4 +262,8 @@
     <string name="country">الدولة</string>
     <string name="multiplier">المضاعف</string>
     <string name="clients">العملاء</string>
+    <string name="pay_with_solana_wallet">ادفع باستخدام محفظة سولانا</string>
+    <string name="pay_with_stripe">انضم باستخدام Stripe</string>
+    <string name="checking_solana_transactions">جارٍ التحقق من معاملات سولانا</string>
+    <string name="processing_payment">جارٍ معالجة الدفع</string>
 </resources>

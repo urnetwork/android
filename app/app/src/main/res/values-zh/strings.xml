@@ -263,4 +263,8 @@
     <string name="country">国家</string>
     <string name="multiplier">倍增器</string>
     <string name="clients">客户端</string>
+    <string name="pay_with_solana_wallet">使用 Solana 钱包支付</string>
+    <string name="pay_with_stripe">使用 Stripe 加入</string>
+    <string name="checking_solana_transactions">正在检查 Solana 交易</string>
+    <string name="processing_payment">正在处理付款</string>
 </resources>

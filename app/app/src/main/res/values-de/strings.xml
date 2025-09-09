@@ -263,4 +263,8 @@
     <string name="country">Land</string>
     <string name="multiplier">Multiplikator</string>
     <string name="clients">Clients</string>
+    <string name="pay_with_solana_wallet">Mit Solana Wallet bezahlen</string>
+    <string name="pay_with_stripe">Mit Stripe beitreten</string>
+    <string name="checking_solana_transactions">Überprüfung von Solana-Transaktionen</string>
+    <string name="processing_payment">Zahlung wird verarbeitet</string>
 </resources>
