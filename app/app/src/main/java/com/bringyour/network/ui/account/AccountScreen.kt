@@ -102,15 +102,7 @@ fun AccountScreen(
     val refreshState = rememberPullToRefreshState()
 
     LaunchedEffect(Unit) {
-        // This code runs when the screen appears
         subscriptionBalanceViewModel.fetchSubscriptionBalance()
-
-//        planViewModel.onUpgradeSuccess.collect {
-//
-//            // poll subscription balance until it's updated
-//            subscriptionBalanceViewModel.pollSubscriptionBalance()
-//
-//        }
     }
 
 

@@ -92,11 +92,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
                         result?.currentSubscription?.plan?.let { plan ->
                             setCurrentPlan(Plan.fromString(plan))
-                            Log.i(TAG, "current plan: $plan")
                         } ?: setCurrentPlan(Plan.Basic)
 
                         result?.currentSubscription?.store.let { store ->
-                            Log.i(TAG, "setting store as $store")
                             _currentStore.value = store
                         }
 
@@ -126,7 +124,6 @@ class SubscriptionBalanceViewModel @Inject constructor(
     fun pollSubscriptionBalance(maxDurationMs: Long = 120_000L) {
         if (isPolling) return
 
-        Log.i(TAG, "start poll subscription balance (max ${maxDurationMs}ms)")
         isPollingSubscriptionBalance = true
 
         createPollingJob(maxDurationMs)

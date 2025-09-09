@@ -149,15 +149,6 @@ fun ConnectScreen(
 
         connectViewModel.refreshContractStatus()
 
-//        planViewModel.onUpgradeSuccess.collect {
-//
-//            Log.i("ConnectScreen", "onUpgradeSuccess")
-//
-//            // poll subscription balance until it's updated
-//            subscriptionBalanceViewModel.pollSubscriptionBalance()
-//
-//        }
-
     }
 
     Scaffold(

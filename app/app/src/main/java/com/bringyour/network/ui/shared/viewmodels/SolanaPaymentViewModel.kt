@@ -22,7 +22,6 @@ class SolanaPaymentViewModel @Inject constructor(
     val pendingSolanaSubscriptionReference: StateFlow<String?> = _pendingSolanaSubscriptionReference.asStateFlow()
 
     val setPendingSolanaSubscriptionReference: (String?) -> Unit = {
-        Log.i(TAG, "solana reference key is: $it")
         _pendingSolanaSubscriptionReference.value = it
     }
 
