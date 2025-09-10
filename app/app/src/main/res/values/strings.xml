@@ -293,4 +293,5 @@
     <string name="checking_solana_transactions">Checking for Solana Transactions</string>
     <string name="processing_payment">Processing payment</string>
     <string name="check_ip">Check my IP</string>
+    <string name="preorder_now">Preorder Now</string>
 </resources>

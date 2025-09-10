@@ -293,4 +293,5 @@
     <string name="checking_solana_transactions">Проверка транзакций Solana</string>
     <string name="processing_payment">Обработка платежа</string>
     <string name="check_ip">Проверить мой IP</string>
+    <string name="preorder_now">Предзаказать сейчас</string>
 </resources>

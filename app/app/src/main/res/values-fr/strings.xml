@@ -269,4 +269,5 @@
     <string name="checking_solana_transactions">Vérification des transactions Solana</string>
     <string name="processing_payment">Traitement du paiement</string>
     <string name="check_ip">Vérifier mon IP</string>
+    <string name="preorder_now">Précommander maintenant</string>
 </resources>

@@ -293,4 +293,5 @@
     <string name="checking_solana_transactions">Controleren op Solana-transacties</string>
     <string name="processing_payment">Betaling wordt verwerkt</string>
     <string name="check_ip">Controleer mijn IP</string>
+    <string name="preorder_now">Pre-order nu</string>
 </resources>

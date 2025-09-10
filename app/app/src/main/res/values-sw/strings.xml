@@ -268,4 +268,5 @@
     <string name="checking_solana_transactions">Inakagua miamala ya Solana</string>
     <string name="processing_payment">Inashughulikia malipo</string>
     <string name="check_ip">Kagua IP yangu</string>
+    <string name="preorder_now">Agiza mapema sasa</string>
 </resources>

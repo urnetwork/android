@@ -241,4 +241,5 @@
     <string name="checking_solana_transactions">Kontrola transakcí Solana</string>
     <string name="processing_payment">Zpracovává se platba</string>
     <string name="check_ip">Zkontrolovat mou IP</string>
+    <string name="preorder_now">Předobjednat nyní</string>
 </resources>

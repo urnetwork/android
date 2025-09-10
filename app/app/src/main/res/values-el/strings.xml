@@ -267,4 +267,5 @@
     <string name="checking_solana_transactions">Έλεγχος για συναλλαγές Solana</string>
     <string name="processing_payment">Επεξεργασία πληρωμής</string>
     <string name="check_ip">Έλεγχος της διεύθυνσης IP μου</string>
+    <string name="preorder_now">Προπαραγγείλετε τώρα</string>
 </resources>
