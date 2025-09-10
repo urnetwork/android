@@ -262,7 +262,7 @@ private fun LeaderboardEntry(
     val isPrivate = !row.isPublic
 
     val networkName = if (isPrivate)
-        "Private Network"
+        stringResource(id = R.string.private_network)
     else
         if (row.containsProfanity)
             "${row.networkName.first()}${"*".repeat(row.networkName.length - 2)}${row.networkName.last()}"

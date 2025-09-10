@@ -268,4 +268,6 @@
     <string name="processing_payment">Επεξεργασία πληρωμής</string>
     <string name="check_ip">Έλεγχος της διεύθυνσης IP μου</string>
     <string name="preorder_now">Προπαραγγείλετε τώρα</string>
+    <string name="private_network">Ιδιωτικό δίκτυο</string>
+    <string name="default_wallet">Προεπιλογή</string>
 </resources>

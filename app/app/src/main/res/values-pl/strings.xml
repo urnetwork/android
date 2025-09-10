@@ -291,5 +291,7 @@
     <string name="processing_payment">Przetwarzanie płatności</string>
     <string name="check_ip">Sprawdź mój IP</string>
     <string name="preorder_now">Zamów w przedsprzedaży</string>
+    <string name="private_network">Sieć prywatna</string>
+    <string name="default_wallet">Domyślny</string>
 
 </resources>

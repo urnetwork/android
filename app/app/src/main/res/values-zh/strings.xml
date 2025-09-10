@@ -269,4 +269,6 @@
     <string name="processing_payment">正在处理付款</string>
     <string name="check_ip">检查我的 IP</string>
     <string name="preorder_now">立即预购</string>
+    <string name="private_network">私有网络</string>
+    <string name="default_wallet">默认</string>
 </resources>

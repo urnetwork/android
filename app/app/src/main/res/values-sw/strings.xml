@@ -269,4 +269,6 @@
     <string name="processing_payment">Inashughulikia malipo</string>
     <string name="check_ip">Kagua IP yangu</string>
     <string name="preorder_now">Agiza mapema sasa</string>
+    <string name="private_network">Mtandao wa kibinafsi</string>
+    <string name="default_wallet">Chaguo msingi</string>
 </resources>

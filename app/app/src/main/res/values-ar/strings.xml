@@ -268,4 +268,6 @@
     <string name="processing_payment">جارٍ معالجة الدفع</string>
     <string name="check_ip">تحقق من عنوان IP الخاص بي</string>
     <string name="preorder_now">اطلب مسبقًا الآن</string>
+    <string name="private_network">شبكة خاصة</string>
+    <string name="default_wallet">الافتراضي</string>
 </resources>

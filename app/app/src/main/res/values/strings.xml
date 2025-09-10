@@ -294,4 +294,6 @@
     <string name="processing_payment">Processing payment</string>
     <string name="check_ip">Check my IP</string>
     <string name="preorder_now">Preorder Now</string>
+    <string name="private_network">Private Network</string>
+    <string name="default_wallet">Default</string>
 </resources>

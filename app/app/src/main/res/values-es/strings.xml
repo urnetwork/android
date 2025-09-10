@@ -268,4 +268,6 @@
     <string name="processing_payment">Procesando el pago</string>
     <string name="check_ip">Verificar mi IP</string>
     <string name="preorder_now">Reservar ahora</string>
+    <string name="private_network">Red privada</string>
+    <string name="default_wallet">Predeterminado</string>
 </resources>

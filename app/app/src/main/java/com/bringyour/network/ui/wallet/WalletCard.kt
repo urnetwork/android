@@ -95,7 +95,7 @@ fun WalletCard(
                                 .padding(6.dp)
                         ) {
                             Text(
-                                "Default".uppercase(),
+                                stringResource(id = R.string.default_wallet).uppercase(),
                                 style = TextStyle(
                                     fontSize = 16.sp,
                                     fontFamily = ppNeueBitBold

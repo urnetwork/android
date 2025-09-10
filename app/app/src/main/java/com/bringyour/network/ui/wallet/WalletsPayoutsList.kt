@@ -10,9 +10,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.bringyour.network.R
+import com.bringyour.network.utils.formatDateLocalized
 import com.bringyour.sdk.AccountPayment
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Composable
 fun WalletsPayoutsList(
@@ -25,7 +31,7 @@ fun WalletsPayoutsList(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             Text(
-                "Earnings",
+                stringResource(id = R.string.earnings),
                 style = MaterialTheme.typography.bodyLarge
             )
         }
@@ -38,7 +44,13 @@ fun WalletsPayoutsList(
                 HorizontalDivider()
                 PayoutRow(
                     walletAddress = payout.walletAddress,
-                    completeTime = if (payout.completeTime != null) payout.completeTime.format("Jan 2") else null,
+                    completeTime = payout.completeTime?.let {
+                        // localize the date
+                        val millis = it.unixMilli()
+                        val instant = Instant.ofEpochMilli(millis)
+                        val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+                        formatDateLocalized(localDateTime)
+                    },
                     amountUsd = payout.tokenAmount,
                     payoutByteCount = payout.payoutByteCount,
                     completed = payout.completed,

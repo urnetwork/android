@@ -291,4 +291,6 @@
     <string name="processing_payment">결제 처리 중</string>
     <string name="check_ip">내 IP 확인</string>
     <string name="preorder_now">지금 사전 주문하기</string>
+    <string name="private_network">프라이빗 네트워크</string>
+    <string name="default_wallet">기본값</string>
 </resources>
