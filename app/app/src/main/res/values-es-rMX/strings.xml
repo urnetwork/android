@@ -266,4 +266,5 @@
     <string name="pay_with_stripe">Unirse con Stripe</string>
     <string name="checking_solana_transactions">Comprobando transacciones de Solana</string>
     <string name="processing_payment">Procesando el pago</string>
+    <string name="check_ip">Verificar mi IP</string>
 </resources>

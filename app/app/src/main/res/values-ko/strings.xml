@@ -289,4 +289,5 @@
     <string name="pay_with_stripe">Stripe로 가입하기</string>
     <string name="checking_solana_transactions">Solana 거래 확인 중</string>
     <string name="processing_payment">결제 처리 중</string>
+    <string name="check_ip">내 IP 확인</string>
 </resources>

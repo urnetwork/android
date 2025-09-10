@@ -266,4 +266,5 @@
     <string name="pay_with_stripe">Stripe के साथ जुड़ें</string>
     <string name="checking_solana_transactions">Solana लेन-देन की जांच हो रही है</string>
     <string name="processing_payment">भुगतान संसाधित हो रहा है</string>
+    <string name="check_ip">मेरा IP जांचें</string>
 </resources>

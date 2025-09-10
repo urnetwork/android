@@ -267,4 +267,5 @@
     <string name="pay_with_stripe">使用 Stripe 加入</string>
     <string name="checking_solana_transactions">正在检查 Solana 交易</string>
     <string name="processing_payment">正在处理付款</string>
+    <string name="check_ip">检查我的 IP</string>
 </resources>

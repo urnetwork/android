@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,7 +25,8 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun URNavListItem(
     iconResourceId: Int,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    actionIcon: ImageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -42,7 +44,7 @@ fun URNavListItem(
             Text(text)
         }
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            imageVector = actionIcon,
             contentDescription = "Keyboard Arrow Right",
             tint = TextMuted
         )

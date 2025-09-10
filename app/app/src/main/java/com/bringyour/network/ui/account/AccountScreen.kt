@@ -18,9 +18,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowOutward
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
@@ -40,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -194,6 +200,7 @@ fun AccountScreenContent(
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
+    val uriHandler = LocalUriHandler.current
 
     Column(
         modifier = Modifier
@@ -390,6 +397,34 @@ fun AccountScreenContent(
                 }
             }
         )
+        HorizontalDivider()
+
+        /**
+         * view IP
+         */
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .clickable {
+                    uriHandler.openUri("https://ur.io/ip")
+                }
+                .padding(vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row {
+                Icon(
+                    Icons.Filled.LocationOn,
+                    contentDescription = stringResource(id = R.string.check_ip),
+                    tint = TextMuted
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(stringResource(id = R.string.check_ip))
+            }
+            Icon(
+                Icons.Filled.ArrowOutward,
+                contentDescription = "Visit external link",
+                tint = TextMuted
+            )
+        }
         HorizontalDivider()
 
         Spacer(modifier = Modifier.height(24.dp))
