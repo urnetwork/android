@@ -270,4 +270,6 @@
     <string name="processing_payment">Traitement du paiement</string>
     <string name="check_ip">Vérifier mon IP</string>
     <string name="preorder_now">Précommander maintenant</string>
+    <string name="private_network">Réseau privé</string>
+    <string name="default_wallet">Par défaut</string>
 </resources>

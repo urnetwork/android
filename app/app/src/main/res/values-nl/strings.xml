@@ -294,4 +294,6 @@
     <string name="processing_payment">Betaling wordt verwerkt</string>
     <string name="check_ip">Controleer mijn IP</string>
     <string name="preorder_now">Pre-order nu</string>
+    <string name="private_network">Privénetwerk</string>
+    <string name="default_wallet">Standaard</string>
 </resources>

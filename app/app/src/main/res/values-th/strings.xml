@@ -242,4 +242,6 @@
     <string name="processing_payment">กำลังดำเนินการชำระเงิน</string>
     <string name="check_ip">ตรวจสอบ IP ของฉัน</string>
     <string name="preorder_now">สั่งจองล่วงหน้าตอนนี้</string>
+    <string name="private_network">เครือข่ายส่วนตัว</string>
+    <string name="default_wallet">ค่าเริ่มต้น</string>
 </resources>

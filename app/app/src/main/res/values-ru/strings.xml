@@ -294,4 +294,6 @@
     <string name="processing_payment">Обработка платежа</string>
     <string name="check_ip">Проверить мой IP</string>
     <string name="preorder_now">Предзаказать сейчас</string>
+    <string name="private_network">Частная сеть</string>
+    <string name="default_wallet">По умолчанию</string>
 </resources>

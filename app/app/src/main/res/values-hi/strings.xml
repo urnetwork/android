@@ -268,4 +268,6 @@
     <string name="processing_payment">भुगतान संसाधित हो रहा है</string>
     <string name="check_ip">मेरा IP जांचें</string>
     <string name="preorder_now">अभी प्री-ऑर्डर करें</string>
+    <string name="private_network">िजी नेटवर्क</string>
+    <string name="default_wallet">डिफ़ॉल्ट</string>
 </resources>
