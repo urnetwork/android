@@ -289,4 +289,6 @@
     <string name="pay_with_stripe">Stripeで参加する</string>
     <string name="checking_solana_transactions">Solanaのトランザクションを確認中</string>
     <string name="processing_payment">支払いを処理中</string>
+    <string name="check_ip">自分のIPを確認</string>
+    <string name="preorder_now">今すぐ予約注文</string>
 </resources>

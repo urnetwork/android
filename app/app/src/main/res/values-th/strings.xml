@@ -240,4 +240,6 @@
     <string name="pay_with_stripe">เข้าร่วมด้วย Stripe</string>
     <string name="checking_solana_transactions">กำลังตรวจสอบธุรกรรม Solana</string>
     <string name="processing_payment">กำลังดำเนินการชำระเงิน</string>
+    <string name="check_ip">ตรวจสอบ IP ของฉัน</string>
+    <string name="preorder_now">สั่งจองล่วงหน้าตอนนี้</string>
 </resources>
