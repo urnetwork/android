@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -28,6 +29,8 @@ import com.bringyour.network.ui.components.buttonTextStyle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun URNodeCarousel() {
+
+    val uriHandler = LocalUriHandler.current
 
     data class CarouselItem(
         val id: Int,
@@ -76,7 +79,9 @@ fun URNodeCarousel() {
         Spacer(modifier = Modifier.height(8.dp))
 
         URButton(
-            onClick = {}
+            onClick = {
+                uriHandler.openUri("https://ur.io/urnode")
+            }
         ) { buttonTextStyle ->
             Text(
                 "Preorder Now",
