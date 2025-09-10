@@ -58,7 +58,7 @@ fun URNodeCarousel() {
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(top = 16.dp, bottom = 16.dp),
-            itemWidth = 346.dp,
+            itemWidth = 400.dp,
             itemSpacing = 8.dp,
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) { i ->
