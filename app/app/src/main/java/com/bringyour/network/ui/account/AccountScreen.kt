@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -130,7 +131,7 @@ fun AccountScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .background(Black)
-                        .padding(16.dp),
+                        // .padding(16.dp),
                 ) {
 
                     AccountScreenContent(
@@ -206,13 +207,14 @@ fun AccountScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(Black)
-            .padding(bottom = 16.dp),
+            .padding(vertical = 16.dp),
         verticalArrangement = Arrangement.Top
     ) {
 
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -228,6 +230,7 @@ fun AccountScreenContent(
 
         Box(
             modifier = Modifier
+                .padding(horizontal = 16.dp)
                 .background(
                     Color(0xFF1C1C1C),
                     RoundedCornerShape(12.dp)
@@ -407,8 +410,9 @@ fun AccountScreenContent(
                 .clickable {
                     uriHandler.openUri("https://ur.io/ip")
                 }
-                .padding(vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(vertical = 12.dp, horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Row {
                 Icon(
@@ -419,11 +423,17 @@ fun AccountScreenContent(
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(stringResource(id = R.string.check_ip))
             }
-            Icon(
-                Icons.Filled.ArrowOutward,
-                contentDescription = "Visit external link",
-                tint = TextMuted
-            )
+            Row {
+                Icon(
+                    Icons.Filled.ArrowOutward,
+                    contentDescription = "Visit external link",
+                    tint = TextMuted,
+                    modifier = Modifier
+                        .size(18.dp)
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+            }
         }
         HorizontalDivider()
 
