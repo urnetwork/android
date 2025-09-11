@@ -31,7 +31,7 @@ fun URNavListItem(
     Row(
         modifier = Modifier.fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 12.dp),
+            .padding(vertical = 12.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row {

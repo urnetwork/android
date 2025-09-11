@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,10 +50,14 @@ fun URNodeCarousel() {
 
     Column() {
 
-        Text(
-            "URnode",
-            style = MaterialTheme.typography.headlineSmall
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            Text(
+                "URnode",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -62,7 +67,7 @@ fun URNodeCarousel() {
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(top = 16.dp, bottom = 16.dp),
-            itemWidth = 400.dp,
+            itemWidth = 424.dp,
             itemSpacing = 8.dp,
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) { i ->
@@ -79,15 +84,21 @@ fun URNodeCarousel() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        URButton(
-            onClick = {
-                uriHandler.openUri("https://ur.io/urnode")
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+
+            URButton(
+                onClick = {
+                    uriHandler.openUri("https://ur.io/urnode")
+                }
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = R.string.preorder_now),
+                    style = buttonTextStyle
+                )
             }
-        ) { buttonTextStyle ->
-            Text(
-                stringResource(id = R.string.preorder_now),
-                style = buttonTextStyle
-            )
+
         }
 
     }
