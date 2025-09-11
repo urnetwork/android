@@ -88,7 +88,7 @@ fun UpgradePlanBottomSheet(
     val promptWalletTransaction: (reference: String) -> Unit = { reference ->
 
         val recipient = "74UNdYRpvakSABaYHSZMQNaXBVtA6eY9Nt8chcqocKe7"
-        val amountDecimal = "30" // 30 USDC yearly sub
+        val amountDecimal = "40" // 40 USDC yearly sub
         val usdcMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // mainnet USDC
 
         val label = "URnetwork"
