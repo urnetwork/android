@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.components
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,11 +43,11 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import com.bringyour.network.utils.buildSolanaPaymentUrl
+import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.funkatronics.encoders.Base58
-import java.security.SecureRandom
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,24 +86,7 @@ fun UpgradePlanBottomSheet(
 
     val promptWalletTransaction: (reference: String) -> Unit = { reference ->
 
-        val recipient = "74UNdYRpvakSABaYHSZMQNaXBVtA6eY9Nt8chcqocKe7"
-        val amountDecimal = "40" // 40 USDC yearly sub
-        val usdcMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // mainnet USDC
-
-        val label = "URnetwork"
-        val message = "Yearly Supporter Subscription"
-        val memo = ""
-
-        val url = buildString {
-            append("solana:")
-            append(recipient)
-            append("?amount="); append(amountDecimal)
-            append("&spl-token="); append(usdcMint)
-            append("&reference="); append(reference)
-            append("&label="); append(Uri.encode(label))
-            append("&message="); append(Uri.encode(message))
-            append("&memo="); append(Uri.encode(memo))
-        }
+        val url = buildSolanaPaymentUrl(reference)
 
         uriHandler.openUri(url)
 
@@ -116,9 +98,7 @@ fun UpgradePlanBottomSheet(
 
     val upgradeWithSolana: () -> Unit = {
 
-        val bytes = ByteArray(32)
-        SecureRandom().nextBytes(bytes)
-        val reference = Base58.encodeToString(bytes)
+        val reference = createPaymentReference()
 
         createSolanaPaymentIntent(
             reference,
