@@ -32,6 +32,36 @@ import kotlin.concurrent.thread
     companion object {
         const val NOTIFICATION_ID = 101
         const val NOTIFICATION_CHANNEL_ID = "URnetwork"
+
+        fun defaultExcludedPackageNames(): List<String> {
+            // TODO grass, spectrum, session, discord
+            return listOf(
+                "com.discord",
+                // session
+                "network.loki.messenger"
+            ) + solanaMobilePackageNames() + spectrumPackageNames()
+        }
+
+        fun solanaMobilePackageNames(): List<String> {
+            return listOf(
+                "com.solanamobile.dappstore",
+                "com.solanamobile.wallet",
+                "io.getgrass.www"
+            )
+        }
+
+        fun spectrumPackageNames(): List<String> {
+            return listOf(
+                // spectrum
+                "com.TWCableTV",
+                "com.spectrum.access",
+                "com.brighthouse.mybhn",
+                "com.twcable.twcnews",
+                "com.spectrum.tv.android.tvsa",
+                "com.twcsports.android",
+                "com.charter.university"
+            )
+        }
     }
 
 
@@ -171,6 +201,10 @@ import kotlin.concurrent.thread
             builder.addAllowedApplication("${packageName}.offline")
         } else {
             builder.addDisallowedApplication(packageName)
+            // add split tunnel excluded configuration
+            for (excludedPackageName in defaultExcludedPackageNames()) {
+                builder.addDisallowedApplication(excludedPackageName)
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)

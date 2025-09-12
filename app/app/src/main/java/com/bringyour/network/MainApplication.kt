@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
 import javax.inject.Inject
+import kotlin.math.max
 
 
 @HiltAndroidApp
@@ -132,7 +133,8 @@ class MainApplication : Application() {
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
         val maxMemoryMib = activityManager?.memoryClass?.toLong() ?: 16
         // target 3/4 of the max memory for the sdk
-        Sdk.setMemoryLimit((3 * maxMemoryMib * 1024 * 1024) / 4)
+        val sdkMemoryMib = max((3 * maxMemoryMib) / 4, 32)
+        Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
 
         networkSpaceManagerProvider.init(filesDir.absolutePath)
 
