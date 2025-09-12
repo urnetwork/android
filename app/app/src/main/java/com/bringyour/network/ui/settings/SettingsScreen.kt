@@ -45,6 +45,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -367,13 +368,13 @@ fun SettingsScreen(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val application = context.applicationContext as? MainApplication
-//    val allowForeground = remember { mutableStateOf(application?.allowForeground ?: false) }
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
 
     val depinHubStr = "DePIN Hub"
     val depinHubLink = "https://depinhub.io/projects/urnetwork"
+    val seekerLink = "https://ur.io/seeker"
 
     Scaffold(
         snackbarHost = {
@@ -624,14 +625,14 @@ fun SettingsScreen(
                     color = Color.White
                 )
 
-                Text(
-                    stringResource(id = R.string.update),
-                    modifier = Modifier
-                        .clickable {
-                            expandUpdateNetworkReferralSheet()
-                        },
-                    color = BlueMedium
-                )
+                TextButton(onClick = {
+                    expandUpdateNetworkReferralSheet()
+                }) {
+                    Text(
+                        stringResource(id = R.string.update),
+                        color = BlueMedium
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -652,15 +653,15 @@ fun SettingsScreen(
                     color = Color.White
                 )
 
-                Text(
-                    stringResource(id = R.string.create),
-                    modifier = Modifier
-                        .clickable {
-                            authCodeCreate()
-                            setDisplayAuthCodeDialog(true)
-                        },
-                    color = BlueMedium
-                )
+                TextButton(onClick = {
+                    authCodeCreate()
+                    setDisplayAuthCodeDialog(true)
+                }) {
+                    Text(
+                        stringResource(id = R.string.create),
+                        color = BlueMedium
+                    )
+                }
             }
             Text(
                 stringResource(id = R.string.auth_code_expires),
@@ -1008,14 +1009,15 @@ fun SettingsScreen(
                         tint = Green
                     )
                 } else {
-                    Text(
-                        stringResource(id = R.string.claim),
-                        modifier = Modifier
-                            .clickable {
-                                signAndVerifySeekerHolder()
-                            },
-                        color = BlueMedium
-                    )
+
+                    TextButton(onClick = {
+                        signAndVerifySeekerHolder()
+                    }) {
+                        Text(
+                            stringResource(id = R.string.claim),
+                            color = BlueMedium
+                        )
+                    }
                 }
 
             }
@@ -1025,6 +1027,35 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted
             )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.learn_more_about_multiplier),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                IconButton(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, seekerLink.toUri())
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.size(20.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.Outbound,
+                        contentDescription = "Right Arrow",
+                        tint = TextMuted,
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 

@@ -293,4 +293,5 @@
     <string name="preorder_now">지금 사전 주문하기</string>
     <string name="private_network">프라이빗 네트워크</string>
     <string name="default_wallet">기본값</string>
+    <string name="learn_more_about_multiplier">배수에 대해 자세히 알아보기</string>
 </resources>

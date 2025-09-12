@@ -296,4 +296,5 @@
     <string name="preorder_now">Предзаказать сейчас</string>
     <string name="private_network">Частная сеть</string>
     <string name="default_wallet">По умолчанию</string>
+    <string name="learn_more_about_multiplier">Узнать больше о множителе</string>
 </resources>

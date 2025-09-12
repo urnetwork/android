@@ -272,4 +272,5 @@
     <string name="preorder_now">Précommander maintenant</string>
     <string name="private_network">Réseau privé</string>
     <string name="default_wallet">Par défaut</string>
+    <string name="learn_more_about_multiplier">" En savoir plus sur le multiplicateur"</string>
 </resources>
