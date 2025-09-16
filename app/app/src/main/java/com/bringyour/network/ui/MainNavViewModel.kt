@@ -46,6 +46,8 @@ sealed class Route {
     @Serializable object BrowseLocations : Route()
     @Serializable object AccountContainer : Route()
     @Serializable object Leaderboard: Route()
+
+    @Serializable object Upgrade: Route()
     @Serializable object Account : Route()
     @Serializable object Support : Route()
     @Serializable object Profile : Route()

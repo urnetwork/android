@@ -75,3 +75,4 @@ val MainTintedBackgroundBase = Color(0xFF1C1C1C)
 
 val OffWhite = Color(0xFFF8F8F8)
 val Black = Color(0xFF101010)
+val OffBlack = Color(0xFF1C1C1C)

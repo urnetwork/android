@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,14 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.bringyour.network.R
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,10 +38,8 @@ fun AccountRootSubscription(
     isProcessingUpgrade: Boolean,
     isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
     isPollingSubscriptionBalance: Boolean,
-    scope: CoroutineScope,
     logout: () -> Unit,
-    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
-    upgradePlanSheetState: SheetState
+    navController: NavHostController
 ) {
     // member area
     Box {
@@ -121,10 +118,7 @@ fun AccountRootSubscription(
                             modifier = Modifier
                                 .offset(y = (-8).dp)
                                 .clickable {
-                                    scope.launch {
-                                        setIsPresentingUpgradePlanSheet(true)
-                                        upgradePlanSheetState.expand()
-                                    }
+                                    navController.navigate(Route.Upgrade)
                                 },
                             style = TextStyle(
                                 color = BlueMedium
