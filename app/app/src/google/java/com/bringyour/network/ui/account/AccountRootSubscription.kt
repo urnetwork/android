@@ -20,7 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.bringyour.network.R
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.theme.BlueMedium
@@ -38,10 +40,9 @@ fun AccountRootSubscription(
     isProcessingUpgrade: Boolean,
     isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
     isPollingSubscriptionBalance: Boolean,
-    scope: CoroutineScope,
+//    scope: CoroutineScope,
     logout: () -> Unit,
-    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
-    upgradePlanSheetState: SheetState
+    navController: NavHostController,
 ) {
     // member area
     Box {
@@ -106,10 +107,7 @@ fun AccountRootSubscription(
                             modifier = Modifier
                                 .offset(y = (-8).dp)
                                 .clickable {
-                                    scope.launch {
-                                        setIsPresentingUpgradePlanSheet(true)
-                                        upgradePlanSheetState.expand()
-                                    }
+                                    navController.navigate(Route.Upgrade)
                                 },
                             style = TextStyle(
                                 color = BlueMedium

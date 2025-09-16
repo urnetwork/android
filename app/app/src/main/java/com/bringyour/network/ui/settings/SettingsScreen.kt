@@ -90,7 +90,6 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
-import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.settings.updateReferralNetworkBottomSheet.UpdateReferralNetworkBottomSheet
@@ -125,12 +124,6 @@ fun SettingsScreen(
     activityResultSender: ActivityResultSender?,
     walletViewModel: WalletViewModel,
     bonusReferralCode: String,
-    setPendingSolanaSubscriptionReference: (String?) -> Unit,
-    createSolanaPaymentIntent: (
-        reference: String,
-        onSuccess: () -> Unit,
-        onError: () -> Unit
-    ) -> Unit,
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
@@ -141,12 +134,6 @@ fun SettingsScreen(
     val authCode = settingsViewModel.authCode.collectAsState().value
 
     val scope = rememberCoroutineScope()
-
-    val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
-    val setIsPresentingUpgradePlanSheet: (Boolean) -> Unit = { isPresenting ->
-        isPresentingUpgradePlanSheet = isPresenting
-    }
 
     val updateReferralNetworkSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isPresentingUpdateReferralNetworkSheet by remember { mutableStateOf(false) }
@@ -160,15 +147,6 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val clipboardManager = LocalClipboardManager.current
-
-    val expandUpgradePlanSheet: () -> Unit = {
-
-        scope.launch {
-            upgradePlanSheetState.expand()
-            setIsPresentingUpgradePlanSheet(true)
-        }
-
-    }
 
     val expandUpdateNetworkReferralSheet: () -> Unit = {
         scope.launch {
@@ -246,7 +224,6 @@ fun SettingsScreen(
         provideControlMode = settingsViewModel.provideControlMode,
         setProvideControlMode = settingsViewModel.setProvideControlMode,
         urIdUrl = settingsViewModel.urIdUrl,
-        expandUpgradePlanSheet = expandUpgradePlanSheet,
         showDeleteAccountDialog = showDeleteAccountDialog,
         setShowDeleteAccountDialog = settingsViewModel.setShowDeleteAccountDialog,
         deleteAccount = settingsViewModel.deleteAccount,
@@ -281,18 +258,6 @@ fun SettingsScreen(
                 clipboardManager.setText(AnnotatedString(authCode ?: ""))
                 settingsViewModel.setIsPresentingAuthCodeDialog(false)
             }
-        )
-    }
-
-    if (isPresentingUpgradePlanSheet) {
-        UpgradePlanBottomSheet(
-            sheetState = upgradePlanSheetState,
-            scope = scope,
-            planViewModel = planViewModel,
-            overlayViewModel = overlayViewModel,
-            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
-            setPendingSolanaSubscriptionReference = setPendingSolanaSubscriptionReference,
-            createSolanaPaymentIntent = createSolanaPaymentIntent
         )
     }
 
@@ -340,7 +305,6 @@ fun SettingsScreen(
     provideControlMode: ProvideControlMode,
     setProvideControlMode: (ProvideControlMode) -> Unit,
     urIdUrl: (String) -> String?,
-    expandUpgradePlanSheet: () -> Unit,
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
     showDeleteAccountDialog: Boolean,
     deleteAccount: (onSuccess: () -> Unit, onFailure: (Exception?) -> Unit) -> Unit,
@@ -449,7 +413,7 @@ fun SettingsScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            expandUpgradePlanSheet()
+                                            navController.navigate(Route.Upgrade)
                                         },
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
@@ -482,7 +446,7 @@ fun SettingsScreen(
                             color = BlueMedium
                         ),
                         modifier = Modifier.clickable {
-                            expandUpgradePlanSheet()
+                            navController.navigate(Route.Upgrade)
                         }
                     )
                 }
@@ -1181,7 +1145,6 @@ private fun SettingsScreenPreview() {
             provideControlMode = ProvideControlMode.AUTO,
             setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
@@ -1225,7 +1188,6 @@ private fun SettingsScreenSupporterPreview() {
             provideControlMode = ProvideControlMode.AUTO,
             setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
@@ -1269,7 +1231,6 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             provideControlMode = ProvideControlMode.AUTO,
             setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
@@ -1313,7 +1274,6 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             provideControlMode = ProvideControlMode.AUTO,
             setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {},
             showDeleteAccountDialog = false,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },
@@ -1357,7 +1317,6 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             provideControlMode = ProvideControlMode.AUTO,
             setProvideControlMode = {},
             urIdUrl = { clientId -> "https://ur.io/c?$clientId" },
-            expandUpgradePlanSheet = {},
             showDeleteAccountDialog = true,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },

@@ -28,25 +28,18 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,7 +53,6 @@ import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
-import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -69,6 +61,7 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.OffBlack
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -86,12 +79,6 @@ fun AccountScreen(
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
     walletCount: Int,
-    setPendingSolanaSubscriptionReference: (String?) -> Unit,
-    createSolanaPaymentIntent: (
-        reference: String,
-        onSuccess: () -> Unit,
-        onError: () -> Unit
-    ) -> Unit
 ) {
 
     val scope = rememberCoroutineScope()
@@ -99,12 +86,6 @@ fun AccountScreen(
     val networkUser by accountViewModel.networkUser.collectAsState()
     val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
     val currentStore by subscriptionBalanceViewModel.currentStore.collectAsState()
-
-    val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
-    val setIsPresentingUpgradePlanSheet: (Boolean) -> Unit = { isPresenting ->
-        isPresentingUpgradePlanSheet = isPresenting
-    }
 
     val refreshState = rememberPullToRefreshState()
 
@@ -137,7 +118,6 @@ fun AccountScreen(
                     AccountScreenContent(
                         loginMode = accountViewModel.loginMode,
                         navController = navController,
-                        upgradePlanSheetState = upgradePlanSheetState,
                         scope = scope,
                         networkName = networkUser?.networkName,
                         totalPayoutAmount = totalPayoutAmount,
@@ -146,7 +126,6 @@ fun AccountScreen(
                         currentPlan = currentPlan,
                         currentStore = currentStore,
                         launchOverlay = overlayViewModel.launch,
-                        setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
                         isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                         isCheckingSolanaTransaction = subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState().value,
                         isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPolling,
@@ -154,26 +133,10 @@ fun AccountScreen(
                         pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
                         availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount
                     )
-
-                    if (isPresentingUpgradePlanSheet) {
-                        UpgradePlanBottomSheet(
-                            sheetState = upgradePlanSheetState,
-                            scope = scope,
-                            planViewModel = planViewModel,
-                            overlayViewModel = overlayViewModel,
-                            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
-                            setPendingSolanaSubscriptionReference = setPendingSolanaSubscriptionReference,
-                            createSolanaPaymentIntent = createSolanaPaymentIntent,
-
-                        )
-                    }
-
                 }
             }
         }
-
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -181,7 +144,6 @@ fun AccountScreen(
 fun AccountScreenContent(
     loginMode: LoginMode,
     navController: NavHostController,
-    upgradePlanSheetState: SheetState,
     scope: CoroutineScope,
     networkName: String?,
     totalPayoutAmount: Double,
@@ -190,7 +152,6 @@ fun AccountScreenContent(
     currentPlan: Plan,
     currentStore: String?,
     launchOverlay: (OverlayMode) -> Unit,
-    setIsPresentingUpgradePlanSheet: (Boolean) -> Unit,
     isProcessingUpgrade: Boolean, // checking for Stripe, Apple, Play
     isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
     isPollingSubscriptionBalance: Boolean,
@@ -232,7 +193,7 @@ fun AccountScreenContent(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .background(
-                    Color(0xFF1C1C1C),
+                    OffBlack,
                     RoundedCornerShape(12.dp)
                 )
                 .fillMaxWidth()
@@ -244,7 +205,7 @@ fun AccountScreenContent(
                     loginMode = loginMode,
                     currentPlan = currentPlan,
                     currentStore = currentStore,
-                    scope = scope,
+//                    scope = scope,
                     logout = {
                         application?.logout()
 
@@ -253,11 +214,10 @@ fun AccountScreenContent(
 
                         (context as? Activity)?.finish()
                     },
-                    setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
-                    upgradePlanSheetState = upgradePlanSheetState,
                     isProcessingUpgrade = isProcessingUpgrade,
                     isPollingSubscriptionBalance = isPollingSubscriptionBalance,
-                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
+                    isCheckingSolanaTransaction = isCheckingSolanaTransaction,
+                    navController = navController
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -453,8 +413,6 @@ private fun AccountSupporterAuthenticatedPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     URNetworkTheme {
 
         Scaffold() { innerPadding ->
@@ -467,7 +425,6 @@ private fun AccountSupporterAuthenticatedPreview() {
                 AccountScreenContent(
                     loginMode = LoginMode.Authenticated,
                     navController = navController,
-                    upgradePlanSheetState = sheetState,
                     scope = scope,
                     networkName = "ur_network",
                     totalPayoutAmount = 120.12387,
@@ -475,7 +432,6 @@ private fun AccountSupporterAuthenticatedPreview() {
                     walletCount = 2,
                     currentPlan = Plan.Supporter,
                     launchOverlay = {},
-                    setIsPresentingUpgradePlanSheet = {},
                     isProcessingUpgrade = false,
                     usedBytes = 30_000,
                     pendingBytes = 10_000,
@@ -499,8 +455,6 @@ private fun AccountBasicAuthenticatedPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     URNetworkTheme {
 
         Scaffold() { innerPadding ->
@@ -520,8 +474,6 @@ private fun AccountBasicAuthenticatedPreview() {
                     walletCount = 2,
                     currentPlan = Plan.Basic,
                     launchOverlay = {},
-                    upgradePlanSheetState = sheetState,
-                    setIsPresentingUpgradePlanSheet = {},
                     isProcessingUpgrade = false,
                     usedBytes = 30_000,
                     pendingBytes = 10_000,
@@ -545,8 +497,6 @@ private fun AccountGuestPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     URNetworkTheme {
         Scaffold() { innerPadding ->
             Column(
@@ -558,8 +508,6 @@ private fun AccountGuestPreview() {
                 AccountScreenContent(
                     loginMode = LoginMode.Guest,
                     navController = navController,
-                    upgradePlanSheetState = sheetState,
-                    setIsPresentingUpgradePlanSheet = {},
                     scope = scope,
                     networkName = "ur_network",
                     totalPayoutAmount = 0.0,
@@ -589,8 +537,6 @@ private fun AccountGuestNoWalletPreview() {
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     URNetworkTheme {
 
         Scaffold() { innerPadding ->
@@ -602,8 +548,6 @@ private fun AccountGuestNoWalletPreview() {
                 AccountScreenContent(
                     loginMode = LoginMode.Guest,
                     navController = navController,
-                    upgradePlanSheetState = sheetState,
-                    setIsPresentingUpgradePlanSheet = {},
                     scope = scope,
                     networkName = "ur_network",
                     totalPayoutAmount = 0.0,

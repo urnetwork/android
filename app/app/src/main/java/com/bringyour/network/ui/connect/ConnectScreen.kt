@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -28,7 +27,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,14 +47,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.TAG
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.Id
 import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.account.AccountViewModel
-import com.bringyour.network.ui.components.UpgradePlanBottomSheet
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
@@ -68,7 +64,6 @@ import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
-// import com.bringyour.network.ui.shared.viewmodels.PromptReviewViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
@@ -77,7 +72,6 @@ import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
-import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -91,17 +85,8 @@ fun ConnectScreen(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     planViewModel: PlanViewModel,
     bundleStore: BundleStore?,
-    setPendingSolanaSubscriptionReference: (String?) -> Unit,
-    createSolanaPaymentIntent: (
-        reference: String,
-        onSuccess: () -> Unit,
-        onError: () -> Unit
-    ) -> Unit,
     accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
-    val scope = rememberCoroutineScope()
-
-    val upgradePlanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val contractStatus by connectViewModel.contractStatus.collectAsState()
@@ -111,25 +96,10 @@ fun ConnectScreen(
 
     val displayInsufficientBalance = contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter
 
-    var isPresentingUpgradePlanSheet by remember { mutableStateOf(false) }
-
-    val setIsPresentingUpgradePlanSheet: (Boolean) -> Unit = { isPresenting ->
-        isPresentingUpgradePlanSheet = isPresenting
-    }
-
     var promptSolanaReview by remember { mutableStateOf(false) }
 
     val setPromptSolanaReview: (Boolean) -> Unit = {
         promptSolanaReview = it
-    }
-
-    val expandUpgradePlanSheet: () -> Unit = {
-
-        scope.launch {
-            upgradePlanSheetState.expand()
-            setIsPresentingUpgradePlanSheet(true)
-        }
-
     }
 
     val reviewManagerRequest = rememberReviewManager()
@@ -185,7 +155,6 @@ fun ConnectScreen(
                     currentPlan = currentPlan,
                     displayInsufficientBalance = displayInsufficientBalance,
                     isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                    expandUpgradePlanSheet = expandUpgradePlanSheet,
                     device = connectViewModel.device,
                     promptReview = {
                         if (bundleStore == BundleStore.SOLANA_DAPP) {
@@ -217,7 +186,7 @@ fun ConnectScreen(
                     },
                     actions = {
                         Button(onClick = {
-                            expandUpgradePlanSheet()
+                            navController.navigate(Route.Upgrade)
                         }) {
                             Text(
                                 stringResource(id = R.string.upgrade_now),
@@ -230,21 +199,6 @@ fun ConnectScreen(
 
         }
     }
-
-
-    if (isPresentingUpgradePlanSheet) {
-        UpgradePlanBottomSheet(
-            sheetState = upgradePlanSheetState,
-            scope = scope,
-            planViewModel = planViewModel,
-            overlayViewModel = overlayViewModel,
-            setIsPresentingUpgradePlanSheet = setIsPresentingUpgradePlanSheet,
-            setPendingSolanaSubscriptionReference = setPendingSolanaSubscriptionReference,
-            createSolanaPaymentIntent = createSolanaPaymentIntent
-            // activityResultSender = activityResultSender
-        )
-    }
-
 
     if (promptSolanaReview) {
         PromptSolanaDAppStoreReview(
@@ -280,7 +234,6 @@ fun ConnectMainContent(
     contractStatus: ContractStatus?,
     currentPlan: Plan,
     isPollingSubscriptionBalance: Boolean,
-    expandUpgradePlanSheet: () -> Unit,
     device: DeviceLocal?, // fixme, we don't need to pass the entire device
     promptReview: () -> Unit
 ) {
@@ -456,7 +409,7 @@ fun ConnectMainContent(
                         ) {
                             URButton(
                                 onClick = {
-                                    expandUpgradePlanSheet()
+                                    navController.navigate(Route.Upgrade)
                                 },
                                 style = ButtonStyle.OUTLINE
                             ) { buttonTextStyle ->

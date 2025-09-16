@@ -96,6 +96,7 @@ import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.AccountPointEvent
 import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
 import com.bringyour.network.ui.shared.viewmodels.SolanaPaymentViewModel
+import com.bringyour.network.ui.upgrade.UpgradeScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -445,8 +446,6 @@ fun MainNavContent(
                     subscriptionBalanceViewModel,
                     planViewModel,
                     bundleStore,
-                    setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
-                    createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
                 )
             }
 
@@ -481,6 +480,21 @@ fun MainNavContent(
             LeaderboardScreen()
         }
 
+        composable<Route.Upgrade>(
+            enterTransition = NavigationAnimations.enterTransition(),
+            exitTransition = NavigationAnimations.exitTransition(),
+            popEnterTransition = NavigationAnimations.popEnterTransition(),
+            popExitTransition = NavigationAnimations.popExitTransition()
+        ) {
+            UpgradeScreen(
+                navController = navController,
+                planViewModel = planViewModel,
+                overlayViewModel = overlayViewModel,
+                setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
+                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
+            )
+        }
+
         navigation<Route.AccountContainer>(
             startDestination = Route.Account,
             enterTransition = { EnterTransition.None },
@@ -496,8 +510,6 @@ fun MainNavContent(
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     overlayViewModel = overlayViewModel,
-                    setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
-                    createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
                 )
             }
             composable<Route.Profile>(
@@ -526,8 +538,6 @@ fun MainNavContent(
                 activityResultSender,
                 walletViewModel,
                 bonusReferralCode = referralCodeViewModel.referralCode,
-                setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
-                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
             ) }
 
             composable<Route.BlockedRegions>(
