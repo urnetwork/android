@@ -491,7 +491,10 @@ fun MainNavContent(
                 planViewModel = planViewModel,
                 overlayViewModel = overlayViewModel,
                 setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
-                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent
+                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
+                pollSubscriptionBalance = {
+                    subscriptionBalanceViewModel.pollSubscriptionBalance()
+                }
             )
         }
 

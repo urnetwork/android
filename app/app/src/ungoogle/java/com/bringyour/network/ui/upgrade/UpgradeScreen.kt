@@ -15,7 +15,8 @@ fun UpgradeScreen(
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
-    ) -> Unit
+    ) -> Unit,
+    pollSubscriptionBalance: () -> Unit
 ) {
 
     /**
@@ -26,7 +27,8 @@ fun UpgradeScreen(
         planViewModel,
         overlayViewModel,
         setPendingSolanaSubscriptionReference,
-        createSolanaPaymentIntent
+        createSolanaPaymentIntent,
+        pollSubscriptionBalance
     )
 
 }

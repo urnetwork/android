@@ -131,20 +131,6 @@ fun AccountRootSubscription(
                             )
                         )
                     }
-
-                    if (currentPlan == Plan.Supporter && !isPollingSubscriptionBalance && currentStore == "stripe") {
-                        Text(
-                            stringResource(id = R.string.manage_subscription),
-                            modifier = Modifier
-                                .offset(y = (-8).dp)
-                                .clickable {
-                                    uriHandler.openUri("https://pay.ur.io/p/login/00g16I4Mag2O240aEE")
-                                },
-                            style = TextStyle(
-                                color = BlueMedium
-                            )
-                        )
-                    }
                 }
             }
         }
