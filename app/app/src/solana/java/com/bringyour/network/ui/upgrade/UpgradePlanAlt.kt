@@ -40,7 +40,8 @@ fun UpgradePlanAlt(
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
-    ) -> Unit
+    ) -> Unit,
+    pollSubscriptionBalance: () -> Unit
 ) {
 
     val uriHandler = LocalUriHandler.current
@@ -90,15 +91,14 @@ fun UpgradePlanAlt(
                 .verticalScroll(rememberScrollState())
         ) {
             UpgradePlanContent(
-                upgradeStripeMonthly = {
-                    uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${planViewModel.networkId}")
-                },
-                upgradeStripeYearly = {
-                    uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${planViewModel.networkId}")
-                },
                 upgradeSolana = upgradeWithSolana,
                 upgradeInProgress = planViewModel.inProgress,
-                formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice
+                formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice,
+                onStripePaymentSuccess = {
+                    pollSubscriptionBalance()
+                    overlayViewModel.launch(OverlayMode.Upgrade)
+                    navController.popBackStack()
+                }
             )
         }
     }
@@ -108,10 +108,9 @@ fun UpgradePlanAlt(
 @Composable
 private fun UpgradePlanContent(
     upgradeInProgress: Boolean,
-    upgradeStripeMonthly: () -> Unit,
-    upgradeStripeYearly: () -> Unit,
     upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
+    onStripePaymentSuccess: () -> Unit
 ) {
 
     var isPromptingSolanaPayment by remember { mutableStateOf(false) }
@@ -136,14 +135,12 @@ private fun UpgradePlanContent(
         Column {
 
             AltSubscriptionOptions(
-                upgradeStripeMonthly = upgradeStripeMonthly,
-                upgradeStripeYearly = upgradeStripeYearly,
-                upgradeInProgress = upgradeInProgress,
                 upgradeSolana = upgradeSolana,
                 isPromptingSolanaPayment = isPromptingSolanaPayment,
                 setIsPromptingSolanaPayment = {
                     isPromptingSolanaPayment = it
-                }
+                },
+                onStripePaymentSuccess = onStripePaymentSuccess
             )
 
             Spacer(modifier = Modifier.height(16.dp))

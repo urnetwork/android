@@ -446,6 +446,12 @@ dependencies {
     implementation("io.github.funkatronics:kborsh:0.1.1")
 }
 
+// stripe
+dependencies {
+    implementation("com.stripe:stripe-android:21.26.1")
+    implementation("com.stripe:financial-connections:21.26.1")
+}
+
 // google play
 dependencies {
     // force dependencies with known CVE vulnerabilities to newer versions
@@ -491,7 +497,6 @@ dependencies {
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 }
-
 
 
 // Allow references to generated code

@@ -43,7 +43,8 @@ fun UpgradeScreen(
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
-    ) -> Unit
+    ) -> Unit,
+    pollSubscriptionBalance: () -> Unit
 ) {
 
     LaunchedEffect(Unit) {

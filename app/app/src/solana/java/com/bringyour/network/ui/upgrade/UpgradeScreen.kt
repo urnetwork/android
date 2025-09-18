@@ -1,9 +1,11 @@
 package com.bringyour.network.ui.upgrade
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.StripePaymentIntentViewModel
 
 @Composable
 fun UpgradeScreen(
@@ -15,7 +17,8 @@ fun UpgradeScreen(
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
-    ) -> Unit
+    ) -> Unit,
+    pollSubscriptionBalance: () -> Unit
 ) {
 
     /**
@@ -26,7 +29,8 @@ fun UpgradeScreen(
         planViewModel,
         overlayViewModel,
         setPendingSolanaSubscriptionReference,
-        createSolanaPaymentIntent
+        createSolanaPaymentIntent,
+        pollSubscriptionBalance
     )
 
 }
