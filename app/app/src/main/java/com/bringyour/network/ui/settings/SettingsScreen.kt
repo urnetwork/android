@@ -245,7 +245,8 @@ fun SettingsScreen(
         authCode = authCode,
         isCreatingAuthCode = settingsViewModel.isCreatingAuthCode.collectAsState().value,
         setDisplayAuthCodeDialog = settingsViewModel.setIsPresentingAuthCodeDialog,
-        provideIndicatorColor = settingsViewModel.provideIndicatorColor
+        provideIndicatorColor = settingsViewModel.provideIndicatorColor,
+        stripePortalUrl = settingsViewModel.stripePortalUrl.collectAsState().value
     )
 
     if (isPresentingAuthCodeDialog) {
@@ -326,7 +327,8 @@ fun SettingsScreen(
     authCode: String?,
     isCreatingAuthCode: Boolean,
     setDisplayAuthCodeDialog: (Boolean) -> Unit,
-    provideIndicatorColor: Color
+    provideIndicatorColor: Color,
+    stripePortalUrl: String?
 ) {
 
     val context = LocalContext.current
@@ -378,81 +380,6 @@ fun SettingsScreen(
                 Text(stringResource(id = R.string.settings), style = MaterialTheme.typography.headlineSmall)
             }
             Spacer(modifier = Modifier.height(64.dp))
-
-            URTextInputLabel(text = stringResource(id = R.string.plan))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        if (currentPlan == Plan.Basic) "Basic" else "Supporter",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
-                    )
-
-
-                    if (currentPlan == Plan.Basic) {
-                        Spacer(modifier = Modifier.width(2.dp))
-
-                        InfoIconWithOverlay() {
-                            Column() {
-
-                                Text(
-                                    stringResource(id = R.string.unlock_supporter_tooltip),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = BlueLight
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            navController.navigate(Route.Upgrade)
-                                        },
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        stringResource(id = R.string.become_supporter),
-                                        style = TextStyle(
-                                            fontSize = 12.sp,
-                                            lineHeight = 20.sp,
-                                            fontWeight = FontWeight(700),
-                                            color = BlueLight,
-                                        )
-                                    )
-                                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                        contentDescription = "Right Arrow",
-                                        tint = BlueLight,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                }
-
-                if (currentPlan == Plan.Basic) {
-                    Text(
-                        stringResource(id = R.string.change),
-                        style = TextStyle(
-                            color = BlueMedium
-                        ),
-                        modifier = Modifier.clickable {
-                            navController.navigate(Route.Upgrade)
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
 
             /**
              * URid
@@ -599,7 +526,7 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             /**
              * Auth code
@@ -633,7 +560,7 @@ fun SettingsScreen(
                 color = TextMuted
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             /**
              * General
@@ -660,7 +587,7 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             URTextInputLabel(text = stringResource(id = R.string.connections))
 
@@ -779,7 +706,7 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // allow notifications
             URTextInputLabel(text = stringResource(id = R.string.notifications_label))
@@ -810,7 +737,7 @@ fun SettingsScreen(
                 color = TextMuted
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             URTextInputLabel(text = stringResource(id = R.string.stay_in_touch))
 
@@ -927,10 +854,106 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+
 
             /**
-             * Version
+             * Plan
+             */
+            URTextInputLabel(text = stringResource(id = R.string.plan))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        if (currentPlan == Plan.Basic) "Basic" else "Supporter",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+
+
+                    if (currentPlan == Plan.Basic) {
+                        Spacer(modifier = Modifier.width(2.dp))
+
+                        InfoIconWithOverlay() {
+                            Column() {
+
+                                Text(
+                                    stringResource(id = R.string.unlock_supporter_tooltip),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = BlueLight
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            navController.navigate(Route.Upgrade)
+                                        },
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        stringResource(id = R.string.become_supporter),
+                                        style = TextStyle(
+                                            fontSize = 12.sp,
+                                            lineHeight = 20.sp,
+                                            fontWeight = FontWeight(700),
+                                            color = BlueLight,
+                                        )
+                                    )
+                                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = "Right Arrow",
+                                        tint = BlueLight,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                if (currentPlan == Plan.Basic) {
+                    Text(
+                        stringResource(id = R.string.change),
+                        style = TextStyle(
+                            color = BlueMedium
+                        ),
+                        modifier = Modifier.clickable {
+                            navController.navigate(Route.Upgrade)
+                        }
+                    )
+                }
+
+                if (currentPlan == Plan.Supporter && stripePortalUrl != null) {
+
+                    TextButton(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW, stripePortalUrl.toUri())
+                            context.startActivity(intent)
+                        }
+                    ) {
+                        Text(
+                            stringResource(id = R.string.manage_subscription),
+                            color = BlueMedium
+                        )
+                    }
+
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            /**
+            * Version
              */
             URTextInputLabel(stringResource(id = R.string.version_info))
 
@@ -1166,7 +1189,8 @@ private fun SettingsScreenPreview() {
             authCode = null,
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
-            provideIndicatorColor = Green
+            provideIndicatorColor = Green,
+            stripePortalUrl = null
         )
     }
 }
@@ -1209,7 +1233,8 @@ private fun SettingsScreenSupporterPreview() {
             authCode = null,
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
-            provideIndicatorColor = Green
+            provideIndicatorColor = Green,
+            stripePortalUrl = null
         )
     }
 }
@@ -1252,7 +1277,8 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             authCode = null,
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
-            provideIndicatorColor = Green
+            provideIndicatorColor = Green,
+            stripePortalUrl = null
         )
     }
 }
@@ -1295,7 +1321,8 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             authCode = null,
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
-            provideIndicatorColor = Green
+            provideIndicatorColor = Green,
+            stripePortalUrl = null
         )
     }
 }
@@ -1338,7 +1365,8 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             authCode = null,
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
-            provideIndicatorColor = Green
+            provideIndicatorColor = Green,
+            stripePortalUrl = null
         )
     }
 }

@@ -24,6 +24,7 @@ import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.StripeCreateCustomerPortalArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -118,6 +119,13 @@ class SettingsViewModel @Inject constructor(
 
     private val _authCode = MutableStateFlow<String?>(null)
     val authCode: StateFlow<String?> = _authCode
+
+    private val _isFetchingStripePortal = MutableStateFlow(false)
+    val isFetchingStripePortal: StateFlow<Boolean> = _isFetchingStripePortal
+
+    private val _stripePortalUrl = MutableStateFlow<String?>(null)
+    val stripePortalUrl: StateFlow<String?> = _stripePortalUrl
+
 
     private val _isPresentingAuthCodeDialog = MutableStateFlow(false)
     val isPresentingAuthCodeDialog: StateFlow<Boolean> = _isPresentingAuthCodeDialog
@@ -271,6 +279,41 @@ class SettingsViewModel @Inject constructor(
 
     }
 
+    val fetchStripeCustomerPortalUrl: () -> Unit = {
+
+        if (!_isFetchingStripePortal.value) {
+
+            _isFetchingStripePortal.value = true
+
+
+            val args = StripeCreateCustomerPortalArgs()
+            deviceManager.device?.api?.stripeCreateCustomerPortal(args) { result, err ->
+
+                viewModelScope.launch {
+
+                    if (err != null) {
+                        Log.i(TAG, "fetchStripeCustomerPortalUrl err is: ${err.toString()}")
+                        _isFetchingStripePortal.value = false
+                        return@launch
+                    }
+
+                    if (result.error != null) {
+                        Log.i(TAG, "fetchStripeCustomerPortalUrl result err is: ${result.error.message}")
+                        _isFetchingStripePortal.value = false
+                        return@launch
+                    }
+                    
+                    _stripePortalUrl.value = result.url
+                    _isFetchingStripePortal.value = false
+
+                }
+
+            }
+
+        }
+
+    }
+
     val addProvideEnabledListener: () -> Unit = {
         deviceManager.device?.let { device ->
             device.addProvideChangeListener {
@@ -316,6 +359,8 @@ class SettingsViewModel @Inject constructor(
         accountPreferencesVc?.start()
 
         fetchReferralNetwork()
+
+        fetchStripeCustomerPortalUrl()
 
         version = Sdk.Version
 
