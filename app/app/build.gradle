@@ -320,7 +320,7 @@ android {
         }
         solana_dapp {
             java {
-                srcDirs += ['src/solana/java']
+                srcDirs += ['src/solana_dapp/java']
             }
         }
     }
@@ -446,10 +446,10 @@ dependencies {
     implementation("io.github.funkatronics:kborsh:0.1.1")
 }
 
-// stripe
+// github
 dependencies {
-    implementation("com.stripe:stripe-android:21.26.1")
-    implementation("com.stripe:financial-connections:21.26.1")
+    githubImplementation("com.stripe:stripe-android:21.26.1")
+    githubImplementation("com.stripe:financial-connections:21.26.1")
 }
 
 // google play
@@ -475,7 +475,7 @@ dependencies {
 /*build:google*/    playImplementation "com.android.billingclient:billing-ktx:8.0.0"
 }
 
-// google play
+// solana dapp
 dependencies {
     // force dependencies with known CVE vulnerabilities to newer versions
     // CVE-2022-2390
@@ -496,6 +496,9 @@ dependencies {
     // see https://developer.android.com/google/play/billing/integrate#groovy
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
+
+    solana_dappImplementation("com.stripe:stripe-android:21.26.1")
+    solana_dappImplementation("com.stripe:financial-connections:21.26.1")
 }
 
 
