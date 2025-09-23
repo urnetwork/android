@@ -20,7 +20,6 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
@@ -309,11 +308,10 @@ import kotlin.concurrent.thread
             }
         }
 
-        builder.establish()?.let { pfd ->
-            // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
-            packetFlow?.close()
-            packetFlow = null
-            app.device?.let { device ->
+        app.device?.let { device ->
+            builder.establish()?.let { pfd ->
+                // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
+                val replacedPacketFlow = packetFlow
                 packetFlow = PacketFlow(device, pfd) {
                     runBlocking(Dispatchers.Main.immediate) {
                         if (packetFlow == it) {
@@ -326,20 +324,15 @@ import kotlin.concurrent.thread
                         // else the ended packet flow was replaced by a new one
                     }
                 }
+                replacedPacketFlow?.close()
                 if (app.service?.get() == this@MainService) {
                     device.tunnelStarted = true
                 }
             } ?: run {
-                try {
-                    pfd.close()
-                } catch (_: IOException) {
-                }
+                Log.i(TAG, "[service]WARNING tunnel was not started. Another existing tunnel may be blocking the start.")
             }
         } ?: run {
-            Log.i(TAG, "[service]WARNING tunnel was not started. Another existing tunnel may be blocking the start.")
-            // cancel the previous packet flow
-            packetFlow?.close()
-            packetFlow = null
+            Log.i(TAG, "[service]WARNING tunnel was not started due to missing device.")
         }
     }
 
