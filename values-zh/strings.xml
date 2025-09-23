@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">URnetwork</string>
+    <string name="title_login">登录</string>
+
+    <string name="user_auth_label">电子邮件或电话</string>
+    <string name="user_auth_placeholder">输入您的电话号码或电子邮件</string>
+    <string name="get_started">开始使用</string>
+    <string name="google_auth_btn_text">使用 Google 登录</string>
+    <string name="commitment_issues">承诺问题？</string>
+    <string name="try_guest_mode">尝试访客模式</string>
+    <string name="enter">进入</string>
+    <string name="step_in">进入互联网应有的样子</string>
+    <string name="nicely_done">做得好!</string>A
+    <string name="available">可用</string>
+
+    <string name="name_label">姓名</string>
+    <string name="name_placeholder">您的姓名</string>
+    <string name="network_name_label">网络名称</string>
+    <string name="network_name_placeholder">您的网络名称</string>
+    <string name="network_name_length_error">网络名称必须至少包含 6 个字符。</string>
+    <string name="network_name_unavailable">网络名称不可用。</string>
+    <string name="password_label">密码</string>
+    <string name="password_support_txt">密码长度必须至少为 12 个字符</string>
+    <string name="continue_txt">继续</string>
+
+    <string name="login_password_header">很高兴\n再次见到你</string>
+    <string name="forget_password">忘记密码？</string>
+    <string name="reset_it">重置密码</string>
+
+    <string name="forgot_password">忘记密码？</string>
+    <string name="check_junk_mail">您可能需要检查您的垃圾邮件文件夹或取消阻止 support@ur.io</string>
+    <string name="send_reset_link">发送重置链接</string>
+
+    <string name="reset_link_sent">重置链接已发送</string>
+    <string name="reset_link_sent_to">重置链接已发送至</string>
+    <string name="resend_reset_link">重新发送链接</string>
+    <string name="sent">已发送！</string>
+
+    <string name="login_verify_header">您有邮件</string>
+    <string name="login_verify_details">告诉我们您是谁。输入我们\n发送给您的代码以验证您的身份。</string>
+    <string name="dont_see_it">没有看到？</string>
+    <string name="resend_verify_code">重新发送代码</string>
+
+    <string name="connect_external_wallet">连接外部钱包</string>
+    <string name="connect_external_wallet_supported_chains">当前支持 Solana 和 Polygon 上的 USDC 地址。</string>
+    <string name="wallet_address_label">钱包地址</string>
+    <string name="wallet_address_placeholder">在此处复制并粘贴</string>
+    <string name="total_payouts">总支出</string>
+    <string name="wallets">钱包</string>
+    <string name="add_wallet">添加钱包</string>
+
+    <string name="connect_saga_wallet">连接 Saga 钱包</string>
+
+    <string name="something_went_wrong">出了些问题。</string>
+    <string name="please_wait">请稍等片刻，然后重试。</string>
+    <string name="change_password">更改密码</string>
+    <string name="edit_profile">编辑个人资料</string>
+    <string name="save">保存</string>
+
+    <string name="share_with_others">您与他人分享，我们与您分享。当您向网络中的其他人提供数据时，即可获得收入分成。</string>
+    <string name="start_earning">要开始赚取收入，请将您的加密货币钱包连接到 URnetwork 或使用 Circle 设置一个。</string>
+
+    <string name="circle_transfer_topbar_title">转移 USDC</string>
+    <string name="circle_transfer_header">转移到外部钱包</string>
+    <string name="circle_transfer_fee_coverage">URnetwork 承担您的转账费用。</string>
+    <string name="transfer">转移</string>
+    <string name="insufficient_funds">资金不足</string>
+
+    <string name="tap_to_connect">点击连接</string>
+
+    <string name="promoted_locations">推荐地点</string>
+    <string name="best_available_provider">最佳可用提供商</string>
+    <string name="countries">国家</string>
+    <string name="devices">设备</string>
+    <string name="search_placeholder">搜索所有地点</string>
+    <string name="check_internet">检查您的互联网连接</string>
+    <string name="no_providers_found">我们找不到任何提供商。</string>
+    <string name="tap_to_refetch">点击重试获取位置信息</string>
+    <string name="cities">城市</string>
+    <string name="regions">地区</string>
+    <string name="top_matches">最佳匹配</string>
+
+    <string name="account">帐户</string>
+    <string name="profile">个人资料</string>
+    <string name="settings">设置</string>
+    <string name="wallet">钱包</string>
+    <string name="refer_and_earn">推荐并赚取</string>
+    <string name="set_up_wallet">设置钱包</string>
+    <string name="guest">访客</string>
+    <string name="supporter">支持者</string>
+    <string name="free">自由</string>
+    <string name="create_account">创建帐户</string>
+    <string name="member">会员</string>
+
+    <string name="plan">计划</string>
+    <string name="upgrade_subscription">升级订阅</string>
+    <string name="support_us">支持我们构建一种新的网络，它可以给予而不是索取。</string>
+    <string name="unlock_speed">您将解锁更快的速度，并首先获得强大的反审查措施和数据控制等新功能。</string>
+    <string name="join_the_movement">加入运动</string>
+
+    <string name="in_guest_mode">您处于访客模式</string>
+    <string name="start_earning_join">要开始赚取收入，请加入网络</string>
+
+    <string name="refer_friends_header">推荐朋友</string>
+    <string name="refer_friends_detail">更多连接可以帮助我们的社区保持匿名（并帮助您赚钱！）</string>
+
+    <string name="balance">平衡</string>
+    <string name="transfer_funds">转移资金</string>
+    <string name="no_payouts_found">此钱包找不到任何支出</string>
+    <string name="earnings">收益</string>
+    <string name="make_default">设为默认</string>
+    <string name="payout_wallets">支付钱包</string>
+    <string name="chains_supported">当前支持 Solana 和 Polygon 钱包</string>
+
+    <string name="transfer_submitted">转移已提交</string>
+    <string name="transfer_submitted_details">您的转账已启动，一旦在链上处理完交易，转账就会完成。</string>
+
+    <string name="see_world_content">查看所有\n世界内容</string>
+    <string name="see_world_content_description">使用 URnetwork 查看所有世界内容</string>
+    <string name="stay_private_description">使用 URnetwork 保持完全私密和匿名</string>
+    <string name="stay_private">保持\n完全\n私密和\n匿名</string>
+    <string name="build_right_description">使用 URnetwork 以正确的方式构建互联网</string>
+    <string name="build_right">构建\n互联网\n正确的方式</string>
+    <string name="with_urnetwork">使用 URnetwork</string>
+
+    <string name="unlock_supporter_tooltip">解锁更快的速度并首先获得新功能。</string>
+    <string name="become_supporter">成为支持者</string>
+    <string name="notifications_label">通知</string>
+    <string name="update_notification_settings">在您的 Android 设置中更新通知权限</string>
+
+    <string name="feedback_header">保持联系</string>
+    <string name="feedback_label">反馈框</string>
+    <string name="feedback_placeholder">告诉我们您的真实感受</string>
+
+    <string name="receive_notifications">接收连接通知</string>
+    <string name="connectivity_label">连接</string>
+    <string name="allow_local_connections">允许本地连接</string>
+    <string name="stay_in_touch">保持联系</string>
+    <string name="send_product_updates">向我发送产品更新</string>
+    <string name="join_community_discord">加入社区</string>
+
+    <string name="cancel">取消</string>
+    <string name="connect">连接</string>
+    <string name="remove">移除</string>
+    <string name="change">更改</string>
+    <string name="share">分享</string>
+    <string name="copy">复制</string>
+    <string name="send">发送</string>
+
+    <string name="login_error_auth_allowed">请使用以下任一方式登录：%s。</string>
+    <string name="login_error">出了些问题。再试一次。</string>
+    <string name="login_client_error">客户端身份验证出错。再试一次。</string>
+    <string name="network_name_check_error">不可用。必须与现有网络至少有 3 个字符不同。使其独特或更长。</string>
+    <string name="verify_error">出了些问题。再试一次。</string>
+    <string name="create_network_error">出了些问题。再试一次。</string>
+    <string name="verify_send_error">错误</string>
+
+    <string name="connections">连接</string>
+    <string name="unpaid_data_provided">" 提供了未付费数据"</string>
+    <string name="payouts_amount_threshold">支付在每周日 00:00 UTC 进行，并且需要达到最低 USDC 门槛。</string>
+    <string name="open_nested_link">连接到 %1$s 并打开链接 %2$s</string>
+    <string name="connect_and_open">连接并打开链接</string>
+    <string name="connect_to_location">连接到 %1$s</string>
+    <string name="no_locations_found">未找到任何位置</string>
+    <string name="no_locations_found_detail">抱歉，我们找不到与 %1$s 相关的任何位置。</string>
+    <string name="dismiss">关闭</string>
+    <string name="switch_account">切换帐户</string>
+    <string name="switch_account_details">您要断开与 %1$s 的连接并切换帐户吗？</string>
+    <string name="auth_code_loading">正在加载身份验证代码</string>
+    <string name="network_create_bonus_message">有人邀请你加入 🥳\\n创建网络即可领取你的奖励！</string>
+    <string name="delete_account">删除帐户</string>
+    <string name="sorry_to_see_you_go">我们很遗憾看到你离开！</string>
+    <string name="are_you_sure_delete_account">您确定要删除您的帐户吗？</string>
+    <string name="reconnect_tunnel_status_indicator">VPN 隧道已断开连接 😓</string>
+    <string name="disconnect">断开连接</string>
+    <string name="reconnect">重新连接</string>
+    <string name="connecting_status_indicator">正在连接到提供商...</string>
+    <string name="connected_provider_count">已连接到 %d 个提供商</string>
+    <string name="ready_to_connect">准备连接</string>
+    <string name="network_name_ready_to_connect">%s 已准备好连接</string>
+    <string name="need_more_data_faster">需要更多数据，更快吗？</string>
+    <string name="upgrade_now">立即升级</string>
+    <string name="how_are_we_doing">我们做得怎么样？</string>
+    <string name="referral_code">推荐码</string>
+    <string name="add_referral_extra_rewards">添加推荐码以获得额外奖励</string>
+    <string name="add_referral_code">添加推荐码</string>
+    <string name="edit_referral_code">编辑推荐码</string>
+    <string name="referral_bonus_applied">已应用推荐奖励</string>
+    <string name="apply_bonus">应用奖励</string>
+    <string name="join_urnetwork">加入\\nURnetwork</string>
+    <string name="route_local">断开连接时允许本地流量</string>
+    <string name="manage_subscription">管理订阅</string>
+    <string name="solana_sign_in">使用 Solana 登录</string>
+    <string name="no_solana_wallets_found">未找到 Solana 钱包</string>
+    <string name="no_wallets_found_alert_content">在此设备上未找到已安装的 Solana 钱包。请安装一个钱包，然后重试。</string>
+    <string name="claim_multiplier">领取倍数</string>
+    <string name="connect_seeker_wallet">连接带有 Saga Genesis 或 Seeker 预售代币的钱包</string>
+    <string name="verify_seeker_token_btn">验证 Seeker 预售代币</string>
+    <string name="total_referrals">推荐总数</string>
+    <string name="login_verify_check_phone">检查你的手机</string>
+    <string name="leaderboard">排行榜</string>
+    <string name="current_ranking">当前排名</string>
+    <string name="net_provided">已提供网络量</string>
+    <string name="display_network_on_leaderboard">在排行榜上显示网络</string>
+    <string name="leaderboard_description">排行榜是最近 4 次付款的总和。它会在每个付款周期更新。</string>
+    <string name="total_account_points">账户总积分</string>
+    <string name="enter_network_referral_code">输入网络推荐码</string>
+    <string name="update_referral_network">更新推荐网络</string>
+    <string name="update">更新</string>
+    <string name="unlink_referral_network">解除推荐网络关联</string>
+    <string name="unlink">解除关联</string>
+    <string name="current_network_referral">当前推荐网络</string>
+    <string name="unlink_alert_description">解除推荐网络关联后，您将无法再从%1$s获得积分</string>
+    <string name="account_points">账户积分</string>
+    <string name="points_breakdown">积分明细</string>
+    <string name="payouts">支付</string>
+    <string name="referral">推荐</string>
+    <string name="net_points_earned">净赚积分</string>
+    <string name="version_info">版本和构建信息</string>
+    <string name="earning_multipliers">收益倍增器</string>
+    <string name="claim">领取</string>
+    <string name="seeker_token_verified">Seeker 令牌已验证</string>
+    <string name="earnings_doubled">你正在获得 x2 积分</string>
+    <string name="reliability">可靠性</string>
+    <string name="browse_locations">浏览位置</string>
+    <string name="none">无</string>
+    <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>
+    <string name="referral_network">推荐网络</string>
+    <string name="pending_payout">待支付款项</string>
+    <string name="amount">金额</string>
+    <string name="wallet_address">钱包地址</string>
+    <string name="transaction">交易</string>
+    <string name="date_payout">%1$s 支付</string>
+    <string name="auto">自动</string>
+    <string name="always">始终</string>
+    <string name="never">从不</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="enjoying_urnetwork">喜欢 URnetwork 吗？</string>
+    <string name="review_our_app">您愿意评价我们的应用吗？</string>
+    <string name="used_data_key">已用</string>
+    <string name="pending_data_key">待处理</string>
+    <string name="available_data_key">可用</string>
+    <string name="no_blocked_locations">没有被屏蔽的位置</string>
+    <string name="blocked_locations">被屏蔽的位置</string>
+    <string name="add_blocked_location">添加被屏蔽的位置</string>
+    <string name="verified_project_on">在 %1$s 上已验证的项目</string>
+    <string name="allow_providing_cell">允许在蜂窝网络上提供</string>
+    <string name="general">常规</string>
+    <string name="show_icon_when_connected">连接时显示 UR 图标</string>
+    <string name="authentication">认证</string>
+    <string name="auth_code">验证码</string>
+    <string name="create">创建</string>
+    <string name="auth_code_expires">验证码在5分钟后过期</string>
+    <string name="auth_code_created">验证码已创建</string>
+    <string name="copy_auth_code">复制验证码</string>
+    <string name="provide_mode">提供模式</string>
+    <string name="reliability_weight">可靠性权重</string>
+    <string name="total_clients">客户端总数</string>
+    <string name="average_reliability">平均可靠性</string>
+    <string name="country_multipliers">国家倍增器</string>
+    <string name="country">国家</string>
+    <string name="multiplier">倍增器</string>
+    <string name="clients">客户端</string>
+    <string name="pay_with_solana_wallet">使用 Solana 钱包支付</string>
+    <string name="pay_with_stripe">使用 Stripe 加入</string>
+    <string name="checking_solana_transactions">正在检查 Solana 交易</string>
+    <string name="processing_payment">正在处理付款</string>
+    <string name="check_ip">检查我的 IP</string>
+    <string name="preorder_now">立即预购</string>
+    <string name="private_network">私有网络</string>
+    <string name="default_wallet">默认</string>
+    <string name="learn_more_about_multiplier">了解更多关于倍数的信息</string>
+</resources>

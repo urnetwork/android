@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">URnetwork</string>
+    <string name="title_login">로그인</string>
+
+    <!-- 로그인 초기 -->
+    <string name="user_auth_label">이메일 또는 전화번호</string>
+    <string name="user_auth_placeholder">전화번호 또는 이메일을 입력하세요</string>
+    <string name="get_started">시작하기</string>
+    <string name="google_auth_btn_text">Google로 로그인</string>
+    <string name="commitment_issues">결정하기 어려우신가요? </string>
+    <string name="try_guest_mode"> 게스트 모드 시도하기</string>
+    <string name="enter">들어가기</string>
+    <string name="step_in">인터넷이 마땅히 되어야 할 모습으로 들어가세요</string>
+    <string name="nicely_done">잘하셨습니다!</string>
+    <string name="available">사용 가능</string>
+
+    <!-- 네트워크 생성 양식 -->
+    <string name="name_label">이름</string>
+    <string name="name_placeholder">당신의 이름</string>
+    <string name="network_name_label">네트워크 이름</string>
+    <string name="network_name_placeholder">당신의 네트워크 이름</string>
+    <string name="network_name_length_error">네트워크 이름은 6자 이상이어야 합니다</string>
+    <string name="network_name_unavailable">네트워크 이름을 사용할 수 없습니다</string>
+    <string name="password_label">비밀번호</string>
+    <string name="password_support_txt">비밀번호는 최소 12자 이상이어야 합니다</string>
+    <string name="continue_txt">계속</string>
+
+    <!-- 로그인 비밀번호 -->
+    <string name="login_password_header">다시 만나서\n반갑습니다</string>
+    <string name="forget_password">비밀번호를 잊으셨나요?</string>
+    <string name="reset_it">재설정</string>
+
+    <!-- 비밀번호 찾기 -->
+    <string name="forgot_password">비밀번호를 잊으셨나요?</string>
+    <string name="check_junk_mail">스팸 폴더를 확인하거나 support@ur.io의 차단을 해제해야 할 수 있습니다</string>
+    <string name="send_reset_link">재설정 링크 보내기</string>
+
+    <!-- 재설정 링크 전송됨 -->
+    <string name="reset_link_sent">재설정 링크 전송됨</string>
+    <string name="reset_link_sent_to">재설정 링크가 다음 주소로 전송되었습니다: </string>
+    <string name="resend_reset_link">링크 재전송</string>
+    <string name="sent">전송됨!</string>
+
+    <!-- 로그인 확인 -->
+    <string name="login_verify_header">메일을 확인해주세요</string>
+    <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
+    <string name="dont_see_it">메일이 보이지 않나요?</string>
+    <string name="resend_verify_code">코드 재전송</string>
+
+    <!-- 지갑 화면 -->
+    <string name="connect_external_wallet">외부 지갑 연결</string>
+    <string name="connect_external_wallet_supported_chains">현재 Solana와 Polygon의 USDC 주소가 지원됩니다.</string>
+    <string name="wallet_address_label">지갑 주소</string>
+    <string name="wallet_address_placeholder">여기에 복사하여 붙여넣기</string>
+    <string name="total_payouts">총 지급액</string>
+    <string name="wallets">지갑</string>
+    <string name="add_wallet">지갑 추가</string>
+
+    <!-- 지갑 설정 -->
+    <string name="connect_saga_wallet">Saga 지갑 연결</string>
+
+    <!-- 프로필 -->
+    <string name="something_went_wrong">문제가 발생했습니다.</string>
+    <string name="please_wait">잠시 후 다시 시도해 주세요.</string>
+    <string name="change_password">비밀번호 변경</string>
+    <string name="edit_profile">프로필 수정</string>
+    <string name="save">저장</string>
+
+    <!-- 지갑 설정 -->
+    <string name="share_with_others">당신이 다른 사람과 공유하면, 우리도 당신과 공유합니다. 네트워크의 다른 사람들에게 데이터를 제공하면 수익의 일부를 얻을 수 있습니다.</string>
+    <string name="start_earning">수익을 얻기 시작하려면 암호화폐 지갑을 URnetwork에 연결하거나 Circle로 설정하세요.</string>
+
+    <!-- Circle 지갑 전송 화면 -->
+    <string name="circle_transfer_topbar_title">USDC 전송</string>
+    <string name="circle_transfer_header">외부 지갑으로 전송</string>
+    <string name="circle_transfer_fee_coverage">URnetwork가 전송 수수료를 부담합니다.</string>
+    <string name="transfer">전송</string>
+    <string name="insufficient_funds">잔액 부족</string>
+
+    <!-- 연결 -->
+    <string name="tap_to_connect">탭하여 연결</string>
+
+    <!-- 위치 목록 -->
+    <string name="promoted_locations">추천 위치</string>
+    <string name="best_available_provider">최상의 사용 가능한 제공자</string>
+    <string name="countries">국가</string>
+    <string name="devices">기기</string>
+    <string name="search_placeholder">모든 위치 검색</string>
+    <string name="check_internet">인터넷 연결을 확인하세요</string>
+    <string name="no_providers_found">제공자를 찾을 수 없습니다.</string>
+    <string name="tap_to_refetch">위치를 가져오려면 탭하세요.</string>
+    <string name="cities">도시</string>
+    <string name="regions">지역</string>
+    <string name="top_matches">최고 일치 항목</string>
+
+    <!-- 계정 화면 -->
+    <string name="account">계정</string>
+    <string name="profile">프로필</string>
+    <string name="settings">설정</string>
+    <string name="wallet">지갑</string>
+    <string name="refer_and_earn">추천하고 수익 얻기</string>
+    <string name="set_up_wallet">지갑 설정</string>
+    <string name="guest">게스트</string>
+    <string name="supporter">서포터</string>
+    <string name="free">무료</string>
+    <string name="create_account">계정 만들기</string>
+    <string name="member">회원</string>
+
+    <!-- 구독 업그레이드 오버레이 -->
+    <string name="plan">플랜</string>
+    <string name="upgrade_subscription">구독 업그레이드</string>
+    <string name="support_us">취하지 않고 제공하는 새로운 종류의 네트워크를 구축하는 데 도움을 주세요.</string>
+    <string name="unlock_speed">더 빠른 속도와 강력한 검열 방지 조치, 데이터 제어와 같은 새로운 기능에 대한 우선권을 얻을 수 있습니다.</string>
+    <string name="join_the_movement">운동에 동참하세요</string>
+
+    <!-- 게스트 모드 오버레이 -->
+    <string name="in_guest_mode">게스트 모드입니다</string>
+    <string name="start_earning_join">수익을 얻기 시작하려면 네트워크에 가입하세요</string>
+
+    <!-- 추천 오버레이 -->
+    <string name="refer_friends_header">친구 추천하기</string>
+    <string name="refer_friends_detail">더 많은 연결은 우리 커뮤니티가 익명성을 유지하는 데 도움이 됩니다 (그리고 당신의 수익에도 도움이 됩니다!)</string>
+
+    <!-- 지갑 화면 -->
+    <string name="balance">잔액</string>
+    <string name="transfer_funds">자금 이체</string>
+    <string name="no_payouts_found">이 지갑에 대한 지급금을 찾을 수 없습니다</string>
+    <string name="earnings">수익</string>
+    <string name="make_default">기본값으로 설정</string>
+    <string name="payout_wallets">지급 지갑</string>
+    <string name="chains_supported">현재 Solana와 Polygon 지갑이 지원됩니다</string>
+
+    <!-- 이체 제출 오버레이 -->
+    <string name="transfer_submitted">이체 제출됨</string>
+    <string name="transfer_submitted_details">이체가 시작되었으며 블록체인에서 거래가 처리되면 완료됩니다.</string>
+
+    <!-- 온보딩 캐러셀 -->
+    <string name="see_world_content">전 세계의\n콘텐츠 보기</string>
+    <string name="see_world_content_description">URnetwork로 전 세계의 콘텐츠 보기</string>
+    <string name="stay_private_description">URnetwork로 완전히 프라이빗하고 익명으로 유지하세요</string>
+    <string name="stay_private">완전히\n프라이빗하고\n익명으로\n유지하세요</string>
+    <string name="build_right_description">URnetwork로 올바른 방식으로 인터넷 구축하기</string>
+    <string name="build_right">올바른 방식으로\n인터넷\n구축하기</string>
+    <string name="with_urnetwork">URnetwork와 함께</string>
+
+    <!-- 설정 -->
+    <string name="unlock_supporter_tooltip">더 빠른 속도와 새로운 기능에 대한 우선 접근권을 얻으세요.</string>
+    <string name="become_supporter">서포터 되기</string>
+    <string name="notifications_label">알림</string>
+    <string name="receive_notifications">연결 알림 받기</string>
+    <string name="connectivity_label">연결성</string>
+    <string name="allow_local_connections">로컬 연결 허용</string>
+    <string name="stay_in_touch">연락 유지하기</string>
+    <string name="send_product_updates">제품 업데이트 소식 받기</string>
+    <string name="join_community_discord">커뮤니티에 참여하세요:</string>
+    <string name="update_notification_settings">Android 설정에서 알림 권한 업데이트</string>
+
+    <!-- 피드백 화면 -->
+    <string name="feedback_header">연락하기</string>
+    <string name="feedback_label">피드백 상자</string>
+    <string name="feedback_placeholder">진심으로 말씀해 주세요</string>
+
+    <!-- 호출 행동 -->
+    <string name="cancel">취소</string>
+    <string name="connect">연결</string>
+    <string name="remove">제거</string>
+    <string name="change">변경</string>
+    <string name="share">공유</string>
+    <string name="copy">복사</string>
+    <string name="send">보내기</string>
+
+    <string name="login_error_auth_allowed">다음 중 하나로 로그인해 주세요: %s.</string>
+    <string name="login_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
+    <string name="login_client_error">클라이언트 인증 중 문제가 발생했습니다. 다시 시도해 주세요.</string>
+    <string name="network_name_check_error">사용할 수 없습니다. 기존 네트워크와 최소 3자 이상 달라야 합니다. 고유하게 만들거나 더 길게 만드세요.</string>
+    <string name="verify_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
+    <string name="create_network_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
+    <string name="verify_send_error">오류</string>
+
+    <string name="connections">연결</string>
+    <string name="unpaid_data_provided">미지급 데이터가 제공됨</string>
+    <string name="payouts_amount_threshold">지급은 매주 일요일 00:00 UTC에 이루어지며, 최소 USDC 기준을 충족해야 합니다.</string>
+    <string name="open_nested_link">%1$s에 연결하고 링크 %2$s을(를) 엽니다</string>
+    <string name="connect_and_open">연결하고 링크를 엽니다</string>
+    <string name="connect_to_location">%1$s에 연결</string>
+    <string name="no_locations_found">위치를 찾을 수 없습니다</string>
+    <string name="no_locations_found_detail">죄송합니다. %1$s 관련 위치를 찾을 수 없습니다.</string>
+    <string name="dismiss">닫기</string>
+    <string name="switch_account">계정 전환</string>
+    <string name="switch_account_details">%1$s에서 연결을 끊고 계정을 전환하시겠습니까?</string>
+    <string name="auth_code_loading">인증 코드 로드 중</string>
+    <string name="network_create_bonus_message">누군가가 당신을 초대했어요 🥳\\n네트워크를 만들어 보너스를 받아보세요!</string>
+    <string name="delete_account">계정 삭제</string>
+    <string name="sorry_to_see_you_go">저희는 당신이 가는 것을 보게 되어 유감입니다!</string>
+    <string name="are_you_sure_delete_account">정말로 계정을 삭제하시겠습니까?</string>
+    <string name="reconnect_tunnel_status_indicator">VPN 터널 연결 해제됨 😓</string>
+    <string name="disconnect">연결 해제</string>
+    <string name="reconnect">다시 연결</string>
+    <string name="connecting_status_indicator">제공업체에 연결 중...</string>
+    <string name="connected_provider_count">%d개의 제공업체에 연결됨</string>
+    <string name="ready_to_connect">연결 준비 완료</string>
+    <string name="network_name_ready_to_connect">%s 연결 준비 완료</string>
+    <string name="need_more_data_faster">더 많은 데이터를 더 빠르게 원하십니까?</string>
+    <string name="upgrade_now">지금 업그레이드하세요</string>
+    <string name="how_are_we_doing">우리는 어떻게 하고 있나요?</string>
+    <string name="referral_code">추천 코드</string>
+    <string name="add_referral_extra_rewards">추가 보상을 얻으려면 추천 코드를 추가하세요</string>
+    <string name="add_referral_code">추천 코드 추가</string>
+    <string name="edit_referral_code">추천 코드 편집</string>
+    <string name="referral_bonus_applied">추천 보너스 적용됨</string>
+    <string name="apply_bonus">보너스 적용</string>
+    <string name="join_urnetwork">가입하기\\nURnetwork</string>
+    <string name="route_local">연결 해제 시 로컬 트래픽 허용</string>
+    <string name="manage_subscription">구독 관리</string>
+    <string name="solana_sign_in">Solana로 로그인</string>
+    <string name="no_solana_wallets_found">솔라나 지갑을 찾을 수 없습니다</string>
+    <string name="no_wallets_found_alert_content">이 장치에 설치된 Solana 지갑이 없습니다. 지갑을 설치하고 다시 시도하십시오.</string>
+    <string name="claim_multiplier">배율 받기</string>
+    <string name="connect_seeker_wallet">Saga Genesis 또는 Seeker 선주문 토큰으로 지갑을 연결하세요</string>
+    <string name="verify_seeker_token_btn">Seeker 선주문 토큰 확인</string>
+    <string name="total_referrals">총 추천 수</string>
+    <string name="login_verify_check_phone">휴대폰을 확인하세요</string>
+    <string name="leaderboard">리더보드</string>
+    <string name="current_ranking">현재 순위</string>
+    <string name="net_provided">제공된 넷</string>
+    <string name="display_network_on_leaderboard">리더보드에 네트워크 표시</string>
+    <string name="leaderboard_description">리더보드는 최근 4번의 결제 합계입니다. 각 결제 주기마다 업데이트됩니다.</string>
+    <string name="total_account_points">총 계정 포인트</string>
+    <string name="enter_network_referral_code">네트워크 추천 코드를 입력하세요</string>
+    <string name="update_referral_network">추천 네트워크 업데이트</string>
+    <string name="update">업데이트</string>
+    <string name="unlink_referral_network">추천 네트워크 연결 해제</string>
+    <string name="unlink">연결 해제</string>
+    <string name="current_network_referral">현재 추천 네트워크</string>
+    <string name="unlink_alert_description">추천 네트워크 연결을 해제하면 더 이상 %1$s에서 포인트를 얻을 수 없습니다</string>
+    <string name="account_points">계정 포인트</string>
+    <string name="points_breakdown">포인트 내역</string>
+    <string name="payouts">지급</string>
+    <string name="referral">추천</string>
+    <string name="net_points_earned">순 포인트 획득</string>
+    <string name="version_info">버전 및 빌드 정보</string>
+    <string name="earning_multipliers">수익 배수</string>
+    <string name="claim">받기</string>
+    <string name="seeker_token_verified">Seeker 토큰이 인증되었습니다!</string>
+    <string name="earnings_doubled">x2 포인트를 적립 중입니다</string>
+    <string name="reliability">신뢰성</string>
+    <string name="browse_locations">위치 둘러보기</string>
+    <string name="none">없음</string>
+    <string name="send_feedback">직접 피드백을 보내주시거나, 직접 지원을 위해 저희 %1$s에 참여하세요.</string>
+    <string name="referral_network">추천 네트워크</string>
+    <string name="pending_payout">보류 중인 지급</string>
+    <string name="amount">금액</string>
+    <string name="wallet_address">지갑 주소</string>
+    <string name="transaction">트랜잭션</string>
+    <string name="date_payout">%1$s 지급</string>
+    <string name="auto">자동</string>
+    <string name="always">항상</string>
+    <string name="never">절대</string>
+    <string name="yes">예</string>
+    <string name="no">아니요</string>
+    <string name="enjoying_urnetwork">URnetwork가 마음에 드시나요?</string>
+    <string name="review_our_app">저희 앱을 리뷰하시겠어요?</string>
+    <string name="used_data_key">사용됨</string>
+    <string name="pending_data_key">대기 중</string>
+    <string name="available_data_key">사용 가능</string>
+    <string name="no_blocked_locations">차단된 위치 없음</string>
+    <string name="blocked_locations">차단된 위치</string>
+    <string name="add_blocked_location">차단된 위치 추가</string>
+    <string name="verified_project_on">%1$s에서 인증된 프로젝트</string>
+    <string name="allow_providing_cell">셀룰러 네트워크에서 제공 허용</string>
+    <string name="general">일반</string>
+    <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
+    <string name="authentication">인증</string>
+    <string name="auth_code">인증 코드</string>
+    <string name="create">생성</string>
+    <string name="auth_code_expires">인증 코드는 5분 후에 만료됩니다</string>
+    <string name="auth_code_created">인증 코드가 생성되었습니다</string>
+    <string name="copy_auth_code">인증 코드 복사</string>
+    <string name="provide_mode">제공 모드</string>
+    <string name="reliability_weight">신뢰성 가중치</string>
+    <string name="total_clients">전체 클라이언트</string>
+    <string name="average_reliability">평균 신뢰성</string>
+    <string name="country_multipliers">국가별 배수</string>
+    <string name="country">국가</string>
+    <string name="multiplier">배수</string>
+    <string name="clients">클라이언트</string>
+    <string name="pay_with_solana_wallet">Solana 지갑으로 결제</string>
+    <string name="pay_with_stripe">Stripe로 가입하기</string>
+    <string name="checking_solana_transactions">Solana 거래 확인 중</string>
+    <string name="processing_payment">결제 처리 중</string>
+    <string name="check_ip">내 IP 확인</string>
+    <string name="preorder_now">지금 사전 주문하기</string>
+    <string name="private_network">프라이빗 네트워크</string>
+    <string name="default_wallet">기본값</string>
+    <string name="learn_more_about_multiplier">배수에 대해 자세히 알아보기</string>
+</resources>

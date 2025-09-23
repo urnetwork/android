@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">URnetwork</string>
+    <string name="title_login">लॉग इन करें</string>
+
+    <string name="user_auth_label">ईमेल या फ़ोन</string>
+    <string name="user_auth_placeholder">अपना फ़ोन नंबर या ईमेल डालें</string>
+    <string name="get_started">आरंभ करें</string>
+    <string name="google_auth_btn_text">Google से लॉग इन करें</string>
+    <string name="commitment_issues">प्रतिबद्धता संबंधी समस्याएं?</string>
+    <string name="try_guest_mode">गेस्ट मोड आज़माएँ</string>
+    <string name="enter">दर्ज</string>
+    <string name="step_in">इंटरनेट में कदम रखें जैसा कि यह होना चाहिए</string>
+    <string name="nicely_done">शाबाश!</string>
+    <string name="available">उपलब्ध</string>
+
+    <string name="name_label">नाम</string>
+    <string name="name_placeholder">आपका नाम</string>
+    <string name="network_name_label">नेटवर्क का नाम</string>
+    <string name="network_name_placeholder">आपके नेटवर्क का नाम</string>
+    <string name="network_name_length_error">नेटवर्क नाम कम से कम 6 अक्षरों का होना चाहिए</string>
+    <string name="network_name_unavailable">नेटवर्क नाम उपलब्ध नहीं है</string>
+    <string name="password_label">पासवर्ड</string>
+    <string name="password_support_txt">पासवर्ड कम से कम 12 वर्णों का होना चाहिए</string>
+    <string name="continue_txt">जारी रखें</string>
+
+    <string name="login_password_header">आपको फिर से देखकर\nअच्छा लगा</string>
+    <string name="forget_password">अपना पासवर्ड भूल गए?</string>
+    <string name="reset_it">इसे रीसेट करें</string>
+
+    <string name="forgot_password">अपना पासवर्ड भूल गए?</string>
+    <string name="check_junk_mail">आपको अपना स्पैम फ़ोल्डर जांचना पड़ सकता है या support@ur.io को अनब्लॉक करना पड़ सकता है</string>
+    <string name="send_reset_link">रीसेट लिंक भेजें</string>
+
+    <string name="reset_link_sent">रीसेट लिंक भेज दिया गया</string>
+    <string name="reset_link_sent_to">रीसेट लिंक भेजा गया</string>
+    <string name="resend_reset_link">लिंक फिर से भेजें</string>
+    <string name="sent">भेज दिया गया!</string>
+
+    <string name="login_verify_header">आपके पास एक ईमेल है</string>
+    <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
+    <string name="dont_see_it">आपको यह दिखाई नहीं दे रहा है?</string>
+    <string name="resend_verify_code">कोड फिर से भेजें</string>
+
+    <string name="connect_external_wallet">बाहरी वॉलेट कनेक्ट करें</string>
+    <string name="connect_external_wallet_supported_chains">Solana और Polygon पर USDC पते वर्तमान में समर्थित हैं।</string>
+    <string name="wallet_address_label">वॉलेट पता</string>
+    <string name="wallet_address_placeholder">यहां कॉपी और पेस्ट करें</string>
+    <string name="total_payouts">कुल भुगतान</string>
+    <string name="wallets">वॉलेट</string>
+    <string name="add_wallet">वॉलेट जोड़ें</string>
+
+    <string name="connect_saga_wallet">Saga वॉलेट कनेक्ट करें</string>
+
+    <string name="something_went_wrong">कुछ गलत हो गया।</string>
+    <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>
+    <string name="change_password">पासवर्ड बदलें</string>
+    <string name="edit_profile">प्रोफ़ाइल संपादित करें</string>
+    <string name="save">सहेजें</string>
+
+    <string name="share_with_others">आप दूसरों के साथ साझा करते हैं, हम आपके साथ साझा करते हैं। जब आप नेटवर्क में दूसरों को डेटा प्रदान करते हैं तो राजस्व का एक हिस्सा अर्जित करें।</string>
+    <string name="start_earning">कमाई शुरू करने के लिए, अपने क्रिप्टोकरेंसी वॉलेट को URnetwork से कनेक्ट करें या Circle के साथ एक सेट करें।</string>
+
+    <string name="circle_transfer_topbar_title">USDC ट्रांसफर करें</string>
+    <string name="circle_transfer_header">बाहरी वॉलेट में ट्रांसफर करें</string>
+    <string name="circle_transfer_fee_coverage">URnetwork आपके हस्तांतरण शुल्क को कवर करता है।</string>
+    <string name="transfer">ट्रांसफर करें</string>
+    <string name="insufficient_funds">अपर्याप्त धन</string>
+
+    <string name="tap_to_connect">कनेक्ट करने के लिए टैप करें</string>
+
+    <string name="promoted_locations">प्रचारित स्थान</string>
+    <string name="best_available_provider">सर्वश्रेष्ठ उपलब्ध प्रदाता</string>
+    <string name="countries">देश</string>
+    <string name="devices">डिवाइस</string>
+    <string name="search_placeholder">सभी स्थानों पर खोजें</string>
+    <string name="check_internet">अपना इंटरनेट कनेक्शन जांचें</string>
+    <string name="no_providers_found">हमें कोई प्रदाता नहीं मिला।</string>
+    <string name="tap_to_refetch">स्थान लाने के लिए टैप करें.</string>
+    <string name="cities">शहर</string>
+    <string name="regions">क्षेत्र</string>
+    <string name="top_matches">सबसे अच्छे मिलान</string>
+
+    <string name="account">खाता</string>
+    <string name="profile">प्रोफ़ाइल</string>
+    <string name="settings">सेटिंग</string>
+    <string name="wallet">वॉलेट</string>
+    <string name="refer_and_earn">रेफ़र करें और कमाएँ</string>
+    <string name="set_up_wallet">वॉलेट सेट करें</string>
+    <string name="guest">अतिथि</string>
+    <string name="supporter">समर्थक</string>
+    <string name="free">निःशुल्क</string>
+    <string name="create_account">खाता बनाएँ</string>
+    <string name="member">सदस्य</string>
+
+    <string name="upgrade_subscription">सदस्यता अपग्रेड करें</string>
+    <string name="support_us">एक नए प्रकार के नेटवर्क के निर्माण में हमारा समर्थन करें जो लेने के बजाय देता है।</string>
+    <string name="unlock_speed">आप और भी तेज़ गति अनलॉक करेंगे और आपको मजबूत सेंसरशिप विरोधी उपायों और डेटा नियंत्रण जैसी नई सुविधाओं पर प्राथमिकता मिलेगी।</string>
+    <string name="join_the_movement">आंदोलन में शामिल हों</string>
+
+    <string name="in_guest_mode">आप गेस्ट मोड में हैं</string>
+    <string name="start_earning_join">कमाई शुरू करने के लिए, नेटवर्क से जुड़ें</string>
+
+    <string name="refer_friends_header">दोस्तों को रेफ़र करें</string>
+    <string name="refer_friends_detail">अधिक कनेक्शन हमारे समुदाय को गुमनाम रहने में मदद करते हैं (और आपको पैसे कमाने में मदद करते हैं!)</string>
+
+    <string name="balance">शेष</string>
+    <string name="transfer_funds">धनराशि स्थानांतरित करें</string>
+    <string name="no_payouts_found">इस वॉलेट के लिए कोई भुगतान नहीं मिला</string>
+    <string name="earnings">आय</string>
+    <string name="make_default">डिफ़ॉल्ट बनाएं</string>
+    <string name="payout_wallets">पेआउट वॉलेट</string>
+    <string name="chains_supported">Solana और Polygon वॉलेट वर्तमान में समर्थित हैं</string>
+
+    <string name="transfer_submitted">ट्रांसफर सबमिट किया गया</string>
+    <string name="transfer_submitted_details">आपका हस्तांतरण शुरू हो गया है और चेन पर लेनदेन संसाधित होने के बाद पूरा हो जाएगा।</string>
+
+    <string name="see_world_content">दुनिया की सभी\nसामग्री देखें</string>
+    <string name="see_world_content_description">URnetwork के साथ दुनिया की सभी सामग्री देखें</string>
+    <string name="stay_private_description">URnetwork के साथ पूरी तरह से निजी और गुमनाम रहें</string>
+    <string name="stay_private">पूरी तरह से\nनिजी और\nगुमनाम रहें</string>
+    <string name="build_right_description">URnetwork के साथ इंटरनेट को सही तरीके से बनाएं</string>
+    <string name="build_right">इंटरनेट को\nसही तरीके से बनाएं</string>
+    <string name="with_urnetwork">URnetwork के साथ</string>
+
+    <string name="unlock_supporter_tooltip">और भी तेज़ गति अनलॉक करें और नई सुविधाओं तक जल्दी पहुंच प्राप्त करें।</string>
+    <string name="become_supporter">समर्थक बनें</string>
+    <string name="notifications_label">सूचनाएं</string>
+    <string name="receive_notifications">कनेक्शन सूचनाएं प्राप्त करें</string>
+    <string name="connectivity_label">कनेक्टिविटी</string>
+    <string name="allow_local_connections">स्थानीय कनेक्शन की अनुमति दें</string>
+    <string name="stay_in_touch">संपर्क में रहें</string>
+    <string name="send_product_updates">मुझे उत्पाद अपडेट भेजें</string>
+    <string name="join_community_discord">समुदाय में शामिल हों</string>
+    <string name="update_notification_settings">अपनी Android सेटिंग में सूचना अनुमतियों को अपडेट करें</string>
+
+    <string name="feedback_header">संपर्क करें</string>
+    <string name="feedback_label">प्रतिक्रिया बॉक्स</string>
+    <string name="feedback_placeholder">हमें बताएं कि आप वास्तव में कैसा महसूस करते हैं</string>
+
+    <string name="cancel">रद्द करें</string>
+    <string name="connect">कनेक्ट करें</string>
+    <string name="remove">हटाएं</string>
+    <string name="change">बदलें</string>
+    <string name="share">शेयर करें</string>
+    <string name="copy">कॉपी करें</string>
+    <string name="send">भेजें</string>
+    <string name="plan">योजना</string>
+
+    <string name="login_error_auth_allowed">कृपया इनमें से किसी एक के साथ लॉगिन करें: %s.</string>
+    <string name="login_error">कुछ गलत हो गया. पुनः प्रयास करें.</string>
+    <string name="login_client_error">क्लाइंट को प्रमाणित करते समय कुछ गड़बड़ हो गई. पुनः प्रयास करें.</string>
+    <string name="network_name_check_error">उपलब्ध नहीं है। किसी मौजूदा नेटवर्क से कम से कम 3 वर्ण अलग होने चाहिए। इसे अद्वितीय या लंबा बनाएं।</string>
+    <string name="verify_error">कुछ गलत हो गया. पुनः प्रयास करें.</string>
+    <string name="create_network_error">कुछ गलत हो गया. पुनः प्रयास करें.</string>
+    <string name="verify_send_error">त्रुटि</string>
+
+    <string name="connections">कनेक्शन</string>
+    <string name="unpaid_data_provided">िना भुगतान का डेटा प्रदान किया गया</string>
+    <string name="payouts_amount_threshold">भुगतान हर रविवार 00:00 UTC पर होते हैं, और न्यूनतम USDC सीमा पूरी करनी होती है।</string>
+    <string name="open_nested_link">%1$s से कनेक्ट करें और लिंक %2$s खोलें</string>
+    <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>
+    <string name="connect_to_location">%1$s से कनेक्ट करें</string>
+    <string name="no_locations_found">कोई स्थान नहीं मिला</string>
+    <string name="no_locations_found_detail">क्षमा करें, हमें %1$s से संबंधित कोई स्थान नहीं मिला.</string>
+    <string name="dismiss">खारिज करें</string>
+    <string name="switch_account">खाता बदलें</string>
+    <string name="switch_account_details">क्या आप %1$s से डिस्कनेक्ट करना और खाते बदलना चाहते हैं?</string>
+    <string name="auth_code_loading">ऑथ कोड लोड हो रहा है</string>
+    <string name="network_create_bonus_message">किसी ने आपको जुड़ने के लिए आमंत्रित किया 🥳\\nनेटवर्क बनाकर अपना बोनस प्राप्त करें!</string>
+    <string name="delete_account">अकाउंट डिलीट करें</string>
+    <string name="sorry_to_see_you_go">हमें आपको जाते हुए देखकर दुख हो रहा है!</string>
+    <string name="are_you_sure_delete_account">क्या आप वाकई अपना अकाउंट डिलीट करना चाहते हैं?</string>
+    <string name="reconnect_tunnel_status_indicator">VPN टनल डिस्कनेक्ट हो गया 😓</string>
+    <string name="disconnect">डिस्कनेक्ट क</string>
+    <string name="reconnect">पुनः कनेक्ट करें</string>
+    <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है...</string>
+    <string name="connected_provider_count">%d प्रदाताओं से कनेक्ट किया गया</string>
+    <string name="ready_to_connect">कनेक्ट करने के लिए तैयार</string>
+    <string name="network_name_ready_to_connect">%s कनेक्ट करने के लिए तैयार है</string>
+    <string name="need_more_data_faster">क्या आपको अधिक डेटा, तेज़ी से चाहिए?</string>
+    <string name="upgrade_now">अभी अपग्रेड करें</string>
+    <string name="how_are_we_doing">हम कैसा कर रहे हैं?</string>
+    <string name="referral_code">रेफरल कोड</string>
+    <string name="add_referral_extra_rewards">अतिरिक्त पुरस्कार पाने के लिए रेफरल कोड जोड़ें</string>
+    <string name="add_referral_code">रेफरल कोड जोड़ें</string>
+    <string name="edit_referral_code">रेफरल कोड संपादित करें</string>
+    <string name="referral_bonus_applied">रेफरल बोनस लागू किया गया</string>
+    <string name="apply_bonus">बोनस लागू करें</string>
+    <string name="join_urnetwork">शामिल हों\\nURnetwork</string>
+    <string name="route_local">डिस्कनेक्ट होने पर स्थानीय ट्रैफ़िक की अनुमति दें</string>
+    <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
+    <string name="solana_sign_in">Solana से साइन इन करें</string>
+    <string name="no_solana_wallets_found">कोई Solana वॉलेट नहीं मिला</string>
+    <string name="no_wallets_found_alert_content">इस डिवाइस पर कोई Solana वॉलेट इंस्टॉल नहीं मिला. कृपया एक वॉलेट इंस्टॉल करें और फिर से प्रयास करें.</string>
+    <string name="claim_multiplier">गुणक का दावा करें</string>
+    <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
+    <string name="verify_seeker_token_btn">सीकर प्री-ऑर्डर टोकन सत्यापित करें</string>
+    <string name="total_referrals">कुल रेफरल</string>
+    <string name="login_verify_check_phone">अपना फ़ोन जांचें</string>
+    <string name="leaderboard">लीडरबोर्ड</string>
+    <string name="current_ranking">वर्तमान रैंकिंग</string>
+    <string name="net_provided">प्रदान किया गया नेट</string>
+    <string name="display_network_on_leaderboard">लीडरबोर्ड पर नेटवर्क प्रदर्शित करें</string>
+    <string name="leaderboard_description">लीडरबोर्ड पिछले 4 भुगतानों का योग है। यह प्रत्येक भुगतान चक्र में अपडेट किया जाता है।</string>
+    <string name="total_account_points">कुल खाता अंक</string>
+    <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
+    <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
+    <string name="update">अपडेट करें</string>
+    <string name="unlink_referral_network">रेफ़रल नेटवर्क को अनलिंक करें</string>
+    <string name="unlink">अनलिंक करें</string>
+    <string name="current_network_referral">वर्तमान रेफ़रल नेटवर्क</string>
+    <string name="unlink_alert_description">जब आप अपने रेफ़रल नेटवर्क को अनलिंक करते हैं, तो आप अब %1$s से अंक अर्जित नहीं कर पाएंगे</string>
+    <string name="account_points">खाता अंक</string>
+    <string name="points_breakdown">अंक विवरण</string>
+    <string name="payouts">भुगतान</string>
+    <string name="referral">रेफ़रल</string>
+    <string name="net_points_earned">अर्जित शुद्ध अंक</string>
+    <string name="version_info">संस्करण और बिल्ड जानकारी</string>
+    <string name="earning_multipliers">कमाई गुणक</string>
+    <string name="claim">दावा करें</string>
+    <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
+    <string name="earnings_doubled">आप x2 अंक कमा रहे हैं</string>
+    <string name="reliability">विश्वसनीयता</string>
+    <string name="browse_locations">" स्थान ब्राउज़ करें"</string>
+    <string name="none">कोई नहीं</string>
+    <string name="send_feedback">हमें सीधे अपनी प्रतिक्रिया भेजें या सीधे समर्थन के लिए हमारे %1$s से जुड़ें।</string>
+    <string name="referral_network">रेफ़रल नेटवर्क</string>
+    <string name="pending_payout">लंबित भुगतान</string>
+    <string name="amount">राशि</string>
+    <string name="wallet_address">वॉलेट पता</string>
+    <string name="transaction">लेन-देन</string>
+    <string name="date_payout">%1$s भुगतान</string>
+    <string name="auto">स्वचालित</string>
+    <string name="always">हमेशा</string>
+    <string name="never">कभी नहीं</string>
+    <string name="yes">हाँ</string>
+    <string name="no">नहीं</string>
+    <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
+    <string name="review_our_app">क्या आप हमारे ऐप की समीक्षा करना चाहेंगे?</string>
+    <string name="used_data_key">उपयोग किया गया</string>
+    <string name="pending_data_key">लंबित</string>
+    <string name="available_data_key">उपलब्ध</string>
+    <string name="no_blocked_locations">कोई अवरुद्ध स्थान नहीं</string>
+    <string name="blocked_locations">अवरुद्ध स्थान</string>
+    <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
+    <string name="verified_project_on">%1$s पर सत्यापित परियोजना</string>
+    <string name="allow_providing_cell">सेलुलर नेटवर्क पर प्रदान करने की अनुमति दें</string>
+    <string name="general">सामान्य</string>
+    <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
+    <string name="authentication">प्रमाणीकरण</string>
+    <string name="auth_code">ऑथ कोड</string>
+    <string name="create">बनाएँ</string>
+    <string name="auth_code_expires">ऑथ कोड 5 मिनट बाद समाप्त हो जाता है</string>
+    <string name="auth_code_created">ऑथ कोड बनाया गया</string>
+    <string name="copy_auth_code">ऑथ कोड कॉपी करें</string>
+    <string name="provide_mode">प्रदान मोड</string>
+    <string name="reliability_weight">िश्वसनीयता भार</string>
+    <string name="total_clients">कुल क्लाइंट्स</string>
+    <string name="average_reliability">औसत विश्वसनीयता</string>
+    <string name="country_multipliers">" देश गुणक"</string>
+    <string name="country">देश</string>
+    <string name="multiplier">गुणक</string>
+    <string name="clients">क्लाइंट्स</string>
+    <string name="pay_with_solana_wallet">Solana वॉलेट से भुगतान करें</string>
+    <string name="pay_with_stripe">Stripe के साथ जुड़ें</string>
+    <string name="checking_solana_transactions">Solana लेन-देन की जांच हो रही है</string>
+    <string name="processing_payment">भुगतान संसाधित हो रहा है</string>
+    <string name="check_ip">मेरा IP जांचें</string>
+    <string name="preorder_now">अभी प्री-ऑर्डर करें</string>
+    <string name="private_network">िजी नेटवर्क</string>
+    <string name="default_wallet">डिफ़ॉल्ट</string>
+    <string name="learn_more_about_multiplier">गुणक के बारे में और जानें</string>
+</resources>

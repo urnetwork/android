@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">URréseau</string>
+    <string name="title_login" translatable="false">Connexion</string>
+
+    <string name="user_auth_label">Email ou téléphone</string>
+    <string name="user_auth_placeholder">Entrez votre numéro de téléphone ou votre email</string>
+    <string name="get_started">Commencer</string>
+    <string name="google_auth_btn_text">Connectez-vous avec Google</string>
+    <string name="commitment_issues">Problèmes d\'engagement ?</string>
+    <string name="try_guest_mode">Essayer le mode invité</string>
+    <string name="enter">Entrée</string>
+    <string name="step_in">Découvrez Internet tel qu\'il devrait être.</string>
+    <string name="nicely_done">Bien joué !</string>
+
+    <string name="name_label">Nom</string>
+    <string name="name_placeholder">Votre nom</string>
+    <string name="network_name_label">Nom du réseau</string>
+    <string name="network_name_placeholder">Nom de votre réseau</string>
+    <string name="network_name_length_error">Les noms de réseau doivent comporter au moins 6 caractères.</string>
+    <string name="network_name_unavailable">Nom du réseau indisponible.</string>
+    <string name="password_label">Mot de passe</string>
+    <string name="password_support_txt">Le mot de passe doit comporter au moins 12 caractères</string>
+    <string name="continue_txt">Continue</string>
+    <string name="available">Disponible</string>
+
+    <string name="login_password_header">C\'est agréable de\nvous revoir</string>
+    <string name="forget_password">Mot de passe oublié ?</string>
+    <string name="reset_it">Réinitialiser</string>
+
+    <string name="forgot_password">Mot de passe oublié ?</string>
+    <string name="check_junk_mail">Vous devrez peut-être vérifier votre dossier spam ou débloquer support@ur.io</string>
+    <string name="send_reset_link">Envoyer le lien de réinitialisation</string>
+
+    <string name="reset_link_sent">Lien de réinitialisation envoyé</string>
+    <string name="reset_link_sent_to">Lien de réinitialisation envoyé à </string>
+    <string name="resend_reset_link">Renvoyer le lien</string>
+    <string name="sent">Envoyé !</string>
+
+    <string name="login_verify_header">Vous avez un courriel</string>
+    <string name="login_verify_details">Dites-nous qui vous êtes vraiment. Entrez le code que nous\nvous avons envoyé pour vérifier votre identité.</string>
+    <string name="dont_see_it">Vous ne le voyez pas ?</string>
+    <string name="resend_verify_code">Renvoyer le code</string>
+
+    <string name="connect_external_wallet">Connecter un portefeuille externe</string>
+    <string name="connect_external_wallet_supported_chains">Les adresses USDC sur Solana et Polygon sont actuellement prises en charge.</string>
+    <string name="wallet_address_label">Adresse du portefeuille</string>
+    <string name="wallet_address_placeholder">Copiez et collez ici</string>
+    <string name="total_payouts">total des paiements</string>
+    <string name="wallets">Portefeuilles</string>
+    <string name="add_wallet">Ajouter un portefeuille</string>
+
+    <string name="connect_saga_wallet">Connecter le portefeuille Saga</string>
+
+    <string name="something_went_wrong">Quelque chose s\'est mal passé.</string>
+    <string name="please_wait">Veuillez patienter quelques minutes et réessayer.</string>
+    <string name="change_password">Changer le mot de passe</string>
+    <string name="edit_profile">Modifier le profil</string>
+    <string name="save">Enregistrer</string>
+
+    <string name="share_with_others">Vous partagez avec les autres, nous partageons avec vous. Gagnez une part des revenus lorsque vous fournissez des données à d\'autres personnes du réseau.</string>
+    <string name="start_earning">Pour commencer à gagner, connectez votre portefeuille de crypto-monnaie à URréseau ou configurez-en un avec Circle.</string>
+
+    <string name="circle_transfer_topbar_title">Transférer USDC</string>
+    <string name="circle_transfer_header">Transférer vers un portefeuille externe</string>
+    <string name="circle_transfer_fee_coverage">URréseau couvre vos frais de transfert.</string>
+    <string name="transfer">Transférer</string>
+    <string name="insufficient_funds">Fonds insuffisants</string>
+
+    <string name="tap_to_connect">Appuyez pour connecter</string>
+
+    <string name="promoted_locations">Emplacements promus</string>
+    <string name="best_available_provider">Meilleur fournisseur disponible</string>
+    <string name="countries">Pays</string>
+    <string name="devices">Appareils</string>
+    <string name="search_placeholder">Rechercher tous les emplacements</string>
+    <string name="check_internet">Vérifiez votre connexion Internet</string>
+    <string name="no_providers_found">Nous n\'avons trouvé aucun fournisseur.</string>
+    <string name="tap_to_refetch">Appuyez pour essayer de récupérer l\'emplacement.</string>
+    <string name="cities">Villes</string>
+    <string name="regions">Régions</string>
+    <string name="top_matches">Meilleures correspondances</string>
+
+    <string name="account">Compte</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Paramètres</string>
+    <string name="wallet">Portefeuille</string>  
+
+    <string name="refer_and_earn">Parrainer et gagner</string>
+    <string name="set_up_wallet">Configurer le portefeuille</string>
+    <string name="guest">Invité</string>
+    <string name="supporter">Supporter</string>
+    <string name="free">Gratuit</string>
+    <string name="create_account">Créer un compte</string>
+    <string name="member">Membre</string>
+
+    <string name="upgrade_subscription">Mettre à niveau l\'abonnement</string>
+    <string name="support_us">Soutenez-nous dans la construction d\'un nouveau type de réseau qui donne au lieu de prendre.</string>
+    <string name="unlock_speed">Vous débloquerez des vitesses encore plus rapides et vous aurez la priorité sur les nouvelles fonctionnalités telles que des mesures anti-censure robustes et le contrôle des données.</string>
+    <string name="join_the_movement">Rejoignez le mouvement</string>
+
+    <string name="in_guest_mode">Vous êtes en mode invité</string>
+    <string name="start_earning_join">Pour commencer à gagner, rejoignez le réseau</string>
+
+    <string name="refer_friends_header">Parrainer des amis</string>
+    <string name="refer_friends_detail">Plus de connexions aident notre communauté à rester anonyme (et vous aident à gagner de l\'argent !)</string>
+
+    <string name="balance">Solde</string>
+    <string name="transfer_funds">Transférer des fonds</string>
+    <string name="no_payouts_found">Aucun paiement trouvé pour ce portefeuille</string>
+    <string name="earnings">Gains</string>
+    <string name="make_default">Définir par défaut</string>
+    <string name="payout_wallets">Portefeuilles de paiement</string>
+    <string name="chains_supported">Les portefeuilles Solana et Polygon sont actuellement pris en charge</string>
+
+    <string name="transfer_submitted">Transfert soumis</string>
+    <string name="transfer_submitted_details">Votre transfert a été initié et sera terminé une fois la transaction traitée sur la chaîne.</string>
+
+    <string name="see_world_content">Voir tout\nle contenu\ndu monde</string>
+    <string name="see_world_content_description">Voyez tout le contenu du monde avec URréseau</string>
+    <string name="stay_private_description">Restez totalement privé et anonyme avec URréseau</string>
+    <string name="stay_private">Restez\ntotalement\nprivé et\nanonyme</string>
+    <string name="build_right_description">Construisez Internet de la bonne manière avec URréseau</string>
+    <string name="build_right">Construire\nInternet de la\nbonne manière</string>
+    <string name="with_urnetwork">avec URréseau</string>
+
+    <string name="unlock_supporter_tooltip">Débloquez des vitesses encore plus rapides et soyez le premier à accéder aux nouvelles fonctionnalités.</string>
+    <string name="become_supporter">Devenir un supporter</string>
+    <string name="notifications_label">Notifications</string>
+    <string name="receive_notifications">Recevoir des notifications de connexion</string>
+    <string name="connectivity_label">Connectivité</string>
+    <string name="allow_local_connections">Autoriser les connexions locales</string>
+    <string name="stay_in_touch">Rester en contact</string>
+    <string name="send_product_updates">M\'envoyer des mises à jour sur le produit</string>
+    <string name="join_community_discord">Rejoindre la communauté sur</string>
+    <string name="update_notification_settings">Mettre à jour les autorisations de notification dans vos paramètres Android</string>
+
+    <string name="feedback_header">Entrer en contact</string>
+    <string name="feedback_label">Boîte de commentaires</string>
+    <string name="feedback_placeholder">Dites-nous ce que vous pensez vraiment</string>
+
+    <string name="cancel">Annule</string>
+    <string name="connect">Connecte</string>
+    <string name="remove">Supprimer</string>
+    <string name="plan">Plan</string>
+    <string name="change">Change</string>
+    <string name="share">Partage</string>
+    <string name="copy">Copie</string>
+    <string name="send">Envoie</string>
+
+    <string name="login_error_auth_allowed">Veuillez vous connecter avec l\'un des éléments suivants : %s.</string>
+    <string name="login_error">Quelque chose s\'est mal passé. Réessayez.</string>
+    <string name="login_client_error">Une erreur s\'est produite lors de l\'authentification du client. Réessayez.</string>
+    <string name="network_name_check_error">Non disponible. Doit comporter au moins 3 caractères différents d\'un réseau existant. Rendez-le unique ou plus long.</string>
+    <string name="verify_error">Quelque chose s\'est mal passé. Réessayez.</string>
+    <string name="create_network_error">Quelque chose s\'est mal passé. Réessayez.</string>
+    <string name="verify_send_error">Erreur</string>
+
+    <string name="connections">Connexions</string>
+    <string name="unpaid_data_provided">Données non payées fournies</string>
+    <string name="payouts_amount_threshold">Les paiements ont lieu chaque dimanche à 00h00 UTC et nécessitent d’atteindre un seuil minimum de USDC.</string>
+    <string name="open_nested_link">Se connecter à %1$s et ouvrir le lien %2$s</string>
+    <string name="connect_and_open">Se connecter et ouvrir le lien</string>
+    <string name="connect_to_location">Se connecter à %1$s</string>
+    <string name="no_locations_found">Aucun emplacement trouvé</string>
+    <string name="no_locations_found_detail">Désolé, nous n\'avons trouvé aucun emplacement lié à %1$s.</string>
+    <string name="dismiss">Fermer</string>
+    <string name="switch_account">Changer de compte</string>
+    <string name="switch_account_details">Voulez-vous vous déconnecter de %1$s et changer de compte ?</string>
+    <string name="auth_code_loading">Chargement du code d\'authentification</string>
+    <string name="network_create_bonus_message">Quelqu\\\'un t\\\'a invité à rejoindre 🥳\\nRéclame ton bonus en créant un réseau !</string>
+    <string name="delete_account">Supprimer le compte</string>
+    <string name="sorry_to_see_you_go">Nous sommes désolés de vous voir partir !</string>
+    <string name="are_you_sure_delete_account">Êtes-vous sûr de vouloir supprimer votre compte ?</string>
+    <string name="reconnect_tunnel_status_indicator">Tunnel VPN déconnecté 😓</string>
+    <string name="disconnect">Déconnecter</string>
+    <string name="reconnect">Reconnecter</string>
+    <string name="connecting_status_indicator">Connexion aux fournisseurs...</string>
+    <string name="connected_provider_count">Connecté à %d fournisseurs</string>
+    <string name="ready_to_connect">Prêt à connecter</string>
+    <string name="network_name_ready_to_connect">%s est prêt à connecter</string>
+    <string name="need_more_data_faster">Besoin de plus de données, plus rapidement ?</string>
+    <string name="upgrade_now">Mettre à niveau maintenant</string>
+    <string name="how_are_we_doing">Comment allons-nous ?</string>
+    <string name="referral_code">Code de parrainage</string>
+    <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
+    <string name="add_referral_code">Ajouter un code de parrainage</string>
+    <string name="edit_referral_code">Modifier le code de parrainage</string>
+    <string name="referral_bonus_applied">Bonus de parrainage appliqué</string>
+    <string name="apply_bonus">Appliquer le bonus</string>
+    <string name="join_urnetwork">Rejoindre\\nURnetwork</string>
+    <string name="route_local">Autoriser le trafic local lorsque déconnecté</string>
+    <string name="manage_subscription">Gérer l\'abonnement</string>
+    <string name="solana_sign_in">Se connecter avec Solana</string>
+    <string name="no_solana_wallets_found">Aucun portefeuille Solana trouvé</string>
+    <string name="no_wallets_found_alert_content">Aucun portefeuille Solana n\'a été trouvé installé sur cet appareil. Veuillez installer un portefeuille et réessayer.</string>
+    <string name="claim_multiplier">Réclamer le multiplicateur</string>
+    <string name="connect_seeker_wallet">Connectez un portefeuille avec le jeton Saga Genesis ou le jeton de précommande Seeker</string>
+    <string name="verify_seeker_token_btn">Vérifier le jeton de précommande Seeker</string>
+    <string name="total_referrals">Nombre total de parrainages</string>
+    <string name="login_verify_check_phone">Vérifiez votre téléphone</string>
+    <string name="leaderboard">Classement</string>
+    <string name="current_ranking">Classement actuel</string>
+    <string name="net_provided">Données Fournies</string>
+    <string name="display_network_on_leaderboard">Afficher le réseau dans le classement</string>
+    <string name="leaderboard_description">Le classement est la somme des 4 derniers paiements. Il est mis à jour à chaque cycle de paiement.</string>
+    <string name="total_account_points">Total des points du compte</string>
+    <string name="enter_network_referral_code">" Entrez le code de parrainage réseau"</string>
+    <string name="update_referral_network">Mettre à jour le réseau de parrainage</string>
+    <string name="update">Mettre à jour</string>
+    <string name="unlink_referral_network">Dissocier le réseau de parrainage</string>
+    <string name="unlink">Dissocier</string>
+    <string name="current_network_referral">Réseau de parrainage actuel</string>
+    <string name="unlink_alert_description">En dissociant votre réseau de parrainage, vous ne pourrez plus gagner de points depuis %1$s</string>
+    <string name="account_points">Points du compte</string>
+    <string name="points_breakdown">Répartition des points</string>
+    <string name="payouts">Paiements</string>
+    <string name="referral">Parrainage</string>
+    <string name="net_points_earned">Points nets gagnés</string>
+    <string name="version_info">Informations sur la version et la build</string>
+    <string name="earning_multipliers">Multiplicateurs de gains</string>
+    <string name="claim">Réclamer</string>
+    <string name="seeker_token_verified">Jeton Seeker vérifié !</string>
+    <string name="earnings_doubled">Vous gagnez x2 points</string>
+    <string name="reliability">Fiabilité</string>
+    <string name="browse_locations">Parcourir les emplacements</string>
+    <string name="none">Aucun</string>
+    <string name="send_feedback">Envoyez-nous directement vos retours ou rejoignez notre %1$s pour un support direct.</string>
+    <string name="referral_network">Réseau de parrainage</string>
+    <string name="pending_payout">Paiement en attente</string>
+    <string name="amount">Montant</string>
+    <string name="wallet_address">Adresse du portefeuille</string>
+    <string name="transaction">Transaction</string>
+    <string name="date_payout">Paiement du %1$s</string>
+    <string name="auto">Automatique</string>
+    <string name="always">Toujours</string>
+    <string name="never">Jamais</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
+    <string name="review_our_app">Souhaitez-vous évaluer notre application ?</string>
+    <string name="used_data_key">Utilisé</string>
+    <string name="pending_data_key">En attente</string>
+    <string name="available_data_key">Disponible</string>
+    <string name="no_blocked_locations">Aucun emplacement bloqué</string>
+    <string name="blocked_locations">Emplacements bloqués</string>
+    <string name="add_blocked_location">Ajouter un emplacement bloqué</string>
+    <string name="verified_project_on">Projet vérifié sur %1$s</string>
+    <string name="allow_providing_cell">Autoriser la fourniture sur le réseau cellulaire</string>
+    <string name="general">Général</string>
+    <string name="show_icon_when_connected">Afficher l’icône UR lors de la connexion</string>
+    <string name="authentication">Authentification</string>
+    <string name="auth_code">Code d’authentification</string>
+    <string name="create">Créer</string>
+    <string name="auth_code_expires">Le code d’authentification expire après 5 minutes</string>
+    <string name="auth_code_created">Code d’authentification créé</string>
+    <string name="copy_auth_code">Copier le code d’authentification</string>
+    <string name="provide_mode">Mode de fourniture</string>
+    <string name="reliability_weight">Poids de fiabilité</string>
+    <string name="total_clients">Nombre total de clients</string>
+    <string name="average_reliability">Fiabilité moyenne</string>
+    <string name="country_multipliers">Multiplicateurs par pays</string>
+    <string name="country">Pays</string>
+    <string name="multiplier">Multiplicateur</string>
+    <string name="clients">Clients</string>
+    <string name="pay_with_solana_wallet">Payer avec le portefeuille Solana</string>
+    <string name="pay_with_stripe">Rejoindre avec Stripe</string>
+    <string name="checking_solana_transactions">Vérification des transactions Solana</string>
+    <string name="processing_payment">Traitement du paiement</string>
+    <string name="check_ip">Vérifier mon IP</string>
+    <string name="preorder_now">Précommander maintenant</string>
+    <string name="private_network">Réseau privé</string>
+    <string name="default_wallet">Par défaut</string>
+    <string name="learn_more_about_multiplier">" En savoir plus sur le multiplicateur"</string>
+</resources>

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_login">Iniciar sesión</string>
+    <string name="user_auth_label">Correo electrónico o teléfono</string>
+    <string name="user_auth_placeholder">Introduce tu número de teléfono o correo electrónico</string>
+    <string name="get_started">Empezar</string>
+    <string name="google_auth_btn_text">Iniciar sesión con Google</string>
+    <string name="commitment_issues">¿Problemas de compromiso?</string>
+    <string name="try_guest_mode">Probar el modo invitado</string>
+    <string name="enter">Entra</string>
+    <string name="step_in">Adéntrate en el internet como debería ser.</string>
+    <string name="nicely_done">¡Bien hecho!</string>
+
+    <string name="name_label">Nombre</string>
+    <string name="name_placeholder">Tu nombre</string>
+    <string name="network_name_label">Nombre de la red</string>
+    <string name="network_name_placeholder">El nombre de tu red</string>
+    <string name="network_name_length_error">Los nombres de red deben tener al menos 6 caracteres.</string>
+    <string name="network_name_unavailable">Nombre de red no disponible.</string>
+    <string name="password_label">Contraseña</string>
+    <string name="password_support_txt">La contraseña debe tener al menos 12 caracteres</string>
+    <string name="continue_txt">Continúa</string>
+    <string name="available">Disponible</string>
+
+    <string name="login_password_header">Es bueno\nverte de nuevo</string>
+    <string name="forget_password">¿Olvidaste tu contraseña?</string>
+    <string name="reset_it">Restablecerla</string>
+
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="check_junk_mail">Es posible que debas revisar tu carpeta de correo no deseado o desbloquear support@ur.io</string>
+    <string name="send_reset_link">Enviar enlace de restablecimiento</string>
+
+    <string name="reset_link_sent">Enlace de restablecimiento enviado</string>
+    <string name="reset_link_sent_to">Enlace de restablecimiento enviado a</string>
+    <string name="resend_reset_link">Reenviar enlace</string>
+    <string name="sent">¡Enviado!</string>
+
+    <string name="login_verify_header">Tienes un correo electrónico</string>
+    <string name="login_verify_details">Dinos quién eres realmente. Introduce el código que te\nenviamos para verificar tu identidad.</string>
+    <string name="dont_see_it">¿No lo ves?</string>
+    <string name="resend_verify_code">Reenviar código</string>
+
+    <string name="connect_external_wallet">Conectar una billetera externa</string>
+    <string name="connect_external_wallet_supported_chains">Actualmente se admiten las direcciones USDC en Solana y Polygon.</string>
+    <string name="wallet_address_label">Dirección de la billetera</string>
+    <string name="wallet_address_placeholder">Copiar y pegar aquí</string>
+    <string name="total_payouts">Pagos totales</string>
+    <string name="wallets">Billeteras</string>
+    <string name="add_wallet">Añadir una billetera</string>
+
+    <string name="connect_saga_wallet">Conectar la billetera Saga</string>
+
+    <string name="something_went_wrong">Algo salió mal.</string>
+    <string name="please_wait">Espera unos minutos y vuelve a intentarlo.</string>
+    <string name="change_password">Cambiar la contraseña</string>
+    <string name="edit_profile">Editar perfil</string>
+    <string name="save">Guardar</string>  
+
+
+    <string name="share_with_others">Tú compartes con otros, nosotros compartimos contigo. Gana una parte de los ingresos cuando proporcionas datos a otros en la red.</string>
+    <string name="start_earning">Para empezar a ganar, conecta tu billetera de criptomonedas a URred o configura una con Circle.</string>
+
+    <string name="circle_transfer_topbar_title">Transferir USDC</string>
+    <string name="circle_transfer_header">Transferir a una billetera externa</string>
+    <string name="circle_transfer_fee_coverage">URred cubre tus comisiones de transferencia.</string>
+    <string name="transfer">Transferir</string>
+    <string name="insufficient_funds">Fondos insuficientes</string>
+
+    <string name="tap_to_connect">Pulsa para conectar</string>
+
+    <string name="promoted_locations">Ubicaciones promocionadas</string>
+    <string name="best_available_provider">Mejor proveedor disponible</string>
+    <string name="countries">Países</string>
+    <string name="devices">Dispositivos</string>
+    <string name="search_placeholder">Buscar en todas las ubicaciones</string>
+    <string name="check_internet">Comprueba tu conexión a Internet</string>
+    <string name="no_providers_found">No hemos encontrado ningún proveedor.</string>
+    <string name="tap_to_refetch">Toque para intentar obtener la ubicación.</string>
+    <string name="cities">Ciudades</string>
+    <string name="regions">Regiones</string>
+    <string name="top_matches">Mejores coincidencias</string>
+
+    <string name="account">Cuenta</string>
+    <string name="profile">Perfil</string>
+    <string name="settings">Ajustes</string>
+    <string name="wallet">Billetera</string>
+    <string name="refer_and_earn">Recomendar y ganar</string>
+    <string name="set_up_wallet">Configurar la billetera</string>
+    <string name="guest">Invitado</string>
+    <string name="supporter">Colaborador</string>
+    <string name="free">Gratis</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="member">Miembro</string>
+
+    <string name="upgrade_subscription">Actualizar suscripción</string>
+    <string name="support_us">Apóyanos en la construcción de un nuevo tipo de red que da en lugar de tomar.</string>
+    <string name="unlock_speed">Desbloquearás velocidades aún más rápidas y tendrás prioridad en las nuevas funciones, como medidas anti-censura robustas y control de datos.</string>
+    <string name="join_the_movement">Únete al movimiento</string>
+
+    <string name="in_guest_mode">Estás en modo invitado</string>
+    <string name="start_earning_join">Para empezar a ganar, únete a la red</string>
+
+    <string name="refer_friends_header">Recomendar a amigos</string>
+    <string name="refer_friends_detail">Más conexiones ayudan a nuestra comunidad a mantenerse anónima (¡y te ayudan a ganar dinero!)</string>
+
+    <string name="balance">Saldo</string>
+    <string name="transfer_funds">Transferir fondos</string>
+    <string name="no_payouts_found">No se han encontrado pagos para esta billetera</string>
+    <string name="earnings">Ganancias</string>
+    <string name="make_default">Establecer como predeterminada</string>
+    <string name="payout_wallets">Billeteras de pago</string>
+    <string name="chains_supported">Actualmente se admiten las billeteras Solana y Polygon</string>
+
+    <string name="transfer_submitted">Transferencia enviada</string>
+    <string name="transfer_submitted_details">Tu transferencia se ha iniciado y se completará una vez que la transacción se haya procesado en la cadena.</string>
+
+    <string name="see_world_content">Ver todo\nel contenido\ndel mundo</string>
+    <string name="see_world_content_description">Ver todo el contenido del mundo con URred</string>
+    <string name="stay_private_description">Mantente totalmente privado y anónimo con URred</string>
+    <string name="stay_private">Mantente\ntotalmente\nprivado y\nanónimo</string>
+    <string name="build_right_description">Construye Internet de la manera correcta con URred</string>
+    <string name="build_right">Construye\nInternet\nde la manera correcta</string>
+    <string name="with_urnetwork">con URred</string>
+
+    <string name="unlock_supporter_tooltip">Desbloquea velocidades aún más rápidas y obtén acceso prioritario a nuevas funciones.</string>
+    <string name="become_supporter">Convertirse en colaborador</string>
+    <string name="notifications_label">Notificaciones</string>
+    <string name="receive_notifications">Recibir notificaciones de conexión</string>
+    <string name="connectivity_label">Conectividad</string>
+    <string name="allow_local_connections">Permitir conexiones locales</string>
+
+    <string name="send_product_updates">Enviarme actualizaciones de productos</string>
+    <string name="join_community_discord">Únete a la comunidad en</string>
+    <string name="update_notification_settings">Actualizar permisos de notificaciones en la configuración de Android</string>
+
+    <string name="feedback_header">Ponte en contacto</string>
+    <string name="feedback_label">Cuadro de comentarios</string>
+    <string name="feedback_placeholder">Cuéntanos lo que realmente piensas</string>
+
+    <!-- call to action -->
+    <string name="cancel">Cancela</string>
+    <string name="connect">Conecta</string>
+    <string name="remove">Elimina</string>
+    <string name="plan">Plan</string>
+    <string name="change">Cambia</string>
+    <string name="share">Comparte</string>
+    <string name="copy">Copia</string>
+    <string name="send">Envía</string>
+
+    <string name="login_error_auth_allowed">Inicia sesión con una de las siguientes opciones: %s.</string>
+    <string name="login_error">Algo salió mal. Inténtalo de nuevo.</string>
+    <string name="login_client_error">Se ha producido un error al autenticar el cliente. Inténtalo de nuevo.</string>
+    <string name="network_name_check_error">No disponible. Debe tener al menos 3 caracteres diferentes de una red existente. Hazlo único o más largo.</string>
+    <string name="verify_error">Algo salió mal. Inténtalo de nuevo.</string>
+    <string name="create_network_error">Algo salió mal. Inténtalo de nuevo.</string>
+    <string name="verify_send_error">Error</string>
+
+    <string name="connections">Conexiones</string>
+    <string name="unpaid_data_provided">Datos no pagados proporcionados</string>
+    <string name="payouts_amount_threshold">Los pagos se realizan cada domingo a las 00:00 UTC y requieren cumplir con un umbral mínimo de USDC.</string>
+    <string name="open_nested_link">Conectar a %1$s y abrir enlace %2$s</string>
+    <string name="connect_and_open">Conectar y abrir enlace</string>
+    <string name="connect_to_location">Conectar a %1$s</string>
+    <string name="no_locations_found">No se encontraron ubicaciones</string>
+    <string name="no_locations_found_detail">Lo sentimos, no pudimos encontrar ninguna ubicación relacionada con %1$s.</string>
+    <string name="dismiss">Descarta</string>
+    <string name="switch_account">Cambiar cuenta</string>
+    <string name="switch_account_details">¿Quieres desconectarte de %1$s y cambiar de cuenta?</string>
+    <string name="auth_code_loading">Cargando código de autenticación</string>
+    <string name="network_create_bonus_message">¡Alguien te invitó a unirte 🥳\\n¡Reclama tu bonificación creando una red!</string>
+    <string name="delete_account">Eliminar cuenta</string>
+    <string name="sorry_to_see_you_go">¡Lamentamos verte partir!</string>
+    <string name="are_you_sure_delete_account">¿Está seguro de que desea eliminar su cuenta?</string>
+    <string name="reconnect_tunnel_status_indicator">Túnel VPN desconectado 😓</string>
+    <string name="disconnect">Desconectar</string>
+    <string name="reconnect">Reconectar</string>
+    <string name="connecting_status_indicator">Conectando a proveedores...</string>
+    <string name="connected_provider_count">Conectado a %d proveedores</string>
+    <string name="ready_to_connect">Listo para conectar</string>
+    <string name="network_name_ready_to_connect">%s está listo para conectar</string>
+    <string name="need_more_data_faster">¿Necesitas más datos, más rápido?</string>
+    <string name="upgrade_now">Actualizar ahora</string>
+    <string name="how_are_we_doing">¿Cómo lo estamos haciendo?</string>
+    <string name="referral_code">Código de referencia</string>
+    <string name="add_referral_extra_rewards">Añade un código de referencia para ganar recompensas adicionales</string>
+    <string name="add_referral_code">Añadir código de referencia</string>
+    <string name="edit_referral_code">Editar código de referencia</string>
+    <string name="referral_bonus_applied">Bono de referencia aplicado</string>
+    <string name="apply_bonus">Aplicar bono</string>
+    <string name="join_urnetwork">Únete a\\nURnetwork</string>
+    <string name="route_local">Permitir tráfico local cuando esté desconectado</string>
+    <string name="manage_subscription">Administrar suscripción</string>
+    <string name="solana_sign_in">Iniciar sesión con Solana</string>
+    <string name="no_solana_wallets_found">No se encontraron billeteras de Solana</string>
+    <string name="no_wallets_found_alert_content">No se encontraron billeteras de Solana instaladas en este dispositivo. Instale una billetera e intente nuevamente.</string>
+    <string name="claim_multiplier">Reclamar multiplicador</string>
+    <string name="connect_seeker_wallet">Conecta una billetera con el token Saga Genesis o el token de pre-pedido de Seeker</string>
+    <string name="verify_seeker_token_btn">Verificar el token de pre-pedido de Seeker</string>
+    <string name="total_referrals">Referencias totales</string>
+    <string name="login_verify_check_phone">Verifica tu teléfono</string>
+    <string name="leaderboard">Tabla de clasificación</string>
+    <string name="current_ranking">Clasificación actual</string>
+    <string name="net_provided">Red Proporcionada</string>
+    <string name="display_network_on_leaderboard">Mostrar red en la tabla de clasificación</string>
+    <string name="leaderboard_description">La tabla de clasificación es la suma de los últimos 4 pagos. Se actualiza en cada ciclo de pago.</string>
+    <string name="total_account_points">Puntos totales de la cuenta</string>
+    <string name="enter_network_referral_code">Introduce el código de referido de la red</string>
+    <string name="update_referral_network">Actualizar red de referidos</string>
+    <string name="update">Actualizar</string>
+    <string name="unlink_referral_network">Desvincular red de referidos</string>
+    <string name="unlink">Desvincular</string>
+    <string name="current_network_referral">Red de referidos actual</string>
+    <string name="unlink_alert_description">Al desvincular tu red de referidos, ya no podrás ganar puntos de %1$s</string>
+    <string name="account_points">Puntos de la cuenta</string>
+    <string name="points_breakdown">Desglose de puntos</string>
+    <string name="payouts">Pagos</string>
+    <string name="referral">Referido</string>
+    <string name="net_points_earned">Puntos netos obtenidos</string>
+    <string name="version_info">Información de versión y compilación</string>
+    <string name="earning_multipliers">Multiplicadores de ganancias</string>
+    <string name="claim">Reclamar</string>
+    <string name="seeker_token_verified">¡Token Seeker verificado!</string>
+    <string name="earnings_doubled">" Estás ganando x2 puntos"</string>
+    <string name="reliability">Fiabilidad</string>
+    <string name="browse_locations">Explorar ubicaciones</string>
+    <string name="none">Ninguno</string>
+    <string name="send_feedback">Envíanos tus comentarios directamente o únete a nuestro %1$s para soporte directo.</string>
+    <string name="referral_network">Red de referidos</string>
+    <string name="pending_payout">Pago pendiente</string>
+    <string name="amount">Monto</string>
+    <string name="wallet_address">Dirección de la billetera</string>
+    <string name="transaction">Transacción</string>
+    <string name="date_payout">Pago del %1$s</string>
+    <string name="auto">Automático</string>
+    <string name="always">Siempre</string>
+    <string name="never">Nunca</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="enjoying_urnetwork">¿Disfrutas de URnetwork?</string>
+    <string name="review_our_app">¿Te gustaría valorar nuestra aplicación?</string>
+    <string name="used_data_key">Usado</string>
+    <string name="pending_data_key">Pendiente</string>
+    <string name="available_data_key">Disponible</string>
+    <string name="no_blocked_locations">No hay ubicaciones bloqueadas</string>
+    <string name="blocked_locations">Ubicaciones bloqueadas</string>
+    <string name="add_blocked_location">Agregar ubicación bloqueada</string>
+    <string name="verified_project_on">Proyecto verificado en %1$s</string>
+    <string name="allow_providing_cell">Permitir proporcionar en la red celular</string>
+    <string name="general">General</string>
+    <string name="show_icon_when_connected">Mostrar el ícono UR cuando esté conectado</string>
+    <string name="authentication">Autenticación</string>
+    <string name="auth_code">Código de autenticación</string>
+    <string name="create">Crear</string>
+    <string name="auth_code_expires">El código de autenticación expira después de 5 minutos</string>
+    <string name="auth_code_created">Código de autenticación creado</string>
+    <string name="copy_auth_code">Copiar código de autenticación</string>
+    <string name="provide_mode">Modo de provisión</string>
+    <string name="reliability_weight">Peso de fiabilidad</string>
+    <string name="total_clients">Total de clientes</string>
+    <string name="average_reliability">Fiabilidad promedio</string>
+    <string name="country_multipliers">Multiplicadores por país</string>
+    <string name="country">País</string>
+    <string name="multiplier">Multiplicador</string>
+    <string name="clients">Clientes</string>
+    <string name="pay_with_solana_wallet">Pagar con la billetera Solana</string>
+    <string name="pay_with_stripe">Unirse con Stripe</string>
+    <string name="checking_solana_transactions">Comprobando transacciones de Solana</string>
+    <string name="processing_payment">Procesando el pago</string>
+    <string name="check_ip">Verificar mi IP</string>
+    <string name="preorder_now">Reservar ahora</string>
+    <string name="private_network">Red privada</string>
+    <string name="default_wallet">Predeterminado</string>
+    <string name="learn_more_about_multiplier">Más información sobre el multiplicador</string>
+</resources>
