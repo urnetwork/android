@@ -1,7 +1,0 @@
-<resources>
-
-    <!-- important: use the `web application` client id to fetch the id token.
-         the `android` client id is NOT allowed to fetch to the id token outside of the Play store signature. -->
-    <string name="google_client_id">338638865390-sqtpdk41i165gu9sqa8mt7fs4sjtci59.apps.googleusercontent.com</string>
-
-</resources>

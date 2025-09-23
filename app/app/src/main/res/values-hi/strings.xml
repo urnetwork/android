@@ -29,7 +29,7 @@
     <string name="reset_it">इसे रीसेट करें</string>
 
     <string name="forgot_password">अपना पासवर्ड भूल गए?</string>
-    <string name="check_junk_mail">आपको अपना स्पैम फ़ोल्डर जांचना पड़ सकता है या no-reply@ur.io को अनब्लॉक करना पड़ सकता है</string>
+    <string name="check_junk_mail">आपको अपना स्पैम फ़ोल्डर जांचना पड़ सकता है या support@ur.io को अनब्लॉक करना पड़ सकता है</string>
     <string name="send_reset_link">रीसेट लिंक भेजें</string>
 
     <string name="reset_link_sent">रीसेट लिंक भेज दिया गया</string>

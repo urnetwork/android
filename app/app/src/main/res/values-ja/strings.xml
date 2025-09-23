@@ -33,7 +33,7 @@
 
     <!-- パスワードを忘れた場合 -->
     <string name="forgot_password">パスワードをお忘れですか？</string>
-    <string name="check_junk_mail">迷惑メールフォルダを確認するか、no-reply@ur.ioのブロックを解除する必要がある場合があります</string>
+    <string name="check_junk_mail">迷惑メールフォルダを確認するか、support@ur.ioのブロックを解除する必要がある場合があります</string>
     <string name="send_reset_link">リセットリンクを送信</string>
 
     <!-- リセットリンク送信済み -->
