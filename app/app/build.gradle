@@ -448,8 +448,8 @@ dependencies {
 
 // github
 dependencies {
-    githubImplementation("com.stripe:stripe-android:21.26.1")
-    githubImplementation("com.stripe:financial-connections:21.26.1")
+    githubImplementation("com.stripe:stripe-android:21.27.0")
+    githubImplementation("com.stripe:financial-connections:21.27.0")
 }
 
 // google play
@@ -497,8 +497,8 @@ dependencies {
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-    solana_dappImplementation("com.stripe:stripe-android:21.26.1")
-    solana_dappImplementation("com.stripe:financial-connections:21.26.1")
+    solana_dappImplementation("com.stripe:stripe-android:21.27.0")
+    solana_dappImplementation("com.stripe:financial-connections:21.27.0")
 }
 
 
