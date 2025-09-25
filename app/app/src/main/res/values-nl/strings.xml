@@ -34,7 +34,7 @@
 
     <!-- Forgot password -->
     <string name="forgot_password">Wachtwoord vergeten?</string>
-    <string name="check_junk_mail">Mogelijk moet u uw spammap controleren of no-reply@ur.io deblokkeren</string>
+    <string name="check_junk_mail">Mogelijk moet u uw spammap controleren of support@ur.io deblokkeren</string>
     <string name="send_reset_link">Herstellink verzenden</string>
 
     <!-- Reset link sent -->

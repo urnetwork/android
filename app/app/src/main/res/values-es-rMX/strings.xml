@@ -29,7 +29,7 @@
     <string name="reset_it">Restablecerla</string>
 
     <string name="forgot_password">¿Olvidaste tu contraseña?</string>
-    <string name="check_junk_mail">Es posible que debas revisar tu carpeta de correo no deseado o desbloquear no-reply@ur.io</string>
+    <string name="check_junk_mail">Es posible que debas revisar tu carpeta de correo no deseado o desbloquear support@ur.io</string>
     <string name="send_reset_link">Enviar enlace para restablecer</string>
 
     <string name="reset_link_sent">Enlace para restablecer enviado</string>

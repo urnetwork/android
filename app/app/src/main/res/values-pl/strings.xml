@@ -33,7 +33,7 @@
 
     <!-- Zapomniałem hasła -->
     <string name="forgot_password">Zapomniałeś hasła?</string>
-    <string name="check_junk_mail">Może być konieczne sprawdzenie folderu spam lub odblokowanie adresu no-reply@ur.io</string>
+    <string name="check_junk_mail">Może być konieczne sprawdzenie folderu spam lub odblokowanie adresu support@ur.io</string>
     <string name="send_reset_link">Wyślij link do resetowania</string>
 
     <!-- Link do resetowania wysłany -->
