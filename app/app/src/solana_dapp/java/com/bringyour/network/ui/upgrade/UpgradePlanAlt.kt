@@ -58,10 +58,19 @@ fun UpgradePlanAlt(
         val url = buildSolanaPaymentUrl(reference)
 
         uriHandler.openUri(url)
+        var uriOpened = false
 
-        setPendingSolanaSubscriptionReference(reference)
+        try {
+            uriHandler.openUri(url)
+            uriOpened = true
+        } catch (e: Exception) {
+            Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
+        }
 
-        navController.popBackStack()
+        if (uriOpened) {
+            setPendingSolanaSubscriptionReference(reference)
+            navController.popBackStack()
+        }
 
     }
 
