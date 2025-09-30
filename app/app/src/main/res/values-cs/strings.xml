@@ -24,7 +24,7 @@
     <string name="forget_password">Zapomněli jste heslo?</string>
     <string name="reset_it">Resetujte si ho</string>
     <string name="forgot_password">Zapomněli jste heslo?</string>
-    <string name="check_junk_mail">Možná budete muset zkontrolovat složku se spamem nebo odblokovat no-reply@ur.io</string>
+    <string name="check_junk_mail">Možná budete muset zkontrolovat složku se spamem nebo odblokovat support@ur.io</string>
     <string name="send_reset_link">Odeslat odkaz pro obnovení hesla</string>
     <string name="reset_link_sent">Odkaz pro obnovení hesla odeslán</string>
     <string name="reset_link_sent_to">Odkaz pro obnovení zaslán na</string>

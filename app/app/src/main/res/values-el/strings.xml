@@ -28,7 +28,7 @@
     <string name="reset_it">Επαναφορά</string>
 
     <string name="forgot_password">Ξέχασες τον κωδικό σου;</string>
-    <string name="check_junk_mail">Μπορεί να χρειαστεί να ελέγξετε τον φάκελο ανεπιθύμητης αλληλογραφίας ή να ξεμπλοκάρετε το no-reply@ur.io</string>
+    <string name="check_junk_mail">Μπορεί να χρειαστεί να ελέγξετε τον φάκελο ανεπιθύμητης αλληλογραφίας ή να ξεμπλοκάρετε το support@ur.io</string>
     <string name="send_reset_link">Αποστολή συνδέσμου επαναφοράς</string>
 
     <string name="reset_link_sent">Ο σύνδεσμος επαναφοράς στάλθηκε</string>
