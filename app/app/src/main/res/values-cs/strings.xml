@@ -245,4 +245,5 @@
     <string name="private_network">Soukromá síť</string>
     <string name="default_wallet">Výchozí</string>
     <string name="learn_more_about_multiplier">Další informace o násobiteli</string>
+    <string name="solana_payment_insufficient_funds_warning">Ujistěte se, že máte v peněžence dostatek prostředků USDC. V některých případech se platba nezdaří, pokud v peněžence není dostatek prostředků.</string>
 </resources>

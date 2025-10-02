@@ -297,4 +297,5 @@
     <string name="private_network">Частная сеть</string>
     <string name="default_wallet">По умолчанию</string>
     <string name="learn_more_about_multiplier">Узнать больше о множителе</string>
+    <string name="solana_payment_insufficient_funds_warning">Пожалуйста, убедитесь, что у вас достаточно средств USDC в вашем кошельке. В некоторых случаях запросы на оплату не проходят, если в кошельке недостаточно средств.</string>
 </resources>

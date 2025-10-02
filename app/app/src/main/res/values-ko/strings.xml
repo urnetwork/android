@@ -294,4 +294,5 @@
     <string name="private_network">프라이빗 네트워크</string>
     <string name="default_wallet">기본값</string>
     <string name="learn_more_about_multiplier">배수에 대해 자세히 알아보기</string>
+    <string name="solana_payment_insufficient_funds_warning">지갑에 충분한 USDC 자금이 있는지 확인하세요. 경우에 따라 지갑에 자금이 부족하면 결제 요청이 실패할 수 있습니다.</string>
 </resources>
