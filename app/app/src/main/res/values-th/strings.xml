@@ -245,4 +245,5 @@
     <string name="private_network">เครือข่ายส่วนตัว</string>
     <string name="default_wallet">ค่าเริ่มต้น</string>
     <string name="learn_more_about_multiplier">เรียนรู้เพิ่มเติมเกี่ยวกับตัวคูณ</string>
+    <string name="solana_payment_insufficient_funds_warning">โปรดตรวจสอบให้แน่ใจว่าคุณมีเงิน USDC เพียงพอในกระเป๋าเงินของคุณ ในบางกรณี การแจ้งเตือนการชำระเงินจะล้มเหลวหากมีเงินไม่เพียงพอในกระเป๋าเงิน</string>
 </resources>

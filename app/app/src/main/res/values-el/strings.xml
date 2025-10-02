@@ -271,4 +271,5 @@
     <string name="private_network">Ιδιωτικό δίκτυο</string>
     <string name="default_wallet">Προεπιλογή</string>
     <string name="learn_more_about_multiplier">Μάθετε περισσότερα σχετικά με τον πολλαπλασιαστή</string>
+    <string name="solana_payment_insufficient_funds_warning">Βεβαιωθείτε ότι έχετε επαρκή κεφάλαια USDC στο πορτοφόλι σας. Σε ορισμένες περιπτώσεις, οι ειδοποιήσεις πληρωμής αποτυγχάνουν αν δεν υπάρχουν αρκετά χρήματα στο πορτοφόλι.</string>
 </resources>

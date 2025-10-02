@@ -272,4 +272,5 @@
     <string name="private_network">私有网络</string>
     <string name="default_wallet">默认</string>
     <string name="learn_more_about_multiplier">了解更多关于倍数的信息</string>
+    <string name="solana_payment_insufficient_funds_warning">请确保您的钱包中有足够的 USDC 资金。在某些情况下，如果钱包资金不足，付款提示可能会失败。</string>
 </resources>

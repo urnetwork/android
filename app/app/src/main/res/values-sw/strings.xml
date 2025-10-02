@@ -272,4 +272,5 @@
     <string name="private_network">Mtandao wa kibinafsi</string>
     <string name="default_wallet">Chaguo msingi</string>
     <string name="learn_more_about_multiplier">Jifunze zaidi kuhusu kizidishi</string>
+    <string name="solana_payment_insufficient_funds_warning">Tafadhali hakikisha una fedha za kutosha za USDC kwenye pochi yako. Katika baadhi ya matukio, maombi ya malipo hushindwa ikiwa hakuna fedha za kutosha kwenye pochi.</string>
 </resources>
