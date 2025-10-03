@@ -151,11 +151,11 @@ import kotlin.concurrent.thread
                         this@MainService.connected = connected
                         if (connected) {
                             // delaying the tunnel reset seems to help with stability
-                            Handler(mainLooper).postDelayed({
+                            Handler(mainLooper).post {
                                 if (this@MainService.connected && canUpdatePfd(source)) {
                                     updatePfd(offline)
                                 }
-                            }, 200)
+                            }
                         }
                     }
                 }

@@ -662,7 +662,7 @@ class MainApplication : Application() {
                         vpnRequestStart = false
 
                         // delaying the tunnel start seems to help with stability
-                        Handler(mainLooper).postDelayed({
+                        Handler(mainLooper).post {
                             if (this@MainApplication.serviceActive) {
                                 if (foreground) {
                                     // use a foreground service to allow notifications
@@ -685,7 +685,7 @@ class MainApplication : Application() {
                                     startService(vpnIntent)
                                 }
                             }
-                        }, 200)
+                        }
 
 
                     }
