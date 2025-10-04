@@ -934,17 +934,6 @@ fun SettingsScreen(
 
                 if (currentPlan == Plan.Supporter) {
 
-//                    TextButton(
-//                        onClick = {
-//                            val intent = Intent(Intent.ACTION_VIEW, stripePortalUrl.toUri())
-//                            context.startActivity(intent)
-//                        }
-//                    ) {
-//                        Text(
-//                            stringResource(id = R.string.manage_subscription),
-//                            color = BlueMedium
-//                        )
-//                    }
                     ManageSubscriptionButton(stripePortalUrl)
 
                 }
