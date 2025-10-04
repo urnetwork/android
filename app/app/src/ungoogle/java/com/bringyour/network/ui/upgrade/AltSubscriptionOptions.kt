@@ -37,256 +37,185 @@ import com.bringyour.network.ui.theme.OffBlack
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.Yellow
-import com.stripe.android.PaymentConfiguration
-import com.stripe.android.paymentsheet.ExperimentalCustomerSessionApi
-import com.stripe.android.paymentsheet.PaymentSheet
-import com.stripe.android.paymentsheet.PaymentSheetResult
 
-@OptIn(ExperimentalCustomerSessionApi::class)
 @Composable
 fun AltSubscriptionOptions(
+    upgradeStripeMonthly: () -> Unit,
+    upgradeStripeYearly: () -> Unit,
     onStripePaymentSuccess: () -> Unit,
     upgradeSolana: () -> Unit,
     isPromptingSolanaPayment: Boolean,
     setIsPromptingSolanaPayment: (Boolean) -> Unit,
-    stripePaymentIntentViewModel: StripePaymentIntentViewModel = hiltViewModel()
 ) {
-
-    val context = LocalContext.current
-    val paymentSheet = remember { PaymentSheet.Builder { result ->
-        onPaymentSheetResult(
-            result,
-            onStripePaymentSuccess = onStripePaymentSuccess,
-            onStripePaymentFailed = {}
-        )
-    } }.build()
-
-    val isCreatingIntents by stripePaymentIntentViewModel.isCreatingIntents.collectAsState()
 
     var monthlyPaymentIntentClientSecret by remember { mutableStateOf<String?>(null) }
     var yearlyPaymentIntentClientSecret by remember { mutableStateOf<String?>(null) }
 
-    var customerConfig by remember { mutableStateOf<PaymentSheet.CustomerConfiguration?>(null) }
 
-
-    LaunchedEffect(context) {
-
-        stripePaymentIntentViewModel.createPaymentIntent() { result ->
-            monthlyPaymentIntentClientSecret = stripePaymentIntentViewModel.findClientSecret(result.paymentIntents, "monthly")
-            yearlyPaymentIntentClientSecret = stripePaymentIntentViewModel.findClientSecret(result.paymentIntents, "yearly")
-
-            customerConfig = PaymentSheet.CustomerConfiguration(
-                id = result.customerId,
-                ephemeralKeySecret = result.ephemeralKey
+    Column(
+        modifier = Modifier
+            .background(
+                OffBlack,
+                RoundedCornerShape(12.dp)
             )
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
 
-            PaymentConfiguration.init(context, result.publishableKey)
-        }
-
-    }
-
-    if (isCreatingIntents) {
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+        Row (
+            verticalAlignment = Alignment.Bottom
         ) {
-            CircularProgressIndicator()
-        }
-
-    } else {
-
-        Column(
-            modifier = Modifier
-                .background(
-                    OffBlack,
-                    RoundedCornerShape(12.dp)
-                )
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-
-            Row (
-                verticalAlignment = Alignment.Bottom
-            ) {
-
-                Text(
-                    "$5",
-                    fontSize = 24.sp,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Text(
-                    "/month",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 2.dp)
-                )
-
-            }
 
             Text(
-                // stringResource(id = R.string.pay_with_stripe)
-                "Monthly",
-                fontWeight = FontWeight.Bold,
-                color = TextMuted
+                "$5",
+                fontSize = 24.sp,
+                style = MaterialTheme.typography.bodyLarge
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "/month",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
 
-            Row(modifier = Modifier.fillMaxWidth()) {
+        }
 
-                URButton(
-                    onClick = {
-                        if (customerConfig != null && monthlyPaymentIntentClientSecret != null) {
-                            presentPaymentSheet(
-                                paymentSheet,
-                                customerConfig!!,
-                                monthlyPaymentIntentClientSecret!!
-                            )
-                        }
-                    },
-                    enabled = customerConfig != null && monthlyPaymentIntentClientSecret != null
-                ) { buttonTextStyle ->
-                    Text(
-                        stringResource(id = R.string.pay_with_stripe),
-                        style = buttonTextStyle
-                    )
-                }
+        Text(
+            "Monthly",
+            fontWeight = FontWeight.Bold,
+            color = TextMuted
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        /**
+         * Stripe monthly
+         */
+        Row(modifier = Modifier.fillMaxWidth()) {
+
+            URButton(
+                onClick = {
+                    upgradeStripeMonthly()
+//                        if (customerConfig != null && monthlyPaymentIntentClientSecret != null) {
+//                            presentPaymentSheet(
+//                                paymentSheet,
+//                                customerConfig!!,
+//                                monthlyPaymentIntentClientSecret!!
+//                            )
+//                        }
+                },
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = R.string.pay_with_stripe),
+                    style = buttonTextStyle
+                )
             }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Column(
+        modifier = Modifier
+            // .padding(16.dp)
+            .background(
+                OffBlack,
+                RoundedCornerShape(12.dp)
+            )
+            .border(width = 2.dp, color = Yellow, shape = RoundedCornerShape(12.dp))
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+
+        Row (
+            verticalAlignment = Alignment.Bottom
+        ) {
+
+            Text(
+                "$3.33",
+                fontSize = 24.sp,
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Text(
+                "/month",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+
+        }
+
+        Text(
+            "Yearly",
+            fontWeight = FontWeight.Bold,
+            color = TextMuted
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        /**
+         * Stripe yearly
+         */
+        Row(modifier = Modifier.fillMaxWidth()) {
+
+            URButton(
+                onClick = {
+                    upgradeStripeYearly()
+
+//                        if (customerConfig != null && yearlyPaymentIntentClientSecret != null) {
+//                            presentPaymentSheet(
+//                                paymentSheet,
+//                                customerConfig!!,
+//                                yearlyPaymentIntentClientSecret!!
+//                            )
+//                        }
+                },
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = R.string.pay_with_stripe),
+                    style = buttonTextStyle
+                )
+            }
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Column(
-            modifier = Modifier
-                // .padding(16.dp)
-                .background(
-                    OffBlack,
-                    RoundedCornerShape(12.dp)
-                )
-                .border(width = 2.dp, color = Yellow, shape = RoundedCornerShape(12.dp))
-                .fillMaxWidth()
-                .padding(16.dp)
+        /**
+         * Solana yearly
+         */
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
 
-            Row (
-                verticalAlignment = Alignment.Bottom
-            ) {
-
+            URButton(
+                onClick = {
+                    setIsPromptingSolanaPayment(true)
+                    upgradeSolana()
+                },
+                enabled = !isPromptingSolanaPayment,
+                isProcessing = isPromptingSolanaPayment
+            ) { buttonTextStyle ->
                 Text(
-                    "$3.33",
-                    fontSize = 24.sp,
-                    style = MaterialTheme.typography.bodyLarge
+                    "Join with Solana Wallet",
+                    style = buttonTextStyle
                 )
-
-                Text(
-                    "/month",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 2.dp)
-                )
-
             }
-
-            Text(
-                "Yearly",
-                fontWeight = FontWeight.Bold,
-                color = TextMuted
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(modifier = Modifier.fillMaxWidth()) {
-
-                URButton(
-                    onClick = {
-                        if (customerConfig != null && yearlyPaymentIntentClientSecret != null) {
-                            presentPaymentSheet(
-                                paymentSheet,
-                                customerConfig!!,
-                                yearlyPaymentIntentClientSecret!!
-                            )
-                        }
-                    },
-                    enabled = customerConfig != null && yearlyPaymentIntentClientSecret != null
-                ) { buttonTextStyle ->
-                    Text(
-                        stringResource(id = R.string.pay_with_stripe),
-                        style = buttonTextStyle
-                    )
-                }
-
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-
-                URButton(
-                    onClick = {
-                        setIsPromptingSolanaPayment(true)
-                        upgradeSolana()
-                    },
-                    enabled = !isPromptingSolanaPayment,
-                    isProcessing = isPromptingSolanaPayment
-                ) { buttonTextStyle ->
-                    Text(
-                        "Join with Solana Wallet",
-                        style = buttonTextStyle
-                    )
-                }
-
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                stringResource(id = R.string.solana_payment_insufficient_funds_warning),
-                style = MaterialTheme.typography.bodySmall,
-                color = TextMuted
-            )
 
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            stringResource(id = R.string.solana_payment_insufficient_funds_warning),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted
+        )
 
     }
 
-}
 
-private fun presentPaymentSheet(
-    paymentSheet: PaymentSheet,
-    customerConfig: PaymentSheet.CustomerConfiguration,
-    paymentIntentClientSecret: String
-) {
-    paymentSheet.presentWithPaymentIntent(
-        paymentIntentClientSecret,
-        PaymentSheet.Configuration.Builder(merchantDisplayName = "URnetwork")
-            .customer(customerConfig)
-            // Set `allowsDelayedPaymentMethods` to true if your business handles
-            // delayed notification payment methods like US bank accounts.
-            .allowsDelayedPaymentMethods(true)
-            .build()
-    )
-}
-
-private fun onPaymentSheetResult(
-    paymentSheetResult: PaymentSheetResult,
-    onStripePaymentSuccess: () -> Unit,
-    onStripePaymentFailed: () -> Unit
-) {
-    when(paymentSheetResult) {
-        is PaymentSheetResult.Canceled -> {
-            // do nothing
-        }
-        is PaymentSheetResult.Failed -> {
-            print("Error: ${paymentSheetResult.error}")
-            onStripePaymentFailed()
-        }
-        is PaymentSheetResult.Completed -> {
-            onStripePaymentSuccess()
-        }
-    }
 }
 
 //@Preview
