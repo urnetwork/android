@@ -29,6 +29,7 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.utils.buildSolanaPaymentUrl
 import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
+import com.bringyour.sdk.Id
 
 @Composable
 fun UpgradePlanAlt(
@@ -107,7 +108,8 @@ fun UpgradePlanAlt(
                     pollSubscriptionBalance()
                     overlayViewModel.launch(OverlayMode.Upgrade)
                     navController.popBackStack()
-                }
+                },
+                networkId = planViewModel.networkId
             )
         }
     }
@@ -119,8 +121,11 @@ private fun UpgradePlanContent(
     upgradeInProgress: Boolean,
     upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
-    onStripePaymentSuccess: () -> Unit
+    onStripePaymentSuccess: () -> Unit,
+    networkId: String?
 ) {
+
+    val uriHandler = LocalUriHandler.current
 
     var isPromptingSolanaPayment by remember { mutableStateOf(false) }
 
@@ -149,7 +154,13 @@ private fun UpgradePlanContent(
                 setIsPromptingSolanaPayment = {
                     isPromptingSolanaPayment = it
                 },
-                onStripePaymentSuccess = onStripePaymentSuccess
+                onStripePaymentSuccess = onStripePaymentSuccess,
+                upgradeStripeMonthly = {
+                    uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${networkId}")
+                },
+                upgradeStripeYearly = {
+                    uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${networkId}")
+                },
             )
             Spacer(modifier = Modifier.height(16.dp))
 

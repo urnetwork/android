@@ -446,12 +446,6 @@ dependencies {
     implementation("io.github.funkatronics:kborsh:0.1.2")
 }
 
-// github
-dependencies {
-    githubImplementation("com.stripe:stripe-android:21.27.0")
-    githubImplementation("com.stripe:financial-connections:21.27.0")
-}
-
 // google play
 dependencies {
     // force dependencies with known CVE vulnerabilities to newer versions
