@@ -18,6 +18,7 @@ import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.IoLoop
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
+import com.bringyour.sdk.WindowStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
@@ -78,15 +79,17 @@ import kotlin.concurrent.thread
     val dnsIpv6s = emptyList<String>()
 
 
-
     //    private var pfd: ParcelFileDescriptor? = null
     private var packetFlow: PacketFlow? = null
     private var foregroundStarted: Boolean = false
 
+    private var deviceOfflineSub: Sub? = null
     private var windowStatusChangeSub: Sub? = null
     private var connected: Boolean = false
 
     private var closeMonitorStarted: Boolean = false
+
+        private var offline: Boolean = false
 
 
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
@@ -97,7 +100,7 @@ import kotlin.concurrent.thread
 
         if (stop || !app.serviceActive) {
             stop()
-        } else if (start) {
+        } else if (start && app.service?.get() != this) {
             app.service?.get().let { currentService ->
                 if (currentService != this) {
                     currentService?.stop()
@@ -107,7 +110,7 @@ import kotlin.concurrent.thread
 
             val foreground = intent.getBooleanExtra("foreground", false)
             val source = intent.getStringExtra("source") ?: "unknown"
-            val offline = intent.getBooleanExtra("offline", false)
+//            val offline = intent.getBooleanExtra("offline", false)
 
             if (foreground) {
                 startForegroundNotification("On")
@@ -137,32 +140,54 @@ import kotlin.concurrent.thread
                 0 < it.providerStateAdded
             } ?: false
 
-            if (canUpdatePfd(source)) {
-                updatePfd(offline)
-            }
+//            if (canUpdatePfd(source)) {
+//                updatePfd(offline)
+//            }
 
-            windowStatusChangeSub?.close()
-            windowStatusChangeSub = app.device?.addWindowStatusChangeListener { windowStatus ->
-                runBlocking(Dispatchers.Main.immediate) {
-                    val connected = windowStatus?.let {
-                        0 < it.providerStateAdded
-                    } ?: false
-                    if (this@MainService.connected != connected) {
-                        this@MainService.connected = connected
-                        if (connected) {
-                            // delaying the tunnel reset seems to help with stability
-                            Handler(mainLooper).post {
-                                if (this@MainService.connected && canUpdatePfd(source)) {
-                                    updatePfd(offline)
-                                }
-                            }
+
+            offline = app.device?.let { device ->
+                device.offline && !device.vpnInterfaceWhileOffline
+            } ?: false
+
+            deviceOfflineSub?.close()
+            deviceOfflineSub = app.device?.addOfflineChangeListener { deviceOffline, vpnInterfaceWhileOffline ->
+                Handler(mainLooper).post {
+                    val offline = deviceOffline && !vpnInterfaceWhileOffline
+                    if (this@MainService.offline != offline) {
+                        this@MainService.offline = offline
+                        if (canUpdatePfd(source)) {
+                            updatePfd(offline)
                         }
                     }
                 }
             }
-        }
 
-        startCloseMonitor()
+            fun updateWindowStatus(windowStatus: WindowStatus) {
+                runBlocking(Dispatchers.Main.immediate) {
+                    val connected = windowStatus?.let {
+                        0 < it.providerStateAdded
+                    } ?: false
+                    if (!(packetFlow?.isActive() ?: false) || this@MainService.connected != connected) {
+                        this@MainService.connected = connected
+                        if (canUpdatePfd(source)) {
+                            updatePfd(offline)
+                        }
+                    }
+                }
+            }
+
+            windowStatusChangeSub?.close()
+            windowStatusChangeSub = app.device?.addWindowStatusChangeListener { windowStatus ->
+                Handler(mainLooper).post {
+                    updateWindowStatus(windowStatus)
+                }
+            }
+            app.device?.windowStatus?.let { windowStatus ->
+                updateWindowStatus(windowStatus)
+            }
+
+            startCloseMonitor()
+        }
 
         // see https://developer.android.com/reference/android/app/Service#START_REDELIVER_INTENT
         return START_REDELIVER_INTENT
@@ -187,6 +212,7 @@ import kotlin.concurrent.thread
     }
 
     fun updatePfd(offline: Boolean) {
+//        Log.i(TAG, "[io]UPDATE VPN")
         val app = application as MainApplication
 
         val builder = Builder()
@@ -195,6 +221,7 @@ import kotlin.concurrent.thread
         builder.setBlocking(false)
         builder.setUnderlyingNetworks(null)
         if (offline) {
+//            Log.i(TAG, "[io]OFFLINE")
             // when offline, only allow traffic from a fake package name
             // in this way, the vpn service remains active but no apps detect it as an interface
             builder.addAllowedApplication("${packageName}.offline")
@@ -327,12 +354,16 @@ import kotlin.concurrent.thread
                 replacedPacketFlow?.close()
                 if (app.service?.get() == this@MainService) {
                     device.tunnelStarted = true
+                } else {
+                    stop()
                 }
             } ?: run {
                 Log.i(TAG, "[service]WARNING tunnel was not started. Another existing tunnel may be blocking the start.")
+                stop()
             }
         } ?: run {
             Log.i(TAG, "[service]WARNING tunnel was not started due to missing device.")
+            stop()
         }
     }
 
@@ -356,6 +387,9 @@ import kotlin.concurrent.thread
 
     fun stop() {
         val app = application as MainApplication
+
+        deviceOfflineSub?.close()
+        deviceOfflineSub = null
 
         windowStatusChangeSub?.close()
         windowStatusChangeSub = null
@@ -457,20 +491,13 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
     }
 
     fun close() {
-        var closed = false
         stateLock.lock()
         try {
-            if (active) {
-                active = false
-                closed = true
-//                closed.signalAll()
-            }
+            active = false
         } finally {
             stateLock.unlock()
         }
-        if (closed) {
-            ioLoop.close()
-        }
+        ioLoop.close()
     }
 
     fun isActive(): Boolean {

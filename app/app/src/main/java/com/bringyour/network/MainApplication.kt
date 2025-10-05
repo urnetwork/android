@@ -13,7 +13,6 @@ import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
-import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -67,7 +66,7 @@ class MainApplication : Application() {
     var deviceProvidePausedSub: Sub? = null
 
     var deviceProvideNetworkSub: Sub? = null
-    var deviceOfflineSub: Sub? = null
+//    var deviceOfflineSub: Sub? = null
     var deviceConnectSub: Sub? = null
     var deviceRouteLocalSub: Sub? = null
 //    var router: Router? = null
@@ -392,8 +391,8 @@ class MainApplication : Application() {
         deviceProvidePausedSub = null
         deviceProvideNetworkSub?.close()
         deviceProvideNetworkSub = null
-        deviceOfflineSub?.close()
-        deviceOfflineSub = null
+//        deviceOfflineSub?.close()
+//        deviceOfflineSub = null
         deviceConnectSub?.close()
         deviceConnectSub = null
         deviceRouteLocalSub?.close()
@@ -452,46 +451,44 @@ class MainApplication : Application() {
 
 
 
-
-
         deviceRouteLocalSub = device?.addRouteLocalChangeListener {
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
                 updateVpnService()
             }
         }
         deviceProvideSub = device?.addProvideChangeListener {
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
                 updateVpnService()
             }
         }
         deviceProvidePausedSub = device?.addProvidePausedChangeListener {
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
                 updateVpnService()
             }
         }
         deviceProvideNetworkSub = device?.addProvideNetworkModeChangeListener {
 
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
 
                 addNetworkCallback()
 
                 updateVpnService()
             }
         }
-        deviceOfflineSub = device?.addOfflineChangeListener { _, _ ->
-            Handler(Looper.getMainLooper()).post {
-                updateVpnService()
-            }
-        }
+//            deviceOfflineSub = device?.addOfflineChangeListener { _, _ ->
+//                Handler(mainLooper).post {
+//                    updateVpnService()
+//                }
+//            }
         deviceConnectSub = device?.addConnectChangeListener {
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
                 updateVpnService()
             }
         }
 
 
         tunnelChangeSub = device?.addTunnelChangeListener { tunnelStarted ->
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
                 updateTunnelStarted()
 
                 if (!tunnelStarted) {
@@ -502,13 +499,13 @@ class MainApplication : Application() {
             }
         }
         contractStatusChangeSub = device?.addContractStatusChangeListener {
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
                 updateContractStatus()
             }
         }
 
         provideNetworkModeSub = device?.addProvideNetworkModeChangeListener {
-            Handler(Looper.getMainLooper()).post {
+            Handler(mainLooper).post {
                 addNetworkCallback()
             }
         }
@@ -516,13 +513,9 @@ class MainApplication : Application() {
         addOfflineCallback()
         addNetworkCallback()
 
-        // *important* calling startService for a VpnService in OnCreate will *not* correctly set up the routes
-        // we need to delay this after onCreate for the routes to set up correctly (wtf)
-        Handler(Looper.getMainLooper()).post {
-            updateTunnelStarted()
-            updateContractStatus()
-            updateVpnService()
-        }
+        updateTunnelStarted()
+        updateContractStatus()
+        updateVpnService()
 
         // return byDevice
     }
@@ -621,15 +614,9 @@ class MainApplication : Application() {
 
         if (!serviceActive) {
 
-            val offline = device.offline
-            val vpnInterfaceWhileOffline = device.vpnInterfaceWhileOffline
+//            val offline = device.offline
+//            val vpnInterfaceWhileOffline = device.vpnInterfaceWhileOffline
 
-            val vpnIntent = Intent(this, MainService::class.java)
-            vpnIntent.putExtra("source", "app")
-            vpnIntent.putExtra("stop", false)
-            vpnIntent.putExtra("start", true)
-            vpnIntent.putExtra("foreground", foreground)
-            vpnIntent.putExtra("offline", offline && !vpnInterfaceWhileOffline)
 
             try {
                 if (VpnService.prepare(this) != null) {
@@ -661,9 +648,17 @@ class MainApplication : Application() {
 //                    tunnelRequestStatus = TunnelRequestStatus.Started
                         vpnRequestStart = false
 
-                        // delaying the tunnel start seems to help with stability
+                        // *important* calling startService for a VpnService in OnCreate will *not* correctly set up the routes
+                        // we need to delay this after onCreate for the routes to set up correctly (wtf)
                         Handler(mainLooper).post {
                             if (this@MainApplication.serviceActive) {
+                                val vpnIntent = Intent(this, MainService::class.java)
+                                vpnIntent.putExtra("source", "app")
+                                vpnIntent.putExtra("stop", false)
+                                vpnIntent.putExtra("start", true)
+                                vpnIntent.putExtra("foreground", foreground)
+//                                vpnIntent.putExtra("offline", offline && !vpnInterfaceWhileOffline)
+
                                 if (foreground) {
                                     // use a foreground service to allow notifications
                                     if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
@@ -674,7 +669,10 @@ class MainApplication : Application() {
                                         }
                                     } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
                                         try {
-                                            ContextCompat.startForegroundService(this, vpnIntent)
+                                            ContextCompat.startForegroundService(
+                                                this,
+                                                vpnIntent
+                                            )
                                         } catch (e: ForegroundServiceStartNotAllowedException) {
                                             startService(vpnIntent)
                                         }
@@ -686,6 +684,7 @@ class MainApplication : Application() {
                                 }
                             }
                         }
+
 
 
                     }
@@ -777,6 +776,17 @@ class MainApplication : Application() {
 //        }
 
 
+    }
+
+    fun forceStopVpnService() {
+        val vpnIntent = Intent(this, MainService::class.java)
+        vpnIntent.putExtra("source", "app")
+        vpnIntent.putExtra("stop", true)
+        vpnIntent.putExtra("start", false)
+        vpnIntent.putExtra("foreground", false)
+        stopService(vpnIntent)
+
+        stopVpnService()
     }
 
 }
