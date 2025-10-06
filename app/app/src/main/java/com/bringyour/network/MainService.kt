@@ -145,14 +145,17 @@ import kotlin.concurrent.thread
 //            }
 
 
-            offline = app.device?.let { device ->
-                device.offline && !device.vpnInterfaceWhileOffline
-            } ?: false
+            fun offline():Boolean {
+                return app.device?.let { device ->
+                    device.offline && !device.vpnInterfaceWhileOffline
+                } ?: false
+            }
+            this@MainService.offline = offline()
 
             deviceOfflineSub?.close()
             deviceOfflineSub = app.device?.addOfflineChangeListener { deviceOffline, vpnInterfaceWhileOffline ->
                 Handler(mainLooper).post {
-                    val offline = deviceOffline && !vpnInterfaceWhileOffline
+                    val offline = offline()
                     if (this@MainService.offline != offline) {
                         this@MainService.offline = offline
                         if (canUpdatePfd(source)) {
