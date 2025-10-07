@@ -441,15 +441,9 @@ dependencies {
 dependencies {
     implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0")
     implementation("com.solanamobile:web3-solana:0.3.0")
-    implementation("com.solanamobile:rpc-core:0.2.9")
+    implementation("com.solanamobile:rpc-core:0.2.10")
     implementation("io.github.funkatronics:multimult:0.2.5")
     implementation("io.github.funkatronics:kborsh:0.1.2")
-}
-
-// github
-dependencies {
-    githubImplementation("com.stripe:stripe-android:21.27.0")
-    githubImplementation("com.stripe:financial-connections:21.27.0")
 }
 
 // google play
@@ -497,8 +491,8 @@ dependencies {
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-    solana_dappImplementation("com.stripe:stripe-android:21.27.0")
-    solana_dappImplementation("com.stripe:financial-connections:21.27.0")
+    solana_dappImplementation("com.stripe:stripe-android:21.28.0")
+    solana_dappImplementation("com.stripe:financial-connections:21.28.0")
 }
 
 
