@@ -371,6 +371,7 @@ fun MainNavContent(
 
     val wallets by walletViewModel.wallets.collectAsState()
     val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
+    val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
 
     val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
 
@@ -454,7 +455,7 @@ fun MainNavContent(
                     planViewModel,
                     bundleStore,
                     meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
-                    totalReferrals = referralCodeViewModel.totalReferralCount
+                    totalReferrals = totalReferralCount
                 )
             }
 
@@ -522,7 +523,7 @@ fun MainNavContent(
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     overlayViewModel = overlayViewModel,
-                    totalReferrals = referralCodeViewModel.totalReferralCount,
+                    totalReferrals = totalReferralCount,
                     meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0
                 )
             }
@@ -551,7 +552,7 @@ fun MainNavContent(
                 subscriptionBalanceViewModel,
                 activityResultSender,
                 walletViewModel,
-                bonusReferralCode = referralCodeViewModel.referralCode,
+                bonusReferralCode = referralCodeViewModel.referralCode.collectAsState().value,
             ) }
 
             composable<Route.BlockedRegions>(
@@ -577,7 +578,6 @@ fun MainNavContent(
                     navController,
                     walletViewModel,
                     activityResultSender,
-                    referralCodeViewModel,
                     overlayViewModel,
                     totalAccountPoints = accountPointsViewModel.totalAccountPoints.collectAsState().value,
                     payoutPoints = accountPointsViewModel.payoutPoints.collectAsState().value,
@@ -585,7 +585,9 @@ fun MainNavContent(
                     multiplierPoints = accountPointsViewModel.multiplierPoints.collectAsState().value,
                     reliabilityPoints = accountPointsViewModel.reliabilityPoints.collectAsState().value,
                     fetchAccountPoints = accountPointsViewModel.fetchAccountPoints,
-                    reliabilityWindow = reliabilityWindow
+                    reliabilityWindow = reliabilityWindow,
+                    totalReferralCount = totalReferralCount,
+                    fetchReferralCode = referralCodeViewModel.fetchReferralCode
                 )
             }
 

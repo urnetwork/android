@@ -9,10 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
-import com.bringyour.sdk.ReliabilityWindow
 import com.bringyour.sdk.SubscriptionBalanceCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,8 +31,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _currentStore = MutableStateFlow<String?>(null)
     val currentStore: StateFlow<String?> get() = _currentStore
 
+    /**
+     * When actively polling for plan subscription change
+     */
     private var pollingJob: Job? = null
     private var pollingInterval: Long = 5000 // 5 seconds
+
+    /**
+     * Background polling for available bytes
+     */
+    private var backgroundPollingJob: Job? = null
 
 
     val setCurrentPlan: (Plan) -> Unit = { plan ->
@@ -164,6 +170,29 @@ class SubscriptionBalanceViewModel @Inject constructor(
         }
     }
 
+    val createBackgroundPollingJob: () -> Unit = {
+        backgroundPollingJob = viewModelScope.launch {
+
+            fetchSubscriptionBalance()
+
+            while (true) {
+                delay(60_000) // poll every minute
+                fetchSubscriptionBalance()
+                if (isSupporterWithBalance()) {
+                    stopBackgroundPolling()
+                    break
+                }
+            }
+        }
+    }
+
+    private fun stopBackgroundPolling() {
+        viewModelScope.launch {
+            backgroundPollingJob?.cancel()
+            backgroundPollingJob = null
+        }
+    }
+
     private fun stopPolling() {
         viewModelScope.launch {
             pollingJob?.cancel()
@@ -174,7 +203,15 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     init {
-        fetchSubscriptionBalance()
+        createBackgroundPollingJob()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        pollingJob?.cancel()
+        pollingJob = null
+        backgroundPollingJob?.cancel()
+        backgroundPollingJob = null
     }
 
 }
