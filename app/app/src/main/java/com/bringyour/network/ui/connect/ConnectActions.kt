@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,34 +11,44 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.Plan
+import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.OffWhite
+import com.bringyour.network.ui.theme.Pink
+import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Red400
+import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.sdk.ConnectLocation
@@ -58,7 +70,9 @@ fun ConnectActions(
     insufficientBalance: Boolean,
     usedBytes: Long,
     availableBytes: Long,
-    pendingBytes: Long
+    pendingBytes: Long,
+    meanReliabilityWeight: Double,
+    totalReferrals: Long,
 ) {
 
     Column(
@@ -159,27 +173,77 @@ fun ConnectActions(
                     .padding(16.dp)
             ) {
 
-                Text(
-                    "Data usage",
-                    style = TopBarTitleTextStyle,
-                    color = OffWhite
-                )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                // member area
+                Column {
+                    Text(
+                        stringResource(id = R.string.plan),
+                        style = TextStyle(
+                            color = TextMuted
+                        )
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+
+                        if (isPollingSubscriptionBalance) {
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .width(24.dp)
+                                        .height(24.dp),
+                                    color = TextMuted,
+                                    trackColor = TextFaint,
+                                    strokeWidth = 2.dp
+                                )
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text("Checking payment",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = TextMuted
+                                )
+
+                            }
+
+                        } else {
+                            Text(stringResource(id = R.string.free),
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        }
+
+
+                        TextButton(onClick = {}) {
+                            Text(
+                                "Get more data",
+                                style = TextStyle(
+                                    color = Pink
+                                )
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 UsageBar(
                     usedBytes = usedBytes,
                     pendingBytes = pendingBytes,
-                    availableBytes = availableBytes
+                    availableBytes = availableBytes,
+                    meanReliabilityWeight = meanReliabilityWeight,
+                    totalReferrals = totalReferrals
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                URButton(onClick = {}) { btnTextStyle ->
-                    Text("Get more data", style = btnTextStyle)
-                }
             }
-
         }
     }
 }
@@ -251,7 +315,10 @@ fun OpenProviderListButton(
         }
 
         TextButton(onClick = onClick) {
-            Text("Change")
+            Text(
+                "Change",
+                color = Pink
+            )
         }
     }
 

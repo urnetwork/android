@@ -50,11 +50,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -95,7 +96,9 @@ import com.bringyour.network.ui.payout.PayoutScreen
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.AccountPointEvent
 import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
+import com.bringyour.network.ui.shared.viewmodels.NetworkReliabilityViewModel
 import com.bringyour.network.ui.shared.viewmodels.SolanaPaymentViewModel
+import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.upgrade.UpgradeScreen
 import kotlinx.coroutines.launch
 
@@ -112,10 +115,10 @@ fun MainNavHost(
     defaultLocation: String?,
     activityResultSender: ActivityResultSender?,
     bundleStore: BundleStore?,
-    mainNavViewModel: MainNavViewModel = hiltViewModel(),
-    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel(),
-    connectViewModel: ConnectViewModel = hiltViewModel(),
-    locationsListViewModel: LocationsListViewModel = hiltViewModel()
+    mainNavViewModel: MainNavViewModel = hiltViewModel<MainNavViewModel>(),
+    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel<ReferralCodeViewModel>(),
+    connectViewModel: ConnectViewModel = hiltViewModel<ConnectViewModel>(),
+    locationsListViewModel: LocationsListViewModel = hiltViewModel<LocationsListViewModel>()
 ) {
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
@@ -124,9 +127,11 @@ fun MainNavHost(
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
             indicatorColor = Color.Transparent,
+            selectedIconColor = Pink
         ),
         navigationRailItemColors = NavigationRailItemDefaults.colors(
-            indicatorColor = Color.Transparent
+            indicatorColor = Color.Transparent,
+            selectedIconColor = Pink
         ),
         navigationDrawerItemColors = NavigationDrawerItemDefaults.colors()
     )
@@ -354,16 +359,18 @@ fun MainNavContent(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     referralCodeViewModel: ReferralCodeViewModel,
     bundleStore: BundleStore?,
-    accountViewModel: AccountViewModel = hiltViewModel(),
-    profileViewModel: ProfileViewModel = hiltViewModel(),
-    accountPointsViewModel: AccountPointsViewModel = hiltViewModel(),
-    solanaPaymentViewModel: SolanaPaymentViewModel = hiltViewModel()
+    accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
+    profileViewModel: ProfileViewModel = hiltViewModel<ProfileViewModel>(),
+    accountPointsViewModel: AccountPointsViewModel = hiltViewModel<AccountPointsViewModel>(),
+    solanaPaymentViewModel: SolanaPaymentViewModel = hiltViewModel<SolanaPaymentViewModel>(),
+    networkReliabilityViewModel: NetworkReliabilityViewModel = hiltViewModel<NetworkReliabilityViewModel>()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx =
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
 
     val wallets by walletViewModel.wallets.collectAsState()
+    val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
 
     val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
 
@@ -446,6 +453,8 @@ fun MainNavContent(
                     subscriptionBalanceViewModel,
                     planViewModel,
                     bundleStore,
+                    meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
+                    totalReferrals = referralCodeViewModel.totalReferralCount
                 )
             }
 
@@ -513,6 +522,8 @@ fun MainNavContent(
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     overlayViewModel = overlayViewModel,
+                    totalReferrals = referralCodeViewModel.totalReferralCount,
+                    meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0
                 )
             }
             composable<Route.Profile>(
@@ -573,7 +584,8 @@ fun MainNavContent(
                     referralPoints = accountPointsViewModel.referralPoints.collectAsState().value,
                     multiplierPoints = accountPointsViewModel.multiplierPoints.collectAsState().value,
                     reliabilityPoints = accountPointsViewModel.reliabilityPoints.collectAsState().value,
-                    fetchAccountPoints = accountPointsViewModel.fetchAccountPoints
+                    fetchAccountPoints = accountPointsViewModel.fetchAccountPoints,
+                    reliabilityWindow = reliabilityWindow
                 )
             }
 

@@ -1,40 +1,20 @@
 package com.bringyour.network.ui.connect
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,24 +28,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.MainApplication
-import com.bringyour.network.R
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.Id
 import com.bringyour.sdk.ProviderGridPoint
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.account.AccountViewModel
-import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
-import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.managers.rememberReviewManager
 import com.bringyour.network.ui.shared.models.BundleStore
@@ -75,13 +49,7 @@ import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.BlueMedium
-import com.bringyour.network.ui.theme.MainTintedBackgroundBase
-import com.bringyour.network.ui.theme.Pink
-import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.SheetBlack
-import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.utils.lighten
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
 import kotlinx.coroutines.delay
@@ -97,6 +65,8 @@ fun ConnectScreen(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     planViewModel: PlanViewModel,
     bundleStore: BundleStore?,
+    meanReliabilityWeight: Double,
+    totalReferrals: Long,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
 ) {
 
@@ -200,7 +170,9 @@ fun ConnectScreen(
                     insufficientBalance = displayInsufficientBalance,
                     usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                     pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
-                    availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount
+                    availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
+                    meanReliabilityWeight = meanReliabilityWeight,
+                    totalReferrals = totalReferrals
                 )
 
             }
@@ -249,7 +221,8 @@ fun ConnectScreen(
                         } else {
                             promptReview()
                         }
-                    }
+                    },
+
                     // showTopAppBar = showTopAppBar
                 )
             }

@@ -85,12 +85,12 @@ fun WalletsScreen(
     referralPoints: Double,
     multiplierPoints: Double,
     reliabilityPoints: Double,
-    fetchAccountPoints: () -> Unit?
+    fetchAccountPoints: () -> Unit?,
+    reliabilityWindow: ReliabilityWindow?
 ) {
 
     val wallets by walletViewModel.wallets.collectAsState()
     val payouts by walletViewModel.payouts.collectAsState()
-    val reliabilityWindow by walletViewModel.reliabilityWindow.collectAsState()
 
     LaunchedEffect(Unit) {
         walletViewModel.fetchTransferStats()
