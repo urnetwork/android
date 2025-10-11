@@ -1,6 +1,7 @@
 package com.bringyour.network.ui
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -10,7 +11,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +46,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -55,7 +62,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -92,14 +98,21 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
 import com.bringyour.network.ui.blocked_regions.BlockedRegionsScreen
+import com.bringyour.network.ui.introduction.IntroductionInitial
+import com.bringyour.network.ui.introduction.IntroductionReferral
+import com.bringyour.network.ui.introduction.IntroductionSettings
+import com.bringyour.network.ui.introduction.IntroductionUsageBar
 import com.bringyour.network.ui.payout.PayoutScreen
 import com.bringyour.network.ui.shared.models.BundleStore
+import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.viewmodels.AccountPointEvent
 import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
 import com.bringyour.network.ui.shared.viewmodels.NetworkReliabilityViewModel
+import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.SolanaPaymentViewModel
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.upgrade.UpgradeScreen
+import com.bringyour.sdk.ReliabilityWindow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,11 +131,17 @@ fun MainNavHost(
     mainNavViewModel: MainNavViewModel = hiltViewModel<MainNavViewModel>(),
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel<ReferralCodeViewModel>(),
     connectViewModel: ConnectViewModel = hiltViewModel<ConnectViewModel>(),
-    locationsListViewModel: LocationsListViewModel = hiltViewModel<LocationsListViewModel>()
+    locationsListViewModel: LocationsListViewModel = hiltViewModel<LocationsListViewModel>(),
+    networkReliabilityViewModel: NetworkReliabilityViewModel = hiltViewModel<NetworkReliabilityViewModel>()
 ) {
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
     val currentRoute by mainNavViewModel.currentRoute.collectAsState()
+    val currentPlanLoaded by subscriptionBalanceViewModel.isInitialized.collectAsState()
+    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
+    val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
+    val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
+    var displayIntro by remember { mutableStateOf(true) }
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -191,144 +210,196 @@ fun MainNavHost(
         }
     }
 
-    NestedLinkBottomSheet(
-        scaffoldState = nestedLinkScaffoldState,
-        targetLink = targetLink,
-        defaultLocation = defaultLocation,
-        connectViewModel = connectViewModel
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Black)
-                // .padding(top = 36.dp)
-            // .systemBarsPadding()
-            // .windowInsetsPadding(WindowInsets.systemBars)
-        ) {
+    LaunchedEffect(currentPlanLoaded, currentPlan) {
 
-            NavigationSuiteScaffold(
-                containerColor = Black,
-                contentColor = Black,
-                navigationSuiteColors = customColors,
-                layoutType = navSuiteLayoutType,
+        if (currentPlanLoaded && currentPlan == Plan.Supporter) {
+            displayIntro = false
+        }
+    }
 
-                navigationSuiteItems = {
-                    TopLevelScaffoldRoutes.entries.forEach { screen ->
-                        item(
-                            icon = {
-
-                                val iconRes = if (screen == currentTopLevelRoute) {
-                                    screen.selectedIcon
-                                } else {
-                                    screen.unselectedIcon
-                                }
-
-                                if (screen.route == Route.Leaderboard) {
-                                    Icon(imageVector = Icons.Filled.StackedLineChart, contentDescription = stringResource(id = R.string.leaderboard))
-                                } else {
-                                    Icon(painterResource(id = iconRes), contentDescription = screen.description)
-                                }
-
-                            },
-                            selected = screen == currentTopLevelRoute,
-                            onClick = {
-
-                                if (currentTopLevelRoute.route == Route.AccountContainer
-                                    && screen.route == Route.AccountContainer
-                                    && currentRoute != Route.Account
-                                ) {
-                                    navController.popBackStack(Route.Account, inclusive = false)
-                                } else if (
-                                    currentTopLevelRoute.route == Route.ConnectContainer
-                                    && screen.route == Route.ConnectContainer
-                                ) {
-
-                                    if (currentRoute != Route.Connect) {
-                                        navController.popBackStack(Route.Connect, inclusive = false)
-                                    }
-
-                                } else {
-
-                                    navController.navigate(screen.route) {
-                                        // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
-                                        // Pop up to the start destination of the graph to
-                                        // avoid building up a large stack of destinations
-                                        // on the back stack as users select items
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
-                                        // Avoid multiple copies of the same destination when
-                                        // reselecting the same item
-                                        launchSingleTop = true
-                                        // Restore state when reselecting a previously selected item
-                                        restoreState = true
-
-                                    }
-                                }
-                                mainNavViewModel.setCurrentTopLevelRoute(screen)
-                            },
-                            colors = navItemColors,
-                        )
-                    }
-                }
+    AnimatedContent(
+        targetState = displayIntro,
+        label = "intro-main-switch",
+        transitionSpec = {
+            if (targetState) {
+                // Main -> Intro: Intro slides up from bottom and fades in
+                (slideInVertically(initialOffsetY = { it }) + fadeIn()) togetherWith
+                        // Main fades out (keep it simple to avoid conflicting motion)
+                        fadeOut()
+            } else {
+                // Intro -> Main (closing): Intro slides down and fades out
+                fadeIn() togetherWith
+                        (slideOutVertically(targetOffsetY = { it }) + fadeOut())
+            }
+        }
+    ) { introIsVisible ->
+        if (introIsVisible) {
+            IntroNavHost(
+                dismiss = {
+                    displayIntro = false
+                },
+                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
+                totalReferralCount = totalReferralCount,
+                provideControlMode = settingsViewModel.provideControlMode,
+                setProvideControlMode = settingsViewModel.setProvideControlMode,
+                provideIndicatorColor = settingsViewModel.provideIndicatorColor,
+                allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
+                toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
+            )
+        } else {
+            NestedLinkBottomSheet(
+                scaffoldState = nestedLinkScaffoldState,
+                targetLink = targetLink,
+                defaultLocation = defaultLocation,
+                connectViewModel = connectViewModel
             ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Black)
+                    // .padding(top = 36.dp)
+                    // .systemBarsPadding()
+                    // .windowInsetsPadding(WindowInsets.systemBars)
+                ) {
 
-                if (isTablet()) {
+                    NavigationSuiteScaffold(
+                        containerColor = Black,
+                        contentColor = Black,
+                        navigationSuiteColors = customColors,
+                        layoutType = navSuiteLayoutType,
 
-                    Column(
-                        modifier = Modifier.padding(bottom = 1.dp)
-                    ) {
-                        Row {
-                            MainNavContent(
-                                settingsViewModel = settingsViewModel,
-                                planViewModel = planViewModel,
-                                overlayViewModel = overlayViewModel,
-                                navController = navController,
-                                walletViewModel = walletViewModel,
-                                connectViewModel = connectViewModel,
-                                locationsListViewModel = locationsListViewModel,
-                                activityResultSender = activityResultSender,
-                                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                                referralCodeViewModel = referralCodeViewModel,
-                                bundleStore = bundleStore
-                            )
+                        navigationSuiteItems = {
+                            TopLevelScaffoldRoutes.entries.forEach { screen ->
+                                item(
+                                    icon = {
+
+                                        val iconRes = if (screen == currentTopLevelRoute) {
+                                            screen.selectedIcon
+                                        } else {
+                                            screen.unselectedIcon
+                                        }
+
+                                        if (screen.route == Route.Leaderboard) {
+                                            Icon(imageVector = Icons.Filled.StackedLineChart, contentDescription = stringResource(id = R.string.leaderboard))
+                                        } else {
+                                            Icon(painterResource(id = iconRes), contentDescription = screen.description)
+                                        }
+
+                                    },
+                                    selected = screen == currentTopLevelRoute,
+                                    onClick = {
+
+                                        if (currentTopLevelRoute.route == Route.AccountContainer
+                                            && screen.route == Route.AccountContainer
+                                            && currentRoute != Route.Account
+                                        ) {
+                                            navController.popBackStack(Route.Account, inclusive = false)
+                                        } else if (
+                                            currentTopLevelRoute.route == Route.ConnectContainer
+                                            && screen.route == Route.ConnectContainer
+                                        ) {
+
+                                            if (currentRoute != Route.Connect) {
+                                                navController.popBackStack(Route.Connect, inclusive = false)
+                                            }
+
+                                        } else {
+
+                                            navController.navigate(screen.route) {
+                                                // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
+                                                // Pop up to the start destination of the graph to
+                                                // avoid building up a large stack of destinations
+                                                // on the back stack as users select items
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                // Avoid multiple copies of the same destination when
+                                                // reselecting the same item
+                                                launchSingleTop = true
+                                                // Restore state when reselecting a previously selected item
+                                                restoreState = true
+
+                                            }
+                                        }
+                                        mainNavViewModel.setCurrentTopLevelRoute(screen)
+                                    },
+                                    colors = navItemColors,
+                                )
+                            }
                         }
-
-                        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                            HorizontalDivider(
-                                modifier = Modifier
-                                    .height(1.dp)
-                                    .fillMaxWidth(),
-                                color = MainBorderBase
-                            )
-                        }
-                    }
-
-                } else {
-
-                    Column(
-                        modifier = Modifier.padding(bottom = 1.dp)
                     ) {
-                        MainNavContent(
-                            settingsViewModel = settingsViewModel,
-                            planViewModel = planViewModel,
-                            overlayViewModel = overlayViewModel,
-                            navController = navController,
-                            walletViewModel = walletViewModel,
-                            connectViewModel = connectViewModel,
-                            locationsListViewModel = locationsListViewModel,
-                            activityResultSender = activityResultSender,
-                            subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                            referralCodeViewModel = referralCodeViewModel,
-                            bundleStore = bundleStore
-                        )
 
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .height(1.dp)
-                                .fillMaxWidth(),
-                            color = MainBorderBase
-                        )
+                        if (isTablet()) {
+
+                            Column(
+                                modifier = Modifier.padding(bottom = 1.dp)
+                            ) {
+                                Row {
+                                    MainNavContent(
+                                        settingsViewModel = settingsViewModel,
+                                        planViewModel = planViewModel,
+                                        overlayViewModel = overlayViewModel,
+                                        navController = navController,
+                                        walletViewModel = walletViewModel,
+                                        connectViewModel = connectViewModel,
+                                        locationsListViewModel = locationsListViewModel,
+                                        activityResultSender = activityResultSender,
+                                        subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                                        referralCodeViewModel = referralCodeViewModel,
+                                        bundleStore = bundleStore,
+//                                    currentPlanLoaded = currentPlanLoaded,
+//                                    currentPlan = currentPlan,
+                                        launchIntro = {
+                                            displayIntro = true
+                                        },
+                                        reliabilityWindow = reliabilityWindow,
+                                        totalReferralCount = totalReferralCount
+                                    )
+                                }
+
+                                if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                                    HorizontalDivider(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .fillMaxWidth(),
+                                        color = MainBorderBase
+                                    )
+                                }
+                            }
+
+                        } else {
+
+                            Column(
+                                modifier = Modifier.padding(bottom = 1.dp)
+                            ) {
+                                MainNavContent(
+                                    settingsViewModel = settingsViewModel,
+                                    planViewModel = planViewModel,
+                                    overlayViewModel = overlayViewModel,
+                                    navController = navController,
+                                    walletViewModel = walletViewModel,
+                                    connectViewModel = connectViewModel,
+                                    locationsListViewModel = locationsListViewModel,
+                                    activityResultSender = activityResultSender,
+                                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                                    referralCodeViewModel = referralCodeViewModel,
+                                    bundleStore = bundleStore,
+                                    launchIntro = {
+                                        displayIntro = true
+                                    },
+                                    reliabilityWindow = reliabilityWindow,
+                                    totalReferralCount = totalReferralCount
+                                )
+
+                                HorizontalDivider(
+                                    modifier = Modifier
+                                        .height(1.dp)
+                                        .fillMaxWidth(),
+                                    color = MainBorderBase
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -336,13 +407,74 @@ fun MainNavHost(
     }
 
     WelcomeAnimatedMainOverlay(
-        animateIn = animateIn
+        animateIn = animateIn,
+        currentPlanLoaded = currentPlanLoaded
     )
 
     FullScreenOverlay(
         overlayViewModel,
-        referralCodeViewModel,
+        referralCodeViewModel.referralCode.collectAsState().value,
     )
+
+}
+
+@Composable
+fun IntroNavHost(
+    dismiss: () -> Unit,
+    meanReliabilityWeight: Double,
+    totalReferralCount: Long,
+    provideControlMode: ProvideControlMode,
+    setProvideControlMode: (ProvideControlMode) -> Unit,
+    provideIndicatorColor: Color,
+    allowProvideCell: Boolean,
+    toggleProvideCell: () -> Unit,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel
+) {
+
+    val introNavController = rememberNavController()
+
+    NavHost(
+        navController = introNavController,
+        startDestination = IntroRoute.IntroductionInitial,
+    ) {
+
+        composable<IntroRoute.IntroductionInitial> {
+            IntroductionInitial(
+                navController = introNavController,
+                dismiss = dismiss
+            )
+        }
+
+        composable<IntroRoute.IntroductionUsageBar> {
+            IntroductionUsageBar(
+                navController = introNavController,
+                usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
+                pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
+                availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
+                meanReliabilityWeight = meanReliabilityWeight,
+                totalReferrals = totalReferralCount,
+            )
+        }
+
+        composable<IntroRoute.IntroductionSettings> {
+            IntroductionSettings(
+                navController = introNavController,
+                provideControlMode = provideControlMode,
+                setProvideControlMode = setProvideControlMode,
+                provideIndicatorColor = provideIndicatorColor,
+                allowProvideCell = allowProvideCell,
+                toggleProvideCell = toggleProvideCell
+            )
+        }
+
+        composable<IntroRoute.IntroductionReferral> {
+            IntroductionReferral(
+                navController = introNavController,
+                dismiss = dismiss,
+                totalReferrals = totalReferralCount,
+            )
+        }
+    }
 
 }
 
@@ -359,25 +491,27 @@ fun MainNavContent(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     referralCodeViewModel: ReferralCodeViewModel,
     bundleStore: BundleStore?,
+    launchIntro: () -> Unit,
+    reliabilityWindow: ReliabilityWindow?,
+    totalReferralCount: Long,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
     profileViewModel: ProfileViewModel = hiltViewModel<ProfileViewModel>(),
     accountPointsViewModel: AccountPointsViewModel = hiltViewModel<AccountPointsViewModel>(),
     solanaPaymentViewModel: SolanaPaymentViewModel = hiltViewModel<SolanaPaymentViewModel>(),
-    networkReliabilityViewModel: NetworkReliabilityViewModel = hiltViewModel<NetworkReliabilityViewModel>()
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx =
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
 
     val wallets by walletViewModel.wallets.collectAsState()
-    val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
-    val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
+//    val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
 
     val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val scope = rememberCoroutineScope()
+//    var isFirstLaunch by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
@@ -390,6 +524,17 @@ fun MainNavContent(
         }
 
     }
+
+//    LaunchedEffect(currentPlanLoaded, currentPlan) {
+//        if (currentPlanLoaded && isFirstLaunch) {
+//            if (currentPlan != Plan.Supporter) {
+//                navController.navigate(Route.IntroductionContainer) {
+//                    popUpTo(Route.ConnectContainer) { inclusive = true }
+//                }
+//            }
+//            isFirstLaunch = false
+//        }
+//    }
 
     LifecycleResumeEffect(Unit) {
         connectViewModel.update()
@@ -455,7 +600,8 @@ fun MainNavContent(
                     planViewModel,
                     bundleStore,
                     meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
-                    totalReferrals = totalReferralCount
+                    totalReferrals = totalReferralCount,
+                    launchIntro = launchIntro
                 )
             }
 

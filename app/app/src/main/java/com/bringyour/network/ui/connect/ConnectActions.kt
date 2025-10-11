@@ -73,6 +73,7 @@ fun ConnectActions(
     pendingBytes: Long,
     meanReliabilityWeight: Double,
     totalReferrals: Long,
+    launchIntro: () -> Unit,
 ) {
 
     Column(
@@ -222,9 +223,11 @@ fun ConnectActions(
                         }
 
 
-                        TextButton(onClick = {}) {
+                        TextButton(onClick = {
+                            launchIntro()
+                        }) {
                             Text(
-                                "Get more data",
+                                "Get Pro",
                                 style = TextStyle(
                                     color = Pink
                                 )

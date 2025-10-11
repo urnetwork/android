@@ -197,7 +197,7 @@ fun LoginNavHost(
                 }
 
                 FullScreenOverlay(
-                    referralCodeViewModel = null,
+                    referralCode = null,
                     overlayViewModel = overlayViewModel
                 )
             }

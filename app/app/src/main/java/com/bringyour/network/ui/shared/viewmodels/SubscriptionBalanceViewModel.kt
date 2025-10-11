@@ -31,6 +31,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _currentStore = MutableStateFlow<String?>(null)
     val currentStore: StateFlow<String?> get() = _currentStore
 
+    private val _isInitialized = MutableStateFlow<Boolean>(false)
+    val isInitialized: StateFlow<Boolean> get() = _isInitialized
+
     /**
      * When actively polling for plan subscription change
      */
@@ -108,6 +111,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
                     isLoading = false
                     isRefreshingSubscriptionBalance = false
+                    if (!_isInitialized.value) {
+                        _isInitialized.value = true
+                    }
                 }
 
             })

@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -47,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green300
@@ -60,23 +58,12 @@ import com.google.zxing.common.BitMatrix
 @Composable
 fun ReferOverlay(
     onDismiss: () -> Unit,
-    referralCodeViewModel: ReferralCodeViewModel
-) {
-
-    ReferOverlay(
-        onDismiss,
-        referralLink = "https://ur.io/c?bonus=${referralCodeViewModel.referralCode}"
-    )
-}
-
-@Composable
-fun ReferOverlay(
-    onDismiss: () -> Unit,
-    referralLink: String?
+    referralCode: String?
 ) {
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+    val referralLink = "https://ur.io/c?bonus=${referralCode}"
 
     // todo - fetch network referral code
     // val referralCode = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
@@ -330,7 +317,7 @@ private fun ReferOverlayPreview() {
     URNetworkTheme {
         ReferOverlay(
             onDismiss = {},
-            referralLink = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+            referralCode = "asdlfkjsldkfjsdf"
         )
     }
 }
@@ -343,7 +330,7 @@ private fun ReferOverlayLandscapePreview() {
     URNetworkTheme {
         ReferOverlay(
             onDismiss = {},
-            referralLink = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+            referralCode = "asdlfkjsldkfjsdf"
         )
     }
 }

@@ -67,6 +67,7 @@ fun ConnectScreen(
     bundleStore: BundleStore?,
     meanReliabilityWeight: Double,
     totalReferrals: Long,
+    launchIntro: () -> Unit,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
 ) {
 
@@ -172,7 +173,8 @@ fun ConnectScreen(
                     pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
                     availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
                     meanReliabilityWeight = meanReliabilityWeight,
-                    totalReferrals = totalReferrals
+                    totalReferrals = totalReferrals,
+                    launchIntro = launchIntro
                 )
 
             }
