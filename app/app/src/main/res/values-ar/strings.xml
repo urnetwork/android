@@ -28,7 +28,7 @@
     <string name="reset_it">إعادة تعيينها</string>
 
     <string name="forgot_password">هل نسيت كلمة مرورك؟</string>
-    <string name="check_junk_mail">قد تحتاج إلى التحقق من مجلد البريد العشوائي أو إلغاء حظر no-reply@ur.io</string>
+    <string name="check_junk_mail">قد تحتاج إلى التحقق من مجلد البريد العشوائي أو إلغاء حظر support@ur.io</string>
     <string name="send_reset_link">إرسال رابط إعادة التعيين</string>
 
     <string name="reset_link_sent">تم إرسال رابط إعادة التعيين</string>

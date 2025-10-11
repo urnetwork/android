@@ -34,7 +34,7 @@
 
     <!-- Forgot password -->
     <string name="forgot_password">Forgot your password?</string>
-    <string name="check_junk_mail">You may need to check your spam folder or unblock no-reply@ur.io</string>
+    <string name="check_junk_mail">You may need to check your spam folder or unblock support@ur.io</string>
     <string name="send_reset_link">Send Reset Link</string>
 
     <!-- Reset link sent -->

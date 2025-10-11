@@ -29,7 +29,7 @@
     <string name="reset_it">重置密码</string>
 
     <string name="forgot_password">忘记密码？</string>
-    <string name="check_junk_mail">您可能需要检查您的垃圾邮件文件夹或取消阻止 no-reply@ur.io</string>
+    <string name="check_junk_mail">您可能需要检查您的垃圾邮件文件夹或取消阻止 support@ur.io</string>
     <string name="send_reset_link">发送重置链接</string>
 
     <string name="reset_link_sent">重置链接已发送</string>

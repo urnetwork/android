@@ -24,7 +24,7 @@
     <string name="forget_password">ลืมรหัสผ่านใช่หรือไม่?</string>
     <string name="reset_it">ตั้งใหม่เลยสิ</string>
     <string name="forgot_password">ลืมรหัสผ่านใช่หรือไม่?</string>
-    <string name="check_junk_mail">ถ้าไม่เจออีเมลลองค้นหาในกล่องจดหมายขยะ (Junk box) หรืออนุญาตรับอีเมลจาก no-reply@ur.io</string>
+    <string name="check_junk_mail">ถ้าไม่เจออีเมลลองค้นหาในกล่องจดหมายขยะ (Junk box) หรืออนุญาตรับอีเมลจาก support@ur.io</string>
     <string name="send_reset_link">ส่งลิงก์ตั้งรหัสใหม่</string>
     <string name="reset_link_sent">ลิงก์ตั้งรหัสได้ส่งไปแล้ว</string>
     <string name="reset_link_sent_to">ลิงก์ตั้งรหัสส่งไปที่</string>
