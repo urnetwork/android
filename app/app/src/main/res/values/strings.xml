@@ -297,4 +297,5 @@
     <string name="private_network">Private Network</string>
     <string name="default_wallet">Default</string>
     <string name="learn_more_about_multiplier">Learn more about the multiplier</string>
+    <string name="solana_payment_insufficient_funds_warning">Please make sure you have sufficient USDC funds in your wallet. In some instances, payment prompts fail if there are insufficient funds in the wallet.</string>
 </resources>

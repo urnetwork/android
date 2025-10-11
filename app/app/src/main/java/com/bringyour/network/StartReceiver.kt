@@ -12,7 +12,6 @@ class StartReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_MY_PACKAGE_UNSUSPENDED -> {
-                // see note in app about running this async
                 Handler(Looper.getMainLooper()).post {
                     val app = context.applicationContext as MainApplication
                     if (app.vpnRequestStart) {

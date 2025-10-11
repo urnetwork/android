@@ -402,8 +402,8 @@ dependencies {
     implementation 'androidx.biometric:biometric-ktx:1.4.0-alpha02'
 
     // hilt
-    implementation 'com.google.dagger:hilt-android:2.57.1'
-    kapt 'com.google.dagger:hilt-compiler:2.57.1'
+    implementation 'com.google.dagger:hilt-android:2.57.2'
+    kapt 'com.google.dagger:hilt-compiler:2.57.2'
     implementation 'androidx.hilt:hilt-navigation-compose:1.3.0'
 }
 
@@ -412,25 +412,25 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.17.0'
 
     // jetpack compose
-    def composeBom = platform('androidx.compose:compose-bom:2025.09.00')
+    def composeBom = platform('androidx.compose:compose-bom:2025.09.01')
     implementation composeBom
     androidTestImplementation composeBom
 
-    implementation("androidx.navigation:navigation-compose:2.9.4")
+    implementation("androidx.navigation:navigation-compose:2.9.5")
 
     // Material Design 3
-    implementation 'androidx.compose.material3:material3:1.3.2'
-    implementation 'androidx.compose.material3:material3-adaptive-navigation-suite-android:1.3.2'
-    implementation 'androidx.compose.material3:material3-window-size-class-android:1.3.2'
+    implementation 'androidx.compose.material3:material3:1.4.0'
+    implementation 'androidx.compose.material3:material3-adaptive-navigation-suite-android:1.4.0'
+    implementation 'androidx.compose.material3:material3-window-size-class-android:1.4.0'
     implementation "androidx.compose.material:material-icons-extended:1.7.8"
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.9.1'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.9.1'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.9.2'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.9.2'
 
     // Android Studio Preview support
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.9.1'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.9.1'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.9.2'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.9.2'
 
     // reflect
     implementation 'org.jetbrains.kotlin:kotlin-reflect:2.2.0'
@@ -440,16 +440,10 @@ dependencies {
 // solana saga
 dependencies {
     implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0")
-    implementation("com.solanamobile:web3-solana:0.2.5")
-    implementation("com.solanamobile:rpc-core:0.2.9")
-    implementation("io.github.funkatronics:multimult:0.2.4")
-    implementation("io.github.funkatronics:kborsh:0.1.1")
-}
-
-// github
-dependencies {
-    githubImplementation("com.stripe:stripe-android:21.26.1")
-    githubImplementation("com.stripe:financial-connections:21.26.1")
+    implementation("com.solanamobile:web3-solana:0.3.0")
+    implementation("com.solanamobile:rpc-core:0.2.10")
+    implementation("io.github.funkatronics:multimult:0.2.5")
+    implementation("io.github.funkatronics:kborsh:0.1.2")
 }
 
 // google play
@@ -497,8 +491,8 @@ dependencies {
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-    solana_dappImplementation("com.stripe:stripe-android:21.26.1")
-    solana_dappImplementation("com.stripe:financial-connections:21.26.1")
+    solana_dappImplementation("com.stripe:stripe-android:21.28.0")
+    solana_dappImplementation("com.stripe:financial-connections:21.28.0")
 }
 
 

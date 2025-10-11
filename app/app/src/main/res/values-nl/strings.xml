@@ -297,4 +297,5 @@
     <string name="private_network">Privénetwerk</string>
     <string name="default_wallet">Standaard</string>
     <string name="learn_more_about_multiplier">Meer informatie over de vermenigvuldiger</string>
+    <string name="solana_payment_insufficient_funds_warning">Zorg ervoor dat je voldoende USDC in je wallet hebt. In sommige gevallen mislukt de betalingsprompt als er onvoldoende saldo is.</string>
 </resources>

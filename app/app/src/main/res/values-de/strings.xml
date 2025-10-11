@@ -272,4 +272,5 @@
     <string name="private_network">Privates Netzwerk</string>
     <string name="default_wallet">Standard</string>
     <string name="learn_more_about_multiplier">Mehr über den Multiplikator erfahren</string>
+    <string name="solana_payment_insufficient_funds_warning">Bitte stellen Sie sicher, dass Sie genügend USDC-Guthaben in Ihrer Wallet haben. In manchen Fällen schlagen Zahlungsaufforderungen fehl, wenn nicht genügend Guthaben vorhanden ist.</string>
 </resources>

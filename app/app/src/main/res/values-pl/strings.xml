@@ -294,5 +294,6 @@
     <string name="private_network">Sieć prywatna</string>
     <string name="default_wallet">Domyślny</string>
     <string name="learn_more_about_multiplier">Dowiedz się więcej o mnożniku</string>
+    <string name="solana_payment_insufficient_funds_warning">Upewnij się, że masz wystarczające środki USDC w swoim portfelu. W niektórych przypadkach płatność może się nie powieść, jeśli w portfelu brakuje środków.</string>
 
 </resources>

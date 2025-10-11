@@ -272,4 +272,5 @@
     <string name="private_network">Rede privada</string>
     <string name="default_wallet">Padrão</string>
     <string name="learn_more_about_multiplier">Saiba mais sobre o multiplicador</string>
+    <string name="solana_payment_insufficient_funds_warning">Certifique-se de que há fundos USDC suficientes em sua carteira. Em alguns casos, solicitações de pagamento falham se não houver fundos suficientes na carteira.</string>
 </resources>

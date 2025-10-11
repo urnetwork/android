@@ -1,4 +1,4 @@
-package com.bringyour.network.ui.components
+package com.bringyour.network.ui.upgrade
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.viewmodels.StripePaymentIntentViewModel
 import com.bringyour.network.ui.theme.OffBlack
 import com.bringyour.network.ui.theme.TextMuted
@@ -236,13 +237,17 @@ fun AltSubscriptionOptions(
                         style = buttonTextStyle
                     )
                 }
-
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                stringResource(id = R.string.solana_payment_insufficient_funds_warning),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
         }
-
     }
-
 }
 
 private fun presentPaymentSheet(

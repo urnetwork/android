@@ -271,4 +271,5 @@
     <string name="private_network">Red privada</string>
     <string name="default_wallet">Predeterminado</string>
     <string name="learn_more_about_multiplier">Más información sobre el multiplicador</string>
+    <string name="solana_payment_insufficient_funds_warning">Por favor, asegúrate de tener fondos USDC suficientes en tu billetera. En algunos casos, los pagos fallan si no hay fondos suficientes en la billetera.</string>
 </resources>

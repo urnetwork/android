@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.bringyour.network.ui.components.AltSubscriptionOptions
+import com.bringyour.network.ui.upgrade.AltSubscriptionOptions
 import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -58,10 +58,19 @@ fun UpgradePlanAlt(
         val url = buildSolanaPaymentUrl(reference)
 
         uriHandler.openUri(url)
+        var uriOpened = false
 
-        setPendingSolanaSubscriptionReference(reference)
+        try {
+            uriHandler.openUri(url)
+            uriOpened = true
+        } catch (e: Exception) {
+            Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
+        }
 
-        navController.popBackStack()
+        if (uriOpened) {
+            setPendingSolanaSubscriptionReference(reference)
+            navController.popBackStack()
+        }
 
     }
 

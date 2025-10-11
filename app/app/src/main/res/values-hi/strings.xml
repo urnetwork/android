@@ -271,4 +271,5 @@
     <string name="private_network">िजी नेटवर्क</string>
     <string name="default_wallet">डिफ़ॉल्ट</string>
     <string name="learn_more_about_multiplier">गुणक के बारे में और जानें</string>
+    <string name="solana_payment_insufficient_funds_warning">कृपया सुनिश्चित करें कि आपके वॉलेट में पर्याप्त USDC फंड्स हैं। कुछ मामलों में, यदि वॉलेट में पर्याप्त फंड्स नहीं हैं तो भुगतान अनुरोध विफल हो सकता है।</string>
 </resources>

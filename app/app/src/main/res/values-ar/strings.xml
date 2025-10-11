@@ -271,4 +271,5 @@
     <string name="private_network">شبكة خاصة</string>
     <string name="default_wallet">الافتراضي</string>
     <string name="learn_more_about_multiplier">معرفة المزيد حول المضاعف</string>
+    <string name="solana_payment_insufficient_funds_warning">يرجى التأكد من أن لديك رصيد كافٍ من USDC في محفظتك. في بعض الحالات، قد تفشل مطالبات الدفع إذا لم تكن هناك أموال كافية في المحفظة.</string>
 </resources>

@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.bringyour.network.ui.components.AltSubscriptionOptions
+import com.bringyour.network.ui.upgrade.AltSubscriptionOptions
 import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -29,6 +29,7 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.utils.buildSolanaPaymentUrl
 import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
+import com.bringyour.sdk.Id
 
 @Composable
 fun UpgradePlanAlt(
@@ -58,10 +59,19 @@ fun UpgradePlanAlt(
         val url = buildSolanaPaymentUrl(reference)
 
         uriHandler.openUri(url)
+        var uriOpened = false
 
-        setPendingSolanaSubscriptionReference(reference)
+        try {
+            uriHandler.openUri(url)
+            uriOpened = true
+        } catch (e: Exception) {
+            Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
+        }
 
-        navController.popBackStack()
+        if (uriOpened) {
+            setPendingSolanaSubscriptionReference(reference)
+            navController.popBackStack()
+        }
 
     }
 
@@ -98,7 +108,8 @@ fun UpgradePlanAlt(
                     pollSubscriptionBalance()
                     overlayViewModel.launch(OverlayMode.Upgrade)
                     navController.popBackStack()
-                }
+                },
+                networkId = planViewModel.networkId
             )
         }
     }
@@ -110,8 +121,11 @@ private fun UpgradePlanContent(
     upgradeInProgress: Boolean,
     upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
-    onStripePaymentSuccess: () -> Unit
+    onStripePaymentSuccess: () -> Unit,
+    networkId: String?
 ) {
+
+    val uriHandler = LocalUriHandler.current
 
     var isPromptingSolanaPayment by remember { mutableStateOf(false) }
 
@@ -140,7 +154,13 @@ private fun UpgradePlanContent(
                 setIsPromptingSolanaPayment = {
                     isPromptingSolanaPayment = it
                 },
-                onStripePaymentSuccess = onStripePaymentSuccess
+                onStripePaymentSuccess = onStripePaymentSuccess,
+                upgradeStripeMonthly = {
+                    uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${networkId}")
+                },
+                upgradeStripeYearly = {
+                    uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${networkId}")
+                },
             )
             Spacer(modifier = Modifier.height(16.dp))
 
