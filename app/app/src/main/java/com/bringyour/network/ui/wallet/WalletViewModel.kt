@@ -64,10 +64,6 @@ class WalletViewModel @Inject constructor(
     private val _requestSagaWallet = MutableSharedFlow<Unit>()
     val requestSagaWallet: SharedFlow<Unit> = _requestSagaWallet.asSharedFlow()
 
-
-    private val _reliabilityWindow = MutableStateFlow<ReliabilityWindow?>(null)
-    val reliabilityWindow: StateFlow<ReliabilityWindow?> = _reliabilityWindow.asStateFlow()
-
     /**
      * Display a loading indicator when first loading wallets
      */
@@ -414,26 +410,6 @@ class WalletViewModel @Inject constructor(
         walletVc?.setIsPollingAccountWallets(true)
     }
 
-    val fetchReliabilityWindow = {
-        deviceManager.device?.api?.getNetworkReliability { result, err ->
-
-            if (err != null) {
-                Log.i(TAG, "getNetworkReliability error: ${err.message}")
-                return@getNetworkReliability
-            }
-
-            if (result.error != null) {
-                Log.i(TAG, "getNetworkReliability result error: ${result.error.message}")
-                return@getNetworkReliability
-            }
-
-            viewModelScope.launch {
-                _reliabilityWindow.value = result.reliabilityWindow
-            }
-
-        }
-    }
-
     // this data depends on transfer_escrow_sweep
     // data is only updated once an hour
     val fetchTransferStats = {
@@ -533,7 +509,6 @@ class WalletViewModel @Inject constructor(
         addPayoutsListener()
         addIsRemovingWalletListener()
         addUnpaidByteCountListener()
-        fetchReliabilityWindow()
 
         viewModelScope.launch {
             walletVc?.start()

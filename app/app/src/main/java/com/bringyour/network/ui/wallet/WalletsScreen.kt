@@ -78,19 +78,20 @@ fun WalletsScreen(
     navController: NavHostController,
     walletViewModel: WalletViewModel,
     activityResultSender: ActivityResultSender?,
-    referralCodeViewModel: ReferralCodeViewModel,
     overlayViewModel: OverlayViewModel,
     totalAccountPoints: Double,
     payoutPoints: Double,
     referralPoints: Double,
     multiplierPoints: Double,
     reliabilityPoints: Double,
-    fetchAccountPoints: () -> Unit?
+    fetchAccountPoints: () -> Unit?,
+    reliabilityWindow: ReliabilityWindow?,
+    totalReferralCount: Long,
+    fetchReferralCode: () -> Unit,
 ) {
 
     val wallets by walletViewModel.wallets.collectAsState()
     val payouts by walletViewModel.payouts.collectAsState()
-    val reliabilityWindow by walletViewModel.reliabilityWindow.collectAsState()
 
     LaunchedEffect(Unit) {
         walletViewModel.fetchTransferStats()
@@ -114,13 +115,13 @@ fun WalletsScreen(
         unpaidMegaByteCount = walletViewModel.unpaidMegaByteCount,
         refresh = {
             walletViewModel.refreshWalletsInfo()
-            referralCodeViewModel.fetchReferralCode()
+            fetchReferralCode()
             fetchAccountPoints()
                   },
         isRefreshing = walletViewModel.isRefreshingWallets,
         setExternalWalletAddressIsValid = walletViewModel.setExternalWalletAddressIsValid,
         activityResultSender = activityResultSender,
-        totalReferrals = referralCodeViewModel.totalReferralCount,
+        totalReferrals = totalReferralCount,
         isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
         launchOverlay = overlayViewModel.launch,
         totalAccountPoints = totalAccountPoints,

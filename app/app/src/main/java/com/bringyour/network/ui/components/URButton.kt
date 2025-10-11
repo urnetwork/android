@@ -71,10 +71,10 @@ fun URButton(
             .fillMaxWidth()
         ButtonStyle.WARNING -> Modifier
             .fillMaxWidth()
-            .border(1.dp, Red, RoundedCornerShape(100))
+            .border(1.dp, Red, RoundedCornerShape(12.dp))
         ButtonStyle.OUTLINE -> when(enabled) {
             true -> Modifier
-                .border(1.dp, borderColor ?: TextFaint, RoundedCornerShape(100))
+                .border(1.dp, borderColor ?: TextFaint, RoundedCornerShape(12.dp))
             false -> Modifier
         }
     }
@@ -86,6 +86,7 @@ fun URButton(
             Modifier.defaultMinSize(minHeight = 48.dp)
         ),
         enabled = enabled,
+        shape = RoundedCornerShape(12.dp)
 
     ) {
         if (!isProcessing) {

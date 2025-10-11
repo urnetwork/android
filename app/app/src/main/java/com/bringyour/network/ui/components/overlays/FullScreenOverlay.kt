@@ -22,7 +22,7 @@ enum class OverlayMode {
 @Composable
 fun FullScreenOverlay(
     overlayViewModel: OverlayViewModel,
-    referralCodeViewModel: ReferralCodeViewModel?
+    referralCode: String?
 ) {
 
     val enterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
@@ -51,9 +51,9 @@ fun FullScreenOverlay(
         exit = exitTransition,
     ) {
 
-        if (referralCodeViewModel != null) {
+        if (referralCode != null) {
             ReferOverlay(
-                referralCodeViewModel = referralCodeViewModel,
+                referralCode = referralCode,
                 onDismiss = {
                     overlayViewModel.launch(null)
                 }

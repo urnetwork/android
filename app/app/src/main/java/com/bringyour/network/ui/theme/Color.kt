@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.bringyour.network.utils.lighten
 
 // URNetwork Color Pallets
 val Blue100 = Color(0xFFE5F2FD)
@@ -76,3 +77,4 @@ val MainTintedBackgroundBase = Color(0xFF1C1C1C)
 val OffWhite = Color(0xFFF8F8F8)
 val Black = Color(0xFF101010)
 val OffBlack = Color(0xFF1C1C1C)
+val SheetBlack = Black.lighten(0.03f)

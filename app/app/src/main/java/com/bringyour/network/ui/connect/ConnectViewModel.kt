@@ -83,9 +83,6 @@ constructor(
 
     val shuffledSuccessPoints = mutableListOf<AnimatedSuccessPoint>()
 
-    var showTopAppBar by mutableStateOf(false)
-        private set
-
     val device: DeviceLocal?
         get() = this.deviceManager.device
 
@@ -212,8 +209,6 @@ constructor(
         }
     }
 
-    private var topAppBarJob: Job? = null
-
     private fun updateConnectionStatus() {
         connectVc?.let { vc ->
             vc.connectionStatus?.let { status ->
@@ -221,19 +216,6 @@ constructor(
                     viewModelScope.launch {
                         _connectStatus.value = statusFromStr
                         updateDisplayReconnectTunnel()
-
-                        topAppBarJob?.cancel()
-                        if (statusFromStr == ConnectStatus.CONNECTED) {
-                            // Show TopAppBar after 10 seconds when connected
-                            topAppBarJob =
-                                    viewModelScope.launch {
-                                        delay(10000) // 10 second delay
-                                        showTopAppBar = true
-                                    }
-                        } else {
-                            // Hide TopAppBar immediately for any other status
-                            showTopAppBar = false
-                        }
                     }
                 }
             }

@@ -29,6 +29,24 @@ class MainNavViewModel @Inject constructor(): ViewModel() {
 }
 
 @Serializable
+sealed class IntroRoute {
+    companion object {
+        fun fromString(route: String): Route? {
+            return Route::class.sealedSubclasses.firstOrNull {
+                route.contains(it.qualifiedName.toString())
+            }?.objectInstance
+        }
+    }
+
+    @Serializable object IntroductionContainer: Route()
+    @Serializable object IntroductionInitial: Route()
+    @Serializable object IntroductionUsageBar: Route()
+    @Serializable object IntroductionSettings: Route()
+    @Serializable object IntroductionReferral: Route()
+
+}
+
+@Serializable
 sealed class Route {
 
     // this is from https://stackoverflow.com/questions/78489838/unable-to-get-route-object-from-currentbackstackentry-in-compose-navigation-outs
@@ -40,6 +58,12 @@ sealed class Route {
             }?.objectInstance
         }
     }
+
+//    @Serializable object IntroductionContainer: Route()
+//    @Serializable object IntroductionInitial: Route()
+//    @Serializable object IntroductionUsageBar: Route()
+//    @Serializable object IntroductionSettings: Route()
+//    @Serializable object IntroductionReferral: Route()
 
     @Serializable object ConnectContainer: Route()
     @Serializable object Connect : Route()

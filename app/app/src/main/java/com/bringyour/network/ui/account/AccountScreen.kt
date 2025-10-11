@@ -2,6 +2,7 @@ package com.bringyour.network.ui.account
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
@@ -79,6 +81,8 @@ fun AccountScreen(
     totalPayoutAmount: Double,
     totalPayoutAmountInitialized: Boolean,
     walletCount: Int,
+    totalReferrals: Long,
+    meanReliabilityWeight: Double,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -86,13 +90,13 @@ fun AccountScreen(
     val networkUser by accountViewModel.networkUser.collectAsState()
     val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
     val currentStore by subscriptionBalanceViewModel.currentStore.collectAsState()
+    val availableBalanceByteCount by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
 
     val refreshState = rememberPullToRefreshState()
 
     LaunchedEffect(Unit) {
         subscriptionBalanceViewModel.fetchSubscriptionBalance()
     }
-
 
     Scaffold() { innerPadding ->
 
@@ -131,7 +135,9 @@ fun AccountScreen(
                         isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPolling,
                         usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                         pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
-                        availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount
+                        availableBytes = availableBalanceByteCount,
+                        totalReferrals = totalReferrals,
+                        meanReliabilityWeight = meanReliabilityWeight
                     )
                 }
             }
@@ -157,7 +163,9 @@ fun AccountScreenContent(
     isPollingSubscriptionBalance: Boolean,
     usedBytes: Long,
     availableBytes: Long,
-    pendingBytes: Long
+    pendingBytes: Long,
+    totalReferrals: Long,
+    meanReliabilityWeight: Double,
 ) {
 
     val context = LocalContext.current
@@ -220,13 +228,19 @@ fun AccountScreenContent(
                     navController = navController
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                if (currentPlan != Plan.Supporter) {
 
-                UsageBar(
-                    usedBytes = usedBytes,
-                    pendingBytes = pendingBytes,
-                    availableBytes = availableBytes
-                )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    UsageBar(
+                        usedBytes = usedBytes,
+                        pendingBytes = pendingBytes,
+                        availableBytes = availableBytes,
+                        totalReferrals = totalReferrals,
+                        meanReliabilityWeight = meanReliabilityWeight
+                    )
+
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -438,7 +452,9 @@ private fun AccountSupporterAuthenticatedPreview() {
                     availableBytes = 60_000,
                     isCheckingSolanaTransaction = false,
                     isPollingSubscriptionBalance = false,
-                    currentStore = null
+                    currentStore = null,
+                    totalReferrals = 1,
+                    meanReliabilityWeight = 0.1
                 )
             }
         }
@@ -480,7 +496,9 @@ private fun AccountBasicAuthenticatedPreview() {
                     availableBytes = 60_000,
                     isCheckingSolanaTransaction = false,
                     isPollingSubscriptionBalance = false,
-                    currentStore = null
+                    currentStore = null,
+                    totalReferrals = 1,
+                    meanReliabilityWeight = 0.1
                 )
             }
         }
@@ -521,7 +539,9 @@ private fun AccountGuestPreview() {
                     availableBytes = 60_000,
                     isCheckingSolanaTransaction = false,
                     isPollingSubscriptionBalance = false,
-                    currentStore = null
+                    currentStore = null,
+                    totalReferrals = 1,
+                    meanReliabilityWeight = 0.1
                 )
             }
         }
@@ -561,7 +581,9 @@ private fun AccountGuestNoWalletPreview() {
                     availableBytes = 60_000,
                     isCheckingSolanaTransaction = false,
                     isPollingSubscriptionBalance = false,
-                    currentStore = null
+                    currentStore = null,
+                    totalReferrals = 1,
+                    meanReliabilityWeight = 0.1
                 )
             }
         }
