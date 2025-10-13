@@ -111,6 +111,7 @@ import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.launch
 import java.util.Date
 import androidx.core.net.toUri
+import com.bringyour.network.ui.components.CopyReferralCode
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
 
@@ -471,34 +472,39 @@ fun SettingsScreen(
             URTextInputLabel(
                 text = stringResource(id = R.string.referral_code)
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Color(0x1AFFFFFF),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .clickable {
-                        clipboardManager.setText(AnnotatedString(bonusReferralCode))
-                    }
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
 
-                ) {
-                Text(
-                    bonusReferralCode,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
-                )
+            CopyReferralCode(
+                bonusReferralCode = bonusReferralCode
+            )
 
-                Icon(
-                    painter = painterResource(id = R.drawable.content_copy),
-                    contentDescription = "Copy",
-                    tint = TextMuted,
-                    modifier = Modifier.width(16.dp)
-                )
-            }
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .background(
+//                        Color(0x1AFFFFFF),
+//                        shape = RoundedCornerShape(12.dp)
+//                    )
+//                    .clickable {
+//                        clipboardManager.setText(AnnotatedString(bonusReferralCode))
+//                    }
+//                    .padding(horizontal = 12.dp, vertical = 12.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically,
+//
+//                ) {
+//                Text(
+//                    bonusReferralCode,
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    color = TextMuted
+//                )
+//
+//                Icon(
+//                    painter = painterResource(id = R.drawable.content_copy),
+//                    contentDescription = "Copy",
+//                    tint = TextMuted,
+//                    modifier = Modifier.width(16.dp)
+//                )
+//            }
 
             Spacer(modifier = Modifier.height(32.dp))
 

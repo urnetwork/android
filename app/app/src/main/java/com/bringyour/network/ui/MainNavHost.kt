@@ -141,6 +141,7 @@ fun MainNavHost(
     val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
     val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
     val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
+    val referralCode by referralCodeViewModel.referralCode.collectAsState()
     var displayIntro by remember { mutableStateOf(true) }
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
@@ -241,6 +242,7 @@ fun MainNavHost(
                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                 meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
                 totalReferralCount = totalReferralCount,
+                referralCode = referralCode,
                 provideControlMode = settingsViewModel.provideControlMode,
                 setProvideControlMode = settingsViewModel.setProvideControlMode,
                 provideIndicatorColor = settingsViewModel.provideIndicatorColor,
@@ -413,7 +415,7 @@ fun MainNavHost(
 
     FullScreenOverlay(
         overlayViewModel,
-        referralCodeViewModel.referralCode.collectAsState().value,
+        referralCode = referralCode,
     )
 
 }
@@ -423,6 +425,7 @@ fun IntroNavHost(
     dismiss: () -> Unit,
     meanReliabilityWeight: Double,
     totalReferralCount: Long,
+    referralCode: String,
     provideControlMode: ProvideControlMode,
     setProvideControlMode: (ProvideControlMode) -> Unit,
     provideIndicatorColor: Color,
@@ -472,6 +475,7 @@ fun IntroNavHost(
                 navController = introNavController,
                 dismiss = dismiss,
                 totalReferrals = totalReferralCount,
+                referralCode = referralCode
             )
         }
     }

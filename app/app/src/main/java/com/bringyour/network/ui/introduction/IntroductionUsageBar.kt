@@ -80,7 +80,7 @@ fun IntroductionUsageBar(
                     style = MaterialTheme.typography.headlineLarge
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Column(
                     modifier = Modifier
