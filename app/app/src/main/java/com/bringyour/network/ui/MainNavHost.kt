@@ -98,6 +98,7 @@ import com.bringyour.network.ui.wallet.WalletsScreen
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
 import com.bringyour.network.ui.blocked_regions.BlockedRegionsScreen
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.introduction.IntroductionInitial
 import com.bringyour.network.ui.introduction.IntroductionReferral
 import com.bringyour.network.ui.introduction.IntroductionSettings
@@ -132,7 +133,8 @@ fun MainNavHost(
     referralCodeViewModel: ReferralCodeViewModel = hiltViewModel<ReferralCodeViewModel>(),
     connectViewModel: ConnectViewModel = hiltViewModel<ConnectViewModel>(),
     locationsListViewModel: LocationsListViewModel = hiltViewModel<LocationsListViewModel>(),
-    networkReliabilityViewModel: NetworkReliabilityViewModel = hiltViewModel<NetworkReliabilityViewModel>()
+    networkReliabilityViewModel: NetworkReliabilityViewModel = hiltViewModel<NetworkReliabilityViewModel>(),
+    solanaPaymentViewModel: SolanaPaymentViewModel = hiltViewModel<SolanaPaymentViewModel>(),
 ) {
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
@@ -142,6 +144,8 @@ fun MainNavHost(
     val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
     val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
     val referralCode by referralCodeViewModel.referralCode.collectAsState()
+    val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
+    val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
     var displayIntro by remember { mutableStateOf(true) }
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
@@ -165,6 +169,11 @@ fun MainNavHost(
     val configuration = LocalConfiguration.current
 
     val adaptiveInfo = currentWindowAdaptiveInfo()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val scope = rememberCoroutineScope()
+
     val navSuiteLayoutType = with(adaptiveInfo) {
 
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet()) {
@@ -218,6 +227,44 @@ fun MainNavHost(
         }
     }
 
+    LaunchedEffect(Unit) {
+        planViewModel.onUpgradeSuccess.collect {
+            overlayViewModel.launch(OverlayMode.Upgrade)
+            if (displayIntro) {
+                // close intro flow
+                displayIntro = false
+            } else {
+                // back to account screen
+                navController.popBackStack()
+            }
+        }
+    }
+
+    /**
+     * This is for listening to Solana Wallet subscriptions
+     * If there is a pending sub reference + the app regains focus, we start polling the subscription balance
+     */
+    DisposableEffect(lifecycleOwner, pendingSolanaSubReference) {
+
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (!pendingSolanaSubReference.isNullOrEmpty()) {
+                    scope.launch {
+                        // poll subscription balance until it's updated
+                        subscriptionBalanceViewModel.pollSolanaTransaction()
+                        solanaPaymentViewModel.setPendingSolanaSubscriptionReference(null)
+                    }
+                }
+            }
+        }
+
+        if (pendingSolanaSubReference != null) {
+            lifecycleOwner.lifecycle.addObserver(observer)
+        }
+
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     AnimatedContent(
         targetState = displayIntro,
         label = "intro-main-switch",
@@ -248,6 +295,10 @@ fun MainNavHost(
                 provideIndicatorColor = settingsViewModel.provideIndicatorColor,
                 allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
                 toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
+                planViewModel = planViewModel,
+                solanaPaymentViewModel = solanaPaymentViewModel,
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
+//                overlayViewModel = overlayViewModel
             )
         } else {
             NestedLinkBottomSheet(
@@ -356,7 +407,9 @@ fun MainNavHost(
                                             displayIntro = true
                                         },
                                         reliabilityWindow = reliabilityWindow,
-                                        totalReferralCount = totalReferralCount
+                                        totalReferralCount = totalReferralCount,
+                                        solanaPaymentViewModel = solanaPaymentViewModel,
+                                        isCheckingSolanaTransaction = isCheckingSolanaTransaction
                                     )
                                 }
 
@@ -391,7 +444,9 @@ fun MainNavHost(
                                         displayIntro = true
                                     },
                                     reliabilityWindow = reliabilityWindow,
-                                    totalReferralCount = totalReferralCount
+                                    totalReferralCount = totalReferralCount,
+                                    solanaPaymentViewModel = solanaPaymentViewModel,
+                                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
                                 )
 
                                 HorizontalDivider(
@@ -431,7 +486,11 @@ fun IntroNavHost(
     provideIndicatorColor: Color,
     allowProvideCell: Boolean,
     toggleProvideCell: () -> Unit,
-    subscriptionBalanceViewModel: SubscriptionBalanceViewModel
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
+    planViewModel: PlanViewModel,
+    isCheckingSolanaTransaction: Boolean,
+    solanaPaymentViewModel: SolanaPaymentViewModel,
+//    overlayViewModel: OverlayViewModel
 ) {
 
     val introNavController = rememberNavController()
@@ -444,7 +503,15 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionInitial> {
             IntroductionInitial(
                 navController = introNavController,
-                dismiss = dismiss
+                dismiss = dismiss,
+                planViewModel = planViewModel,
+                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
+                setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
+                onStripePaymentSuccess = {
+                    subscriptionBalanceViewModel.pollSubscriptionBalance()
+                    dismiss()
+                },
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
         }
 
@@ -478,6 +545,7 @@ fun IntroNavHost(
                 referralCode = referralCode
             )
         }
+
     }
 
 }
@@ -498,24 +566,17 @@ fun MainNavContent(
     launchIntro: () -> Unit,
     reliabilityWindow: ReliabilityWindow?,
     totalReferralCount: Long,
+    solanaPaymentViewModel: SolanaPaymentViewModel,
+    isCheckingSolanaTransaction: Boolean,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
     profileViewModel: ProfileViewModel = hiltViewModel<ProfileViewModel>(),
     accountPointsViewModel: AccountPointsViewModel = hiltViewModel<AccountPointsViewModel>(),
-    solanaPaymentViewModel: SolanaPaymentViewModel = hiltViewModel<SolanaPaymentViewModel>(),
 ) {
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx =
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
 
     val wallets by walletViewModel.wallets.collectAsState()
-//    val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
-
-    val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val scope = rememberCoroutineScope()
-//    var isFirstLaunch by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
@@ -529,49 +590,12 @@ fun MainNavContent(
 
     }
 
-//    LaunchedEffect(currentPlanLoaded, currentPlan) {
-//        if (currentPlanLoaded && isFirstLaunch) {
-//            if (currentPlan != Plan.Supporter) {
-//                navController.navigate(Route.IntroductionContainer) {
-//                    popUpTo(Route.ConnectContainer) { inclusive = true }
-//                }
-//            }
-//            isFirstLaunch = false
-//        }
-//    }
-
     LifecycleResumeEffect(Unit) {
         connectViewModel.update()
 
         onPauseOrDispose {
         }
     }
-
-    /**
-     * This is for listening to Solana Wallet subscriptions
-     * If there is a pending sub reference + the app regains focus, we start polling the subscription balance
-     */
-    DisposableEffect(lifecycleOwner, pendingSolanaSubReference) {
-
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                if (!pendingSolanaSubReference.isNullOrEmpty()) {
-                    scope.launch {
-                        // poll subscription balance until it's updated
-                        subscriptionBalanceViewModel.pollSolanaTransaction()
-                        solanaPaymentViewModel.setPendingSolanaSubscriptionReference(null)
-                    }
-                }
-            }
-        }
-
-        if (pendingSolanaSubReference != null) {
-            lifecycleOwner.lifecycle.addObserver(observer)
-        }
-
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
 
     val configuration = LocalConfiguration.current
 
@@ -649,12 +673,14 @@ fun MainNavContent(
             UpgradeScreen(
                 navController = navController,
                 planViewModel = planViewModel,
-                overlayViewModel = overlayViewModel,
                 setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
                 createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
-                pollSubscriptionBalance = {
+                onStripePaymentSuccess = {
                     subscriptionBalanceViewModel.pollSubscriptionBalance()
-                }
+                    overlayViewModel.launch(OverlayMode.Upgrade)
+                    navController.popBackStack()
+                },
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
         }
 

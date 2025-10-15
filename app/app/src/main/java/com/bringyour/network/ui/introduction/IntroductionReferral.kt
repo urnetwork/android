@@ -251,5 +251,4 @@ fun ReferralBar(
             )
         }
     }
-
 }

@@ -33,6 +33,7 @@ fun AltSubscriptionOptions(
     upgradeSolana: () -> Unit,
     isPromptingSolanaPayment: Boolean,
     setIsPromptingSolanaPayment: (Boolean) -> Unit,
+    isCheckingSolanaTransaction: Boolean
 ) {
 
     Column(
@@ -108,13 +109,13 @@ fun AltSubscriptionOptions(
         ) {
 
             Text(
-                "$3.33",
+                "$40",
                 fontSize = 24.sp,
                 style = MaterialTheme.typography.bodyLarge
             )
 
             Text(
-                "/month",
+                "/year",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 2.dp)
             )
@@ -162,8 +163,8 @@ fun AltSubscriptionOptions(
                     setIsPromptingSolanaPayment(true)
                     upgradeSolana()
                 },
-                enabled = !isPromptingSolanaPayment,
-                isProcessing = isPromptingSolanaPayment
+                enabled = !isPromptingSolanaPayment && !isCheckingSolanaTransaction,
+                isProcessing = isPromptingSolanaPayment || isCheckingSolanaTransaction
             ) { buttonTextStyle ->
                 Text(
                     "Join with Solana Wallet",

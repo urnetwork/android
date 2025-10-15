@@ -9,7 +9,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,32 +34,34 @@ import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.utils.buildSolanaPaymentUrl
 import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpgradePlanAlt(
     navController: NavHostController,
     planViewModel: PlanViewModel,
-    overlayViewModel: OverlayViewModel,
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) -> Unit,
-    pollSubscriptionBalance: () -> Unit
+    onStripePaymentSuccess: () -> Unit,
+    isCheckingSolanaTransaction: Boolean
 ) {
 
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        planViewModel.onUpgradeSuccess.collect {
-            overlayViewModel.launch(OverlayMode.Upgrade)
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        planViewModel.onUpgradeSuccess.collect {
+//            overlayViewModel.launch(OverlayMode.Upgrade)
+//        }
+//    }
 
     val promptWalletTransaction: (reference: String) -> Unit = { reference ->
 
@@ -93,7 +103,26 @@ fun UpgradePlanAlt(
     }
 
 
-    Scaffold { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {Text("")},
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            Icons.Filled.ChevronLeft,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Black
+                ),
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -103,11 +132,13 @@ fun UpgradePlanAlt(
                 upgradeSolana = upgradeWithSolana,
                 upgradeInProgress = planViewModel.inProgress,
                 formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice,
-                onStripePaymentSuccess = {
-                    pollSubscriptionBalance()
-                    overlayViewModel.launch(OverlayMode.Upgrade)
-                    navController.popBackStack()
-                }
+                onStripePaymentSuccess = onStripePaymentSuccess,
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
+//                onStripePaymentSuccess = {
+//                    pollSubscriptionBalance()
+//                    overlayViewModel.launch(OverlayMode.Upgrade)
+//                    navController.popBackStack()
+//                }
             )
         }
     }
@@ -119,7 +150,8 @@ private fun UpgradePlanContent(
     upgradeInProgress: Boolean,
     upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
-    onStripePaymentSuccess: () -> Unit
+    onStripePaymentSuccess: () -> Unit,
+    isCheckingSolanaTransaction: Boolean
 ) {
 
     var isPromptingSolanaPayment by remember { mutableStateOf(false) }
@@ -149,7 +181,8 @@ private fun UpgradePlanContent(
                 setIsPromptingSolanaPayment = {
                     isPromptingSolanaPayment = it
                 },
-                onStripePaymentSuccess = onStripePaymentSuccess
+                onStripePaymentSuccess = onStripePaymentSuccess,
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -9,14 +9,14 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 fun UpgradeScreen(
     navController: NavHostController,
     planViewModel: PlanViewModel,
-    overlayViewModel: OverlayViewModel,
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) -> Unit,
-    pollSubscriptionBalance: () -> Unit
+    onStripePaymentSuccess: () -> Unit,
+    isCheckingSolanaTransaction: Boolean
 ) {
 
     /**
@@ -25,10 +25,10 @@ fun UpgradeScreen(
     UpgradePlanAlt(
         navController,
         planViewModel,
-        overlayViewModel,
         setPendingSolanaSubscriptionReference,
         createSolanaPaymentIntent,
-        pollSubscriptionBalance
+        onStripePaymentSuccess,
+        isCheckingSolanaTransaction = isCheckingSolanaTransaction
     )
 
 }

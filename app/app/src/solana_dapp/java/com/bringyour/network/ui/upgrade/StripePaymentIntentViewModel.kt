@@ -1,7 +1,6 @@
-package com.bringyour.network.ui.shared.viewmodels
+package com.bringyour.network.ui.upgrade
 
 import android.util.Log
-import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
-import java.util.Locale.getDefault
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,31 +21,36 @@ class StripePaymentIntentViewModel @Inject constructor(
     deviceManager: DeviceManager,
 ): ViewModel() {
 
-    private val _isCreatingIntents = MutableStateFlow<Boolean>(true)
+    private val _isCreatingIntents = MutableStateFlow<Boolean>(false)
     val isCreatingIntents: StateFlow<Boolean> = _isCreatingIntents.asStateFlow()
 
     val createPaymentIntent: (onSuccess: (StripeCreatePaymentIntentResult) -> Unit) -> Unit = { onSuccess ->
 
-        val args = StripeCreatePaymentIntentArgs()
-        deviceManager.device?.api?.createStripePaymentIntent(args) { result, err ->
+        if (!isCreatingIntents.value) {
 
-            viewModelScope.launch {
+            _isCreatingIntents.value = true
 
-                if (err != null) {
+            val args = StripeCreatePaymentIntentArgs()
+            deviceManager.device?.api?.createStripePaymentIntent(args) { result, err ->
+
+                viewModelScope.launch {
+
+                    if (err != null) {
+                        _isCreatingIntents.value = false
+                        Log.i(TAG, "error creating stripe payment intent: ${err.message}")
+                        return@launch
+                    }
+
+                    if (result.error != null) {
+                        _isCreatingIntents.value = false
+                        Log.i(TAG, "result error creating stripe payment intent: ${result.error}")
+                        return@launch
+                    }
+
+                    onSuccess(result)
                     _isCreatingIntents.value = false
-                    Log.i(TAG, "error creating stripe payment intent: ${err.message}")
-                    return@launch
-                }
 
-                if (result.error != null) {
-                    _isCreatingIntents.value = false
-                    Log.i(TAG, "result error creating stripe payment intent: ${result.error}")
-                    return@launch
                 }
-
-                Log.i(TAG, "create intent success: $result")
-                onSuccess(result)
-                _isCreatingIntents.value = false
 
             }
 
@@ -63,7 +66,7 @@ class StripePaymentIntentViewModel @Inject constructor(
         for (i in 0 until n) {
 
             val intent = list.get(i)
-            if (intent.subscriptionType.uppercase(getDefault()) == subType.uppercase(getDefault())) {
+            if (intent.subscriptionType.uppercase(Locale.getDefault()) == subType.uppercase(Locale.getDefault())) {
                 clientSecret = intent.clientSecret
             }
 

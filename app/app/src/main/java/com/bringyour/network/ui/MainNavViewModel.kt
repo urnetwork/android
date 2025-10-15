@@ -38,7 +38,6 @@ sealed class IntroRoute {
         }
     }
 
-    @Serializable object IntroductionContainer: Route()
     @Serializable object IntroductionInitial: Route()
     @Serializable object IntroductionUsageBar: Route()
     @Serializable object IntroductionSettings: Route()
@@ -58,12 +57,6 @@ sealed class Route {
             }?.objectInstance
         }
     }
-
-//    @Serializable object IntroductionContainer: Route()
-//    @Serializable object IntroductionInitial: Route()
-//    @Serializable object IntroductionUsageBar: Route()
-//    @Serializable object IntroductionSettings: Route()
-//    @Serializable object IntroductionReferral: Route()
 
     @Serializable object ConnectContainer: Route()
     @Serializable object Connect : Route()

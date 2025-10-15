@@ -94,6 +94,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
                 viewModelScope.launch {
                     if (err != null) {
                         Log.i(TAG, "error fetching subscription balance: $err")
+
+                        isLoading = false
+                        isRefreshingSubscriptionBalance = false
+
                     } else {
 
                         result?.currentSubscription?.plan?.let { plan ->
@@ -161,6 +165,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
             }
 
             while (isPolling && isActive && System.currentTimeMillis() < deadline) {
+
+                Log.i(TAG, "System.currentTimeMillis(): ${System.currentTimeMillis()}")
+                Log.i(TAG, "deadline: $deadline")
+
                 delay(pollingInterval)
                 fetchSubscriptionBalance()
                 if (isSupporterWithBalance()) {
