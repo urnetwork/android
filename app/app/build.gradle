@@ -305,6 +305,40 @@ android {
                 includeInBundle = false
             }
         }
+        ethos_dapp {
+            dimension = 'version'
+            applicationId 'com.bringyour.network'
+            versionNameSuffix '-ethos_dapp'
+
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"solana_dapp"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
+            buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+
+            signingConfig signingConfigs.solana_dapp
+
+            // solana dapp devices are exclusively arm64-v8a
+            ndk {
+                //noinspection ChromeOsAbiSupport
+                abiFilters = ['arm64-v8a']
+            }
+
+            // remove opaque google metadata blocks
+            // per https://gitlab.com/fdroid/fdroiddata/-/merge_requests/20797#note_2439129271
+            dependenciesInfo {
+                // Disables dependency metadata when building APKs.
+                includeInApk = false
+                // Disables dependency metadata when building Android App Bundles.
+                includeInBundle = false
+            }
+        }
     }
 
     sourceSets {
@@ -321,6 +355,11 @@ android {
         solana_dapp {
             java {
                 srcDirs += ['src/solana_dapp/java']
+            }
+        }
+        ethos_dapp {
+            java {
+                srcDirs += ['src/ethos_dapp/java']
             }
         }
     }
@@ -491,8 +530,34 @@ dependencies {
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-    solana_dappImplementation("com.stripe:stripe-android:21.28.1")
-    solana_dappImplementation("com.stripe:financial-connections:21.28.1")
+/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:21.28.1")
+/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:21.28.1")
+}
+
+// solana dapp
+dependencies {
+    // force dependencies with known CVE vulnerabilities to newer versions
+    // CVE-2022-2390
+    // CVE-2022-2390
+    // CVE-2022-2390
+/*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-location:21.3.0'
+/*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-places-placereport:17.1.0'
+/*build:google*/        //noinspection GradleDependency
+/*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
+
+/*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.4.0'
+/*build:google*/    ethos_dappImplementation 'com.android.installreferrer:installreferrer:2.2'
+
+    // play store review
+/*build:google*/    ethos_dappImplementation 'com.google.android.play:review:2.0.2'
+/*build:google*/    ethos_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
+
+    // see https://developer.android.com/google/play/billing/integrate#groovy
+/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing:8.0.0"
+/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
+
+/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:21.28.1")
+/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:21.28.1")
 }
 
 
