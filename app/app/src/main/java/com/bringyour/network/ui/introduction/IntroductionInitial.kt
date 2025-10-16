@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.introduction
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,13 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
-import com.bringyour.network.TAG
 import com.bringyour.network.ui.IntroRoute
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -80,14 +77,14 @@ fun IntroductionInitial(
         ) {
 
             Text(
-                "Welcome to URnetwork",
+                stringResource(id = R.string.welcome_to_urnetwork),
                 style = MaterialTheme.typography.headlineLarge
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "URnetwork is the most local and most private network on the planet. With over 20x usable cities of other leading VPNs, and 100x fewer users per IP address. Unlock all the fun in the world and all the privacy without compromises.",
+                stringResource(id = R.string.urnetwork_intro_description),
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -95,7 +92,6 @@ fun IntroductionInitial(
 
             Column(
                 modifier = Modifier
-//                    .padding(horizontal = 16.dp)
                     .background(
                         OffBlack,
                         RoundedCornerShape(12.dp)
@@ -108,9 +104,7 @@ fun IntroductionInitial(
                     planViewModel = planViewModel,
                     createSolanaPaymentIntent = createSolanaPaymentIntent,
                     onSolanaUriOpened = { reference ->
-                        Log.i(TAG, "solana reference is: $reference")
                         setPendingSolanaSubscriptionReference(reference)
-//                        navController.popBackStack()
                     },
                     onStripePaymentSuccess = onStripePaymentSuccess,
                     isCheckingSolanaTransaction = isCheckingSolanaTransaction
@@ -124,14 +118,13 @@ fun IntroductionInitial(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text("or")
+                Text(stringResource(id = R.string.or))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Column(
                 modifier = Modifier
-//                    .padding(horizontal = 16.dp)
                     .background(
                         OffBlack,
                         RoundedCornerShape(12.dp)
@@ -142,7 +135,7 @@ fun IntroductionInitial(
             ) {
 
                 Text(
-                    "Participate in the network and get free access to the community edition.",
+                    stringResource(id = R.string.participate_intro),
                     style = TopBarTitleTextStyle,
                     textAlign = TextAlign.Start
                 )
@@ -150,7 +143,7 @@ fun IntroductionInitial(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    "URnetwork is powered by a patented protocol that keeps everyone safe and secure.",
+                    stringResource(id = R.string.participate_intro_details),
                     style = MaterialTheme.typography.bodyLarge
                 )
 
@@ -159,7 +152,7 @@ fun IntroductionInitial(
                 URButton(onClick = {
                     navController.navigate(IntroRoute.IntroductionUsageBar)
                 }) { btnStyle ->
-                    Text("Participate", style = btnStyle)
+                    Text(stringResource(id = R.string.participate), style = btnStyle)
                 }
             }
 

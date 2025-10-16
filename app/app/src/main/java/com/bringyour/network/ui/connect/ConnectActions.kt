@@ -1,8 +1,6 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,25 +28,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.bringyour.network.R
-import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
-import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.Plan
-import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
-import com.bringyour.network.ui.theme.OffWhite
 import com.bringyour.network.ui.theme.Pink
-import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.sdk.ConnectLocation
 
 @Composable
@@ -209,7 +198,7 @@ fun ConnectActions(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                Text("Checking payment",
+                                Text(stringResource(id = R.string.checking_payment),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = TextMuted
                                 )
@@ -227,7 +216,7 @@ fun ConnectActions(
                             launchIntro()
                         }) {
                             Text(
-                                "Get Pro",
+                                stringResource(id = R.string.get_pro),
                                 style = TextStyle(
                                     color = Pink
                                 )
@@ -259,7 +248,7 @@ fun OpenProviderListButton(
 ) {
 
     val text = if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
-        "Best available provider"
+        stringResource(id = R.string.best_available_provider)
     } else {
         selectedLocation.name
     }
@@ -306,7 +295,7 @@ fun OpenProviderListButton(
 
                 if (selectedLocation != null && selectedLocation.providerCount > 0) {
                     Text(
-                        "${selectedLocation.providerCount} providers",
+                        stringResource(R.string.provider_count, selectedLocation.providerCount),
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextMuted
                     )
@@ -319,7 +308,7 @@ fun OpenProviderListButton(
 
         TextButton(onClick = onClick) {
             Text(
-                "Change",
+                stringResource(id = R.string.change),
                 color = Pink
             )
         }

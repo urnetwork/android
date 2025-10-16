@@ -47,8 +47,6 @@ fun SubscriptionOptions(
         }
 
         if (uriOpened) {
-//            setPendingSolanaSubscriptionReference(reference)
-//            navController.popBackStack()
             onSolanaUriOpened(reference)
         }
 
@@ -77,11 +75,6 @@ fun SubscriptionOptions(
         upgradeSolana = upgradeWithSolana,
         onStripePaymentSuccess = onStripePaymentSuccess,
         isCheckingSolanaTransaction = isCheckingSolanaTransaction
-//        onStripePaymentSuccess = {
-//            pollSubscriptionBalance()
-//            overlayViewModel.launch(OverlayMode.Upgrade)
-//            navController.popBackStack()
-//        },
     )
 
 

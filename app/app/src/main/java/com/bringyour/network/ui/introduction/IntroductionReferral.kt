@@ -33,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
-import com.bringyour.network.ui.IntroRoute
 import com.bringyour.network.ui.components.ChartKey
 import com.bringyour.network.ui.components.CopyReferralCode
 import com.bringyour.network.ui.components.ShareButton
@@ -85,7 +84,7 @@ fun IntroductionReferral(
 
             Column {
                 Text(
-                    "Step 2",
+                    stringResource(id = R.string.step_two),
                     style = MaterialTheme.typography.headlineLarge
                 )
 
@@ -107,7 +106,7 @@ fun IntroductionReferral(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "Refer friends",
+                            stringResource(id = R.string.refer_friends_header),
                             style = TopBarTitleTextStyle
                         )
 
@@ -126,7 +125,7 @@ fun IntroductionReferral(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        "You get +30 GiB/month\nYour friend gets +30 GiB/month\nFor Life!",
+                        stringResource(id = R.string.refer_friends_perks),
                         style = MaterialTheme.typography.bodyLarge
                     )
 
@@ -137,13 +136,13 @@ fun IntroductionReferral(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "Refer some friends and watch your free data go up.",
+                        stringResource(id = R.string.refer_friends_increase_free_data),
                         style = TopBarTitleTextStyle
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    URTextInputLabel("Bonus referral code")
+                    URTextInputLabel(stringResource(id = R.string.bonus_referral_code_label))
 
 //                    Spacer(modifier = Modifier.height(4.dp))
 
@@ -162,7 +161,7 @@ fun IntroductionReferral(
             URButton(onClick = {
                 dismiss()
             }) { btnStyle ->
-                Text("Enter")
+                Text(stringResource(id = R.string.enter))
             }
 
         }

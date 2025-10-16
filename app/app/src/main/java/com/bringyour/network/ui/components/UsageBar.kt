@@ -27,6 +27,7 @@ import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlin.math.min
 
 @Composable
 fun UsageBar(
@@ -182,7 +183,7 @@ fun UsageBar(
             horizontalArrangement = Arrangement.End
         ) {
             Text(
-                "1 GiB/Day",
+                stringResource(id = R.string.one_gib_per_day),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
@@ -193,12 +194,12 @@ fun UsageBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "Reliability: ${String.format("%.3f", meanReliabilityWeight)}",
+                stringResource(R.string.reliability_with_value, meanReliabilityWeight),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
             Text(
-                "+${String.format("%.3f", meanReliabilityWeight * 100)} GiB/Day",
+                stringResource(R.string.reliability_bonus, min(meanReliabilityWeight * 100, 100.0)),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
@@ -209,12 +210,13 @@ fun UsageBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "Total referrals: $totalReferrals",
+                stringResource(R.string.total_referral_count, totalReferrals),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
             Text(
-                "+${totalReferrals * 30} GiB/Month",
+
+                stringResource(R.string.referral_bonus, totalReferrals * 30),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )

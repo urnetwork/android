@@ -114,36 +114,4 @@ fun SubscriptionOptions(
 
     }
 
-
-//    Column {
-//
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Text("Monthly")
-//
-//            Text("${monthlyCostFormatted}/month")
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        Row(modifier = Modifier.fillMaxWidth()) {
-//            URButton(
-//                onClick = {
-//                    upgrade()
-//                },
-//                enabled = !upgradeInProgress,
-//                isProcessing = upgradeInProgress
-//            ) { buttonTextStyle ->
-//                Text(
-//                    stringResource(id = R.string.join_the_movement),
-//                    style = buttonTextStyle
-//                )
-//            }
-//        }
-//
-//    }
-
 }

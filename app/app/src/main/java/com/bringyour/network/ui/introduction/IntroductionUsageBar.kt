@@ -22,10 +22,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.bringyour.network.R
 import com.bringyour.network.ui.IntroRoute
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.UsageBar
@@ -76,7 +77,7 @@ fun IntroductionUsageBar(
             Column {
 
                 Text(
-                    "Get URnetwork free for life by participating",
+                    stringResource(id = R.string.get_urnetwork_free_for_life_by_participating),
                     style = MaterialTheme.typography.headlineLarge
                 )
 
@@ -93,7 +94,7 @@ fun IntroductionUsageBar(
                 ) {
 
                     Text(
-                        "Data usage",
+                        stringResource(id = R.string.data_usage),
                         style = TopBarTitleTextStyle
                     )
 
@@ -110,7 +111,7 @@ fun IntroductionUsageBar(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        "This bar in the app shows you how much free data you are earning from your provider. You can check in any time and adjust your settings to maximize your earnings.",
+                        stringResource(id = R.string.data_bar_explanation),
                         style = MaterialTheme.typography.bodyLarge
                     )
 
@@ -121,7 +122,7 @@ fun IntroductionUsageBar(
             URButton(onClick = {
                 navController.navigate(IntroRoute.IntroductionSettings)
             }) { btnStyle ->
-                Text("Next")
+                Text(stringResource(id = R.string.next))
             }
 
         }

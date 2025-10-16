@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,7 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.OffBlack
 import com.bringyour.network.ui.theme.Pink
 import androidx.core.net.toUri
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
 import com.bringyour.network.ui.shared.models.ProvideControlMode
@@ -60,11 +62,11 @@ fun IntroductionSettings(
 
     val context = LocalContext.current
     val annotatedText = buildAnnotatedString {
-        append("A local provider will run when you are connected to the network. There are over 30k providers today, and we have zero known security or ISP incidents. We value the ability for people to participate without issues, and have built the protocol to put safety first. ")
+        append("${stringResource(id = R.string.local_provider_safety_description)} ")
 
         // Start annotation for the link
         val startIndex = length
-        val linkText = "Learn more at the protocol page"
+        val linkText = stringResource(id = R.string.learn_more_protocol_page)
         append(linkText)
         val endIndex = length
 
@@ -118,7 +120,7 @@ fun IntroductionSettings(
             Column {
 
                 Text(
-                    "Step 1",
+                    stringResource(id = R.string.step_one),
                     style = MaterialTheme.typography.headlineLarge
                 )
 
@@ -153,7 +155,7 @@ fun IntroductionSettings(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "You can adjust the setting to Always to fill the free data faster.",
+                        stringResource(id = R.string.adjust_setting_always_fill_data_faster),
                         style = MaterialTheme.typography.bodyLarge
                     )
 
@@ -184,7 +186,7 @@ fun IntroductionSettings(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "You can also allow the provider to use cell network data, which works great if you have an unlimited plan.",
+                        stringResource(id = R.string.allow_provider_cell_network_unlimited_plan),
                         style = MaterialTheme.typography.bodyLarge
                     )
 
@@ -213,10 +215,8 @@ fun IntroductionSettings(
             URButton(onClick = {
                 navController.navigate(IntroRoute.IntroductionReferral)
             }) { btnStyle ->
-                Text("Next")
+                Text(stringResource(id = R.string.next))
             }
-
         }
     }
-
 }

@@ -167,7 +167,7 @@ fun AltSubscriptionOptions(
                 isProcessing = isPromptingSolanaPayment || isCheckingSolanaTransaction
             ) { buttonTextStyle ->
                 Text(
-                    "Join with Solana Wallet",
+                    stringResource(id = R.string.join_solana_wallet),
                     style = buttonTextStyle
                 )
             }
@@ -183,30 +183,5 @@ fun AltSubscriptionOptions(
         )
 
     }
-
-
+    
 }
-
-//@Preview
-//@Composable
-//private fun UpgradeStripePreview() {
-//    URNetworkTheme {
-//        Scaffold { padding ->
-//
-//            Column(
-//                modifier = Modifier
-//                    .padding(padding)
-//                    .padding(16.dp)
-//            ) {
-//                AltSubscriptionOptions(
-//                    upgradeStripeMonthly = {},
-//                    upgradeStripeYearly = {},
-//                    upgradeInProgress = false,
-//                    upgradeSolana = {},
-//                    isPromptingSolanaPayment = false,
-//                    setIsPromptingSolanaPayment = {}
-//                )
-//            }
-//        }
-//    }
-//}
