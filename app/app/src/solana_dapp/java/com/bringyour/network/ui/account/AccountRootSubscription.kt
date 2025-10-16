@@ -42,91 +42,90 @@ fun AccountRootSubscription(
     navController: NavHostController
 ) {
     // member area
-    Box {
-        Column {
-            Text(
-                stringResource(id = R.string.member),
-                style = TextStyle(
-                    color = TextMuted
-                )
+    Column {
+        Text(
+            stringResource(id = R.string.plan),
+            style = TextStyle(
+                color = TextMuted
             )
+        )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
-            ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
 
-                if (loginMode == LoginMode.Guest) {
-                    Text(
-                        stringResource(id = R.string.guest),
+            if (loginMode == LoginMode.Guest) {
+                Text(
+                    stringResource(id = R.string.guest),
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            } else {
+
+                if (isPollingSubscriptionBalance) {
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp),
+                            color = TextMuted,
+                            trackColor = TextFaint,
+                            strokeWidth = 2.dp
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(if (isCheckingSolanaTransaction) stringResource(id = R.string.checking_solana_transactions)
+                            else stringResource(id = R.string.processing_payment),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextMuted
+                        )
+
+                    }
+
+                } else {
+                    Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
                         style = MaterialTheme.typography.headlineMedium
                     )
-                } else {
-
-                    if (isPollingSubscriptionBalance) {
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .width(24.dp)
-                                    .height(24.dp),
-                                color = TextMuted,
-                                trackColor = TextFaint,
-                                strokeWidth = 2.dp
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(if (isCheckingSolanaTransaction) stringResource(id = R.string.checking_solana_transactions)
-                                else stringResource(id = R.string.processing_payment),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = TextMuted
-                            )
-
-                        }
-
-                    } else {
-                        Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    }
                 }
+            }
 
-                if (loginMode == LoginMode.Guest) {
+            if (loginMode == LoginMode.Guest) {
+                Text(
+                    stringResource(id = R.string.create_account),
+                    style = TextStyle(
+                        color = BlueMedium
+                    ),
+                    modifier = Modifier
+                        .offset(y = (-8).dp)
+                        .clickable {
+                            logout()
+                        }
+                )
+            } else {
+
+                if (currentPlan == Plan.Basic  && !isPollingSubscriptionBalance) {
                     Text(
-                        stringResource(id = R.string.create_account),
-                        style = TextStyle(
-                            color = BlueMedium
-                        ),
+                        stringResource(id = R.string.change),
                         modifier = Modifier
                             .offset(y = (-8).dp)
                             .clickable {
-                                logout()
-                            }
-                    )
-                } else {
-
-                    if (currentPlan == Plan.Basic  && !isPollingSubscriptionBalance) {
-                        Text(
-                            stringResource(id = R.string.change),
-                            modifier = Modifier
-                                .offset(y = (-8).dp)
-                                .clickable {
-                                    navController.navigate(Route.Upgrade)
-                                },
-                            style = TextStyle(
-                                color = BlueMedium
-                            )
+                                navController.navigate(Route.Upgrade)
+                            },
+                        style = TextStyle(
+                            color = BlueMedium
                         )
-                    }
+                    )
                 }
             }
         }
     }
+
 }

@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.components.overlays
 
-import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -8,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +33,6 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,8 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import com.bringyour.network.R
-import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
+import com.bringyour.network.ui.components.ShareButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green300
@@ -60,26 +55,11 @@ import com.google.zxing.common.BitMatrix
 @Composable
 fun ReferOverlay(
     onDismiss: () -> Unit,
-    referralCodeViewModel: ReferralCodeViewModel
+    referralCode: String?
 ) {
 
-    ReferOverlay(
-        onDismiss,
-        referralLink = "https://ur.io/c?bonus=${referralCodeViewModel.referralCode}"
-    )
-}
-
-@Composable
-fun ReferOverlay(
-    onDismiss: () -> Unit,
-    referralLink: String?
-) {
-
-    val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
-
-    // todo - fetch network referral code
-    // val referralCode = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+    val referralLink = "https://ur.io/c?bonus=${referralCode}"
 
     OverlayBackground(
         onDismiss = onDismiss,
@@ -160,30 +140,8 @@ fun ReferOverlay(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            URButton(onClick = {
-                val shareIntent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, referralLink)
-                    type = "text/plain"
-                }
-                context.startActivity(Intent.createChooser(shareIntent, null))
-            }) { textStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        stringResource(id = R.string.share),
-                        style = textStyle
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_share),
-                        contentDescription = "Share Icon",
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.White
-                    )
-                }
-            }
+            ShareButton(referralLink)
+
         }
     }
 }
@@ -330,7 +288,7 @@ private fun ReferOverlayPreview() {
     URNetworkTheme {
         ReferOverlay(
             onDismiss = {},
-            referralLink = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+            referralCode = "asdlfkjsldkfjsdf"
         )
     }
 }
@@ -343,7 +301,7 @@ private fun ReferOverlayLandscapePreview() {
     URNetworkTheme {
         ReferOverlay(
             onDismiss = {},
-            referralLink = "https://ur.io/network/my-referral-code/asdlfkjsldkfjsdf"
+            referralCode = "asdlfkjsldkfjsdf"
         )
     }
 }

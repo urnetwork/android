@@ -111,6 +111,9 @@ import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.launch
 import java.util.Date
 import androidx.core.net.toUri
+import com.bringyour.network.ui.components.CopyReferralCode
+import com.bringyour.network.ui.components.ProvideCellPicker
+import com.bringyour.network.ui.components.ProvideControlModePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -469,34 +472,39 @@ fun SettingsScreen(
             URTextInputLabel(
                 text = stringResource(id = R.string.referral_code)
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Color(0x1AFFFFFF),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .clickable {
-                        clipboardManager.setText(AnnotatedString(bonusReferralCode))
-                    }
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
 
-                ) {
-                Text(
-                    bonusReferralCode,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
-                )
+            CopyReferralCode(
+                bonusReferralCode = bonusReferralCode
+            )
 
-                Icon(
-                    painter = painterResource(id = R.drawable.content_copy),
-                    contentDescription = "Copy",
-                    tint = TextMuted,
-                    modifier = Modifier.width(16.dp)
-                )
-            }
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .background(
+//                        Color(0x1AFFFFFF),
+//                        shape = RoundedCornerShape(12.dp)
+//                    )
+//                    .clickable {
+//                        clipboardManager.setText(AnnotatedString(bonusReferralCode))
+//                    }
+//                    .padding(horizontal = 12.dp, vertical = 12.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically,
+//
+//                ) {
+//                Text(
+//                    bonusReferralCode,
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    color = TextMuted
+//                )
+//
+//                Icon(
+//                    painter = painterResource(id = R.drawable.content_copy),
+//                    contentDescription = "Copy",
+//                    tint = TextMuted,
+//                    modifier = Modifier.width(16.dp)
+//                )
+//            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -591,71 +599,41 @@ fun SettingsScreen(
 
             URTextInputLabel(text = stringResource(id = R.string.connections))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-            ) {
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(color = provideIndicatorColor, shape = CircleShape)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.provide_mode),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
-                    )
-                }
-
-                ProvideControlMode.entries.forEach { mode ->
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = (mode == provideControlMode),
-                            onClick = { setProvideControlMode(mode) }
-                        )
-                        Text(
-                            stringResource(id = ProvideControlMode.toStringResourceId(mode)),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                }
-
-            }
+            ProvideControlModePicker(
+                provideControlMode,
+                setProvideControlMode,
+                provideIndicatorColor
+            )
 
             Spacer(modifier = Modifier.height(18.dp))
 
             /**
              * Allow providing on cell networks
              */
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(id = R.string.allow_providing_cell),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+            ProvideCellPicker(
+                allowProvideCell = allowProvideCell,
+                toggleProvideCell = toggleProvideCell
+            )
 
-                URSwitch(
-                    checked = allowProvideCell,
-                    toggle = {
-                        toggleProvideCell()
-                    },
-                )
-            }
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Text(
+//                    stringResource(id = R.string.allow_providing_cell),
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    color = Color.White
+//                )
+//
+//                URSwitch(
+//                    checked = allowProvideCell,
+//                    toggle = {
+//                        toggleProvideCell()
+//                    },
+//                )
+//            }
 
             Spacer(modifier = Modifier.height(18.dp))
 

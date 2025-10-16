@@ -9,17 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
-import com.bringyour.sdk.ReliabilityWindow
 import com.bringyour.sdk.SubscriptionBalanceCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlinx.coroutines.isActive
 
@@ -34,8 +31,19 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _currentStore = MutableStateFlow<String?>(null)
     val currentStore: StateFlow<String?> get() = _currentStore
 
+    private val _isInitialized = MutableStateFlow<Boolean>(false)
+    val isInitialized: StateFlow<Boolean> get() = _isInitialized
+
+    /**
+     * When actively polling for plan subscription change
+     */
     private var pollingJob: Job? = null
     private var pollingInterval: Long = 5000 // 5 seconds
+
+    /**
+     * Background polling for available bytes
+     */
+    private var backgroundPollingJob: Job? = null
 
 
     val setCurrentPlan: (Plan) -> Unit = { plan ->
@@ -56,8 +64,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     private var isLoading = false
 
-    var availableBalanceByteCount by mutableLongStateOf(0)
-        private set
+    private val _availableBalanceByteCount = MutableStateFlow<Long>(0)
+    val availableBalanceByteCount: StateFlow<Long> get() = _availableBalanceByteCount
 
     var pendingBalanceByteCount by mutableLongStateOf(0)
         private set
@@ -77,8 +85,6 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     val fetchSubscriptionBalance: () -> Unit = {
 
-        Log.i(TAG, "fetchSubscriptionBalance called")
-
         if (!isLoading) {
 
             isLoading = true
@@ -88,6 +94,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
                 viewModelScope.launch {
                     if (err != null) {
                         Log.i(TAG, "error fetching subscription balance: $err")
+
+                        isLoading = false
+                        isRefreshingSubscriptionBalance = false
+
                     } else {
 
                         result?.currentSubscription?.plan?.let { plan ->
@@ -98,14 +108,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             _currentStore.value = store
                         }
 
-                        availableBalanceByteCount = result.balanceByteCount
+                        _availableBalanceByteCount.value = result.balanceByteCount
                         pendingBalanceByteCount = result.openTransferByteCount
-                        usedBalanceByteCount = result.startBalanceByteCount - availableBalanceByteCount - pendingBalanceByteCount
-
+                        usedBalanceByteCount = result.startBalanceByteCount - result.balanceByteCount - pendingBalanceByteCount
                     }
 
                     isLoading = false
                     isRefreshingSubscriptionBalance = false
+                    if (!_isInitialized.value) {
+                        _isInitialized.value = true
+                    }
                 }
 
             })
@@ -115,7 +127,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     private fun isSupporterWithBalance(): Boolean {
-        return currentPlan.value == Plan.Supporter && availableBalanceByteCount > 0
+        return currentPlan.value == Plan.Supporter && _availableBalanceByteCount.value > 0
     }
 
     /**
@@ -153,6 +165,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
             }
 
             while (isPolling && isActive && System.currentTimeMillis() < deadline) {
+
+                Log.i(TAG, "System.currentTimeMillis(): ${System.currentTimeMillis()}")
+                Log.i(TAG, "deadline: $deadline")
+
                 delay(pollingInterval)
                 fetchSubscriptionBalance()
                 if (isSupporterWithBalance()) {
@@ -168,6 +184,29 @@ class SubscriptionBalanceViewModel @Inject constructor(
         }
     }
 
+    val createBackgroundPollingJob: () -> Unit = {
+        backgroundPollingJob = viewModelScope.launch {
+
+            fetchSubscriptionBalance()
+
+            while (true) {
+                delay(60_000) // poll every minute
+                fetchSubscriptionBalance()
+                if (isSupporterWithBalance()) {
+                    stopBackgroundPolling()
+                    break
+                }
+            }
+        }
+    }
+
+    private fun stopBackgroundPolling() {
+        viewModelScope.launch {
+            backgroundPollingJob?.cancel()
+            backgroundPollingJob = null
+        }
+    }
+
     private fun stopPolling() {
         viewModelScope.launch {
             pollingJob?.cancel()
@@ -178,7 +217,15 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     init {
-        fetchSubscriptionBalance()
+        createBackgroundPollingJob()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        pollingJob?.cancel()
+        pollingJob = null
+        backgroundPollingJob?.cancel()
+        backgroundPollingJob = null
     }
 
 }

@@ -41,7 +41,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import com.bringyour.network.ui.theme.Black
@@ -50,6 +49,7 @@ import com.bringyour.network.ui.theme.Yellow
 @Composable
 fun WelcomeAnimatedMainOverlay(
     animateIn: Boolean,
+    currentPlanLoaded: Boolean
 ) {
 
     var isVisible by remember { mutableStateOf(animateIn) }
@@ -72,7 +72,8 @@ fun WelcomeAnimatedMainOverlay(
     if (!overlayClosed) {
         WelcomeAnimatedMainOverlay(
             isVisible,
-            close
+            close,
+            currentPlanLoaded
         )
     }
 
@@ -81,7 +82,8 @@ fun WelcomeAnimatedMainOverlay(
 @Composable
 fun WelcomeAnimatedMainOverlay(
     isVisible: Boolean,
-    close: () -> Unit
+    close: () -> Unit,
+    currentPlanLoaded: Boolean
 ) {
     val context = LocalContext.current
     val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_guest_onboarding_bg)
@@ -154,7 +156,9 @@ fun WelcomeAnimatedMainOverlay(
                                 close()
                             },
                             style = ButtonStyle.OUTLINE,
-                            borderColor = Black
+                            borderColor = Black,
+                            enabled = currentPlanLoaded,
+                            isProcessing = !currentPlanLoaded
                         ) { buttonTextStyle ->
                             Row(
                                 modifier = Modifier
@@ -183,13 +187,11 @@ fun WelcomeAnimatedMainOverlay(
 @Composable
 private fun WelcomeAnimatedOverlayPreview() {
 
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current
-
     URNetworkTheme {
         WelcomeAnimatedMainOverlay(
             isVisible = true,
-            close = {}
+            close = {},
+            currentPlanLoaded = true
         )
     }
 }

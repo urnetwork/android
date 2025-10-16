@@ -295,5 +295,33 @@
     <string name="default_wallet">Domyślny</string>
     <string name="learn_more_about_multiplier">Dowiedz się więcej o mnożniku</string>
     <string name="solana_payment_insufficient_funds_warning">Upewnij się, że masz wystarczające środki USDC w swoim portfelu. W niektórych przypadkach płatność może się nie powieść, jeśli w portfelu brakuje środków.</string>
+    <string name="one_gib_per_day">1 GiB/dzień</string>
+    <string name="reliability_with_value">Niezawodność: %1$.3f</string>
+    <string name="reliability_bonus">+%1$.3f GiB/dzień</string>
+    <string name="total_referral_count">Łączna liczba poleceń: %1$d</string>
+    <string name="referral_bonus">+%1$d GiB/miesiąc</string>
+    <string name="checking_payment">Sprawdzanie płatności</string>
+    <string name="get_pro">Zdobądź Pro</string>
+    <string name="provider_count">%1$d dostawców</string>
+    <string name="welcome_to_urnetwork">Witaj w URnetwork</string>
+    <string name="urnetwork_intro_description">URnetwork to najbardziej lokalna i najbardziej prywatna sieć na świecie. Oferuje ponad 20 razy więcej dostępnych miast niż inne wiodące VPN-y oraz 100 razy mniej użytkowników na jeden adres IP. Odblokuj całą zabawę na świecie i pełną prywatność bez kompromisów.</string>
+    <string name="or">lub</string>
+    <string name="participate_intro">Dołącz do sieci i uzyskaj bezpłatny dostęp do wersji społecznościowej.</string>
+    <string name="participate_intro_details">URnetwork działa w oparciu o opatentowany protokół, który zapewnia bezpieczeństwo wszystkim.</string>
+    <string name="participate">Dołącz</string>
+    <string name="step_two">Krok 2</string>
+    <string name="refer_friends_perks">Otrzymujesz +30 GiB/miesiąc\\nTwój znajomy otrzymuje +30 GiB/miesiąc\\nNa całe życie!</string>
+    <string name="refer_friends_increase_free_data">Poleć kilku znajomych i zobacz, jak rosną Twoje darmowe dane.</string>
+    <string name="bonus_referral_code_label">Bonusowy kod polecający</string>
+    <string name="step_one">Krok 1</string>
+    <string name="local_provider_safety_description">Lokalny dostawca będzie działał, gdy będziesz połączony z siecią. Obecnie jest ponad 30 tys. dostawców i nie mamy żadnych znanych incydentów związanych z bezpieczeństwem lub ISP. Cenimy możliwość uczestnictwa bez problemów i stworzyliśmy protokół z myślą o bezpieczeństwie.</string>
+    <string name="learn_more_protocol_page">Dowiedz się więcej na stronie protokołu</string>
+    <string name="adjust_setting_always_fill_data_faster">Możesz ustawić opcję na „Zawsze”, aby szybciej zapełnić darmowe dane.</string>
+    <string name="allow_provider_cell_network_unlimited_plan">Możesz także pozwolić dostawcy na korzystanie z danych sieci komórkowej, co świetnie działa, jeśli masz nielimitowany plan.</string>
+    <string name="next">Następny</string>
+    <string name="get_urnetwork_free_for_life_by_participating">Zdobądź URnetwork za darmo na całe życie, uczestnicząc</string>
+    <string name="data_usage">Zużycie danych</string>
+    <string name="data_bar_explanation">Ten pasek w aplikacji pokazuje, ile darmowych danych otrzymujesz od swojego dostawcy. Możesz sprawdzać to w dowolnym momencie i dostosować ustawienia, aby zmaksymalizować swoje zarobki.</string>
+    <string name="join_solana_wallet">Dołącz za pomocą portfela Solana</string>
 
 </resources>

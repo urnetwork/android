@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,13 +25,17 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import kotlin.math.min
 
 @Composable
 fun UsageBar(
     usedBytes: Long,
     pendingBytes: Long,
-    availableBytes: Long
+    availableBytes: Long,
+    meanReliabilityWeight: Double,
+    totalReferrals: Long,
 ) {
     
     val totalBytes = usedBytes + pendingBytes + availableBytes
@@ -39,11 +46,6 @@ fun UsageBar(
     val availableColor = TextFaint
 
     fun minNonZeroBytes(bytes: Long): Long {
-
-        if (bytes.toInt() == 0) {
-             // if 0, we don't display that part of the bar in the chart
-            return bytes
-        }
 
         val minNonZeroBytes = totalBytes * 0.015
 
@@ -82,51 +84,55 @@ fun UsageBar(
                  */
 
                 // used
-                if (usedBytes > 0) {
-                    Box(
-                        modifier = Modifier
-                            .weight(minNonZeroBytes(usedBytes).toFloat() / totalBytes)
-                            .fillMaxHeight()
-                            .clip(
-                                RoundedCornerShape(
-                                    topStart = cornerRadius,
-                                    bottomStart = cornerRadius,
-                                    topEnd = if ((pendingBytes + availableBytes).toInt() == 0) cornerRadius else 0.dp,
-                                    bottomEnd = if ((pendingBytes + availableBytes).toInt() == 0) cornerRadius else 0.dp,
-                                )
+                Box(
+                    modifier = Modifier
+                        .weight(minNonZeroBytes(usedBytes).toFloat() / totalBytes)
+                        .fillMaxHeight()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = cornerRadius,
+                                bottomStart = cornerRadius,
+                                topEnd = if (usedBytes == totalBytes) cornerRadius else 0.dp,
+                                bottomEnd = if (usedBytes == totalBytes) cornerRadius else 0.dp,
                             )
-                            .background(usedColor)
-                    )
-                }
+                        )
+                        .background(usedColor)
+                )
 
-                // pending
-                if (pendingBytes > 0) {
+
+                /**
+                 * pending
+                 * hide if all data is used for the day
+                 */
+                if (usedBytes != totalBytes) {
+
                     Box(
                         modifier = Modifier
                             .weight(minNonZeroBytes(pendingBytes).toFloat() / totalBytes)
                             .fillMaxHeight()
                             .clip(
                                 RoundedCornerShape(
-                                    topStart = if (usedBytes.toInt() == 0) cornerRadius else 0.dp,
-                                    bottomStart = if (usedBytes.toInt() == 0) cornerRadius else 0.dp,
-                                    topEnd = if (availableBytes.toInt() == 0) cornerRadius else 0.dp,
-                                    bottomEnd = if (availableBytes.toInt() == 0) cornerRadius else 0.dp
+                                    topStart = 0.dp,
+                                    bottomStart = 0.dp,
+                                    topEnd = if (availableBytes == 0L) cornerRadius else 0.dp,
+                                    bottomEnd = if (availableBytes == 0L) cornerRadius else 0.dp
                                 )
                             )
                             .background(pendingColor)
                     )
                 }
 
+
                 // available
                 if (availableBytes > 0) {
                     Box(
                         modifier = Modifier
-                            .weight(minNonZeroBytes(availableBytes).toFloat() / totalBytes)
+                            .weight(availableBytes.toFloat() / totalBytes)
                             .fillMaxHeight()
                             .clip(
                                 RoundedCornerShape(
-                                    topStart = if ((pendingBytes + usedBytes).toInt() == 0) cornerRadius else 0.dp,
-                                    bottomStart = if ((pendingBytes + usedBytes).toInt() == 0) cornerRadius else 0.dp,
+                                    topStart = 0.dp,
+                                    bottomStart = 0.dp,
                                     topEnd = cornerRadius,
                                     bottomEnd = cornerRadius
                                 )
@@ -168,6 +174,53 @@ fun UsageBar(
                 color = availableColor
             )
         }
+
+        /**
+         * Data breakdown for Free accounts
+         */
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                stringResource(id = R.string.one_gib_per_day),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                stringResource(R.string.reliability_with_value, meanReliabilityWeight),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+            Text(
+                stringResource(R.string.reliability_bonus, min(meanReliabilityWeight * 100, 100.0)),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                stringResource(R.string.total_referral_count, totalReferrals),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+            Text(
+
+                stringResource(R.string.referral_bonus, totalReferrals * 30),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+        }
     }
 }
 
@@ -184,7 +237,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 30_000,
                     pendingBytes = 20_000,
-                    availableBytes = 60_000
+                    availableBytes = 60_000,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -195,7 +250,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 30_000,
                     pendingBytes = 20_000,
-                    availableBytes = 0
+                    availableBytes = 0,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -206,7 +263,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 30_000,
                     pendingBytes = 0,
-                    availableBytes = 0
+                    availableBytes = 0,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -217,7 +276,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 0,
                     pendingBytes = 30_000,
-                    availableBytes = 0
+                    availableBytes = 0,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -228,7 +289,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 0,
                     pendingBytes = 0,
-                    availableBytes = 30_000
+                    availableBytes = 30_000,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -239,7 +302,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 0,
                     pendingBytes = 15_000,
-                    availableBytes = 30_000
+                    availableBytes = 30_000,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -250,7 +315,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 15_000,
                     pendingBytes = 0,
-                    availableBytes = 30_000
+                    availableBytes = 30_000,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -261,7 +328,9 @@ private fun UsageBarPreview() {
                 UsageBar(
                     usedBytes = 0,
                     pendingBytes = 0,
-                    availableBytes = 0
+                    availableBytes = 0,
+                    meanReliabilityWeight = 0.1,
+                    totalReferrals = 1
                 )
             }
         }

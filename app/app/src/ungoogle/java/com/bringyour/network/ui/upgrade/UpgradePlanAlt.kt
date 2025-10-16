@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.upgrade
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,33 +35,38 @@ import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.utils.buildSolanaPaymentUrl
 import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
 import com.bringyour.sdk.Id
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpgradePlanAlt(
     navController: NavHostController,
     planViewModel: PlanViewModel,
-    overlayViewModel: OverlayViewModel,
+//    overlayViewModel: OverlayViewModel,
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) -> Unit,
-    pollSubscriptionBalance: () -> Unit
+//    pollSubscriptionBalance: () -> Unit,
+    onStripePaymentSuccess: () -> Unit,
+    isCheckingSolanaTransaction: Boolean
+//    onUpgradeSuccess: () -> Unit
 ) {
 
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        planViewModel.onUpgradeSuccess.collect {
-            overlayViewModel.launch(OverlayMode.Upgrade)
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        planViewModel.onUpgradeSuccess.collect {
+////            overlayViewModel.launch(OverlayMode.Upgrade)
+//        }
+//    }
 
     val promptWalletTransaction: (reference: String) -> Unit = { reference ->
 
@@ -62,6 +76,7 @@ fun UpgradePlanAlt(
         var uriOpened = false
 
         try {
+            Log.i("promptWalletTransaction", "url is: $url")
             uriHandler.openUri(url)
             uriOpened = true
         } catch (e: Exception) {
@@ -78,6 +93,7 @@ fun UpgradePlanAlt(
     val upgradeWithSolana: () -> Unit = {
 
         val reference = createPaymentReference()
+        Log.i("upgradeWithSolana", "createPaymentReference: $reference")
 
         createSolanaPaymentIntent(
             reference,
@@ -94,7 +110,26 @@ fun UpgradePlanAlt(
     }
 
 
-    Scaffold { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {Text("")},
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            Icons.Filled.ChevronLeft,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Black
+                ),
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -104,12 +139,14 @@ fun UpgradePlanAlt(
                 upgradeSolana = upgradeWithSolana,
                 upgradeInProgress = planViewModel.inProgress,
                 formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice,
-                onStripePaymentSuccess = {
-                    pollSubscriptionBalance()
-                    overlayViewModel.launch(OverlayMode.Upgrade)
-                    navController.popBackStack()
-                },
-                networkId = planViewModel.networkId
+//                onStripePaymentSuccess = {
+//                    pollSubscriptionBalance()
+//                    overlayViewModel.launch(OverlayMode.Upgrade)
+//                    navController.popBackStack()
+//                },
+                onStripePaymentSuccess = onStripePaymentSuccess,
+                networkId = planViewModel.networkId,
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
         }
     }
@@ -122,7 +159,8 @@ private fun UpgradePlanContent(
     upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
     onStripePaymentSuccess: () -> Unit,
-    networkId: String?
+    networkId: String?,
+    isCheckingSolanaTransaction: Boolean
 ) {
 
     val uriHandler = LocalUriHandler.current
@@ -161,6 +199,7 @@ private fun UpgradePlanContent(
                 upgradeStripeYearly = {
                     uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${networkId}")
                 },
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
             Spacer(modifier = Modifier.height(16.dp))
 
