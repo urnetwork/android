@@ -30,7 +30,7 @@
     <string name="reset_it">Réinitialiser</string>
 
     <string name="forgot_password">Mot de passe oublié ?</string>
-    <string name="check_junk_mail">Vous devrez peut-être vérifier votre dossier spam ou débloquer no-reply@ur.io</string>
+    <string name="check_junk_mail">Vous devrez peut-être vérifier votre dossier spam ou débloquer support@ur.io</string>
     <string name="send_reset_link">Envoyer le lien de réinitialisation</string>
 
     <string name="reset_link_sent">Lien de réinitialisation envoyé</string>

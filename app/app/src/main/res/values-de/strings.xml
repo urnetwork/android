@@ -27,7 +27,7 @@
     <string name="reset_it">Zurücksetzen</string>
 
     <string name="forgot_password">Passwort vergessen?</string>
-    <string name="check_junk_mail">Möglicherweise musst du deinen Spam-Ordner überprüfen oder no-reply@ur.io entsperren</string>
+    <string name="check_junk_mail">Möglicherweise musst du deinen Spam-Ordner überprüfen oder support@ur.io entsperren</string>
     <string name="send_reset_link">Link zum Zurücksetzen senden</string>
 
     <string name="reset_link_sent">Link zum Zurücksetzen gesendet</string>

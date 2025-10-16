@@ -29,7 +29,7 @@
     <string name="reset_it">Redefini-la</string>
 
     <string name="forgot_password">Esqueceu sua senha?</string>
-    <string name="check_junk_mail">Pode ser necessário verificar sua pasta de spam ou desbloquear no-reply@ur.io</string>
+    <string name="check_junk_mail">Pode ser necessário verificar sua pasta de spam ou desbloquear support@ur.io</string>
     <string name="send_reset_link">Enviar link de redefinição</string>
 
     <string name="reset_link_sent">Link de redefinição enviado</string>
