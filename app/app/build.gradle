@@ -189,6 +189,14 @@ android {
             storeFile file("${warpHomeDir}/release/android/signing/app.jks")
             storePassword signingSecret('password')
         }
+
+        ethos_dapp {
+            // FIXME
+            keyAlias 'solana_dapp'
+            keyPassword signingSecret('solana_dapp.password')
+            storeFile file("${warpHomeDir}/release/android/signing/app.jks")
+            storePassword signingSecret('password')
+        }
     }
 
     buildTypes {
