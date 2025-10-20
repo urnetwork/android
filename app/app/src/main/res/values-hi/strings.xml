@@ -287,7 +287,7 @@
     <string name="participate_intro_details">URnetwork एक पेटेंटेड प्रोटोकॉल द्वारा संचालित है जो सभी को सुरक्षित और संरक्षित रखता है।</string>
     <string name="participate">भाग लें</string>
     <string name="step_two">चरण 2</string>
-    <string name="refer_friends_perks">आपको मिलेगा +30 GiB/महीना\\nआपके दोस्त को मिलेगा +30 GiB/महीना\\nजीवनभर!</string>
+    <string name="refer_friends_perks">आपको मिलेगा +30 GiB/महीना\nआपके दोस्त को मिलेगा +30 GiB/महीना\nजीवनभर!\n</string>
     <string name="refer_friends_increase_free_data">कुछ दोस्तों को रेफ़र करें और अपनी मुफ्त डेटा को बढ़ते हुए देखें।</string>
     <string name="bonus_referral_code_label">बोनस रेफ़रल कोड</string>
     <string name="step_one">चरण 1</string>

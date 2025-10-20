@@ -313,7 +313,7 @@
     <string name="participate_intro_details">URnetwork is powered by a patented protocol that keeps everyone safe and secure.</string>
     <string name="participate">Participate</string>
     <string name="step_two">Step 2</string>
-    <string name="refer_friends_perks">You get +30 GiB/month\\nYour friend gets +30 GiB/month\\nFor Life!</string>
+    <string name="refer_friends_perks">"You get +30 GiB/month \nYour friend gets +30 GiB/month\nFor Life! "</string>
     <string name="refer_friends_increase_free_data">Refer some friends and watch your free data go up.</string>
     <string name="bonus_referral_code_label">Bonus referral code</string>
     <string name="step_one">Step 1</string>
