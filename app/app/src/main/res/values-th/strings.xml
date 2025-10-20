@@ -261,7 +261,7 @@
     <string name="participate_intro_details">URnetwork ขับเคลื่อนด้วยโปรโตคอลที่จดสิทธิบัตรซึ่งช่วยให้ทุกคนปลอดภัยและมั่นคง</string>
     <string name="participate">เข้าร่วม</string>
     <string name="step_two">ขั้นตอนที่ 2</string>
-    <string name="refer_friends_perks">คุณได้รับ +30 GiB/เดือน\\nเพื่อนของคุณได้รับ +30 GiB/เดือน\\nตลอดชีวิต!</string>
+    <string name="refer_friends_perks">คุณได้รับ +30 GiB/เดือน\nเพื่อนของคุณได้รับ +30 GiB/เดือน\nตลอดชีวิต!\n</string>
     <string name="refer_friends_increase_free_data">แนะนำเพื่อนสักสองสามคนแล้วดูว่าข้อมูลฟรีของคุณเพิ่มขึ้นอย่างไร</string>
     <string name="bonus_referral_code_label">รหัสแนะนำโบนัส</string>
     <string name="step_one">ขั้นตอนที่ 1</string>
