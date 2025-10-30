@@ -14,8 +14,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.20'
-    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.20'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.21'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.21'
 }
 
 
@@ -487,8 +487,8 @@ dependencies {
 // solana saga
 dependencies {
     implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0")
-    implementation("com.solanamobile:web3-solana:0.3.0")
-    implementation("com.solanamobile:rpc-core:0.2.10")
+    implementation("com.solanamobile:web3-solana:0.3.1")
+    implementation("com.solanamobile:rpc-core:0.2.11")
     implementation("io.github.funkatronics:multimult:0.2.6")
     implementation("io.github.funkatronics:kborsh:0.1.3")
 }
@@ -538,8 +538,8 @@ dependencies {
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:21.29.0")
-/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:21.29.0")
+/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:21.29.1")
+/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:21.29.1")
 }
 
 // solana dapp
@@ -564,8 +564,8 @@ dependencies {
 /*build:google*/    ethos_dappImplementation "com.android.billingclient:billing:8.0.0"
 /*build:google*/    ethos_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:21.29.0")
-/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:21.29.0")
+/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:21.29.1")
+/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:21.29.1")
 }
 
 
