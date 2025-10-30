@@ -499,21 +499,21 @@ dependencies {
     // CVE-2022-2390
     // CVE-2022-2390
     // CVE-2022-2390
-/*build:google*/        playImplementation 'com.google.android.gms:play-services-location:21.3.0'
-/*build:google*/        playImplementation 'com.google.android.gms:play-services-places-placereport:17.1.0'
-/*build:google*/        //noinspection GradleDependency
-/*build:google*/        playImplementation 'com.google.android.gms:play-services-fido:21.2.0'
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
 
-/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.4.0'
-/*build:google*/    playImplementation 'com.android.installreferrer:installreferrer:2.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // play store review
-/*build:google*/    playImplementation 'com.google.android.play:review:2.0.2'
-/*build:google*/    playImplementation 'com.google.android.play:review-ktx:2.0.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    playImplementation "com.android.billingclient:billing:8.0.0"
-/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:8.0.0"
+/*ungoogled*/
+/*ungoogled*/
 }
 
 // solana dapp
@@ -522,24 +522,24 @@ dependencies {
     // CVE-2022-2390
     // CVE-2022-2390
     // CVE-2022-2390
-/*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-location:21.3.0'
-/*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-places-placereport:17.1.0'
-/*build:google*/        //noinspection GradleDependency
-/*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
 
-/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.4.0'
-/*build:google*/    solana_dappImplementation 'com.android.installreferrer:installreferrer:2.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // play store review
-/*build:google*/    solana_dappImplementation 'com.google.android.play:review:2.0.2'
-/*build:google*/    solana_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
+/*ungoogled*/
+/*ungoogled*/
 
-/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:21.29.1")
-/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:21.29.1")
+/*ungoogled*/
+/*ungoogled*/
 }
 
 // solana dapp
@@ -548,24 +548,24 @@ dependencies {
     // CVE-2022-2390
     // CVE-2022-2390
     // CVE-2022-2390
-/*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-location:21.3.0'
-/*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-places-placereport:17.1.0'
-/*build:google*/        //noinspection GradleDependency
-/*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
+/*ungoogled*/
 
-/*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.4.0'
-/*build:google*/    ethos_dappImplementation 'com.android.installreferrer:installreferrer:2.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // play store review
-/*build:google*/    ethos_dappImplementation 'com.google.android.play:review:2.0.2'
-/*build:google*/    ethos_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
+/*ungoogled*/
+/*ungoogled*/
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing:8.0.0"
-/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
+/*ungoogled*/
+/*ungoogled*/
 
-/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:21.29.1")
-/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:21.29.1")
+/*ungoogled*/
+/*ungoogled*/
 }
 
 
