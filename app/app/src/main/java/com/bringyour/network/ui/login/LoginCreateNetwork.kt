@@ -421,6 +421,7 @@ fun LoginCreateNetwork(
                     networkNameSupportingText = networkNameSupportingText,
                     setPresentBonusSheet = setPresentBonusSheet,
                     isValidReferralCode = isValidReferralCode,
+                    isReferralCodeCapped = isReferralCodeCapped,
                     referralCode = referralCode,
                     isInProgress = inProgress
                 )
@@ -510,6 +511,7 @@ private fun NetworkCreateForm(
     onCreateNetwork: () -> Unit,
     setPresentBonusSheet: (Boolean) -> Unit,
     isValidReferralCode: Boolean,
+    isReferralCodeCapped: Boolean,
     referralCode: TextFieldValue,
 ) {
     var debounceJob by remember { mutableStateOf<Job?>(null) }
@@ -608,7 +610,7 @@ private fun NetworkCreateForm(
                 horizontalArrangement = Arrangement.Start
             ) {
 
-                if (isValidReferralCode) {
+                if (isValidReferralCode && !isReferralCodeCapped) {
                     Icon(
                         Icons.Default.CheckCircle,
                         contentDescription = "Valid referral code",
