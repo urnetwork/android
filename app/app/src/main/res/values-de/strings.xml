@@ -301,4 +301,6 @@
     <string name="data_usage">Datennutzung</string>
     <string name="data_bar_explanation">Dieser Balken in der App zeigt dir, wie viel kostenlose Daten du von deinem Anbieter erhältst. Du kannst jederzeit nachsehen und deine Einstellungen anpassen, um deine Einnahmen zu maximieren.</string>
     <string name="join_solana_wallet">Mit Solana Wallet beitreten</string>
+    <string name="invalid_referral_code">Dieser Code ist ungültig</string>
+    <string name="referral_code_capped">Dieser Code wurde bereits verwendet</string>
 </resources>

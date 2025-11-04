@@ -301,4 +301,6 @@
     <string name="data_usage">Matumizi ya data</string>
     <string name="data_bar_explanation">Upau huu kwenye programu unaonyesha ni kiasi gani cha data ya bure unachopata kutoka kwa mtoa huduma wako. Unaweza kukagua wakati wowote na kurekebisha mipangilio yako ili kuongeza mapato yako.</string>
     <string name="join_solana_wallet">Jiunge na pochi ya Solana</string>
+    <string name="invalid_referral_code">Msimbo huu si sahihi</string>
+    <string name="referral_code_capped">Msimbo huu umetumika tayari</string>
 </resources>

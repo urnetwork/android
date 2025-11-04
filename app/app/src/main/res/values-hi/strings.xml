@@ -300,4 +300,6 @@
     <string name="data_usage">डेटा उपयोग</string>
     <string name="data_bar_explanation">ऐप में यह बार आपको दिखाता है कि आप अपने प्रदाता से कितने मुफ्त डेटा कमा रहे हैं। आप कभी भी जांच सकते हैं और अपनी सेटिंग्स समायोजित कर सकते हैं ताकि अपनी कमाई अधिकतम कर सकें।</string>
     <string name="join_solana_wallet">Solana वॉलेट से जुड़ें</string>
+    <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
+    <string name="referral_code_capped">यह कोड पहले ही उपयोग हो चुका है</string>
 </resources>

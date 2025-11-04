@@ -326,4 +326,6 @@
     <string name="data_usage">Использование данных</string>
     <string name="data_bar_explanation">Эта шкала в приложении показывает, сколько бесплатных данных вы получаете от своего провайдера. Вы можете проверить это в любое время и настроить параметры для максимизации заработка.</string>
     <string name="join_solana_wallet">Присоединиться через кошелек Solana</string>
+    <string name="invalid_referral_code">Этот код недействителен</string>
+    <string name="referral_code_capped">Этот код уже был использован</string>
 </resources>

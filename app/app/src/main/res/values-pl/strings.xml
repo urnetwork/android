@@ -323,5 +323,7 @@
     <string name="data_usage">Zużycie danych</string>
     <string name="data_bar_explanation">Ten pasek w aplikacji pokazuje, ile darmowych danych otrzymujesz od swojego dostawcy. Możesz sprawdzać to w dowolnym momencie i dostosować ustawienia, aby zmaksymalizować swoje zarobki.</string>
     <string name="join_solana_wallet">Dołącz za pomocą portfela Solana</string>
+    <string name="invalid_referral_code">Ten kod jest nieprawidłowy</string>
+    <string name="referral_code_capped">Ten kod został już wykorzystany</string>
 
 </resources>

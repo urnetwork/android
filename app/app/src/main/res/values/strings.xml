@@ -326,4 +326,6 @@
     <string name="data_usage">Data usage</string>
     <string name="data_bar_explanation">This bar in the app shows you how much free data you are earning from your provider. You can check in any time and adjust your settings to maximize your earnings.</string>
     <string name="join_solana_wallet">Join with Solana Wallet</string>
+    <string name="invalid_referral_code">This code is not valid</string>
+    <string name="referral_code_capped">This code has been used up</string>
 </resources>

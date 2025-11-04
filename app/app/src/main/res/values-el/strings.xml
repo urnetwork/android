@@ -300,4 +300,6 @@
     <string name="data_usage">Χρήση δεδομένων</string>
     <string name="data_bar_explanation">Αυτή η γραμμή στην εφαρμογή σας δείχνει πόσα δωρεάν δεδομένα κερδίζετε από τον πάροχό σας. Μπορείτε να ελέγχετε οποιαδήποτε στιγμή και να προσαρμόζετε τις ρυθμίσεις σας για να μεγιστοποιήσετε τα κέρδη σας.</string>
     <string name="join_solana_wallet">Εγγραφείτε με το πορτοφόλι Solana</string>
+    <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
+    <string name="referral_code_capped">Αυτός ο κωδικός έχει εξαντληθεί</string>
 </resources>

@@ -300,5 +300,7 @@
     <string name="data_usage">Utilização de dados</string>
     <string name="data_bar_explanation">Esta barra na aplicação mostra-lhe quanta informação gratuita está a ganhar do seu fornecedor. Pode verificar a qualquer momento e ajustar as suas definições para maximizar os seus ganhos.</string>
     <string name="join_solana_wallet">Junte-se com a carteira Solana</string>
+    <string name="invalid_referral_code">Este código não é válido</string>
+    <string name="referral_code_capped">Este código já foi utilizado</string>
 
 </resources>

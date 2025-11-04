@@ -323,4 +323,6 @@
     <string name="data_usage">データ使用量</string>
     <string name="data_bar_explanation">アプリ内のこのバーは、プロバイダーからどれだけ無料データを獲得しているかを表示します。いつでも確認でき、設定を調整して獲得量を最大化できます</string>
     <string name="join_solana_wallet">Solanaウォレットで参加する</string>
+    <string name="invalid_referral_code">このコードは無効です</string>
+    <string name="referral_code_capped">このコードはすでに使われています</string>
 </resources>
