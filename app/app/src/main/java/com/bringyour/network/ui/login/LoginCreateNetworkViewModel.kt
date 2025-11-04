@@ -9,7 +9,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.R
 import com.bringyour.network.TAG
+import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.sdk.NetworkNameValidationViewController
@@ -17,6 +19,8 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.ValidateReferralCodeArgs
 import com.bringyour.sdk.WalletAuthArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,11 +51,14 @@ class LoginCreateNetworkViewModel @Inject constructor(
     var isValidatingNetworkName by mutableStateOf(false)
         private set
 
-    var presentBonusSheet by mutableStateOf(false)
-        private set
+//    var presentBonusSheet by mutableStateOf(false)
+//        private set
+
+    private val _presentBonusSheet = MutableStateFlow<Boolean>(false)
+    val presentBonusSheet: StateFlow<Boolean> get() = _presentBonusSheet
 
     val setPresentBonusSheet: (Boolean) -> Unit = { pb ->
-        presentBonusSheet = pb
+        _presentBonusSheet.value = pb
     }
 
     val setIsValidatingNetworkName: (Boolean) -> Unit = { iv ->
@@ -83,6 +90,9 @@ class LoginCreateNetworkViewModel @Inject constructor(
     val referralCode: TextFieldValue get() = _referralCode.value
     val setReferralCode: (TextFieldValue) -> Unit = { _referralCode.value = it }
 
+    private val _referralCodeIsCapped = MutableStateFlow<Boolean>(false)
+    val referralCodeIsCapped: StateFlow<Boolean> get() = _referralCodeIsCapped
+
     var isValidReferralCode by mutableStateOf(false)
         private set
 
@@ -92,6 +102,9 @@ class LoginCreateNetworkViewModel @Inject constructor(
     // this is used so we don't display an error state when the form is initialized with a blank value
     var referralValidationComplete by mutableStateOf(false)
         private set
+
+    private val _referralCodeInputSupportingTextRes = MutableStateFlow<Int?>(null)
+    val referralCodeInputSupportingTextRes: StateFlow<Int?> get() = _referralCodeInputSupportingTextRes
 
     val validateReferralCode: (Api?, (Boolean) -> Unit) -> Unit = { api, onComplete ->
 
@@ -117,7 +130,12 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
                         isValidatingReferralCode = false
                         referralValidationComplete = true
-                        onComplete(isValidReferralCode)
+
+                        _referralCodeIsCapped.value = result.isCapped
+
+                        setReferralCodeInputSupportingText()
+
+                        onComplete(isValidReferralCode && !_referralCodeIsCapped.value)
                     }
                 }
             } catch (e: Exception) {
@@ -125,6 +143,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
                 isValidReferralCode = false
                 isValidatingReferralCode = false
                 referralValidationComplete = true
+                setReferralCodeInputSupportingText()
             }
 
         }
@@ -136,6 +155,24 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
     val setNetworkNameSupportingText: (String) -> Unit = { msg ->
         networkNameSupportingText = msg
+    }
+
+    val setReferralCodeInputSupportingText: () -> Unit = {
+
+        var msgRes: Int? = null
+
+        if (!isValidatingNetworkName && referralValidationComplete)  {
+
+            if (!isValidReferralCode) {
+                msgRes = R.string.invalid_referral_code
+            }
+
+            if (_referralCodeIsCapped.value) {
+                msgRes = R.string.referral_code_capped
+            }
+        }
+
+        _referralCodeInputSupportingTextRes.value = msgRes
     }
 
     val validateNetworkName: (String) -> Unit = { nn ->

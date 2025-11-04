@@ -302,4 +302,6 @@
     <string name="data_usage">Utilisation des données</string>
     <string name="data_bar_explanation">Cette barre dans l’application vous montre combien de données gratuites vous gagnez auprès de votre fournisseur. Vous pouvez vérifier à tout moment et ajuster vos paramètres pour maximiser vos gains.</string>
     <string name="join_solana_wallet">Rejoindre avec le portefeuille Solana</string>
+    <string name="invalid_referral_code">Ce code n\'est pas valide</string>
+    <string name="referral_code_capped">Ce code a déjà été utilisé</string>
 </resources>

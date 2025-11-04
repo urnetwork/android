@@ -300,4 +300,6 @@
     <string name="data_usage">استخدام البيانات</string>
     <string name="data_bar_explanation">يوضح لك هذا الشريط في التطبيق مقدار البيانات المجانية التي تكسبها من مزود الخدمة الخاص بك. يمكنك التحقق في أي وقت وضبط إعداداتك لزيادة أرباحك إلى الحد الأقصى.</string>
     <string name="join_solana_wallet">" انضم باستخدام محفظة سولانا"</string>
+    <string name="invalid_referral_code">هذا الرمز غير صالح</string>
+    <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
 </resources>

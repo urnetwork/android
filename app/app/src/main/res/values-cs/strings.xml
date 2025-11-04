@@ -274,4 +274,6 @@
     <string name="data_usage">Využití dat</string>
     <string name="data_bar_explanation">Tento pruh v aplikaci ukazuje, kolik bezplatných dat získáváte od svého poskytovatele. Můžete se kdykoli podívat a upravit nastavení, abyste maximalizovali své výdělky.</string>
     <string name="join_solana_wallet">Připojit se pomocí peněženky Solana</string>
+    <string name="invalid_referral_code">Tento kód není platný</string>
+    <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
 </resources>

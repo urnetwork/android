@@ -274,4 +274,6 @@
     <string name="data_usage">การใช้ข้อมูล</string>
     <string name="data_bar_explanation">แถบนี้ในแอปจะแสดงให้คุณเห็นว่าคุณได้รับข้อมูลฟรีจากผู้ให้บริการมากแค่ไหน คุณสามารถตรวจสอบได้ทุกเมื่อและปรับการตั้งค่าเพื่อเพิ่มรายได้สูงสุด</string>
     <string name="join_solana_wallet">เข้าร่วมด้วยกระเป๋าเงิน Solana</string>
+    <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
+    <string name="referral_code_capped">โค้ดนี้ถูกใช้หมดแล้ว</string>
 </resources>

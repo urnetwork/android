@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.login
 
-import android.util.Log
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -35,12 +34,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,7 +70,6 @@ import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import androidx.compose.ui.Alignment
-import com.bringyour.network.TAG
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
@@ -134,6 +132,7 @@ fun LoginCreateNetwork(
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
+    val presentReferralSheet by loginCreateNetworkViewModel.presentBonusSheet.collectAsState()
 
     LaunchedEffect(params.referralCode) {
 
@@ -163,14 +162,16 @@ fun LoginCreateNetwork(
         networkNameIsValid = loginCreateNetworkViewModel.networkNameIsValid,
         networkNameSupportingText = loginCreateNetworkViewModel.networkNameSupportingText,
         setNetworkNameSupportingText = loginCreateNetworkViewModel.setNetworkNameSupportingText,
-        presentBonusSheet = loginCreateNetworkViewModel.presentBonusSheet,
+        presentBonusSheet = presentReferralSheet,
         setPresentBonusSheet = loginCreateNetworkViewModel.setPresentBonusSheet,
         referralCode = loginCreateNetworkViewModel.referralCode,
         setReferralCode = loginCreateNetworkViewModel.setReferralCode,
         validateReferralCode = loginCreateNetworkViewModel.validateReferralCode,
         isValidReferralCode = loginCreateNetworkViewModel.isValidReferralCode,
         isValidatingReferralCode = loginCreateNetworkViewModel.isValidatingReferralCode,
-        referralValidationComplete = loginCreateNetworkViewModel.referralValidationComplete
+        referralValidationComplete = loginCreateNetworkViewModel.referralValidationComplete,
+        referralCodeInputSupportingTextRes = loginCreateNetworkViewModel.referralCodeInputSupportingTextRes.collectAsState().value,
+        isReferralCodeCapped = loginCreateNetworkViewModel.referralCodeIsCapped.collectAsState().value
    )
 }
 
@@ -201,7 +202,9 @@ fun LoginCreateNetwork(
     validateReferralCode: (Api?, (Boolean) -> Unit) -> Unit,
     isValidReferralCode: Boolean,
     isValidatingReferralCode: Boolean,
-    referralValidationComplete: Boolean
+    isReferralCodeCapped: Boolean,
+    referralValidationComplete: Boolean,
+    referralCodeInputSupportingTextRes: Int?
 ) {
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
@@ -332,10 +335,10 @@ fun LoginCreateNetwork(
     val networkNameAvailable = stringResource(id = R.string.available)
 
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false,
-        confirmValueChange = { sheetValue ->
-            sheetValue != SheetValue.Expanded
-        }
+//        skipPartiallyExpanded = false,
+//        confirmValueChange = { sheetValue ->
+//            sheetValue != SheetValue.Expanded
+//        }
     )
 
     LaunchedEffect(networkNameErrorExists, networkNameIsValid, networkName.text) {
@@ -423,6 +426,61 @@ fun LoginCreateNetwork(
                 )
             }
 
+            if (presentBonusSheet) {
+                /**
+                 * Referral sheet
+                 */
+                ModalBottomSheet(
+                    modifier = Modifier.wrapContentHeight(),
+                    sheetState = sheetState,
+                    onDismissRequest = { setPresentBonusSheet(false) },
+                    dragHandle = {}
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(bottom = 32.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                stringResource(id = R.string.add_referral_extra_rewards),
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        URTextInput(
+                            label = stringResource(id = R.string.referral_code),
+                            value = referralCode,
+                            onValueChange = setReferralCode,
+                            supportingText = if (referralCodeInputSupportingTextRes != null) stringResource(id = referralCodeInputSupportingTextRes) else "",
+                            isValidating = isValidatingReferralCode,
+                            isValid = (!referralValidationComplete || (isValidReferralCode && !isReferralCodeCapped))
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        URButton(
+                            onClick = {
+                                validateReferralCode(application?.api) { valid ->
+                                    if (valid) {
+                                        setPresentBonusSheet(false)
+                                    }
+                                }
+                            },
+                            enabled = !isValidatingReferralCode && referralCode.text.isNotEmpty()
+                        ) { buttonTextStyle ->
+                            Text(
+                                stringResource(id = R.string.apply_bonus),
+                                style = buttonTextStyle
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -431,58 +489,6 @@ fun LoginCreateNetwork(
         WelcomeAnimatedOverlayLogin()
     }
 
-    if (presentBonusSheet) {
-        ModalBottomSheet(
-            modifier = Modifier.wrapContentHeight(),
-            sheetState = sheetState,
-            onDismissRequest = { setPresentBonusSheet(false) },
-            dragHandle = {}
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .padding(bottom = 32.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        stringResource(id = R.string.add_referral_extra_rewards),
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                URTextInput(
-                    label = stringResource(id = R.string.referral_code),
-                    value = referralCode,
-                    onValueChange = setReferralCode,
-                    supportingText = if (!isValidatingNetworkName && !isValidReferralCode && referralValidationComplete) "This code is not valid" else "",
-                    isValidating = isValidatingReferralCode,
-                    isValid = (!referralValidationComplete || isValidReferralCode)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                URButton(
-                    onClick = {
-                        validateReferralCode(application?.api) { valid ->
-                            if (valid) {
-                                setPresentBonusSheet(false)
-                            }
-                        }
-                    },
-                    enabled = !isValidatingReferralCode && referralCode.text.isNotEmpty()
-                ) { buttonTextStyle ->
-                    Text(
-                        stringResource(id = R.string.apply_bonus),
-                        style = buttonTextStyle
-                    )
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -719,7 +725,9 @@ private fun LoginNetworkCreatePreview() {
                     validateReferralCode = mockValidateReferralCode,
                     isValidReferralCode = true,
                     isValidatingReferralCode = false,
-                    referralValidationComplete = false
+                    referralValidationComplete = false,
+                    referralCodeInputSupportingTextRes = null,
+                    isReferralCodeCapped = false
                 )
             }
         }
