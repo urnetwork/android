@@ -107,7 +107,7 @@ fun WelcomeAnimatedOverlayLogin() {
                     bitmap = backgroundBitmap,
                     contentDescription = "Entrance Background",
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
             }
 

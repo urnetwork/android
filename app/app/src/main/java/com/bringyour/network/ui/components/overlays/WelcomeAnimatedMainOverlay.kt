@@ -105,6 +105,8 @@ fun WelcomeAnimatedMainOverlay(
         isPresentedWelcomeCard = true
     }
 
+
+
     AnimatedVisibility(
         visible = isVisible,
         enter = EnterTransition.None,
@@ -121,7 +123,7 @@ fun WelcomeAnimatedMainOverlay(
                 bitmap = backgroundBitmap,
                 contentDescription = "Entrance Background",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.Crop
             )
 
             Box(
