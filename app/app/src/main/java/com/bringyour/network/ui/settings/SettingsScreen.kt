@@ -477,35 +477,6 @@ fun SettingsScreen(
                 bonusReferralCode = bonusReferralCode
             )
 
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(
-//                        Color(0x1AFFFFFF),
-//                        shape = RoundedCornerShape(12.dp)
-//                    )
-//                    .clickable {
-//                        clipboardManager.setText(AnnotatedString(bonusReferralCode))
-//                    }
-//                    .padding(horizontal = 12.dp, vertical = 12.dp),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically,
-//
-//                ) {
-//                Text(
-//                    bonusReferralCode,
-//                    style = MaterialTheme.typography.bodyMedium,
-//                    color = TextMuted
-//                )
-//
-//                Icon(
-//                    painter = painterResource(id = R.drawable.content_copy),
-//                    contentDescription = "Copy",
-//                    tint = TextMuted,
-//                    modifier = Modifier.width(16.dp)
-//                )
-//            }
-
             Spacer(modifier = Modifier.height(32.dp))
 
             /**

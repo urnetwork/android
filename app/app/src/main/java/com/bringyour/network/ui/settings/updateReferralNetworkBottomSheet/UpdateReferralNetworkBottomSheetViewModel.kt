@@ -63,7 +63,7 @@ class UpdateReferralNetworkBottomSheetViewModel @Inject constructor(
                     Log.i(TAG, "result error setting network referral: ${result.error.message}")
                     viewModelScope.launch {
                         onFailure(result.error.message)
-                        codeInputSupportingText = "Invalid referral code"
+                        codeInputSupportingText = result.error.message
                         _isUpdatingReferralNetwork.value = false
                     }
                     return@setNetworkReferral

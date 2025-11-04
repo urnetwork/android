@@ -89,7 +89,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
     private val _referralCode = mutableStateOf(TextFieldValue(""))
     val referralCode: TextFieldValue get() = _referralCode.value
     val setReferralCode: (TextFieldValue) -> Unit = { _referralCode.value = it }
-    
+
     private val _referralCodeIsCapped = MutableStateFlow<Boolean>(false)
     val referralCodeIsCapped: StateFlow<Boolean> get() = _referralCodeIsCapped
 
