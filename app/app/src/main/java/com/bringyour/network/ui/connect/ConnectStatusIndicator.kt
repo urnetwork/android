@@ -45,7 +45,7 @@ fun ConnectStatusIndicator(
         status == ConnectStatus.DISCONNECTED -> when {
             guestMode -> stringResource(id = R.string.ready_to_connect)
             networkName != null -> stringResource(id = R.string.network_name_ready_to_connect, networkName)
-            else -> ""
+            else -> stringResource(id = R.string.ready_to_connect)
         }
         else -> ""
     }
