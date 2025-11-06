@@ -153,6 +153,7 @@ fun WelcomeAnimatedMainOverlay(
                             color = Black
                         )
                         Spacer(modifier = Modifier.height(48.dp))
+
                         URButton(
                             onClick = {
                                 close()

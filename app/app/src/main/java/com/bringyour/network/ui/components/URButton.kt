@@ -1,7 +1,9 @@
 package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -92,7 +94,10 @@ fun URButton(
         if (!isProcessing) {
             content(buttonTextStyle)
         } else {
-            Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .width(24.dp)

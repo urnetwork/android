@@ -39,6 +39,13 @@ class DeviceManager @Inject constructor() {
             device?.canShowRatingDialog = it
         }
 
+    var canPromptIntroFunnel: Boolean
+        get() = if (device == null) true else device?.canPromptIntroFunnel!!
+        set(it) {
+            asyncLocalState?.localState?.setIntroFunnelLastPrompted()
+            device?.canPromptIntroFunnel = it
+        }
+
     var provideControlMode: ProvideControlMode
         get() = ProvideControlMode.fromString(device?.provideControlMode!!) ?: ProvideControlMode.AUTO
         set(it) {
@@ -81,6 +88,7 @@ class DeviceManager @Inject constructor() {
         val connectLocation = localState.connectLocation
         val defaultLocation = localState.defaultLocation // when user selects location, disconnects, restarts app, we want to persist the location
         val canShowRatingDialog = localState.canShowRatingDialog
+        val canPromptIntroFunnel = localState.canPromptIntroFunnel
         val provideControlMode = ProvideControlMode.fromString(localState.provideControlMode) ?: ProvideControlMode.AUTO
         val provideNetworkMode = ProvideNetworkMode.fromString(localState.provideNetworkMode) ?: ProvideNetworkMode.WIFI
         val provideMode = if (provideControlMode == ProvideControlMode.ALWAYS) Sdk.ProvideModePublic else localState.provideMode
@@ -120,6 +128,7 @@ class DeviceManager @Inject constructor() {
         device?.canRefer = canRefer
         device?.allowForeground = allowForeground
         device?.provideNetworkMode = ProvideNetworkMode.toString(provideNetworkMode)
+        device?.canPromptIntroFunnel = canPromptIntroFunnel
     }
 
     fun clearDevice() {

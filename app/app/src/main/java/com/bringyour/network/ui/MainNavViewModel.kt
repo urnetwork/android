@@ -1,6 +1,7 @@
 package com.bringyour.network.ui
 
 import androidx.lifecycle.ViewModel
+import com.bringyour.network.DeviceManager
 import com.bringyour.network.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,7 +11,9 @@ import javax.inject.Inject
 import kotlinx.serialization.Serializable
 
 @HiltViewModel
-class MainNavViewModel @Inject constructor(): ViewModel() {
+class MainNavViewModel @Inject constructor(
+    deviceManager: DeviceManager,
+): ViewModel() {
 
     private val _currentTopLevelRoute = MutableStateFlow(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
     val currentTopLevelRoute: StateFlow<TopLevelScaffoldRoutes> = _currentTopLevelRoute.asStateFlow()
@@ -21,6 +24,28 @@ class MainNavViewModel @Inject constructor(): ViewModel() {
 
     private val _currentRoute = MutableStateFlow<Route?>(null)
     val currentRoute: StateFlow<Route?> = _currentRoute.asStateFlow()
+
+    private val _displayIntroFunnel = MutableStateFlow<Boolean>(false)
+    val displayIntroFunnel: StateFlow<Boolean> = _displayIntroFunnel.asStateFlow()
+
+    val setDisplayIntroFunnel: (Boolean) -> Unit = {
+        _displayIntroFunnel.value = it
+    }
+
+    /**
+     * For initial prompting, we check the SDK local state for the last time prompting as occurred.
+     * If more than X time has passed, prompt intro funnel
+     */
+    private val _allowDisplayIntroFunnel = MutableStateFlow<Boolean>(false)
+    val allowDisplayIntroFunnel: StateFlow<Boolean> = _allowDisplayIntroFunnel.asStateFlow()
+
+    val setIntroFunnelLastPrompted: () -> Unit = {
+        deviceManager.canPromptIntroFunnel = false
+    }
+
+    init {
+        _allowDisplayIntroFunnel.value = deviceManager.canPromptIntroFunnel
+    }
 
     val setCurrentRoute: (Route?) -> Unit = { route ->
         _currentRoute.value = route
