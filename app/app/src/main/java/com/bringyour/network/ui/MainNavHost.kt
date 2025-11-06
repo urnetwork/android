@@ -146,7 +146,8 @@ fun MainNavHost(
     val referralCode by referralCodeViewModel.referralCode.collectAsState()
     val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
     val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
-    var displayIntro by remember { mutableStateOf(true) }
+    val displayIntroFunnel by mainNavViewModel.displayIntroFunnel.collectAsState()
+    val allowPromptIntroFunnel by mainNavViewModel.allowDisplayIntroFunnel.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -220,19 +221,35 @@ fun MainNavHost(
         }
     }
 
-    LaunchedEffect(currentPlanLoaded, currentPlan) {
+    /**
+     * For initial intro funnel prompting
+     */
+    LaunchedEffect(currentPlanLoaded, currentPlan, allowPromptIntroFunnel) {
 
-        if (currentPlanLoaded && currentPlan == Plan.Supporter) {
-            displayIntro = false
+        if (currentPlanLoaded) {
+
+            if (currentPlan == Plan.Supporter) {
+                mainNavViewModel.setDisplayIntroFunnel(false)
+            } else {
+                if (allowPromptIntroFunnel) {
+                    // display intro funnel
+                    mainNavViewModel.setDisplayIntroFunnel(true)
+                    // set time last prompted in localstorage
+                    mainNavViewModel.setIntroFunnelLastPrompted()
+                }
+            }
         }
     }
 
+    /**
+     * On upgrade success, if in the intro funnel, close flow
+     */
     LaunchedEffect(Unit) {
         planViewModel.onUpgradeSuccess.collect {
             overlayViewModel.launch(OverlayMode.Upgrade)
-            if (displayIntro) {
+            if (displayIntroFunnel) {
                 // close intro flow
-                displayIntro = false
+                mainNavViewModel.setDisplayIntroFunnel(false)
             } else {
                 // back to account screen
                 navController.popBackStack()
@@ -266,7 +283,7 @@ fun MainNavHost(
     }
 
     AnimatedContent(
-        targetState = displayIntro,
+        targetState = displayIntroFunnel,
         label = "intro-main-switch",
         transitionSpec = {
             if (targetState) {
@@ -284,7 +301,7 @@ fun MainNavHost(
         if (introIsVisible) {
             IntroNavHost(
                 dismiss = {
-                    displayIntro = false
+                    mainNavViewModel.setDisplayIntroFunnel(false)
                 },
                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                 meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
@@ -404,7 +421,7 @@ fun MainNavHost(
 //                                    currentPlanLoaded = currentPlanLoaded,
 //                                    currentPlan = currentPlan,
                                         launchIntro = {
-                                            displayIntro = true
+                                            mainNavViewModel.setDisplayIntroFunnel(true)
                                         },
                                         reliabilityWindow = reliabilityWindow,
                                         totalReferralCount = totalReferralCount,
@@ -441,7 +458,7 @@ fun MainNavHost(
                                     referralCodeViewModel = referralCodeViewModel,
                                     bundleStore = bundleStore,
                                     launchIntro = {
-                                        displayIntro = true
+                                        mainNavViewModel.setDisplayIntroFunnel(true)
                                     },
                                     reliabilityWindow = reliabilityWindow,
                                     totalReferralCount = totalReferralCount,
@@ -490,7 +507,6 @@ fun IntroNavHost(
     planViewModel: PlanViewModel,
     isCheckingSolanaTransaction: Boolean,
     solanaPaymentViewModel: SolanaPaymentViewModel,
-//    overlayViewModel: OverlayViewModel
 ) {
 
     val introNavController = rememberNavController()
