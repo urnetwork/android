@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.login
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
@@ -268,8 +269,6 @@ fun LoginCreateNetwork(
         }
     }
 
-    var createNetworkError by remember { mutableStateOf<String?>(null) }
-
     val createNetwork = {
         val args = createNetworkArgs(params)
         inProgress = true
@@ -278,13 +277,12 @@ fun LoginCreateNetwork(
             runBlocking(Dispatchers.Main.immediate) {
 
                 if (err != null) {
-                    createNetworkError = err.message
+                    Toast.makeText(context, "Error creating network. Try again later", Toast.LENGTH_SHORT).show()
                     inProgress = false
                 } else if (result.error != null) {
-                    createNetworkError = result.error.message
+                    Toast.makeText(context, result.error.message, Toast.LENGTH_SHORT).show()
                     inProgress = false
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
-                    createNetworkError = null
 
                     application.login(result.network.byJwt)
 
@@ -300,11 +298,10 @@ fun LoginCreateNetwork(
                         { error ->
                             inProgress = false
 
-                            createNetworkError = error
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                         }
                     )
                 } else if (result.verificationRequired != null) {
-                    createNetworkError = null
 
                     var userAuth: String? = null
                     if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
@@ -316,13 +313,13 @@ fun LoginCreateNetwork(
                     userAuth?.let {
                         navController.navigate("verify/${it}")
                     } ?: run {
-                        createNetworkError = "There was a problem parsing user auth for verification"
+                        Toast.makeText(context, "There was a problem parsing user auth for verification", Toast.LENGTH_SHORT).show()
                     }
 
                     inProgress = false
 
                 } else {
-                    createNetworkError = context.getString(R.string.create_network_error)
+                    Toast.makeText(context, context.getString(R.string.create_network_error), Toast.LENGTH_SHORT).show()
                     inProgress = false
                 }
             }
@@ -334,12 +331,7 @@ fun LoginCreateNetwork(
     val invalidNetworkNameLength = stringResource(id = R.string.network_name_length_error)
     val networkNameAvailable = stringResource(id = R.string.available)
 
-    val sheetState = rememberModalBottomSheetState(
-//        skipPartiallyExpanded = false,
-//        confirmValueChange = { sheetValue ->
-//            sheetValue != SheetValue.Expanded
-//        }
-    )
+    val sheetState = rememberModalBottomSheetState()
 
     LaunchedEffect(networkNameErrorExists, networkNameIsValid, networkName.text) {
         if (networkName.text.isEmpty()) {
