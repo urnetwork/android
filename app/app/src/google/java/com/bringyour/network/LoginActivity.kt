@@ -323,7 +323,6 @@ class LoginActivity : AppCompatActivity() {
                 } else if (result.error != null) {
                     callback(result.error.message)
                 } else if (result.byClientJwt.isNotEmpty()) {
-                    callback(null)
 
                     app.loginClient(result.byClientJwt)
 

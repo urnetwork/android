@@ -67,11 +67,6 @@ fun WelcomeAnimatedOverlayLogin() {
     val extraScaleFactor = 1.35f
     val targetScale = (maxScreenDimension / initialSize) * extraScaleFactor
 
-    val scale by animateFloatAsState(
-        targetValue = if (isAnimatingMaskSize) targetScale else 1f,
-        animationSpec = tween(durationMillis = 2000) // Adjust duration as needed
-    )
-
     LaunchedEffect(Unit) {
         isVisible = true
         delay(500)
@@ -79,6 +74,11 @@ fun WelcomeAnimatedOverlayLogin() {
         delay(500)
         isAnimatingMaskSize = true
     }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isAnimatingMaskSize) targetScale else 1f,
+        animationSpec = tween(durationMillis = 2000) // Adjust duration as needed
+    )
 
     AnimatedVisibility(
         visible = isVisible,
