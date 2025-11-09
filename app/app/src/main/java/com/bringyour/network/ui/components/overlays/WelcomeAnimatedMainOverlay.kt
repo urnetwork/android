@@ -92,6 +92,11 @@ fun WelcomeAnimatedMainOverlay(
 
     val density = LocalDensity.current
 
+    LaunchedEffect(Unit) {
+        delay(500)
+        isPresentedWelcomeCard = true
+    }
+
     val welcomeCardOffsetY by animateFloatAsState(
         targetValue = if (isPresentedWelcomeCard) 0f else with(density) { 400.dp.toPx() },
         animationSpec = tween(
@@ -99,13 +104,6 @@ fun WelcomeAnimatedMainOverlay(
             easing = EaseOutExpo
         )
     )
-
-    LaunchedEffect(Unit) {
-        delay(500)
-        isPresentedWelcomeCard = true
-    }
-
-
 
     AnimatedVisibility(
         visible = isVisible,

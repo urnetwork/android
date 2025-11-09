@@ -113,6 +113,7 @@ class LoginActivity : AppCompatActivity() {
 
 
     private fun createWithUri(uri: Uri) {
+
         val app = app ?: return
 
         val queryParameters = mutableMapOf<String, String>()
@@ -237,14 +238,12 @@ class LoginActivity : AppCompatActivity() {
 
                             app.login(result.network.byJwt)
 
-                            authClientAndFinish(
-                                { error ->
+                            authClientAndFinish { error ->
 
-                                    if (error != null) {
-                                        Log.i(TAG, "authClientAndFinish error: $error")
-                                    }
+                                if (error != null) {
+                                    Log.i(TAG, "authClientAndFinish error: $error")
                                 }
-                            )
+                            }
 
                         } else {
                             Log.i(TAG, "authClientAndFinish error: ${R.string.create_network_error}")
@@ -276,6 +275,7 @@ class LoginActivity : AppCompatActivity() {
         targetUrl: String?,
         defaultLocation: String?
     ) {
+
         val intent = Intent(this@LoginActivity, MainActivity::class.java)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
 
@@ -308,7 +308,6 @@ class LoginActivity : AppCompatActivity() {
                 } else if (result.error != null) {
                     callback(result.error.message)
                 } else if (result.byClientJwt.isNotEmpty()) {
-                    callback(null)
 
                     app.loginClient(result.byClientJwt)
 
@@ -337,6 +336,7 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     finish()
+
                 } else {
                     callback(getString(R.string.login_client_error))
                 }
