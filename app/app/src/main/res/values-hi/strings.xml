@@ -302,4 +302,5 @@
     <string name="join_solana_wallet">Solana वॉलेट से जुड़ें</string>
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
     <string name="referral_code_capped">यह कोड पहले ही उपयोग हो चुका है</string>
+    <string name="insufficient_balance">अपर्याप्त शेष राशि</string>
 </resources>

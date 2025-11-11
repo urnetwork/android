@@ -303,4 +303,5 @@
     <string name="join_solana_wallet">使用 Solana 钱包加入</string>
     <string name="invalid_referral_code">此代码无效</string>
     <string name="referral_code_capped">此代码已被用完</string>
+    <string name="insufficient_balance">余额不足</string>
 </resources>

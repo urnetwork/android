@@ -325,5 +325,6 @@
     <string name="join_solana_wallet">Dołącz za pomocą portfela Solana</string>
     <string name="invalid_referral_code">Ten kod jest nieprawidłowy</string>
     <string name="referral_code_capped">Ten kod został już wykorzystany</string>
+    <string name="insufficient_balance">Niewystarczające saldo</string>
 
 </resources>

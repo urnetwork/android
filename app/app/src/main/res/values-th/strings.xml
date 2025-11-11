@@ -276,4 +276,5 @@
     <string name="join_solana_wallet">เข้าร่วมด้วยกระเป๋าเงิน Solana</string>
     <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
     <string name="referral_code_capped">โค้ดนี้ถูกใช้หมดแล้ว</string>
+    <string name="insufficient_balance">ยอดเงินไม่เพียงพอ</string>
 </resources>

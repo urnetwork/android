@@ -328,4 +328,5 @@
     <string name="join_solana_wallet">Присоединиться через кошелек Solana</string>
     <string name="invalid_referral_code">Этот код недействителен</string>
     <string name="referral_code_capped">Этот код уже был использован</string>
+    <string name="insufficient_balance">Недостаточно средств</string>
 </resources>

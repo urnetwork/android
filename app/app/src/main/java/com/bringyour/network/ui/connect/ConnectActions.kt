@@ -102,11 +102,16 @@ fun ConnectActions(
                         },
                         style = ButtonStyle.OUTLINE
                     ) { buttonTextStyle ->
-                        Text(
-                            "Insufficient balance",
-                            style = buttonTextStyle,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                stringResource(id = R.string.insufficient_balance),
+                                style = buttonTextStyle,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
                     }
                 } else {
 

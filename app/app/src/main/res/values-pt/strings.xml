@@ -302,5 +302,6 @@
     <string name="join_solana_wallet">Junte-se com a carteira Solana</string>
     <string name="invalid_referral_code">Este código não é válido</string>
     <string name="referral_code_capped">Este código já foi utilizado</string>
+    <string name="insufficient_balance">Saldo insuficiente</string>
 
 </resources>
