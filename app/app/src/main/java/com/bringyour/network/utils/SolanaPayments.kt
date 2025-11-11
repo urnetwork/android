@@ -7,7 +7,8 @@ import java.security.SecureRandom
 fun buildSolanaPaymentUrl(
     reference: String
 ): String {
-    val recipient = "74UNdYRpvakSABaYHSZMQNaXBVtA6eY9Nt8chcqocKe7"
+    // val recipient = "74UNdYRpvakSABaYHSZMQNaXBVtA6eY9Nt8chcqocKe7" // old address
+    val recipient = "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM"
     val amountDecimal = "40" // 40 USDC yearly sub
     val usdcMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // mainnet USDC
 
