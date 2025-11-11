@@ -126,12 +126,22 @@ fun ConnectActions(
                     }
 
                     if (connectStatus != ConnectStatus.DISCONNECTED && !displayReconnectTunnel) {
-                        URButton(onClick = disconnect) { buttonTextStyle ->
-                            Text(
-                                stringResource(id = R.string.disconnect),
-                                style = buttonTextStyle,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
+                        URButton(
+                            onClick = disconnect,
+                            style = ButtonStyle.OUTLINE
+                        ) { buttonTextStyle ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+
+                                Text(
+                                    stringResource(id = R.string.disconnect),
+                                    style = buttonTextStyle,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+
+                            }
                         }
                     }
 
