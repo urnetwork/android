@@ -302,4 +302,5 @@
     <string name="join_solana_wallet">" انضم باستخدام محفظة سولانا"</string>
     <string name="invalid_referral_code">هذا الرمز غير صالح</string>
     <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
+    <string name="insufficient_balance">رصيد غير كافٍ</string>
 </resources>

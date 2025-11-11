@@ -87,6 +87,9 @@ constructor(
         get() = this.deviceManager.device
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
+
+        successPoints.clear()
+
         successPoints.addAll(
                 listOf(
                         AnimatedSuccessPoint(

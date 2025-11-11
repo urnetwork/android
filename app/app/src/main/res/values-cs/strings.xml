@@ -276,4 +276,5 @@
     <string name="join_solana_wallet">Připojit se pomocí peněženky Solana</string>
     <string name="invalid_referral_code">Tento kód není platný</string>
     <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
+    <string name="insufficient_balance">Nedostatečný zůstatek</string>
 </resources>

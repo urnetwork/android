@@ -325,4 +325,5 @@
     <string name="join_solana_wallet">Solana 지갑으로 가입하기</string>
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
     <string name="referral_code_capped">이 코드는 이미 모두 사용되었습니다</string>
+    <string name="insufficient_balance">잔액 부족</string>
 </resources>
