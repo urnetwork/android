@@ -72,7 +72,7 @@ import kotlin.concurrent.thread
     // https://security.googleblog.com/2022/07/dns-over-http3-in-android.html#fn2
     // only Google DNS and CloudFlare DNS will auto-enable DoT/DoH on Android
     // *important* removing the Google public server will disable DoT/DoH
-    val dnsIpv4s = listOf("1.1.1.1", "8.8.8.8", "9.9.9.9")
+    val dnsIpv4s = listOf("1.1.1.1", "8.8.8.8")
 
     val clientIpv6: String? = null
     val clientIpv6PrefixLength = 64
