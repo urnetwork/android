@@ -605,12 +605,9 @@ class MainApplication : Application() {
     }
 
     private fun startVpnServiceWithForeground(foreground: Boolean) {
-//        if (tunnelRequestStatus == TunnelRequestStatus.Started) {
-//            return
-//        }
-
-
-        val device = device ?: return
+        // stop the service before starting
+        // as of Android 16, this appears to work better to reset the network on connect
+        stopVpnService()
 
         if (!serviceActive) {
 
