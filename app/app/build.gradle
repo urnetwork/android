@@ -445,7 +445,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     // for QR Code generation
-    implementation 'com.google.zxing:core:3.5.4'
+    implementation 'com.google.zxing:core:3.5.3'
     implementation 'androidx.biometric:biometric-ktx:1.4.0-alpha02'
 
     // hilt
@@ -512,8 +512,8 @@ dependencies {
 /*build:google*/    playImplementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    playImplementation "com.android.billingclient:billing:8.1.0"
-/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:8.1.0"
+/*build:google*/    playImplementation "com.android.billingclient:billing:8.0.0"
+/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:8.0.0"
 }
 
 // solana dapp
@@ -535,11 +535,11 @@ dependencies {
 /*build:google*/    solana_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.1.0"
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.1.0"
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.0.0"
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.1.1")
-/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.1.1")
+/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:21.29.2")
+/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:21.29.2")
 }
 
 // solana dapp
@@ -561,11 +561,11 @@ dependencies {
 /*build:google*/    ethos_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing:8.1.0"
-/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing-ktx:8.1.0"
+/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing:8.0.0"
+/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing-ktx:8.0.0"
 
-/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.1.1")
-/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.1.1")
+/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:21.29.2")
+/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:21.29.2")
 }
 
 
