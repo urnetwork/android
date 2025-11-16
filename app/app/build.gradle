@@ -20,6 +20,7 @@ plugins {
 
 
 import org.yaml.snakeyaml.Yaml
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 // these are added to the version code for abi-specific builds
 // note the warpctl version code always ends with 0 so that a variant can be added
@@ -136,7 +137,7 @@ android {
     }
 
     namespace 'com.bringyour.network'
-    compileSdk 36
+    compileSdk = 36
 //    buildToolsVersion '35.0.1'
     ndkVersion '29.0.14206865'
 
@@ -150,7 +151,9 @@ android {
         versionCode appVersionCode()
         versionName appVersion()
 
-        setProperty('archivesBaseName', "${applicationId}-${versionName}-${versionCode}")
+        base {
+            archivesName = "${applicationId}-${versionName}-${versionCode}"
+        }
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -386,8 +389,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '17'
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
     }
     // see https://developer.android.com/reference/tools/gradle-api/7.4/com/android/build/api/dsl/BuildFeatures
     buildFeatures {
