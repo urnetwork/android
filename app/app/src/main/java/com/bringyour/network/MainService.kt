@@ -349,6 +349,7 @@ import kotlin.concurrent.thread
                             packetFlow = null
                             if (app.service?.get() == this@MainService) {
                                 device.tunnelStarted = false
+                                updatePfd(offline)
                             }
                         }
                         // else the ended packet flow was replaced by a new one
