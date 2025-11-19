@@ -21,17 +21,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -56,8 +61,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.ExportLogButton
 import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.components.overlays.OverlayMode
@@ -67,6 +74,7 @@ import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.utils.isTablet
+import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -87,7 +95,9 @@ fun FeedbackScreen(
         setStarCount = feedbackViewModel.setStarCount,
         bundleStore = bundleStore,
         promptSolanaReview = feedbackViewModel.promptSolanaReview,
-        setPromptSolanaReview = feedbackViewModel.setPromptSolanaReview
+        setPromptSolanaReview = feedbackViewModel.setPromptSolanaReview,
+        includeLogs = feedbackViewModel.includeLogs.collectAsState().value,
+        toggleIncludeLogs = feedbackViewModel.toggleIncludeLogs
     )
 
 }
@@ -103,7 +113,9 @@ fun FeedbackScreen(
     setStarCount: (Int) -> Unit,
     bundleStore: BundleStore?,
     promptSolanaReview: Boolean,
-    setPromptSolanaReview: (Boolean) -> Unit
+    setPromptSolanaReview: (Boolean) -> Unit,
+    includeLogs: Boolean,
+    toggleIncludeLogs: () -> Unit
 ) {
 
     val configuration = LocalConfiguration.current
@@ -175,7 +187,9 @@ fun FeedbackScreen(
                         },
                         isSendEnabled = isSendEnabled,
                         starCount = starCount,
-                        setStarCount = setStarCount
+                        setStarCount = setStarCount,
+                        includeLogs = includeLogs,
+                        toggleIncludeLogs = toggleIncludeLogs
                     )
                 }
 
@@ -200,7 +214,9 @@ fun FeedbackScreen(
                         },
                         isSendEnabled = isSendEnabled,
                         starCount = starCount,
-                        setStarCount = setStarCount
+                        setStarCount = setStarCount,
+                        includeLogs = includeLogs,
+                        toggleIncludeLogs = toggleIncludeLogs
                     )
                 }
 
@@ -222,7 +238,9 @@ fun FeedbackScreen(
                     sendFeedback = { submitFeedback() },
                     isSendEnabled = isSendEnabled,
                     starCount = starCount,
-                    setStarCount = setStarCount
+                    setStarCount = setStarCount,
+                    includeLogs = includeLogs,
+                    toggleIncludeLogs = toggleIncludeLogs
                 )
             }
         }
@@ -250,6 +268,8 @@ private fun FeedbackForm(
     isSendEnabled: Boolean,
     starCount: Int,
     setStarCount: (Int) -> Unit,
+    includeLogs: Boolean,
+    toggleIncludeLogs: () -> Unit
 ) {
 
     val supportUrl = "https://discord.com/invite/RUNZXMwPRK"
@@ -322,6 +342,42 @@ private fun FeedbackForm(
             },
             keyboardController = keyboardController
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text("Attach logs to feedback (optional)")
+
+            URSwitch(
+                checked = includeLogs,
+                toggle = toggleIncludeLogs
+            )
+        }
+
+        Row() {
+            TextButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "Share logs"
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    "Share logs",
+                )
+            }
+
+            // save
+            ExportLogButton(logDir = Sdk.getLogDir())
+
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -412,7 +468,9 @@ private fun FeedbackScreenPreview() {
                     setStarCount = {},
                     bundleStore = null,
                     promptSolanaReview = false,
-                    setPromptSolanaReview = {}
+                    setPromptSolanaReview = {},
+                    includeLogs = false,
+                    toggleIncludeLogs = {}
                 )
             }
         }

@@ -8,7 +8,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.bringyour.sdk.FeedbackViewController
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ui.shared.models.ConnectStatus
+import com.bringyour.sdk.ConnectLocation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,6 +50,14 @@ class FeedbackViewModel @Inject constructor(
 
     var isSendEnabled by mutableStateOf(false)
         private set
+
+    private val _includeLogs = MutableStateFlow<Boolean>(false)
+    val includeLogs: StateFlow<Boolean> = _includeLogs.asStateFlow()
+
+    val toggleIncludeLogs: () -> Unit = {
+        val currentIncludeLogs = _includeLogs.value
+        _includeLogs.value = !currentIncludeLogs
+    }
 
     val validateIsSendEnabled = {
         isSendEnabled = !isSendingFeedback && (feedbackMsg.text.isNotEmpty() || starCount > 0)
