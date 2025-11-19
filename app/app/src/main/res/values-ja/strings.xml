@@ -326,4 +326,8 @@
     <string name="invalid_referral_code">このコードは無効です</string>
     <string name="referral_code_capped">このコードはすでに使われています</string>
     <string name="insufficient_balance">残高不足</string>
+    <string name="no_log_files_found">ログファイルが見つかりません</string>
+    <string name="save_logs">ログを保存</string>
+    <string name="share_logs">ログを共有</string>
+    <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
 </resources>

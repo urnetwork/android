@@ -329,4 +329,8 @@
     <string name="invalid_referral_code">This code is not valid</string>
     <string name="referral_code_capped">This code has been used up</string>
     <string name="insufficient_balance">Insufficient balance</string>
+    <string name="no_log_files_found">No log file found</string>
+    <string name="save_logs">Save logs</string>
+    <string name="share_logs">Share logs</string>
+    <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
 </resources>

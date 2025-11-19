@@ -303,4 +303,8 @@
     <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
     <string name="referral_code_capped">Αυτός ο κωδικός έχει εξαντληθεί</string>
     <string name="insufficient_balance">Ανεπαρκές υπόλοιπο</string>
+    <string name="no_log_files_found">Δεν βρέθηκε αρχείο καταγραφής</string>
+    <string name="save_logs">Αποθήκευση αρχείων καταγραφής</string>
+    <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
+    <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
 </resources>

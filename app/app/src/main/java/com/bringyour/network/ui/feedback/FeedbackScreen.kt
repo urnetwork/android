@@ -21,14 +21,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -353,7 +350,7 @@ private fun FeedbackForm(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Text("Attach logs to feedback (optional)")
+            Text(stringResource(id = R.string.feedback_include_logs))
 
             URSwitch(
                 checked = includeLogs,

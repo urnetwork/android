@@ -277,4 +277,8 @@
     <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
     <string name="referral_code_capped">โค้ดนี้ถูกใช้หมดแล้ว</string>
     <string name="insufficient_balance">ยอดเงินไม่เพียงพอ</string>
+    <string name="no_log_files_found">ไม่พบไฟล์บันทึก</string>
+    <string name="save_logs">บันทึกไฟล์บันทึก</string>
+    <string name="share_logs">แชร์ไฟล์บันทึก</string>
+    <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
 </resources>

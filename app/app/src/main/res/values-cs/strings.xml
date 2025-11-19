@@ -277,4 +277,8 @@
     <string name="invalid_referral_code">Tento kód není platný</string>
     <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
     <string name="insufficient_balance">Nedostatečný zůstatek</string>
+    <string name="no_log_files_found">Soubor protokolu nebyl nalezen</string>
+    <string name="save_logs">Uložit protokoly</string>
+    <string name="share_logs">Sdílet protokoly</string>
+    <string name="feedback_include_logs">Přiložit protokoly k zpětné vazbě (volitelné)</string>
 </resources>

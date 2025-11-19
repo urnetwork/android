@@ -10,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import com.bringyour.network.R
 import java.io.File
 
 @Composable
@@ -27,7 +29,7 @@ fun ShareLogFileButton(logDir: String) {
             logFile = logFile
         )
     } else {
-        Text("No log file found")
+        Text(stringResource(id = R.string.no_log_files_found))
     }
 }
 
@@ -50,13 +52,13 @@ private fun ShareLogFileButton(logFile: File) {
     }) {
         Icon(
             imageVector = Icons.Default.Share,
-            contentDescription = "Share logs"
+            contentDescription = stringResource(id = R.string.share_logs)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            "Share logs",
+            stringResource(id = R.string.share_logs),
         )
     }
 }

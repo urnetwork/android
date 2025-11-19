@@ -1,7 +1,6 @@
 package com.bringyour.network.ui.components
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.R
 import com.bringyour.sdk.Sdk
 import java.io.File
 
@@ -32,7 +33,7 @@ fun ExportLogButton(logDir: String) {
             logFilePath = logFile.path
         )
     } else {
-        Text("No log file found")
+        Text(stringResource(id = R.string.no_log_files_found))
     }
 }
 
@@ -61,9 +62,9 @@ private fun ExportLogFileLauncher(logFilePath: String) {
     TextButton(onClick = { saveLauncher.launch(suggestedFileName) }) {
         Icon(
             imageVector = Icons.Default.Save,
-            contentDescription = "Save logs"
+            contentDescription = stringResource(id = R.string.save_logs)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text("Save logs")
+        Text(stringResource(id = R.string.save_logs))
     }
 }

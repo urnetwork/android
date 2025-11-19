@@ -305,4 +305,8 @@
     <string name="invalid_referral_code">Ce code n\'est pas valide</string>
     <string name="referral_code_capped">Ce code a déjà été utilisé</string>
     <string name="insufficient_balance">Solde insuffisant</string>
+    <string name="no_log_files_found">Aucun fichier journal trouvé</string>
+    <string name="save_logs">Enregistrer les journaux</string>
+    <string name="share_logs">Partager les journaux</string>
+    <string name="feedback_include_logs">Joindre les journaux au retour (optionnel)</string>
 </resources>

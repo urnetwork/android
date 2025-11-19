@@ -303,4 +303,8 @@
     <string name="invalid_referral_code">Este código no es válido</string>
     <string name="referral_code_capped">Este código ya ha sido utilizado</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
+    <string name="no_log_files_found">No se encontró el archivo de registro</string>
+    <string name="save_logs">Guardar registros</string>
+    <string name="share_logs">Compartir registros</string>
+    <string name="feedback_include_logs">Adjuntar registros al comentario (opcional)</string>
 </resources>

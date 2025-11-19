@@ -329,4 +329,8 @@
     <string name="invalid_referral_code">Deze code is niet geldig</string>
     <string name="referral_code_capped">Deze code is al gebruikt</string>
     <string name="insufficient_balance">Onvoldoende saldo</string>
+    <string name="no_log_files_found">Geen logbestand gevonden</string>
+    <string name="save_logs">Logs opslaan</string>
+    <string name="share_logs">Logs delen</string>
+    <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
 </resources>
