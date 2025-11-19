@@ -63,6 +63,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ExportLogButton
 import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
+import com.bringyour.network.ui.components.ShareLogFileButton
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInput
@@ -361,22 +362,11 @@ private fun FeedbackForm(
         }
 
         Row() {
-            TextButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = "Share logs"
-                )
+            // share
+            ShareLogFileButton(logDir = Sdk.getLogDir())
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    "Share logs",
-                )
-            }
-
-            // save
+            // save to device
             ExportLogButton(logDir = Sdk.getLogDir())
-
         }
 
         Spacer(modifier = Modifier.height(16.dp))

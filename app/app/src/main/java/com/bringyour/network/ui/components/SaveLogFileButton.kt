@@ -28,7 +28,7 @@ fun ExportLogButton(logDir: String) {
     }
 
     if (logFile != null) {
-        SaveLogFileButton(
+        ExportLogFileLauncher(
             logFilePath = logFile.path
         )
     } else {
@@ -37,7 +37,7 @@ fun ExportLogButton(logDir: String) {
 }
 
 @Composable
-private fun SaveLogFileButton(logFilePath: String) {
+private fun ExportLogFileLauncher(logFilePath: String) {
     val context = LocalContext.current
 
     val suggestedFileName = "urnetwork-log-${System.currentTimeMillis()}.txt"
