@@ -304,4 +304,5 @@
     <string name="invalid_referral_code">Este código não é válido</string>
     <string name="referral_code_capped">Este código já foi utilizado</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>

@@ -329,4 +329,5 @@
     <string name="invalid_referral_code">This code is not valid</string>
     <string name="referral_code_capped">This code has been used up</string>
     <string name="insufficient_balance">Insufficient balance</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>

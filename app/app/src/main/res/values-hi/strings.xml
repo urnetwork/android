@@ -303,4 +303,5 @@
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
     <string name="referral_code_capped">यह कोड पहले ही उपयोग हो चुका है</string>
     <string name="insufficient_balance">अपर्याप्त शेष राशि</string>
+    <string name="kill_switch">िल स्विच</string>
 </resources>

@@ -303,4 +303,5 @@
     <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
     <string name="referral_code_capped">Αυτός ο κωδικός έχει εξαντληθεί</string>
     <string name="insufficient_balance">Ανεπαρκές υπόλοιπο</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>

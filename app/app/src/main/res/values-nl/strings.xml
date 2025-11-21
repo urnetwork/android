@@ -329,4 +329,5 @@
     <string name="invalid_referral_code">Deze code is niet geldig</string>
     <string name="referral_code_capped">Deze code is al gebruikt</string>
     <string name="insufficient_balance">Onvoldoende saldo</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>
