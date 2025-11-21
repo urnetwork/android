@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.feedback
 
+import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -22,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -123,7 +125,7 @@ fun FeedbackScreen(
     val scope = rememberCoroutineScope()
 
     val promptReview = {
-        val activity = context as? android.app.Activity
+        val activity = context as? Activity
         activity?.let {
             reviewManagerRequest.launchReviewFlow(
                 activity = it,
@@ -187,7 +189,7 @@ fun FeedbackScreen(
                         starCount = starCount,
                         setStarCount = setStarCount,
                         includeLogs = includeLogs,
-                        toggleIncludeLogs = toggleIncludeLogs
+                        toggleIncludeLogs = toggleIncludeLogs,
                     )
                 }
 
@@ -214,7 +216,7 @@ fun FeedbackScreen(
                         starCount = starCount,
                         setStarCount = setStarCount,
                         includeLogs = includeLogs,
-                        toggleIncludeLogs = toggleIncludeLogs
+                        toggleIncludeLogs = toggleIncludeLogs,
                     )
                 }
 
@@ -238,7 +240,7 @@ fun FeedbackScreen(
                     starCount = starCount,
                     setStarCount = setStarCount,
                     includeLogs = includeLogs,
-                    toggleIncludeLogs = toggleIncludeLogs
+                    toggleIncludeLogs = toggleIncludeLogs,
                 )
             }
         }
@@ -267,7 +269,7 @@ private fun FeedbackForm(
     starCount: Int,
     setStarCount: (Int) -> Unit,
     includeLogs: Boolean,
-    toggleIncludeLogs: () -> Unit
+    toggleIncludeLogs: () -> Unit,
 ) {
 
     val supportUrl = "https://discord.com/invite/RUNZXMwPRK"
@@ -359,6 +361,7 @@ private fun FeedbackForm(
         }
 
         Row() {
+
             // share
             ShareLogFileButton(logDir = Sdk.getLogDir())
 
@@ -457,7 +460,7 @@ private fun FeedbackScreenPreview() {
                     promptSolanaReview = false,
                     setPromptSolanaReview = {},
                     includeLogs = false,
-                    toggleIncludeLogs = {}
+                    toggleIncludeLogs = {},
                 )
             }
         }
