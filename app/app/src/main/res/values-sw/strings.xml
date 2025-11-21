@@ -304,4 +304,5 @@
     <string name="invalid_referral_code">Msimbo huu si sahihi</string>
     <string name="referral_code_capped">Msimbo huu umetumika tayari</string>
     <string name="insufficient_balance">Salio halitoshi</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>

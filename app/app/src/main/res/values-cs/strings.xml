@@ -277,4 +277,5 @@
     <string name="invalid_referral_code">Tento kód není platný</string>
     <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
     <string name="insufficient_balance">Nedostatečný zůstatek</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>

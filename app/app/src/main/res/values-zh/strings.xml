@@ -304,4 +304,5 @@
     <string name="invalid_referral_code">此代码无效</string>
     <string name="referral_code_capped">此代码已被用完</string>
     <string name="insufficient_balance">余额不足</string>
+    <string name="kill_switch">断网保护</string>
 </resources>

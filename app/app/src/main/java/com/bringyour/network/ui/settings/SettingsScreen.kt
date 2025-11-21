@@ -609,7 +609,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             /**
-             * Allow local traffic
+             * Kill switch
              */
             Row(
                 modifier = Modifier
@@ -618,13 +618,13 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(id = R.string.route_local),
+                    stringResource(id = R.string.kill_switch),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
 
                 URSwitch(
-                    checked = routeLocal,
+                    checked = !routeLocal,
                     toggle = {
                         toggleRouteLocal()
                     },
