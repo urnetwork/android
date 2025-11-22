@@ -200,7 +200,7 @@
     <string name="reconnect_tunnel_status_indicator">VPN-tunnel verbroken 😓</string>
     <string name="disconnect">Verbinding verbreken</string>
     <string name="reconnect">Opnieuw verbinden</string>
-    <string name="connecting_status_indicator">Verbinden met providers...</string>
+    <string name="connecting_status_indicator">Verbinden met providers</string>
     <string name="connected_provider_count">Verbonden met %d providers</string>
     <string name="ready_to_connect">Klaar om te verbinden</string>
     <string name="network_name_ready_to_connect">%s is klaar om te verbinden</string>

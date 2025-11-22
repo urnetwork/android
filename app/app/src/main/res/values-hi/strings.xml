@@ -174,7 +174,7 @@
     <string name="reconnect_tunnel_status_indicator">VPN टनल डिस्कनेक्ट हो गया 😓</string>
     <string name="disconnect">डिस्कनेक्ट क</string>
     <string name="reconnect">पुनः कनेक्ट करें</string>
-    <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है...</string>
+    <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है</string>
     <string name="connected_provider_count">%d प्रदाताओं से कनेक्ट किया गया</string>
     <string name="ready_to_connect">कनेक्ट करने के लिए तैयार</string>
     <string name="network_name_ready_to_connect">%s कनेक्ट करने के लिए तैयार है</string>

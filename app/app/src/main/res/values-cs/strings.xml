@@ -148,7 +148,7 @@
     <string name="reconnect_tunnel_status_indicator">Tunel VPN odpojen 😓</string>
     <string name="disconnect">Odpojení</string>
     <string name="reconnect">Znovu připojit</string>
-    <string name="connecting_status_indicator">Připojení k poskytovatelům...</string>
+    <string name="connecting_status_indicator">Připojení k poskytovatelům</string>
     <string name="connected_provider_count">Připojení k %d poskytovatelům</string>
     <string name="ready_to_connect">Připraveno k připojení</string>
     <string name="network_name_ready_to_connect">Síť %s je připravená k připojení</string>
