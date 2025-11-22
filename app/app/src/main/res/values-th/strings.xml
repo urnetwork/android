@@ -148,7 +148,7 @@
     <string name="reconnect_tunnel_status_indicator">VPN ถูกตัดการเชื่อมต่อ</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
     <string name="reconnect">เชื่อมต่อใหม่</string>
-    <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ...</string>
+    <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ</string>
     <string name="connected_provider_count">เชื่อมต่อกับผู้ให้บริการ %d แล้ว</string>
     <string name="ready_to_connect">พร้อมเชื่อมต่อ</string>
     <string name="network_name_ready_to_connect">เครือข่าย %s พร้อมให้เชื่อมต่อแล้ว</string>

@@ -200,7 +200,7 @@
     <string name="reconnect_tunnel_status_indicator">VPN-туннель отключен 😓</string>
     <string name="disconnect">Отключить</string>
     <string name="reconnect">Переподключить</string>
-    <string name="connecting_status_indicator">Подключение к провайдерам...</string>
+    <string name="connecting_status_indicator">Подключение к провайдерам</string>
     <string name="connected_provider_count">Подключено к %d провайдерам</string>
     <string name="ready_to_connect">Готово к подключению</string>
     <string name="network_name_ready_to_connect">%s готово к подключению</string>

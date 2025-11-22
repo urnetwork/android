@@ -176,7 +176,7 @@
     <string name="reconnect_tunnel_status_indicator">Tunnel VPN déconnecté 😓</string>
     <string name="disconnect">Déconnecter</string>
     <string name="reconnect">Reconnecter</string>
-    <string name="connecting_status_indicator">Connexion aux fournisseurs...</string>
+    <string name="connecting_status_indicator">Connexion aux fournisseurs</string>
     <string name="connected_provider_count">Connecté à %d fournisseurs</string>
     <string name="ready_to_connect">Prêt à connecter</string>
     <string name="network_name_ready_to_connect">%s est prêt à connecter</string>
