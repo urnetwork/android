@@ -308,4 +308,5 @@
     <string name="share_logs">Compartir registros</string>
     <string name="feedback_include_logs">Adjuntar registros al comentario (opcional)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Proveedores inestables. El internet puede ser poco fiable.</string>
 </resources>

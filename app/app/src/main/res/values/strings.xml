@@ -334,4 +334,5 @@
     <string name="share_logs">Share logs</string>
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Unstable providers. Internet may be unreliable.</string>
 </resources>

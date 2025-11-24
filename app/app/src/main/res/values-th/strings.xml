@@ -282,4 +282,5 @@
     <string name="share_logs">แชร์ไฟล์บันทึก</string>
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="kill_switch">สวิตช์หยุดการเชื่อมต่อ</string>
+    <string name="unstable_providers_warning">ผู้ให้บริการไม่เสถียร อินเทอร์เน็ตอาจไม่เสถียร</string>
 </resources>

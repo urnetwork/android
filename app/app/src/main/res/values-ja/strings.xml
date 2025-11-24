@@ -331,4 +331,5 @@
     <string name="share_logs">ログを共有</string>
     <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
     <string name="kill_switch">キルスイッチ</string>
+    <string name="unstable_providers_warning">不安定なプロバイダーです。インターネットが不安定になる可能性があります。</string>
 </resources>

@@ -308,4 +308,5 @@
     <string name="share_logs">लॉग साझा करें</string>
     <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="kill_switch">िल स्विच</string>
+    <string name="unstable_providers_warning">अस्थिर प्रदाता। इंटरनेट अविश्वसनीय हो सकता है।</string>
 </resources>

@@ -334,4 +334,5 @@
     <string name="share_logs">Поделиться логами</string>
     <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Нестабильные провайдеры. Интернет может быть ненадежным.</string>
 </resources>

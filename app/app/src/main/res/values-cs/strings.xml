@@ -282,4 +282,5 @@
     <string name="share_logs">Sdílet protokoly</string>
     <string name="feedback_include_logs">Přiložit protokoly k zpětné vazbě (volitelné)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Nestabilní poskytovatelé. Internet může být nespolehlivý.</string>
 </resources>

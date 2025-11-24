@@ -308,4 +308,5 @@
     <string name="share_logs">مشاركة السجلات</string>
     <string name="feedback_include_logs">إرفاق السجلات مع الملاحظات (اختياري)</string>
     <string name="kill_switch">مفتاح القتل</string>
+    <string name="unstable_providers_warning">مزودون غير مستقرين. قد يكون الإنترنت غير موثوق.</string>
 </resources>

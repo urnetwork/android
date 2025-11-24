@@ -26,9 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.CircleImage
 import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.BlueMedium
@@ -102,10 +104,20 @@ fun ProviderRow(
                             .weight(1f)
                     )
                 }
-                if (providerCount != null && providerCount > 0) {
+                if (providerCount != null && providerCount > 0 && isStable) {
                     Row {
                         Text(
                             "${formatter.format(providerCount)} Providers",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                if (!isStable) {
+                    Row {
+                        Text(
+                            stringResource(id = R.string.unstable_providers_warning),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
@@ -196,7 +208,7 @@ private fun ProviderRowUnstablePreview() {
             location = "Antarctica",
             providerCount = 1,
             onClick = {},
-            isSelected = true,
+            isSelected = false,
             color = Red400,
             isStable = false,
             isStrongPrivacy = false
