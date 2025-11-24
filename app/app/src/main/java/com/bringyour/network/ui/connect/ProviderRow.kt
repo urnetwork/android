@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.components.CircleImage
-import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red400
@@ -47,7 +46,9 @@ fun ProviderRow(
     onClick: (Int) -> Unit,
     isSelected: Boolean = false,
     color: Color,
-    onFocusChanged: () -> Unit = {}
+    onFocusChanged: () -> Unit = {},
+    isStable: Boolean,
+    isStrongPrivacy: Boolean
 ) {
 
     val formatter = NumberFormat.getNumberInstance(Locale.US)
@@ -132,7 +133,9 @@ private fun ProviderRowPreview() {
             providerCount = 1520,
             onClick = {},
             color = Red400,
-            isSelected = false
+            isSelected = false,
+            isStable = true,
+            isStrongPrivacy = false
         )
     }
 }
@@ -146,7 +149,9 @@ private fun ProviderRowSelectedPreview() {
             providerCount = 1520,
             onClick = {},
             isSelected = true,
-            color = Red400
+            color = Red400,
+            isStable = true,
+            isStrongPrivacy = false
         )
     }
 }
@@ -160,7 +165,9 @@ private fun ProviderRowLongTextSelectedPreview() {
             providerCount = 1520,
             onClick = {},
             isSelected = true,
-            color = Red400
+            color = Red400,
+            isStable = true,
+            isStrongPrivacy = false
         )
     }
 }
@@ -174,7 +181,25 @@ private fun ProviderRowLongTextNoProvidersPreview() {
             providerCount = 0,
             onClick = {},
             isSelected = true,
-            color = Red400
+            color = Red400,
+            isStable = true,
+            isStrongPrivacy = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ProviderRowUnstablePreview() {
+    URNetworkTheme {
+        ProviderRow(
+            location = "Antarctica",
+            providerCount = 1,
+            onClick = {},
+            isSelected = true,
+            color = Red400,
+            isStable = false,
+            isStrongPrivacy = false
         )
     }
 }
