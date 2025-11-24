@@ -329,5 +329,9 @@
     <string name="invalid_referral_code">Этот код недействителен</string>
     <string name="referral_code_capped">Этот код уже был использован</string>
     <string name="insufficient_balance">Недостаточно средств</string>
+    <string name="no_log_files_found">Файл журнала не найден</string>
+    <string name="save_logs">Сохранить логи</string>
+    <string name="share_logs">Поделиться логами</string>
+    <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="kill_switch">Kill switch</string>
 </resources>

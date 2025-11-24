@@ -303,5 +303,9 @@
     <string name="invalid_referral_code">هذا الرمز غير صالح</string>
     <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
     <string name="insufficient_balance">رصيد غير كافٍ</string>
+    <string name="no_log_files_found">لم يتم العثور على ملف السجل</string>
+    <string name="save_logs">حفظ السجلات</string>
+    <string name="share_logs">مشاركة السجلات</string>
+    <string name="feedback_include_logs">إرفاق السجلات مع الملاحظات (اختياري)</string>
     <string name="kill_switch">مفتاح القتل</string>
 </resources>

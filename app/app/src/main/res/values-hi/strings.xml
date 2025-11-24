@@ -303,5 +303,9 @@
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
     <string name="referral_code_capped">यह कोड पहले ही उपयोग हो चुका है</string>
     <string name="insufficient_balance">अपर्याप्त शेष राशि</string>
+    <string name="no_log_files_found">कोई लॉग फ़ाइल नहीं मिली</string>
+    <string name="save_logs">लॉग सहेजें</string>
+    <string name="share_logs">लॉग साझा करें</string>
+    <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="kill_switch">िल स्विच</string>
 </resources>
