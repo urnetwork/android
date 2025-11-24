@@ -175,7 +175,7 @@
     <string name="reconnect_tunnel_status_indicator">VPN-Tunnel getrennt 😓</string>
     <string name="disconnect">Trennen</string>
     <string name="reconnect">Erneut verbinden</string>
-    <string name="connecting_status_indicator">Verbindung zu Anbietern wird hergestellt...</string>
+    <string name="connecting_status_indicator">Verbindung zu Anbietern wird hergestellt</string>
     <string name="connected_provider_count">Mit %d Anbietern verbunden</string>
     <string name="ready_to_connect">Bereit zur Verbindung</string>
     <string name="network_name_ready_to_connect">%s ist bereit zur Verbindung</string>
@@ -308,4 +308,5 @@
     <string name="save_logs">Protokolle speichern</string>
     <string name="share_logs">Protokolle teilen</string>
     <string name="feedback_include_logs">Protokolle dem Feedback anhängen (optional)</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>

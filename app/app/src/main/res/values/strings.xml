@@ -200,7 +200,7 @@
     <string name="reconnect_tunnel_status_indicator">VPN tunnel disconnected 😓</string>
     <string name="disconnect">Disconnect</string>
     <string name="reconnect">Reconnect</string>
-    <string name="connecting_status_indicator">Connecting to providers...</string>
+    <string name="connecting_status_indicator">Connecting to providers</string>
     <string name="connected_provider_count">Connected to %d providers</string>
     <string name="ready_to_connect">Ready to connect</string>
     <string name="network_name_ready_to_connect">%s is ready to connect</string>
@@ -333,4 +333,5 @@
     <string name="save_logs">Save logs</string>
     <string name="share_logs">Share logs</string>
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>

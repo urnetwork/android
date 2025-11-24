@@ -197,7 +197,7 @@
     <string name="reconnect_tunnel_status_indicator">VPN 터널 연결 해제됨 😓</string>
     <string name="disconnect">연결 해제</string>
     <string name="reconnect">다시 연결</string>
-    <string name="connecting_status_indicator">제공업체에 연결 중...</string>
+    <string name="connecting_status_indicator">제공업체에 연결 중</string>
     <string name="connected_provider_count">%d개의 제공업체에 연결됨</string>
     <string name="ready_to_connect">연결 준비 완료</string>
     <string name="network_name_ready_to_connect">%s 연결 준비 완료</string>
@@ -330,4 +330,5 @@
     <string name="save_logs">로그 저장</string>
     <string name="share_logs">로그 공유</string>
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
+    <string name="kill_switch">킬 스위치</string>
 </resources>

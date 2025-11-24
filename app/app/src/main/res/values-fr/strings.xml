@@ -176,7 +176,7 @@
     <string name="reconnect_tunnel_status_indicator">Tunnel VPN déconnecté 😓</string>
     <string name="disconnect">Déconnecter</string>
     <string name="reconnect">Reconnecter</string>
-    <string name="connecting_status_indicator">Connexion aux fournisseurs...</string>
+    <string name="connecting_status_indicator">Connexion aux fournisseurs</string>
     <string name="connected_provider_count">Connecté à %d fournisseurs</string>
     <string name="ready_to_connect">Prêt à connecter</string>
     <string name="network_name_ready_to_connect">%s est prêt à connecter</string>
@@ -309,4 +309,5 @@
     <string name="save_logs">Enregistrer les journaux</string>
     <string name="share_logs">Partager les journaux</string>
     <string name="feedback_include_logs">Joindre les journaux au retour (optionnel)</string>
+    <string name="kill_switch">Kill switch</string>
 </resources>
