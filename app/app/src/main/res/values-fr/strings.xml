@@ -310,4 +310,5 @@
     <string name="share_logs">Partager les journaux</string>
     <string name="feedback_include_logs">Joindre les journaux au retour (optionnel)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Fournisseurs instables. Internet peut être peu fiable.</string>
 </resources>

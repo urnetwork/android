@@ -331,5 +331,6 @@
     <string name="share_logs">Udostępnij logi</string>
     <string name="feedback_include_logs">Dołącz logi do opinii (opcjonalnie)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Niestabilni dostawcy. Internet może być zawodny.</string>
 
 </resources>

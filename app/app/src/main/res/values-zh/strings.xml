@@ -309,4 +309,5 @@
     <string name="share_logs">分享日志</string>
     <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="kill_switch">断网保护</string>
+    <string name="unstable_providers_warning">提供商不稳定。互联网可能不可靠。</string>
 </resources>

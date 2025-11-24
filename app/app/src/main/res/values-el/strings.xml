@@ -308,4 +308,5 @@
     <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
     <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Ασταθείς πάροχοι. Το ίντερνετ μπορεί να είναι αναξιόπιστο.</string>
 </resources>

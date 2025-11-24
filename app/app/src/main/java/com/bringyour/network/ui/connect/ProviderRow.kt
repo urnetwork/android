@@ -26,11 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.CircleImage
-import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red400
@@ -47,7 +48,9 @@ fun ProviderRow(
     onClick: (Int) -> Unit,
     isSelected: Boolean = false,
     color: Color,
-    onFocusChanged: () -> Unit = {}
+    onFocusChanged: () -> Unit = {},
+    isStable: Boolean,
+    isStrongPrivacy: Boolean
 ) {
 
     val formatter = NumberFormat.getNumberInstance(Locale.US)
@@ -101,10 +104,20 @@ fun ProviderRow(
                             .weight(1f)
                     )
                 }
-                if (providerCount != null && providerCount > 0) {
+                if (providerCount != null && providerCount > 0 && isStable) {
                     Row {
                         Text(
                             "${formatter.format(providerCount)} Providers",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                if (!isStable) {
+                    Row {
+                        Text(
+                            stringResource(id = R.string.unstable_providers_warning),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
@@ -132,7 +145,9 @@ private fun ProviderRowPreview() {
             providerCount = 1520,
             onClick = {},
             color = Red400,
-            isSelected = false
+            isSelected = false,
+            isStable = true,
+            isStrongPrivacy = false
         )
     }
 }
@@ -146,7 +161,9 @@ private fun ProviderRowSelectedPreview() {
             providerCount = 1520,
             onClick = {},
             isSelected = true,
-            color = Red400
+            color = Red400,
+            isStable = true,
+            isStrongPrivacy = false
         )
     }
 }
@@ -160,7 +177,9 @@ private fun ProviderRowLongTextSelectedPreview() {
             providerCount = 1520,
             onClick = {},
             isSelected = true,
-            color = Red400
+            color = Red400,
+            isStable = true,
+            isStrongPrivacy = false
         )
     }
 }
@@ -174,7 +193,25 @@ private fun ProviderRowLongTextNoProvidersPreview() {
             providerCount = 0,
             onClick = {},
             isSelected = true,
-            color = Red400
+            color = Red400,
+            isStable = true,
+            isStrongPrivacy = false
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ProviderRowUnstablePreview() {
+    URNetworkTheme {
+        ProviderRow(
+            location = "Antarctica",
+            providerCount = 1,
+            onClick = {},
+            isSelected = false,
+            color = Red400,
+            isStable = false,
+            isStrongPrivacy = false
         )
     }
 }

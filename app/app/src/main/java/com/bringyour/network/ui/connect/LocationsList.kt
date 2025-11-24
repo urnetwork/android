@@ -108,7 +108,9 @@ fun LocationsList(
                             },
                             isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
                             color = getLocationColor(location.connectLocationId.toString()),
-                            onFocusChanged = onFocusChanged
+                            onFocusChanged = onFocusChanged,
+                            isStable = location.stable,
+                            isStrongPrivacy = location.strongPrivacy
                         )
                     }
                 }
@@ -135,7 +137,9 @@ fun LocationsList(
                             },
                             color = Red400,
                             isSelected = selectedLocation?.connectLocationId?.bestAvailable == true,
-                            onFocusChanged = onFocusChanged
+                            onFocusChanged = onFocusChanged,
+                            isStable = true,
+                            isStrongPrivacy = false
                         )
                     }
 
@@ -148,7 +152,9 @@ fun LocationsList(
                             },
                             isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
                             color = getLocationColor(location.connectLocationId.toString()),
-                            onFocusChanged = onFocusChanged
+                            onFocusChanged = onFocusChanged,
+                            isStable = location.stable,
+                            isStrongPrivacy = location.strongPrivacy
                         )
                     }
                 }
@@ -175,7 +181,9 @@ fun LocationsList(
                             },
                             isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
                             color = getLocationColor(location.countryCode),
-                            onFocusChanged = onFocusChanged
+                            onFocusChanged = onFocusChanged,
+                            isStable = location.stable,
+                            isStrongPrivacy = location.strongPrivacy
                         )
                     }
                 }
@@ -201,7 +209,9 @@ fun LocationsList(
                             },
                             isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
                             color = getLocationColor(location.connectLocationId.toString()),
-                            onFocusChanged = onFocusChanged
+                            onFocusChanged = onFocusChanged,
+                            isStable = location.stable,
+                            isStrongPrivacy = location.strongPrivacy
                         )
                     }
                 }
@@ -227,7 +237,9 @@ fun LocationsList(
                             },
                             isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
                             color = getLocationColor(location.connectLocationId.toString()),
-                            onFocusChanged = onFocusChanged
+                            onFocusChanged = onFocusChanged,
+                            isStable = location.stable,
+                            isStrongPrivacy = location.strongPrivacy
                         )
                     }
                 }
@@ -254,7 +266,9 @@ fun LocationsList(
                             },
                             isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
                             color = getLocationColor(location.connectLocationId.toString()),
-                            onFocusChanged = onFocusChanged
+                            onFocusChanged = onFocusChanged,
+                            isStable = location.stable,
+                            isStrongPrivacy = location.strongPrivacy
                         )
                     }
                 }

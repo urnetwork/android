@@ -331,4 +331,5 @@
     <string name="share_logs">로그 공유</string>
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="kill_switch">킬 스위치</string>
+    <string name="unstable_providers_warning">불안정한 제공자입니다. 인터넷이 신뢰할 수 없을 수 있습니다.</string>
 </resources>

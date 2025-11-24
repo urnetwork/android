@@ -308,12 +308,18 @@ fun OpenProviderListButton(
                     style = MaterialTheme.typography.bodyLarge
                 )
 
-                if (selectedLocation != null && selectedLocation.providerCount > 0) {
-                    Text(
-                        stringResource(R.string.provider_count, selectedLocation.providerCount),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextMuted
-                    )
+                if (selectedLocation != null) {
+
+                    if (selectedLocation.providerCount > 0) {
+                        Text(
+                            stringResource(R.string.provider_count, selectedLocation.providerCount),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
+                        )
+                    }
+
+                    // todo - show warning if unstable
+
                 }
 
             }

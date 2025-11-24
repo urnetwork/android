@@ -309,4 +309,5 @@
     <string name="share_logs">Protokolle teilen</string>
     <string name="feedback_include_logs">Protokolle dem Feedback anhängen (optional)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Instabile Anbieter. Das Internet kann unzuverlässig sein.</string>
 </resources>

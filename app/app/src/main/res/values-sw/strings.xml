@@ -309,4 +309,5 @@
     <string name="share_logs">Shiriki logi</string>
     <string name="feedback_include_logs">Ambatisha logi kwenye maoni (hiari)</string>
     <string name="kill_switch">Kill switch</string>
+    <string name="unstable_providers_warning">Watoa huduma wasio imara. Mtandao unaweza kuwa si wa kuaminika.</string>
 </resources>
