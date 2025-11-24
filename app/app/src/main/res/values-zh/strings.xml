@@ -304,5 +304,9 @@
     <string name="invalid_referral_code">此代码无效</string>
     <string name="referral_code_capped">此代码已被用完</string>
     <string name="insufficient_balance">余额不足</string>
+    <string name="no_log_files_found">未找到日志文件</string>
+    <string name="save_logs">保存日志</string>
+    <string name="share_logs">分享日志</string>
+    <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="kill_switch">断网保护</string>
 </resources>

@@ -304,5 +304,9 @@
     <string name="invalid_referral_code">Msimbo huu si sahihi</string>
     <string name="referral_code_capped">Msimbo huu umetumika tayari</string>
     <string name="insufficient_balance">Salio halitoshi</string>
+    <string name="no_log_files_found">Hakuna faili la logi lililopatikana</string>
+    <string name="save_logs">Hifadhi logi</string>
+    <string name="share_logs">Shiriki logi</string>
+    <string name="feedback_include_logs">Ambatisha logi kwenye maoni (hiari)</string>
     <string name="kill_switch">Kill switch</string>
 </resources>

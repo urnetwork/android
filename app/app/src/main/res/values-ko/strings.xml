@@ -326,5 +326,9 @@
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
     <string name="referral_code_capped">이 코드는 이미 모두 사용되었습니다</string>
     <string name="insufficient_balance">잔액 부족</string>
+    <string name="no_log_files_found">로그 파일을 찾을 수 없습니다</string>
+    <string name="save_logs">로그 저장</string>
+    <string name="share_logs">로그 공유</string>
+    <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="kill_switch">킬 스위치</string>
 </resources>
