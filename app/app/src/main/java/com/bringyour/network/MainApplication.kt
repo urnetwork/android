@@ -107,6 +107,9 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        val path: String = applicationContext.filesDir.absolutePath
+        Sdk.setLogDir(path)
+
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
         val maxMemoryMib = activityManager?.memoryClass?.toLong() ?: 16
         // target 3/4 of the max memory for the sdk
