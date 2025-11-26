@@ -41,6 +41,8 @@ import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.ConnectLocation
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun ConnectActions(
@@ -279,6 +281,8 @@ fun OpenProviderListButton(
         getLocationColor(key)
     }
 
+    val formatter = NumberFormat.getNumberInstance(Locale.US)
+
     Row(
         modifier = Modifier
             .padding(vertical = 4.dp)
@@ -312,7 +316,10 @@ fun OpenProviderListButton(
 
                     if (selectedLocation.providerCount > 0) {
                         Text(
-                            stringResource(R.string.provider_count, selectedLocation.providerCount),
+                            stringResource(
+                                R.string.provider_count,
+                                formatter.format(selectedLocation.providerCount)
+                            ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )

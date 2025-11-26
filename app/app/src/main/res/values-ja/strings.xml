@@ -198,7 +198,7 @@
     <string name="disconnect">切断する</string>
     <string name="reconnect">再接続する</string>
     <string name="connecting_status_indicator">プロバイダーに接続中</string>
-    <string name="connected_provider_count">%d プロバイダーに接続済み</string>
+    <string name="connected_provider_count">%s プロバイダーに接続済み</string>
     <string name="ready_to_connect">接続準備完了</string>
     <string name="network_name_ready_to_connect">%s は接続準備完了です</string>
     <string name="need_more_data_faster">より多くのデータをより速く必要ですか？</string>
@@ -331,5 +331,5 @@
     <string name="share_logs">ログを共有</string>
     <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
     <string name="kill_switch">キルスイッチ</string>
-    <string name="unstable_providers_warning">不安定なプロバイダーです。インターネットが不安定になる可能性があります。</string>
+    <string name="unstable_providers_warning">*（不安定な場合があります）</string>
 </resources>

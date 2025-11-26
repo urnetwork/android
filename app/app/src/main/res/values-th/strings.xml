@@ -149,7 +149,7 @@
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
     <string name="reconnect">เชื่อมต่อใหม่</string>
     <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ</string>
-    <string name="connected_provider_count">เชื่อมต่อกับผู้ให้บริการ %d แล้ว</string>
+    <string name="connected_provider_count">เชื่อมต่อกับผู้ให้บริการ %s แล้ว</string>
     <string name="ready_to_connect">พร้อมเชื่อมต่อ</string>
     <string name="network_name_ready_to_connect">เครือข่าย %s พร้อมให้เชื่อมต่อแล้ว</string>
     <string name="need_more_data_faster">ต้องการดาต้าที่เยอะขึ้น และเร็วขึ้นไหม?</string>
@@ -282,5 +282,5 @@
     <string name="share_logs">แชร์ไฟล์บันทึก</string>
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="kill_switch">สวิตช์หยุดการเชื่อมต่อ</string>
-    <string name="unstable_providers_warning">ผู้ให้บริการไม่เสถียร อินเทอร์เน็ตอาจไม่เสถียร</string>
+    <string name="unstable_providers_warning">* (อาจไม่เสถียร)</string>
 </resources>

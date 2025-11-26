@@ -175,7 +175,7 @@
     <string name="disconnect">Desconectar</string>
     <string name="reconnect">Reconectar</string>
     <string name="connecting_status_indicator">A conectar aos provedores</string>
-    <string name="connected_provider_count">Ligado a %d fornecedores</string>
+    <string name="connected_provider_count">Ligado a %s fornecedores</string>
     <string name="ready_to_connect">Pronto para conectar</string>
     <string name="network_name_ready_to_connect">%s está pronto para conectar</string>
     <string name="need_more_data_faster">Precisa de mais dados, mais rápido?</string>
@@ -308,6 +308,6 @@
     <string name="share_logs">Partilhar logs</string>
     <string name="feedback_include_logs">Anexar logs ao feedback (opcional)</string>
     <string name="kill_switch">Kill switch</string>
-    <string name="unstable_providers_warning">Fornecedores instáveis. A internet pode ser instável.</string>
+    <string name="unstable_providers_warning">* (pode ser instável)</string>
 
 </resources>

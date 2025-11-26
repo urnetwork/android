@@ -176,7 +176,7 @@
     <string name="disconnect">断开连接</string>
     <string name="reconnect">重新连接</string>
     <string name="connecting_status_indicator">正在连接到提供商</string>
-    <string name="connected_provider_count">已连接到 %d 个提供商</string>
+    <string name="connected_provider_count">已连接到 %s 个提供商</string>
     <string name="ready_to_connect">准备连接</string>
     <string name="network_name_ready_to_connect">%s 已准备好连接</string>
     <string name="need_more_data_faster">需要更多数据，更快吗？</string>
@@ -309,5 +309,5 @@
     <string name="share_logs">分享日志</string>
     <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="kill_switch">断网保护</string>
-    <string name="unstable_providers_warning">提供商不稳定。互联网可能不可靠。</string>
+    <string name="unstable_providers_warning">*（可能不稳定）</string>
 </resources>

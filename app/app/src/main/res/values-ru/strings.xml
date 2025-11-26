@@ -201,7 +201,7 @@
     <string name="disconnect">Отключить</string>
     <string name="reconnect">Переподключить</string>
     <string name="connecting_status_indicator">Подключение к провайдерам</string>
-    <string name="connected_provider_count">Подключено к %d провайдерам</string>
+    <string name="connected_provider_count">Подключено к %s провайдерам</string>
     <string name="ready_to_connect">Готово к подключению</string>
     <string name="network_name_ready_to_connect">%s готово к подключению</string>
     <string name="need_more_data_faster">Нужно больше данных и выше скорость?</string>
@@ -334,5 +334,5 @@
     <string name="share_logs">Поделиться логами</string>
     <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="kill_switch">Kill switch</string>
-    <string name="unstable_providers_warning">Нестабильные провайдеры. Интернет может быть ненадежным.</string>
+    <string name="unstable_providers_warning">* (может быть нестабильным)</string>
 </resources>

@@ -64,7 +64,6 @@ fun BrowseLocationsScreen(
         ) {
             BrowseLocations(
                 connectCountries = locationsListViewModel.connectCountries,
-                promotedLocations = locationsListViewModel.promotedLocations,
                 cities = locationsListViewModel.cities,
                 regions = locationsListViewModel.regions,
                 devices = locationsListViewModel.devices,

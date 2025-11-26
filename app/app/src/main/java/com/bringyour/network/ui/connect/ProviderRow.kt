@@ -104,23 +104,24 @@ fun ProviderRow(
                             .weight(1f)
                     )
                 }
-                if (providerCount != null && providerCount > 0 && isStable) {
+                if (providerCount != null && providerCount > 0) {
                     Row {
                         Text(
                             "${formatter.format(providerCount)} Providers",
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
-                    }
-                }
 
-                if (!isStable) {
-                    Row {
-                        Text(
-                            stringResource(id = R.string.unstable_providers_warning),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextMuted
-                        )
+                        if (!isStable) {
+                            Row {
+                                Text(
+                                    stringResource(id = R.string.unstable_providers_warning),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = TextMuted
+                                )
+                            }
+                        }
+
                     }
                 }
             }
