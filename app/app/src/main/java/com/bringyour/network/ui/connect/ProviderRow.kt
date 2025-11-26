@@ -5,12 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -26,12 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red400
@@ -83,11 +87,26 @@ fun ProviderRow(
                 .weight(1f)
                 .height(40.dp)
         ) {
-            CircleImage(
-                size = 40.dp,
-                imageResourceId = imageResourceId,
-                backgroundColor = color,
-            )
+            Box(
+                modifier = Modifier
+                    .size(40.dp),
+            ) {
+                CircleImage(
+                    size = 40.dp,
+                    imageResourceId = imageResourceId,
+                    backgroundColor = color,
+                )
+
+                if (isStrongPrivacy) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.privacy_glasses),
+                        contentDescription = "Strong privacy laws",
+                        tint = Color.Unspecified,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.width(16.dp))
             Column (
                 modifier = Modifier.height(40.dp),
