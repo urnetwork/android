@@ -31,8 +31,6 @@ class LocationsListViewModel @Inject constructor(
 
     val connectCountries = mutableStateListOf<ConnectLocation>()
 
-    val promotedLocations = mutableStateListOf<ConnectLocation>()
-
     var searchQueryTextFieldValue by mutableStateOf(TextFieldValue(""))
         private set
 
@@ -93,7 +91,6 @@ class LocationsListViewModel @Inject constructor(
 
                     bestSearchMatches.clear()
                     connectCountries.clear()
-                    promotedLocations.clear()
                     devices.clear()
                     cities.clear()
                     regions.clear()
@@ -101,7 +98,6 @@ class LocationsListViewModel @Inject constructor(
                     filteredLocation?.let {
                         bestSearchMatches.addAll(makeConnectLocationCollection(it.bestMatches))
                         connectCountries.addAll(makeConnectLocationCollection(it.countries))
-                        promotedLocations.addAll(makeConnectLocationCollection(it.promoted))
                         devices.addAll(makeConnectLocationCollection(it.devices))
                         cities.addAll(makeConnectLocationCollection(it.cities))
                         regions.addAll(makeConnectLocationCollection(it.regions))

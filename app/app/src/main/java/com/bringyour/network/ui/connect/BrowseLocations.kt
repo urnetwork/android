@@ -32,7 +32,6 @@ import kotlinx.coroutines.launch
 fun BrowseLocations(
     selectedLocation: ConnectLocation?,
     connectCountries: List<ConnectLocation>,
-    promotedLocations: List<ConnectLocation>,
     cities: List<ConnectLocation>,
     regions: List<ConnectLocation>,
     devices: List<ConnectLocation>,
@@ -108,7 +107,6 @@ fun BrowseLocations(
                 onLocationSelect = { location ->
                     connect(location)
                 },
-                promotedLocations = promotedLocations,
                 connectCountries = connectCountries,
                 cities = cities,
                 regions = regions,

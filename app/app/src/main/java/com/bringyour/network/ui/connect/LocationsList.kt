@@ -28,7 +28,6 @@ import com.bringyour.network.ui.theme.Red400
 fun LocationsList(
     searchQuery: String,
     connectCountries: List<ConnectLocation>,
-    promotedLocations: List<ConnectLocation>,
     cities: List<ConnectLocation>,
     regions: List<ConnectLocation>,
     devices: List<ConnectLocation>,
@@ -43,7 +42,6 @@ fun LocationsList(
 ) {
 
     if (
-        promotedLocations.isEmpty() &&
         connectCountries.isEmpty() &&
         devices.isEmpty() &&
         regions.isEmpty() &&
@@ -61,7 +59,6 @@ fun LocationsList(
             )
         }
     } else if (
-        promotedLocations.isEmpty() &&
         connectCountries.isEmpty() &&
         devices.isEmpty() &&
         regions.isEmpty() &&
@@ -116,7 +113,7 @@ fun LocationsList(
                 }
 
 
-                if (promotedLocations.isNotEmpty() && bestSearchMatches.isEmpty()) {
+                if (bestSearchMatches.isEmpty()) {
                     item {
                         Row(
                             modifier = Modifier
@@ -143,20 +140,6 @@ fun LocationsList(
                         )
                     }
 
-                    items(promotedLocations) { location ->
-                        ProviderRow(
-                            location = location.name,
-                            providerCount = location.providerCount,
-                            onClick = {
-                                onLocationSelect(location)
-                            },
-                            isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
-                            color = getLocationColor(location.connectLocationId.toString()),
-                            onFocusChanged = onFocusChanged,
-                            isStable = location.stable,
-                            isStrongPrivacy = location.strongPrivacy
-                        )
-                    }
                 }
 
                 if (connectCountries.isNotEmpty()) {
@@ -275,7 +258,5 @@ fun LocationsList(
             }
 
         }
-        // }
-
     }
 }

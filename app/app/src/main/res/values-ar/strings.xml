@@ -175,7 +175,7 @@
     <string name="disconnect">قطع الاتصال</string>
     <string name="reconnect">إعادة الاتصال</string>
     <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة</string>
-    <string name="connected_provider_count">متصل بـ %d من مزودي الخدمة</string>
+    <string name="connected_provider_count">متصل بـ %s من مزودي الخدمة</string>
     <string name="ready_to_connect">جاهز للاتصال</string>
     <string name="network_name_ready_to_connect">%s جاهزة للاتصال</string>
     <string name="need_more_data_faster">هل تحتاج إلى المزيد من البيانات وبشكل أسرع؟</string>
@@ -308,5 +308,5 @@
     <string name="share_logs">مشاركة السجلات</string>
     <string name="feedback_include_logs">إرفاق السجلات مع الملاحظات (اختياري)</string>
     <string name="kill_switch">مفتاح القتل</string>
-    <string name="unstable_providers_warning">مزودون غير مستقرين. قد يكون الإنترنت غير موثوق.</string>
+    <string name="unstable_providers_warning">* (قد يكون غير مستقر)</string>
 </resources>

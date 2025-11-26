@@ -176,7 +176,7 @@
     <string name="disconnect">Tenganisha</string>
     <string name="reconnect">Unganisha tena</string>
     <string name="connecting_status_indicator">Inaunganisha kwa watoa huduma</string>
-    <string name="connected_provider_count">Imeunganishwa na watoa huduma %d</string>
+    <string name="connected_provider_count">Imeunganishwa na watoa huduma %s</string>
     <string name="ready_to_connect">Tayari kuunganisha</string>
     <string name="network_name_ready_to_connect">%s iko tayari kuunganisha</string>
     <string name="need_more_data_faster">Unahitaji data zaidi, haraka zaidi?</string>
@@ -309,5 +309,5 @@
     <string name="share_logs">Shiriki logi</string>
     <string name="feedback_include_logs">Ambatisha logi kwenye maoni (hiari)</string>
     <string name="kill_switch">Kill switch</string>
-    <string name="unstable_providers_warning">Watoa huduma wasio imara. Mtandao unaweza kuwa si wa kuaminika.</string>
+    <string name="unstable_providers_warning">* (huenda isiwe imara)</string>
 </resources>

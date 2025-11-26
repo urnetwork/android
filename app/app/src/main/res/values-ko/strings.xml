@@ -198,7 +198,7 @@
     <string name="disconnect">연결 해제</string>
     <string name="reconnect">다시 연결</string>
     <string name="connecting_status_indicator">제공업체에 연결 중</string>
-    <string name="connected_provider_count">%d개의 제공업체에 연결됨</string>
+    <string name="connected_provider_count">%s개의 제공업체에 연결됨</string>
     <string name="ready_to_connect">연결 준비 완료</string>
     <string name="network_name_ready_to_connect">%s 연결 준비 완료</string>
     <string name="need_more_data_faster">더 많은 데이터를 더 빠르게 원하십니까?</string>
@@ -331,5 +331,5 @@
     <string name="share_logs">로그 공유</string>
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="kill_switch">킬 스위치</string>
-    <string name="unstable_providers_warning">불안정한 제공자입니다. 인터넷이 신뢰할 수 없을 수 있습니다.</string>
+    <string name="unstable_providers_warning">* (불안정할 수 있음)</string>
 </resources>

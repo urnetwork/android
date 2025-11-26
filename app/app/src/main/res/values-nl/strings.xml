@@ -201,7 +201,7 @@
     <string name="disconnect">Verbinding verbreken</string>
     <string name="reconnect">Opnieuw verbinden</string>
     <string name="connecting_status_indicator">Verbinden met providers</string>
-    <string name="connected_provider_count">Verbonden met %d providers</string>
+    <string name="connected_provider_count">Verbonden met %s providers</string>
     <string name="ready_to_connect">Klaar om te verbinden</string>
     <string name="network_name_ready_to_connect">%s is klaar om te verbinden</string>
     <string name="need_more_data_faster">Meer data, sneller nodig?</string>
@@ -334,5 +334,5 @@
     <string name="share_logs">Logs delen</string>
     <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
     <string name="kill_switch">Kill switch</string>
-    <string name="unstable_providers_warning">Onstabiele aanbieders. Internet kan onbetrouwbaar zijn.</string>
+    <string name="unstable_providers_warning">* (kan onstabiel zijn)</string>
 </resources>

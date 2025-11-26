@@ -305,7 +305,7 @@
     <string name="referral_bonus">+%1$d GiB/Month</string>
     <string name="checking_payment">Checking payment</string>
     <string name="get_pro">Get Pro</string>
-    <string name="provider_count">%1$d providers</string>
+    <string name="provider_count">%s providers</string>
     <string name="welcome_to_urnetwork">Welcome to URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork is the most local and most private network on the planet. With over 20x usable cities of other leading VPNs, and 100x fewer users per IP address. Unlock all the fun in the world and all the privacy without compromises.</string>
     <string name="or">or</string>
@@ -334,5 +334,5 @@
     <string name="share_logs">Share logs</string>
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
     <string name="kill_switch">Kill switch</string>
-    <string name="unstable_providers_warning">Unstable providers. Internet may be unreliable.</string>
+    <string name="unstable_providers_warning">* (may be unstable)</string>
 </resources>
