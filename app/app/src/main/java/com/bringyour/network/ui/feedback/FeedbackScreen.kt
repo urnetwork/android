@@ -2,9 +2,11 @@ package com.bringyour.network.ui.feedback
 
 import android.app.Activity
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +25,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -47,6 +48,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
@@ -71,6 +73,7 @@ import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.managers.rememberReviewManager
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.utils.isTablet
@@ -123,13 +126,13 @@ fun FeedbackScreen(
     val reviewManagerRequest = rememberReviewManager()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val promptReview = {
         val activity = context as? Activity
         activity?.let {
             reviewManagerRequest.launchReviewFlow(
                 activity = it,
-//                bundleStore
             )
         }
     }
@@ -163,7 +166,42 @@ fun FeedbackScreen(
             setStarCount(0)
         }
     }
-    Scaffold { innerPadding ->
+    Scaffold(
+        bottomBar = {
+
+            Box(
+                modifier = Modifier
+                    .background(Black)
+                    .imePadding()
+                    .padding(16.dp)
+            ) {
+
+                URButton(
+                    onClick = {
+                        sendFeedback()
+                        keyboardController?.hide()
+                    },
+                    enabled = isSendEnabled
+                ) { buttonTextStyle ->
+                    Row {
+                        Text(
+                            stringResource(id = R.string.send),
+                            style = buttonTextStyle
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Right Arrow",
+                            modifier = Modifier.size(16.dp),
+                            tint = if (isSendEnabled) Color.White else Color.Gray
+                        )
+                    }
+                }
+
+            }
+
+        }
+    ) { innerPadding ->
 
         if (isTablet() && !isLandscape) {
             Column(
@@ -171,64 +209,78 @@ fun FeedbackScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            keyboardController?.hide()
+                        })
+                    },
             ) {
 
-                Column(
-                    modifier = Modifier
-                ) {
-                    FeedbackForm(
-                        feedbackMsg = feedbackMsg,
-                        setFeedbackMsg = setFeedbackMsg,
-                        sendFeedback = {
-                            if (feedbackMsg.text.isNotEmpty()) {
-                                submitFeedback()
-                            }
-                        },
-                        isSendEnabled = isSendEnabled,
-                        starCount = starCount,
-                        setStarCount = setStarCount,
-                        includeLogs = includeLogs,
-                        toggleIncludeLogs = toggleIncludeLogs,
-                    )
-                }
+                FeedbackForm(
+                    feedbackMsg = feedbackMsg,
+                    setFeedbackMsg = setFeedbackMsg,
+                    sendFeedback = {
+                        if (feedbackMsg.text.isNotEmpty()) {
+                            submitFeedback()
+                        }
+                    },
+                    starCount = starCount,
+                    setStarCount = setStarCount,
+                    includeLogs = includeLogs,
+                    toggleIncludeLogs = toggleIncludeLogs,
+                    keyboardController = keyboardController
+                )
 
             }
         } else if (isTablet() && isLandscape) {
             Column(
                 modifier = Modifier
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            keyboardController?.hide()
+                        })
+                    }
                     .width(512.dp)
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
                     .padding(16.dp),
             ) {
 
-                Column {
-                    FeedbackForm(
-                        feedbackMsg = feedbackMsg,
-                        setFeedbackMsg = setFeedbackMsg,
-                        sendFeedback = {
-                            if (feedbackMsg.text.isNotEmpty()) {
-                                submitFeedback()
-                            }
-                        },
-                        isSendEnabled = isSendEnabled,
-                        starCount = starCount,
-                        setStarCount = setStarCount,
-                        includeLogs = includeLogs,
-                        toggleIncludeLogs = toggleIncludeLogs,
-                    )
-                }
+                FeedbackForm(
+                    feedbackMsg = feedbackMsg,
+                    setFeedbackMsg = setFeedbackMsg,
+                    sendFeedback = {
+                        if (feedbackMsg.text.isNotEmpty()) {
+                            submitFeedback()
+                        }
+                    },
+                    starCount = starCount,
+                    setStarCount = setStarCount,
+                    includeLogs = includeLogs,
+                    toggleIncludeLogs = toggleIncludeLogs,
+                    keyboardController = keyboardController
+                )
 
             }
         } else {
+            /**
+             * phone
+             */
+
             Column(
                 modifier = Modifier
                     .width(512.dp)
                     .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp)
                     .padding(innerPadding)
-                    .imePadding(),
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            keyboardController?.hide()
+                        })
+                    }
+                ,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
 
@@ -236,11 +288,11 @@ fun FeedbackScreen(
                     feedbackMsg = feedbackMsg,
                     setFeedbackMsg = setFeedbackMsg,
                     sendFeedback = { submitFeedback() },
-                    isSendEnabled = isSendEnabled,
                     starCount = starCount,
                     setStarCount = setStarCount,
                     includeLogs = includeLogs,
                     toggleIncludeLogs = toggleIncludeLogs,
+                    keyboardController = keyboardController
                 )
             }
         }
@@ -265,11 +317,11 @@ private fun FeedbackForm(
     feedbackMsg: TextFieldValue,
     setFeedbackMsg: (TextFieldValue) -> Unit,
     sendFeedback: () -> Unit,
-    isSendEnabled: Boolean,
     starCount: Int,
     setStarCount: (Int) -> Unit,
     includeLogs: Boolean,
     toggleIncludeLogs: () -> Unit,
+    keyboardController: SoftwareKeyboardController?
 ) {
 
     val supportUrl = "https://discord.com/invite/RUNZXMwPRK"
@@ -290,7 +342,7 @@ private fun FeedbackForm(
         }
     }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
+//    val keyboardController = LocalSoftwareKeyboardController.current
 
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -406,34 +458,6 @@ private fun FeedbackForm(
 
     }
 
-    Column {
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        URButton(
-            onClick = {
-                sendFeedback()
-                keyboardController?.hide()
-            },
-            enabled = isSendEnabled
-        ) { buttonTextStyle ->
-            Row {
-                Text(
-                    stringResource(id = R.string.send),
-                    style = buttonTextStyle
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Right Arrow",
-                    modifier = Modifier.size(16.dp),
-                    tint = if (isSendEnabled) Color.White else Color.Gray
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-    }
 }
 
 @Preview
