@@ -304,7 +304,7 @@
     <string name="get_pro">Zdobądź Pro</string>
     <string name="provider_count">%1$d dostawców</string>
     <string name="welcome_to_urnetwork">Witaj w URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork to najbardziej lokalna i najbardziej prywatna sieć na świecie. Oferuje ponad 20 razy więcej dostępnych miast niż inne wiodące VPN-y oraz 100 razy mniej użytkowników na jeden adres IP. Odblokuj całą zabawę na świecie i pełną prywatność bez kompromisów.</string>
+    <string name="urnetwork_intro_description">URnetwork to najbardziej lokalna i najbardziej prywatna sieć na świecie.</string>
     <string name="or">lub</string>
     <string name="participate_intro">Dołącz do sieci i uzyskaj bezpłatny dostęp do wersji społecznościowej.</string>
     <string name="participate_intro_details">URnetwork działa w oparciu o opatentowany protokół, który zapewnia bezpieczeństwo wszystkim.</string>
@@ -332,5 +332,10 @@
     <string name="feedback_include_logs">Dołącz logi do opinii (opcjonalnie)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (może być niestabilny)</string>
+    <string name="open_source_transparent">W 100% otwarty kod źródłowy i przejrzystość</string>
+    <string name="low_user_ip_ratio">Najniższy stosunek użytkowników do IP przy dostępie do treści</string>
+    <string name="trusted_by_private_networks">Zaufany przez ponad %s prywatnych sieci</string>
+    <string name="community_edition">Edycja społecznościowa</string>
+    <string name="community_edition_details">Dołącz do sieci i uzyskaj bezpłatny dostęp do wersji społecznościowej.</string>
 
 </resources>

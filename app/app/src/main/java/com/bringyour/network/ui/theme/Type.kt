@@ -101,9 +101,28 @@ val Typography = Typography(
     */
 )
 
+// todo - rename NeueBitMediumTextStyle
 val TopBarTitleTextStyle = TextStyle(
     fontSize = 24.sp,
     lineHeight = 24.sp,
+    fontFamily = ppNeueBitBold,
+    fontWeight = FontWeight(700),
+    color = Color.White,
+    textAlign = TextAlign.Center,
+)
+
+val NeueBitLargeTextStyle = TextStyle(
+    fontSize = 28.sp,
+//    lineHeight = 24.sp,
+    fontFamily = ppNeueBitBold,
+    fontWeight = FontWeight(700),
+    color = Color.White,
+    textAlign = TextAlign.Center,
+)
+
+val NeueBitSmallTextStyle = TextStyle(
+    fontSize = 18.sp,
+//    lineHeight = 24.sp,
     fontFamily = ppNeueBitBold,
     fontWeight = FontWeight(700),
     color = Color.White,

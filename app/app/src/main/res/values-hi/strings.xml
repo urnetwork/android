@@ -281,7 +281,7 @@
     <string name="get_pro">प्रो प्राप्त करें</string>
     <string name="provider_count">%1$d प्रदाता</string>
     <string name="welcome_to_urnetwork">URnetwork में आपका स्वागत है</string>
-    <string name="urnetwork_intro_description">URnetwork ग्रह का सबसे स्थानीय और सबसे निजी नेटवर्क है। अन्य प्रमुख VPNs की तुलना में 20 गुना अधिक उपयोगी शहरों के साथ, और प्रति IP पता 100 गुना कम उपयोगकर्ता। दुनिया भर की सारी मस्ती और पूरी गोपनीयता बिना किसी समझौते के अनलॉक करें।</string>
+    <string name="urnetwork_intro_description">URnetwork ग्रह का सबसे स्थानीय और सबसे निजी नेटवर्क है।</string>
     <string name="or">या</string>
     <string name="participate_intro">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
     <string name="participate_intro_details">URnetwork एक पेटेंटेड प्रोटोकॉल द्वारा संचालित है जो सभी को सुरक्षित और संरक्षित रखता है।</string>
@@ -309,4 +309,9 @@
     <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="kill_switch">िल स्विच</string>
     <string name="unstable_providers_warning">* (अस्थिर हो सकता है)</string>
+    <string name="open_source_transparent">100% ओपन सोर्स और पारदर्शी</string>
+    <string name="low_user_ip_ratio">कंटेंट एक्सेस के लिए सबसे कम यूज़र/IP अनुपात</string>
+    <string name="trusted_by_private_networks">%s से अधिक निजी नेटवर्क द्वारा विश्वसनीय</string>
+    <string name="community_edition">कम्युनिटी एडिशन</string>
+    <string name="community_edition_details">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
 </resources>

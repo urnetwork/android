@@ -307,10 +307,10 @@
     <string name="get_pro">Get Pro</string>
     <string name="provider_count">%s providers</string>
     <string name="welcome_to_urnetwork">Welcome to URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork is the most local and most private network on the planet. With over 20x usable cities of other leading VPNs, and 100x fewer users per IP address. Unlock all the fun in the world and all the privacy without compromises.</string>
+    <string name="urnetwork_intro_description">URnetwork is the most local and most private network on the planet.</string>
     <string name="or">or</string>
     <string name="participate_intro">Participate in the network and get free access to the community edition.</string>
-    <string name="participate_intro_details">URnetwork is powered by a patented protocol that keeps everyone safe and secure.</string>
+    <string name="participate_intro_details">URnetwork is powered by a patented protocol\nthat keeps everyone safe and secure.</string>
     <string name="participate">Participate</string>
     <string name="step_two">Step 2</string>
     <string name="refer_friends_perks">"You get +30 GiB/month \nYour friend gets +30 GiB/month\nFor Life! "</string>
@@ -335,4 +335,9 @@
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (may be unstable)</string>
+    <string name="open_source_transparent">100% open source and transparent</string>
+    <string name="low_user_ip_ratio">Lowest user/IP ratio to access content</string>
+    <string name="trusted_by_private_networks">Trusted by over %s private networks</string>
+    <string name="community_edition">Community Edition</string>
+    <string name="community_edition_details">Participate in the network and get free access to the community edition.</string>
 </resources>

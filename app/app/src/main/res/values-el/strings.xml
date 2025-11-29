@@ -281,7 +281,7 @@
     <string name="get_pro">Απόκτησε το Pro</string>
     <string name="provider_count">%1$d πάροχοι</string>
     <string name="welcome_to_urnetwork">Καλώς ήρθατε στο URnetwork</string>
-    <string name="urnetwork_intro_description">Το URnetwork είναι το πιο τοπικό και πιο ιδιωτικό δίκτυο στον πλανήτη. Με πάνω από 20 φορές περισσότερες διαθέσιμες πόλεις από άλλα κορυφαία VPN και 100 φορές λιγότερους χρήστες ανά διεύθυνση IP. Ξεκλειδώστε όλη τη διασκέδαση του κόσμου και όλη την ιδιωτικότητα χωρίς συμβιβασμούς.</string>
+    <string name="urnetwork_intro_description">Το URnetwork είναι το πιο τοπικό και πιο ιδιωτικό δίκτυο στον πλανήτη.</string>
     <string name="or">ή</string>
     <string name="participate_intro">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
     <string name="participate_intro_details">Το URnetwork λειτουργεί με ένα κατοχυρωμένο πρωτόκολλο που διασφαλίζει την ασφάλεια όλων.</string>
@@ -309,4 +309,9 @@
     <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (μπορεί να είναι ασταθές)</string>
+    <string name="open_source_transparent">100% ανοιχτού κώδικα και διαφανές</string>
+    <string name="low_user_ip_ratio">Η χαμηλότερη αναλογία χρηστών/IP για πρόσβαση σε περιεχόμενο</string>
+    <string name="trusted_by_private_networks">Εμπιστεύεται από πάνω από %s ιδιωτικά δίκτυα</string>
+    <string name="community_edition">Έκδοση κοινότητας</string>
+    <string name="community_edition_details">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
 </resources>
