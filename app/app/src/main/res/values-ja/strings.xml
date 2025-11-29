@@ -304,7 +304,7 @@
     <string name="get_pro">Proを取得</string>
     <string name="provider_count">%1$d プロバイダー</string>
     <string name="welcome_to_urnetwork">URnetworkへようこそ</string>
-    <string name="urnetwork_intro_description">URnetworkは世界で最もローカルで最もプライベートなネットワークです。他の主要VPNの20倍以上の利用可能な都市数、そしてIPアドレスごとに100分の1のユーザー数。世界中の楽しさと妥協のないプライバシーを手に入れましょう。</string>
+    <string name="urnetwork_intro_description">URnetworkは世界で最もローカルで最もプライベートなネットワークです。</string>
     <string name="or">または</string>
     <string name="participate_intro">ネットワークに参加して、コミュニティ版に無料でアクセスしましょう。</string>
     <string name="participate_intro_details">URnetworkは、すべての人の安全と安心を守る特許取得済みプロトコルによって運営されています。</string>
@@ -332,4 +332,9 @@
     <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
     <string name="kill_switch">キルスイッチ</string>
     <string name="unstable_providers_warning">*（不安定な場合があります）</string>
+    <string name="open_source_transparent">100%オープンソースで透明性があります</string>
+    <string name="low_user_ip_ratio">コンテンツにアクセスするための最も低いユーザー/IP比率</string>
+    <string name="trusted_by_private_networks">%s以上のプライベートネットワークに信頼されています</string>
+    <string name="community_edition">コミュニティ版</string>
+    <string name="community_edition_details">ネットワークに参加して、コミュニティ版に無料でアクセスしましょう。</string>
 </resources>

@@ -17,13 +17,11 @@ import com.bringyour.network.utils.createPaymentReference
 @Composable
 fun SubscriptionOptions(
     planViewModel: PlanViewModel,
-//    pollSubscriptionBalance: () -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) -> Unit,
-//    setPendingSolanaSubscriptionReference: (String) -> Unit,
     onSolanaUriOpened: (String) -> Unit,
     onStripePaymentSuccess: () -> Unit,
     isCheckingSolanaTransaction: Boolean

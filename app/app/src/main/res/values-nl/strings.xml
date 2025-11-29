@@ -307,7 +307,7 @@
     <string name="get_pro">Word Pro</string>
     <string name="provider_count">%1$d aanbieders</string>
     <string name="welcome_to_urnetwork">Welkom bij URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork is het meest lokale en meest privé netwerk ter wereld. Met meer dan 20x bruikbare steden dan andere toonaangevende VPN’s, en 100x minder gebruikers per IP-adres. Ontgrendel alle plezier in de wereld en alle privacy zonder compromissen.</string>
+    <string name="urnetwork_intro_description">URnetwork is het meest lokale en meest privé netwerk ter wereld.</string>
     <string name="or">of</string>
     <string name="participate_intro">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
     <string name="participate_intro_details">URnetwork wordt aangedreven door een gepatenteerd protocol dat iedereen veilig en beschermd houdt.</string>
@@ -335,4 +335,9 @@
     <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (kan onstabiel zijn)</string>
+    <string name="open_source_transparent">100% open source en transparant</string>
+    <string name="low_user_ip_ratio">Laagste gebruiker/IP-verhouding voor toegang tot content</string>
+    <string name="trusted_by_private_networks">Vertrouwd door meer dan %s privénetwerken</string>
+    <string name="community_edition">Community-editie</string>
+    <string name="community_edition_details">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
 </resources>

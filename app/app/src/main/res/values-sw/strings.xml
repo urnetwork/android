@@ -282,7 +282,7 @@
     <string name="get_pro">Pata Pro</string>
     <string name="provider_count">%1$d watoa huduma</string>
     <string name="welcome_to_urnetwork">Karibu kwenye URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork ndiyo mtandao wa karibu zaidi na wa faragha zaidi duniani. Ukiwa na miji inayotumika mara 20 zaidi kuliko VPN zingine zinazoongoza, na watumiaji 100 mara chache kwa kila anwani ya IP. Fungua furaha yote duniani na faragha yote bila maafikiano.</string>
+    <string name="urnetwork_intro_description">URnetwork ndiyo mtandao wa karibu zaidi na wa faragha zaidi duniani.</string>
     <string name="or">au</string>
     <string name="participate_intro">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
     <string name="participate_intro_details">URnetwork inaendeshwa na itifaki iliyopatiwa hati miliki inayowalinda na kuwahakikishia usalama wote.</string>
@@ -310,4 +310,9 @@
     <string name="feedback_include_logs">Ambatisha logi kwenye maoni (hiari)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (huenda isiwe imara)</string>
+    <string name="open_source_transparent">Asilimia 100 chanzo wazi na uwazi</string>
+    <string name="low_user_ip_ratio">Uwiano wa chini kabisa wa mtumiaji/IP kupata maudhui</string>
+    <string name="trusted_by_private_networks">Inatumiwa na zaidi ya %s mitandao ya kibinafsi</string>
+    <string name="community_edition">Toleo la jamii</string>
+    <string name="community_edition_details">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
 </resources>

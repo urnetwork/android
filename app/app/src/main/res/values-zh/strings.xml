@@ -310,4 +310,9 @@
     <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="kill_switch">断网保护</string>
     <string name="unstable_providers_warning">*（可能不稳定）</string>
+    <string name="open_source_transparent">100% 开源且透明</string>
+    <string name="low_user_ip_ratio">访问内容时用户/IP比例最低</string>
+    <string name="trusted_by_private_networks">受到超过 %s 个私人网络的信任</string>
+    <string name="community_edition">社区版</string>
+    <string name="community_edition_details">参与网络并免费获得社区版的访问权限。</string>
 </resources>

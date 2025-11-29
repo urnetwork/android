@@ -255,7 +255,7 @@
     <string name="get_pro">Získat Pro</string>
     <string name="provider_count">%1$d poskytovatelů</string>
     <string name="welcome_to_urnetwork">Vítejte v URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork je nejlokálnější a nejvíce soukromá síť na světě. Nabízí více než 20x více použitelných měst než jiné přední VPN a 100x méně uživatelů na jednu IP adresu. Odemkněte veškerou zábavu na světě a veškeré soukromí bez kompromisů.</string>
+    <string name="urnetwork_intro_description">URnetwork je nejlokálnější a nejvíce soukromá síť na světě.</string>
     <string name="or">nebo</string>
     <string name="participate_intro">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
     <string name="participate_intro_details">URnetwork je poháněna patentovaným protokolem, který zajišťuje bezpečnost všech.</string>
@@ -283,4 +283,9 @@
     <string name="feedback_include_logs">Přiložit protokoly k zpětné vazbě (volitelné)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (může být nestabilní)</string>
+    <string name="open_source_transparent">100% open source a transparentní</string>
+    <string name="low_user_ip_ratio">Nejnižší poměr uživatelů na IP pro přístup k obsahu</string>
+    <string name="trusted_by_private_networks">Důvěřováno více než %s soukromými sítěmi</string>
+    <string name="community_edition">Komunitní edice</string>
+    <string name="community_edition_details">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
 </resources>

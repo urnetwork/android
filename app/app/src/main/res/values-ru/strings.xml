@@ -307,7 +307,7 @@
     <string name="get_pro">Получить Pro</string>
     <string name="provider_count">%1$d провайдеров</string>
     <string name="welcome_to_urnetwork">Добро пожаловать в URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork — самая локальная и самая приватная сеть на планете. Более чем в 20 раз больше доступных городов, чем у других ведущих VPN, и в 100 раз меньше пользователей на один IP-адрес. Откройте для себя все развлечения мира и всю приватность без компромиссов.</string>
+    <string name="urnetwork_intro_description">URnetwork — самая локальная и самая приватная сеть на планете.</string>
     <string name="or">или</string>
     <string name="participate_intro">Участвуйте в сети и получите бесплатный доступ к версии для сообщества.</string>
     <string name="participate_intro_details">URnetwork работает на запатентованном протоколе, который обеспечивает безопасность всех пользователей.</string>
@@ -335,4 +335,9 @@
     <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (может быть нестабильным)</string>
+    <string name="open_source_transparent">100% с открытым исходным кодом и прозрачностью</string>
+    <string name="low_user_ip_ratio">Самое низкое соотношение пользователей к IP для доступа к контенту</string>
+    <string name="trusted_by_private_networks">Доверяют более чем %s частных сетей</string>
+    <string name="community_edition">Версия для сообщества</string>
+    <string name="community_edition_details">Участвуйте в сети и получите бесплатный доступ к версии для сообщества.</string>
 </resources>
