@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,9 +37,11 @@ import com.bringyour.network.ui.components.CircleImage
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.theme.Yellow
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -54,7 +55,8 @@ fun ProviderRow(
     color: Color,
     onFocusChanged: () -> Unit = {},
     isStable: Boolean,
-    isStrongPrivacy: Boolean
+    isStrongPrivacy: Boolean,
+    displayIcons: Boolean = true
 ) {
 
     val formatter = NumberFormat.getNumberInstance(Locale.US)
@@ -97,14 +99,6 @@ fun ProviderRow(
                     backgroundColor = color,
                 )
 
-                if (isStrongPrivacy) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.privacy_glasses),
-                        contentDescription = "Strong privacy laws",
-                        tint = Color.Unspecified,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -130,29 +124,47 @@ fun ProviderRow(
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
-
-                        if (!isStable) {
-                            Row {
-                                Text(
-                                    stringResource(id = R.string.unstable_providers_warning),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = TextMuted
-                                )
-                            }
-                        }
-
                     }
                 }
             }
         }
 
-        if (isSelected) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            if (displayIcons) {
+
+                if (!isStable) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.unstable),
+                        contentDescription = "Strong privacy laws",
+                        tint = Yellow,
+                        modifier = Modifier.size(24.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                Icon(
+                    painter = painterResource(id = R.drawable.privacy_glasses),
+                    contentDescription = "Strong privacy laws",
+                    tint = if (isStrongPrivacy) Green else TextMuted,
+                    modifier = Modifier.size(24.dp)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+            }
+
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = "Keyboard Arrow Right",
-                tint = BlueMedium
+                tint = if (isSelected) BlueMedium else Black
             )
+
         }
+
     }
 }
 

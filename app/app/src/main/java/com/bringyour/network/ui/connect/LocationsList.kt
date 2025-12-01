@@ -136,7 +136,8 @@ fun LocationsList(
                             isSelected = selectedLocation?.connectLocationId?.bestAvailable == true,
                             onFocusChanged = onFocusChanged,
                             isStable = true,
-                            isStrongPrivacy = false
+                            isStrongPrivacy = false,
+                            displayIcons = false
                         )
                     }
 
