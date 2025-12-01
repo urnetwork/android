@@ -315,4 +315,7 @@
     <string name="trusted_by_private_networks">Inatumiwa na zaidi ya %s mitandao ya kibinafsi</string>
     <string name="community_edition">Toleo la jamii</string>
     <string name="community_edition_details">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
+    <string name="boost_bandwidth_title">Ongeza upana wa bendi yako - Pata zaidi kila siku</string>
+    <string name="boost_bandwidth_details">Kwa kushiriki kwenye mtandao na kutoa upana wa bendi unaweza kupata zawadi.</string>
+    <string name="default_bandwidth_earn_more_by">Kwa chaguo-msingi, unapata %d GiB/mwezi. Hivi ndivyo unaweza kupata upana wa ziada wa bendi:</string>
 </resources>

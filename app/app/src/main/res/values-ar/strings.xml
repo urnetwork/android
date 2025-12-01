@@ -314,4 +314,7 @@
     <string name="trusted_by_private_networks">موثوق به من قبل أكثر من %s شبكة خاصة</string>
     <string name="community_edition">إصدار المجتمع</string>
     <string name="community_edition_details">شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
+    <string name="boost_bandwidth_title">عزز عرض النطاق الترددي لديك - اربح المزيد كل يوم</string>
+    <string name="boost_bandwidth_details">من خلال المشاركة في الشبكة وتوفير عرض النطاق الترددي، يمكنك كسب المكافآت.</string>
+    <string name="default_bandwidth_earn_more_by">بشكل افتراضي، تحصل على %d GiB/شهر. إليك كيفية كسب عرض نطاق إضافي:</string>
 </resources>

@@ -288,4 +288,7 @@
     <string name="trusted_by_private_networks">ได้รับความไว้วางใจจากเครือข่ายส่วนตัวมากกว่า %s เครือข่าย</string>
     <string name="community_edition">ฉบับชุมชน</string>
     <string name="community_edition_details">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
+    <string name="boost_bandwidth_title">เพิ่มแบนด์วิดท์ของคุณ - รับรายได้มากขึ้นทุกวัน</string>
+    <string name="boost_bandwidth_details">โดยการเข้าร่วมเครือข่ายและให้แบนด์วิดท์ คุณสามารถรับรางวัลได้</string>
+    <string name="default_bandwidth_earn_more_by">โดยค่าเริ่มต้น คุณจะได้รับ %d GiB/เดือน นี่คือวิธีที่คุณสามารถรับแบนด์วิดท์เพิ่มเติม:</string>
 </resources>

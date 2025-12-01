@@ -316,4 +316,7 @@
     <string name="trusted_by_private_networks">Fiable pour plus de %s réseaux privés</string>
     <string name="community_edition">Édition communautaire</string>
     <string name="community_edition_details">Participez au réseau et obtenez un accès gratuit à l’édition communautaire.</string>
+    <string name="boost_bandwidth_title">Augmentez votre bande passante - Gagnez plus chaque jour</string>
+    <string name="boost_bandwidth_details">En participant au réseau et en fournissant de la bande passante, vous pouvez gagner des récompenses.</string>
+    <string name="default_bandwidth_earn_more_by">Par défaut, vous recevez %d GiB/mois. Voici comment gagner de la bande passante supplémentaire :</string>
 </resources>

@@ -340,4 +340,7 @@
     <string name="trusted_by_private_networks">Trusted by over %s private networks</string>
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Participate in the network and get free access to the community edition.</string>
+    <string name="boost_bandwidth_title">Boost your bandwidth - Earn more every day</string>
+    <string name="boost_bandwidth_details">By participating in the network and providing bandwidth you can earn rewards.</string>
+    <string name="default_bandwidth_earn_more_by">By default, you get %d GiB/month. Here\'s how you can earn extra bandwidth:</string>
 </resources>

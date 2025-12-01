@@ -315,4 +315,7 @@
     <string name="trusted_by_private_networks">Confiado por mais de %s redes privadas</string>
     <string name="community_edition">Edição comunitária</string>
     <string name="community_edition_details">Participe da rede e tenha acesso gratuito à edição comunitária.</string>
+    <string name="boost_bandwidth_title">Aumente sua largura de banda - Ganhe mais todos os dias</string>
+    <string name="boost_bandwidth_details">Ao participar da rede e fornecer largura de banda, você pode ganhar recompensas.</string>
+    <string name="default_bandwidth_earn_more_by">Por padrão, você recebe %d GiB/mês. Veja como ganhar largura de banda extra:</string>
 </resources>

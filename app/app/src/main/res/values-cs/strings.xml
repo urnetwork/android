@@ -288,4 +288,7 @@
     <string name="trusted_by_private_networks">Důvěřováno více než %s soukromými sítěmi</string>
     <string name="community_edition">Komunitní edice</string>
     <string name="community_edition_details">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
+    <string name="boost_bandwidth_title">Zvyšte svou šířku pásma – vydělávejte více každý den</string>
+    <string name="boost_bandwidth_details">Účastí v síti a poskytováním šířky pásma můžete získat odměny.</string>
+    <string name="default_bandwidth_earn_more_by">Ve výchozím nastavení získáte %d GiB/měsíc. Zde je návod, jak získat další šířku pásma:</string>
 </resources>

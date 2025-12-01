@@ -86,16 +86,11 @@ fun IntroductionInitial(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text(
-                    stringResource(id = R.string.urnetwork_intro_description),
-                    style = NeueBitLargeTextStyle,
-                    textAlign = TextAlign.Start
-                )
-            }
+            Text(
+                stringResource(id = R.string.urnetwork_intro_description),
+                style = NeueBitLargeTextStyle,
+                textAlign = TextAlign.Start
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 

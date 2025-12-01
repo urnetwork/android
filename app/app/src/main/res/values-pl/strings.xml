@@ -337,5 +337,8 @@
     <string name="trusted_by_private_networks">Zaufany przez ponad %s prywatnych sieci</string>
     <string name="community_edition">Edycja społecznościowa</string>
     <string name="community_edition_details">Dołącz do sieci i uzyskaj bezpłatny dostęp do wersji społecznościowej.</string>
+    <string name="boost_bandwidth_title">Zwiększ przepustowość – zarabiaj więcej każdego dnia</string>
+    <string name="boost_bandwidth_details">Uczestnicząc w sieci i udostępniając przepustowość, możesz zdobywać nagrody.</string>
+    <string name="default_bandwidth_earn_more_by">Domyślnie otrzymujesz %d GiB/miesiąc. Oto jak możesz zdobyć dodatkową przepustowość:</string>
 
 </resources>

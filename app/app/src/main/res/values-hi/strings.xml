@@ -314,4 +314,7 @@
     <string name="trusted_by_private_networks">%s से अधिक निजी नेटवर्क द्वारा विश्वसनीय</string>
     <string name="community_edition">कम्युनिटी एडिशन</string>
     <string name="community_edition_details">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
+    <string name="boost_bandwidth_title">अपनी बैंडविड्थ बढ़ाएँ - हर दिन अधिक कमाएँ</string>
+    <string name="boost_bandwidth_details">नेटवर्क में भाग लेकर और बैंडविड्थ प्रदान करके आप पुरस्कार कमा सकते हैं।</string>
+    <string name="default_bandwidth_earn_more_by">िफ़ॉल्ट रूप से, आपको %d GiB/महीना मिलता है। ऐसे आप अतिरिक्त बैंडविड्थ कमा सकते हैं:</string>
 </resources>

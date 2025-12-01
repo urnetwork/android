@@ -315,4 +315,7 @@
     <string name="trusted_by_private_networks">Vertraut von über %s privaten Netzwerken</string>
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Nimm am Netzwerk teil und erhalte kostenlosen Zugang zur Community Edition.</string>
+    <string name="boost_bandwidth_title">Steigere deine Bandbreite – Verdiene jeden Tag mehr</string>
+    <string name="boost_bandwidth_details">Durch die Teilnahme am Netzwerk und das Bereitstellen von Bandbreite kannst du Belohnungen verdienen.</string>
+    <string name="default_bandwidth_earn_more_by">Standardmäßig erhältst du %d GiB/Monat. So kannst du zusätzliche Bandbreite verdienen:</string>
 </resources>

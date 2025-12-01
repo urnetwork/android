@@ -337,4 +337,7 @@
     <string name="trusted_by_private_networks">%s개 이상의 프라이빗 네트워크에서 신뢰받음</string>
     <string name="community_edition">커뮤니티 에디션</string>
     <string name="community_edition_details">네트워크에 참여하고 커뮤니티 에디션을 무료로 이용하세요.</string>
+    <string name="boost_bandwidth_title">대역폭을 높이고 매일 더 많이 벌기</string>
+    <string name="boost_bandwidth_details">네트워크에 참여하고 대역폭을 제공하면 보상을 받을 수 있습니다.</string>
+    <string name="default_bandwidth_earn_more_by">기본적으로 매월 %d GiB를 받습니다. 추가 대역폭을 얻는 방법은 다음과 같습니다:</string>
 </resources>

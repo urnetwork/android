@@ -340,4 +340,7 @@
     <string name="trusted_by_private_networks">Доверяют более чем %s частных сетей</string>
     <string name="community_edition">Версия для сообщества</string>
     <string name="community_edition_details">Участвуйте в сети и получите бесплатный доступ к версии для сообщества.</string>
+    <string name="boost_bandwidth_title">Увеличьте пропускную способность — зарабатывайте больше каждый день</string>
+    <string name="boost_bandwidth_details">Участвуя в сети и предоставляя пропускную способность, вы можете получать награды.</string>
+    <string name="default_bandwidth_earn_more_by">По умолчанию вы получаете %d GiB/месяц. Вот как можно заработать дополнительную пропускную способность:</string>
 </resources>

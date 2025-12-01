@@ -315,4 +315,7 @@
     <string name="trusted_by_private_networks">受到超过 %s 个私人网络的信任</string>
     <string name="community_edition">社区版</string>
     <string name="community_edition_details">参与网络并免费获得社区版的访问权限。</string>
+    <string name="boost_bandwidth_title">提升你的带宽 - 每天赚更多</string>
+    <string name="boost_bandwidth_details">通过参与网络并提供带宽，您可以获得奖励。</string>
+    <string name="default_bandwidth_earn_more_by">默认情况下，您每月获得 %d GiB。以下是赚取额外带宽的方法：</string>
 </resources>

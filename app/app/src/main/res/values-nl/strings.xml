@@ -340,4 +340,7 @@
     <string name="trusted_by_private_networks">Vertrouwd door meer dan %s privénetwerken</string>
     <string name="community_edition">Community-editie</string>
     <string name="community_edition_details">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
+    <string name="boost_bandwidth_title">Vergroot je bandbreedte - Verdien elke dag meer</string>
+    <string name="boost_bandwidth_details">Door deel te nemen aan het netwerk en bandbreedte te leveren kun je beloningen verdienen.</string>
+    <string name="default_bandwidth_earn_more_by">Standaard krijg je %d GiB/maand. Zo kun je extra bandbreedte verdienen:</string>
 </resources>

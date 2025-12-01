@@ -337,4 +337,7 @@
     <string name="trusted_by_private_networks">%s以上のプライベートネットワークに信頼されています</string>
     <string name="community_edition">コミュニティ版</string>
     <string name="community_edition_details">ネットワークに参加して、コミュニティ版に無料でアクセスしましょう。</string>
+    <string name="boost_bandwidth_title">帯域幅を増やして、毎日もっと稼ごう</string>
+    <string name="boost_bandwidth_details">ネットワークに参加し、帯域幅を提供することで報酬を得ることができます。</string>
+    <string name="default_bandwidth_earn_more_by">デフォルトでは、%d GiB/月が付与されます。追加の帯域幅を獲得する方法はこちらです：</string>
 </resources>
