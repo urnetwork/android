@@ -146,14 +146,16 @@ fun ProviderRow(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
-                Icon(
-                    painter = painterResource(id = R.drawable.privacy_glasses),
-                    contentDescription = "Strong privacy laws",
-                    tint = if (isStrongPrivacy) Green else TextMuted,
-                    modifier = Modifier.size(24.dp)
-                )
+                if (isStrongPrivacy) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.privacy_glasses),
+                        contentDescription = "Strong privacy laws",
+                        tint = Green,
+                        modifier = Modifier.size(24.dp)
+                    )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
 
             }
 
