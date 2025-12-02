@@ -261,7 +261,6 @@
     <string name="participate_intro_details">URnetwork je poháněna patentovaným protokolem, který zajišťuje bezpečnost všech.</string>
     <string name="participate">Zapojit se</string>
     <string name="step_two">Krok 2</string>
-    <string name="refer_friends_perks">Získáte +30 GiB/měsíc\nVáš přítel získá +30 GiB/měsíc\nNa celý život!</string>
     <string name="refer_friends_increase_free_data">Doporučte pár přátel a sledujte, jak vaše bezplatná data rostou.</string>
     <string name="bonus_referral_code_label">Bonusový doporučovací kód</string>
     <string name="step_one">Krok 1</string>
@@ -291,4 +290,13 @@
     <string name="boost_bandwidth_title">Zvyšte svou šířku pásma – vydělávejte více každý den</string>
     <string name="boost_bandwidth_details">Účastí v síti a poskytováním šířky pásma můžete získat odměny.</string>
     <string name="default_bandwidth_earn_more_by">Ve výchozím nastavení získáte %d GiB/měsíc. Zde je návod, jak získat další šířku pásma:</string>
+    <string name="earn_more_bullet_stay_connected">Zůstaňte připojeni denně = Získejte až %s GiB/den</string>
+    <string name="earn_more_bullet_refer">Doporučte přítele = +%s GiB/měsíc</string>
+    <string name="reliability_settings">Nastavení spolehlivosti</string>
+    <string name="reliability_settings_details">Upravte nastavení pro maximální spolehlivost. Aplikace běží na pozadí při připojení a na Wi-Fi. Spolehlivost znamená, kolik IP adres trvale zpřístupňujete síti.</string>
+    <string name="when_you_refer_a_friend">Když doporučíte přítele:</string>
+    <string name="refer_friends_perks">Získáte +%s GiB/měsíc na celý život</string>
+    <string name="refer_friends_they_get_data">Váš přítel získá +%s GiB/měsíc na celý život</string>
+    <string name="friends_save_too">Vaši přátelé také ušetří – každý vyhrává.</string>
+    <string name="get_connected">Připojit se</string>
 </resources>

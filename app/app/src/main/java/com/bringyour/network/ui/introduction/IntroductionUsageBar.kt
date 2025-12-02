@@ -1,21 +1,19 @@
 package com.bringyour.network.ui.introduction
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.PrivacyTip
-import androidx.compose.material.icons.filled.PrivateConnectivity
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +24,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,8 +35,6 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.NeueBitLargeTextStyle
-import com.bringyour.network.ui.theme.OffBlack
-import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +65,9 @@ fun IntroductionUsageBar(
                     containerColor = Black
                 ),
             )
+        },
+        bottomBar = {
+
         }
     ) { innerPadding ->
         Column(
@@ -80,6 +80,21 @@ fun IntroductionUsageBar(
         ) {
 
             Column {
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        contentDescription = "URnetwork",
+                        modifier = Modifier.size(128.dp),
+
+                    )
+                }
+
+                // Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
                     stringResource(id = R.string.boost_bandwidth_title),
@@ -94,12 +109,7 @@ fun IntroductionUsageBar(
                     textAlign = TextAlign.Start
                 )
 
-                Text(
-                    stringResource(id = R.string.data_usage),
-                    style = TopBarTitleTextStyle
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 UsageBar(
                     usedBytes = usedBytes,
@@ -109,19 +119,34 @@ fun IntroductionUsageBar(
                     totalReferrals = totalReferrals,
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
                     stringResource(id = R.string.default_bandwidth_earn_more_by, 10),
                     style = MaterialTheme.typography.bodyLarge
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                BulletPoint(text = stringResource(id = R.string.earn_more_bullet_stay_connected, "+100"))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                BulletPoint(text = stringResource(id = R.string.earn_more_bullet_refer, "30"))
+
             }
 
-            URButton(onClick = {
-                navController.navigate(IntroRoute.IntroductionSettings)
-            }) { btnStyle ->
-                Text(stringResource(id = R.string.next))
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(onClick = {
+                    navController.navigate(IntroRoute.IntroductionSettings)
+                }) { btnStyle ->
+                    Text(
+                        stringResource(id = R.string.next),
+                        style = btnStyle
+                    )
+                }
             }
 
         }

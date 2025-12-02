@@ -288,7 +288,6 @@
     <string name="participate_intro_details">URnetwork inaendeshwa na itifaki iliyopatiwa hati miliki inayowalinda na kuwahakikishia usalama wote.</string>
     <string name="participate">Shiriki</string>
     <string name="step_two">Hatua ya 2</string>
-    <string name="refer_friends_perks">Unapata +30 GiB/mwezi Rafiki yako anapata +30 GiB/mwezi Maisha yote!</string>
     <string name="refer_friends_increase_free_data">Rejelea marafiki na uone data yako ya bure ikiongezeka.</string>
     <string name="bonus_referral_code_label">Nambari ya rufaa ya ziada</string>
     <string name="step_one">Hatua ya 1</string>
@@ -318,4 +317,13 @@
     <string name="boost_bandwidth_title">Ongeza upana wa bendi yako - Pata zaidi kila siku</string>
     <string name="boost_bandwidth_details">Kwa kushiriki kwenye mtandao na kutoa upana wa bendi unaweza kupata zawadi.</string>
     <string name="default_bandwidth_earn_more_by">Kwa chaguo-msingi, unapata %d GiB/mwezi. Hivi ndivyo unaweza kupata upana wa ziada wa bendi:</string>
+    <string name="earn_more_bullet_stay_connected">Unganishwa kila siku = Pata hadi %s GiB/siku</string>
+    <string name="earn_more_bullet_refer">Rejelea rafiki = +%s GiB/mwezi</string>
+    <string name="reliability_settings">Mipangilio ya uaminifu</string>
+    <string name="reliability_settings_details">Rekebisha mipangilio ili kuongeza uaminifu. Programu inaendelea kufanya kazi nyuma ya pazia ukiwa umeunganishwa na kwenye Wi-Fi. Uaminifu ni idadi ya IP unazoweka zinapatikana kila wakati kwenye mtandao.</string>
+    <string name="when_you_refer_a_friend">Unapomrejelea rafiki:</string>
+    <string name="refer_friends_perks">Unapata +%s GiB/mwezi maisha yote</string>
+    <string name="refer_friends_they_get_data">Rafiki yako anapata +%s GiB/mwezi maisha yote</string>
+    <string name="friends_save_too">Marafiki zako pia wanaokoa -- kila mtu anashinda.</string>
+    <string name="get_connected">Unganisha</string>
 </resources>

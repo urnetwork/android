@@ -261,7 +261,6 @@
     <string name="participate_intro_details">URnetwork ขับเคลื่อนด้วยโปรโตคอลที่จดสิทธิบัตรซึ่งช่วยให้ทุกคนปลอดภัยและมั่นคง</string>
     <string name="participate">เข้าร่วม</string>
     <string name="step_two">ขั้นตอนที่ 2</string>
-    <string name="refer_friends_perks">คุณได้รับ +30 GiB/เดือน\nเพื่อนของคุณได้รับ +30 GiB/เดือน\nตลอดชีวิต!\n</string>
     <string name="refer_friends_increase_free_data">แนะนำเพื่อนสักสองสามคนแล้วดูว่าข้อมูลฟรีของคุณเพิ่มขึ้นอย่างไร</string>
     <string name="bonus_referral_code_label">รหัสแนะนำโบนัส</string>
     <string name="step_one">ขั้นตอนที่ 1</string>
@@ -291,4 +290,13 @@
     <string name="boost_bandwidth_title">เพิ่มแบนด์วิดท์ของคุณ - รับรายได้มากขึ้นทุกวัน</string>
     <string name="boost_bandwidth_details">โดยการเข้าร่วมเครือข่ายและให้แบนด์วิดท์ คุณสามารถรับรางวัลได้</string>
     <string name="default_bandwidth_earn_more_by">โดยค่าเริ่มต้น คุณจะได้รับ %d GiB/เดือน นี่คือวิธีที่คุณสามารถรับแบนด์วิดท์เพิ่มเติม:</string>
+    <string name="earn_more_bullet_stay_connected">เชื่อมต่อทุกวัน = รับสูงสุด %s GiB/วัน</string>
+    <string name="earn_more_bullet_refer">แนะนำเพื่อน = +%s GiB/เดือน</string>
+    <string name="reliability_settings">การตั้งค่าความน่าเชื่อถือ</string>
+    <string name="reliability_settings_details">ปรับการตั้งค่าเพื่อเพิ่มความน่าเชื่อถือสูงสุด แอปจะทำงานเบื้องหลังเมื่อเชื่อมต่อและใช้ Wi-Fi ความน่าเชื่อถือคือจำนวน IP ที่คุณทำให้พร้อมใช้งานกับเครือข่ายอย่างต่อเนื่อง</string>
+    <string name="when_you_refer_a_friend">เมื่อคุณแนะนำเพื่อน:</string>
+    <string name="refer_friends_perks">คุณได้รับ +%s GiB/เดือนตลอดชีวิต</string>
+    <string name="refer_friends_they_get_data">เพื่อนของคุณได้รับ +%s GiB/เดือนตลอดชีวิต</string>
+    <string name="friends_save_too">เพื่อนของคุณก็ประหยัดได้ -- ทุกคนได้ประโยชน์</string>
+    <string name="get_connected">เชื่อมต่อ</string>
 </resources>

@@ -1,24 +1,23 @@
 package com.bringyour.network.ui.introduction
 
-import android.content.Intent
-import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,24 +28,20 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bringyour.network.ui.IntroRoute
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.OffBlack
-import com.bringyour.network.ui.theme.Pink
-import androidx.core.net.toUri
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
+import com.bringyour.network.ui.theme.NeueBitLargeTextStyle
 import com.bringyour.network.utils.lighten
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,35 +54,6 @@ fun IntroductionSettings(
     allowProvideCell: Boolean,
     toggleProvideCell: () -> Unit,
 ) {
-
-    val context = LocalContext.current
-    val annotatedText = buildAnnotatedString {
-        append("${stringResource(id = R.string.local_provider_safety_description)} ")
-
-        // Start annotation for the link
-        val startIndex = length
-        val linkText = stringResource(id = R.string.learn_more_protocol_page)
-        append(linkText)
-        val endIndex = length
-
-        // Add annotation for the link
-        addStringAnnotation(
-            tag = "URL",
-            annotation = "https://ur.io/protocol",
-            start = startIndex,
-            end = endIndex
-        )
-
-        // Style the link text
-        addStyle(
-            style = SpanStyle(
-                color = Pink,
-                fontSize = 16.sp
-            ),
-            start = startIndex,
-            end = endIndex
-        )
-    }
 
     Scaffold(
         topBar = {
@@ -119,103 +85,98 @@ fun IntroductionSettings(
         ) {
             Column {
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        contentDescription = "URnetwork",
+                        modifier = Modifier.size(128.dp),
+
+                        )
+                }
+
                 Text(
-                    stringResource(id = R.string.step_one),
+                    stringResource(id = R.string.reliability_settings),
                     style = MaterialTheme.typography.headlineLarge
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Column(
+                Text(
+                    stringResource(id = R.string.reliability_settings_details),
+                    style = NeueBitLargeTextStyle,
+                    textAlign = TextAlign.Start
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Text(
+                    stringResource(id = R.string.adjust_setting_always_fill_data_faster),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
                     modifier = Modifier
-                        .background(
-                            OffBlack,
-                            RoundedCornerShape(12.dp)
-                        )
                         .fillMaxWidth()
+                        .background(
+                            MainTintedBackgroundBase.lighten(0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
                         .padding(16.dp)
                 ) {
 
-                    ClickableText(
-                        text = annotatedText,
-                        style = MaterialTheme.typography.bodyLarge,
-                        onClick = { offset ->
-                            annotatedText.getStringAnnotations(tag = "URL", start = offset, end = offset)
-                                .firstOrNull()?.let { annotation ->
-                                    val intent = Intent(Intent.ACTION_VIEW, annotation.item.toUri())
-                                    context.startActivity(intent)
-                                }
-                        }
+                    ProvideControlModePicker(
+                        provideControlMode,
+                        setProvideControlMode,
+                        provideIndicatorColor
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-                    HorizontalDivider()
+                Spacer(modifier = Modifier.height(32.dp))
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    stringResource(id = R.string.allow_provider_cell_network_unlimited_plan),
+                    style = MaterialTheme.typography.bodyLarge
+                )
 
-                    Text(
-                        stringResource(id = R.string.adjust_setting_always_fill_data_faster),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                MainTintedBackgroundBase.lighten(0.1f),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            .padding(16.dp)
-                    ) {
-
-                        ProvideControlModePicker(
-                            provideControlMode,
-                            setProvideControlMode,
-                            provideIndicatorColor
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            MainTintedBackgroundBase.lighten(0.1f),
+                            shape = RoundedCornerShape(12.dp)
                         )
+                        .padding(16.dp)
+                ) {
 
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    HorizontalDivider()
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        stringResource(id = R.string.allow_provider_cell_network_unlimited_plan),
-                        style = MaterialTheme.typography.bodyLarge
+                    ProvideCellPicker(
+                        allowProvideCell = allowProvideCell,
+                        toggleProvideCell = toggleProvideCell
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                MainTintedBackgroundBase.lighten(0.1f),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            .padding(16.dp)
-                    ) {
-
-                        ProvideCellPicker(
-                            allowProvideCell = allowProvideCell,
-                            toggleProvideCell = toggleProvideCell
-                        )
-                    }
-
                 }
 
             }
 
-            URButton(onClick = {
-                navController.navigate(IntroRoute.IntroductionReferral)
-            }) { btnStyle ->
-                Text(stringResource(id = R.string.next))
+            Column {
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                URButton(onClick = {
+                    navController.navigate(IntroRoute.IntroductionReferral)
+                }) { btnStyle ->
+                    Text(
+                        stringResource(id = R.string.next),
+                        style = btnStyle
+                    )
+                }
             }
         }
     }

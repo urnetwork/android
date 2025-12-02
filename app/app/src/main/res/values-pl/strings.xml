@@ -310,7 +310,6 @@
     <string name="participate_intro_details">URnetwork działa w oparciu o opatentowany protokół, który zapewnia bezpieczeństwo wszystkim.</string>
     <string name="participate">Dołącz</string>
     <string name="step_two">Krok 2</string>
-    <string name="refer_friends_perks">Otrzymujesz +30 GiB/miesiąc\nTwój znajomy otrzymuje +30 GiB/miesiąc\nNa całe życie!</string>
     <string name="refer_friends_increase_free_data">Poleć kilku znajomych i zobacz, jak rosną Twoje darmowe dane.</string>
     <string name="bonus_referral_code_label">Bonusowy kod polecający</string>
     <string name="step_one">Krok 1</string>
@@ -340,5 +339,14 @@
     <string name="boost_bandwidth_title">Zwiększ przepustowość – zarabiaj więcej każdego dnia</string>
     <string name="boost_bandwidth_details">Uczestnicząc w sieci i udostępniając przepustowość, możesz zdobywać nagrody.</string>
     <string name="default_bandwidth_earn_more_by">Domyślnie otrzymujesz %d GiB/miesiąc. Oto jak możesz zdobyć dodatkową przepustowość:</string>
+    <string name="earn_more_bullet_stay_connected">Pozostań połączony codziennie = Zarabiaj do %s GiB/dzień</string>
+    <string name="earn_more_bullet_refer">Poleć znajomego = +%s GiB/miesiąc</string>
+    <string name="reliability_settings">Ustawienia niezawodności</string>
+    <string name="reliability_settings_details">Dostosuj ustawienia, aby zmaksymalizować niezawodność. Aplikacja działa w tle, gdy jest połączona i na Wi-Fi. Niezawodność to liczba IP, które stale udostępniasz sieci.</string>
+    <string name="when_you_refer_a_friend">Gdy polecisz znajomego:</string>
+    <string name="refer_friends_perks">Otrzymujesz +%s GiB/miesiąc na całe życie</string>
+    <string name="refer_friends_they_get_data">Twój znajomy otrzymuje +%s GiB/miesiąc na całe życie</string>
+    <string name="friends_save_too">Twoi znajomi też oszczędzają -- wszyscy wygrywają.</string>
+    <string name="get_connected">Połącz się</string>
 
 </resources>

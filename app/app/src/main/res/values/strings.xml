@@ -313,7 +313,6 @@
     <string name="participate_intro_details">URnetwork is powered by a patented protocol\nthat keeps everyone safe and secure.</string>
     <string name="participate">Participate</string>
     <string name="step_two">Step 2</string>
-    <string name="refer_friends_perks">"You get +30 GiB/month \nYour friend gets +30 GiB/month\nFor Life! "</string>
     <string name="refer_friends_increase_free_data">Refer some friends and watch your free data go up.</string>
     <string name="bonus_referral_code_label">Bonus referral code</string>
     <string name="step_one">Step 1</string>
@@ -343,4 +342,13 @@
     <string name="boost_bandwidth_title">Boost your bandwidth - Earn more every day</string>
     <string name="boost_bandwidth_details">By participating in the network and providing bandwidth you can earn rewards.</string>
     <string name="default_bandwidth_earn_more_by">By default, you get %d GiB/month. Here\'s how you can earn extra bandwidth:</string>
+    <string name="earn_more_bullet_stay_connected">Stay connected daily = Earn up to %s GiB/Day</string>
+    <string name="earn_more_bullet_refer">Refer a friend = +%s GiB/Month</string>
+    <string name="reliability_settings">Reliability settings</string>
+    <string name="reliability_settings_details">Adjust settings to maximize reliability. App runs in the background when connected and on Wi-Fi. Reliability is how many IPs you make continually available to the network</string>
+    <string name="when_you_refer_a_friend">When you refer a friend:</string>
+    <string name="refer_friends_perks">You get +%s GiB/month for life</string>
+    <string name="refer_friends_they_get_data">Your friend gets +%s GiB/month for life</string>
+    <string name="friends_save_too">Your friends save too -- everyone wins.</string>
+    <string name="get_connected">Get connected</string>
 </resources>

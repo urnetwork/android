@@ -287,7 +287,6 @@
     <string name="participate_intro_details">تعمل URnetwork بواسطة بروتوكول حاصل على براءة اختراع يحافظ على سلامة وأمان الجميع.</string>
     <string name="participate">شارك</string>
     <string name="step_two">" الخطوة2"</string>
-    <string name="refer_friends_perks">" تحصل على +30 GiB/شهر\n يحصل صديقك على +30 GiB/شهر\n مدى الحياة!"</string>
     <string name="refer_friends_increase_free_data">" قم بإحالة بعض الأصدقاء وشاهد بياناتك المجانية تزداد."</string>
     <string name="bonus_referral_code_label">" رمز إحالة إضافي"</string>
     <string name="step_one">" الخطوة 1"</string>
@@ -317,4 +316,13 @@
     <string name="boost_bandwidth_title">عزز عرض النطاق الترددي لديك - اربح المزيد كل يوم</string>
     <string name="boost_bandwidth_details">من خلال المشاركة في الشبكة وتوفير عرض النطاق الترددي، يمكنك كسب المكافآت.</string>
     <string name="default_bandwidth_earn_more_by">بشكل افتراضي، تحصل على %d GiB/شهر. إليك كيفية كسب عرض نطاق إضافي:</string>
+    <string name="earn_more_bullet_stay_connected">البقاء متصلاً يوميًا = اربح حتى %s GiB/يوم</string>
+    <string name="earn_more_bullet_refer">إحالة صديق = +%s GiB/شهر</string>
+    <string name="reliability_settings">إعدادات الموثوقية</string>
+    <string name="reliability_settings_details">اضبط الإعدادات لتعظيم الموثوقية. يعمل التطبيق في الخلفية عند الاتصال وعند استخدام الواي فاي. الموثوقية هي عدد عناوين IP التي تجعلها متاحة باستمرار للشبكة.</string>
+    <string name="when_you_refer_a_friend">عندما تقوم بإحالة صديق:</string>
+    <string name="refer_friends_perks">تحصل على +%s GiB/شهر مدى الحياة</string>
+    <string name="refer_friends_they_get_data">يحصل صديقك على +%s GiB/شهر مدى الحياة</string>
+    <string name="friends_save_too">أصدقاؤك يوفرون أيضًا -- الجميع يفوز.</string>
+    <string name="get_connected">اتصل الآن</string>
 </resources>

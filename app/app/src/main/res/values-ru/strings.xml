@@ -313,7 +313,6 @@
     <string name="participate_intro_details">URnetwork работает на запатентованном протоколе, который обеспечивает безопасность всех пользователей.</string>
     <string name="participate">Участвовать</string>
     <string name="step_two">Шаг 2</string>
-    <string name="refer_friends_perks">Вы получаете +30 GiB/месяц\nВаш друг получает +30 GiB/месяц\nНавсегда!</string>
     <string name="refer_friends_increase_free_data">Пригласите друзей и наблюдайте, как увеличивается ваш бесплатный трафик.</string>
     <string name="bonus_referral_code_label">Бонусный реферальный код</string>
     <string name="step_one">Шаг 1</string>
@@ -343,4 +342,13 @@
     <string name="boost_bandwidth_title">Увеличьте пропускную способность — зарабатывайте больше каждый день</string>
     <string name="boost_bandwidth_details">Участвуя в сети и предоставляя пропускную способность, вы можете получать награды.</string>
     <string name="default_bandwidth_earn_more_by">По умолчанию вы получаете %d GiB/месяц. Вот как можно заработать дополнительную пропускную способность:</string>
+    <string name="earn_more_bullet_stay_connected">Оставайтесь на связи ежедневно = Зарабатывайте до %s GiB/день</string>
+    <string name="earn_more_bullet_refer">Пригласите друга = +%s GiB/месяц</string>
+    <string name="reliability_settings">Настройки надёжности</string>
+    <string name="reliability_settings_details">Настройте параметры для максимальной надёжности. Приложение работает в фоновом режиме при подключении и использовании Wi-Fi. Надёжность — это количество IP, которые вы постоянно предоставляете сети.</string>
+    <string name="when_you_refer_a_friend">Когда вы приглашаете друга:</string>
+    <string name="refer_friends_perks">Вы получаете +%s GiB/месяц навсегда</string>
+    <string name="refer_friends_they_get_data">Ваш друг получает +%s GiB/месяц навсегда</string>
+    <string name="friends_save_too">Ваши друзья тоже экономят — выигрывают все.</string>
+    <string name="get_connected">Подключиться</string>
 </resources>

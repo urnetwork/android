@@ -313,7 +313,6 @@
     <string name="participate_intro_details">URnetwork wordt aangedreven door een gepatenteerd protocol dat iedereen veilig en beschermd houdt.</string>
     <string name="participate">Deelnemen</string>
     <string name="step_two">Stap 2</string>
-    <string name="refer_friends_perks">Jij krijgt +30 GiB/maand Je vriend krijgt +30 GiB/maand Voor altijd!</string>
     <string name="refer_friends_increase_free_data">Verwijs wat vrienden door en zie je gratis data stijgen.</string>
     <string name="bonus_referral_code_label">Bonus-verwijzingscode</string>
     <string name="step_one">Stap 1</string>
@@ -343,4 +342,13 @@
     <string name="boost_bandwidth_title">Vergroot je bandbreedte - Verdien elke dag meer</string>
     <string name="boost_bandwidth_details">Door deel te nemen aan het netwerk en bandbreedte te leveren kun je beloningen verdienen.</string>
     <string name="default_bandwidth_earn_more_by">Standaard krijg je %d GiB/maand. Zo kun je extra bandbreedte verdienen:</string>
+    <string name="earn_more_bullet_stay_connected">Dagelijks verbonden blijven = Verdien tot %s GiB/dag</string>
+    <string name="earn_more_bullet_refer">Vriend doorverwijzen = +%s GiB/maand</string>
+    <string name="reliability_settings">Betrouwbaarheidsinstellingen</string>
+    <string name="reliability_settings_details">Pas instellingen aan om de betrouwbaarheid te maximaliseren. De app draait op de achtergrond wanneer verbonden en op Wi-Fi. Betrouwbaarheid is hoeveel IP’s je continu beschikbaar maakt voor het netwerk.</string>
+    <string name="when_you_refer_a_friend">Wanneer je een vriend doorverwijst:</string>
+    <string name="refer_friends_perks">Jij krijgt +%s GiB/maand voor altijd</string>
+    <string name="refer_friends_they_get_data">Je vriend krijgt +%s GiB/maand voor altijd</string>
+    <string name="friends_save_too">Je vrienden besparen ook -- iedereen wint.</string>
+    <string name="get_connected">Verbinden</string>
 </resources>

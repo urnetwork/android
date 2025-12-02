@@ -310,7 +310,6 @@
     <string name="participate_intro_details">URnetworkは、すべての人の安全と安心を守る特許取得済みプロトコルによって運営されています。</string>
     <string name="participate">参加する</string>
     <string name="step_two">ステップ2</string>
-    <string name="refer_friends_perks">あなたは +30 GiB/月\nあなたの友達も +30 GiB/月\n一生ずっと！</string>
     <string name="refer_friends_increase_free_data">友達を紹介して、無料データが増えるのを見ましょう。</string>
     <string name="bonus_referral_code_label">ボーナス紹介コード</string>
     <string name="step_one">ステップ1</string>
@@ -340,4 +339,13 @@
     <string name="boost_bandwidth_title">帯域幅を増やして、毎日もっと稼ごう</string>
     <string name="boost_bandwidth_details">ネットワークに参加し、帯域幅を提供することで報酬を得ることができます。</string>
     <string name="default_bandwidth_earn_more_by">デフォルトでは、%d GiB/月が付与されます。追加の帯域幅を獲得する方法はこちらです：</string>
+    <string name="earn_more_bullet_stay_connected">毎日接続を維持 = 最大 %s GiB/日を獲得</string>
+    <string name="earn_more_bullet_refer">友達を紹介 = +%s GiB/月</string>
+    <string name="reliability_settings">信頼性設定</string>
+    <string name="reliability_settings_details">設定を調整して信頼性を最大化しましょう。アプリは接続時およびWi-Fi利用時にバックグラウンドで動作します。信頼性とは、ネットワークに継続的に提供するIPの数です。</string>
+    <string name="when_you_refer_a_friend">友達を紹介するとき：</string>
+    <string name="refer_friends_perks">あなたは一生 +%s GiB/月 を獲得できます</string>
+    <string name="refer_friends_they_get_data">あなたの友達も一生 +%s GiB/月 を獲得できます</string>
+    <string name="friends_save_too">あなたの友達も節約できる -- みんなが得をします。</string>
+    <string name="get_connected">接続する</string>
 </resources>

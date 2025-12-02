@@ -287,7 +287,6 @@
     <string name="participate_intro_details">URnetwork एक पेटेंटेड प्रोटोकॉल द्वारा संचालित है जो सभी को सुरक्षित और संरक्षित रखता है।</string>
     <string name="participate">भाग लें</string>
     <string name="step_two">चरण 2</string>
-    <string name="refer_friends_perks">आपको मिलेगा +30 GiB/महीना\nआपके दोस्त को मिलेगा +30 GiB/महीना\nजीवनभर!\n</string>
     <string name="refer_friends_increase_free_data">कुछ दोस्तों को रेफ़र करें और अपनी मुफ्त डेटा को बढ़ते हुए देखें।</string>
     <string name="bonus_referral_code_label">बोनस रेफ़रल कोड</string>
     <string name="step_one">चरण 1</string>
@@ -317,4 +316,13 @@
     <string name="boost_bandwidth_title">अपनी बैंडविड्थ बढ़ाएँ - हर दिन अधिक कमाएँ</string>
     <string name="boost_bandwidth_details">नेटवर्क में भाग लेकर और बैंडविड्थ प्रदान करके आप पुरस्कार कमा सकते हैं।</string>
     <string name="default_bandwidth_earn_more_by">िफ़ॉल्ट रूप से, आपको %d GiB/महीना मिलता है। ऐसे आप अतिरिक्त बैंडविड्थ कमा सकते हैं:</string>
+    <string name="earn_more_bullet_stay_connected">रोज़ाना जुड़े रहें = प्रतिदिन %s GiB तक कमाएँ</string>
+    <string name="earn_more_bullet_refer">ित्र को रेफ़र करें = +%s GiB/महीना</string>
+    <string name="reliability_settings">िश्वसनीयता सेटिंग्स</string>
+    <string name="reliability_settings_details">िश्वसनीयता अधिकतम करने के लिए सेटिंग्स समायोजित करें। ऐप कनेक्टेड और वाई-फाई पर बैकग्राउंड में चलता है। विश्वसनीयता यह है कि आप कितनी IPs नेटवर्क के लिए लगातार उपलब्ध कराते हैं।</string>
+    <string name="when_you_refer_a_friend">जब आप किसी मित्र को रेफ़र करते हैं:</string>
+    <string name="refer_friends_perks">आपको जीवनभर +%s GiB/महीना मिलेगा</string>
+    <string name="refer_friends_they_get_data">आपके दोस्त को जीवनभर +%s GiB/महीना मिलेगा</string>
+    <string name="friends_save_too">आपके दोस्त भी बचत करते हैं -- सभी जीतते हैं।</string>
+    <string name="get_connected">कनेक्ट करें</string>
 </resources>

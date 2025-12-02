@@ -288,7 +288,6 @@
     <string name="participate_intro_details">URnetwork wird von einem patentierten Protokoll betrieben, das für die Sicherheit aller sorgt.</string>
     <string name="participate">Teilnehmen</string>
     <string name="step_two">Schritt 2</string>
-    <string name="refer_friends_perks">Du erhältst +30 GiB/Monat\nDein Freund erhält +30 GiB/Monat\nFür immer!</string>
     <string name="refer_friends_increase_free_data">Empfehle ein paar Freunde und sieh zu, wie dein kostenloses Datenvolumen steigt.</string>
     <string name="bonus_referral_code_label">Bonus-Empfehlungscode</string>
     <string name="step_one">Schritt 1</string>
@@ -318,4 +317,13 @@
     <string name="boost_bandwidth_title">Steigere deine Bandbreite – Verdiene jeden Tag mehr</string>
     <string name="boost_bandwidth_details">Durch die Teilnahme am Netzwerk und das Bereitstellen von Bandbreite kannst du Belohnungen verdienen.</string>
     <string name="default_bandwidth_earn_more_by">Standardmäßig erhältst du %d GiB/Monat. So kannst du zusätzliche Bandbreite verdienen:</string>
+    <string name="earn_more_bullet_stay_connected">Täglich verbunden bleiben = Verdiene bis zu %s GiB/Tag</string>
+    <string name="earn_more_bullet_refer">Freund empfehlen = +%s GiB/Monat</string>
+    <string name="reliability_settings">Zuverlässigkeitseinstellungen</string>
+    <string name="reliability_settings_details">Passe die Einstellungen an, um die Zuverlässigkeit zu maximieren. Die App läuft im Hintergrund, wenn sie verbunden ist und über WLAN. Zuverlässigkeit bedeutet, wie viele IPs du dem Netzwerk kontinuierlich zur Verfügung stellst.</string>
+    <string name="when_you_refer_a_friend">Wenn du einen Freund empfiehlst:</string>
+    <string name="refer_friends_perks">Du erhältst +%s GiB/Monat – ein Leben lang</string>
+    <string name="refer_friends_they_get_data">Dein Freund erhält +%s GiB/Monat – ein Leben lang</string>
+    <string name="friends_save_too">Deine Freunde sparen ebenfalls – alle gewinnen.</string>
+    <string name="get_connected">Verbinden</string>
 </resources>

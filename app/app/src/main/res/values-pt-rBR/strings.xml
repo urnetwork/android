@@ -288,7 +288,6 @@
     <string name="participate_intro_details">URnetwork é alimentada por um protocolo patenteado que mantém todos seguros e protegidos.</string>
     <string name="participate">Participar</string>
     <string name="step_two">Etapa 2</string>
-    <string name="refer_friends_perks">Você ganha +30 GiB/mês\nSeu amigo ganha +30 GiB/mês\nPara sempre!</string>
     <string name="refer_friends_increase_free_data">Indique alguns amigos e veja seus dados gratuitos aumentarem.</string>
     <string name="bonus_referral_code_label">Código de indicação bônus</string>
     <string name="step_one">Etapa 1</string>
@@ -318,4 +317,13 @@
     <string name="boost_bandwidth_title">Aumente sua largura de banda - Ganhe mais todos os dias</string>
     <string name="boost_bandwidth_details">Ao participar da rede e fornecer largura de banda, você pode ganhar recompensas.</string>
     <string name="default_bandwidth_earn_more_by">Por padrão, você recebe %d GiB/mês. Veja como ganhar largura de banda extra:</string>
+    <string name="earn_more_bullet_stay_connected">Fique conectado diariamente = Ganhe até %s GiB/dia</string>
+    <string name="earn_more_bullet_refer">Indique um amigo = +%s GiB/mês</string>
+    <string name="reliability_settings">Configurações de confiabilidade</string>
+    <string name="reliability_settings_details">Ajuste as configurações para maximizar a confiabilidade. O app funciona em segundo plano quando conectado e no Wi-Fi. Confiabilidade é quantos IPs você mantém continuamente disponíveis para a rede.</string>
+    <string name="when_you_refer_a_friend">Quando você indica um amigo:</string>
+    <string name="refer_friends_perks">Você ganha +%s GiB/mês para sempre</string>
+    <string name="refer_friends_they_get_data">Seu amigo ganha +%s GiB/mês para sempre</string>
+    <string name="friends_save_too">Seus amigos também economizam -- todo mundo sai ganhando.</string>
+    <string name="get_connected">Conectar-se</string>
 </resources>
