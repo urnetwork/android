@@ -281,13 +281,12 @@
     <string name="get_pro">प्रो प्राप्त करें</string>
     <string name="provider_count">%1$d प्रदाता</string>
     <string name="welcome_to_urnetwork">URnetwork में आपका स्वागत है</string>
-    <string name="urnetwork_intro_description">URnetwork ग्रह का सबसे स्थानीय और सबसे निजी नेटवर्क है। अन्य प्रमुख VPNs की तुलना में 20 गुना अधिक उपयोगी शहरों के साथ, और प्रति IP पता 100 गुना कम उपयोगकर्ता। दुनिया भर की सारी मस्ती और पूरी गोपनीयता बिना किसी समझौते के अनलॉक करें।</string>
+    <string name="urnetwork_intro_description">URnetwork ग्रह का सबसे स्थानीय और सबसे निजी नेटवर्क है।</string>
     <string name="or">या</string>
     <string name="participate_intro">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
     <string name="participate_intro_details">URnetwork एक पेटेंटेड प्रोटोकॉल द्वारा संचालित है जो सभी को सुरक्षित और संरक्षित रखता है।</string>
     <string name="participate">भाग लें</string>
     <string name="step_two">चरण 2</string>
-    <string name="refer_friends_perks">आपको मिलेगा +30 GiB/महीना\nआपके दोस्त को मिलेगा +30 GiB/महीना\nजीवनभर!\n</string>
     <string name="refer_friends_increase_free_data">कुछ दोस्तों को रेफ़र करें और अपनी मुफ्त डेटा को बढ़ते हुए देखें।</string>
     <string name="bonus_referral_code_label">बोनस रेफ़रल कोड</string>
     <string name="step_one">चरण 1</string>
@@ -309,4 +308,21 @@
     <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="kill_switch">िल स्विच</string>
     <string name="unstable_providers_warning">* (अस्थिर हो सकता है)</string>
+    <string name="open_source_transparent">100% ओपन सोर्स और पारदर्शी</string>
+    <string name="low_user_ip_ratio">कंटेंट एक्सेस के लिए सबसे कम यूज़र/IP अनुपात</string>
+    <string name="trusted_by_private_networks">%s से अधिक निजी नेटवर्क द्वारा विश्वसनीय</string>
+    <string name="community_edition">कम्युनिटी एडिशन</string>
+    <string name="community_edition_details">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
+    <string name="boost_bandwidth_title">अपनी बैंडविड्थ बढ़ाएँ - हर दिन अधिक कमाएँ</string>
+    <string name="boost_bandwidth_details">नेटवर्क में भाग लेकर और बैंडविड्थ प्रदान करके आप पुरस्कार कमा सकते हैं।</string>
+    <string name="default_bandwidth_earn_more_by">िफ़ॉल्ट रूप से, आपको %d GiB/महीना मिलता है। ऐसे आप अतिरिक्त बैंडविड्थ कमा सकते हैं:</string>
+    <string name="earn_more_bullet_stay_connected">रोज़ाना जुड़े रहें = प्रतिदिन %s GiB तक कमाएँ</string>
+    <string name="earn_more_bullet_refer">ित्र को रेफ़र करें = +%s GiB/महीना</string>
+    <string name="reliability_settings">िश्वसनीयता सेटिंग्स</string>
+    <string name="reliability_settings_details">िश्वसनीयता अधिकतम करने के लिए सेटिंग्स समायोजित करें। ऐप कनेक्टेड और वाई-फाई पर बैकग्राउंड में चलता है। विश्वसनीयता यह है कि आप कितनी IPs नेटवर्क के लिए लगातार उपलब्ध कराते हैं।</string>
+    <string name="when_you_refer_a_friend">जब आप किसी मित्र को रेफ़र करते हैं:</string>
+    <string name="refer_friends_perks">आपको जीवनभर +%s GiB/महीना मिलेगा</string>
+    <string name="refer_friends_they_get_data">आपके दोस्त को जीवनभर +%s GiB/महीना मिलेगा</string>
+    <string name="friends_save_too">आपके दोस्त भी बचत करते हैं -- सभी जीतते हैं।</string>
+    <string name="get_connected">कनेक्ट करें</string>
 </resources>

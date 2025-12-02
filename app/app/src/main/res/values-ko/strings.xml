@@ -304,13 +304,12 @@
     <string name="get_pro">Pro로 업그레이드</string>
     <string name="provider_count">%1$d개 제공자</string>
     <string name="welcome_to_urnetwork">URnetwork에 오신 것을 환영합니다</string>
-    <string name="urnetwork_intro_description">URnetwork는 지구상에서 가장 지역적이고 가장 프라이빗한 네트워크입니다. 다른 주요 VPN보다 20배 더 많은 사용 가능한 도시와 IP 주소당 100배 더 적은 사용자. 세상의 모든 재미와 모든 프라이버시를 타협 없이 누리세요.</string>
+    <string name="urnetwork_intro_description">URnetwork는 지구상에서 가장 지역적이고 가장 프라이빗한 네트워크입니다.</string>
     <string name="or">또는</string>
     <string name="participate_intro">네트워크에 참여하고 커뮤니티 에디션을 무료로 이용하세요.</string>
     <string name="participate_intro_details">URnetwork는 모두의 안전과 보안을 지키는 특허받은 프로토콜로 운영됩니다.</string>
     <string name="participate">참여하기</string>
     <string name="step_two">2단계</string>
-    <string name="refer_friends_perks">당신은 +30 GiB/월을 받습니다\n친구도 +30 GiB/월을 받습니다\n평생 동안!</string>
     <string name="refer_friends_increase_free_data">친구를 추천하고 무료 데이터가 늘어나는 것을 확인하세요.</string>
     <string name="bonus_referral_code_label">보너스 추천 코드</string>
     <string name="step_one">1단계</string>
@@ -332,4 +331,21 @@
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="kill_switch">킬 스위치</string>
     <string name="unstable_providers_warning">* (불안정할 수 있음)</string>
+    <string name="open_source_transparent">100% 오픈 소스 및 투명성</string>
+    <string name="low_user_ip_ratio">콘텐츠 접근 시 최저 사용자/IP 비율</string>
+    <string name="trusted_by_private_networks">%s개 이상의 프라이빗 네트워크에서 신뢰받음</string>
+    <string name="community_edition">커뮤니티 에디션</string>
+    <string name="community_edition_details">네트워크에 참여하고 커뮤니티 에디션을 무료로 이용하세요.</string>
+    <string name="boost_bandwidth_title">대역폭을 높이고 매일 더 많이 벌기</string>
+    <string name="boost_bandwidth_details">네트워크에 참여하고 대역폭을 제공하면 보상을 받을 수 있습니다.</string>
+    <string name="default_bandwidth_earn_more_by">기본적으로 매월 %d GiB를 받습니다. 추가 대역폭을 얻는 방법은 다음과 같습니다:</string>
+    <string name="earn_more_bullet_stay_connected">매일 연결 유지 = 하루 최대 %s GiB 적립</string>
+    <string name="earn_more_bullet_refer">친구 추천 = +%s GiB/월</string>
+    <string name="reliability_settings">신뢰성 설정</string>
+    <string name="reliability_settings_details">신뢰성을 극대화하려면 설정을 조정하세요. 앱은 연결되어 있고 Wi-Fi에 있을 때 백그라운드에서 실행됩니다. 신뢰성이란 네트워크에 지속적으로 제공하는 IP의 수를 의미합니다.</string>
+    <string name="when_you_refer_a_friend">친구를 추천하면:</string>
+    <string name="refer_friends_perks">평생 +%s GiB/월을 받습니다</string>
+    <string name="refer_friends_they_get_data">친구도 평생 +%s GiB/월을 받습니다</string>
+    <string name="friends_save_too">친구들도 절약합니다 -- 모두가 이깁니다.</string>
+    <string name="get_connected">연결하기</string>
 </resources>

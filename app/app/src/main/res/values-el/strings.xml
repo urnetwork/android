@@ -281,13 +281,12 @@
     <string name="get_pro">Απόκτησε το Pro</string>
     <string name="provider_count">%1$d πάροχοι</string>
     <string name="welcome_to_urnetwork">Καλώς ήρθατε στο URnetwork</string>
-    <string name="urnetwork_intro_description">Το URnetwork είναι το πιο τοπικό και πιο ιδιωτικό δίκτυο στον πλανήτη. Με πάνω από 20 φορές περισσότερες διαθέσιμες πόλεις από άλλα κορυφαία VPN και 100 φορές λιγότερους χρήστες ανά διεύθυνση IP. Ξεκλειδώστε όλη τη διασκέδαση του κόσμου και όλη την ιδιωτικότητα χωρίς συμβιβασμούς.</string>
+    <string name="urnetwork_intro_description">Το URnetwork είναι το πιο τοπικό και πιο ιδιωτικό δίκτυο στον πλανήτη.</string>
     <string name="or">ή</string>
     <string name="participate_intro">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
     <string name="participate_intro_details">Το URnetwork λειτουργεί με ένα κατοχυρωμένο πρωτόκολλο που διασφαλίζει την ασφάλεια όλων.</string>
     <string name="participate">Συμμετοχή</string>
     <string name="step_two">Βήμα 2</string>
-    <string name="refer_friends_perks">Παίρνεις +30 GiB/μήνα\nΟ φίλος σου παίρνει +30 GiB/μήνα\nΓια πάντα!</string>
     <string name="refer_friends_increase_free_data">Προτείνετε μερικούς φίλους και δείτε τα δωρεάν δεδομένα σας να αυξάνονται.</string>
     <string name="bonus_referral_code_label">Μπόνους κωδικός παραπομπής</string>
     <string name="step_one">Βήμα 1</string>
@@ -309,4 +308,21 @@
     <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (μπορεί να είναι ασταθές)</string>
+    <string name="open_source_transparent">100% ανοιχτού κώδικα και διαφανές</string>
+    <string name="low_user_ip_ratio">Η χαμηλότερη αναλογία χρηστών/IP για πρόσβαση σε περιεχόμενο</string>
+    <string name="trusted_by_private_networks">Εμπιστεύεται από πάνω από %s ιδιωτικά δίκτυα</string>
+    <string name="community_edition">Έκδοση κοινότητας</string>
+    <string name="community_edition_details">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
+    <string name="boost_bandwidth_title">Ενίσχυσε το εύρος ζώνης σου - Κέρδισε περισσότερα κάθε μέρα</string>
+    <string name="boost_bandwidth_details">Συμμετέχοντας στο δίκτυο και παρέχοντας εύρος ζώνης μπορείτε να κερδίσετε ανταμοιβές.</string>
+    <string name="default_bandwidth_earn_more_by">Από προεπιλογή, λαμβάνετε %d GiB/μήνα. Δείτε πώς μπορείτε να κερδίσετε επιπλέον εύρος ζώνης:</string>
+    <string name="earn_more_bullet_stay_connected">Μείνετε συνδεδεμένοι καθημερινά = Κερδίστε έως %s GiB/ημέρα</string>
+    <string name="earn_more_bullet_refer">Προτείνετε έναν φίλο = +%s GiB/μήνα</string>
+    <string name="reliability_settings">Ρυθμίσεις αξιοπιστίας</string>
+    <string name="reliability_settings_details">Ρυθμίστε τις ρυθμίσεις για μέγιστη αξιοπιστία. Η εφαρμογή λειτουργεί στο παρασκήνιο όταν είναι συνδεδεμένη και σε Wi-Fi. Η αξιοπιστία είναι πόσες διευθύνσεις IP διαθέτετε συνεχώς στο δίκτυο.</string>
+    <string name="when_you_refer_a_friend">Όταν προτείνετε έναν φίλο:</string>
+    <string name="refer_friends_perks">Παίρνεις +%s GiB/μήνα για πάντα</string>
+    <string name="refer_friends_they_get_data">Ο φίλος σου παίρνει +%s GiB/μήνα για πάντα</string>
+    <string name="friends_save_too">Οι φίλοι σου εξοικονομούν επίσης -- όλοι κερδίζουν.</string>
+    <string name="get_connected">Συνδεθείτε</string>
 </resources>

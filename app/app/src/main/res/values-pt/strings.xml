@@ -281,13 +281,12 @@
     <string name="get_pro">Obter Pro</string>
     <string name="provider_count">%1$d fornecedores</string>
     <string name="welcome_to_urnetwork">Bem-vindo ao URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork é a rede mais local e mais privada do planeta. Com mais de 20 vezes mais cidades utilizáveis do que outros VPNs líderes e 100 vezes menos utilizadores por endereço IP. Desbloqueie toda a diversão do mundo e toda a privacidade sem compromissos.</string>
+    <string name="urnetwork_intro_description">URnetwork é a rede mais local e mais privada do planeta.</string>
     <string name="or">ou</string>
     <string name="participate_intro">Participe na rede e tenha acesso gratuito à edição comunitária.</string>
     <string name="participate_intro_details">URnetwork é alimentada por um protocolo patenteado que mantém todos seguros e protegidos.</string>
     <string name="participate">Participar</string>
     <string name="step_two">Etapa 2</string>
-    <string name="refer_friends_perks">Você recebe +30 GiB/mês\nO seu amigo recebe +30 GiB/mês\nPara sempre!</string>
     <string name="refer_friends_increase_free_data">Recomende alguns amigos e veja os seus dados gratuitos aumentarem.</string>
     <string name="bonus_referral_code_label">Código de referência bónus</string>
     <string name="step_one">Etapa 1</string>
@@ -309,5 +308,22 @@
     <string name="feedback_include_logs">Anexar logs ao feedback (opcional)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (pode ser instável)</string>
+    <string name="open_source_transparent">100% open source e transparente</string>
+    <string name="low_user_ip_ratio">Menor proporção de utilizadores por IP para aceder a conteúdo</string>
+    <string name="trusted_by_private_networks">Confiado por mais de %s redes privadas</string>
+    <string name="community_edition">Edição comunitária</string>
+    <string name="community_edition_details">Participe na rede e tenha acesso gratuito à edição comunitária.</string>
+    <string name="boost_bandwidth_title">Aumente a sua largura de banda - Ganhe mais todos os dias</string>
+    <string name="boost_bandwidth_details">Ao participar na rede e fornecer largura de banda, pode ganhar recompensas.</string>
+    <string name="default_bandwidth_earn_more_by">Por defeito, recebe %d GiB/mês. Veja como pode ganhar largura de banda extra:</string>
+    <string name="earn_more_bullet_stay_connected">Mantenha-se ligado diariamente = Ganhe até %s GiB/dia</string>
+    <string name="earn_more_bullet_refer">Recomende um amigo = +%s GiB/mês</string>
+    <string name="reliability_settings">Definições de fiabilidade</string>
+    <string name="reliability_settings_details">Ajuste as definições para maximizar a fiabilidade. A aplicação funciona em segundo plano quando está ligada e em Wi-Fi. Fiabilidade é o número de IPs que disponibiliza continuamente à rede.</string>
+    <string name="when_you_refer_a_friend">Quando recomenda um amigo:</string>
+    <string name="refer_friends_perks">Recebe +%s GiB/mês para sempre</string>
+    <string name="refer_friends_they_get_data">O seu amigo recebe +%s GiB/mês para sempre</string>
+    <string name="friends_save_too">Os seus amigos também poupam -- todos ganham.</string>
+    <string name="get_connected">Ligar-se</string>
 
 </resources>

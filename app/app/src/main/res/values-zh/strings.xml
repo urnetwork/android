@@ -288,7 +288,6 @@
     <string name="participate_intro_details">URnetwork 由获得专利的协议驱动，保障每个人的安全和保障。</string>
     <string name="participate">参与</string>
     <string name="step_two">步骤 2</string>
-    <string name="refer_friends_perks">你获得 +30 GiB/月\n你的朋友获得 +30 GiB/月\n终身享有！</string>
     <string name="refer_friends_increase_free_data">推荐一些朋友，看看你的免费流量如何增加。</string>
     <string name="bonus_referral_code_label">奖励推荐码</string>
     <string name="step_one">步骤 1</string>
@@ -310,4 +309,21 @@
     <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="kill_switch">断网保护</string>
     <string name="unstable_providers_warning">*（可能不稳定）</string>
+    <string name="open_source_transparent">100% 开源且透明</string>
+    <string name="low_user_ip_ratio">访问内容时用户/IP比例最低</string>
+    <string name="trusted_by_private_networks">受到超过 %s 个私人网络的信任</string>
+    <string name="community_edition">社区版</string>
+    <string name="community_edition_details">参与网络并免费获得社区版的访问权限。</string>
+    <string name="boost_bandwidth_title">提升你的带宽 - 每天赚更多</string>
+    <string name="boost_bandwidth_details">通过参与网络并提供带宽，您可以获得奖励。</string>
+    <string name="default_bandwidth_earn_more_by">默认情况下，您每月获得 %d GiB。以下是赚取额外带宽的方法：</string>
+    <string name="earn_more_bullet_stay_connected">每天保持连接 = 每日最多可赚 %s GiB</string>
+    <string name="earn_more_bullet_refer">推荐好友 = +%s GiB/月</string>
+    <string name="reliability_settings">可靠性设置</string>
+    <string name="reliability_settings_details">调整设置以最大化可靠性。应用在连接并使用 Wi-Fi 时会在后台运行。可靠性指的是你持续向网络提供的 IP 数量。</string>
+    <string name="when_you_refer_a_friend">当你推荐朋友时：</string>
+    <string name="refer_friends_perks">你获得 +%s GiB/月，终身享有</string>
+    <string name="refer_friends_they_get_data">你的朋友获得 +%s GiB/月，终身享有</string>
+    <string name="friends_save_too">你的朋友也能省钱——人人受益。</string>
+    <string name="get_connected">连接</string>
 </resources>

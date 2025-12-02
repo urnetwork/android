@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.introduction
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -29,10 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
 import com.bringyour.network.ui.IntroRoute
-import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.OffBlack
+import com.bringyour.network.ui.theme.NeueBitLargeTextStyle
+import com.bringyour.network.ui.theme.NeueBitSmallTextStyle
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.upgrade.SubscriptionOptions
 
@@ -85,32 +88,33 @@ fun IntroductionInitial(
 
             Text(
                 stringResource(id = R.string.urnetwork_intro_description),
-                style = MaterialTheme.typography.bodyLarge
+                style = NeueBitLargeTextStyle,
+                textAlign = TextAlign.Start
             )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            BulletPoint(stringResource(id = R.string.open_source_transparent))
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Column(
-                modifier = Modifier
-                    .background(
-                        OffBlack,
-                        RoundedCornerShape(12.dp)
-                    )
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
+            BulletPoint(stringResource(id = R.string.low_user_ip_ratio))
 
-                SubscriptionOptions(
-                    planViewModel = planViewModel,
-                    createSolanaPaymentIntent = createSolanaPaymentIntent,
-                    onSolanaUriOpened = { reference ->
-                        setPendingSolanaSubscriptionReference(reference)
-                    },
-                    onStripePaymentSuccess = onStripePaymentSuccess,
-                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
-                )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            }
+            BulletPoint(stringResource(id = R.string.trusted_by_private_networks, "100,000"))
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            SubscriptionOptions(
+                planViewModel = planViewModel,
+                createSolanaPaymentIntent = createSolanaPaymentIntent,
+                onSolanaUriOpened = { reference ->
+                    setPendingSolanaSubscriptionReference(reference)
+                },
+                onStripePaymentSuccess = onStripePaymentSuccess,
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -125,36 +129,38 @@ fun IntroductionInitial(
 
             Column(
                 modifier = Modifier
-                    .background(
-                        OffBlack,
-                        RoundedCornerShape(12.dp)
-                    )
                     .fillMaxWidth()
-                    .padding(16.dp),
-
+                    .border(width = 2.dp, color = TextMuted, shape = RoundedCornerShape(12.dp))
+                    .padding(16.dp)
+                    .clickable {
+                        navController.navigate(IntroRoute.IntroductionUsageBar)
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Text(
-                    stringResource(id = R.string.participate_intro),
+                    stringResource(id = R.string.community_edition),
                     style = TopBarTitleTextStyle,
-                    textAlign = TextAlign.Start
+                    color = TextMuted
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    stringResource(id = R.string.participate_intro_details),
-                    style = MaterialTheme.typography.bodyLarge
+                    stringResource(id = R.string.community_edition_details),
+                    style = NeueBitSmallTextStyle,
+                    color = TextMuted
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                URButton(onClick = {
-                    navController.navigate(IntroRoute.IntroductionUsageBar)
-                }) { btnStyle ->
-                    Text(stringResource(id = R.string.participate), style = btnStyle)
-                }
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+
+            Text(
+                stringResource(id = R.string.participate_intro_details),
+                modifier = Modifier.fillMaxWidth(),
+                style = TopBarTitleTextStyle,
+                textAlign = TextAlign.Center
+            )
 
         }
     }

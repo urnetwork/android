@@ -307,13 +307,12 @@
     <string name="get_pro">Word Pro</string>
     <string name="provider_count">%1$d aanbieders</string>
     <string name="welcome_to_urnetwork">Welkom bij URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork is het meest lokale en meest privé netwerk ter wereld. Met meer dan 20x bruikbare steden dan andere toonaangevende VPN’s, en 100x minder gebruikers per IP-adres. Ontgrendel alle plezier in de wereld en alle privacy zonder compromissen.</string>
+    <string name="urnetwork_intro_description">URnetwork is het meest lokale en meest privé netwerk ter wereld.</string>
     <string name="or">of</string>
     <string name="participate_intro">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
     <string name="participate_intro_details">URnetwork wordt aangedreven door een gepatenteerd protocol dat iedereen veilig en beschermd houdt.</string>
     <string name="participate">Deelnemen</string>
     <string name="step_two">Stap 2</string>
-    <string name="refer_friends_perks">Jij krijgt +30 GiB/maand Je vriend krijgt +30 GiB/maand Voor altijd!</string>
     <string name="refer_friends_increase_free_data">Verwijs wat vrienden door en zie je gratis data stijgen.</string>
     <string name="bonus_referral_code_label">Bonus-verwijzingscode</string>
     <string name="step_one">Stap 1</string>
@@ -335,4 +334,21 @@
     <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (kan onstabiel zijn)</string>
+    <string name="open_source_transparent">100% open source en transparant</string>
+    <string name="low_user_ip_ratio">Laagste gebruiker/IP-verhouding voor toegang tot content</string>
+    <string name="trusted_by_private_networks">Vertrouwd door meer dan %s privénetwerken</string>
+    <string name="community_edition">Community-editie</string>
+    <string name="community_edition_details">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
+    <string name="boost_bandwidth_title">Vergroot je bandbreedte - Verdien elke dag meer</string>
+    <string name="boost_bandwidth_details">Door deel te nemen aan het netwerk en bandbreedte te leveren kun je beloningen verdienen.</string>
+    <string name="default_bandwidth_earn_more_by">Standaard krijg je %d GiB/maand. Zo kun je extra bandbreedte verdienen:</string>
+    <string name="earn_more_bullet_stay_connected">Dagelijks verbonden blijven = Verdien tot %s GiB/dag</string>
+    <string name="earn_more_bullet_refer">Vriend doorverwijzen = +%s GiB/maand</string>
+    <string name="reliability_settings">Betrouwbaarheidsinstellingen</string>
+    <string name="reliability_settings_details">Pas instellingen aan om de betrouwbaarheid te maximaliseren. De app draait op de achtergrond wanneer verbonden en op Wi-Fi. Betrouwbaarheid is hoeveel IP’s je continu beschikbaar maakt voor het netwerk.</string>
+    <string name="when_you_refer_a_friend">Wanneer je een vriend doorverwijst:</string>
+    <string name="refer_friends_perks">Jij krijgt +%s GiB/maand voor altijd</string>
+    <string name="refer_friends_they_get_data">Je vriend krijgt +%s GiB/maand voor altijd</string>
+    <string name="friends_save_too">Je vrienden besparen ook -- iedereen wint.</string>
+    <string name="get_connected">Verbinden</string>
 </resources>

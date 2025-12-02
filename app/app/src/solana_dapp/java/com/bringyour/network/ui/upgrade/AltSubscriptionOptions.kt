@@ -2,8 +2,8 @@ package com.bringyour.network.ui.upgrade
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,25 +16,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.PlanOptionContainer
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.theme.OffBlack
+import com.bringyour.network.ui.shared.enums.PlanType
+import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.ui.theme.Yellow
+import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 
-//@OptIn(ExperimentalCustomerSessionApi::class)
 @Composable
 fun AltSubscriptionOptions(
     onStripePaymentSuccess: () -> Unit,
@@ -67,8 +67,6 @@ fun AltSubscriptionOptions(
                 return@createPaymentIntent
             }
 
-//            yearlyPaymentIntentClientSecret = stripePaymentIntentViewModel.findClientSecret(result.paymentIntents, "yearly")
-//
             val customerConfig = PaymentSheet.CustomerConfiguration(
                 id = result.customerId,
                 ephemeralKeySecret = result.ephemeralKey
@@ -113,105 +111,59 @@ fun AltSubscriptionOptions(
 
     }
 
+    val (selectedPlan, setSelectedPlan) = remember { mutableStateOf(PlanType.YEARLY) }
 
+    Column() {
 
-    Column(
-        modifier = Modifier
-            .background(
-                OffBlack,
-                RoundedCornerShape(12.dp)
-            )
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-
-        Row (
-            verticalAlignment = Alignment.Bottom
-        ) {
-
-            Text(
-                "$5",
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Text(
-                "/month",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-
-        }
-
-        Text(
-            // stringResource(id = R.string.pay_with_stripe)
-            "Monthly",
-            fontWeight = FontWeight.Bold,
-            color = TextMuted
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-
-            URButton(
-                onClick = {
-                    upgradeStripeMonthly()
-//                        if (customerConfig != null && monthlyPaymentIntentClientSecret != null) {
-//                            presentPaymentSheet(
-//                                paymentSheet,
-//                                customerConfig!!,
-//                                monthlyPaymentIntentClientSecret!!
-//                            )
-//                        }
-                },
-                 enabled = !isCreatingIntents,
-                isProcessing = isCreatingIntents
-            ) { buttonTextStyle ->
-                Text(
-                    stringResource(id = R.string.pay_with_stripe),
-                    style = buttonTextStyle
-                )
+        /**
+         * Yearly
+         */
+        PlanOptionContainer(
+            isSelected = selectedPlan == PlanType.YEARLY,
+            select = {
+                setSelectedPlan(PlanType.YEARLY)
+            },
+            content = {
+                Column() {
+                    Text(
+                        "$40 Annual (Save 33%)",
+                        style = TopBarTitleTextStyle
+                    )
+                }
+            },
+            badge = {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            Green,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        "Most popular",
+                        color = Black,
+                        style = TopBarTitleTextStyle
+                    )
+                }
             }
-        }
-    }
+        )
 
-    Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-    Column(
-        modifier = Modifier
-            // .padding(16.dp)
-            .background(
-                OffBlack,
-                RoundedCornerShape(12.dp)
-            )
-            .border(width = 2.dp, color = Yellow, shape = RoundedCornerShape(12.dp))
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-
-        Row (
-            verticalAlignment = Alignment.Bottom
-        ) {
-
-            Text(
-                "$3.33",
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Text(
-                "/month",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-
-        }
-
-        Text(
-            "$40 Yearly",
-            fontWeight = FontWeight.Bold,
-            color = TextMuted
+        PlanOptionContainer(
+            isSelected = selectedPlan == PlanType.MONTHLY,
+            select = {
+                setSelectedPlan(PlanType.MONTHLY)
+            },
+            content = {
+                Column() {
+                    Text(
+                        "$5/month",
+                        style = TopBarTitleTextStyle
+                    )
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -220,15 +172,11 @@ fun AltSubscriptionOptions(
 
             URButton(
                 onClick = {
-                    upgradeStripeYearly()
-
-//                        if (customerConfig != null && yearlyPaymentIntentClientSecret != null) {
-//                            presentPaymentSheet(
-//                                paymentSheet,
-//                                customerConfig!!,
-//                                yearlyPaymentIntentClientSecret!!
-//                            )
-//                        }
+                    if (selectedPlan == PlanType.YEARLY) {
+                        upgradeStripeYearly()
+                    } else {
+                        upgradeStripeMonthly()
+                    }
                 },
                 enabled = !isCreatingIntents,
                 isProcessing = isCreatingIntents
@@ -243,6 +191,9 @@ fun AltSubscriptionOptions(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        /**
+         * Solana yearly
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -253,14 +204,17 @@ fun AltSubscriptionOptions(
                     setIsPromptingSolanaPayment(true)
                     upgradeSolana()
                 },
-                enabled = !isPromptingSolanaPayment && !isCheckingSolanaTransaction,
+                enabled = !isPromptingSolanaPayment &&
+                        !isCheckingSolanaTransaction &&
+                        selectedPlan == PlanType.YEARLY,
                 isProcessing = isPromptingSolanaPayment || isCheckingSolanaTransaction
             ) { buttonTextStyle ->
                 Text(
-                    "Join with Solana Wallet",
+                    stringResource(id = R.string.join_solana_wallet),
                     style = buttonTextStyle
                 )
             }
+
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -270,6 +224,7 @@ fun AltSubscriptionOptions(
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted
         )
+
     }
 }
 

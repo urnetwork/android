@@ -255,13 +255,12 @@
     <string name="get_pro">รับ Pro</string>
     <string name="provider_count">%1$d ผู้ให้บริการ</string>
     <string name="welcome_to_urnetwork">ยินดีต้อนรับสู่ URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork เป็นเครือข่ายที่มีความเป็นท้องถิ่นและเป็นส่วนตัวมากที่สุดในโลก ด้วยจำนวนเมืองที่ใช้งานได้มากกว่า VPN ชั้นนำอื่น ๆ ถึง 20 เท่า และมีผู้ใช้งานต่อที่อยู่ IP น้อยกว่า 100 เท่า ปลดล็อกความสนุกทั่วโลกและความเป็นส่วนตัวโดยไม่มีข้อจำกัด</string>
+    <string name="urnetwork_intro_description">URnetwork เป็นเครือข่ายที่มีความเป็นท้องถิ่นและเป็นส่วนตัวมากที่สุดในโลก</string>
     <string name="or">หรือ</string>
     <string name="participate_intro">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
     <string name="participate_intro_details">URnetwork ขับเคลื่อนด้วยโปรโตคอลที่จดสิทธิบัตรซึ่งช่วยให้ทุกคนปลอดภัยและมั่นคง</string>
     <string name="participate">เข้าร่วม</string>
     <string name="step_two">ขั้นตอนที่ 2</string>
-    <string name="refer_friends_perks">คุณได้รับ +30 GiB/เดือน\nเพื่อนของคุณได้รับ +30 GiB/เดือน\nตลอดชีวิต!\n</string>
     <string name="refer_friends_increase_free_data">แนะนำเพื่อนสักสองสามคนแล้วดูว่าข้อมูลฟรีของคุณเพิ่มขึ้นอย่างไร</string>
     <string name="bonus_referral_code_label">รหัสแนะนำโบนัส</string>
     <string name="step_one">ขั้นตอนที่ 1</string>
@@ -283,4 +282,21 @@
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="kill_switch">สวิตช์หยุดการเชื่อมต่อ</string>
     <string name="unstable_providers_warning">* (อาจไม่เสถียร)</string>
+    <string name="open_source_transparent">โอเพ่นซอร์สและโปร่งใส 100%</string>
+    <string name="low_user_ip_ratio">อัตราส่วนผู้ใช้/IP ต่ำที่สุดสำหรับการเข้าถึงเนื้อหา</string>
+    <string name="trusted_by_private_networks">ได้รับความไว้วางใจจากเครือข่ายส่วนตัวมากกว่า %s เครือข่าย</string>
+    <string name="community_edition">ฉบับชุมชน</string>
+    <string name="community_edition_details">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
+    <string name="boost_bandwidth_title">เพิ่มแบนด์วิดท์ของคุณ - รับรายได้มากขึ้นทุกวัน</string>
+    <string name="boost_bandwidth_details">โดยการเข้าร่วมเครือข่ายและให้แบนด์วิดท์ คุณสามารถรับรางวัลได้</string>
+    <string name="default_bandwidth_earn_more_by">โดยค่าเริ่มต้น คุณจะได้รับ %d GiB/เดือน นี่คือวิธีที่คุณสามารถรับแบนด์วิดท์เพิ่มเติม:</string>
+    <string name="earn_more_bullet_stay_connected">เชื่อมต่อทุกวัน = รับสูงสุด %s GiB/วัน</string>
+    <string name="earn_more_bullet_refer">แนะนำเพื่อน = +%s GiB/เดือน</string>
+    <string name="reliability_settings">การตั้งค่าความน่าเชื่อถือ</string>
+    <string name="reliability_settings_details">ปรับการตั้งค่าเพื่อเพิ่มความน่าเชื่อถือสูงสุด แอปจะทำงานเบื้องหลังเมื่อเชื่อมต่อและใช้ Wi-Fi ความน่าเชื่อถือคือจำนวน IP ที่คุณทำให้พร้อมใช้งานกับเครือข่ายอย่างต่อเนื่อง</string>
+    <string name="when_you_refer_a_friend">เมื่อคุณแนะนำเพื่อน:</string>
+    <string name="refer_friends_perks">คุณได้รับ +%s GiB/เดือนตลอดชีวิต</string>
+    <string name="refer_friends_they_get_data">เพื่อนของคุณได้รับ +%s GiB/เดือนตลอดชีวิต</string>
+    <string name="friends_save_too">เพื่อนของคุณก็ประหยัดได้ -- ทุกคนได้ประโยชน์</string>
+    <string name="get_connected">เชื่อมต่อ</string>
 </resources>
