@@ -198,7 +198,7 @@
     <string name="disconnect">연결 해제</string>
     <string name="reconnect">다시 연결</string>
     <string name="connecting_status_indicator">제공업체에 연결 중</string>
-    <string name="connected_provider_count">%s개의 제공업체에 연결됨</string>
+    <string name="connected_provider_count">%d개의 제공업체에 연결됨</string>
     <string name="ready_to_connect">연결 준비 완료</string>
     <string name="network_name_ready_to_connect">%s 연결 준비 완료</string>
     <string name="need_more_data_faster">더 많은 데이터를 더 빠르게 원하십니까?</string>
@@ -302,7 +302,7 @@
     <string name="referral_bonus">+%1$d GiB/월</string>
     <string name="checking_payment">결제 확인 중</string>
     <string name="get_pro">Pro로 업그레이드</string>
-    <string name="provider_count">%1$d개 제공자</string>
+    <string name="provider_count">%1$s개 제공자</string>
     <string name="welcome_to_urnetwork">URnetwork에 오신 것을 환영합니다</string>
     <string name="urnetwork_intro_description">URnetwork는 지구상에서 가장 지역적이고 가장 프라이빗한 네트워크입니다.</string>
     <string name="or">또는</string>

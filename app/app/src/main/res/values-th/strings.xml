@@ -149,7 +149,7 @@
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
     <string name="reconnect">เชื่อมต่อใหม่</string>
     <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ</string>
-    <string name="connected_provider_count">เชื่อมต่อกับผู้ให้บริการ %s แล้ว</string>
+    <string name="connected_provider_count">เชื่อมต่อกับผู้ให้บริการ %d แล้ว</string>
     <string name="ready_to_connect">พร้อมเชื่อมต่อ</string>
     <string name="network_name_ready_to_connect">เครือข่าย %s พร้อมให้เชื่อมต่อแล้ว</string>
     <string name="need_more_data_faster">ต้องการดาต้าที่เยอะขึ้น และเร็วขึ้นไหม?</string>
@@ -253,7 +253,7 @@
     <string name="referral_bonus">+%1$d GiB/เดือน</string>
     <string name="checking_payment">กำลังตรวจสอบการชำระเงิน</string>
     <string name="get_pro">รับ Pro</string>
-    <string name="provider_count">%1$d ผู้ให้บริการ</string>
+    <string name="provider_count">%1$s ผู้ให้บริการ</string>
     <string name="welcome_to_urnetwork">ยินดีต้อนรับสู่ URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork เป็นเครือข่ายที่มีความเป็นท้องถิ่นและเป็นส่วนตัวมากที่สุดในโลก</string>
     <string name="or">หรือ</string>

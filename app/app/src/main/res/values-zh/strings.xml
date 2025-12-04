@@ -176,7 +176,7 @@
     <string name="disconnect">断开连接</string>
     <string name="reconnect">重新连接</string>
     <string name="connecting_status_indicator">正在连接到提供商</string>
-    <string name="connected_provider_count">已连接到 %s 个提供商</string>
+    <string name="connected_provider_count">已连接到 %d 个提供商</string>
     <string name="ready_to_connect">准备连接</string>
     <string name="network_name_ready_to_connect">%s 已准备好连接</string>
     <string name="need_more_data_faster">需要更多数据，更快吗？</string>
@@ -280,7 +280,7 @@
     <string name="referral_bonus">+%1$d GiB/月</string>
     <string name="checking_payment">正在检查付款</string>
     <string name="get_pro">升级为 Pro</string>
-    <string name="provider_count">%1$d 个提供商</string>
+    <string name="provider_count">%1$s 个提供商</string>
     <string name="welcome_to_urnetwork">欢迎来到 URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork 是全球最本地化、最私密的网络。拥有比其他主流 VPN 多 20 倍的可用城市，以及每个 IP 地址少 100 倍的用户。尽情享受世界的乐趣和无与伦比的隐私。</string>
     <string name="or">或</string>

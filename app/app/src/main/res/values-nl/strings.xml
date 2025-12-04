@@ -201,7 +201,7 @@
     <string name="disconnect">Verbinding verbreken</string>
     <string name="reconnect">Opnieuw verbinden</string>
     <string name="connecting_status_indicator">Verbinden met providers</string>
-    <string name="connected_provider_count">Verbonden met %s providers</string>
+    <string name="connected_provider_count">Verbonden met %d providers</string>
     <string name="ready_to_connect">Klaar om te verbinden</string>
     <string name="network_name_ready_to_connect">%s is klaar om te verbinden</string>
     <string name="need_more_data_faster">Meer data, sneller nodig?</string>
@@ -305,7 +305,7 @@
     <string name="referral_bonus">+%1$d GiB/maand</string>
     <string name="checking_payment">Betaling controleren</string>
     <string name="get_pro">Word Pro</string>
-    <string name="provider_count">%1$d aanbieders</string>
+    <string name="provider_count">%1$s aanbieders</string>
     <string name="welcome_to_urnetwork">Welkom bij URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork is het meest lokale en meest privé netwerk ter wereld.</string>
     <string name="or">of</string>

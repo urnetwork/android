@@ -176,7 +176,7 @@
     <string name="disconnect">Tenganisha</string>
     <string name="reconnect">Unganisha tena</string>
     <string name="connecting_status_indicator">Inaunganisha kwa watoa huduma</string>
-    <string name="connected_provider_count">Imeunganishwa na watoa huduma %s</string>
+    <string name="connected_provider_count">Imeunganishwa na watoa huduma %d</string>
     <string name="ready_to_connect">Tayari kuunganisha</string>
     <string name="network_name_ready_to_connect">%s iko tayari kuunganisha</string>
     <string name="need_more_data_faster">Unahitaji data zaidi, haraka zaidi?</string>
@@ -280,7 +280,7 @@
     <string name="referral_bonus">+%1$d GiB/mwezi</string>
     <string name="checking_payment">Inakagua malipo</string>
     <string name="get_pro">Pata Pro</string>
-    <string name="provider_count">%1$d watoa huduma</string>
+    <string name="provider_count">%1$s watoa huduma</string>
     <string name="welcome_to_urnetwork">Karibu kwenye URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork ndiyo mtandao wa karibu zaidi na wa faragha zaidi duniani.</string>
     <string name="or">au</string>

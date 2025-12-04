@@ -175,7 +175,7 @@
     <string name="disconnect">قطع الاتصال</string>
     <string name="reconnect">إعادة الاتصال</string>
     <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة</string>
-    <string name="connected_provider_count">متصل بـ %s من مزودي الخدمة</string>
+    <string name="connected_provider_count">متصل بـ %d من مزودي الخدمة</string>
     <string name="ready_to_connect">جاهز للاتصال</string>
     <string name="network_name_ready_to_connect">%s جاهزة للاتصال</string>
     <string name="need_more_data_faster">هل تحتاج إلى المزيد من البيانات وبشكل أسرع؟</string>
@@ -279,7 +279,7 @@
     <string name="referral_bonus">+%1$d GiB/شهر</string>
     <string name="checking_payment">جارٍ التحقق من الدفع</string>
     <string name="get_pro">احصل على Pro</string>
-    <string name="provider_count">%1$d مزود</string>
+    <string name="provider_count">%1$s مزود</string>
     <string name="welcome_to_urnetwork">مرحبًا بك في URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork هي الشبكة الأكثر محلية والأكثر خصوصية على الكوكب.</string>
     <string name="or">" أو"</string>

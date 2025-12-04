@@ -175,7 +175,7 @@
     <string name="disconnect">Αποσύνδεση</string>
     <string name="reconnect">Επανασύνδεση</string>
     <string name="connecting_status_indicator">Σύνδεση με παρόχους</string>
-    <string name="connected_provider_count">Συνδεδεμένο με %s παρόχους</string>
+    <string name="connected_provider_count">Συνδεδεμένο με %d παρόχους</string>
     <string name="ready_to_connect">Έτοιμο για σύνδεση</string>
     <string name="network_name_ready_to_connect">%s είναι έτοιμο για σύνδεση</string>
     <string name="need_more_data_faster">Χρειάζεστε περισσότερα δεδομένα, πιο γρήγορα;</string>
@@ -279,7 +279,7 @@
     <string name="referral_bonus">+%1$d GiB/μήνα</string>
     <string name="checking_payment">" Έλεγχος πληρωμής"</string>
     <string name="get_pro">Απόκτησε το Pro</string>
-    <string name="provider_count">%1$d πάροχοι</string>
+    <string name="provider_count">%1$s πάροχοι</string>
     <string name="welcome_to_urnetwork">Καλώς ήρθατε στο URnetwork</string>
     <string name="urnetwork_intro_description">Το URnetwork είναι το πιο τοπικό και πιο ιδιωτικό δίκτυο στον πλανήτη.</string>
     <string name="or">ή</string>
