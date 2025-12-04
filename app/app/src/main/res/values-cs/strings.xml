@@ -149,7 +149,7 @@
     <string name="disconnect">Odpojení</string>
     <string name="reconnect">Znovu připojit</string>
     <string name="connecting_status_indicator">Připojení k poskytovatelům</string>
-    <string name="connected_provider_count">Připojení k %s poskytovatelům</string>
+    <string name="connected_provider_count">Připojení k %d poskytovatelům</string>
     <string name="ready_to_connect">Připraveno k připojení</string>
     <string name="network_name_ready_to_connect">Síť %s je připravená k připojení</string>
     <string name="need_more_data_faster">Potřebujete více dat a rychleji?</string>
@@ -253,7 +253,7 @@
     <string name="referral_bonus">+%1$d GiB/měsíc</string>
     <string name="checking_payment">Kontrola platby</string>
     <string name="get_pro">Získat Pro</string>
-    <string name="provider_count">%1$d poskytovatelů</string>
+    <string name="provider_count">%1$s poskytovatelů</string>
     <string name="welcome_to_urnetwork">Vítejte v URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork je nejlokálnější a nejvíce soukromá síť na světě.</string>
     <string name="or">nebo</string>

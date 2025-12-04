@@ -201,7 +201,7 @@
     <string name="disconnect">Отключить</string>
     <string name="reconnect">Переподключить</string>
     <string name="connecting_status_indicator">Подключение к провайдерам</string>
-    <string name="connected_provider_count">Подключено к %s провайдерам</string>
+    <string name="connected_provider_count">Подключено к %d провайдерам</string>
     <string name="ready_to_connect">Готово к подключению</string>
     <string name="network_name_ready_to_connect">%s готово к подключению</string>
     <string name="need_more_data_faster">Нужно больше данных и выше скорость?</string>
@@ -305,7 +305,7 @@
     <string name="referral_bonus">+%1$d GiB/месяц</string>
     <string name="checking_payment">Проверка платежа</string>
     <string name="get_pro">Получить Pro</string>
-    <string name="provider_count">%1$d провайдеров</string>
+    <string name="provider_count">%1$s провайдеров</string>
     <string name="welcome_to_urnetwork">Добро пожаловать в URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork — самая локальная и самая приватная сеть на планете.</string>
     <string name="or">или</string>

@@ -175,7 +175,7 @@
     <string name="disconnect">Desconectar</string>
     <string name="reconnect">Reconectar</string>
     <string name="connecting_status_indicator">A conectar aos provedores</string>
-    <string name="connected_provider_count">Ligado a %s fornecedores</string>
+    <string name="connected_provider_count">Ligado a %d fornecedores</string>
     <string name="ready_to_connect">Pronto para conectar</string>
     <string name="network_name_ready_to_connect">%s está pronto para conectar</string>
     <string name="need_more_data_faster">Precisa de mais dados, mais rápido?</string>
@@ -279,7 +279,7 @@
     <string name="referral_bonus">+%1$d GiB/mês</string>
     <string name="checking_payment">A verificar pagamento</string>
     <string name="get_pro">Obter Pro</string>
-    <string name="provider_count">%1$d fornecedores</string>
+    <string name="provider_count">%1$s fornecedores</string>
     <string name="welcome_to_urnetwork">Bem-vindo ao URnetwork</string>
     <string name="urnetwork_intro_description">URnetwork é a rede mais local e mais privada do planeta.</string>
     <string name="or">ou</string>

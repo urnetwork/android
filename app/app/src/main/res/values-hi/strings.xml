@@ -175,7 +175,7 @@
     <string name="disconnect">डिस्कनेक्ट क</string>
     <string name="reconnect">पुनः कनेक्ट करें</string>
     <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है</string>
-    <string name="connected_provider_count">%s प्रदाताओं से कनेक्ट किया गया</string>
+    <string name="connected_provider_count">%d प्रदाताओं से कनेक्ट किया गया</string>
     <string name="ready_to_connect">कनेक्ट करने के लिए तैयार</string>
     <string name="network_name_ready_to_connect">%s कनेक्ट करने के लिए तैयार है</string>
     <string name="need_more_data_faster">क्या आपको अधिक डेटा, तेज़ी से चाहिए?</string>
@@ -279,7 +279,7 @@
     <string name="referral_bonus">+%1$d GiB/महीना</string>
     <string name="checking_payment">भुगतान की जांच हो रही है</string>
     <string name="get_pro">प्रो प्राप्त करें</string>
-    <string name="provider_count">%1$d प्रदाता</string>
+    <string name="provider_count">%1$s प्रदाता</string>
     <string name="welcome_to_urnetwork">URnetwork में आपका स्वागत है</string>
     <string name="urnetwork_intro_description">URnetwork ग्रह का सबसे स्थानीय और सबसे निजी नेटवर्क है।</string>
     <string name="or">या</string>
