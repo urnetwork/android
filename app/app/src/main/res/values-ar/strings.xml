@@ -325,4 +325,8 @@
     <string name="refer_friends_they_get_data">يحصل صديقك على +%s GiB/شهر مدى الحياة</string>
     <string name="friends_save_too">أصدقاؤك يوفرون أيضًا -- الجميع يفوز.</string>
     <string name="get_connected">اتصل الآن</string>
+    <string name="api_error_contact">إذا استمرت المشكلة، تواصل معنا على %s أو انضم إلى %s الخاص بنا للحصول على دعم مباشر.</string>
+    <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
+    <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
+    <string name="retry">إعادة المحاولة</string>
 </resources>

@@ -97,6 +97,7 @@ import com.bringyour.network.ui.wallet.WalletViewModel
 import com.bringyour.network.ui.wallet.WalletsScreen
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
+import com.bringyour.network.ui.api_error.ApiErrorScreen
 import com.bringyour.network.ui.blocked_regions.BlockedRegionsScreen
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.introduction.IntroductionInitial
@@ -148,6 +149,7 @@ fun MainNavHost(
     val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
     val displayIntroFunnel by mainNavViewModel.displayIntroFunnel.collectAsState()
     val allowPromptIntroFunnel by mainNavViewModel.allowDisplayIntroFunnel.collectAsState()
+    val subscriptionBalanceError by subscriptionBalanceViewModel.errorFetchingSubscriptionBalance.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -318,94 +320,140 @@ fun MainNavHost(
 //                overlayViewModel = overlayViewModel
             )
         } else {
-            NestedLinkBottomSheet(
-                scaffoldState = nestedLinkScaffoldState,
-                targetLink = targetLink,
-                defaultLocation = defaultLocation,
-                connectViewModel = connectViewModel
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Black)
-                    // .padding(top = 36.dp)
-                    // .systemBarsPadding()
-                    // .windowInsetsPadding(WindowInsets.systemBars)
+
+            if (subscriptionBalanceError) {
+
+                ApiErrorScreen(
+                    refresh = subscriptionBalanceViewModel.fetchSubscriptionBalance,
+                    isLoading = subscriptionBalanceViewModel.isLoading.collectAsState().value
+                )
+            } else {
+
+                NestedLinkBottomSheet(
+                    scaffoldState = nestedLinkScaffoldState,
+                    targetLink = targetLink,
+                    defaultLocation = defaultLocation,
+                    connectViewModel = connectViewModel
                 ) {
-
-                    NavigationSuiteScaffold(
-                        containerColor = Black,
-                        contentColor = Black,
-                        navigationSuiteColors = customColors,
-                        layoutType = navSuiteLayoutType,
-
-                        navigationSuiteItems = {
-                            TopLevelScaffoldRoutes.entries.forEach { screen ->
-                                item(
-                                    icon = {
-
-                                        val iconRes = if (screen == currentTopLevelRoute) {
-                                            screen.selectedIcon
-                                        } else {
-                                            screen.unselectedIcon
-                                        }
-
-                                        if (screen.route == Route.Leaderboard) {
-                                            Icon(imageVector = Icons.Filled.StackedLineChart, contentDescription = stringResource(id = R.string.leaderboard))
-                                        } else {
-                                            Icon(painterResource(id = iconRes), contentDescription = screen.description)
-                                        }
-
-                                    },
-                                    selected = screen == currentTopLevelRoute,
-                                    onClick = {
-
-                                        if (currentTopLevelRoute.route == Route.AccountContainer
-                                            && screen.route == Route.AccountContainer
-                                            && currentRoute != Route.Account
-                                        ) {
-                                            navController.popBackStack(Route.Account, inclusive = false)
-                                        } else if (
-                                            currentTopLevelRoute.route == Route.ConnectContainer
-                                            && screen.route == Route.ConnectContainer
-                                        ) {
-
-                                            if (currentRoute != Route.Connect) {
-                                                navController.popBackStack(Route.Connect, inclusive = false)
-                                            }
-
-                                        } else {
-
-                                            navController.navigate(screen.route) {
-                                                // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
-                                                // Pop up to the start destination of the graph to
-                                                // avoid building up a large stack of destinations
-                                                // on the back stack as users select items
-                                                popUpTo(navController.graph.findStartDestination().id) {
-                                                    saveState = true
-                                                }
-                                                // Avoid multiple copies of the same destination when
-                                                // reselecting the same item
-                                                launchSingleTop = true
-                                                // Restore state when reselecting a previously selected item
-                                                restoreState = true
-
-                                            }
-                                        }
-                                        mainNavViewModel.setCurrentTopLevelRoute(screen)
-                                    },
-                                    colors = navItemColors,
-                                )
-                            }
-                        }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Black)
+                        // .padding(top = 36.dp)
+                        // .systemBarsPadding()
+                        // .windowInsetsPadding(WindowInsets.systemBars)
                     ) {
 
-                        if (isTablet()) {
+                        NavigationSuiteScaffold(
+                            containerColor = Black,
+                            contentColor = Black,
+                            navigationSuiteColors = customColors,
+                            layoutType = navSuiteLayoutType,
 
-                            Column(
-                                modifier = Modifier.padding(bottom = 1.dp)
-                            ) {
-                                Row {
+                            navigationSuiteItems = {
+                                TopLevelScaffoldRoutes.entries.forEach { screen ->
+                                    item(
+                                        icon = {
+
+                                            val iconRes = if (screen == currentTopLevelRoute) {
+                                                screen.selectedIcon
+                                            } else {
+                                                screen.unselectedIcon
+                                            }
+
+                                            if (screen.route == Route.Leaderboard) {
+                                                Icon(imageVector = Icons.Filled.StackedLineChart, contentDescription = stringResource(id = R.string.leaderboard))
+                                            } else {
+                                                Icon(painterResource(id = iconRes), contentDescription = screen.description)
+                                            }
+
+                                        },
+                                        selected = screen == currentTopLevelRoute,
+                                        onClick = {
+
+                                            if (currentTopLevelRoute.route == Route.AccountContainer
+                                                && screen.route == Route.AccountContainer
+                                                && currentRoute != Route.Account
+                                            ) {
+                                                navController.popBackStack(Route.Account, inclusive = false)
+                                            } else if (
+                                                currentTopLevelRoute.route == Route.ConnectContainer
+                                                && screen.route == Route.ConnectContainer
+                                            ) {
+
+                                                if (currentRoute != Route.Connect) {
+                                                    navController.popBackStack(Route.Connect, inclusive = false)
+                                                }
+
+                                            } else {
+
+                                                navController.navigate(screen.route) {
+                                                    // from https://developer.android.com/develop/ui/compose/navigation#bottom-nav
+                                                    // Pop up to the start destination of the graph to
+                                                    // avoid building up a large stack of destinations
+                                                    // on the back stack as users select items
+                                                    popUpTo(navController.graph.findStartDestination().id) {
+                                                        saveState = true
+                                                    }
+                                                    // Avoid multiple copies of the same destination when
+                                                    // reselecting the same item
+                                                    launchSingleTop = true
+                                                    // Restore state when reselecting a previously selected item
+                                                    restoreState = true
+
+                                                }
+                                            }
+                                            mainNavViewModel.setCurrentTopLevelRoute(screen)
+                                        },
+                                        colors = navItemColors,
+                                    )
+                                }
+                            }
+                        ) {
+
+                            if (isTablet()) {
+
+                                Column(
+                                    modifier = Modifier.padding(bottom = 1.dp)
+                                ) {
+                                    Row {
+                                        MainNavContent(
+                                            settingsViewModel = settingsViewModel,
+                                            planViewModel = planViewModel,
+                                            overlayViewModel = overlayViewModel,
+                                            navController = navController,
+                                            walletViewModel = walletViewModel,
+                                            connectViewModel = connectViewModel,
+                                            locationsListViewModel = locationsListViewModel,
+                                            activityResultSender = activityResultSender,
+                                            subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                                            referralCodeViewModel = referralCodeViewModel,
+                                            bundleStore = bundleStore,
+                                            launchIntro = {
+                                                mainNavViewModel.setDisplayIntroFunnel(true)
+                                            },
+                                            reliabilityWindow = reliabilityWindow,
+                                            totalReferralCount = totalReferralCount,
+                                            solanaPaymentViewModel = solanaPaymentViewModel,
+                                            isCheckingSolanaTransaction = isCheckingSolanaTransaction
+                                        )
+                                    }
+
+                                    if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                                        HorizontalDivider(
+                                            modifier = Modifier
+                                                .height(1.dp)
+                                                .fillMaxWidth(),
+                                            color = MainBorderBase
+                                        )
+                                    }
+                                }
+
+                            } else {
+
+                                Column(
+                                    modifier = Modifier.padding(bottom = 1.dp)
+                                ) {
                                     MainNavContent(
                                         settingsViewModel = settingsViewModel,
                                         planViewModel = planViewModel,
@@ -418,8 +466,6 @@ fun MainNavHost(
                                         subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                                         referralCodeViewModel = referralCodeViewModel,
                                         bundleStore = bundleStore,
-//                                    currentPlanLoaded = currentPlanLoaded,
-//                                    currentPlan = currentPlan,
                                         launchIntro = {
                                             mainNavViewModel.setDisplayIntroFunnel(true)
                                         },
@@ -428,9 +474,7 @@ fun MainNavHost(
                                         solanaPaymentViewModel = solanaPaymentViewModel,
                                         isCheckingSolanaTransaction = isCheckingSolanaTransaction
                                     )
-                                }
 
-                                if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                                     HorizontalDivider(
                                         modifier = Modifier
                                             .height(1.dp)
@@ -439,43 +483,10 @@ fun MainNavHost(
                                     )
                                 }
                             }
-
-                        } else {
-
-                            Column(
-                                modifier = Modifier.padding(bottom = 1.dp)
-                            ) {
-                                MainNavContent(
-                                    settingsViewModel = settingsViewModel,
-                                    planViewModel = planViewModel,
-                                    overlayViewModel = overlayViewModel,
-                                    navController = navController,
-                                    walletViewModel = walletViewModel,
-                                    connectViewModel = connectViewModel,
-                                    locationsListViewModel = locationsListViewModel,
-                                    activityResultSender = activityResultSender,
-                                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                                    referralCodeViewModel = referralCodeViewModel,
-                                    bundleStore = bundleStore,
-                                    launchIntro = {
-                                        mainNavViewModel.setDisplayIntroFunnel(true)
-                                    },
-                                    reliabilityWindow = reliabilityWindow,
-                                    totalReferralCount = totalReferralCount,
-                                    solanaPaymentViewModel = solanaPaymentViewModel,
-                                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
-                                )
-
-                                HorizontalDivider(
-                                    modifier = Modifier
-                                        .height(1.dp)
-                                        .fillMaxWidth(),
-                                    color = MainBorderBase
-                                )
-                            }
                         }
                     }
                 }
+
             }
         }
     }
@@ -825,6 +836,7 @@ fun MainNavContent(
             }
         }
     }
+
 }
 
 private const val ANIMATION_DURATION = 280

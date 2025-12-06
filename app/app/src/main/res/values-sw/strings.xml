@@ -326,4 +326,8 @@
     <string name="refer_friends_they_get_data">Rafiki yako anapata +%s GiB/mwezi maisha yote</string>
     <string name="friends_save_too">Marafiki zako pia wanaokoa -- kila mtu anashinda.</string>
     <string name="get_connected">Unganisha</string>
+    <string name="api_error_contact">Ikiwa tatizo litaendelea, wasiliana nasi kupitia %s au jiunge na %s yetu kwa msaada wa moja kwa moja.</string>
+    <string name="error_loading_account_plan">Hitilafu katika kupakia mpango wa akaunti yako.</string>
+    <string name="please_try_again">Tafadhali jaribu tena.</string>
+    <string name="retry">Jaribu tena</string>
 </resources>

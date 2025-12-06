@@ -351,4 +351,8 @@
     <string name="refer_friends_they_get_data">Je vriend krijgt +%s GiB/maand voor altijd</string>
     <string name="friends_save_too">Je vrienden besparen ook -- iedereen wint.</string>
     <string name="get_connected">Verbinden</string>
+    <string name="api_error_contact">Als het probleem blijft bestaan, neem dan contact met ons op via %s of sluit je aan bij onze %s voor directe ondersteuning.</string>
+    <string name="error_loading_account_plan">Fout bij het laden van uw accountplan.</string>
+    <string name="please_try_again">Probeer het alstublieft opnieuw.</string>
+    <string name="retry">Opnieuw proberen</string>
 </resources>

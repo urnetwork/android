@@ -348,4 +348,8 @@
     <string name="refer_friends_they_get_data">あなたの友達も一生 +%s GiB/月 を獲得できます</string>
     <string name="friends_save_too">あなたの友達も節約できる -- みんなが得をします。</string>
     <string name="get_connected">接続する</string>
+    <string name="api_error_contact">問題が解決しない場合は、%s までご連絡いただくか、直接サポートのために私たちの %s にご参加ください。</string>
+    <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
+    <string name="please_try_again">もう一度お試しください。</string>
+    <string name="retry">再試行</string>
 </resources>

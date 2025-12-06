@@ -326,4 +326,8 @@
     <string name="refer_friends_they_get_data">Seu amigo ganha +%s GiB/mês para sempre</string>
     <string name="friends_save_too">Seus amigos também economizam -- todo mundo sai ganhando.</string>
     <string name="get_connected">Conectar-se</string>
+    <string name="api_error_contact">Se o problema persistir, entre em contato pelo %s ou entre no nosso %s para suporte direto.</string>
+    <string name="error_loading_account_plan">Erro ao carregar seu plano de conta.</string>
+    <string name="please_try_again">Por favor, tente novamente.</string>
+    <string name="retry">Tentar novamente</string>
 </resources>

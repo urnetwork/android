@@ -299,4 +299,8 @@
     <string name="refer_friends_they_get_data">Váš přítel získá +%s GiB/měsíc na celý život</string>
     <string name="friends_save_too">Vaši přátelé také ušetří – každý vyhrává.</string>
     <string name="get_connected">Připojit se</string>
+    <string name="api_error_contact">Pokud problém přetrvává, kontaktujte nás na %s nebo se připojte k našemu %s pro přímou podporu.</string>
+    <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
+    <string name="please_try_again">Prosím, zkuste to znovu.</string>
+    <string name="retry">Zkusit znovu</string>
 </resources>
