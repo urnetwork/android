@@ -56,13 +56,12 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _isCheckingSolanaTransaction = MutableStateFlow<Boolean>(false)
     val isCheckingSolanaTransaction: StateFlow<Boolean> = _isCheckingSolanaTransaction.asStateFlow()
 
-
     val isPolling: Boolean
         get() = _isCheckingSolanaTransaction.value || isPollingSubscriptionBalance
 
 
-
-    private var isLoading = false
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _availableBalanceByteCount = MutableStateFlow<Long>(0)
     val availableBalanceByteCount: StateFlow<Long> get() = _availableBalanceByteCount
@@ -76,6 +75,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
     var isRefreshingSubscriptionBalance by mutableStateOf(false)
         private set
 
+    private val _errorFetchingSubscriptionBalance = MutableStateFlow(false)
+    val errorFetchingSubscriptionBalance: StateFlow<Boolean> = _errorFetchingSubscriptionBalance
+
     val refreshSubscriptionBalance: () -> Unit = {
         if (!isRefreshingSubscriptionBalance) {
             isRefreshingSubscriptionBalance = true
@@ -85,9 +87,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     val fetchSubscriptionBalance: () -> Unit = {
 
-        if (!isLoading) {
+        if (!_isLoading.value) {
 
-            isLoading = true
+            _isLoading.value = true
 
             deviceManager.device?.api?.subscriptionBalance( SubscriptionBalanceCallback { result, err ->
 
@@ -95,8 +97,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
                     if (err != null) {
                         Log.i(TAG, "error fetching subscription balance: $err")
 
-                        isLoading = false
+                        _isLoading.value = false
                         isRefreshingSubscriptionBalance = false
+                        _errorFetchingSubscriptionBalance.value = true
 
                     } else {
 
@@ -111,9 +114,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
                         _availableBalanceByteCount.value = result.balanceByteCount
                         pendingBalanceByteCount = result.openTransferByteCount
                         usedBalanceByteCount = result.startBalanceByteCount - result.balanceByteCount - pendingBalanceByteCount
+                        _errorFetchingSubscriptionBalance.value = false
+                        _isLoading.value = false
                     }
 
-                    isLoading = false
                     isRefreshingSubscriptionBalance = false
                     if (!_isInitialized.value) {
                         _isInitialized.value = true

@@ -138,7 +138,7 @@ fun ProviderRow(
                 if (!isStable) {
                     Icon(
                         painter = painterResource(id = R.drawable.unstable),
-                        contentDescription = "Strong privacy laws",
+                        contentDescription = "Unstable connection",
                         tint = Yellow,
                         modifier = Modifier.size(24.dp)
                     )

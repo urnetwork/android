@@ -325,4 +325,8 @@
     <string name="refer_friends_they_get_data">Ο φίλος σου παίρνει +%s GiB/μήνα για πάντα</string>
     <string name="friends_save_too">Οι φίλοι σου εξοικονομούν επίσης -- όλοι κερδίζουν.</string>
     <string name="get_connected">Συνδεθείτε</string>
+    <string name="api_error_contact">Αν το πρόβλημα παραμένει, επικοινωνήστε μαζί μας στο %s ή μπείτε στο %s μας για άμεση υποστήριξη.</string>
+    <string name="error_loading_account_plan">Σφάλμα κατά τη φόρτωση του προγράμματος λογαριασμού σας.</string>
+    <string name="please_try_again">Παρακαλώ δοκιμάστε ξανά.</string>
+    <string name="retry">Προσπαθήστε ξανά</string>
 </resources>

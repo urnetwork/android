@@ -351,4 +351,8 @@
     <string name="refer_friends_they_get_data">Ваш друг получает +%s GiB/месяц навсегда</string>
     <string name="friends_save_too">Ваши друзья тоже экономят — выигрывают все.</string>
     <string name="get_connected">Подключиться</string>
+    <string name="api_error_contact">Если проблема сохраняется, свяжитесь с нами по адресу %s или присоединяйтесь к нашему %s для получения прямой поддержки.</string>
+    <string name="error_loading_account_plan">Ошибка загрузки вашего тарифного плана.</string>
+    <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
+    <string name="retry">Повторить попытку</string>
 </resources>

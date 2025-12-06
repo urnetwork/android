@@ -348,4 +348,8 @@
     <string name="refer_friends_they_get_data">친구도 평생 +%s GiB/월을 받습니다</string>
     <string name="friends_save_too">친구들도 절약합니다 -- 모두가 이깁니다.</string>
     <string name="get_connected">연결하기</string>
+    <string name="api_error_contact">문제가 계속되면 %s로 문의하거나 직접 지원을 위해 저희 %s에 참여하세요.</string>
+    <string name="error_loading_account_plan">계정 플랜을 불러오는 중 오류가 발생했습니다.</string>
+    <string name="please_try_again">다시 시도해 주세요.</string>
+    <string name="retry">다시 시도</string>
 </resources>

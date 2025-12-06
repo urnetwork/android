@@ -351,4 +351,8 @@
     <string name="refer_friends_they_get_data">Your friend gets +%s GiB/month for life</string>
     <string name="friends_save_too">Your friends save too -- everyone wins.</string>
     <string name="get_connected">Get connected</string>
+    <string name="api_error_contact">If the problem persists, contact us at %s or join our %s for direct support.</string>
+    <string name="error_loading_account_plan">Error loading your account plan.</string>
+    <string name="please_try_again">Please try again.</string>
+    <string name="retry">Retry</string>
 </resources>
