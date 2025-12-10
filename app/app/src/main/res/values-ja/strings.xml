@@ -352,4 +352,6 @@
     <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
     <string name="please_try_again">もう一度お試しください。</string>
     <string name="retry">再試行</string>
+    <string name="ignore_battery_optimizations">バッテリー最適化を無視する</string>
+    <string name="disable_ignore_battery_hint">無効にするには、システム設定のアプリのバッテリー使用状況に移動してください</string>
 </resources>

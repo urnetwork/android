@@ -355,4 +355,6 @@
     <string name="error_loading_account_plan">Fout bij het laden van uw accountplan.</string>
     <string name="please_try_again">Probeer het alstublieft opnieuw.</string>
     <string name="retry">Opnieuw proberen</string>
+    <string name="ignore_battery_optimizations">Batterijoptimalisaties negeren</string>
+    <string name="disable_ignore_battery_hint">Om uit te schakelen, ga naar App-batterijgebruik in de systeeminstellingen</string>
 </resources>

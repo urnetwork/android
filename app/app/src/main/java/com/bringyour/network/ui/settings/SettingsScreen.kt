@@ -1,8 +1,12 @@
 package com.bringyour.network.ui.settings
 
 import android.app.Activity
+import android.content.Context
+import android.content.Context.POWER_SERVICE
 import android.content.Intent
 import android.net.Uri
+import android.os.PowerManager
+import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -49,6 +53,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +79,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.getSystemService
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.LoginActivity
@@ -111,6 +118,10 @@ import com.solana.publickey.SolanaPublicKey
 import kotlinx.coroutines.launch
 import java.util.Date
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.CopyReferralCode
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
@@ -345,6 +356,33 @@ fun SettingsScreen(
     val depinHubLink = "https://depinhub.io/projects/urnetwork"
     val seekerLink = "https://ur.io/seeker"
 
+    var isIgnored by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        isIgnored = powerManager.isIgnoringBatteryOptimizations(context.packageName)
+    }
+
+    val requestIgnoreBatteryOptimizations: () -> Boolean = {
+        Log.i("SettingsScreen", "requestIgnoreBatteryOptimizations hit")
+        var updated = false
+        (context.getSystemService(POWER_SERVICE) as PowerManager).run {
+            Log.i(TAG, "power service run with package name: ${application?.packageName}")
+            if (!isIgnoringBatteryOptimizations(application?.packageName)) {
+                Log.i(TAG, "!isIgnoringBatteryOptimizations")
+                val intent = Intent(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                intent.setData("package:${application?.packageName}".toUri())
+                Log.i(TAG, "intent data set")
+//                startActivity(intent)
+                context.startActivity(intent)
+                Log.i(TAG, "activity started")
+                updated = true
+            }
+        }
+
+        updated
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -545,6 +583,10 @@ fun SettingsScreen(
              * General
              */
             URTextInputLabel(stringResource(id = R.string.general))
+
+            /**
+             * Show icon when connected
+             */
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -563,6 +605,36 @@ fun SettingsScreen(
                         toggleAllowForeground()
                         application?.updateVpnService()
                     },
+                )
+            }
+
+            /**
+             * Battery optimization
+             */
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.ignore_battery_optimizations),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                BatteryOptimizationToggle()
+
+            }
+
+            Row {
+                Text(
+                    stringResource(id = R.string.disable_ignore_battery_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextMuted
                 )
             }
 
@@ -585,26 +657,6 @@ fun SettingsScreen(
                 allowProvideCell = allowProvideCell,
                 toggleProvideCell = toggleProvideCell
             )
-
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    stringResource(id = R.string.allow_providing_cell),
-//                    style = MaterialTheme.typography.bodyMedium,
-//                    color = Color.White
-//                )
-//
-//                URSwitch(
-//                    checked = allowProvideCell,
-//                    toggle = {
-//                        toggleProvideCell()
-//                    },
-//                )
-//            }
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -1131,6 +1183,43 @@ private fun SettingsScreenPreview() {
             stripePortalUrl = null
         )
     }
+}
+
+@Composable
+fun BatteryOptimizationToggle() {
+    val context = LocalContext.current
+    var isIgnored by remember { mutableStateOf(false) }
+
+    // Check status when the screen resumes
+    // we can't get "allow" or "deny" response when we fire the activity
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                isIgnored = powerManager.isIgnoringBatteryOptimizations(context.packageName)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    URSwitch(
+        checked = isIgnored,
+        toggle = {
+            if (!isIgnored) {
+                val intent = Intent(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                intent.data = Uri.parse("package:${context.packageName}")
+                if (context !is Activity) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            }
+        },
+        enabled = !isIgnored
+    )
 }
 
 @Preview

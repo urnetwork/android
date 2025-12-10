@@ -355,4 +355,6 @@
     <string name="error_loading_account_plan">Ошибка загрузки вашего тарифного плана.</string>
     <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
     <string name="retry">Повторить попытку</string>
+    <string name="ignore_battery_optimizations">Игнорировать оптимизацию батареи</string>
+    <string name="disable_ignore_battery_hint">Чтобы отключить, перейдите в Использование батареи приложением в системных настройках</string>
 </resources>

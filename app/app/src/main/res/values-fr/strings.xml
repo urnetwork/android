@@ -331,4 +331,6 @@
     <string name="error_loading_account_plan">Erreur lors du chargement de votre formule de compte.</string>
     <string name="please_try_again">Veuillez réessayer.</string>
     <string name="retry">Réessayer</string>
+    <string name="ignore_battery_optimizations">Ignorer les optimisations de la batterie</string>
+    <string name="disable_ignore_battery_hint">Pour désactiver, veuillez aller dans Utilisation de la batterie de l’application dans les paramètres système</string>
 </resources>

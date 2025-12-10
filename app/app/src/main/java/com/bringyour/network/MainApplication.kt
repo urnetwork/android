@@ -526,23 +526,13 @@ class MainApplication : Application() {
         // return byDevice
     }
 
-    fun requestIgnoreBatteryOptimizations() {
-        (getSystemService(POWER_SERVICE) as PowerManager).run {
-            if (!isIgnoringBatteryOptimizations(packageName)) {
-                val intent = Intent(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                intent.setData("package:$packageName".toUri())
-                startActivity(intent)
-            }
-        }
-    }
-
-    fun isIgnoreBatteryOptimizations(): Boolean {
-        var ignore = false
-        (getSystemService(POWER_SERVICE) as PowerManager).run {
-            ignore = isIgnoringBatteryOptimizations(packageName)
-        }
-        return ignore
-    }
+//    fun isIgnoreBatteryOptimizations(): Boolean {
+//        var ignore = false
+//        (getSystemService(POWER_SERVICE) as PowerManager).run {
+//            ignore = isIgnoringBatteryOptimizations(packageName)
+//        }
+//        return ignore
+//    }
 
     private fun updateTunnelStarted() {
         device?.tunnelStarted?.let { tunnelStarted ->

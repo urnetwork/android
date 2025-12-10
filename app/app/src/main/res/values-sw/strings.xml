@@ -330,4 +330,6 @@
     <string name="error_loading_account_plan">Hitilafu katika kupakia mpango wa akaunti yako.</string>
     <string name="please_try_again">Tafadhali jaribu tena.</string>
     <string name="retry">Jaribu tena</string>
+    <string name="ignore_battery_optimizations">Puuzia uboreshaji wa betri</string>
+    <string name="disable_ignore_battery_hint">Ili kuzima, tafadhali nenda kwenye Matumizi ya Betri ya Programu katika Mipangilio ya Mfumo</string>
 </resources>

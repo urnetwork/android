@@ -330,4 +330,6 @@
     <string name="error_loading_account_plan">Fehler beim Laden Ihres Kontoplans.</string>
     <string name="please_try_again">Bitte versuchen Sie es erneut.</string>
     <string name="retry">Erneut versuchen</string>
+    <string name="ignore_battery_optimizations">Akku-Optimierungen ignorieren</string>
+    <string name="disable_ignore_battery_hint">Zum Deaktivieren gehe bitte zu App-Akkuverbrauch in den Systemeinstellungen</string>
 </resources>

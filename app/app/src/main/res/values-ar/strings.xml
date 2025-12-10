@@ -329,4 +329,6 @@
     <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
     <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
     <string name="retry">إعادة المحاولة</string>
+    <string name="ignore_battery_optimizations">تجاهل تحسينات البطارية</string>
+    <string name="disable_ignore_battery_hint">لتعطيل ذلك، يرجى الانتقال إلى استخدام بطارية التطبيق في إعدادات النظام</string>
 </resources>
