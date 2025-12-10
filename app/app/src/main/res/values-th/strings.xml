@@ -303,4 +303,6 @@
     <string name="error_loading_account_plan">เกิดข้อผิดพลาดในการโหลดแผนบัญชีของคุณ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="retry">ลองอีกครั้ง</string>
+    <string name="ignore_battery_optimizations">ไม่สนใจการเพิ่มประสิทธิภาพแบตเตอรี่</string>
+    <string name="disable_ignore_battery_hint">หากต้องการปิดใช้งาน กรุณาไปที่การใช้แบตเตอรี่ของแอปในการตั้งค่าระบบ</string>
 </resources>

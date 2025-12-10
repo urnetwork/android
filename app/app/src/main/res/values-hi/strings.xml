@@ -329,4 +329,6 @@
     <string name="error_loading_account_plan">आपके अकाउंट प्लान को लोड करने में त्रुटि हुई।</string>
     <string name="please_try_again">कृपया पुनः प्रयास करें।</string>
     <string name="retry">पुनः प्रयास करें</string>
+    <string name="ignore_battery_optimizations">बैटरी ऑप्टिमाइज़ेशन को अनदेखा करें</string>
+    <string name="disable_ignore_battery_hint">अक्षम करने के लिए, कृपया सिस्टम सेटिंग्स में ऐप बैटरी उपयोग पर जाएँ</string>
 </resources>

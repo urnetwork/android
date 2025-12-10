@@ -303,4 +303,6 @@
     <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
     <string name="please_try_again">Prosím, zkuste to znovu.</string>
     <string name="retry">Zkusit znovu</string>
+    <string name="ignore_battery_optimizations">Ignorovat optimalizace baterie</string>
+    <string name="disable_ignore_battery_hint">Chcete-li to zakázat, přejděte do Nastavení systému na Využití baterie aplikace</string>
 </resources>

@@ -352,5 +352,7 @@
     <string name="error_loading_account_plan">Błąd podczas ładowania planu konta.</string>
     <string name="please_try_again">Proszę spróbować ponownie.</string>
     <string name="retry">Spróbuj ponownie</string>
+    <string name="ignore_battery_optimizations">Ignoruj optymalizacje baterii</string>
+    <string name="disable_ignore_battery_hint">Aby wyłączyć, przejdź do Użycia baterii aplikacji w ustawieniach systemu</string>
 
 </resources>

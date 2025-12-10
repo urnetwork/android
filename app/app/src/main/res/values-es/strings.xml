@@ -329,4 +329,6 @@
     <string name="error_loading_account_plan">Error al cargar el plan de tu cuenta.</string>
     <string name="please_try_again">Por favor, inténtalo de nuevo.</string>
     <string name="retry">Reintentar</string>
+    <string name="ignore_battery_optimizations">Ignorar optimizaciones de batería</string>
+    <string name="disable_ignore_battery_hint">Para desactivar, ve a Uso de batería de la aplicación en Configuración del sistema</string>
 </resources>

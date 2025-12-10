@@ -329,4 +329,6 @@
     <string name="error_loading_account_plan">Σφάλμα κατά τη φόρτωση του προγράμματος λογαριασμού σας.</string>
     <string name="please_try_again">Παρακαλώ δοκιμάστε ξανά.</string>
     <string name="retry">Προσπαθήστε ξανά</string>
+    <string name="ignore_battery_optimizations">Παράβλεψη βελτιστοποιήσεων μπαταρίας</string>
+    <string name="disable_ignore_battery_hint">Για να το απενεργοποιήσετε, μεταβείτε στη Χρήση μπαταρίας εφαρμογής στις Ρυθμίσεις συστήματος</string>
 </resources>
