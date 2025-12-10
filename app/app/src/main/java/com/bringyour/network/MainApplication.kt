@@ -16,6 +16,8 @@ import android.os.Handler
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.AccountViewController
 import com.bringyour.sdk.DevicesViewController
@@ -27,6 +29,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -158,6 +161,26 @@ class MainApplication : Application() {
         }
 
         updateActiveNetworkSpace(networkSpaceManager?.activeNetworkSpace!!)
+
+        Handler(mainLooper).post {
+            scheduleBackgroundUpdate()
+        }
+    }
+
+    private fun scheduleBackgroundUpdate() {
+        val request = PeriodicWorkRequest.Builder(
+            BackgroundUpdateWorker::class.java,
+            15,
+            TimeUnit.MINUTES
+        ).build()
+
+        WorkManager.getInstance(this).enqueue(request)
+    }
+
+    fun backgroundUpdate() {
+        Handler(mainLooper).post {
+            updateVpnService()
+        }
     }
 
 
