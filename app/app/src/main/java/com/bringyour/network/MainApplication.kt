@@ -526,14 +526,6 @@ class MainApplication : Application() {
         // return byDevice
     }
 
-//    fun isIgnoreBatteryOptimizations(): Boolean {
-//        var ignore = false
-//        (getSystemService(POWER_SERVICE) as PowerManager).run {
-//            ignore = isIgnoringBatteryOptimizations(packageName)
-//        }
-//        return ignore
-//    }
-
     private fun updateTunnelStarted() {
         device?.tunnelStarted?.let { tunnelStarted ->
             Log.i(TAG, "[tunnel]started=$tunnelStarted")
