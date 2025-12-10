@@ -356,33 +356,6 @@ fun SettingsScreen(
     val depinHubLink = "https://depinhub.io/projects/urnetwork"
     val seekerLink = "https://ur.io/seeker"
 
-    var isIgnored by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        isIgnored = powerManager.isIgnoringBatteryOptimizations(context.packageName)
-    }
-
-    val requestIgnoreBatteryOptimizations: () -> Boolean = {
-        Log.i("SettingsScreen", "requestIgnoreBatteryOptimizations hit")
-        var updated = false
-        (context.getSystemService(POWER_SERVICE) as PowerManager).run {
-            Log.i(TAG, "power service run with package name: ${application?.packageName}")
-            if (!isIgnoringBatteryOptimizations(application?.packageName)) {
-                Log.i(TAG, "!isIgnoringBatteryOptimizations")
-                val intent = Intent(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                intent.setData("package:${application?.packageName}".toUri())
-                Log.i(TAG, "intent data set")
-//                startActivity(intent)
-                context.startActivity(intent)
-                Log.i(TAG, "activity started")
-                updated = true
-            }
-        }
-
-        updated
-    }
-
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
