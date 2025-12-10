@@ -23,6 +23,7 @@
 
     <!-- this is included in a Google dependency and we *do not* want it. -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <!-- for tv support -->
     <uses-feature android:name="android.hardware.touchscreen"
