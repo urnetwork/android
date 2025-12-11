@@ -520,8 +520,8 @@ dependencies {
 /*build:google*/    playImplementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    playImplementation "com.android.billingclient:billing:8.1.0"
-/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:8.1.0"
+/*build:google*/    playImplementation "com.android.billingclient:billing:8.2.0"
+/*build:google*/    playImplementation "com.android.billingclient:billing-ktx:8.2.0"
 }
 
 // solana dapp
@@ -543,8 +543,8 @@ dependencies {
 /*build:google*/    solana_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.1.0"
-/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.1.0"
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing:8.2.0"
+/*build:google*/    solana_dappImplementation "com.android.billingclient:billing-ktx:8.2.0"
 
 /*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.4.0")
 /*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.4.0")
@@ -569,8 +569,8 @@ dependencies {
 /*build:google*/    ethos_dappImplementation 'com.google.android.play:review-ktx:2.0.2'
 
     // see https://developer.android.com/google/play/billing/integrate#groovy
-/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing:8.1.0"
-/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing-ktx:8.1.0"
+/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing:8.2.0"
+/*build:google*/    ethos_dappImplementation "com.android.billingclient:billing-ktx:8.2.0"
 
 /*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.4.0")
 /*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.4.0")

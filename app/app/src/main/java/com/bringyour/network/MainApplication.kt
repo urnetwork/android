@@ -14,10 +14,8 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
 import android.os.PowerManager
-import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
@@ -180,9 +178,9 @@ class MainApplication : Application() {
     }
 
     fun backgroundUpdate() {
-        Handler(mainLooper).post {
-            updateVpnService()
-        }
+//        Handler(mainLooper).post {
+//            updateVpnService()
+//        }
     }
 
 
