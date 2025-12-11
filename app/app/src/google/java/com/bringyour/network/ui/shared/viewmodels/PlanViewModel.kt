@@ -42,7 +42,8 @@ class PlanViewModel @Inject constructor(
     var inProgress by mutableStateOf(false)
         private set
 
-    var formattedSubscriptionPrice by mutableStateOf("")
+    var formattedMonthlySubscriptionPrice by mutableStateOf("$5.00")
+
 
     private val _billingClient = MutableStateFlow<BillingClient?>(null)
     val billingClient: StateFlow<BillingClient?> = _billingClient.asStateFlow()
@@ -183,7 +184,7 @@ class PlanViewModel @Inject constructor(
 
             if (productDetails != null) {
 
-                formattedSubscriptionPrice = productDetails.subscriptionOfferDetails
+                formattedMonthlySubscriptionPrice = productDetails.subscriptionOfferDetails
                         ?.first()
                         ?.pricingPhases
                         ?.pricingPhaseList

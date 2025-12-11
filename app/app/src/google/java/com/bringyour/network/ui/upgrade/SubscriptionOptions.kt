@@ -44,7 +44,7 @@ fun SubscriptionOptions(
     SubscriptionOptions(
         upgrade = planViewModel.upgrade,
         upgradeInProgress = planViewModel.inProgress,
-        monthlyCostFormatted = planViewModel.formattedSubscriptionPrice
+        monthlyCostFormatted = planViewModel.formattedMonthlySubscriptionPrice
     )
 
 }
@@ -74,7 +74,7 @@ fun SubscriptionOptions(
         ) {
 
             Text(
-                "$5",
+                monthlyCostFormatted,
                 fontSize = 24.sp,
                 style = MaterialTheme.typography.bodyLarge
             )
