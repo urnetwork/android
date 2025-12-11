@@ -82,7 +82,7 @@ fun UpgradePlanBottomSheet(
         UpgradePlanSheetContent(
             upgrade = planViewModel.upgrade,
             upgradeInProgress = planViewModel.inProgress,
-            formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice
+            formattedSubscriptionPrice = planViewModel.formattedMonthlySubscriptionPrice
         )
 
     }
