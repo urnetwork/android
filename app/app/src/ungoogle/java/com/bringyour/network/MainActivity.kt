@@ -15,6 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.components.overlays.OverlayMode
@@ -157,6 +159,18 @@ class MainActivity: AppCompatActivity() {
                 )
             }
         }
+
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onPause(owner: LifecycleOwner) {
+                Log.i("Lifecycle", "Activity onPause")
+                subscriptionBalanceViewModel.stopBackgroundPolling()
+            }
+            override fun onResume(owner: LifecycleOwner) {
+                Log.i("Lifecycle", "Activity onResume")
+                subscriptionBalanceViewModel.setErrorReachingSubscriptionBalance(false)
+                subscriptionBalanceViewModel.createBackgroundPollingJob()
+            }
+        })
     }
 
     override fun onStart() {
