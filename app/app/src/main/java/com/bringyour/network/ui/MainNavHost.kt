@@ -284,6 +284,22 @@ fun MainNavHost(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    DisposableEffect(lifecycleOwner) {
+        /**
+         * Reset error state of subscription balance to false on resume
+         */
+
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                scope.launch {
+                    subscriptionBalanceViewModel.setErrorReachingSubscriptionBalance(false)
+                }
+            }
+        }
+
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     AnimatedContent(
         targetState = displayIntroFunnel,
         label = "intro-main-switch",

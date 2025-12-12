@@ -78,6 +78,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _errorFetchingSubscriptionBalance = MutableStateFlow(false)
     val errorFetchingSubscriptionBalance: StateFlow<Boolean> = _errorFetchingSubscriptionBalance
 
+    val setErrorReachingSubscriptionBalance: (Boolean) -> Unit = {
+        _errorFetchingSubscriptionBalance.value = it
+    }
+
     val refreshSubscriptionBalance: () -> Unit = {
         if (!isRefreshingSubscriptionBalance) {
             isRefreshingSubscriptionBalance = true
