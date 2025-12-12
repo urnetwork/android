@@ -31,7 +31,7 @@ import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.max
+import kotlin.math.min
 
 
 @HiltAndroidApp
@@ -107,6 +107,21 @@ class MainApplication : Application() {
         }
 
 
+//    override fun onTrimMemory(level: Int) {
+//        super.onTrimMemory(level)
+//
+//        if (TRIM_MEMORY_BACKGROUND <= level) {
+//            Sdk.freeMemory()
+//        }
+//    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+
+        Sdk.freeMemory()
+    }
+
+
     override fun onCreate() {
         super.onCreate()
 
@@ -116,7 +131,7 @@ class MainApplication : Application() {
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
         val maxMemoryMib = activityManager?.memoryClass?.toLong() ?: 16
         // target 3/4 of the max memory for the sdk
-        val sdkMemoryMib = max((3 * maxMemoryMib) / 4, 32)
+        val sdkMemoryMib = min((3 * maxMemoryMib) / 4, 32)
         Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
 
         networkSpaceManagerProvider.init(filesDir.absolutePath)

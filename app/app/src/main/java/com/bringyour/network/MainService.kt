@@ -383,11 +383,11 @@ import kotlin.concurrent.thread
         stop()
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-
-        Sdk.freeMemory()
-    }
+//    override fun onLowMemory() {
+//        super.onLowMemory()
+//
+//        Sdk.freeMemory()
+//    }
 
     fun stop() {
         val app = application as MainApplication
