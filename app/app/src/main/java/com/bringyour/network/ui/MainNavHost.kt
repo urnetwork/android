@@ -46,10 +46,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -279,22 +276,6 @@ fun MainNavHost(
 
         if (pendingSolanaSubReference != null) {
             lifecycleOwner.lifecycle.addObserver(observer)
-        }
-
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        /**
-         * Reset error state of subscription balance to false on resume
-         */
-
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                scope.launch {
-                    subscriptionBalanceViewModel.setErrorReachingSubscriptionBalance(false)
-                }
-            }
         }
 
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }

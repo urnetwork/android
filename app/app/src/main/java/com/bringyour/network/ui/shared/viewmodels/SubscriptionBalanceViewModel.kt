@@ -208,7 +208,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
         }
     }
 
-    private fun stopBackgroundPolling() {
+    fun stopBackgroundPolling() {
         viewModelScope.launch {
             backgroundPollingJob?.cancel()
             backgroundPollingJob = null
