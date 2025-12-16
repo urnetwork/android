@@ -68,16 +68,17 @@ fun ConnectScreen(
     meanReliabilityWeight: Double,
     totalReferrals: Long,
     launchIntro: () -> Unit,
+    isPro: Boolean,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
 ) {
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val contractStatus by connectViewModel.contractStatus.collectAsState()
-    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
+//    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
 
-    val displayInsufficientBalance = contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter
+    val displayInsufficientBalance = contractStatus?.insufficientBalance == true && !isPro
 
     var promptSolanaReview by remember { mutableStateOf(false) }
 
@@ -159,7 +160,7 @@ fun ConnectScreen(
                     },
                     getLocationColor = locationsViewModel.getLocationColor,
                     minHeight = minSheetHeight,
-                    currentPlan = currentPlan,
+                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
                     connect = { connectViewModel.connect(connectViewModel.selectedLocation) },
                     disconnect = connectViewModel.disconnect,
                     reconnectTunnel = {
@@ -213,7 +214,7 @@ fun ConnectScreen(
                     navController = navController,
                     displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
                     contractStatus = contractStatus,
-                    currentPlan = currentPlan,
+                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
                     displayInsufficientBalance = displayInsufficientBalance,
                     isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                     device = connectViewModel.device,

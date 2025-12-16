@@ -2,7 +2,6 @@ package com.bringyour.network.ui.account
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,7 +49,6 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
@@ -83,12 +81,13 @@ fun AccountScreen(
     walletCount: Int,
     totalReferrals: Long,
     meanReliabilityWeight: Double,
+    isPro: Boolean,
 ) {
 
     val scope = rememberCoroutineScope()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
-    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
+    // val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
     val currentStore by subscriptionBalanceViewModel.currentStore.collectAsState()
     val availableBalanceByteCount by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
 
@@ -127,7 +126,7 @@ fun AccountScreen(
                         totalPayoutAmount = totalPayoutAmount,
                         totalPayoutAmountInitialized = totalPayoutAmountInitialized,
                         walletCount = walletCount,
-                        currentPlan = currentPlan,
+                        currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
                         currentStore = currentStore,
                         launchOverlay = overlayViewModel.launch,
                         isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,

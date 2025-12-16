@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import android.util.Log
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.DeviceLocal
@@ -10,7 +11,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DeviceManager @Inject constructor() {
+class DeviceManager @Inject constructor(
+    private val jwtManager: JwtManager
+) {
 
     var device: DeviceLocal? = null
         private set
@@ -129,6 +132,20 @@ class DeviceManager @Inject constructor() {
         device?.allowForeground = allowForeground
         device?.provideNetworkMode = ProvideNetworkMode.toString(provideNetworkMode)
         device?.canPromptIntroFunnel = canPromptIntroFunnel
+
+        /**
+         * set initial jwt on device creation
+         */
+        val byJwt = localState.parseByJwt()
+        jwtManager.updateJwt(byJwt)
+
+        device?.addJwtRefreshListener { jwt ->
+
+            val localState = networkSpace.asyncLocalState.localState
+            val byJwt = localState.parseByJwt()
+
+            jwtManager.updateJwt(byJwt)
+        }
     }
 
     fun clearDevice() {
