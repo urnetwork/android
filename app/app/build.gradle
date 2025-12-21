@@ -14,8 +14,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.21'
-    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.21'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.3.0'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.3.0'
 }
 
 
@@ -194,9 +194,8 @@ android {
         }
 
         ethos_dapp {
-            // FIXME
-            keyAlias 'solana_dapp'
-            keyPassword signingSecret('solana_dapp.password')
+            keyAlias 'ethos_dapp'
+            keyPassword signingSecret('ethos_dapp.password')
             storeFile file("${warpHomeDir}/release/android/signing/app.jks")
             storePassword signingSecret('password')
         }
@@ -467,7 +466,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.17.0'
 
     // jetpack compose
-    def composeBom = platform('androidx.compose:compose-bom:2025.12.00')
+    def composeBom = platform('androidx.compose:compose-bom:2025.12.01')
     implementation composeBom
     androidTestImplementation composeBom
 
