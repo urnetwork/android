@@ -178,7 +178,7 @@ fun FeedbackScreen(
 
                 URButton(
                     onClick = {
-                        sendFeedback()
+                        submitFeedback()
                         keyboardController?.hide()
                     },
                     enabled = isSendEnabled

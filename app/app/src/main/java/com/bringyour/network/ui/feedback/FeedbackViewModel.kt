@@ -11,8 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.FeedbackViewController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
-import com.bringyour.network.ui.shared.models.ConnectStatus
-import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.FeedbackSendArgs
 import com.bringyour.sdk.FeedbackSendNeeds
 import dagger.hilt.android.lifecycle.HiltViewModel
