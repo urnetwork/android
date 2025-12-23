@@ -1,10 +1,7 @@
 package com.bringyour.network
 
-import android.app.UiModeManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
@@ -15,6 +12,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.BillingClient
@@ -31,7 +30,6 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.WalletViewModel
-import com.bringyour.sdk.SubscriptionCreatePaymentIdArgs
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -42,9 +40,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity: AppCompatActivity() {
+
+    @Inject lateinit var jwtManager: JwtManager
 
     var requestPermissionLauncherAndStart : ActivityResultLauncher<String>? = null
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
@@ -155,6 +156,10 @@ class MainActivity: AppCompatActivity() {
         }
 
         setContent {
+
+            val jwt by jwtManager.jwtFlow.collectAsState(initial = null)
+            val isPro = jwt?.pro == true
+
             URNetworkTheme {
                 MainNavHost(
                     walletViewModel,
@@ -166,7 +171,8 @@ class MainActivity: AppCompatActivity() {
                     targetUrl,
                     defaultLocation,
                     activityResultSender,
-                    bundleStore
+                    bundleStore,
+                    isPro = isPro
                 )
             }
         }

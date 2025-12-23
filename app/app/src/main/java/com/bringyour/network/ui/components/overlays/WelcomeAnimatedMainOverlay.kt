@@ -49,7 +49,6 @@ import com.bringyour.network.ui.theme.Yellow
 @Composable
 fun WelcomeAnimatedMainOverlay(
     animateIn: Boolean,
-    currentPlanLoaded: Boolean
 ) {
 
     var isVisible by remember { mutableStateOf(animateIn) }
@@ -73,7 +72,6 @@ fun WelcomeAnimatedMainOverlay(
         WelcomeAnimatedMainOverlay(
             isVisible,
             close,
-            currentPlanLoaded
         )
     }
 
@@ -83,7 +81,6 @@ fun WelcomeAnimatedMainOverlay(
 fun WelcomeAnimatedMainOverlay(
     isVisible: Boolean,
     close: () -> Unit,
-    currentPlanLoaded: Boolean
 ) {
     val context = LocalContext.current
     val backgroundBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.overlay_guest_onboarding_bg)
@@ -158,8 +155,6 @@ fun WelcomeAnimatedMainOverlay(
                             },
                             style = ButtonStyle.OUTLINE,
                             borderColor = Black,
-                            enabled = currentPlanLoaded,
-                            isProcessing = !currentPlanLoaded
                         ) { buttonTextStyle ->
                             Row(
                                 modifier = Modifier
@@ -192,7 +187,6 @@ private fun WelcomeAnimatedOverlayPreview() {
         WelcomeAnimatedMainOverlay(
             isVisible = true,
             close = {},
-            currentPlanLoaded = true
         )
     }
 }

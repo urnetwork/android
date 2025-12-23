@@ -2,7 +2,6 @@ package com.bringyour.network.ui.settings
 
 import android.app.Activity
 import android.content.Context
-import android.content.Context.POWER_SERVICE
 import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
@@ -13,7 +12,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,14 +23,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.Outbound
 import androidx.compose.material.icons.automirrored.outlined.Outbound
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialogDefaults
@@ -42,7 +38,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -54,7 +49,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,7 +73,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.getSystemService
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.LoginActivity
@@ -134,14 +127,13 @@ fun SettingsScreen(
     planViewModel: PlanViewModel,
     settingsViewModel: SettingsViewModel,
     overlayViewModel: OverlayViewModel,
-    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     activityResultSender: ActivityResultSender?,
     walletViewModel: WalletViewModel,
     bonusReferralCode: String,
+    isPro: Boolean
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
-    val currentPlan = subscriptionBalanceViewModel.currentPlan.collectAsState().value
     val showDeleteAccountDialog = settingsViewModel.showDeleteAccountDialog.collectAsState().value
     val referralNetwork = settingsViewModel.referralNetwork.collectAsState().value
     val isPresentingAuthCodeDialog = settingsViewModel.isPresentingAuthCodeDialog.collectAsState().value
@@ -229,7 +221,7 @@ fun SettingsScreen(
     SettingsScreen(
         navController,
         clientId = accountViewModel.clientId,
-        currentPlan = currentPlan,
+        currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
         notificationsAllowed = notificationsAllowed,
         requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
         notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,

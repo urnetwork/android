@@ -1,10 +1,7 @@
 package com.bringyour.network
 
-import android.app.UiModeManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
@@ -14,6 +11,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -33,9 +32,12 @@ import com.solana.mobilewalletadapter.clientlib.TransactionResult
 import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity: AppCompatActivity() {
+
+    @Inject lateinit var jwtManager: JwtManager
 
     var requestPermissionLauncherAndStart : ActivityResultLauncher<String>? = null
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
@@ -144,6 +146,10 @@ class MainActivity: AppCompatActivity() {
         }
 
         setContent {
+
+            val jwt by jwtManager.jwtFlow.collectAsState(initial = null)
+            val isPro = jwt?.pro == true
+
             URNetworkTheme {
                 MainNavHost(
                     walletViewModel = walletViewModel,
@@ -155,7 +161,8 @@ class MainActivity: AppCompatActivity() {
                     targetLink = targetUrl,
                     defaultLocation = defaultLocation,
                     activityResultSender = activityResultSender,
-                    bundleStore = bundleStore
+                    bundleStore = bundleStore,
+                    isPro = isPro
                 )
             }
         }

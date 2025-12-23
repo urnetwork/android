@@ -8,14 +8,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.JwtManager
 import com.bringyour.network.TAG
 import com.bringyour.sdk.SubscriptionBalanceCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.isActive
@@ -23,10 +27,8 @@ import kotlinx.coroutines.isActive
 @HiltViewModel
 class SubscriptionBalanceViewModel @Inject constructor(
     deviceManager: DeviceManager,
+    jwtManager: JwtManager
 ): ViewModel() {
-
-    private val _currentPlan = MutableStateFlow(Plan.Basic)
-    val currentPlan: StateFlow<Plan> get() = _currentPlan
 
     private val _currentStore = MutableStateFlow<String?>(null)
     val currentStore: StateFlow<String?> get() = _currentStore
@@ -44,11 +46,6 @@ class SubscriptionBalanceViewModel @Inject constructor(
      * Background polling for available bytes
      */
     private var backgroundPollingJob: Job? = null
-
-
-    val setCurrentPlan: (Plan) -> Unit = { plan ->
-        _currentPlan.value = plan
-    }
 
     var isPollingSubscriptionBalance by mutableStateOf(false)
         private set
@@ -99,7 +96,6 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
                 viewModelScope.launch {
                     if (err != null) {
-                        Log.i(TAG, "error fetching subscription balance: $err")
 
                         _isLoading.value = false
                         isRefreshingSubscriptionBalance = false
@@ -108,8 +104,17 @@ class SubscriptionBalanceViewModel @Inject constructor(
                     } else {
 
                         result?.currentSubscription?.plan?.let { plan ->
-                            setCurrentPlan(Plan.fromString(plan))
-                        } ?: setCurrentPlan(Plan.Basic)
+
+                            val currentIsPro = jwtManager.jwtFlow.value?.pro == true
+
+                            /**
+                             * if plan from SubscriptionBalance is different than JWT.Pro
+                             * refresh the token
+                             */
+                            if (Plan.fromString(plan) == Plan.Supporter && !currentIsPro) {
+                                deviceManager.device?.refreshToken(0)
+                            }
+                        }
 
                         result?.currentSubscription?.store.let { store ->
                             _currentStore.value = store
@@ -126,6 +131,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                     if (!_isInitialized.value) {
                         _isInitialized.value = true
                     }
+
                 }
 
             })
@@ -134,15 +140,19 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     }
 
-    private fun isSupporterWithBalance(): Boolean {
-        return currentPlan.value == Plan.Supporter && _availableBalanceByteCount.value > 0
+    private val isSupporterWithBalance: () -> Boolean = {
+        val currentIsPro = jwtManager.jwtFlow.value?.pro == true
+
+        currentIsPro && _availableBalanceByteCount.value > 0
     }
 
     /**
      * This is used when we have evidence of a payment (ie Stripe, Apple, Play)
      */
     fun pollSubscriptionBalance(maxDurationMs: Long = 120_000L) {
-        if (isPolling) return
+
+//        if (isPolling) return
+        if (isPollingSubscriptionBalance) return
 
         isPollingSubscriptionBalance = true
 
@@ -174,9 +184,6 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
             while (isPolling && isActive && System.currentTimeMillis() < deadline) {
 
-                Log.i(TAG, "System.currentTimeMillis(): ${System.currentTimeMillis()}")
-                Log.i(TAG, "deadline: $deadline")
-
                 delay(pollingInterval)
                 fetchSubscriptionBalance()
                 if (isSupporterWithBalance()) {
@@ -201,6 +208,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                 delay(60_000) // poll every minute
                 fetchSubscriptionBalance()
                 if (isSupporterWithBalance()) {
+
                     stopBackgroundPolling()
                     break
                 }
