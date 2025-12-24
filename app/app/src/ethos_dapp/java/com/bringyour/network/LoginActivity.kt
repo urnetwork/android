@@ -4,28 +4,22 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import android.util.Log
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.android.installreferrer.api.InstallReferrerClient
-import com.android.installreferrer.api.InstallReferrerStateListener
-import com.bringyour.sdk.AuthNetworkClientArgs
-import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.sdk.AuthCodeLoginArgs
+import com.bringyour.sdk.AuthNetworkClientArgs
+import com.bringyour.sdk.NetworkCreateArgs
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import kotlin.text.contains
-import kotlin.text.substringBefore
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -33,7 +27,6 @@ class LoginActivity : AppCompatActivity() {
     private var app : MainApplication? = null
 
 
-    private var referrerClient: InstallReferrerClient? = null
     private var referralCode: String? = null
 
     private val loginViewModel: LoginViewModel by viewModels()
@@ -71,44 +64,6 @@ class LoginActivity : AppCompatActivity() {
         } else if(app.device != null) {
             navigateToMain()
             return
-        } else if (app.deviceManager.canRefer) {
-            // fresh install, async check the install referrer
-            // see https://developer.android.com/google/play/installreferrer/library
-
-            referrerClient = InstallReferrerClient.newBuilder(this).build()
-            referrerClient?.startConnection(object : InstallReferrerStateListener {
-                override fun onInstallReferrerSetupFinished(responseCode: Int) {
-                    lifecycleScope.launch {
-                        try {
-                            when (responseCode) {
-                                InstallReferrerClient.InstallReferrerResponse.OK -> {
-                                    try {
-                                        referrerClient?.installReferrer?.let { details ->
-                                            details.installReferrer?.let {
-                                                val u = Uri.parse(it)
-                                                if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c") {
-                                                    Log.i(TAG, "referrerClient createWithUri $u")
-                                                    createWithUri(Uri.parse(it))
-                                                }
-                                            }
-                                        }
-                                    } catch (e: Exception) {
-                                        // do nothing
-                                    }
-                                }
-                            }
-                        } finally {
-                            app.deviceManager.canRefer = false
-
-                            referrerClient?.endConnection()
-                            referrerClient = null
-                        }
-                    }
-                }
-
-                override fun onInstallReferrerServiceDisconnected() {
-                }
-            })
         }
 
         // this is so overlays don't get cut by top bar and bottom drawer
@@ -373,10 +328,9 @@ class LoginActivity : AppCompatActivity() {
 
 
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        referrerClient?.endConnection()
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//
+//    }
 
 }
