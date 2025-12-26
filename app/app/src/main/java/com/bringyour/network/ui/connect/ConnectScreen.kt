@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -28,10 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.Id
@@ -137,52 +141,105 @@ fun ConnectScreen(
 
     }
 
-    val minSheetHeight = 208.dp
+    ConnectActionsSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetContent = { minSheetHeight ->
+            ConnectActions(
+                navController = navController,
+                selectedLocation = connectViewModel.selectedLocation,
+                presentSelectProvider = {
+                    navController.navigate(Route.BrowseLocations)
+                },
+                getLocationColor = locationsViewModel.getLocationColor,
+                minHeight = minSheetHeight,
+                currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
+                connect = { connectViewModel.connect(connectViewModel.selectedLocation) },
+                disconnect = connectViewModel.disconnect,
+                reconnectTunnel = {
+                    application?.startVpnService()
+                },
+                connectStatus = connectStatus,
+                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                insufficientBalance = displayInsufficientBalance,
+                usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
+                pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
+                availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
+                meanReliabilityWeight = meanReliabilityWeight,
+                totalReferrals = totalReferrals,
+                launchIntro = launchIntro
+            )
+        },
+        mainContent = {
+            ConnectMainContent(
+                connectStatus = connectStatus,
+                selectedLocation = connectViewModel.selectedLocation,
+                networkName = networkUser?.networkName,
+                connect = connectViewModel.connect,
+                disconnect = connectViewModel.disconnect,
+                providerGridPoints = connectViewModel.providerGridPoints,
+                windowCurrentSize = connectViewModel.windowCurrentSize,
+                grid = connectViewModel.grid,
+                loginMode = accountViewModel.loginMode,
+                animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                getStateColor = connectViewModel.getStateColor,
+                launchOverlay = overlayViewModel.launch,
+                locationsViewModel = locationsViewModel,
+                navController = navController,
+                displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                contractStatus = contractStatus,
+                currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
+                displayInsufficientBalance = displayInsufficientBalance,
+                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                device = connectViewModel.device,
+                promptReview = {
+                    if (bundleStore == BundleStore.SOLANA_DAPP) {
+                        setPromptSolanaReview(true)
+                    } else {
+                        promptReview()
+                    }
+                },
+            )
+        }
+    )
+
+    if (promptSolanaReview) {
+        PromptSolanaDAppStoreReview(
+            promptReview = {
+                promptReview()
+            },
+            dismiss = {
+                setPromptSolanaReview(false)
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ConnectActionsSheetScaffold(
+    scaffoldState: BottomSheetScaffoldState,
+    sheetContent: @Composable (peekHeight: Dp) -> Unit,
+    mainContent: @Composable () -> Unit,
+    sheetPeekHeight: Dp = dimensionResource(id = R.dimen.connect_actions_sheet_peek_height),
+) {
 
     BottomSheetScaffold(
-        sheetPeekHeight = minSheetHeight,
+        sheetPeekHeight = sheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContainerColor = SheetBlack,
         sheetContent = {
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 16.dp)
             ) {
-
-                ConnectActions(
-                    navController = navController,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    presentSelectProvider = {
-                        navController.navigate(Route.BrowseLocations)
-                    },
-                    getLocationColor = locationsViewModel.getLocationColor,
-                    minHeight = minSheetHeight,
-                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
-                    connect = { connectViewModel.connect(connectViewModel.selectedLocation) },
-                    disconnect = connectViewModel.disconnect,
-                    reconnectTunnel = {
-                        application?.startVpnService()
-                    },
-                    connectStatus = connectStatus,
-                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                    insufficientBalance = displayInsufficientBalance,
-                    usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
-                    pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
-                    availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
-                    meanReliabilityWeight = meanReliabilityWeight,
-                    totalReferrals = totalReferrals,
-                    launchIntro = launchIntro
-                )
-
+                sheetContent(sheetPeekHeight)
             }
-
         },
     ) { innerPadding ->
-        // Main screen content
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -194,53 +251,10 @@ fun ConnectScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-
-                ConnectMainContent(
-                    connectStatus = connectStatus,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    networkName = networkUser?.networkName,
-                    connect = connectViewModel.connect,
-                    disconnect = connectViewModel.disconnect,
-                    providerGridPoints = connectViewModel.providerGridPoints,
-                    windowCurrentSize = connectViewModel.windowCurrentSize,
-                    grid = connectViewModel.grid,
-                    loginMode = accountViewModel.loginMode,
-                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                    getStateColor = connectViewModel.getStateColor,
-//                checkTriggerPromptReview = checkTriggerPromptReview,
-                    launchOverlay = overlayViewModel.launch,
-                    locationsViewModel = locationsViewModel,
-                    navController = navController,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                    contractStatus = contractStatus,
-                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
-                    displayInsufficientBalance = displayInsufficientBalance,
-                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                    device = connectViewModel.device,
-                    promptReview = {
-                        if (bundleStore == BundleStore.SOLANA_DAPP) {
-                            setPromptSolanaReview(true)
-                        } else {
-                            promptReview()
-                        }
-                    },
-
-                    // showTopAppBar = showTopAppBar
-                )
+                // Main screen content
+                mainContent()
             }
         }
-    }
-
-    if (promptSolanaReview) {
-        PromptSolanaDAppStoreReview(
-            promptReview = {
-                promptReview()
-            },
-            dismiss = {
-                setPromptSolanaReview(false)
-            }
-        )
     }
 }
 
@@ -288,6 +302,8 @@ fun ConnectMainContent(
 
             Column {
 
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
@@ -325,7 +341,7 @@ fun ConnectMainContent(
                     isPollingSubscriptionBalance = isPollingSubscriptionBalance
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+//                Spacer(modifier = Modifier.height(16.dp))
 
 //                Box(
 //                    modifier = Modifier
