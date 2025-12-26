@@ -229,7 +229,7 @@ private fun ConnectingButtonContent(
         }
 
         GridCanvas(
-            size = if (isTv()) 124.dp else 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
+            size = 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
             providerGridPoints = providerGridPoints,
             grid = grid,
             updatedStatus = status,
