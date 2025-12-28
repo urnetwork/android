@@ -332,4 +332,5 @@
     <string name="retry">重试</string>
     <string name="ignore_battery_optimizations">忽略电池优化</string>
     <string name="disable_ignore_battery_hint">若要禁用，请前往系统设置中的应用电池使用情况</string>
+    <string name="sign_in_dgen1">使用 dGEN1 登录</string>
 </resources>

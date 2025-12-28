@@ -331,5 +331,6 @@
     <string name="retry">Tentar novamente</string>
     <string name="ignore_battery_optimizations">Ignorar otimizações da bateria</string>
     <string name="disable_ignore_battery_hint">Para desativar, vá a Utilização de Bateria da App nas Definições do Sistema</string>
+    <string name="sign_in_dgen1">Iniciar sessão com dGEN1</string>
 
 </resources>

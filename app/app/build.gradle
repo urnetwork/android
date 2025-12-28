@@ -146,7 +146,7 @@ android {
         // testing 7 has been particularly challenging because of device availability
         // 7.1 (25) works but 7.0 (24) has issues
         // moving the min to 8 (26) for now
-        minSdk 26
+        minSdk 27
         targetSdk 36
         versionCode appVersionCode()
         versionName appVersion()
@@ -162,6 +162,21 @@ android {
             debugSymbolLevel 'SYMBOL_TABLE'
         }
 
+        // Load local.properties
+        def localProperties = new Properties()
+        def localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(new FileInputStream(localPropertiesFile))
+        }
+
+        def bundlerRpcUrl = localProperties.getProperty("BUNDLER_RPC_URL", "")
+        if (bundlerRpcUrl) {
+            buildConfigField "String", "BUNDLER_RPC_URL", "\"${bundlerRpcUrl}\""
+        } else {
+            // Optionally, fail the build or set a default
+            buildConfigField "String", "BUNDLER_RPC_URL", "\"\""
+            println("Warning: BUNDLER_RPC_URL not set in local.properties")
+        }
     }
 
     signingConfigs {
@@ -555,6 +570,10 @@ dependencies {
 
 /*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.5.0")
 /*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.5.0")
+
+    ethos_dappImplementation("org.web3j:core:4.9.4")
+    ethos_dappImplementation("com.github.EthereumPhone:WalletSDK:0.2.0")
+
 }
 
 

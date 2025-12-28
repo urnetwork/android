@@ -114,7 +114,8 @@ sealed class LoginCreateNetworkParams(
          referralCode
     )
 
-    class LoginCreateSolanaParams(
+    class LoginCreateWalletParams(
+        val blockchain: String,
         val publicKey: String,
         val signedMessage: String,
         val signature: String,
@@ -256,11 +257,12 @@ fun LoginCreateNetwork(
                         networkNameIsValid &&
                         termsAgreed
             }
-            is LoginCreateNetworkParams.LoginCreateSolanaParams -> {
+            is LoginCreateNetworkParams.LoginCreateWalletParams -> {
                     (networkName.text.length >= 6) &&
                     (params.publicKey.isNotEmpty()) &&
                     (params.signature.isNotEmpty()) &&
                     (params.signedMessage.isNotEmpty()) &&
+                    (params.blockchain.isNotEmpty()) &&
                     !isValidatingNetworkName &&
                     !networkNameErrorExists &&
                     networkNameIsValid &&
@@ -268,6 +270,8 @@ fun LoginCreateNetwork(
             }
         }
     }
+
+    val createNetworkError = stringResource(id = R.string.create_network_error)
 
     val createNetwork = {
         val args = createNetworkArgs(params)
@@ -319,7 +323,7 @@ fun LoginCreateNetwork(
                     inProgress = false
 
                 } else {
-                    Toast.makeText(context, context.getString(R.string.create_network_error), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, createNetworkError, Toast.LENGTH_SHORT).show()
                     inProgress = false
                 }
             }

@@ -117,7 +117,7 @@ class LoginViewModel @Inject constructor(
         signedMessage: String,
         signature: String,
         onLogin: (AuthLoginResult) -> Unit,
-        onCreateNetwork: (publicKey: String, signedMessage: String, signature: String) -> Unit
+        onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit
     ) -> Unit = { ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
 
         if (!solanaAuthInProgress) {
@@ -127,10 +127,12 @@ class LoginViewModel @Inject constructor(
             val args = AuthLoginArgs()
             val walletAuth = WalletAuthArgs()
 
+            val blockchain = "solana"
+
             walletAuth.publicKey = publicKey
             walletAuth.message = signedMessage
             walletAuth.signature = signature
-            walletAuth.blockchain = "solana"
+            walletAuth.blockchain = blockchain
 
             args.walletAuth = walletAuth
 
@@ -151,6 +153,7 @@ class LoginViewModel @Inject constructor(
                         setLoginError(null)
 
                         onCreateNetwork(
+                            blockchain,
                             result.walletAuth.publicKey,
                             result.walletAuth.message,
                             result.walletAuth.signature

@@ -122,16 +122,17 @@ fun LoginInitial(
     }
 
     val onCreateNetworkSolana: (
+        blockchain: String,
         publicKey: String,
         signedMessage: String,
         signature: String
-    ) -> Unit = { pk, signedMessage, signature ->
+    ) -> Unit = { blockchain, pk, signedMessage, signature ->
 
         val encodedPublicKey = Uri.encode(pk)
         val encodedSignedMessage = Uri.encode(signedMessage)
         val encodedSignature = Uri.encode(signature)
 
-        navController.navigate("create-network/${encodedPublicKey}/${encodedSignedMessage}/${encodedSignature}")
+        navController.navigate("create-network/${blockchain}/${encodedPublicKey}/${encodedSignedMessage}/${encodedSignature}")
     }
 
     val connectSolanaWallet = {
@@ -291,6 +292,8 @@ fun LoginInitial(
         navController.navigate("create-network/${result.userAuth}")
     }
 
+    val createNetworkErrorMsg = stringResource(id = R.string.create_network_error)
+
     val createGuestNetwork = {
         setCreateGuestModeInProgress(true)
 
@@ -337,7 +340,7 @@ fun LoginInitial(
                     )
 
                 } else {
-                    setLoginError(context.getString(R.string.create_network_error))
+                    setLoginError(createNetworkErrorMsg)
                 }
             }
         }

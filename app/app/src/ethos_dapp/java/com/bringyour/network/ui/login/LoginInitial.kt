@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bringyour.network.BuildConfig
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.NetworkCreateArgs
@@ -83,10 +85,14 @@ import com.solana.mobilewalletadapter.clientlib.Solana
 import com.solana.mobilewalletadapter.clientlib.TransactionResult
 import com.solana.mobilewalletadapter.common.signin.SignInWithSolana
 import com.solana.publickey.SolanaPublicKey
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.ethereumphone.walletsdk.WalletSDK
+import org.web3j.protocol.Web3j
+import org.web3j.protocol.http.HttpService
 import java.util.Date
 
 @Composable()
@@ -105,9 +111,17 @@ fun LoginInitial(
 
     val scope = rememberCoroutineScope()
 
+    val hasEthOsWallet = remember {
+        hasEthOsWalletService(context)
+    }
+
     LaunchedEffect(Unit) {
         if (loginViewModel.solanaAuthInProgress) {
             loginViewModel.setSolanaAuthInProgress(false)
+        }
+
+        if (loginViewModel.ethOsAuthInProgress) {
+            loginViewModel.setEthOsAuthInProgress(false)
         }
     }
 
@@ -135,17 +149,19 @@ fun LoginInitial(
 
     }
 
-    val onCreateNetworkSolana: (
+    val onCreateNetworkWallet: (
+        blockchain: String,
         publicKey: String,
         signedMessage: String,
         signature: String
-            ) -> Unit = { pk, signedMessage, signature ->
+            ) -> Unit = { blockchain, pk, signedMessage, signature ->
 
         val encodedPublicKey = Uri.encode(pk)
         val encodedSignedMessage = Uri.encode(signedMessage)
         val encodedSignature = Uri.encode(signature)
+        val encodedBlockchain = Uri.encode(blockchain)
 
-        navController.navigate("create-network/${encodedPublicKey}/${encodedSignedMessage}/${encodedSignature}")
+        navController.navigate("create-network/${encodedBlockchain}/${encodedPublicKey}/${encodedSignedMessage}/${encodedSignature}")
     }
 
     val connectSolanaWallet = {
@@ -153,7 +169,6 @@ fun LoginInitial(
         val solanaUri = Uri.parse("https://ur.io")
         val iconUri = Uri.parse("favicon.ico")
         val identityName = "URnetwork"
-
 
         scope.launch {
 
@@ -193,14 +208,14 @@ fun LoginInitial(
 
                             val signedMessage = it.signedMessage.decodeToString()
 
-                            loginViewModel.walletLogin(
+                            loginViewModel.walletLoginSolana(
                                 context,
                                 application?.api,
                                 address,
                                 signedMessage,
                                 signatureBase64,
                                 onLogin,
-                                onCreateNetworkSolana
+                                onCreateNetworkWallet
                             )
 
                         } ?: run {
@@ -221,6 +236,47 @@ fun LoginInitial(
         }
     }
 
+    val connectEthOSWallet: () -> Unit = {
+
+        if (hasEthOsWallet) {
+
+            val wallet = WalletSDK(
+                context = context,
+                bundlerRPCUrl = BuildConfig.BUNDLER_RPC_URL,
+                // optional: override default web3 provider used for reads (eth_call, code, etc.)
+//                web3jInstance = Web3j.build(HttpService("https://base.llamarpc.com")/)
+            )
+
+            val timestamp = Date().time.toString()
+            val message = "Welcome to URnetwork - $timestamp"
+
+            CoroutineScope(Dispatchers.IO).launch {
+
+                val address = wallet.getAddress()
+
+                val signature = wallet.signMessage(
+                    message = message,
+                    chainId = 1,
+                    // type = "personal_sign" // optional (default)
+                )
+
+                loginViewModel.walletLoginEthereum(
+                    context,
+                    application?.api,
+                    address,
+                    message,
+                    signature,
+                    onLogin,
+                    onCreateNetworkWallet
+                )
+            }
+
+        } else {
+            Toast.makeText(context, "No EthOs wallet found", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
     LoginInitial(
         navController,
         userAuth = loginViewModel.userAuth,
@@ -238,7 +294,10 @@ fun LoginInitial(
         solanaLogin = {
             connectSolanaWallet()
                       },
+        ethOsLogin = connectEthOSWallet,
+        hasEthOsWallet = hasEthOsWallet,
         solanaAuthInProgress = loginViewModel.solanaAuthInProgress,
+        ethOsAuthInProgress = loginViewModel.ethOsAuthInProgress,
         onLogin = onLogin,
         contentVisible = contentVisible,
         setContentVisible = {
@@ -289,7 +348,10 @@ fun LoginInitial(
     setCreateGuestModeInProgress: (Boolean) -> Unit,
     allowGoogleSso: () -> Boolean,
     solanaLogin: () -> Unit,
+    ethOsLogin: () -> Unit,
+    hasEthOsWallet: Boolean,
     solanaAuthInProgress: Boolean,
+    ethOsAuthInProgress: Boolean,
     onLogin: (AuthLoginResult) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
@@ -317,7 +379,10 @@ fun LoginInitial(
         navController.navigate("create-network/${result.userAuth}")
     }
 
-    val googleClientId = context.getString(R.string.google_client_id)
+    // val googleClientId = context.getString(R.string.google_client_id)
+    val googleClientId = stringResource(id = R.string.google_client_id)
+    val createNetworkLoginError = stringResource(id = R.string.create_network_error)
+
     val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(googleClientId)
         .requestEmail()
@@ -367,7 +432,7 @@ fun LoginInitial(
                     )
 
                 } else {
-                    setLoginError(context.getString(R.string.create_network_error))
+                     setLoginError(createNetworkLoginError)
                 }
             }
         }
@@ -452,7 +517,10 @@ fun LoginInitial(
                         },
                         allowGoogleSso = allowGoogleSso,
                         onSolanaLogin = solanaLogin,
-                        solanaAuthInProgress = solanaAuthInProgress
+                        solanaAuthInProgress = solanaAuthInProgress,
+                        onEthOsLogin = ethOsLogin,
+                        hasEthOsWallet = hasEthOsWallet,
+                        ethOsAuthInProgress = ethOsAuthInProgress
                     )
                 }
 
@@ -509,6 +577,9 @@ fun LoginInitialActions(
     onGoogleLogin: () -> Unit,
     allowGoogleSso: () -> Boolean,
     onSolanaLogin: () -> Unit,
+    onEthOsLogin: () -> Unit,
+    hasEthOsWallet: Boolean,
+    ethOsAuthInProgress: Boolean,
     solanaAuthInProgress: Boolean,
 ) {
 
@@ -627,6 +698,39 @@ fun LoginInitialActions(
                 }
             }
 
+            if (hasEthOsWallet) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                /**
+                 * EthOS Sign In
+                 */
+                URButton(
+                    style = ButtonStyle.SECONDARY,
+                    onClick = {
+                        onEthOsLogin()
+                    },
+                     enabled = !ethOsAuthInProgress,
+                     isProcessing = ethOsAuthInProgress
+                ) { buttonTextStyle ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Image(
+                            painter = painterResource(id = R.drawable.dgen1_logo),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                             stringResource(id = R.string.sign_in_dgen1),
+                            style = buttonTextStyle
+                        )
+                    }
+                }
+            }
+
             // }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -684,6 +788,11 @@ private fun TryGuestMode(
     }
 }
 
+fun hasEthOsWalletService(context: Context): Boolean {
+    // from the docs https://docs.freedomfactory.io/build/jvm-sdk#groovy
+    return context.getSystemService("wallet") != null
+}
+
 @Preview()
 @Composable
 private fun LoginInitialPreview() {
@@ -733,7 +842,10 @@ private fun LoginInitialPreview() {
                     setCreateGuestModeInProgress = {},
                     allowGoogleSso = { true },
                     solanaAuthInProgress = false,
+                    ethOsAuthInProgress = false,
                     solanaLogin = {},
+                    ethOsLogin = {},
+                    hasEthOsWallet = true,
                     onLogin = {},
                     contentVisible = true,
                     setContentVisible = {},
@@ -796,7 +908,10 @@ private fun LoginInitialLandscapePreview() {
                     setCreateGuestModeInProgress = {},
                     allowGoogleSso = { true },
                     solanaAuthInProgress = false,
+                    ethOsAuthInProgress = false,
                     solanaLogin = {},
+                    ethOsLogin = {},
+                    hasEthOsWallet = true,
                     onLogin = {},
                     contentVisible = true,
                     setContentVisible = {},

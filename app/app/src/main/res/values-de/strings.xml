@@ -332,4 +332,5 @@
     <string name="retry">Erneut versuchen</string>
     <string name="ignore_battery_optimizations">Akku-Optimierungen ignorieren</string>
     <string name="disable_ignore_battery_hint">Zum Deaktivieren gehe bitte zu App-Akkuverbrauch in den Systemeinstellungen</string>
+    <string name="sign_in_dgen1">Mit dGEN1 anmelden</string>
 </resources>
