@@ -331,4 +331,5 @@
     <string name="retry">पुनः प्रयास करें</string>
     <string name="ignore_battery_optimizations">बैटरी ऑप्टिमाइज़ेशन को अनदेखा करें</string>
     <string name="disable_ignore_battery_hint">अक्षम करने के लिए, कृपया सिस्टम सेटिंग्स में ऐप बैटरी उपयोग पर जाएँ</string>
+    <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
 </resources>

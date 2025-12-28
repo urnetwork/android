@@ -357,4 +357,5 @@
     <string name="retry">Повторить попытку</string>
     <string name="ignore_battery_optimizations">Игнорировать оптимизацию батареи</string>
     <string name="disable_ignore_battery_hint">Чтобы отключить, перейдите в Использование батареи приложением в системных настройках</string>
+    <string name="sign_in_dgen1">Войти с помощью dGEN1</string>
 </resources>

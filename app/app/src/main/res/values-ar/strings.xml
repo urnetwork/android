@@ -331,4 +331,5 @@
     <string name="retry">إعادة المحاولة</string>
     <string name="ignore_battery_optimizations">تجاهل تحسينات البطارية</string>
     <string name="disable_ignore_battery_hint">لتعطيل ذلك، يرجى الانتقال إلى استخدام بطارية التطبيق في إعدادات النظام</string>
+    <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
 </resources>

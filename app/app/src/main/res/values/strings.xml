@@ -357,4 +357,5 @@
     <string name="retry">Retry</string>
     <string name="ignore_battery_optimizations">Ignore battery optimizations</string>
     <string name="disable_ignore_battery_hint">To disable, please go to App Battery Usage in System Settings</string>
+    <string name="sign_in_dgen1">Sign in with dGEN1</string>
 </resources>

@@ -354,4 +354,5 @@
     <string name="retry">再試行</string>
     <string name="ignore_battery_optimizations">バッテリー最適化を無視する</string>
     <string name="disable_ignore_battery_hint">無効にするには、システム設定のアプリのバッテリー使用状況に移動してください</string>
+    <string name="sign_in_dgen1">dGEN1でサインイン</string>
 </resources>

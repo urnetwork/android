@@ -354,5 +354,6 @@
     <string name="retry">Spróbuj ponownie</string>
     <string name="ignore_battery_optimizations">Ignoruj optymalizacje baterii</string>
     <string name="disable_ignore_battery_hint">Aby wyłączyć, przejdź do Użycia baterii aplikacji w ustawieniach systemu</string>
+    <string name="sign_in_dgen1">Zaloguj się za pomocą dGEN1</string>
 
 </resources>

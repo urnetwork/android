@@ -28,7 +28,6 @@ import com.bringyour.network.ui.login.LoginVerify
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.SwitchAccountScreen
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
-import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 
 @Composable
@@ -44,7 +43,6 @@ fun LoginNavHost(
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
-    val isTv = isTv()
 
     val (switchAccount, setSwitchAccount) = remember { mutableStateOf(promptAccountSwitch) }
 
@@ -73,13 +71,7 @@ fun LoginNavHost(
                     ) + fadeIn(animationSpec = tween(300)
                     ) },
                     exitTransition = {
-                        if (isTv) {
-                            slideOutHorizontally (
-                                animationSpec = tween(durationMillis = 300)
-                            ) + fadeOut(animationSpec = tween(300))
-                        } else {
-                            ExitTransition.None
-                        }
+                        ExitTransition.None
                     },
                     popEnterTransition = {
                         fadeIn(animationSpec = tween(300))
@@ -125,13 +117,15 @@ fun LoginNavHost(
                         )
                     }
 
-                    composable("create-network/{walletAddress}/{signedMessage}/{signature}") { backStackEntry ->
+                    composable("create-network/{blockchain}/{walletAddress}/{signedMessage}/{signature}") { backStackEntry ->
 
+                        val blockchain = backStackEntry.arguments?.getString("blockchain") ?: ""
                         val walletAddress = backStackEntry.arguments?.getString("walletAddress") ?: ""
                         val signedMessage = backStackEntry.arguments?.getString("signedMessage") ?: ""
                         val signature = backStackEntry.arguments?.getString("signature") ?: ""
 
-                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateSolanaParams(
+                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateWalletParams(
+                            blockchain = blockchain,
                             publicKey = walletAddress,
                             signedMessage = signedMessage,
                             signature = signature,

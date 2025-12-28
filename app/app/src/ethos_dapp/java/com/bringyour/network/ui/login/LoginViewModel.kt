@@ -41,6 +41,9 @@ class LoginViewModel @Inject constructor(
     var solanaAuthInProgress by mutableStateOf(false)
         private set
 
+    var ethOsAuthInProgress by mutableStateOf(false)
+        private set
+
     var isValidUserAuth by mutableStateOf(false)
         private set
 
@@ -165,14 +168,14 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    val walletLogin: (
+    val walletLoginSolana: (
         context: Context,
         api: Api?,
         publicKey: String,
         signedMessage: String,
         signature: String,
         onLogin: (AuthLoginResult) -> Unit,
-        onCreateNetwork: (publicKey: String, signedMessage: String, signature: String) -> Unit
+        onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit
     ) -> Unit = { ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
 
         if (!solanaAuthInProgress) {
@@ -182,10 +185,12 @@ class LoginViewModel @Inject constructor(
             val args = AuthLoginArgs()
             val walletAuth = WalletAuthArgs()
 
+            val blockchain = "solana"
+
             walletAuth.publicKey = publicKey
             walletAuth.message = signedMessage
             walletAuth.signature = signature
-            walletAuth.blockchain = "solana"
+            walletAuth.blockchain = blockchain
 
             args.walletAuth = walletAuth
 
@@ -206,6 +211,65 @@ class LoginViewModel @Inject constructor(
                         setLoginError(null)
 
                         onCreateNetwork(
+                            blockchain,
+                            result.walletAuth.publicKey,
+                            result.walletAuth.message,
+                            result.walletAuth.signature
+                        )
+                    }
+
+                    // we can leave the spinner going while we navigate to the next page
+                    // it will reset
+                    // setSolanaAuthInProgress(false)
+                }
+            }
+        }
+    }
+
+    val walletLoginEthereum: (
+        context: Context,
+        api: Api?,
+        publicKey: String,
+        signedMessage: String,
+        signature: String,
+        onLogin: (AuthLoginResult) -> Unit,
+        onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit
+    ) -> Unit = { ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
+
+        if (!ethOsAuthInProgress) {
+
+            setEthOsAuthInProgress(true)
+
+            val args = AuthLoginArgs()
+            val walletAuth = WalletAuthArgs()
+
+            val blockchain = "ethereum"
+
+            walletAuth.publicKey = publicKey
+            walletAuth.message = signedMessage
+            walletAuth.signature = signature
+            walletAuth.blockchain = blockchain
+
+            args.walletAuth = walletAuth
+
+            api?.authLogin(args) { result, err ->
+                viewModelScope.launch {
+                    // googleAuthInProgress = false
+
+                    if (err != null) {
+                        setLoginError(err.message)
+                    } else if (result.error != null) {
+                        setLoginError(result.error.message)
+                    } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                        setLoginError(null)
+
+                        onLogin(result)
+
+                    } else {
+                        setLoginError(null)
+
+                        onCreateNetwork(
+                            blockchain,
                             result.walletAuth.publicKey,
                             result.walletAuth.message,
                             result.walletAuth.signature
@@ -230,6 +294,10 @@ class LoginViewModel @Inject constructor(
 
     val setSolanaAuthInProgress: (Boolean) -> Unit = { inProgress ->
         solanaAuthInProgress = inProgress
+    }
+
+    val setEthOsAuthInProgress: (Boolean) -> Unit = {
+        ethOsAuthInProgress = it
     }
 
     val setUserAuth: (TextFieldValue) -> Unit = { newValue ->

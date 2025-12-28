@@ -354,4 +354,5 @@
     <string name="retry">다시 시도</string>
     <string name="ignore_battery_optimizations">배터리 최적화 무시</string>
     <string name="disable_ignore_battery_hint">비활성화하려면 시스템 설정의 앱 배터리 사용으로 이동하세요</string>
+    <string name="sign_in_dgen1">dGEN1로 로그인</string>
 </resources>

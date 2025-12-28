@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.R
 import com.bringyour.network.TAG
-import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.sdk.NetworkNameValidationViewController
@@ -235,12 +234,13 @@ class LoginCreateNetworkViewModel @Inject constructor(
                 args.authJwt = params.authJwt
                 args.authJwtType = params.authJwtType
             }
-            is LoginCreateNetworkParams.LoginCreateSolanaParams -> {
+            is LoginCreateNetworkParams.LoginCreateWalletParams -> {
                 val walletAuth = WalletAuthArgs()
                 walletAuth.publicKey = Uri.decode(params.publicKey)
                 walletAuth.signature = Uri.decode(params.signature)
                 walletAuth.message = Uri.decode(params.signedMessage)
-                walletAuth.blockchain = "solana"
+                // walletAuth.blockchain = "solana"
+                walletAuth.blockchain = Uri.decode(params.blockchain)
                 args.walletAuth = walletAuth
             }
 
@@ -254,5 +254,4 @@ class LoginCreateNetworkViewModel @Inject constructor(
             networkSpaceManagerProvider.getNetworkSpace()?.api
         )
     }
-
 }
