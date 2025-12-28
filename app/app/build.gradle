@@ -342,14 +342,14 @@ android {
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"solana_dapp"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"ethos_dapp"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"ethos"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
 
-            signingConfig signingConfigs.solana_dapp
+            signingConfig signingConfigs.ethos_dapp
 
-            // solana dapp devices are exclusively arm64-v8a
+            // ethos dapp devices are exclusively arm64-v8a
             ndk {
                 //noinspection ChromeOsAbiSupport
                 abiFilters = ['arm64-v8a']
@@ -363,6 +363,8 @@ android {
                 // Disables dependency metadata when building Android App Bundles.
                 includeInBundle = false
             }
+
+            minSdk 27
         }
     }
 
@@ -555,7 +557,7 @@ dependencies {
 /*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.5.0")
 }
 
-// solana dapp
+// ethos dapp
 dependencies {
     // force dependencies with known CVE vulnerabilities to newer versions
     // CVE-2022-2390
