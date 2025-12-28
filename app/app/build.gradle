@@ -540,7 +540,7 @@ dependencies {
 /*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.5.0")
 }
 
-// solana dapp
+// ethos dapp
 dependencies {
     // force dependencies with known CVE vulnerabilities to newer versions
     // CVE-2022-2390
