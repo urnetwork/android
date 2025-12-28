@@ -146,7 +146,7 @@ android {
         // testing 7 has been particularly challenging because of device availability
         // 7.1 (25) works but 7.0 (24) has issues
         // moving the min to 8 (26) for now
-        minSdk 27
+        minSdk 26
         targetSdk 36
         versionCode appVersionCode()
         versionName appVersion()
