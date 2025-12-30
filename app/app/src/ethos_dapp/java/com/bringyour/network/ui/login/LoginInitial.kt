@@ -56,12 +56,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -472,6 +476,8 @@ fun LoginInitial(
         }
     }
 
+    val loginTitleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
+
     AnimatedVisibility(
         visible = contentVisible,
         enter = EnterTransition.None,
@@ -493,12 +499,19 @@ fun LoginInitial(
                 Column(
                     modifier = Modifier.imePadding()
                 ) {
-                    Text(
-                        stringResource(id = R.string.welcome_to_urnetwork),
-                        style = MaterialTheme.typography.headlineLarge
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            stringResource(id = R.string.welcome_to_urnetwork),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontSize = loginTitleSize,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.login_margin_lg)))
 
                     LoginInitialActions(
                         userAuth = userAuth,

@@ -213,7 +213,7 @@
     <string name="edit_referral_code">Referentiecode bewerken</string>
     <string name="referral_bonus_applied">Referentiecode toegepast</string>
     <string name="apply_bonus">Bonus toepassen</string>
-    <string name="join_urnetwork">Sluit je aan\nbij URnetwork</string>
+    <string name="join_urnetwork">Sluit je aan bij URnetwork</string>
     <string name="route_local">Sta lokaal verkeer toe bij onderbroken verbinding</string>
     <string name="manage_subscription">Abonnement beheren</string>
     <string name="solana_sign_in">Inloggen met Solana</string>

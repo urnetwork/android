@@ -188,7 +188,7 @@
     <string name="edit_referral_code">Empfehlungscode bearbeiten</string>
     <string name="referral_bonus_applied">Empfehlungsbonus angewendet</string>
     <string name="apply_bonus">Bonus anwenden</string>
-    <string name="join_urnetwork">Tritt bei\\nURnetwork</string>
+    <string name="join_urnetwork">Tritt bei URnetwork</string>
     <string name="route_local">Lokalen Datenverkehr erlauben, wenn getrenntnURnetwork</string>
     <string name="manage_subscription">Abonnement verwalten</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>

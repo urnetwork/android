@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <resources>
     <string name="title_login">تسجيل الدخول</string>
 
     <string name="user_auth_label">البريد الإلكتروني أو الهاتف</string>
-    <string name="user_auth_placeholder">أدخل رقم هاتفك أو بريدك الإلكتروني</string>
+    <string
+        name="user_auth_placeholder"
+    >أدخل رقم هاتفك أو بريدك الإلكتروني</string>
     <string name="get_started">البدء</string>
     <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
     <string name="commitment_issues">مشاكل في الالتزام؟ </string>
@@ -17,10 +19,14 @@
     <string name="name_placeholder">اسمك</string>
     <string name="network_name_label">اسم الشبكة</string>
     <string name="network_name_placeholder">اسم شبكتك</string>
-    <string name="network_name_length_error">يجب أن تتكون أسماء الشبكات من 6 أحرف أو أكثر</string>
+    <string
+        name="network_name_length_error"
+    >يجب أن تتكون أسماء الشبكات من 6 أحرف أو أكثر</string>
     <string name="network_name_unavailable">اسم الشبكة غير متاح</string>
     <string name="password_label">كلمة المرور</string>
-    <string name="password_support_txt">يجب أن تتكون كلمة المرور من 12 حرفًا على الأقل</string>
+    <string
+        name="password_support_txt"
+    >يجب أن تتكون كلمة المرور من 12 حرفًا على الأقل</string>
     <string name="continue_txt">تابع</string>
 
     <string name="login_password_header">من الجيد\nرؤيتك مرة أخرى</string>
@@ -28,7 +34,9 @@
     <string name="reset_it">إعادة تعيينها</string>
 
     <string name="forgot_password">هل نسيت كلمة مرورك؟</string>
-    <string name="check_junk_mail">قد تحتاج إلى التحقق من مجلد البريد العشوائي أو إلغاء حظر support@ur.io</string>
+    <string
+        name="check_junk_mail"
+    >قد تحتاج إلى التحقق من مجلد البريد العشوائي أو إلغاء حظر support@ur.io</string>
     <string name="send_reset_link">إرسال رابط إعادة التعيين</string>
 
     <string name="reset_link_sent">تم إرسال رابط إعادة التعيين</string>
@@ -37,12 +45,16 @@
     <string name="sent">تم الإرسال!</string>
 
     <string name="login_verify_header">لديك بريد إلكتروني</string>
-    <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
+    <string
+        name="login_verify_details"
+    >أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="dont_see_it">ألا تراه؟</string>
     <string name="resend_verify_code">إعادة إرسال الرمز</string>
 
     <string name="connect_external_wallet">ربط محفظة خارجية</string>
-    <string name="connect_external_wallet_supported_chains">عناوين USDC على Solana و Polygon مدعومة حاليًا.</string>
+    <string
+        name="connect_external_wallet_supported_chains"
+    >عناوين USDC على Solana و Polygon مدعومة حاليًا.</string>
     <string name="wallet_address_label">عنوان المحفظة</string>
     <string name="wallet_address_placeholder">انسخ والصق هنا</string>
     <string name="total_payouts">إجمالي المدفوعات</string>
@@ -57,12 +69,18 @@
     <string name="edit_profile">تعديل الملف الشخصي</string>
     <string name="save">حفظ</string>
 
-    <string name="share_with_others">أنت تشارك مع الآخرين، ونحن نشارك معك. اكسب حصة من الإيرادات عندما تقدم بيانات للآخرين على الشبكة.</string>
-    <string name="start_earning">للبدء في الربح، اربط محفظة العملات المشفرة الخاصة بك بـ URnetwork أو قم بإعداد واحدة باستخدام Circle.</string>
+    <string
+        name="share_with_others"
+    >أنت تشارك مع الآخرين، ونحن نشارك معك. اكسب حصة من الإيرادات عندما تقدم بيانات للآخرين على الشبكة.</string>
+    <string
+        name="start_earning"
+    >للبدء في الربح، اربط محفظة العملات المشفرة الخاصة بك بـ URnetwork أو قم بإعداد واحدة باستخدام Circle.</string>
 
     <string name="circle_transfer_topbar_title">تحويل USDC</string>
     <string name="circle_transfer_header">التحويل إلى محفظة خارجية</string>
-    <string name="circle_transfer_fee_coverage">URnetwork تغطي رسوم التحويل الخاصة بك.</string>
+    <string
+        name="circle_transfer_fee_coverage"
+    >URnetwork تغطي رسوم التحويل الخاصة بك.</string>
     <string name="transfer">تحويل</string>
     <string name="insufficient_funds">رصيد غير كافٍ</string>
 
@@ -93,36 +111,56 @@
     <string name="member">عضو</string>
 
     <string name="upgrade_subscription">ترقية الاشتراك</string>
-    <string name="support_us">ادعمنا في بناء نوع جديد من الشبكات التي تعطي بدلاً من أن تأخذ.</string>
-    <string name="unlock_speed">ستفتح سرعات أعلى وستحصل على أولوية الوصول إلى ميزات جديدة مثل تدابير قوية لمكافحة الرقابة والتحكم في البيانات.</string>
+    <string
+        name="support_us"
+    >ادعمنا في بناء نوع جديد من الشبكات التي تعطي بدلاً من أن تأخذ.</string>
+    <string
+        name="unlock_speed"
+    >ستفتح سرعات أعلى وستحصل على أولوية الوصول إلى ميزات جديدة مثل تدابير قوية لمكافحة الرقابة والتحكم في البيانات.</string>
     <string name="join_the_movement">انضم إلى الحركة</string>
 
     <string name="in_guest_mode">أنت في وضع الضيف</string>
     <string name="start_earning_join">للبدء في الربح، انضم إلى الشبكة</string>
 
     <string name="refer_friends_header">إحالة الأصدقاء</string>
-    <string name="refer_friends_detail">المزيد من الاتصالات يساعد مجتمعنا على البقاء مجهول الهوية (ويساعدك على كسب المال!)</string>
+    <string
+        name="refer_friends_detail"
+    >المزيد من الاتصالات يساعد مجتمعنا على البقاء مجهول الهوية (ويساعدك على كسب المال!)</string>
 
     <string name="balance">الرصيد</string>
     <string name="transfer_funds">تحويل الأموال</string>
-    <string name="no_payouts_found">لم يتم العثور على مدفوعات لهذه المحفظة</string>
+    <string
+        name="no_payouts_found"
+    >لم يتم العثور على مدفوعات لهذه المحفظة</string>
     <string name="earnings">الأرباح</string>
     <string name="make_default">جعل الافتراضي</string>
     <string name="payout_wallets">محافظ الدفع</string>
-    <string name="chains_supported">محافظ Solana و Polygon مدعومة حاليًا</string>
+    <string
+        name="chains_supported"
+    >محافظ Solana و Polygon مدعومة حاليًا</string>
 
     <string name="transfer_submitted">تم تقديم التحويل</string>
-    <string name="transfer_submitted_details">تمت تهيئة عملية التحويل الخاصة بك وسيتم الانتهاء منها بمجرد معالجة المعاملة على السلسلة.</string>
+    <string
+        name="transfer_submitted_details"
+    >تمت تهيئة عملية التحويل الخاصة بك وسيتم الانتهاء منها بمجرد معالجة المعاملة على السلسلة.</string>
 
     <string name="see_world_content">شاهد كل\nمحتوى\nالعالم</string>
-    <string name="see_world_content_description">شاهد كل محتوى العالم مع URnetwork</string>
-    <string name="stay_private_description">ابق خاصًا ومجهول الهوية تمامًا مع URnetwork</string>
+    <string
+        name="see_world_content_description"
+    >شاهد كل محتوى العالم مع URnetwork</string>
+    <string
+        name="stay_private_description"
+    >ابق خاصًا ومجهول الهوية تمامًا مع URnetwork</string>
     <string name="stay_private">ابق\nخاصًا\nومجهول الهو\nتمامًا</string>
-    <string name="build_right_description">ابنِ الإنترنت بالطريقة الصحيحة مع URnetwork</string>
+    <string
+        name="build_right_description"
+    >ابنِ الإنترنت بالطريقة الصحيحة مع URnetwork</string>
     <string name="build_right">ابنِ\nالإنترنت\nبالطريقة الصحيحة</string>
     <string name="with_urnetwork">مع URnetwork</string>
 
-    <string name="unlock_supporter_tooltip">افتح سرعات أعلى واحصل على أولوية الوصول إلى الميزات الجديدة.</string>
+    <string
+        name="unlock_supporter_tooltip"
+    >افتح سرعات أعلى واحصل على أولوية الوصول إلى الميزات الجديدة.</string>
     <string name="become_supporter">كن داعمًا</string>
     <string name="notifications_label">الإشعارات</string>
     <string name="receive_notifications">تلقي إشعارات الاتصال</string>
@@ -131,7 +169,9 @@
     <string name="stay_in_touch">البقاء على اتصال</string>
     <string name="send_product_updates">إرسال تحديثات المنتج لي</string>
     <string name="join_community_discord">انضم إلى المجتمع على</string>
-    <string name="update_notification_settings">تحديث أذونات الإشعارات في إعدادات Android</string>
+    <string
+        name="update_notification_settings"
+    >تحديث أذونات الإشعارات في إعدادات Android</string>
 
     <string name="feedback_header">تواصل معنا</string>
     <string name="feedback_label">مربع التعليقات</string>
@@ -146,63 +186,101 @@
     <string name="copy">انسخ</string>
     <string name="send">أرسل</string>
 
-    <string name="login_error_auth_allowed">يرجى تسجيل الدخول باستخدام أحد: %s.</string>
+    <string
+        name="login_error_auth_allowed"
+    >يرجى تسجيل الدخول باستخدام أحد: %s.</string>
     <string name="login_error">حدث خطأ ما. حاول مجددا.</string>
-    <string name="login_client_error">حدث خطأ ما أثناء مصادقة العميل. حاول مجددا.</string>
-    <string name="network_name_check_error">غير متوفر. يجب أن يكون 3 أحرف على الأقل مختلفة عن شبكة موجودة. اجعلها فريدة أو أطول.</string>
+    <string
+        name="login_client_error"
+    >حدث خطأ ما أثناء مصادقة العميل. حاول مجددا.</string>
+    <string
+        name="network_name_check_error"
+    >غير متوفر. يجب أن يكون 3 أحرف على الأقل مختلفة عن شبكة موجودة. اجعلها فريدة أو أطول.</string>
     <string name="verify_error">حدث خطأ ما. حاول مجددا.</string>
     <string name="create_network_error">حدث خطأ ما. حاول مجددا.</string>
     <string name="verify_send_error">خطأ</string>
 
     <string name="connections">الاتصالات</string>
     <string name="unpaid_data_provided">تم توفير بيانات غير مدفوعة</string>
-    <string name="payouts_amount_threshold">تحدث الدفعات كل يوم أحد في الساعة 00:00 بتوقيت UTC، ويتطلب ذلك تحقيق حد أدنى من USDC.</string>
+    <string
+        name="payouts_amount_threshold"
+    >تحدث الدفعات كل يوم أحد في الساعة 00:00 بتوقيت UTC، ويتطلب ذلك تحقيق حد أدنى من USDC.</string>
     <string name="open_nested_link">الاتصال بـ %1$s وفتح الرابط %2$s</string>
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>
     <string name="no_locations_found">لم يتم العثور على مواقع</string>
-    <string name="no_locations_found_detail">عذرًا، تعذر علينا العثور على أي مواقع ذات صلة بـ %1$s.</string>
+    <string
+        name="no_locations_found_detail"
+    >عذرًا، تعذر علينا العثور على أي مواقع ذات صلة بـ %1$s.</string>
     <string name="dismiss">تجاهل</string>
 
     <string name="switch_account">تبديل الحساب</string>
-    <string name="switch_account_details">هل تريد قطع الاتصال من %1$s والتبديل بين الحسابات؟</string>
+    <string
+        name="switch_account_details"
+    >هل تريد قطع الاتصال من %1$s والتبديل بين الحسابات؟</string>
     <string name="auth_code_loading">تحميل رمز المصادقة</string>
-    <string name="network_create_bonus_message">شخص ما دعاك للانضمام 🥳\\nاحصل على مكافأتك عن طريق إنشاء شبكة!</string>
+    <string
+        name="network_create_bonus_message"
+    >شخص ما دعاك للانضمام 🥳\\nاحصل على مكافأتك عن طريق إنشاء شبكة!</string>
     <string name="delete_account">حذف الحساب</string>
     <string name="sorry_to_see_you_go">نحن آسفون لرؤيتك تذهب!</string>
-    <string name="are_you_sure_delete_account">هل أنت متأكد أنك تريد حذف حسابك؟</string>
-    <string name="reconnect_tunnel_status_indicator">تم قطع اتصال نفق VPN 😓</string>
+    <string
+        name="are_you_sure_delete_account"
+    >هل أنت متأكد أنك تريد حذف حسابك؟</string>
+    <string
+        name="reconnect_tunnel_status_indicator"
+    >تم قطع اتصال نفق VPN 😓</string>
     <string name="disconnect">قطع الاتصال</string>
     <string name="reconnect">إعادة الاتصال</string>
-    <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة</string>
+    <string
+        name="connecting_status_indicator"
+    >جاري الاتصال بمزودي الخدمة</string>
     <string name="connected_provider_count">متصل بـ %d من مزودي الخدمة</string>
     <string name="ready_to_connect">جاهز للاتصال</string>
     <string name="network_name_ready_to_connect">%s جاهزة للاتصال</string>
-    <string name="need_more_data_faster">هل تحتاج إلى المزيد من البيانات وبشكل أسرع؟</string>
+    <string
+        name="need_more_data_faster"
+    >هل تحتاج إلى المزيد من البيانات وبشكل أسرع؟</string>
     <string name="upgrade_now">قم بالترقية الآن</string>
     <string name="how_are_we_doing">كيف حالنا؟</string>
     <string name="referral_code">رمز الإحالة</string>
-    <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
+    <string
+        name="add_referral_extra_rewards"
+    >أضف رمز الإحالة لكسب مكافآت إضافية</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
     <string name="edit_referral_code">تعديل رمز الإحالة</string>
     <string name="referral_bonus_applied">تم تطبيق مكافأة الإحالة</string>
     <string name="apply_bonus">تطبيق المكافأة</string>
-    <string name="join_urnetwork">انضم إلى\\nURnetwork</string>
-    <string name="route_local">السماح بحركة المرور المحلية عند قطع الاتصال</string>
+    <string name="join_urnetwork">انضم إلى URnetwork</string>
+    <string
+        name="route_local"
+    >السماح بحركة المرور المحلية عند قطع الاتصال</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
-    <string name="no_solana_wallets_found">لم يتم العثور على محافظ Solana</string>
-    <string name="no_wallets_found_alert_content">لم يتم العثور على أي محافظ Solana مثبتة على هذا الجهاز. يرجى تثبيت محفظة والمحاولة مرة أخرى.</string>
+    <string
+        name="no_solana_wallets_found"
+    >لم يتم العثور على محافظ Solana</string>
+    <string
+        name="no_wallets_found_alert_content"
+    >لم يتم العثور على أي محافظ Solana مثبتة على هذا الجهاز. يرجى تثبيت محفظة والمحاولة مرة أخرى.</string>
     <string name="claim_multiplier">المطالبة بالمضاعف</string>
-    <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
-    <string name="verify_seeker_token_btn">تحقق من رمز Seeker للطلب المسبق</string>
+    <string
+        name="connect_seeker_wallet"
+    >قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
+    <string
+        name="verify_seeker_token_btn"
+    >تحقق من رمز Seeker للطلب المسبق</string>
     <string name="total_referrals">إجمالي الإحالات</string>
     <string name="login_verify_check_phone">تحقق من هاتفك</string>
     <string name="leaderboard">لوحة الصدارة</string>
     <string name="current_ranking">الترتيب الحالي</string>
     <string name="net_provided">البيانات المقدمة</string>
-    <string name="display_network_on_leaderboard">عرض الشبكة على لوحة الصدارة</string>
-    <string name="leaderboard_description">لوحة الصدارة هي مجموع آخر 4 دفعات. يتم تحديثها كل دورة دفع.</string>
+    <string
+        name="display_network_on_leaderboard"
+    >عرض الشبكة على لوحة الصدارة</string>
+    <string
+        name="leaderboard_description"
+    >لوحة الصدارة هي مجموع آخر 4 دفعات. يتم تحديثها كل دورة دفع.</string>
     <string name="total_account_points">إجمالي نقاط الحساب</string>
     <string name="enter_network_referral_code">أدخل رمز الإحالة للشبكة</string>
     <string name="update_referral_network">تحديث شبكة الإحالة</string>
@@ -210,7 +288,9 @@
     <string name="unlink_referral_network">فك ارتباط شبكة الإحالة</string>
     <string name="unlink">فك الارتباط</string>
     <string name="current_network_referral">شبكة الإحالة الحالية</string>
-    <string name="unlink_alert_description">" عند فك ارتباط شبكة الإحالة الخاصة بك، لن تتمكن بعد الآن من كسب النقاط من1$s"</string>
+    <string
+        name="unlink_alert_description"
+    >" عند فك ارتباط شبكة الإحالة الخاصة بك، لن تتمكن بعد الآن من كسب النقاط من1$s"</string>
     <string name="account_points">نقاط الحساب</string>
     <string name="points_breakdown">تفصيل النقاط</string>
     <string name="payouts">المدفوعات</string>
@@ -264,14 +344,18 @@
     <string name="clients">العملاء</string>
     <string name="pay_with_solana_wallet">ادفع باستخدام محفظة سولانا</string>
     <string name="pay_with_stripe">انضم باستخدام Stripe</string>
-    <string name="checking_solana_transactions">جارٍ التحقق من معاملات سولانا</string>
+    <string
+        name="checking_solana_transactions"
+    >جارٍ التحقق من معاملات سولانا</string>
     <string name="processing_payment">جارٍ معالجة الدفع</string>
     <string name="check_ip">تحقق من عنوان IP الخاص بي</string>
     <string name="preorder_now">اطلب مسبقًا الآن</string>
     <string name="private_network">شبكة خاصة</string>
     <string name="default_wallet">الافتراضي</string>
     <string name="learn_more_about_multiplier">معرفة المزيد حول المضاعف</string>
-    <string name="solana_payment_insufficient_funds_warning">يرجى التأكد من أن لديك رصيد كافٍ من USDC في محفظتك. في بعض الحالات، قد تفشل مطالبات الدفع إذا لم تكن هناك أموال كافية في المحفظة.</string>
+    <string
+        name="solana_payment_insufficient_funds_warning"
+    >يرجى التأكد من أن لديك رصيد كافٍ من USDC في محفظتك. في بعض الحالات، قد تفشل مطالبات الدفع إذا لم تكن هناك أموال كافية في المحفظة.</string>
     <string name="one_gib_per_day">1 GiB/يوم</string>
     <string name="reliability_with_value">الموثوقية: %1$.3f</string>
     <string name="reliability_bonus">+%1$.3f GiB/يوم</string>
@@ -281,23 +365,43 @@
     <string name="get_pro">احصل على Pro</string>
     <string name="provider_count">%1$s مزود</string>
     <string name="welcome_to_urnetwork">مرحبًا بك في URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork هي الشبكة الأكثر محلية والأكثر خصوصية على الكوكب.</string>
+    <string
+        name="urnetwork_intro_description"
+    >URnetwork هي الشبكة الأكثر محلية والأكثر خصوصية على الكوكب.</string>
     <string name="or">" أو"</string>
-    <string name="participate_intro">شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
-    <string name="participate_intro_details">تعمل URnetwork بواسطة بروتوكول حاصل على براءة اختراع يحافظ على سلامة وأمان الجميع.</string>
+    <string
+        name="participate_intro"
+    >شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
+    <string
+        name="participate_intro_details"
+    >تعمل URnetwork بواسطة بروتوكول حاصل على براءة اختراع يحافظ على سلامة وأمان الجميع.</string>
     <string name="participate">شارك</string>
     <string name="step_two">" الخطوة2"</string>
-    <string name="refer_friends_increase_free_data">" قم بإحالة بعض الأصدقاء وشاهد بياناتك المجانية تزداد."</string>
+    <string
+        name="refer_friends_increase_free_data"
+    >" قم بإحالة بعض الأصدقاء وشاهد بياناتك المجانية تزداد."</string>
     <string name="bonus_referral_code_label">" رمز إحالة إضافي"</string>
     <string name="step_one">" الخطوة 1"</string>
-    <string name="local_provider_safety_description">" سيتم تشغيل مزود محلي عند اتصالك بالشبكة. يوجد اليوم أكثر من 30 ألف مزود، ولم نسجل أي حوادث أمنية أو مع مزودي خدمة الإنترنت. نحن نقدر قدرة الأشخاص على المشاركة دون مشاكل، وقد أنشأنا البروتوكول ليضع السلامة أولاً."</string>
-    <string name="learn_more_protocol_page">" معرفة المزيد في صفحة البروتوكول"</string>
-    <string name="adjust_setting_always_fill_data_faster">ضبط الإعداد على \"دائمًا\" لزيادة البيانات المجانية بشكل أسرع.</string>
-    <string name="allow_provider_cell_network_unlimited_plan">" يمكنك أيضًا السماح للمزود باستخدام بيانات شبكة الجوال، وهذا يعمل بشكل رائع إذا كان لديك خطة غير محدودة."</string>
+    <string
+        name="local_provider_safety_description"
+    >" سيتم تشغيل مزود محلي عند اتصالك بالشبكة. يوجد اليوم أكثر من 30 ألف مزود، ولم نسجل أي حوادث أمنية أو مع مزودي خدمة الإنترنت. نحن نقدر قدرة الأشخاص على المشاركة دون مشاكل، وقد أنشأنا البروتوكول ليضع السلامة أولاً."</string>
+    <string
+        name="learn_more_protocol_page"
+    >" معرفة المزيد في صفحة البروتوكول"</string>
+    <string
+        name="adjust_setting_always_fill_data_faster"
+    >ضبط الإعداد على \"دائمًا\" لزيادة البيانات المجانية بشكل أسرع.</string>
+    <string
+        name="allow_provider_cell_network_unlimited_plan"
+    >" يمكنك أيضًا السماح للمزود باستخدام بيانات شبكة الجوال، وهذا يعمل بشكل رائع إذا كان لديك خطة غير محدودة."</string>
     <string name="next">التالي</string>
-    <string name="get_urnetwork_free_for_life_by_participating">" احصل على URnetwork مجانًا مدى الحياة من خلال المشاركة"</string>
+    <string
+        name="get_urnetwork_free_for_life_by_participating"
+    >" احصل على URnetwork مجانًا مدى الحياة من خلال المشاركة"</string>
     <string name="data_usage">استخدام البيانات</string>
-    <string name="data_bar_explanation">يوضح لك هذا الشريط في التطبيق مقدار البيانات المجانية التي تكسبها من مزود الخدمة الخاص بك. يمكنك التحقق في أي وقت وضبط إعداداتك لزيادة أرباحك إلى الحد الأقصى.</string>
+    <string
+        name="data_bar_explanation"
+    >يوضح لك هذا الشريط في التطبيق مقدار البيانات المجانية التي تكسبها من مزود الخدمة الخاص بك. يمكنك التحقق في أي وقت وضبط إعداداتك لزيادة أرباحك إلى الحد الأقصى.</string>
     <string name="join_solana_wallet">" انضم باستخدام محفظة سولانا"</string>
     <string name="invalid_referral_code">هذا الرمز غير صالح</string>
     <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
@@ -305,31 +409,61 @@
     <string name="no_log_files_found">لم يتم العثور على ملف السجل</string>
     <string name="save_logs">حفظ السجلات</string>
     <string name="share_logs">مشاركة السجلات</string>
-    <string name="feedback_include_logs">إرفاق السجلات مع الملاحظات (اختياري)</string>
+    <string
+        name="feedback_include_logs"
+    >إرفاق السجلات مع الملاحظات (اختياري)</string>
     <string name="kill_switch">مفتاح القتل</string>
     <string name="unstable_providers_warning">* (قد يكون غير مستقر)</string>
-    <string name="open_source_transparent">" مفتوح المصدر وشفاف بنسبة100%"</string>
-    <string name="low_user_ip_ratio">أقل نسبة مستخدم/عنوان IP للوصول إلى المحتوى</string>
-    <string name="trusted_by_private_networks">موثوق به من قبل أكثر من %s شبكة خاصة</string>
+    <string
+        name="open_source_transparent"
+    >" مفتوح المصدر وشفاف بنسبة100%"</string>
+    <string
+        name="low_user_ip_ratio"
+    >أقل نسبة مستخدم/عنوان IP للوصول إلى المحتوى</string>
+    <string
+        name="trusted_by_private_networks"
+    >موثوق به من قبل أكثر من %s شبكة خاصة</string>
     <string name="community_edition">إصدار المجتمع</string>
-    <string name="community_edition_details">شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
-    <string name="boost_bandwidth_title">عزز عرض النطاق الترددي لديك - اربح المزيد كل يوم</string>
-    <string name="boost_bandwidth_details">من خلال المشاركة في الشبكة وتوفير عرض النطاق الترددي، يمكنك كسب المكافآت.</string>
-    <string name="default_bandwidth_earn_more_by">بشكل افتراضي، تحصل على %d GiB/شهر. إليك كيفية كسب عرض نطاق إضافي:</string>
-    <string name="earn_more_bullet_stay_connected">البقاء متصلاً يوميًا = اربح حتى %s GiB/يوم</string>
+    <string
+        name="community_edition_details"
+    >شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
+    <string
+        name="boost_bandwidth_title"
+    >عزز عرض النطاق الترددي لديك - اربح المزيد كل يوم</string>
+    <string
+        name="boost_bandwidth_details"
+    >من خلال المشاركة في الشبكة وتوفير عرض النطاق الترددي، يمكنك كسب المكافآت.</string>
+    <string
+        name="default_bandwidth_earn_more_by"
+    >بشكل افتراضي، تحصل على %d GiB/شهر. إليك كيفية كسب عرض نطاق إضافي:</string>
+    <string
+        name="earn_more_bullet_stay_connected"
+    >البقاء متصلاً يوميًا = اربح حتى %s GiB/يوم</string>
     <string name="earn_more_bullet_refer">إحالة صديق = +%s GiB/شهر</string>
     <string name="reliability_settings">إعدادات الموثوقية</string>
-    <string name="reliability_settings_details">اضبط الإعدادات لتعظيم الموثوقية. يعمل التطبيق في الخلفية عند الاتصال وعند استخدام الواي فاي. الموثوقية هي عدد عناوين IP التي تجعلها متاحة باستمرار للشبكة.</string>
+    <string
+        name="reliability_settings_details"
+    >اضبط الإعدادات لتعظيم الموثوقية. يعمل التطبيق في الخلفية عند الاتصال وعند استخدام الواي فاي. الموثوقية هي عدد عناوين IP التي تجعلها متاحة باستمرار للشبكة.</string>
     <string name="when_you_refer_a_friend">عندما تقوم بإحالة صديق:</string>
     <string name="refer_friends_perks">تحصل على +%s GiB/شهر مدى الحياة</string>
-    <string name="refer_friends_they_get_data">يحصل صديقك على +%s GiB/شهر مدى الحياة</string>
-    <string name="friends_save_too">أصدقاؤك يوفرون أيضًا -- الجميع يفوز.</string>
+    <string
+        name="refer_friends_they_get_data"
+    >يحصل صديقك على +%s GiB/شهر مدى الحياة</string>
+    <string
+        name="friends_save_too"
+    >أصدقاؤك يوفرون أيضًا -- الجميع يفوز.</string>
     <string name="get_connected">اتصل الآن</string>
-    <string name="api_error_contact">إذا استمرت المشكلة، تواصل معنا على %s أو انضم إلى %s الخاص بنا للحصول على دعم مباشر.</string>
-    <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
+    <string
+        name="api_error_contact"
+    >إذا استمرت المشكلة، تواصل معنا على %s أو انضم إلى %s الخاص بنا للحصول على دعم مباشر.</string>
+    <string
+        name="error_loading_account_plan"
+    >حدث خطأ أثناء تحميل خطة حسابك.</string>
     <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
     <string name="retry">إعادة المحاولة</string>
     <string name="ignore_battery_optimizations">تجاهل تحسينات البطارية</string>
-    <string name="disable_ignore_battery_hint">لتعطيل ذلك، يرجى الانتقال إلى استخدام بطارية التطبيق في إعدادات النظام</string>
+    <string
+        name="disable_ignore_battery_hint"
+    >لتعطيل ذلك، يرجى الانتقال إلى استخدام بطارية التطبيق في إعدادات النظام</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
 </resources>

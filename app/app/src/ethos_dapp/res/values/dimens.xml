@@ -1,3 +1,5 @@
 <resources>
     <dimen name="connect_actions_sheet_peek_height">48dp</dimen>
+    <dimen name="login_title_size">24sp</dimen>
+    <dimen name="login_margin_lg">24dp</dimen>
 </resources>

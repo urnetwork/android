@@ -187,7 +187,7 @@
     <string name="edit_referral_code">Επεξεργασία κωδικού παραπομπής</string>
     <string name="referral_bonus_applied">Εφαρμόστηκε μπόνους παραπομπής</string>
     <string name="apply_bonus">Εφαρμογή μπόνους</string>
-    <string name="join_urnetwork">Συνδεθείτε στο\\nURnetwork</string>
+    <string name="join_urnetwork">Συνδεθείτε στο URnetwork</string>
     <string name="route_local">Επιτρέψτε την τοπική κίνηση όταν είστε αποσυνδεδεμένοι</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>

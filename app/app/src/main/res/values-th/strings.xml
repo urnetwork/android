@@ -161,7 +161,7 @@
     <string name="edit_referral_code">แก้ไขรหัสแนะนำ</string>
     <string name="referral_bonus_applied">โบนัสจากการแนะนำใช้งานเรียบร้อย</string>
     <string name="apply_bonus">รับโบนัส</string>
-    <string name="join_urnetwork">เข้าร่วมกับ\\nURnetwork</string>
+    <string name="join_urnetwork">เข้าร่วมกับ URnetwork</string>
     <string name="route_local">อนุญาตให้มีการรับส่งข้อมูลภายในเครื่องเมื่อตัดการเชื่อมต่อ</string>
     <string name="manage_subscription">จัดการระบบรายเดือน</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>
