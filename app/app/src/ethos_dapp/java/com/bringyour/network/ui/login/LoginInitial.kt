@@ -493,9 +493,12 @@ fun LoginInitial(
                 Column(
                     modifier = Modifier.imePadding()
                 ) {
-                    OnboardingCarousel()
+                    Text(
+                        stringResource(id = R.string.welcome_to_urnetwork),
+                        style = MaterialTheme.typography.headlineLarge
+                    )
 
-                    Spacer(modifier = Modifier.height(64.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
                     LoginInitialActions(
                         userAuth = userAuth,
