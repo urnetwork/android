@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <resources>
     <string name="title_login">Přihlásit se</string>
     <string name="user_auth_label">Email nebo telefon</string>
-    <string name="user_auth_placeholder">Zadejte své telefonní číslo nebo e-mail</string>
+    <string
+        name="user_auth_placeholder"
+    >Zadejte své telefonní číslo nebo e-mail</string>
     <string name="get_started">Začněte</string>
     <string name="google_auth_btn_text">Přihlásit se přes Google</string>
     <string name="commitment_issues">Problémy s angažovaností?</string>
@@ -14,7 +16,9 @@
     <string name="name_placeholder">Vaše jméno</string>
     <string name="network_name_label">Název sítě</string>
     <string name="network_name_placeholder">Název vaší sítě</string>
-    <string name="network_name_length_error">Jména sítí musí mít 6 a více znaků</string>
+    <string
+        name="network_name_length_error"
+    >Jména sítí musí mít 6 a více znaků</string>
     <string name="network_name_unavailable">Název sítě není k dispozici</string>
     <string name="password_label">Heslo</string>
     <string name="password_support_txt">Heslo musí mít alespoň 12 znaků</string>
@@ -24,18 +28,24 @@
     <string name="forget_password">Zapomněli jste heslo?</string>
     <string name="reset_it">Resetujte si ho</string>
     <string name="forgot_password">Zapomněli jste heslo?</string>
-    <string name="check_junk_mail">Možná budete muset zkontrolovat složku se spamem nebo odblokovat support@ur.io</string>
+    <string
+        name="check_junk_mail"
+    >Možná budete muset zkontrolovat složku se spamem nebo odblokovat support@ur.io</string>
     <string name="send_reset_link">Odeslat odkaz pro obnovení hesla</string>
     <string name="reset_link_sent">Odkaz pro obnovení hesla odeslán</string>
     <string name="reset_link_sent_to">Odkaz pro obnovení zaslán na</string>
     <string name="resend_reset_link">Znovu odeslat odkaz</string>
     <string name="sent">Odesláno!</string>
     <string name="login_verify_header">Máš poštu</string>
-    <string name="login_verify_details">Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost.</string>
+    <string
+        name="login_verify_details"
+    >Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost.</string>
     <string name="dont_see_it">Nevidíš to?</string>
     <string name="resend_verify_code">Odeslat kód znovu</string>
     <string name="connect_external_wallet">Připojit externí peněženku</string>
-    <string name="connect_external_wallet_supported_chains">Adresa USDC na síti Solana a Polygon jsou aktuálně podporovány.</string>
+    <string
+        name="connect_external_wallet_supported_chains"
+    >Adresa USDC na síti Solana a Polygon jsou aktuálně podporovány.</string>
     <string name="wallet_address_label">Adresa peněženky</string>
     <string name="wallet_address_placeholder">Zkopírujte a vložte sem</string>
     <string name="total_payouts">celkových výplat</string>
@@ -43,24 +53,36 @@
     <string name="add_wallet">Přidat peněženku</string>
     <string name="connect_saga_wallet">Připojte peněženku Saga</string>
     <string name="something_went_wrong">Něco se pokazilo.</string>
-    <string name="please_wait">Prosím, počkejte několik minut a zkuste to znovu.</string>
+    <string
+        name="please_wait"
+    >Prosím, počkejte několik minut a zkuste to znovu.</string>
     <string name="change_password">Změnit heslo</string>
     <string name="edit_profile">Upravit profil</string>
     <string name="save">Uložit</string>
-    <string name="share_with_others">Sdílíte s ostatními, my sdílíme s vámi. Získejte podíl na výnosech, když poskytujete data ostatním v síti.</string>
-    <string name="start_earning">Chcete-li začít vydělávat, připojte svou kryptoměnovou peněženku k URnetwork nebo si s pomocí Circle nastavte novou.</string>
+    <string
+        name="share_with_others"
+    >Sdílíte s ostatními, my sdílíme s vámi. Získejte podíl na výnosech, když poskytujete data ostatním v síti.</string>
+    <string
+        name="start_earning"
+    >Chcete-li začít vydělávat, připojte svou kryptoměnovou peněženku k URnetwork nebo si s pomocí Circle nastavte novou.</string>
     <string name="circle_transfer_topbar_title">Prevést USDC</string>
     <string name="circle_transfer_header">Převést do externí peněženky</string>
-    <string name="circle_transfer_fee_coverage">URnetwork pokrývá vaše poplatky za převod</string>
+    <string
+        name="circle_transfer_fee_coverage"
+    >URnetwork pokrývá vaše poplatky za převod</string>
     <string name="transfer">Převést</string>
     <string name="insufficient_funds">Nedostatek financí</string>
     <string name="tap_to_connect">Klepnout pro připojení</string>
     <string name="promoted_locations">Propagované lokace</string>
-    <string name="best_available_provider">Nejlepší dostupný poskytovatel</string>
+    <string
+        name="best_available_provider"
+    >Nejlepší dostupný poskytovatel</string>
     <string name="countries">Země</string>
     <string name="devices">Zařízení</string>
     <string name="search_placeholder">Hledat všechna místa</string>
-    <string name="check_internet">Zkontrolujte své internetové připojení</string>
+    <string
+        name="check_internet"
+    >Zkontrolujte své internetové připojení</string>
     <string name="no_providers_found">Nenalezen žádní poskytovatelé.</string>
     <string name="tap_to_refetch">Klepněte pro pokus o načtení polohy.</string>
     <string name="cities">Města</string>
@@ -79,32 +101,58 @@
     <string name="member">Člen</string>
     <string name="plan">Plán</string>
     <string name="upgrade_subscription">Upgradovat předplatné</string>
-    <string name="support_us">Podpořte nás při budování nového druhu sítě, která dává, místo aby brala.</string>
-    <string name="unlock_speed">Získáte ještě vyšší rychlosti a jako první budete mít přístup k novým funkcím, jako jsou robustní opatření proti cenzuře a kontrola dat.</string>
+    <string
+        name="support_us"
+    >Podpořte nás při budování nového druhu sítě, která dává, místo aby brala.</string>
+    <string
+        name="unlock_speed"
+    >Získáte ještě vyšší rychlosti a jako první budete mít přístup k novým funkcím, jako jsou robustní opatření proti cenzuře a kontrola dat.</string>
     <string name="join_the_movement">Připojte se k hnutí</string>
     <string name="in_guest_mode">Jste v režimu pro hosty</string>
-    <string name="start_earning_join">Chcete-li začít vydělávat, připojte se k síti</string>
+    <string
+        name="start_earning_join"
+    >Chcete-li začít vydělávat, připojte se k síti</string>
     <string name="refer_friends_header">Doporučte přátele</string>
-    <string name="refer_friends_detail">Více připojení pomáhá naší komunitě zůstat anonymní (a pomáhá vám vydělávat!)</string>
+    <string
+        name="refer_friends_detail"
+    >Více připojení pomáhá naší komunitě zůstat anonymní (a pomáhá vám vydělávat!)</string>
     <string name="balance">Zůstatek</string>
     <string name="transfer_funds">Převod finančních prostředků</string>
-    <string name="no_payouts_found">Pro tuto peněženku nebyly nalezeny žádné výplaty</string>
+    <string
+        name="no_payouts_found"
+    >Pro tuto peněženku nebyly nalezeny žádné výplaty</string>
     <string name="earnings">Výdělky</string>
     <string name="make_default">Udělat výchozí</string>
     <string name="payout_wallets">Výplatní peněženky</string>
-    <string name="chains_supported">V současné době jsou podporovány peněženky Solana a Polygon.</string>
+    <string
+        name="chains_supported"
+    >V současné době jsou podporovány peněženky Solana a Polygon.</string>
     <string name="unpaid_data_provided">Poskytnuté neplacené data</string>
-    <string name="payouts_amount_threshold">Výplaty probíhají každý týden a k jejich obdržení je třeba poskytnout minimální částku.</string>
+    <string
+        name="payouts_amount_threshold"
+    >Výplaty probíhají každý týden a k jejich obdržení je třeba poskytnout minimální částku.</string>
     <string name="transfer_submitted">Převod podán</string>
-    <string name="transfer_submitted_details">Váš převod byl zahájen a bude dokončen, jakmile bude transakce zpracována na řetězci.</string>
+    <string
+        name="transfer_submitted_details"
+    >Váš převod byl zahájen a bude dokončen, jakmile bude transakce zpracována na řetězci.</string>
     <string name="see_world_content">Zobrazit veškerý\nkontent světa</string>
-    <string name="see_world_content_description">Prohlédněte si veškerý obsah světa pomocí sítě URnetwork</string>
-    <string name="stay_private_description">Zůstaňte zcela soukromí a anonymní s URnetwork</string>
-    <string name="stay_private">Zůstaňte\nkompletně\nprivátní a\nanonymní</string>
-    <string name="build_right_description">Vytvářejte internet správným způsobem s URnetwork</string>
+    <string
+        name="see_world_content_description"
+    >Prohlédněte si veškerý obsah světa pomocí sítě URnetwork</string>
+    <string
+        name="stay_private_description"
+    >Zůstaňte zcela soukromí a anonymní s URnetwork</string>
+    <string
+        name="stay_private"
+    >Zůstaňte\nkompletně\nprivátní a\nanonymní</string>
+    <string
+        name="build_right_description"
+    >Vytvářejte internet správným způsobem s URnetwork</string>
     <string name="build_right">Vytváření internetu\nsprávným způsobem</string>
     <string name="with_urnetwork">se sítí URnetwork</string>
-    <string name="unlock_supporter_tooltip">Odemkněte si ještě vyšší rychlost a přednostní právo na nové funkce.</string>
+    <string
+        name="unlock_supporter_tooltip"
+    >Odemkněte si ještě vyšší rychlost a přednostní právo na nové funkce.</string>
     <string name="become_supporter">Staňte se podporovatelem</string>
     <string name="notifications_label">Oznámení</string>
     <string name="receive_notifications">Přijímání oznámení o připojení</string>
@@ -113,11 +161,15 @@
     <string name="stay_in_touch">Zůstaňte v kontaktu</string>
     <string name="send_product_updates">Zasílání aktualizací produktů</string>
     <string name="join_community_discord">Připojte se ke komunitě na</string>
-    <string name="update_notification_settings">Aktualizace oprávnění k oznámení v nastavení systému Android</string>
+    <string
+        name="update_notification_settings"
+    >Aktualizace oprávnění k oznámení v nastavení systému Android</string>
     <string name="connections">Připojení</string>
     <string name="feedback_header">Spojte se s námi</string>
     <string name="feedback_label">Pole pro zpětnou vazbu</string>
-    <string name="feedback_placeholder">Řekněte nám, jak se skutečně cítíte</string>
+    <string
+        name="feedback_placeholder"
+    >Řekněte nám, jak se skutečně cítíte</string>
     <string name="cancel">Zrušit</string>
     <string name="connect">Připojit</string>
     <string name="remove">Odstranit</string>
@@ -126,65 +178,113 @@
     <string name="copy">Kopírovat</string>
     <string name="send">Odeslat</string>
     <string name="dismiss">Odmítnout</string>
-    <string name="login_error_auth_allowed">Přihlaste se prosím pomocí jednoho z těchto údajů: %s.</string>
+    <string
+        name="login_error_auth_allowed"
+    >Přihlaste se prosím pomocí jednoho z těchto údajů: %s.</string>
     <string name="login_error">Něco se pokazilo. Zkuste to znovu.</string>
-    <string name="login_client_error">Něco se pokazilo při ověřování klienta. Zkuste to znovu.</string>
-    <string name="network_name_check_error">Není k dispozici. Musí se lišit alespoň o 3 znaky od existující sítě. Vytvořte ji jedinečnou nebo delší.</string>
+    <string
+        name="login_client_error"
+    >Něco se pokazilo při ověřování klienta. Zkuste to znovu.</string>
+    <string
+        name="network_name_check_error"
+    >Není k dispozici. Musí se lišit alespoň o 3 znaky od existující sítě. Vytvořte ji jedinečnou nebo delší.</string>
     <string name="verify_error">Něco se pokazilo. Zkuste to znovu.</string>
-    <string name="create_network_error">Něco se pokazilo. Zkuste to znovu.</string>
+    <string
+        name="create_network_error"
+    >Něco se pokazilo. Zkuste to znovu.</string>
     <string name="verify_send_error">Chyba</string>
-    <string name="open_nested_link">Připojit k %1$s a otevřít odkaz %2$s</string>
+    <string
+        name="open_nested_link"
+    >Připojit k %1$s a otevřít odkaz %2$s</string>
     <string name="connect_and_open">Připojení a otevření odkazu</string>
     <string name="connect_to_location">Připojit k %1$s</string>
     <string name="no_locations_found">Nebyly nalezeny žádné lokality</string>
-    <string name="no_locations_found_detail">Je nám líto, ale nenašli jsme žádná místa související s %1$s.</string>
+    <string
+        name="no_locations_found_detail"
+    >Je nám líto, ale nenašli jsme žádná místa související s %1$s.</string>
     <string name="switch_account">Přepnutí účtu</string>
-    <string name="switch_account_details">Chcete se odpojit od %1$s a změnit účet?</string>
+    <string
+        name="switch_account_details"
+    >Chcete se odpojit od %1$s a změnit účet?</string>
     <string name="auth_code_loading">Načítání ověřovacího kódu</string>
-    <string name="network_create_bonus_message">Někdo vás pozval, abyste se připojili 🥳 \nZískejte svůj bonus vytvořením sítě!</string>
+    <string
+        name="network_create_bonus_message"
+    >Někdo vás pozval, abyste se připojili 🥳 \nZískejte svůj bonus vytvořením sítě!</string>
     <string name="delete_account">Odstranit účet</string>
     <string name="sorry_to_see_you_go">Je nám líto, že odcházíte!</string>
-    <string name="are_you_sure_delete_account">Opravdu chcete svůj účet odstranit?</string>
-    <string name="reconnect_tunnel_status_indicator">Tunel VPN odpojen 😓</string>
+    <string
+        name="are_you_sure_delete_account"
+    >Opravdu chcete svůj účet odstranit?</string>
+    <string
+        name="reconnect_tunnel_status_indicator"
+    >Tunel VPN odpojen 😓</string>
     <string name="disconnect">Odpojení</string>
     <string name="reconnect">Znovu připojit</string>
-    <string name="connecting_status_indicator">Připojení k poskytovatelům</string>
-    <string name="connected_provider_count">Připojení k %d poskytovatelům</string>
+    <string
+        name="connecting_status_indicator"
+    >Připojení k poskytovatelům</string>
+    <string
+        name="connected_provider_count"
+    >Připojení k %d poskytovatelům</string>
     <string name="ready_to_connect">Připraveno k připojení</string>
-    <string name="network_name_ready_to_connect">Síť %s je připravená k připojení</string>
-    <string name="need_more_data_faster">Potřebujete více dat a rychleji?</string>
+    <string
+        name="network_name_ready_to_connect"
+    >Síť %s je připravená k připojení</string>
+    <string
+        name="need_more_data_faster"
+    >Potřebujete více dat a rychleji?</string>
     <string name="upgrade_now">Upgradujte nyní</string>
     <string name="how_are_we_doing">Jak se nám daří?</string>
     <string name="referral_code">Doporující kód</string>
-    <string name="add_referral_extra_rewards">Přidáním kódu pro doporučení získáte další odměny</string>
+    <string
+        name="add_referral_extra_rewards"
+    >Přidáním kódu pro doporučení získáte další odměny</string>
     <string name="add_referral_code">Přidání doporučujícího kódu</string>
     <string name="edit_referral_code">Upravit doporučující kód</string>
-    <string name="referral_bonus_applied">Uplatnění bonusu za doporučení</string>
+    <string
+        name="referral_bonus_applied"
+    >Uplatnění bonusu za doporučení</string>
     <string name="apply_bonus">Použít bonus</string>
-    <string name="join_urnetwork">Připojte se k\\nURnetwork</string>
+    <string name="join_urnetwork">Připojte se k URnetwork</string>
     <string name="route_local">Povolení místní sítě při odpojení</string>
     <string name="manage_subscription">Správa předplatného</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solany</string>
-    <string name="no_solana_wallets_found">Nebyly nalezeny žádné peněženky Solana</string>
-    <string name="no_wallets_found_alert_content">V tomto zařízení nebyly nalezeny žádné peněženky Solana. Nainstalujte prosím peněženku a zkuste to znovu.</string>
+    <string
+        name="no_solana_wallets_found"
+    >Nebyly nalezeny žádné peněženky Solana</string>
+    <string
+        name="no_wallets_found_alert_content"
+    >V tomto zařízení nebyly nalezeny žádné peněženky Solana. Nainstalujte prosím peněženku a zkuste to znovu.</string>
     <string name="claim_multiplier">Nárokujte si násobej</string>
-    <string name="connect_seeker_wallet">Připojení peněženky s žetonem předobjednávky Saga Genesis nebo Seeker</string>
-    <string name="verify_seeker_token_btn">Ověřte si žeton předběžné objednávky Seeker</string>
+    <string
+        name="connect_seeker_wallet"
+    >Připojení peněženky s žetonem předobjednávky Saga Genesis nebo Seeker</string>
+    <string
+        name="verify_seeker_token_btn"
+    >Ověřte si žeton předběžné objednávky Seeker</string>
     <string name="total_referrals">Celkový počet doporučení</string>
     <string name="login_verify_check_phone">Zkontrolujte telefon</string>
     <string name="leaderboard">Žebříček</string>
     <string name="current_ranking">Aktuální pořadí</string>
     <string name="net_provided">Poskytnutá čistá hodnota</string>
-    <string name="display_network_on_leaderboard">Zobrazení sítě na žebříčku</string>
-    <string name="leaderboard_description">Žebříček je součtem posledních 4 plateb. Je aktualizován každý platební cyklus.</string>
+    <string
+        name="display_network_on_leaderboard"
+    >Zobrazení sítě na žebříčku</string>
+    <string
+        name="leaderboard_description"
+    >Žebříček je součtem posledních 4 plateb. Je aktualizován každý platební cyklus.</string>
     <string name="total_account_points">Celkový počet bodů na účtu</string>
-    <string name="enter_network_referral_code">Zadejte síťový referenční kód</string>
+    <string
+        name="enter_network_referral_code"
+    >Zadejte síťový referenční kód</string>
     <string name="update_referral_network">Aktualizace referenční sítě</string>
     <string name="update">Aktualizace</string>
     <string name="unlink_referral_network">Odpojení od referenční sítě</string>
     <string name="unlink">Odpojení</string>
     <string name="current_network_referral">Aktuální síťové doporučení</string>
-    <string name="unlink_alert_description">Po zrušení propojení sítě doporučení již nebudete moci získávat body z %1$s.</string>
+    <string
+        name="unlink_alert_description"
+    >Po zrušení propojení sítě doporučení již nebudete moci získávat body z %1$s.</string>
     <string name="account_points">Body na účtu</string>
     <string name="points_breakdown">Rozdělení bodů</string>
     <string name="payouts">Výplaty</string>
@@ -198,7 +298,9 @@
     <string name="reliability">Spolehlivost</string>
     <string name="browse_locations">Procházet lokality</string>
     <string name="none">Žádné</string>
-    <string name="send_feedback">Pošlete nám svůj názor přímo nebo se připojte k našemu Discordu pro přímou podporu.</string>
+    <string
+        name="send_feedback"
+    >Pošlete nám svůj názor přímo nebo se připojte k našemu Discordu pro přímou podporu.</string>
     <string name="referral_network">Síť doporučení</string>
     <string name="pending_payout">Čeká se na výplatu</string>
     <string name="amount">Částka</string>
@@ -219,9 +321,13 @@
     <string name="blocked_locations">Blokované lokality</string>
     <string name="add_blocked_location">Přidat blokovanou lokalitu</string>
     <string name="verified_project_on">Ověřený projekt na %1$s</string>
-    <string name="allow_providing_cell">Povolit poskytování na mobilní síti</string>
+    <string
+        name="allow_providing_cell"
+    >Povolit poskytování na mobilní síti</string>
     <string name="general">Obecné</string>
-    <string name="show_icon_when_connected">Zobrazit ikonu UR po připojení</string>
+    <string
+        name="show_icon_when_connected"
+    >Zobrazit ikonu UR po připojení</string>
     <string name="authentication">Ověření</string>
     <string name="auth_code">Ověřovací kód</string>
     <string name="create">Vytvořit</string>
@@ -236,16 +342,24 @@
     <string name="country">Země</string>
     <string name="multiplier">Násobitel</string>
     <string name="clients">Klienti</string>
-    <string name="pay_with_solana_wallet">Zaplaťte pomocí peněženky Solana</string>
+    <string
+        name="pay_with_solana_wallet"
+    >Zaplaťte pomocí peněženky Solana</string>
     <string name="pay_with_stripe">Připojit se pomocí Stripe</string>
-    <string name="checking_solana_transactions">Kontrola transakcí Solana</string>
+    <string
+        name="checking_solana_transactions"
+    >Kontrola transakcí Solana</string>
     <string name="processing_payment">Zpracovává se platba</string>
     <string name="check_ip">Zkontrolovat mou IP</string>
     <string name="preorder_now">Předobjednat nyní</string>
     <string name="private_network">Soukromá síť</string>
     <string name="default_wallet">Výchozí</string>
-    <string name="learn_more_about_multiplier">Další informace o násobiteli</string>
-    <string name="solana_payment_insufficient_funds_warning">Ujistěte se, že máte v peněžence dostatek prostředků USDC. V některých případech se platba nezdaří, pokud v peněžence není dostatek prostředků.</string>
+    <string
+        name="learn_more_about_multiplier"
+    >Další informace o násobiteli</string>
+    <string
+        name="solana_payment_insufficient_funds_warning"
+    >Ujistěte se, že máte v peněžence dostatek prostředků USDC. V některých případech se platba nezdaří, pokud v peněžence není dostatek prostředků.</string>
     <string name="one_gib_per_day">1 GiB/den</string>
     <string name="reliability_with_value">Spolehlivost: %1$.3f</string>
     <string name="reliability_bonus">+%1$.3f GiB/den</string>
@@ -255,55 +369,113 @@
     <string name="get_pro">Získat Pro</string>
     <string name="provider_count">%1$s poskytovatelů</string>
     <string name="welcome_to_urnetwork">Vítejte v URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork je nejlokálnější a nejvíce soukromá síť na světě.</string>
+    <string
+        name="urnetwork_intro_description"
+    >URnetwork je nejlokálnější a nejvíce soukromá síť na světě.</string>
     <string name="or">nebo</string>
-    <string name="participate_intro">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
-    <string name="participate_intro_details">URnetwork je poháněna patentovaným protokolem, který zajišťuje bezpečnost všech.</string>
+    <string
+        name="participate_intro"
+    >Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
+    <string
+        name="participate_intro_details"
+    >URnetwork je poháněna patentovaným protokolem, který zajišťuje bezpečnost všech.</string>
     <string name="participate">Zapojit se</string>
     <string name="step_two">Krok 2</string>
-    <string name="refer_friends_increase_free_data">Doporučte pár přátel a sledujte, jak vaše bezplatná data rostou.</string>
+    <string
+        name="refer_friends_increase_free_data"
+    >Doporučte pár přátel a sledujte, jak vaše bezplatná data rostou.</string>
     <string name="bonus_referral_code_label">Bonusový doporučovací kód</string>
     <string name="step_one">Krok 1</string>
-    <string name="local_provider_safety_description">Po připojení k síti bude spuštěn místní poskytovatel. Dnes je k dispozici přes 30 000 poskytovatelů a nemáme žádné známé bezpečnostní nebo ISP incidenty. Oceňujeme možnost účasti bez problémů a protokol jsme navrhli s důrazem na bezpečnost.</string>
-    <string name="learn_more_protocol_page">Další informace najdete na stránce protokolu</string>
-    <string name="adjust_setting_always_fill_data_faster">Nastavením na „Vždy“ můžete rychleji získat bezplatná data.</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Poskytovateli můžete také povolit využívat data z mobilní sítě, což je skvělé, pokud máte neomezený tarif.</string>
+    <string
+        name="local_provider_safety_description"
+    >Po připojení k síti bude spuštěn místní poskytovatel. Dnes je k dispozici přes 30 000 poskytovatelů a nemáme žádné známé bezpečnostní nebo ISP incidenty. Oceňujeme možnost účasti bez problémů a protokol jsme navrhli s důrazem na bezpečnost.</string>
+    <string
+        name="learn_more_protocol_page"
+    >Další informace najdete na stránce protokolu</string>
+    <string
+        name="adjust_setting_always_fill_data_faster"
+    >Nastavením na „Vždy“ můžete rychleji získat bezplatná data.</string>
+    <string
+        name="allow_provider_cell_network_unlimited_plan"
+    >Poskytovateli můžete také povolit využívat data z mobilní sítě, což je skvělé, pokud máte neomezený tarif.</string>
     <string name="next">Další</string>
-    <string name="get_urnetwork_free_for_life_by_participating">Získejte URnetwork zdarma na celý život účastí</string>
+    <string
+        name="get_urnetwork_free_for_life_by_participating"
+    >Získejte URnetwork zdarma na celý život účastí</string>
     <string name="data_usage">Využití dat</string>
-    <string name="data_bar_explanation">Tento pruh v aplikaci ukazuje, kolik bezplatných dat získáváte od svého poskytovatele. Můžete se kdykoli podívat a upravit nastavení, abyste maximalizovali své výdělky.</string>
-    <string name="join_solana_wallet">Připojit se pomocí peněženky Solana</string>
+    <string
+        name="data_bar_explanation"
+    >Tento pruh v aplikaci ukazuje, kolik bezplatných dat získáváte od svého poskytovatele. Můžete se kdykoli podívat a upravit nastavení, abyste maximalizovali své výdělky.</string>
+    <string
+        name="join_solana_wallet"
+    >Připojit se pomocí peněženky Solana</string>
     <string name="invalid_referral_code">Tento kód není platný</string>
     <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
     <string name="insufficient_balance">Nedostatečný zůstatek</string>
     <string name="no_log_files_found">Soubor protokolu nebyl nalezen</string>
     <string name="save_logs">Uložit protokoly</string>
     <string name="share_logs">Sdílet protokoly</string>
-    <string name="feedback_include_logs">Přiložit protokoly k zpětné vazbě (volitelné)</string>
+    <string
+        name="feedback_include_logs"
+    >Přiložit protokoly k zpětné vazbě (volitelné)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (může být nestabilní)</string>
-    <string name="open_source_transparent">100% open source a transparentní</string>
-    <string name="low_user_ip_ratio">Nejnižší poměr uživatelů na IP pro přístup k obsahu</string>
-    <string name="trusted_by_private_networks">Důvěřováno více než %s soukromými sítěmi</string>
+    <string
+        name="open_source_transparent"
+    >100% open source a transparentní</string>
+    <string
+        name="low_user_ip_ratio"
+    >Nejnižší poměr uživatelů na IP pro přístup k obsahu</string>
+    <string
+        name="trusted_by_private_networks"
+    >Důvěřováno více než %s soukromými sítěmi</string>
     <string name="community_edition">Komunitní edice</string>
-    <string name="community_edition_details">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
-    <string name="boost_bandwidth_title">Zvyšte svou šířku pásma – vydělávejte více každý den</string>
-    <string name="boost_bandwidth_details">Účastí v síti a poskytováním šířky pásma můžete získat odměny.</string>
-    <string name="default_bandwidth_earn_more_by">Ve výchozím nastavení získáte %d GiB/měsíc. Zde je návod, jak získat další šířku pásma:</string>
-    <string name="earn_more_bullet_stay_connected">Zůstaňte připojeni denně = Získejte až %s GiB/den</string>
-    <string name="earn_more_bullet_refer">Doporučte přítele = +%s GiB/měsíc</string>
+    <string
+        name="community_edition_details"
+    >Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
+    <string
+        name="boost_bandwidth_title"
+    >Zvyšte svou šířku pásma – vydělávejte více každý den</string>
+    <string
+        name="boost_bandwidth_details"
+    >Účastí v síti a poskytováním šířky pásma můžete získat odměny.</string>
+    <string
+        name="default_bandwidth_earn_more_by"
+    >Ve výchozím nastavení získáte %d GiB/měsíc. Zde je návod, jak získat další šířku pásma:</string>
+    <string
+        name="earn_more_bullet_stay_connected"
+    >Zůstaňte připojeni denně = Získejte až %s GiB/den</string>
+    <string
+        name="earn_more_bullet_refer"
+    >Doporučte přítele = +%s GiB/měsíc</string>
     <string name="reliability_settings">Nastavení spolehlivosti</string>
-    <string name="reliability_settings_details">Upravte nastavení pro maximální spolehlivost. Aplikace běží na pozadí při připojení a na Wi-Fi. Spolehlivost znamená, kolik IP adres trvale zpřístupňujete síti.</string>
+    <string
+        name="reliability_settings_details"
+    >Upravte nastavení pro maximální spolehlivost. Aplikace běží na pozadí při připojení a na Wi-Fi. Spolehlivost znamená, kolik IP adres trvale zpřístupňujete síti.</string>
     <string name="when_you_refer_a_friend">Když doporučíte přítele:</string>
-    <string name="refer_friends_perks">Získáte +%s GiB/měsíc na celý život</string>
-    <string name="refer_friends_they_get_data">Váš přítel získá +%s GiB/měsíc na celý život</string>
-    <string name="friends_save_too">Vaši přátelé také ušetří – každý vyhrává.</string>
+    <string
+        name="refer_friends_perks"
+    >Získáte +%s GiB/měsíc na celý život</string>
+    <string
+        name="refer_friends_they_get_data"
+    >Váš přítel získá +%s GiB/měsíc na celý život</string>
+    <string
+        name="friends_save_too"
+    >Vaši přátelé také ušetří – každý vyhrává.</string>
     <string name="get_connected">Připojit se</string>
-    <string name="api_error_contact">Pokud problém přetrvává, kontaktujte nás na %s nebo se připojte k našemu %s pro přímou podporu.</string>
-    <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
+    <string
+        name="api_error_contact"
+    >Pokud problém přetrvává, kontaktujte nás na %s nebo se připojte k našemu %s pro přímou podporu.</string>
+    <string
+        name="error_loading_account_plan"
+    >Chyba při načítání plánu vašeho účtu.</string>
     <string name="please_try_again">Prosím, zkuste to znovu.</string>
     <string name="retry">Zkusit znovu</string>
-    <string name="ignore_battery_optimizations">Ignorovat optimalizace baterie</string>
-    <string name="disable_ignore_battery_hint">Chcete-li to zakázat, přejděte do Nastavení systému na Využití baterie aplikace</string>
+    <string
+        name="ignore_battery_optimizations"
+    >Ignorovat optimalizace baterie</string>
+    <string
+        name="disable_ignore_battery_hint"
+    >Chcete-li to zakázat, přejděte do Nastavení systému na Využití baterie aplikace</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
 </resources>

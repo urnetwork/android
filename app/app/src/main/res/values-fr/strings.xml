@@ -189,7 +189,7 @@
     <string name="edit_referral_code">Modifier le code de parrainage</string>
     <string name="referral_bonus_applied">Bonus de parrainage appliqué</string>
     <string name="apply_bonus">Appliquer le bonus</string>
-    <string name="join_urnetwork">Rejoindre\\nURnetwork</string>
+    <string name="join_urnetwork">Rejoindre URnetwork</string>
     <string name="route_local">Autoriser le trafic local lorsque déconnecté</string>
     <string name="manage_subscription">Gérer l\'abonnement</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>

@@ -71,6 +71,8 @@ import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.TextUnit
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Dispatchers
@@ -337,6 +339,8 @@ fun LoginCreateNetwork(
 
     val sheetState = rememberModalBottomSheetState()
 
+    val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
+
     LaunchedEffect(networkNameErrorExists, networkNameIsValid, networkName.text) {
         if (networkName.text.isEmpty()) {
             setNetworkNameSupportingText("")
@@ -390,13 +394,14 @@ fun LoginCreateNetwork(
 
                 Row {
                     Text(
-                        "Join\nURnetwork",
+                        stringResource(id = R.string.join_urnetwork),
                         style = MaterialTheme.typography.headlineLarge,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        fontSize = titleSize
                     )
                 }
 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.login_margin_lg)))
 
                 NetworkCreateForm(
                     params = params,
@@ -627,7 +632,7 @@ private fun NetworkCreateForm(
 
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.login_margin_lg)))
 
             URButton(
                 onClick = {

@@ -5,7 +5,9 @@
 
     <!-- Login initial -->
     <string name="user_auth_label">Email or phone</string>
-    <string name="user_auth_placeholder">Enter your phone number or email</string>
+    <string
+        name="user_auth_placeholder"
+    >Enter your phone number or email</string>
     <string name="get_started">Get started</string>
     <string name="google_auth_btn_text">Log in with Google</string>
     <string name="commitment_issues">Commitment issues? </string>
@@ -20,10 +22,14 @@
     <string name="name_placeholder">Your name</string>
     <string name="network_name_label">Network name</string>
     <string name="network_name_placeholder">Your network name</string>
-    <string name="network_name_length_error">Network names must be 6 characters or more</string>
+    <string
+        name="network_name_length_error"
+    >Network names must be 6 characters or more</string>
     <string name="network_name_unavailable">Network name unavailable</string>
     <string name="password_label">Password</string>
-    <string name="password_support_txt">Password must be at least 12 characters</string>
+    <string
+        name="password_support_txt"
+    >Password must be at least 12 characters</string>
     <string name="continue_txt">Continue</string>
     <string name="available">Available</string>
 
@@ -34,7 +40,9 @@
 
     <!-- Forgot password -->
     <string name="forgot_password">Forgot your password?</string>
-    <string name="check_junk_mail">You may need to check your spam folder or unblock support@ur.io</string>
+    <string
+        name="check_junk_mail"
+    >You may need to check your spam folder or unblock support@ur.io</string>
     <string name="send_reset_link">Send Reset Link</string>
 
     <!-- Reset link sent -->
@@ -45,13 +53,17 @@
 
     <!-- Login verify -->
     <string name="login_verify_header">You\'ve got mail</string>
-    <string name="login_verify_details">Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
+    <string
+        name="login_verify_details"
+    >Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
     <string name="dont_see_it">Don\'t see it?</string>
     <string name="resend_verify_code">Resend code</string>
 
     <!-- Wallets Screen -->
     <string name="connect_external_wallet">Connect external wallet</string>
-    <string name="connect_external_wallet_supported_chains">USDC addresses on Solana and Polygon are currently supported.</string>
+    <string
+        name="connect_external_wallet_supported_chains"
+    >USDC addresses on Solana and Polygon are currently supported.</string>
     <string name="wallet_address_label">Wallet address</string>
     <string name="wallet_address_placeholder">Copy and paste here</string>
     <string name="total_payouts">total payouts</string>
@@ -69,13 +81,19 @@
     <string name="save">Save</string>
 
     <!-- Setup wallet -->
-    <string name="share_with_others">You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.</string>
-    <string name="start_earning">To start earning, connect your cryptocurrency wallet to URnetwork or set one up with Circle.</string>
+    <string
+        name="share_with_others"
+    >You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.</string>
+    <string
+        name="start_earning"
+    >To start earning, connect your cryptocurrency wallet to URnetwork or set one up with Circle.</string>
 
     <!-- Circle Wallet Transfer Screen -->
     <string name="circle_transfer_topbar_title">Transfer USDC</string>
     <string name="circle_transfer_header">Transfer to external wallet</string>
-    <string name="circle_transfer_fee_coverage">URnetwork covers your transfer fees.</string>
+    <string
+        name="circle_transfer_fee_coverage"
+    >URnetwork covers your transfer fees.</string>
     <string name="transfer">Transfer</string>
     <string name="insufficient_funds">Insufficient funds</string>
 
@@ -111,17 +129,25 @@
     <!-- Upgrade subscription overlay -->
     <string name="plan">Plan</string>
     <string name="upgrade_subscription">Upgrade Subscription</string>
-    <string name="support_us">Support us in building a new kind of network that gives instead of takes.</string>
-    <string name="unlock_speed">You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.</string>
+    <string
+        name="support_us"
+    >Support us in building a new kind of network that gives instead of takes.</string>
+    <string
+        name="unlock_speed"
+    >You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.</string>
     <string name="join_the_movement">Join the movement</string>
 
     <!-- Guest mode overlay -->
     <string name="in_guest_mode">You\'re in guest mode</string>
-    <string name="start_earning_join">To start earning, join the network</string>
+    <string
+        name="start_earning_join"
+    >To start earning, join the network</string>
 
     <!-- Refer overlay -->
     <string name="refer_friends_header">Refer friends</string>
-    <string name="refer_friends_detail">More connections help our community stay anonymous (and help you earn!)</string>
+    <string
+        name="refer_friends_detail"
+    >More connections help our community stay anonymous (and help you earn!)</string>
 
 
     <!-- Wallet Screen -->
@@ -131,34 +157,54 @@
     <string name="earnings">Earnings</string>
     <string name="make_default">Make default</string>
     <string name="payout_wallets">Payout Wallets</string>
-    <string name="chains_supported">Solana and Polygon wallets are currently supported</string>
+    <string
+        name="chains_supported"
+    >Solana and Polygon wallets are currently supported</string>
     <string name="unpaid_data_provided">Unpaid data provided</string>
-    <string name="payouts_amount_threshold">Payouts occur every Sunday at 00:00 UTC, and require meeting a minimum USDC threshold.</string>
+    <string
+        name="payouts_amount_threshold"
+    >Payouts occur every Sunday at 00:00 UTC, and require meeting a minimum USDC threshold.</string>
 
     <!-- Transfer Submitted Overlay -->
     <string name="transfer_submitted">Transfer Submitted</string>
-    <string name="transfer_submitted_details">Your transfer has been initiated and will complete once the transaction is processed on chain.</string>
+    <string
+        name="transfer_submitted_details"
+    >Your transfer has been initiated and will complete once the transaction is processed on chain.</string>
 
     <!-- Onboarding Carousel -->
     <string name="see_world_content">See all the\nworld\'s content</string>
-    <string name="see_world_content_description">See all the world\'s content with URnetwork</string>
-    <string name="stay_private_description">Stay completely private and anonymous with URnetwork</string>
-    <string name="stay_private">Stay\ncompletely\nprivate and\nanonymous</string>
-    <string name="build_right_description">Build the internet the right way with URnetwork</string>
+    <string
+        name="see_world_content_description"
+    >See all the world\'s content with URnetwork</string>
+    <string
+        name="stay_private_description"
+    >Stay completely private and anonymous with URnetwork</string>
+    <string
+        name="stay_private"
+    >Stay\ncompletely\nprivate and\nanonymous</string>
+    <string
+        name="build_right_description"
+    >Build the internet the right way with URnetwork</string>
     <string name="build_right">Build the\ninternet the\nright way</string>
     <string name="with_urnetwork">with URnetwork</string>
 
     <!-- Settings -->
-    <string name="unlock_supporter_tooltip">Unlock even faster speeds and first dibs on new features.</string>
+    <string
+        name="unlock_supporter_tooltip"
+    >Unlock even faster speeds and first dibs on new features.</string>
     <string name="become_supporter">Become a supporter</string>
     <string name="notifications_label">Notifications</string>
-    <string name="receive_notifications">Receive connection notifications</string>
+    <string
+        name="receive_notifications"
+    >Receive connection notifications</string>
     <string name="connectivity_label">Connectivity</string>
     <string name="allow_local_connections">Allow local connections</string>
     <string name="stay_in_touch">Stay in touch</string>
     <string name="send_product_updates">Send me product updates</string>
     <string name="join_community_discord">Join the community on</string>
-    <string name="update_notification_settings">Update notifications permissions in your Android Settings</string>
+    <string
+        name="update_notification_settings"
+    >Update notifications permissions in your Android Settings</string>
     <string name="connections">Connections</string>
 
     <!-- Feedback Screen -->
@@ -176,28 +222,49 @@
     <string name="send">Send</string>
     <string name="dismiss">Dismiss</string>
 
-    <string name="login_error_auth_allowed">Please login with one of: %s.</string>
+    <string
+        name="login_error_auth_allowed"
+    >Please login with one of: %s.</string>
     <string name="login_error">Something went wrong. Try again.</string>
-    <string name="login_client_error">Something went wrong authenticating the client. Try again.</string>
-    <string name="network_name_check_error">Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
+    <string
+        name="login_client_error"
+    >Something went wrong authenticating the client. Try again.</string>
+    <string
+        name="network_name_check_error"
+    >Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
     <string name="verify_error">Something went wrong. Try again.</string>
-    <string name="create_network_error">Something went wrong. Try again.</string>
+    <string
+        name="create_network_error"
+    >Something went wrong. Try again.</string>
     <string name="verify_send_error">Error</string>
-    <string name="asset_statements" translatable="false">[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
+    <string
+        name="asset_statements"
+        translatable="false"
+    >[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
     <string name="open_nested_link">Connect to %1$s and open link %2$s</string>
     <string name="connect_and_open">Connect and open link</string>
     <string name="connect_to_location">Connect to %1$s</string>
     <string name="no_locations_found">No locations found</string>
-    <string name="no_locations_found_detail">Sorry, we couldn\'t find any locations related to %1$s.</string>
+    <string
+        name="no_locations_found_detail"
+    >Sorry, we couldn\'t find any locations related to %1$s.</string>
 
     <string name="switch_account">Switch Account</string>
-    <string name="switch_account_details">Do you want to disconnect from %1$s and switch accounts?</string>
+    <string
+        name="switch_account_details"
+    >Do you want to disconnect from %1$s and switch accounts?</string>
     <string name="auth_code_loading">Auth code loading</string>
-    <string name="network_create_bonus_message">Someone invited you to join 🥳 \nClaim your bonus by creating a network!</string>
+    <string
+        name="network_create_bonus_message"
+    >Someone invited you to join 🥳 \nClaim your bonus by creating a network!</string>
     <string name="delete_account">Delete Account</string>
     <string name="sorry_to_see_you_go">We\'re sorry to see you go!</string>
-    <string name="are_you_sure_delete_account">Are you sure you want to delete your account?</string>
-    <string name="reconnect_tunnel_status_indicator">VPN tunnel disconnected 😓</string>
+    <string
+        name="are_you_sure_delete_account"
+    >Are you sure you want to delete your account?</string>
+    <string
+        name="reconnect_tunnel_status_indicator"
+    >VPN tunnel disconnected 😓</string>
     <string name="disconnect">Disconnect</string>
     <string name="reconnect">Reconnect</string>
     <string name="connecting_status_indicator">Connecting to providers</string>
@@ -208,35 +275,51 @@
     <string name="upgrade_now">Upgrade now</string>
     <string name="how_are_we_doing">How are we doing?</string>
     <string name="referral_code">Referral code</string>
-    <string name="add_referral_extra_rewards">Add referral code to earn extra rewards</string>
+    <string
+        name="add_referral_extra_rewards"
+    >Add referral code to earn extra rewards</string>
     <string name="add_referral_code">Add referral code</string>
     <string name="edit_referral_code">Edit referral code</string>
     <string name="referral_bonus_applied">Referral bonus applied</string>
     <string name="apply_bonus">Apply bonus</string>
-    <string name="join_urnetwork">Join\\nURnetwork</string>
+    <string name="join_urnetwork">Join URnetwork</string>
     <string name="route_local">Allow local traffic when disconnected</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="solana_sign_in">Sign in with Solana</string>
     <string name="no_solana_wallets_found">No Solana Wallets Found</string>
-    <string name="no_wallets_found_alert_content">No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
+    <string
+        name="no_wallets_found_alert_content"
+    >No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
     <string name="claim_multiplier">Claim Multiplier</string>
-    <string name="connect_seeker_wallet">Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
-    <string name="verify_seeker_token_btn">Verify Seeker Pre-Order Token</string>
+    <string
+        name="connect_seeker_wallet"
+    >Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
+    <string
+        name="verify_seeker_token_btn"
+    >Verify Seeker Pre-Order Token</string>
     <string name="total_referrals">Total referrals</string>
     <string name="login_verify_check_phone">Check your phone</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="current_ranking">Current Ranking</string>
     <string name="net_provided">Net Provided</string>
-    <string name="display_network_on_leaderboard">Display network on leaderboard</string>
-    <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
+    <string
+        name="display_network_on_leaderboard"
+    >Display network on leaderboard</string>
+    <string
+        name="leaderboard_description"
+    >The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
     <string name="total_account_points">Total account points</string>
-    <string name="enter_network_referral_code">Enter network referral code</string>
+    <string
+        name="enter_network_referral_code"
+    >Enter network referral code</string>
     <string name="update_referral_network">Update referral network</string>
     <string name="update">Update</string>
     <string name="unlink_referral_network">Unlink referral network</string>
     <string name="unlink">Unlink</string>
     <string name="current_network_referral">Current network referral</string>
-    <string name="unlink_alert_description">When unlinking your referral network, you will no longer be able to earn points from %1$s</string>
+    <string
+        name="unlink_alert_description"
+    >When unlinking your referral network, you will no longer be able to earn points from %1$s</string>
     <string name="account_points">Account points</string>
     <string name="points_breakdown">Points breakdown</string>
     <string name="payouts">Payouts</string>
@@ -250,7 +333,9 @@
     <string name="reliability">Reliability</string>
     <string name="browse_locations">Browse Locations</string>
     <string name="none">None</string>
-    <string name="send_feedback">Send us your feedback directly or join our Discord for direct support.</string>
+    <string
+        name="send_feedback"
+    >Send us your feedback directly or join our Discord for direct support.</string>
     <string name="referral_network">Referral network</string>
     <string name="pending_payout">Pending payout</string>
     <string name="amount">Amount</string>
@@ -271,7 +356,9 @@
     <string name="blocked_locations">Blocked Locations</string>
     <string name="add_blocked_location">Add blocked location</string>
     <string name="verified_project_on">Verified project on %1$s</string>
-    <string name="allow_providing_cell">Allow providing on cellular network</string>
+    <string
+        name="allow_providing_cell"
+    >Allow providing on cellular network</string>
     <string name="general">General</string>
     <string name="show_icon_when_connected">Show UR icon when connected</string>
     <string name="authentication">Authentication</string>
@@ -290,14 +377,20 @@
     <string name="clients">Clients</string>
     <string name="pay_with_solana_wallet">Pay with Solana Wallet</string>
     <string name="pay_with_stripe">Join with Stripe</string>
-    <string name="checking_solana_transactions">Checking for Solana Transactions</string>
+    <string
+        name="checking_solana_transactions"
+    >Checking for Solana Transactions</string>
     <string name="processing_payment">Processing payment</string>
     <string name="check_ip">Check my IP</string>
     <string name="preorder_now">Preorder Now</string>
     <string name="private_network">Private Network</string>
     <string name="default_wallet">Default</string>
-    <string name="learn_more_about_multiplier">Learn more about the multiplier</string>
-    <string name="solana_payment_insufficient_funds_warning">Please make sure you have sufficient USDC funds in your wallet. In some instances, payment prompts fail if there are insufficient funds in the wallet.</string>
+    <string
+        name="learn_more_about_multiplier"
+    >Learn more about the multiplier</string>
+    <string
+        name="solana_payment_insufficient_funds_warning"
+    >Please make sure you have sufficient USDC funds in your wallet. In some instances, payment prompts fail if there are insufficient funds in the wallet.</string>
     <string name="one_gib_per_day">1 GiB/Day</string>
     <string name="reliability_with_value">Reliability: %1$.3f</string>
     <string name="reliability_bonus">+%1$.3f GiB/Day</string>
@@ -307,23 +400,43 @@
     <string name="get_pro">Get Pro</string>
     <string name="provider_count">%s providers</string>
     <string name="welcome_to_urnetwork">Welcome to URnetwork</string>
-    <string name="urnetwork_intro_description">URnetwork is the most local and most private network on the planet.</string>
+    <string
+        name="urnetwork_intro_description"
+    >URnetwork is the most local and most private network on the planet.</string>
     <string name="or">or</string>
-    <string name="participate_intro">Participate in the network and get free access to the community edition.</string>
-    <string name="participate_intro_details">URnetwork is powered by a patented protocol\nthat keeps everyone safe and secure.</string>
+    <string
+        name="participate_intro"
+    >Participate in the network and get free access to the community edition.</string>
+    <string
+        name="participate_intro_details"
+    >URnetwork is powered by a patented protocol\nthat keeps everyone safe and secure.</string>
     <string name="participate">Participate</string>
     <string name="step_two">Step 2</string>
-    <string name="refer_friends_increase_free_data">Refer some friends and watch your free data go up.</string>
+    <string
+        name="refer_friends_increase_free_data"
+    >Refer some friends and watch your free data go up.</string>
     <string name="bonus_referral_code_label">Bonus referral code</string>
     <string name="step_one">Step 1</string>
-    <string name="local_provider_safety_description">A local provider will run when you are connected to the network. There are over 30k providers today, and we have zero known security or ISP incidents. We value the ability for people to participate without issues, and have built the protocol to put safety first.</string>
-    <string name="learn_more_protocol_page">Learn more at the protocol page</string>
-    <string name="adjust_setting_always_fill_data_faster">You can adjust the setting to Always to fill the free data faster.</string>
-    <string name="allow_provider_cell_network_unlimited_plan">You can also allow the provider to use cell network data, which works great if you have an unlimited plan.</string>
+    <string
+        name="local_provider_safety_description"
+    >A local provider will run when you are connected to the network. There are over 30k providers today, and we have zero known security or ISP incidents. We value the ability for people to participate without issues, and have built the protocol to put safety first.</string>
+    <string
+        name="learn_more_protocol_page"
+    >Learn more at the protocol page</string>
+    <string
+        name="adjust_setting_always_fill_data_faster"
+    >You can adjust the setting to Always to fill the free data faster.</string>
+    <string
+        name="allow_provider_cell_network_unlimited_plan"
+    >You can also allow the provider to use cell network data, which works great if you have an unlimited plan.</string>
     <string name="next">Next</string>
-    <string name="get_urnetwork_free_for_life_by_participating">Get URnetwork free for life by participating</string>
+    <string
+        name="get_urnetwork_free_for_life_by_participating"
+    >Get URnetwork free for life by participating</string>
     <string name="data_usage">Data usage</string>
-    <string name="data_bar_explanation">This bar in the app shows you how much free data you are earning from your provider. You can check in any time and adjust your settings to maximize your earnings.</string>
+    <string
+        name="data_bar_explanation"
+    >This bar in the app shows you how much free data you are earning from your provider. You can check in any time and adjust your settings to maximize your earnings.</string>
     <string name="join_solana_wallet">Join with Solana Wallet</string>
     <string name="invalid_referral_code">This code is not valid</string>
     <string name="referral_code_capped">This code has been used up</string>
@@ -331,31 +444,65 @@
     <string name="no_log_files_found">No log file found</string>
     <string name="save_logs">Save logs</string>
     <string name="share_logs">Share logs</string>
-    <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
+    <string
+        name="feedback_include_logs"
+    >Attach logs to feedback (optional)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (may be unstable)</string>
-    <string name="open_source_transparent">100% open source and transparent</string>
-    <string name="low_user_ip_ratio">Lowest user/IP ratio to access content</string>
-    <string name="trusted_by_private_networks">Trusted by over %s private networks</string>
+    <string
+        name="open_source_transparent"
+    >100% open source and transparent</string>
+    <string
+        name="low_user_ip_ratio"
+    >Lowest user/IP ratio to access content</string>
+    <string
+        name="trusted_by_private_networks"
+    >Trusted by over %s private networks</string>
     <string name="community_edition">Community Edition</string>
-    <string name="community_edition_details">Participate in the network and get free access to the community edition.</string>
-    <string name="boost_bandwidth_title">Boost your bandwidth - Earn more every day</string>
-    <string name="boost_bandwidth_details">By participating in the network and providing bandwidth you can earn rewards.</string>
-    <string name="default_bandwidth_earn_more_by">By default, you get %d GiB/month. Here\'s how you can earn extra bandwidth:</string>
-    <string name="earn_more_bullet_stay_connected">Stay connected daily = Earn up to %s GiB/Day</string>
-    <string name="earn_more_bullet_refer">Refer a friend = +%s GiB/Month</string>
+    <string
+        name="community_edition_details"
+    >Participate in the network and get free access to the community edition.</string>
+    <string
+        name="boost_bandwidth_title"
+    >Boost your bandwidth - Earn more every day</string>
+    <string
+        name="boost_bandwidth_details"
+    >By participating in the network and providing bandwidth you can earn rewards.</string>
+    <string
+        name="default_bandwidth_earn_more_by"
+    >By default, you get %d GiB/month. Here\'s how you can earn extra bandwidth:</string>
+    <string
+        name="earn_more_bullet_stay_connected"
+    >Stay connected daily = Earn up to %s GiB/Day</string>
+    <string
+        name="earn_more_bullet_refer"
+    >Refer a friend = +%s GiB/Month</string>
     <string name="reliability_settings">Reliability settings</string>
-    <string name="reliability_settings_details">Adjust settings to maximize reliability. App runs in the background when connected and on Wi-Fi. Reliability is how many IPs you make continually available to the network</string>
+    <string
+        name="reliability_settings_details"
+    >Adjust settings to maximize reliability. App runs in the background when connected and on Wi-Fi. Reliability is how many IPs you make continually available to the network</string>
     <string name="when_you_refer_a_friend">When you refer a friend:</string>
     <string name="refer_friends_perks">You get +%s GiB/month for life</string>
-    <string name="refer_friends_they_get_data">Your friend gets +%s GiB/month for life</string>
-    <string name="friends_save_too">Your friends save too -- everyone wins.</string>
+    <string
+        name="refer_friends_they_get_data"
+    >Your friend gets +%s GiB/month for life</string>
+    <string
+        name="friends_save_too"
+    >Your friends save too -- everyone wins.</string>
     <string name="get_connected">Get connected</string>
-    <string name="api_error_contact">If the problem persists, contact us at %s or join our %s for direct support.</string>
-    <string name="error_loading_account_plan">Error loading your account plan.</string>
+    <string
+        name="api_error_contact"
+    >If the problem persists, contact us at %s or join our %s for direct support.</string>
+    <string
+        name="error_loading_account_plan"
+    >Error loading your account plan.</string>
     <string name="please_try_again">Please try again.</string>
     <string name="retry">Retry</string>
-    <string name="ignore_battery_optimizations">Ignore battery optimizations</string>
-    <string name="disable_ignore_battery_hint">To disable, please go to App Battery Usage in System Settings</string>
+    <string
+        name="ignore_battery_optimizations"
+    >Ignore battery optimizations</string>
+    <string
+        name="disable_ignore_battery_hint"
+    >To disable, please go to App Battery Usage in System Settings</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
 </resources>

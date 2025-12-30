@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -63,7 +64,6 @@ import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.utils.isTv
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -83,8 +83,8 @@ fun LoginPassword(
     var loginError by remember { mutableStateOf<String?>(null) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
-
-    val isTv = isTv()
+    val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
+    val loginErrMsg = stringResource(id = R.string.login_error)
 
     LaunchedEffect(Unit) {
         inProgress = false
@@ -116,16 +116,13 @@ fun LoginPassword(
                     } else {
                         app.login(result.network.byJwt)
 
-                        if (!isTv) {
+                        isContentVisible = false
 
-                            isContentVisible = false
+                        delay(500)
 
-                            delay(500)
+                        welcomeOverlayVisible = true
 
-                            welcomeOverlayVisible = true
-
-                            delay(2250)
-                        }
+                        delay(2250)
 
                         loginActivity?.authClientAndFinish(
                             { error ->
@@ -139,7 +136,7 @@ fun LoginPassword(
                     }
 
                 } else {
-                    loginError = context.getString(R.string.login_error)
+                    loginError = loginErrMsg
                     inProgress = false
                 }
             }
@@ -184,10 +181,12 @@ fun LoginPassword(
 
                 Text(
                     stringResource(id = R.string.login_password_header),
-                    style = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center)
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Center,
+                    fontSize = titleSize
                 )
 
-                Spacer(modifier = Modifier.height(64.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.login_margin_lg)))
 
                 LoginPasswordForm(
                     user = user,
