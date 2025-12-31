@@ -568,6 +568,7 @@ fun IntroNavHost(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavContent(
     walletViewModel: WalletViewModel,
@@ -628,6 +629,11 @@ fun MainNavContent(
         )
     }
 
+    val connectActionsSheetState = rememberStandardBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded,
+        skipHiddenState = true
+    )
+
     NavHost(
         navController = navController,
         startDestination = Route.ConnectContainer,
@@ -650,7 +656,8 @@ fun MainNavContent(
                     meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
                     totalReferrals = totalReferralCount,
                     launchIntro = launchIntro,
-                    isPro = isPro
+                    isPro = isPro,
+                    connectActionsSheetState = connectActionsSheetState
                 )
             }
 
@@ -663,7 +670,8 @@ fun MainNavContent(
                 BrowseLocationsScreen(
                     navController = navController,
                     connectViewModel = connectViewModel,
-                    locationsListViewModel = locationsListViewModel
+                    locationsListViewModel = locationsListViewModel,
+                    connectActionsSheetState = connectActionsSheetState
                 )
             }
         }
