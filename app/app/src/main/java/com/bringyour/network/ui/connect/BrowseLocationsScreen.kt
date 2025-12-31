@@ -11,12 +11,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -24,6 +26,7 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,10 +34,12 @@ fun BrowseLocationsScreen(
     locationsListViewModel: LocationsListViewModel,
     connectViewModel: ConnectViewModel,
     navController: NavController,
+    connectActionsSheetState: SheetState
 ) {
     val fetchLocationsState by remember { locationsListViewModel.filterLocationsState }.collectAsState()
     val lazyListState = rememberLazyListState()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -76,6 +81,11 @@ fun BrowseLocationsScreen(
                 fetchLocationsState = fetchLocationsState,
                 connect = {
                     connectViewModel.connect(it)
+
+                    scope.launch {
+                        connectActionsSheetState.partialExpand()
+                    }
+
                     navController.popBackStack()
                           },
                 getLocationColor = locationsListViewModel.getLocationColor,

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -73,6 +74,7 @@ fun ConnectScreen(
     totalReferrals: Long,
     launchIntro: () -> Unit,
     isPro: Boolean,
+    connectActionsSheetState: SheetState,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
 ) {
 
@@ -94,13 +96,8 @@ fun ConnectScreen(
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
 
-    val sheetState = rememberStandardBottomSheetState(
-        initialValue = SheetValue.PartiallyExpanded,
-        skipHiddenState = true
-    )
-
     val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = sheetState
+        bottomSheetState = connectActionsSheetState
     )
 
     val promptReview = {
