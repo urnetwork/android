@@ -41,7 +41,9 @@ fun OnboardingGuestModeSheet(
     val scope = rememberCoroutineScope()
     var termsAgreed by remember { mutableStateOf(false) }
 
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
 
     if (isPresenting) {
 
