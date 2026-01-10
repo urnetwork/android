@@ -528,7 +528,7 @@ dependencies {
 /*build:google*/        //noinspection GradleDependency
 /*build:google*/        playImplementation 'com.google.android.gms:play-services-fido:21.2.0'
 
-/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.4.0'
+/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.5.0'
 /*build:google*/    playImplementation 'com.android.installreferrer:installreferrer:2.2'
 
     // play store review
@@ -551,7 +551,7 @@ dependencies {
 /*build:google*/        //noinspection GradleDependency
 /*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
 
-/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.4.0'
+/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
 
 /*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.5.0")
 /*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.5.0")
@@ -568,7 +568,7 @@ dependencies {
 /*build:google*/        //noinspection GradleDependency
 /*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
 
-/*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.4.0'
+/*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
 
 /*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.5.0")
 /*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.5.0")
