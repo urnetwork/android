@@ -63,7 +63,6 @@ fun IntroductionInitial(
 ) {
 
     var isPresentingRedeemTransferBalanceSheet by remember { mutableStateOf(false) }
-    // val updateReferralNetworkSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val redeemTransferBalanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
