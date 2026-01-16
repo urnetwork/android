@@ -306,4 +306,9 @@
     <string name="ignore_battery_optimizations">ไม่สนใจการเพิ่มประสิทธิภาพแบตเตอรี่</string>
     <string name="disable_ignore_battery_hint">หากต้องการปิดใช้งาน กรุณาไปที่การใช้แบตเตอรี่ของแอปในการตั้งค่าระบบ</string>
     <string name="sign_in_dgen1">ลงชื่อเข้าใช้ด้วย dGEN1</string>
+    <string name="redeem_balance_code">แลกรหัสยอดเงิน</string>
+    <string name="balance_code">รหัสยอดเงิน</string>
+    <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
+    <string name="error_redeeming_transfer_balance_code">เกิดข้อผิดพลาดในการแลกรหัสยอดเงินโอน</string>
+    <string name="redeem">แลก</string>
 </resources>

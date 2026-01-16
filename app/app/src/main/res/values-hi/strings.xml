@@ -332,4 +332,9 @@
     <string name="ignore_battery_optimizations">बैटरी ऑप्टिमाइज़ेशन को अनदेखा करें</string>
     <string name="disable_ignore_battery_hint">अक्षम करने के लिए, कृपया सिस्टम सेटिंग्स में ऐप बैटरी उपयोग पर जाएँ</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
+    <string name="redeem_balance_code">बैलेंस कोड रिडीम करें</string>
+    <string name="balance_code">बैलेंस कोड</string>
+    <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
+    <string name="error_redeeming_transfer_balance_code">ट्रांसफर बैलेंस कोड रिडीम करने में त्रुटि।</string>
+    <string name="redeem">िडीम करें</string>
 </resources>

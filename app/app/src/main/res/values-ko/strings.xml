@@ -355,4 +355,9 @@
     <string name="ignore_battery_optimizations">배터리 최적화 무시</string>
     <string name="disable_ignore_battery_hint">비활성화하려면 시스템 설정의 앱 배터리 사용으로 이동하세요</string>
     <string name="sign_in_dgen1">dGEN1로 로그인</string>
+    <string name="redeem_balance_code">잔액 코드 사용</string>
+    <string name="balance_code">잔액 코드</string>
+    <string name="enter_balance_code">잔액 코드를 입력하세요</string>
+    <string name="error_redeeming_transfer_balance_code">이체 잔액 코드 사용 중 오류가 발생했습니다.</string>
+    <string name="redeem">사용하기</string>
 </resources>

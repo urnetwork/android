@@ -466,4 +466,9 @@
         name="disable_ignore_battery_hint"
     >لتعطيل ذلك، يرجى الانتقال إلى استخدام بطارية التطبيق في إعدادات النظام</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
+    <string name="redeem_balance_code">استرداد رمز الرصيد</string>
+    <string name="balance_code">رمز الرصيد</string>
+    <string name="enter_balance_code">" أدخل رمز الرصيد"</string>
+    <string name="error_redeeming_transfer_balance_code">حدث خطأ أثناء استرداد رمز تحويل الرصيد.</string>
+    <string name="redeem">استرداد</string>
 </resources>

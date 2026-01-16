@@ -355,4 +355,9 @@
     <string name="ignore_battery_optimizations">バッテリー最適化を無視する</string>
     <string name="disable_ignore_battery_hint">無効にするには、システム設定のアプリのバッテリー使用状況に移動してください</string>
     <string name="sign_in_dgen1">dGEN1でサインイン</string>
+    <string name="redeem_balance_code">残高コードを引き換える</string>
+    <string name="balance_code">残高コード</string>
+    <string name="enter_balance_code">残高コードを入力</string>
+    <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
+    <string name="redeem">引き換える</string>
 </resources>

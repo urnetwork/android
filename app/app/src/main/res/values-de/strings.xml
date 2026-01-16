@@ -333,4 +333,9 @@
     <string name="ignore_battery_optimizations">Akku-Optimierungen ignorieren</string>
     <string name="disable_ignore_battery_hint">Zum Deaktivieren gehe bitte zu App-Akkuverbrauch in den Systemeinstellungen</string>
     <string name="sign_in_dgen1">Mit dGEN1 anmelden</string>
+    <string name="redeem_balance_code">Guthabencode einlösen</string>
+    <string name="balance_code">Guthabencode</string>
+    <string name="enter_balance_code">Guthabencode eingeben</string>
+    <string name="error_redeeming_transfer_balance_code">Fehler beim Einlösen des Übertragungsguthabencodes.</string>
+    <string name="redeem">Einlösen</string>
 </resources>

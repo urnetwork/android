@@ -355,5 +355,10 @@
     <string name="ignore_battery_optimizations">Ignoruj optymalizacje baterii</string>
     <string name="disable_ignore_battery_hint">Aby wyłączyć, przejdź do Użycia baterii aplikacji w ustawieniach systemu</string>
     <string name="sign_in_dgen1">Zaloguj się za pomocą dGEN1</string>
+    <string name="redeem_balance_code">Zrealizuj kod salda</string>
+    <string name="balance_code">Kod salda</string>
+    <string name="enter_balance_code">Wpisz kod salda</string>
+    <string name="error_redeeming_transfer_balance_code">Błąd podczas realizacji kodu transferu salda.</string>
+    <string name="redeem">Zrealizuj</string>
 
 </resources>
