@@ -505,4 +505,9 @@
         name="disable_ignore_battery_hint"
     >To disable, please go to App Battery Usage in System Settings</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
+    <string name="redeem_balance_code">Redeem Balance Code</string>
+    <string name="balance_code">Balance code</string>
+    <string name="enter_balance_code">Enter balance code</string>
+    <string name="error_redeeming_transfer_balance_code">Error redeeming transfer balance code</string>
+    <string name="redeem">Redeem</string>
 </resources>

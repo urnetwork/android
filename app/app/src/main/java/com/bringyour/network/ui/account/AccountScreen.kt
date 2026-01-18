@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -29,13 +30,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,6 +61,7 @@ import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.components.overlays.OverlayMode
+import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -67,6 +74,8 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.utils.formatDecimalString
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,6 +101,9 @@ fun AccountScreen(
     val availableBalanceByteCount by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
 
     val refreshState = rememberPullToRefreshState()
+
+    var isPresentingRedeemTransferBalanceSheet by remember { mutableStateOf(false) }
+    val redeemTransferBalanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(Unit) {
         subscriptionBalanceViewModel.fetchSubscriptionBalance()
@@ -136,11 +148,28 @@ fun AccountScreen(
                         pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
                         availableBytes = availableBalanceByteCount,
                         totalReferrals = totalReferrals,
-                        meanReliabilityWeight = meanReliabilityWeight
+                        meanReliabilityWeight = meanReliabilityWeight,
+                        launchRedeemTransferBalanceCodeSheet = {
+                            isPresentingRedeemTransferBalanceSheet = true
+                        }
                     )
                 }
             }
         }
+
+        if (isPresentingRedeemTransferBalanceSheet) {
+            RedeemTransferBalanceCodeSheet(
+                sheetState = redeemTransferBalanceSheetState,
+                setIsPresenting = {
+                    isPresentingRedeemTransferBalanceSheet = it
+                },
+                onSuccess = {
+                    subscriptionBalanceViewModel.pollSubscriptionBalance()
+                    overlayViewModel.launch(OverlayMode.Upgrade)
+                }
+            )
+        }
+
     }
 }
 
@@ -165,6 +194,7 @@ fun AccountScreenContent(
     pendingBytes: Long,
     totalReferrals: Long,
     meanReliabilityWeight: Double,
+    launchRedeemTransferBalanceCodeSheet: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -227,18 +257,30 @@ fun AccountScreenContent(
                     navController = navController
                 )
 
-                if (currentPlan != Plan.Supporter) {
+                Spacer(modifier = Modifier.height(12.dp))
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                UsageBar(
+                    usedBytes = usedBytes,
+                    pendingBytes = pendingBytes,
+                    availableBytes = availableBytes,
+                    totalReferrals = totalReferrals,
+                    meanReliabilityWeight = meanReliabilityWeight
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    UsageBar(
-                        usedBytes = usedBytes,
-                        pendingBytes = pendingBytes,
-                        availableBytes = availableBytes,
-                        totalReferrals = totalReferrals,
-                        meanReliabilityWeight = meanReliabilityWeight
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        stringResource(id = R.string.redeem_balance_code),
+                        style = TextStyle(color = BlueMedium),
+                        modifier = Modifier.clickable {
+                            launchRedeemTransferBalanceCodeSheet()
+                        }
                     )
-
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -453,7 +495,8 @@ private fun AccountSupporterAuthenticatedPreview() {
                     isPollingSubscriptionBalance = false,
                     currentStore = null,
                     totalReferrals = 1,
-                    meanReliabilityWeight = 0.1
+                    meanReliabilityWeight = 0.1,
+                    launchRedeemTransferBalanceCodeSheet = {}
                 )
             }
         }
@@ -497,7 +540,8 @@ private fun AccountBasicAuthenticatedPreview() {
                     isPollingSubscriptionBalance = false,
                     currentStore = null,
                     totalReferrals = 1,
-                    meanReliabilityWeight = 0.1
+                    meanReliabilityWeight = 0.1,
+                    launchRedeemTransferBalanceCodeSheet = {}
                 )
             }
         }
@@ -540,7 +584,8 @@ private fun AccountGuestPreview() {
                     isPollingSubscriptionBalance = false,
                     currentStore = null,
                     totalReferrals = 1,
-                    meanReliabilityWeight = 0.1
+                    meanReliabilityWeight = 0.1,
+                    launchRedeemTransferBalanceCodeSheet = {}
                 )
             }
         }
@@ -582,7 +627,8 @@ private fun AccountGuestNoWalletPreview() {
                     isPollingSubscriptionBalance = false,
                     currentStore = null,
                     totalReferrals = 1,
-                    meanReliabilityWeight = 0.1
+                    meanReliabilityWeight = 0.1,
+                    launchRedeemTransferBalanceCodeSheet = {}
                 )
             }
         }

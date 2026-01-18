@@ -332,4 +332,9 @@
     <string name="ignore_battery_optimizations">Παράβλεψη βελτιστοποιήσεων μπαταρίας</string>
     <string name="disable_ignore_battery_hint">Για να το απενεργοποιήσετε, μεταβείτε στη Χρήση μπαταρίας εφαρμογής στις Ρυθμίσεις συστήματος</string>
     <string name="sign_in_dgen1">Σύνδεση με dGEN1</string>
+    <string name="redeem_balance_code">Εξαργύρωση κωδικού υπολοίπου</string>
+    <string name="balance_code">Κωδικός υπολοίπου</string>
+    <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>
+    <string name="error_redeeming_transfer_balance_code">Σφάλμα κατά την εξαργύρωση του κωδικού μεταφοράς υπολοίπου.</string>
+    <string name="redeem">Εξαργύρωση</string>
 </resources>

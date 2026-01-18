@@ -358,4 +358,9 @@
     <string name="ignore_battery_optimizations">Игнорировать оптимизацию батареи</string>
     <string name="disable_ignore_battery_hint">Чтобы отключить, перейдите в Использование батареи приложением в системных настройках</string>
     <string name="sign_in_dgen1">Войти с помощью dGEN1</string>
+    <string name="redeem_balance_code">Активировать код баланса</string>
+    <string name="balance_code">Код баланса</string>
+    <string name="enter_balance_code">Введите код баланса</string>
+    <string name="error_redeeming_transfer_balance_code">Ошибка при активации кода перевода баланса.</string>
+    <string name="redeem">Активировать</string>
 </resources>

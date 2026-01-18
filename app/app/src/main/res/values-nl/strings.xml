@@ -358,4 +358,9 @@
     <string name="ignore_battery_optimizations">Batterijoptimalisaties negeren</string>
     <string name="disable_ignore_battery_hint">Om uit te schakelen, ga naar App-batterijgebruik in de systeeminstellingen</string>
     <string name="sign_in_dgen1">Inloggen met dGEN1</string>
+    <string name="redeem_balance_code">Saldo-code inwisselen</string>
+    <string name="balance_code">Saldo-code</string>
+    <string name="enter_balance_code">Voer saldo-code in</string>
+    <string name="error_redeeming_transfer_balance_code">Fout bij het inwisselen van overdrachts-saldocode.</string>
+    <string name="redeem">Inwisselen</string>
 </resources>

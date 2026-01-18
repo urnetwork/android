@@ -114,6 +114,7 @@ import com.bringyour.network.ui.shared.viewmodels.SolanaPaymentViewModel
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.upgrade.UpgradeScreen
 import com.bringyour.sdk.ReliabilityWindow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -316,8 +317,8 @@ fun MainNavHost(
                 toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
                 planViewModel = planViewModel,
                 solanaPaymentViewModel = solanaPaymentViewModel,
-                isCheckingSolanaTransaction = isCheckingSolanaTransaction
-//                overlayViewModel = overlayViewModel
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction,
+                overlayViewModel = overlayViewModel
             )
         } else {
 
@@ -509,9 +510,11 @@ fun IntroNavHost(
     planViewModel: PlanViewModel,
     isCheckingSolanaTransaction: Boolean,
     solanaPaymentViewModel: SolanaPaymentViewModel,
+    overlayViewModel: OverlayViewModel
 ) {
 
     val introNavController = rememberNavController()
+    val scope = rememberCoroutineScope()
 
     NavHost(
         navController = introNavController,
@@ -528,6 +531,15 @@ fun IntroNavHost(
                 onStripePaymentSuccess = {
                     subscriptionBalanceViewModel.pollSubscriptionBalance()
                     dismiss()
+                },
+                onRedeemTransferBalanceCodeSuccess = {
+                    subscriptionBalanceViewModel.pollSubscriptionBalance()
+                    overlayViewModel.launch(OverlayMode.Upgrade)
+                    scope.launch {
+                        // bandaid for overlapping modal state getting weird
+                        delay(1000)
+                        dismiss()
+                    }
                 },
                 isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )

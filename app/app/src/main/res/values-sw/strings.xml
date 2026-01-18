@@ -333,4 +333,9 @@
     <string name="ignore_battery_optimizations">Puuzia uboreshaji wa betri</string>
     <string name="disable_ignore_battery_hint">Ili kuzima, tafadhali nenda kwenye Matumizi ya Betri ya Programu katika Mipangilio ya Mfumo</string>
     <string name="sign_in_dgen1">Ingia kwa dGEN1</string>
+    <string name="redeem_balance_code">Komboa msimbo wa salio</string>
+    <string name="balance_code">Msimbo wa salio</string>
+    <string name="enter_balance_code">Weka msimbo wa salio</string>
+    <string name="error_redeeming_transfer_balance_code">Hitilafu katika kukomboa msimbo wa uhamisho wa salio.</string>
+    <string name="redeem">Komboa</string>
 </resources>

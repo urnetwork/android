@@ -478,4 +478,9 @@
         name="disable_ignore_battery_hint"
     >Chcete-li to zakázat, přejděte do Nastavení systému na Využití baterie aplikace</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
+    <string name="redeem_balance_code">Uplatnit kód zůstatku</string>
+    <string name="balance_code">Kód zůstatku</string>
+    <string name="enter_balance_code">Zadejte kód zůstatku</string>
+    <string name="error_redeeming_transfer_balance_code">Chyba při uplatnění kódu převodu zůstatku.</string>
+    <string name="redeem">Uplatnit</string>
 </resources>

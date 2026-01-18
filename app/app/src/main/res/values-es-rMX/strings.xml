@@ -332,4 +332,9 @@
     <string name="ignore_battery_optimizations">Ignorar optimizaciones de batería</string>
     <string name="disable_ignore_battery_hint">Para desactivar, ve a Uso de batería de la aplicación en Configuración del sistema</string>
     <string name="sign_in_dgen1">Iniciar sesión con dGEN1</string>
+    <string name="redeem_balance_code">Canjear código de saldo</string>
+    <string name="balance_code">Código de saldo</string>
+    <string name="enter_balance_code">Ingresa el código de saldo</string>
+    <string name="error_redeeming_transfer_balance_code">Error al canjear el código de transferencia de saldo.</string>
+    <string name="redeem">Canjear</string>
 </resources>

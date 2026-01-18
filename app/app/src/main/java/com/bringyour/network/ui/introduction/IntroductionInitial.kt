@@ -22,7 +22,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
 import com.bringyour.network.ui.IntroRoute
+import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.NeueBitLargeTextStyle
@@ -52,8 +58,12 @@ fun IntroductionInitial(
     ) -> Unit,
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     onStripePaymentSuccess: () -> Unit,
+    onRedeemTransferBalanceCodeSuccess: () -> Unit,
     isCheckingSolanaTransaction: Boolean
 ) {
+
+    var isPresentingRedeemTransferBalanceSheet by remember { mutableStateOf(false) }
+    val redeemTransferBalanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         topBar = {
@@ -127,6 +137,9 @@ fun IntroductionInitial(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            /**
+             * Community Edition link
+             */
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,6 +165,31 @@ fun IntroductionInitial(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Redeem balance code
+             */
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(width = 2.dp, color = TextMuted, shape = RoundedCornerShape(12.dp))
+                    .clickable {
+                        isPresentingRedeemTransferBalanceSheet = true
+                        // navController.navigate(IntroRoute.IntroductionUsageBar)
+                    }
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    stringResource(id = R.string.redeem_balance_code),
+                    style = TopBarTitleTextStyle,
+                    color = TextMuted
+                )
+
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
 
@@ -161,6 +199,18 @@ fun IntroductionInitial(
                 style = TopBarTitleTextStyle,
                 textAlign = TextAlign.Center
             )
+
+            if (isPresentingRedeemTransferBalanceSheet) {
+                RedeemTransferBalanceCodeSheet(
+                    sheetState = redeemTransferBalanceSheetState,
+                    setIsPresenting = {
+                        isPresentingRedeemTransferBalanceSheet = it
+                    },
+                    onSuccess = {
+                        onRedeemTransferBalanceCodeSuccess()
+                    }
+                )
+            }
 
         }
     }
