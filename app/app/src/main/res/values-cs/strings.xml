@@ -489,4 +489,6 @@
     <string name="balance_codes_link">Kódy zůstatku</string>
     <string name="redeem_time">Čas uplatnění</string>
     <string name="expiry_time">Čas vypršení</string>
+    <string name="redeemed">Uplatněno</string>
+    <string name="expires">Vyprší</string>
 </resources>

@@ -366,4 +366,6 @@
     <string name="balance_codes_link">残高コード</string>
     <string name="redeem_time">引き換え時刻</string>
     <string name="expiry_time">有効期限</string>
+    <string name="redeemed">引き換え済み</string>
+    <string name="expires">有効期限</string>
 </resources>

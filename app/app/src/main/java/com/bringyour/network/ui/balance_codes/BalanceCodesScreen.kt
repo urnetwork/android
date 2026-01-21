@@ -52,7 +52,6 @@ fun BalanceCodesScreen(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val scope = rememberCoroutineScope()
 
     val balanceCodes by viewModel.balanceCodes.collectAsState()
 
@@ -185,14 +184,14 @@ private fun BalanceCodesTable(
                         )
 
                         Text(
-                            stringResource(id = R.string.redeem_time),
+                            stringResource(id = R.string.redeemed),
                             modifier = Modifier.weight(1f),
                             color = TextMuted,
                             style = MaterialTheme.typography.labelMedium
                         )
 
                         Text(
-                            stringResource(id = R.string.expiry_time),
+                            stringResource(id = R.string.expires),
                             modifier = Modifier.weight(1f),
                             color = TextMuted,
                             style = MaterialTheme.typography.labelMedium
