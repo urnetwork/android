@@ -477,4 +477,6 @@
     <string name="balance_codes_link">رموز الرصيد</string>
     <string name="redeem_time">الاسترداد</string>
     <string name="expiry_time">وقت الانتهاء</string>
+    <string name="redeemed">تم الاسترداد</string>
+    <string name="expires">ينتهي</string>
 </resources>

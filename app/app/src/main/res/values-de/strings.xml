@@ -344,4 +344,6 @@
     <string name="balance_codes_link">Guthabencodes</string>
     <string name="redeem_time">Einlösezeit</string>
     <string name="expiry_time">Ablaufzeit</string>
+    <string name="redeemed">Eingelöst</string>
+    <string name="expires">Läuft ab</string>
 </resources>

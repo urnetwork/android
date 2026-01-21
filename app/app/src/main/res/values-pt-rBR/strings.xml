@@ -344,4 +344,6 @@
     <string name="balance_codes_link">Códigos de saldo</string>
     <string name="redeem_time">Hora do resgate</string>
     <string name="expiry_time">Hora de expiração</string>
+    <string name="redeemed">Resgatado</string>
+    <string name="expires">Expira</string>
 </resources>

@@ -366,4 +366,6 @@
     <string name="balance_codes_link">잔액 코드</string>
     <string name="redeem_time">사용 시간</string>
     <string name="expiry_time">만료 시간</string>
+    <string name="redeemed">사용됨</string>
+    <string name="expires">만료</string>
 </resources>

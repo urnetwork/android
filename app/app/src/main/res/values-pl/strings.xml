@@ -366,5 +366,7 @@
     <string name="balance_codes_link">Kody salda</string>
     <string name="redeem_time">Czas realizacji</string>
     <string name="expiry_time">Czas wygaśnięcia</string>
+    <string name="redeemed">Zrealizowano</string>
+    <string name="expires">Wygasa</string>
 
 </resources>

@@ -343,4 +343,6 @@
     <string name="balance_codes_link">बैलेंस कोड्स</string>
     <string name="redeem_time">िडीम समय</string>
     <string name="expiry_time">समाप्ति समय</string>
+    <string name="redeemed">" रिडीम किया गया"</string>
+    <string name="expires">समाप्त होता है</string>
 </resources>

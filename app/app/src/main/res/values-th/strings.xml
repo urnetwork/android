@@ -317,4 +317,6 @@
     <string name="balance_codes_link">รหัสยอดเงิน</string>
     <string name="redeem_time">เวลาที่แลก</string>
     <string name="expiry_time">เวลาหมดอายุ</string>
+    <string name="redeemed">แลกแล้ว</string>
+    <string name="expires">หมดอายุ</string>
 </resources>

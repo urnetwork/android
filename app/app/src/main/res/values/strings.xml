@@ -516,4 +516,6 @@
     <string name="balance_codes_link">Balance codes</string>
     <string name="redeem_time">Redeem Time</string>
     <string name="expiry_time">Expiry time</string>
+    <string name="redeemed">Redeemed</string>
+    <string name="expires">Expires</string>
 </resources>

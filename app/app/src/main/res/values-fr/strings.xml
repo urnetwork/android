@@ -345,4 +345,6 @@
     <string name="balance_codes_link">Codes de solde</string>
     <string name="redeem_time">Heure d’utilisation</string>
     <string name="expiry_time">Heure d’expiration</string>
+    <string name="redeemed">Utilisé</string>
+    <string name="expires">Expire</string>
 </resources>

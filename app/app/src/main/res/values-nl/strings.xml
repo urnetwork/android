@@ -369,4 +369,6 @@
     <string name="balance_codes_link">Saldocodes</string>
     <string name="redeem_time">Inwisseltijd</string>
     <string name="expiry_time">Vervaltijd</string>
+    <string name="redeemed">Ingewisseld</string>
+    <string name="expires">Vervalt</string>
 </resources>

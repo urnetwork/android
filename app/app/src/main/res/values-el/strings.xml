@@ -343,4 +343,6 @@
     <string name="balance_codes_link">Κωδικοί υπολοίπου</string>
     <string name="redeem_time">Χρόνος εξαργύρωσης</string>
     <string name="expiry_time">Χρόνος λήξης</string>
+    <string name="redeemed">Εξαργυρώθηκε</string>
+    <string name="expires">Λήγει</string>
 </resources>

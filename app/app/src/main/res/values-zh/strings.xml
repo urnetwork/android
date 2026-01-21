@@ -344,4 +344,6 @@
     <string name="balance_codes_link">余额码</string>
     <string name="redeem_time">兑换时间</string>
     <string name="expiry_time">到期时间</string>
+    <string name="redeemed">已兑换</string>
+    <string name="expires">到期</string>
 </resources>

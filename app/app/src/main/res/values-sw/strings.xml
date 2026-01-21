@@ -344,4 +344,6 @@
     <string name="balance_codes_link">Misimbo ya salio</string>
     <string name="redeem_time">Muda wa kukomboa</string>
     <string name="expiry_time">Muda wa kumalizika</string>
+    <string name="redeemed">Imekombolewa</string>
+    <string name="expires">Inaisha</string>
 </resources>
