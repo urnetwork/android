@@ -363,4 +363,10 @@
     <string name="enter_balance_code">Voer saldo-code in</string>
     <string name="error_redeeming_transfer_balance_code">Fout bij het inwisselen van overdrachts-saldocode.</string>
     <string name="redeem">Inwisselen</string>
+    <string name="data">Data</string>
+    <string name="no_redeemed_balance_codes_found">Geen ingewisselde saldocodes gevonden</string>
+    <string name="balance_codes_title">Saldocodes</string>
+    <string name="balance_codes_link">Saldocodes</string>
+    <string name="redeem_time">Inwisseltijd</string>
+    <string name="expiry_time">Vervaltijd</string>
 </resources>

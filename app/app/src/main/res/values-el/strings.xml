@@ -337,4 +337,10 @@
     <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>
     <string name="error_redeeming_transfer_balance_code">Σφάλμα κατά την εξαργύρωση του κωδικού μεταφοράς υπολοίπου.</string>
     <string name="redeem">Εξαργύρωση</string>
+    <string name="data">Δεδομένα</string>
+    <string name="no_redeemed_balance_codes_found">Δεν βρέθηκαν εξαργυρωμένοι κωδικοί υπολοίπου</string>
+    <string name="balance_codes_title">Κωδικοί υπολοίπου</string>
+    <string name="balance_codes_link">Κωδικοί υπολοίπου</string>
+    <string name="redeem_time">Χρόνος εξαργύρωσης</string>
+    <string name="expiry_time">Χρόνος λήξης</string>
 </resources>

@@ -337,4 +337,10 @@
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
     <string name="error_redeeming_transfer_balance_code">ट्रांसफर बैलेंस कोड रिडीम करने में त्रुटि।</string>
     <string name="redeem">िडीम करें</string>
+    <string name="data">डेटा</string>
+    <string name="no_redeemed_balance_codes_found">कोई रिडीम किए गए बैलेंस कोड नहीं मिले</string>
+    <string name="balance_codes_title">बैलेंस कोड्स</string>
+    <string name="balance_codes_link">बैलेंस कोड्स</string>
+    <string name="redeem_time">िडीम समय</string>
+    <string name="expiry_time">समाप्ति समय</string>
 </resources>

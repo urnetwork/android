@@ -510,4 +510,10 @@
     <string name="enter_balance_code">Enter balance code</string>
     <string name="error_redeeming_transfer_balance_code">Error redeeming transfer balance code</string>
     <string name="redeem">Redeem</string>
+    <string name="data">Data</string>
+    <string name="no_redeemed_balance_codes_found">No redeemed balance codes found</string>
+    <string name="balance_codes_title">Balance Codes</string>
+    <string name="balance_codes_link">Balance codes</string>
+    <string name="redeem_time">Redeem Time</string>
+    <string name="expiry_time">Expiry time</string>
 </resources>

@@ -338,4 +338,10 @@
     <string name="enter_balance_code">Weka msimbo wa salio</string>
     <string name="error_redeeming_transfer_balance_code">Hitilafu katika kukomboa msimbo wa uhamisho wa salio.</string>
     <string name="redeem">Komboa</string>
+    <string name="data">Data</string>
+    <string name="no_redeemed_balance_codes_found">Hakuna msimbo wa salio uliokombolewa uliopatikana</string>
+    <string name="balance_codes_title">Misimbo ya salio</string>
+    <string name="balance_codes_link">Misimbo ya salio</string>
+    <string name="redeem_time">Muda wa kukomboa</string>
+    <string name="expiry_time">Muda wa kumalizika</string>
 </resources>

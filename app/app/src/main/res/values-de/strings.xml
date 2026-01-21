@@ -338,4 +338,10 @@
     <string name="enter_balance_code">Guthabencode eingeben</string>
     <string name="error_redeeming_transfer_balance_code">Fehler beim Einlösen des Übertragungsguthabencodes.</string>
     <string name="redeem">Einlösen</string>
+    <string name="data">Daten</string>
+    <string name="no_redeemed_balance_codes_found">Keine eingelösten Guthabencodes gefunden</string>
+    <string name="balance_codes_title">Guthabencodes</string>
+    <string name="balance_codes_link">Guthabencodes</string>
+    <string name="redeem_time">Einlösezeit</string>
+    <string name="expiry_time">Ablaufzeit</string>
 </resources>

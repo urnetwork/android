@@ -311,4 +311,10 @@
     <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
     <string name="error_redeeming_transfer_balance_code">เกิดข้อผิดพลาดในการแลกรหัสยอดเงินโอน</string>
     <string name="redeem">แลก</string>
+    <string name="data">ข้อมูล</string>
+    <string name="no_redeemed_balance_codes_found">ไม่พบรหัสยอดเงินที่แลกแล้ว</string>
+    <string name="balance_codes_title">รหัสยอดเงิน</string>
+    <string name="balance_codes_link">รหัสยอดเงิน</string>
+    <string name="redeem_time">เวลาที่แลก</string>
+    <string name="expiry_time">เวลาหมดอายุ</string>
 </resources>
