@@ -363,4 +363,10 @@
     <string name="enter_balance_code">Введите код баланса</string>
     <string name="error_redeeming_transfer_balance_code">Ошибка при активации кода перевода баланса.</string>
     <string name="redeem">Активировать</string>
+    <string name="data">Данные</string>
+    <string name="no_redeemed_balance_codes_found">Не найдено активированных кодов баланса</string>
+    <string name="balance_codes_title">Коды баланса</string>
+    <string name="balance_codes_link">Коды баланса</string>
+    <string name="redeem_time">Время активации</string>
+    <string name="expiry_time">Время истечения</string>
 </resources>

@@ -471,4 +471,10 @@
     <string name="enter_balance_code">" أدخل رمز الرصيد"</string>
     <string name="error_redeeming_transfer_balance_code">حدث خطأ أثناء استرداد رمز تحويل الرصيد.</string>
     <string name="redeem">استرداد</string>
+    <string name="data">البيانات</string>
+    <string name="no_redeemed_balance_codes_found">" لم يتم العثور على رموز رصيد مستردة"</string>
+    <string name="balance_codes_title">رموز الرصيد</string>
+    <string name="balance_codes_link">رموز الرصيد</string>
+    <string name="redeem_time">الاسترداد</string>
+    <string name="expiry_time">وقت الانتهاء</string>
 </resources>

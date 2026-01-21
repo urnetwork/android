@@ -339,4 +339,10 @@
     <string name="enter_balance_code">Entrez le code de solde</string>
     <string name="error_redeeming_transfer_balance_code">Erreur lors de l’utilisation du code de transfert de solde.</string>
     <string name="redeem">Utiliser</string>
+    <string name="data">Données</string>
+    <string name="no_redeemed_balance_codes_found">Aucun code de solde utilisé trouvé</string>
+    <string name="balance_codes_title">Codes de solde</string>
+    <string name="balance_codes_link">Codes de solde</string>
+    <string name="redeem_time">Heure d’utilisation</string>
+    <string name="expiry_time">Heure d’expiration</string>
 </resources>

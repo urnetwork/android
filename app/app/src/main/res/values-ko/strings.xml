@@ -360,4 +360,10 @@
     <string name="enter_balance_code">잔액 코드를 입력하세요</string>
     <string name="error_redeeming_transfer_balance_code">이체 잔액 코드 사용 중 오류가 발생했습니다.</string>
     <string name="redeem">사용하기</string>
+    <string name="data">데이터</string>
+    <string name="no_redeemed_balance_codes_found">사용된 잔액 코드가 없습니다</string>
+    <string name="balance_codes_title">잔액 코드</string>
+    <string name="balance_codes_link">잔액 코드</string>
+    <string name="redeem_time">사용 시간</string>
+    <string name="expiry_time">만료 시간</string>
 </resources>

@@ -483,4 +483,10 @@
     <string name="enter_balance_code">Zadejte kód zůstatku</string>
     <string name="error_redeeming_transfer_balance_code">Chyba při uplatnění kódu převodu zůstatku.</string>
     <string name="redeem">Uplatnit</string>
+    <string name="data">Data</string>
+    <string name="no_redeemed_balance_codes_found">Nenalezeny žádné uplatněné kódy zůstatku</string>
+    <string name="balance_codes_title">Kódy zůstatku</string>
+    <string name="balance_codes_link">Kódy zůstatku</string>
+    <string name="redeem_time">Čas uplatnění</string>
+    <string name="expiry_time">Čas vypršení</string>
 </resources>

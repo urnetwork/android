@@ -338,4 +338,10 @@
     <string name="enter_balance_code">Insira o código de saldo</string>
     <string name="error_redeeming_transfer_balance_code">Erro ao resgatar o código de transferência de saldo.</string>
     <string name="redeem">Resgatar</string>
+    <string name="data">Dados</string>
+    <string name="no_redeemed_balance_codes_found">Nenhum código de saldo resgatado encontrado</string>
+    <string name="balance_codes_title">Códigos de saldo</string>
+    <string name="balance_codes_link">Códigos de saldo</string>
+    <string name="redeem_time">Hora do resgate</string>
+    <string name="expiry_time">Hora de expiração</string>
 </resources>

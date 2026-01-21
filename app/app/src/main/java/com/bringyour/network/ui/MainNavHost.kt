@@ -97,6 +97,7 @@ import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.api_error.ApiErrorScreen
+import com.bringyour.network.ui.balance_codes.BalanceCodesScreen
 import com.bringyour.network.ui.blocked_regions.BlockedRegionsScreen
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.introduction.IntroductionInitial
@@ -783,6 +784,17 @@ fun MainNavContent(
                     navController = navController,
                     countries = locationsListViewModel.connectCountries,
                     getLocationColor = locationsListViewModel.getLocationColor
+                )
+            }
+
+            composable<Route.BalanceCodes>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                BalanceCodesScreen(
+                    navController = navController,
                 )
             }
 

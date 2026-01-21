@@ -513,7 +513,7 @@ fun SettingsScreen(
             /**
              * Auth code
              */
-            URTextInputLabel(stringResource(id = R.string.authentication))
+            URTextInputLabel(stringResource(id = R.string.account))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -541,6 +541,34 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted
             )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
+             * Balance codes link
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.BalanceCodes)
+                    }
+                    .padding(vertical = 6.dp)
+                ,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.balance_codes_link),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Keyboard Arrow Right",
+                    tint = TextMuted
+                )
+            }
+
 
             Spacer(modifier = Modifier.height(32.dp))
 

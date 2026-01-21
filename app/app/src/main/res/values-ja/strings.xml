@@ -360,4 +360,10 @@
     <string name="enter_balance_code">残高コードを入力</string>
     <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
     <string name="redeem">引き換える</string>
+    <string name="data">データ</string>
+    <string name="no_redeemed_balance_codes_found">引き換え済みの残高コードが見つかりません</string>
+    <string name="balance_codes_title">" 残高コード"</string>
+    <string name="balance_codes_link">残高コード</string>
+    <string name="redeem_time">引き換え時刻</string>
+    <string name="expiry_time">有効期限</string>
 </resources>

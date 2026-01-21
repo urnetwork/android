@@ -338,4 +338,10 @@
     <string name="enter_balance_code">输入余额码</string>
     <string name="error_redeeming_transfer_balance_code">兑换转账余额码时出错。</string>
     <string name="redeem">兑换</string>
+    <string name="data">数据</string>
+    <string name="no_redeemed_balance_codes_found">未找到已兑换的余额码</string>
+    <string name="balance_codes_title">余额码</string>
+    <string name="balance_codes_link">余额码</string>
+    <string name="redeem_time">兑换时间</string>
+    <string name="expiry_time">到期时间</string>
 </resources>

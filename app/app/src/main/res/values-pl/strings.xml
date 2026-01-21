@@ -360,5 +360,11 @@
     <string name="enter_balance_code">Wpisz kod salda</string>
     <string name="error_redeeming_transfer_balance_code">Błąd podczas realizacji kodu transferu salda.</string>
     <string name="redeem">Zrealizuj</string>
+    <string name="data">Dane</string>
+    <string name="no_redeemed_balance_codes_found">Nie znaleziono zrealizowanych kodów salda</string>
+    <string name="balance_codes_title">Kody salda</string>
+    <string name="balance_codes_link">Kody salda</string>
+    <string name="redeem_time">Czas realizacji</string>
+    <string name="expiry_time">Czas wygaśnięcia</string>
 
 </resources>
