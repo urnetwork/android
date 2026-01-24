@@ -45,6 +45,7 @@ fun IntroductionUsageBar(
     availableBytes: Long,
     meanReliabilityWeight: Double,
     totalReferrals: Long,
+    dailyByteCount: Long
 ) {
 
     Scaffold(
@@ -117,6 +118,7 @@ fun IntroductionUsageBar(
                     availableBytes = availableBytes,
                     meanReliabilityWeight = meanReliabilityWeight,
                     totalReferrals = totalReferrals,
+                    dailyByteCount = dailyByteCount
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))

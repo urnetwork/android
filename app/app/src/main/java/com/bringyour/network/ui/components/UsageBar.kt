@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.formatBalanceBytes
 import kotlin.math.min
 
 @Composable
@@ -36,6 +38,7 @@ fun UsageBar(
     availableBytes: Long,
     meanReliabilityWeight: Double,
     totalReferrals: Long,
+    dailyByteCount: Long
 ) {
     
     val totalBytes = usedBytes + pendingBytes + availableBytes
@@ -175,20 +178,38 @@ fun UsageBar(
             )
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
         /**
-         * Data breakdown for Free accounts
+         * Data breakdown
          */
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                stringResource(id = R.string.one_gib_per_day),
+                stringResource(id = R.string.daily_data_balance_label),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+
+            
+            Text(
+                formatBalanceBytes(dailyByteCount),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        /**
+         * reliability
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -205,6 +226,11 @@ fun UsageBar(
             )
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        /**
+         * referrals
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -239,7 +265,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 20_000,
                     availableBytes = 60_000,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -252,7 +279,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 20_000,
                     availableBytes = 0,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -265,7 +293,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 0,
                     availableBytes = 0,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -278,7 +307,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 30_000,
                     availableBytes = 0,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -291,7 +321,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 0,
                     availableBytes = 30_000,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -304,7 +335,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 15_000,
                     availableBytes = 30_000,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -317,7 +349,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 0,
                     availableBytes = 30_000,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -330,7 +363,8 @@ private fun UsageBarPreview() {
                     pendingBytes = 0,
                     availableBytes = 0,
                     meanReliabilityWeight = 0.1,
-                    totalReferrals = 1
+                    totalReferrals = 1,
+                    dailyByteCount = 100_00
                 )
             }
         }

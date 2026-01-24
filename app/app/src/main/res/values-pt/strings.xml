@@ -345,5 +345,6 @@
     <string name="expiry_time">Hora de expiração</string>
     <string name="redeemed">Resgatado</string>
     <string name="expires">Expira</string>
+    <string name="daily_data_balance_label">Saldo diário de dados:</string>
 
 </resources>

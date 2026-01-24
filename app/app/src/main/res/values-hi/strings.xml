@@ -345,4 +345,5 @@
     <string name="expiry_time">समाप्ति समय</string>
     <string name="redeemed">" रिडीम किया गया"</string>
     <string name="expires">समाप्त होता है</string>
+    <string name="daily_data_balance_label">दैनिक डेटा बैलेंस:</string>
 </resources>

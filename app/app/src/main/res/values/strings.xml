@@ -518,4 +518,5 @@
     <string name="expiry_time">Expiry time</string>
     <string name="redeemed">Redeemed</string>
     <string name="expires">Expires</string>
+    <string name="daily_data_balance_label">Daily Data Balance:</string>
 </resources>

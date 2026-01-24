@@ -368,4 +368,5 @@
     <string name="expiry_time">만료 시간</string>
     <string name="redeemed">사용됨</string>
     <string name="expires">만료</string>
+    <string name="daily_data_balance_label">일일 데이터 잔액:</string>
 </resources>
