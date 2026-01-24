@@ -346,4 +346,5 @@
     <string name="expiry_time">Ablaufzeit</string>
     <string name="redeemed">Eingelöst</string>
     <string name="expires">Läuft ab</string>
+    <string name="daily_data_balance_label">Tägliches Datenvolumen:</string>
 </resources>

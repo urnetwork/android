@@ -65,6 +65,7 @@ fun ConnectActions(
     pendingBytes: Long,
     meanReliabilityWeight: Double,
     totalReferrals: Long,
+    dailyByteCount: Long,
     launchIntro: () -> Unit,
 ) {
 
@@ -167,68 +168,74 @@ fun ConnectActions(
             }
         }
 
-        if (currentPlan != Plan.Supporter) {
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    MainTintedBackgroundBase,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(16.dp)
+        ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        MainTintedBackgroundBase,
-                        shape = RoundedCornerShape(12.dp)
+
+            // member area
+            Column {
+                Text(
+                    stringResource(id = R.string.plan),
+                    style = TextStyle(
+                        color = TextMuted
                     )
-                    .padding(16.dp)
-            ) {
+                )
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
 
-                // member area
-                Column {
-                    Text(
-                        stringResource(id = R.string.plan),
-                        style = TextStyle(
-                            color = TextMuted
-                        )
-                    )
+                    if (isPollingSubscriptionBalance) {
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
 
-                        if (isPollingSubscriptionBalance) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp),
+                                color = TextMuted,
+                                trackColor = TextFaint,
+                                strokeWidth = 2.dp
+                            )
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            Spacer(modifier = Modifier.width(8.dp))
 
-                                CircularProgressIndicator(
-                                    modifier = Modifier
-                                        .width(24.dp)
-                                        .height(24.dp),
-                                    color = TextMuted,
-                                    trackColor = TextFaint,
-                                    strokeWidth = 2.dp
-                                )
+                            Text(stringResource(id = R.string.checking_payment),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = TextMuted
+                            )
 
-                                Spacer(modifier = Modifier.width(8.dp))
+                        }
 
-                                Text(stringResource(id = R.string.checking_payment),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = TextMuted
-                                )
+                    } else {
 
-                            }
-
+                        if (currentPlan == Plan.Supporter) {
+                            Text(stringResource(id = R.string.supporter),
+                                style = MaterialTheme.typography.headlineMedium
+                            )
                         } else {
                             Text(stringResource(id = R.string.free),
                                 style = MaterialTheme.typography.headlineMedium
                             )
                         }
+                    }
 
+                    if (currentPlan != Plan.Supporter) {
 
                         TextButton(onClick = {
                             launchIntro()
@@ -240,20 +247,22 @@ fun ConnectActions(
                                 )
                             )
                         }
+
                     }
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                UsageBar(
-                    usedBytes = usedBytes,
-                    pendingBytes = pendingBytes,
-                    availableBytes = availableBytes,
-                    meanReliabilityWeight = meanReliabilityWeight,
-                    totalReferrals = totalReferrals
-                )
-
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            UsageBar(
+                usedBytes = usedBytes,
+                pendingBytes = pendingBytes,
+                availableBytes = availableBytes,
+                meanReliabilityWeight = meanReliabilityWeight,
+                totalReferrals = totalReferrals,
+                dailyByteCount = dailyByteCount
+            )
+
         }
     }
 }
@@ -345,5 +354,4 @@ fun OpenProviderListButton(
             )
         }
     }
-
 }

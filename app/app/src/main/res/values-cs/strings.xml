@@ -491,4 +491,5 @@
     <string name="expiry_time">Čas vypršení</string>
     <string name="redeemed">Uplatněno</string>
     <string name="expires">Vyprší</string>
+    <string name="daily_data_balance_label">Denní datový zůstatek:</string>
 </resources>

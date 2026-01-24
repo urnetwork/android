@@ -164,7 +164,8 @@ fun ConnectScreen(
                 availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
                 meanReliabilityWeight = meanReliabilityWeight,
                 totalReferrals = totalReferrals,
-                launchIntro = launchIntro
+                launchIntro = launchIntro,
+                dailyByteCount = subscriptionBalanceViewModel.startBalanceByteCount.collectAsState().value
             )
         },
         mainContent = {

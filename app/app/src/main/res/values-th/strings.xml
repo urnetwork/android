@@ -319,4 +319,5 @@
     <string name="expiry_time">เวลาหมดอายุ</string>
     <string name="redeemed">แลกแล้ว</string>
     <string name="expires">หมดอายุ</string>
+    <string name="daily_data_balance_label">ยอดคงเหลือข้อมูลรายวัน:</string>
 </resources>

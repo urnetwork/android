@@ -69,6 +69,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
     var usedBalanceByteCount by mutableLongStateOf(0)
         private set
 
+    private val _startBalanceByteCount = MutableStateFlow<Long>(0)
+    val startBalanceByteCount: StateFlow<Long> get() = _startBalanceByteCount
+
     var isRefreshingSubscriptionBalance by mutableStateOf(false)
         private set
 
@@ -122,6 +125,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
                         _availableBalanceByteCount.value = result.balanceByteCount
                         pendingBalanceByteCount = result.openTransferByteCount
+                        _startBalanceByteCount.value = result.startBalanceByteCount
                         usedBalanceByteCount = result.startBalanceByteCount - result.balanceByteCount - pendingBalanceByteCount
                         _errorFetchingSubscriptionBalance.value = false
                         _isLoading.value = false

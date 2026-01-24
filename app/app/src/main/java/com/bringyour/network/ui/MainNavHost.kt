@@ -554,6 +554,7 @@ fun IntroNavHost(
                 availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
                 meanReliabilityWeight = meanReliabilityWeight,
                 totalReferrals = totalReferralCount,
+                dailyByteCount = subscriptionBalanceViewModel.startBalanceByteCount.collectAsState().value
             )
         }
 

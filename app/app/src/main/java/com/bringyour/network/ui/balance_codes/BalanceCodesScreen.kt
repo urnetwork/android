@@ -40,6 +40,7 @@ import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTrans
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.network.utils.formatBalanceBytes
 import com.bringyour.sdk.RedeemedBalanceCode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -220,15 +221,6 @@ fun BalanceCodeListItem(
         else "${secret.take(3)}...${secret.takeLast(3)}"
     }
 
-    val formatBytes: (Long) -> String = { bytes ->
-        val oneTiB = 1024L * 1024 * 1024 * 1024
-        val oneGiB = 1024L * 1024 * 1024
-        when {
-            bytes >= oneTiB -> String.format("%.2f TiB", bytes.toDouble() / oneTiB)
-            else -> String.format("%.2f GiB", bytes.toDouble() / oneGiB)
-        }
-    }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -241,7 +233,7 @@ fun BalanceCodeListItem(
         )
 
         Text(
-            "+${formatBytes(balanceCode.balanceByteCount)}",
+            "+${formatBalanceBytes(balanceCode.balanceByteCount)}",
             modifier = Modifier.weight(1f)
         )
 

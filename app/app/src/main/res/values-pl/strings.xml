@@ -368,5 +368,6 @@
     <string name="expiry_time">Czas wygaśnięcia</string>
     <string name="redeemed">Zrealizowano</string>
     <string name="expires">Wygasa</string>
+    <string name="daily_data_balance_label">Dzienny limit danych:</string>
 
 </resources>

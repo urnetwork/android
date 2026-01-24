@@ -96,9 +96,9 @@ fun AccountScreen(
     val scope = rememberCoroutineScope()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
-    // val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
     val currentStore by subscriptionBalanceViewModel.currentStore.collectAsState()
     val availableBalanceByteCount by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
+    val dailyBalanceBytes by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
 
     val refreshState = rememberPullToRefreshState()
 
@@ -149,6 +149,7 @@ fun AccountScreen(
                         availableBytes = availableBalanceByteCount,
                         totalReferrals = totalReferrals,
                         meanReliabilityWeight = meanReliabilityWeight,
+                        dailyBalanceBytes = dailyBalanceBytes,
                         launchRedeemTransferBalanceCodeSheet = {
                             isPresentingRedeemTransferBalanceSheet = true
                         }
@@ -194,6 +195,7 @@ fun AccountScreenContent(
     pendingBytes: Long,
     totalReferrals: Long,
     meanReliabilityWeight: Double,
+    dailyBalanceBytes: Long,
     launchRedeemTransferBalanceCodeSheet: () -> Unit
 ) {
 
@@ -264,7 +266,8 @@ fun AccountScreenContent(
                     pendingBytes = pendingBytes,
                     availableBytes = availableBytes,
                     totalReferrals = totalReferrals,
-                    meanReliabilityWeight = meanReliabilityWeight
+                    meanReliabilityWeight = meanReliabilityWeight,
+                    dailyByteCount = dailyBalanceBytes
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -496,7 +499,8 @@ private fun AccountSupporterAuthenticatedPreview() {
                     currentStore = null,
                     totalReferrals = 1,
                     meanReliabilityWeight = 0.1,
-                    launchRedeemTransferBalanceCodeSheet = {}
+                    launchRedeemTransferBalanceCodeSheet = {},
+                    dailyBalanceBytes = 10_000
                 )
             }
         }
@@ -541,7 +545,8 @@ private fun AccountBasicAuthenticatedPreview() {
                     currentStore = null,
                     totalReferrals = 1,
                     meanReliabilityWeight = 0.1,
-                    launchRedeemTransferBalanceCodeSheet = {}
+                    launchRedeemTransferBalanceCodeSheet = {},
+                    dailyBalanceBytes = 10_000
                 )
             }
         }
@@ -585,7 +590,8 @@ private fun AccountGuestPreview() {
                     currentStore = null,
                     totalReferrals = 1,
                     meanReliabilityWeight = 0.1,
-                    launchRedeemTransferBalanceCodeSheet = {}
+                    launchRedeemTransferBalanceCodeSheet = {},
+                    dailyBalanceBytes = 10_000
                 )
             }
         }
@@ -628,7 +634,8 @@ private fun AccountGuestNoWalletPreview() {
                     currentStore = null,
                     totalReferrals = 1,
                     meanReliabilityWeight = 0.1,
-                    launchRedeemTransferBalanceCodeSheet = {}
+                    launchRedeemTransferBalanceCodeSheet = {},
+                    dailyBalanceBytes = 10_000
                 )
             }
         }
