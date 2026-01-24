@@ -463,14 +463,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
 
     // serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
 
     // for QR Code generation
     implementation 'com.google.zxing:core:3.5.4'
     implementation 'androidx.biometric:biometric-ktx:1.4.0-alpha02'
 
     // hilt
+    //noinspection NewerVersionAvailable cannot upgrade without modern com.android.application (see notes on com.android.application for why it is held back)
     implementation 'com.google.dagger:hilt-android:2.58'
+    //noinspection NewerVersionAvailable cannot upgrade without modern com.android.application (see notes on com.android.application for why it is held back)
     kapt 'com.google.dagger:hilt-compiler:2.58'
     implementation 'androidx.hilt:hilt-navigation-compose:1.3.0'
 
@@ -553,8 +555,8 @@ dependencies {
 
 /*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
 
-/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.6.0")
-/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.6.0")
+/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.6.1")
+/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.6.1")
 }
 
 // ethos dapp
@@ -570,9 +572,10 @@ dependencies {
 
 /*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
 
-/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.6.0")
-/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.6.0")
+/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.6.1")
+/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.6.1")
 
+    //noinspection NewerVersionAvailable newer version incompatible with the WalletSDK
     ethos_dappImplementation("org.web3j:core:4.9.4")
     ethos_dappImplementation("com.github.EthereumPhone:WalletSDK:0.2.0")
 
