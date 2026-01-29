@@ -555,8 +555,8 @@ dependencies {
 
 /*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
 
-/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.6.1")
-/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.6.1")
+/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.7.0")
+/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.7.0")
 }
 
 // ethos dapp
@@ -572,8 +572,8 @@ dependencies {
 
 /*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
 
-/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.6.1")
-/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.6.1")
+/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.7.0")
+/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.7.0")
 
     //noinspection NewerVersionAvailable newer version incompatible with the WalletSDK
     ethos_dappImplementation("org.web3j:core:4.9.4")
