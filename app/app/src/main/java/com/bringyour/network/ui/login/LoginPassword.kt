@@ -96,6 +96,7 @@ fun LoginPassword(
         val args = AuthLoginWithPasswordArgs()
         args.userAuth = user.text
         args.password = password.text
+        args.verifyOtpNumeric = true
 
         app?.api?.authLoginWithPassword(args) { result, err ->
             runBlocking(Dispatchers.Main.immediate) {
