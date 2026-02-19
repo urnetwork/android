@@ -19,9 +19,9 @@ plugins {
 }
 
 
-import org.yaml.snakeyaml.Yaml
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.yaml.snakeyaml.Yaml
 // these are added to the version code for abi-specific builds
 // note the warpctl version code always ends with 0 so that a variant can be added
 ext.abiVersionCodeVariants = [
@@ -530,7 +530,7 @@ dependencies {
 /*build:google*/        //noinspection GradleDependency
 /*build:google*/        playImplementation 'com.google.android.gms:play-services-fido:21.2.0'
 
-/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.5.0'
+/*build:google*/    playImplementation 'com.google.android.gms:play-services-auth:21.5.1'
 /*build:google*/    playImplementation 'com.android.installreferrer:installreferrer:2.2'
 
     // play store review
@@ -553,7 +553,7 @@ dependencies {
 /*build:google*/        //noinspection GradleDependency
 /*build:google*/        solana_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
 
-/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
+/*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.5.1'
 
 /*build:google*/        solana_dappImplementation("com.stripe:stripe-android:22.8.0")
 /*build:google*/        solana_dappImplementation("com.stripe:financial-connections:22.8.0")
@@ -570,7 +570,7 @@ dependencies {
 /*build:google*/        //noinspection GradleDependency
 /*build:google*/        ethos_dappImplementation 'com.google.android.gms:play-services-fido:21.2.0'
 
-/*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.5.0'
+/*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.5.1'
 
 /*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:22.8.0")
 /*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:22.8.0")
