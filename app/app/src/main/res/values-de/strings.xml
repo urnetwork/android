@@ -347,4 +347,11 @@
     <string name="redeemed">Eingelöst</string>
     <string name="expires">Läuft ab</string>
     <string name="daily_data_balance_label">Tägliches Datenvolumen:</string>
+    <string name="launch">Starten</string>
+    <string name="authentication_code">Authentifizierungscode</string>
+    <string name="authentication_code_input_placeholder">Geben Sie Ihren einmaligen Authentifizierungscode ein</string>
+    <string name="auth_code_login_sheet_header">Anmeldung mit Authentifizierungscode</string>
+    <string name="step_into_the_internet">Tauche ins Internet ein\nwie es sein sollte.</string>
+    <string name="auth_code_error">Fehler bei der Code-Authentifizierung. Bitte versuchen Sie es erneut oder generieren Sie einen neuen Code.</string>
+    <string name="auth_code_login_button_text">Mit Authentifizierungscode anmelden</string>
 </resources>

@@ -302,7 +302,7 @@ class LoginActivity : AppCompatActivity() {
         authArgs.deviceSpec = app.deviceSpec
 
         app.api?.authNetworkClient(authArgs) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 if (err != null) {
                     callback(err.message)
                 } else if (result.error != null) {

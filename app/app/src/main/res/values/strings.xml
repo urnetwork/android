@@ -519,4 +519,11 @@
     <string name="redeemed">Redeemed</string>
     <string name="expires">Expires</string>
     <string name="daily_data_balance_label">Daily Data Balance:</string>
+    <string name="launch">Launch</string>
+    <string name="authentication_code">Authentication code</string>
+    <string name="authentication_code_input_placeholder">Enter your one-time auth code</string>
+    <string name="auth_code_login_sheet_header">Auth code login</string>
+    <string name="step_into_the_internet">Step into the internet\nas it should be.</string>
+    <string name="auth_code_error">Error authenticating code. Please try again or generate a new code.</string>
+    <string name="auth_code_login_button_text">Log in with Auth Code</string>
 </resources>

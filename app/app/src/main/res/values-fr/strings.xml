@@ -348,4 +348,11 @@
     <string name="redeemed">Utilisé</string>
     <string name="expires">Expire</string>
     <string name="daily_data_balance_label">Solde de données quotidien :</string>
+    <string name="launch">Lancer</string>
+    <string name="authentication_code">Code d’authentification</string>
+    <string name="authentication_code_input_placeholder">Entrez votre code d’authentification à usage unique</string>
+    <string name="auth_code_login_sheet_header">Connexion par code d’authentification</string>
+    <string name="step_into_the_internet">Entrez dans Internet\ncomme il devrait être.</string>
+    <string name="auth_code_error">Erreur lors de l’authentification du code. Veuillez réessayer ou générer un nouveau code.</string>
+    <string name="auth_code_login_button_text">Se connecter avec le code d’authentification</string>
 </resources>

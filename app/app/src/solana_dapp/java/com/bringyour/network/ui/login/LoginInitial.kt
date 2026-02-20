@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -111,28 +112,24 @@ fun LoginInitial(
         }
     }
 
-    val onLogin: (AuthLoginResult) -> Unit = { result ->
-
-        scope.launch {
-
-            application?.login(result.network.byJwt)
-
-            contentVisible = false
-
-            delay(500)
-
-            welcomeOverlayVisible = true
-
-            delay(2250)
-
-            loginActivity?.authClientAndFinish(
-                { error ->
-                    loginViewModel.setLoginError(error)
-                }
-            )
-
-        }
-
+    val onLogin: (String) -> Unit = { networkJwt ->
+        handleLoginFlow(
+            networkJwt = networkJwt,
+            scope = scope,
+            appLogin = { application?.login(networkJwt) },
+            onContentVisibilityChange = {
+                contentVisible = it
+            },
+            onErr = {
+                Toast.makeText(context, "Error logging in, please try again.", Toast.LENGTH_LONG).show()
+            },
+            onWelcomeOverlayVisibilityChange = {
+                welcomeOverlayVisible = it
+            },
+            authClientAndFinish = { cb ->
+                loginActivity?.authClientAndFinish(cb)
+            }
+        )
     }
 
     val onCreateNetworkSolana: (
@@ -200,7 +197,9 @@ fun LoginInitial(
                                 address,
                                 signedMessage,
                                 signatureBase64,
-                                onLogin,
+                                { result ->
+                                    onLogin(result.network.byJwt)
+                                },
                                 onCreateNetworkSolana
                             )
 
@@ -291,7 +290,7 @@ fun LoginInitial(
     allowGoogleSso: () -> Boolean,
     solanaLogin: () -> Unit,
     solanaAuthInProgress: Boolean,
-    onLogin: (AuthLoginResult) -> Unit,
+    onLogin: (String) -> Unit, // network jwt
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
     welcomeOverlayVisible: Boolean,
@@ -307,6 +306,11 @@ fun LoginInitial(
         guestModeOverlayVisible = isVisible
     }
 
+    var authCodeLoginSheetVisible by remember { mutableStateOf(false) }
+
+    val setAuthCodeLoginSheetVisible: (Boolean) -> Unit = { isVisible ->
+        authCodeLoginSheetVisible = isVisible
+    }
 
     val loginActivity = context as? LoginActivity
 
@@ -399,7 +403,9 @@ fun LoginInitial(
                 context,
                 application?.api,
                 account,
-                onLogin,
+                { result ->
+                    onLogin(result.network.byJwt)
+                },
                 onNetworkCreateGoogle
             )
 
@@ -453,7 +459,10 @@ fun LoginInitial(
                         },
                         allowGoogleSso = allowGoogleSso,
                         onSolanaLogin = solanaLogin,
-                        solanaAuthInProgress = solanaAuthInProgress
+                        solanaAuthInProgress = solanaAuthInProgress,
+                        launchAuthCodeLoginSheet = {
+                            setAuthCodeLoginSheetVisible(true)
+                        }
                     )
                 }
 
@@ -491,6 +500,16 @@ fun LoginInitial(
         }
     )
 
+    AuthCodeLoginSheet(
+        isPresenting = authCodeLoginSheetVisible,
+        setIsPresenting = {
+            setAuthCodeLoginSheetVisible(it)
+        },
+        onLogin = { jwt ->
+            onLogin(jwt)
+        }
+    )
+
     if (welcomeOverlayVisible) {
 
         WelcomeAnimatedOverlayLogin()
@@ -511,6 +530,7 @@ fun LoginInitialActions(
     allowGoogleSso: () -> Boolean,
     onSolanaLogin: () -> Unit,
     solanaAuthInProgress: Boolean,
+    launchAuthCodeLoginSheet: () -> Unit
 ) {
 
     Row(
@@ -623,6 +643,33 @@ fun LoginInitialActions(
 
                     Text(
                         stringResource(id = R.string.solana_sign_in),
+                        style = buttonTextStyle
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Authentication code
+             */
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = launchAuthCodeLoginSheet,
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.auth_code),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        stringResource(id = R.string.auth_code_login_button_text),
                         style = buttonTextStyle
                     )
                 }

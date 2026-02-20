@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -17,6 +18,7 @@ import com.bringyour.sdk.NetworkCreateArgs
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -285,7 +287,7 @@ class LoginActivity : AppCompatActivity() {
         authArgs.deviceSpec = app.deviceSpec
 
         app.api?.authNetworkClient(authArgs) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 if (err != null) {
                     callback(err.message)
                 } else if (result.error != null) {
