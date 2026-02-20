@@ -369,4 +369,11 @@
     <string name="redeemed">사용됨</string>
     <string name="expires">만료</string>
     <string name="daily_data_balance_label">일일 데이터 잔액:</string>
+    <string name="launch">실행</string>
+    <string name="authentication_code">인증 코드</string>
+    <string name="authentication_code_input_placeholder">일회용 인증 코드를 입력하세요</string>
+    <string name="auth_code_login_sheet_header">인증 코드 로그인</string>
+    <string name="step_into_the_internet">인터넷에 들어가세요\n원래 그래야 하는 것처럼.</string>
+    <string name="auth_code_error">코드 인증 오류입니다. 다시 시도하거나 새 코드를 생성하세요.</string>
+    <string name="auth_code_login_button_text">인증 코드로 로그인</string>
 </resources>

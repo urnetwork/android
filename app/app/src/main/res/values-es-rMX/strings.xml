@@ -346,4 +346,11 @@
     <string name="redeemed">Canjeado</string>
     <string name="expires">Expira</string>
     <string name="daily_data_balance_label">Saldo diario de datos:</string>
+    <string name="launch">Iniciar</string>
+    <string name="authentication_code">Código de autenticación</string>
+    <string name="authentication_code_input_placeholder">Ingresa tu código de autenticación de un solo uso</string>
+    <string name="auth_code_login_sheet_header">Iniciar sesión con código de autenticación</string>
+    <string name="step_into_the_internet">Entra a Internet\ncomo debería ser.</string>
+    <string name="auth_code_error">Error al autenticar el código. Por favor, inténtalo de nuevo o genera un nuevo código.</string>
+    <string name="auth_code_login_button_text">Iniciar sesión con código de autenticación</string>
 </resources>

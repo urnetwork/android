@@ -492,4 +492,11 @@
     <string name="redeemed">Uplatněno</string>
     <string name="expires">Vyprší</string>
     <string name="daily_data_balance_label">Denní datový zůstatek:</string>
+    <string name="launch">Spustit</string>
+    <string name="authentication_code">Ověřovací kód</string>
+    <string name="authentication_code_input_placeholder">Zadejte svůj jednorázový ověřovací kód</string>
+    <string name="auth_code_login_sheet_header">Přihlášení ověřovacím kódem</string>
+    <string name="step_into_the_internet">Vstupte do internetu\njaký by měl být.</string>
+    <string name="auth_code_error">Chyba při ověřování kódu. Zkuste to prosím znovu nebo vygenerujte nový kód.</string>
+    <string name="auth_code_login_button_text">Přihlásit se ověřovacím kódem</string>
 </resources>

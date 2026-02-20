@@ -369,4 +369,11 @@
     <string name="redeemed">引き換え済み</string>
     <string name="expires">有効期限</string>
     <string name="daily_data_balance_label">毎日のデータ残高：</string>
+    <string name="launch">起動</string>
+    <string name="authentication_code">認証コード</string>
+    <string name="authentication_code_input_placeholder">ワンタイム認証コードを入力してください</string>
+    <string name="auth_code_login_sheet_header">認証コードでログイン</string>
+    <string name="step_into_the_internet">本来あるべきインターネットへ\n踏み出そう。</string>
+    <string name="auth_code_error">コードの認証中にエラーが発生しました。もう一度お試しいただくか、新しいコードを生成してください。</string>
+    <string name="auth_code_login_button_text">認証コードでログイン</string>
 </resources>

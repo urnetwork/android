@@ -347,4 +347,11 @@
     <string name="redeemed">Imekombolewa</string>
     <string name="expires">Inaisha</string>
     <string name="daily_data_balance_label">Salio la data ya kila siku:</string>
+    <string name="launch">Zindua</string>
+    <string name="authentication_code">Nambari ya uthibitishaji</string>
+    <string name="authentication_code_input_placeholder">Weka nambari yako ya uthibitishaji ya mara moja</string>
+    <string name="auth_code_login_sheet_header">Ingia kwa nambari ya uthibitishaji</string>
+    <string name="step_into_the_internet">Ingia kwenye mtandao\nkama inavyopaswa kuwa.</string>
+    <string name="auth_code_error">Hitilafu katika kuthibitisha nambari. Tafadhali jaribu tena au tengeneza nambari mpya.</string>
+    <string name="auth_code_login_button_text">Ingia kwa nambari ya uthibitishaji</string>
 </resources>

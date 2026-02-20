@@ -347,4 +347,11 @@
     <string name="redeemed">已兑换</string>
     <string name="expires">到期</string>
     <string name="daily_data_balance_label">每日数据余额：</string>
+    <string name="launch">启动</string>
+    <string name="authentication_code">验证码</string>
+    <string name="authentication_code_input_placeholder">输入您的一次性验证码</string>
+    <string name="auth_code_login_sheet_header">验证码登录</string>
+    <string name="step_into_the_internet">踏入互联网\n如其本应如此。</string>
+    <string name="auth_code_error">验证代码时出错。请重试或生成新代码。</string>
+    <string name="auth_code_login_button_text">使用验证码登录</string>
 </resources>

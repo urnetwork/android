@@ -372,4 +372,11 @@
     <string name="redeemed">Ingewisseld</string>
     <string name="expires">Vervalt</string>
     <string name="daily_data_balance_label">Dagelijkse databundel:</string>
+    <string name="launch">Starten</string>
+    <string name="authentication_code">Authenticatiecode</string>
+    <string name="authentication_code_input_placeholder">Voer uw eenmalige authenticatiecode in</string>
+    <string name="auth_code_login_sheet_header">Inloggen met authenticatiecode</string>
+    <string name="step_into_the_internet">Stap het internet in\nzoals het hoort te zijn.</string>
+    <string name="auth_code_error">Fout bij het verifiëren van de code. Probeer het opnieuw of genereer een nieuwe code.</string>
+    <string name="auth_code_login_button_text">Inloggen met authenticatiecode</string>
 </resources>

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,7 +69,6 @@ import com.bringyour.network.ui.components.SnackBarType
 import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.BlueMedium
-import com.bringyour.network.utils.isTv
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -97,28 +97,24 @@ fun LoginInitial(
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var noSolanaWalletsFound by remember { mutableStateOf(false) }
 
-    val onLogin: (AuthLoginResult) -> Unit = { result ->
-
-        scope.launch {
-
-            application?.login(result.network.byJwt)
-
-            contentVisible = false
-
-            delay(500)
-
-            welcomeOverlayVisible = true
-
-            delay(2250)
-
-            loginActivity?.authClientAndFinish(
-                { error ->
-                    loginViewModel.setLoginError(error)
-                }
-            )
-
-        }
-
+    val onLogin: (String) -> Unit = { networkJwt ->
+        handleLoginFlow(
+            networkJwt = networkJwt,
+            scope = scope,
+            appLogin = { application?.login(networkJwt) },
+            onContentVisibilityChange = {
+                contentVisible = it
+            },
+            onErr = {
+                Toast.makeText(context, "Error logging in, please try again.", Toast.LENGTH_LONG).show()
+            },
+            onWelcomeOverlayVisibilityChange = {
+                welcomeOverlayVisible = it
+            },
+            authClientAndFinish = { cb ->
+                loginActivity?.authClientAndFinish(cb)
+            }
+        )
     }
 
     val onCreateNetworkSolana: (
@@ -186,7 +182,9 @@ fun LoginInitial(
                                 address,
                                 signedMessage,
                                 signatureBase64,
-                                onLogin,
+                                {result ->
+                                    onLogin(result.network.byJwt)
+                                },
                                 onCreateNetworkSolana
                             )
 
@@ -222,7 +220,7 @@ fun LoginInitial(
             connectSolanaWallet()
         },
         solanaAuthInProgress = loginViewModel.solanaAuthInProgress,
-        // onLogin = onLogin,
+        onLogin = onLogin,
         contentVisible = contentVisible,
         setContentVisible = {
             contentVisible = it
@@ -263,7 +261,7 @@ fun LoginInitial(
     setCreateGuestModeInProgress: (Boolean) -> Unit,
     solanaLogin: () -> Unit,
     solanaAuthInProgress: Boolean,
-    // onLogin: (AuthLoginResult) -> Unit,
+    onLogin: (String) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
     welcomeOverlayVisible: Boolean,
@@ -273,16 +271,19 @@ fun LoginInitial(
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
 
-    // var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var guestModeOverlayVisible by remember { mutableStateOf(false) }
 
     val setGuestModeOverlayVisible: (Boolean) -> Unit = { isVisible ->
         guestModeOverlayVisible = isVisible
     }
 
-    val loginActivity = context as? LoginActivity
+    var authCodeLoginSheetVisible by remember { mutableStateOf(false) }
 
-    val isTv = isTv()
+    val setAuthCodeLoginSheetVisible: (Boolean) -> Unit = { isVisible ->
+        authCodeLoginSheetVisible = isVisible
+    }
+
+    val loginActivity = context as? LoginActivity
 
     val onLogin: (AuthLoginResult) -> Unit = { result ->
         navController.navigate("login-password/${result.userAuth}")
@@ -315,17 +316,13 @@ fun LoginInitial(
 
                     application.login(result.network.byJwt)
 
-                    if (isTv) {
-                        setGuestModeOverlayVisible(false)
-                    } else {
-                        setContentVisible(false)
+                    setContentVisible(false)
 
-                        delay(500)
+                    delay(500)
 
-                        setWelcomeOverlayVisible(true)
+                    setWelcomeOverlayVisible(true)
 
-                        delay(2250)
-                    }
+                    delay(2250)
 
                     loginActivity?.authClientAndFinish(
                         { error ->
@@ -389,6 +386,9 @@ fun LoginInitial(
                         },
                         onSolanaLogin = solanaLogin,
                         solanaAuthInProgress = solanaAuthInProgress,
+                        launchAuthCodeLoginSheet = {
+                            setAuthCodeLoginSheetVisible(true)
+                        }
                     )
                 }
 
@@ -410,6 +410,17 @@ fun LoginInitial(
 
         }
     }
+
+    AuthCodeLoginSheet(
+        isPresenting = authCodeLoginSheetVisible,
+        setIsPresenting = {
+            setAuthCodeLoginSheetVisible(it)
+        },
+        onLogin = { jwt ->
+            onLogin(jwt)
+        }
+    )
+
 
     OnboardingGuestModeSheet(
         isPresenting = guestModeOverlayVisible,
@@ -438,6 +449,7 @@ fun LoginInitialActions(
     onLogin: () -> Unit,
     onSolanaLogin: () -> Unit,
     solanaAuthInProgress: Boolean,
+    launchAuthCodeLoginSheet: () -> Unit,
 ) {
 
     Row(
@@ -521,6 +533,32 @@ fun LoginInitialActions(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Authentication code
+             */
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = launchAuthCodeLoginSheet,
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.auth_code),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        stringResource(id = R.string.auth_code_login_button_text),
+                        style = buttonTextStyle
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -613,6 +651,7 @@ private fun LoginInitialPreview() {
                     setCreateGuestModeInProgress = {},
                     solanaAuthInProgress = false,
                     solanaLogin = {},
+                    onLogin = {},
                     contentVisible = true,
                     setContentVisible = {},
                     welcomeOverlayVisible = false,
@@ -664,7 +703,8 @@ private fun LoginInitialLandscapePreview() {
                     contentVisible = true,
                     setContentVisible = {},
                     welcomeOverlayVisible = false,
-                    setWelcomeOverlayVisible = {}
+                    setWelcomeOverlayVisible = {},
+                    onLogin = {},
                 )
             }
         }

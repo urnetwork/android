@@ -480,4 +480,11 @@
     <string name="redeemed">تم الاسترداد</string>
     <string name="expires">ينتهي</string>
     <string name="daily_data_balance_label">رصيد البيانات اليومي:</string>
+    <string name="launch">تشغيل</string>
+    <string name="authentication_code">رمز المصادقة</string>
+    <string name="authentication_code_input_placeholder">أدخل رمز المصادقة لمرة واحدة</string>
+    <string name="auth_code_login_sheet_header">تسجيل الدخول برمز المصادقة</string>
+    <string name="step_into_the_internet">" ادخل إلى الإنترنت\n كما يجب أن يكون."</string>
+    <string name="auth_code_error">حدث خطأ أثناء التحقق من الرمز. يرجى المحاولة مرة أخرى أو إنشاء رمز جديد.</string>
+    <string name="auth_code_login_button_text">تسجيل الدخول برمز المصادقة</string>
 </resources>

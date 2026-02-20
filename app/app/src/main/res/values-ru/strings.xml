@@ -372,4 +372,11 @@
     <string name="redeemed">Активирован</string>
     <string name="expires">Истекает</string>
     <string name="daily_data_balance_label">Дневной баланс данных:</string>
+    <string name="launch">Запустить</string>
+    <string name="authentication_code">Код аутентификации</string>
+    <string name="authentication_code_input_placeholder">Введите ваш одноразовый код аутентификации</string>
+    <string name="auth_code_login_sheet_header">Вход по коду аутентификации</string>
+    <string name="step_into_the_internet">Войдите в интернет\nтаким, каким он должен быть.</string>
+    <string name="auth_code_error">Ошибка при аутентификации кода. Пожалуйста, попробуйте снова или сгенерируйте новый код.</string>
+    <string name="auth_code_login_button_text">Войти с кодом аутентификации</string>
 </resources>

@@ -369,5 +369,12 @@
     <string name="redeemed">Zrealizowano</string>
     <string name="expires">Wygasa</string>
     <string name="daily_data_balance_label">Dzienny limit danych:</string>
+    <string name="launch">Uruchom</string>
+    <string name="authentication_code">Kod uwierzytelniający</string>
+    <string name="authentication_code_input_placeholder">Wpisz swój jednorazowy kod uwierzytelniający</string>
+    <string name="auth_code_login_sheet_header">Logowanie kodem uwierzytelniającym</string>
+    <string name="step_into_the_internet">Wejdź do internetu\ntakiego, jakim powinien być.</string>
+    <string name="auth_code_error">Błąd podczas uwierzytelniania kodu. Spróbuj ponownie lub wygeneruj nowy kod.</string>
+    <string name="auth_code_login_button_text">Zaloguj się kodem uwierzytelniającym</string>
 
 </resources>

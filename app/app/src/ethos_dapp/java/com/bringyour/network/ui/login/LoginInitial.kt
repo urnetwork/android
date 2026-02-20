@@ -66,7 +66,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.BuildConfig
@@ -95,8 +94,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.ethereumphone.walletsdk.WalletSDK
-import org.web3j.protocol.Web3j
-import org.web3j.protocol.http.HttpService
 import java.util.Date
 
 @Composable()
@@ -129,28 +126,24 @@ fun LoginInitial(
         }
     }
 
-    val onLogin: (AuthLoginResult) -> Unit = { result ->
-
-        scope.launch {
-
-            application?.login(result.network.byJwt)
-
-            contentVisible = false
-
-            delay(500)
-
-            welcomeOverlayVisible = true
-
-            delay(2250)
-
-            loginActivity?.authClientAndFinish(
-                { error ->
-                    loginViewModel.setLoginError(error)
-                }
-            )
-
-        }
-
+    val onLogin: (String) -> Unit = { networkJwt ->
+        handleLoginFlow(
+            networkJwt = networkJwt,
+            scope = scope,
+            appLogin = { application?.login(networkJwt) },
+            onContentVisibilityChange = {
+                contentVisible = it
+            },
+            onErr = {
+                Toast.makeText(context, "Error logging in, please try again.", Toast.LENGTH_LONG).show()
+            },
+            onWelcomeOverlayVisibilityChange = {
+                welcomeOverlayVisible = it
+            },
+            authClientAndFinish = { cb ->
+                loginActivity?.authClientAndFinish(cb)
+            }
+        )
     }
 
     val onCreateNetworkWallet: (
@@ -218,7 +211,9 @@ fun LoginInitial(
                                 address,
                                 signedMessage,
                                 signatureBase64,
-                                onLogin,
+                                {result ->
+                                    onLogin(result.network.byJwt)
+                                },
                                 onCreateNetworkWallet
                             )
 
@@ -270,7 +265,9 @@ fun LoginInitial(
                     address,
                     message,
                     signature,
-                    onLogin,
+                    {result ->
+                        onLogin(result.network.byJwt)
+                    },
                     onCreateNetworkWallet
                 )
             }
@@ -356,7 +353,7 @@ fun LoginInitial(
     hasEthOsWallet: Boolean,
     solanaAuthInProgress: Boolean,
     ethOsAuthInProgress: Boolean,
-    onLogin: (AuthLoginResult) -> Unit,
+    onLogin: (String) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
     welcomeOverlayVisible: Boolean,
@@ -372,6 +369,11 @@ fun LoginInitial(
         guestModeOverlayVisible = isVisible
     }
 
+    var authCodeLoginSheetVisible by remember { mutableStateOf(false) }
+
+    val setAuthCodeLoginSheetVisible: (Boolean) -> Unit = { isVisible ->
+        authCodeLoginSheetVisible = isVisible
+    }
 
     val loginActivity = context as? LoginActivity
 
@@ -383,7 +385,6 @@ fun LoginInitial(
         navController.navigate("create-network/${result.userAuth}")
     }
 
-    // val googleClientId = context.getString(R.string.google_client_id)
     val googleClientId = stringResource(id = R.string.google_client_id)
     val createNetworkLoginError = stringResource(id = R.string.create_network_error)
 
@@ -467,7 +468,9 @@ fun LoginInitial(
                 context,
                 application?.api,
                 account,
-                onLogin,
+                {result ->
+                    onLogin(result.network.byJwt)
+                },
                 onNetworkCreateGoogle
             )
 
@@ -536,7 +539,10 @@ fun LoginInitial(
                         solanaAuthInProgress = solanaAuthInProgress,
                         onEthOsLogin = ethOsLogin,
                         hasEthOsWallet = hasEthOsWallet,
-                        ethOsAuthInProgress = ethOsAuthInProgress
+                        ethOsAuthInProgress = ethOsAuthInProgress,
+                        launchAuthCodeLoginSheet = {
+                            setAuthCodeLoginSheetVisible(true)
+                        }
                     )
                 }
 
@@ -563,6 +569,16 @@ fun LoginInitial(
 
         }
     }
+
+    AuthCodeLoginSheet(
+        isPresenting = authCodeLoginSheetVisible,
+        setIsPresenting = {
+            setAuthCodeLoginSheetVisible(it)
+        },
+        onLogin = { jwt ->
+            onLogin(jwt)
+        }
+    )
 
     OnboardingGuestModeSheet(
         isPresenting = guestModeOverlayVisible,
@@ -597,6 +613,7 @@ fun LoginInitialActions(
     hasEthOsWallet: Boolean,
     ethOsAuthInProgress: Boolean,
     solanaAuthInProgress: Boolean,
+    launchAuthCodeLoginSheet: () -> Unit
 ) {
 
     Row(
@@ -637,8 +654,6 @@ fun LoginInitialActions(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // if (allowGoogleSso()) {
 
             Row(
                 modifier = Modifier
@@ -744,6 +759,33 @@ fun LoginInitialActions(
                             style = buttonTextStyle
                         )
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Authentication code
+             */
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = launchAuthCodeLoginSheet,
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.auth_code),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        stringResource(id = R.string.auth_code_login_button_text),
+                        style = buttonTextStyle
+                    )
                 }
             }
 

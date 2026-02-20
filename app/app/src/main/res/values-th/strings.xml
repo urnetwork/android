@@ -320,4 +320,11 @@
     <string name="redeemed">แลกแล้ว</string>
     <string name="expires">หมดอายุ</string>
     <string name="daily_data_balance_label">ยอดคงเหลือข้อมูลรายวัน:</string>
+    <string name="launch">เปิดใช้งาน</string>
+    <string name="authentication_code">รหัสยืนยันตัวตน</string>
+    <string name="authentication_code_input_placeholder">ป้อนรหัสยืนยันตัวตนแบบใช้ครั้งเดียวของคุณ</string>
+    <string name="auth_code_login_sheet_header">เข้าสู่ระบบด้วยรหัสยืนยันตัวตน</string>
+    <string name="step_into_the_internet">ก้าวเข้าสู่อินเทอร์เน็ต\nอย่างที่ควรจะเป็น</string>
+    <string name="auth_code_error">เกิดข้อผิดพลาดในการยืนยันรหัส กรุณาลองใหม่อีกครั้งหรือสร้างรหัสใหม่</string>
+    <string name="auth_code_login_button_text">เข้าสู่ระบบด้วยรหัสยืนยันตัวตน</string>
 </resources>

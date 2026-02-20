@@ -371,7 +371,7 @@ class MainApplication : Application() {
     }
 
 
-    fun login(byJwt: String) {
+    fun login(byJwt: String){
         asyncLocalState?.localState?.byJwt = byJwt
         api?.byJwt = byJwt
     }
