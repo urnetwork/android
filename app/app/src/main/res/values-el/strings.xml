@@ -353,4 +353,5 @@
     <string name="step_into_the_internet">Μπείτε στο διαδίκτυο\nόπως θα έπρεπε να είναι.</string>
     <string name="auth_code_error">Σφάλμα κατά τον έλεγχο ταυτοποίησης του κωδικού. Δοκιμάστε ξανά ή δημιουργήστε νέο κωδικό.</string>
     <string name="auth_code_login_button_text">Σύνδεση με κωδικό ταυτοποίησης</string>
+    <string name="reset_password_email_sent">Το email επαναφοράς κωδικού στάλθηκε στο %s</string>
 </resources>

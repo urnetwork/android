@@ -327,4 +327,5 @@
     <string name="step_into_the_internet">ก้าวเข้าสู่อินเทอร์เน็ต\nอย่างที่ควรจะเป็น</string>
     <string name="auth_code_error">เกิดข้อผิดพลาดในการยืนยันรหัส กรุณาลองใหม่อีกครั้งหรือสร้างรหัสใหม่</string>
     <string name="auth_code_login_button_text">เข้าสู่ระบบด้วยรหัสยืนยันตัวตน</string>
+    <string name="reset_password_email_sent">อีเมลรีเซ็ตรหัสผ่านถูกส่งไปที่ %s</string>
 </resources>

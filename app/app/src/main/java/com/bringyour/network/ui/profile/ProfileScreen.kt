@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -47,14 +48,14 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
-import com.bringyour.network.ui.components.SnackBarType
-import com.bringyour.network.ui.components.URSnackBar
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.ui.shared.viewmodels.ResetPasswordFunction
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Job
@@ -93,10 +94,6 @@ fun ProfileScreen(
         loginMode = accountViewModel.loginMode,
         isSendingResetPassLink = resetPasswordViewModel.isSendingResetPassLink,
         sendResetLink = resetPasswordViewModel.sendResetLink,
-        passwordResetError = resetPasswordViewModel.passwordResetError,
-        markPasswordResetAsSent = resetPasswordViewModel.markPasswordResetAsSent,
-        setPasswordResetError = resetPasswordViewModel.setPasswordResetError,
-        setMarkPasswordResetAsSent = resetPasswordViewModel.setMarkPasswordResetAsSent,
         networkName = networkUser?.networkName ?: "",
         networkNameTextFieldValue = profileViewModel.networkNameTextFieldValue,
         setNetworkName = profileViewModel.setNetworkNameTextFieldValue,
@@ -122,11 +119,7 @@ fun ProfileScreen(
     navController: NavController,
     loginMode: LoginMode,
     isSendingResetPassLink: Boolean,
-    sendResetLink: (String) -> Unit,
-    passwordResetError: String?,
-    markPasswordResetAsSent: Boolean,
-    setPasswordResetError: (String?) -> Unit,
-    setMarkPasswordResetAsSent: (Boolean) -> Unit,
+    sendResetLink: ResetPasswordFunction,
     networkName: String,
     networkNameTextFieldValue: TextFieldValue,
     setNetworkName: (TextFieldValue) -> Unit,
@@ -144,17 +137,32 @@ fun ProfileScreen(
     launchOverlay: (OverlayMode) -> Unit
 ) {
 
+    val context = LocalContext.current
+    var lastResetTime by remember { mutableStateOf(0L) }
+    var cooldownTrigger by remember { mutableStateOf(0) }
+    val cooldownPeriod = 15_000L // 15 seconds
+
+    // disable send reset email for 15 seconds after successfully sending
+    LaunchedEffect(lastResetTime) {
+        if (lastResetTime > 0L) {
+            delay(cooldownPeriod)
+            cooldownTrigger++ // trigger recomposition
+        }
+    }
+
     val resendBtnEnabled by remember {
         derivedStateOf {
-            passwordResetError == null &&
-                    userAuth != null &&
+            cooldownTrigger
+            userAuth != null &&
                     !isSendingResetPassLink &&
-                    !markPasswordResetAsSent
+                    (System.currentTimeMillis() - lastResetTime > cooldownPeriod)
         }
     }
 
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
+    val resetPasswordErr = stringResource(id = R.string.something_went_wrong)
+    val resetPasswordEmailSentMsg = stringResource(id = R.string.reset_password_email_sent, userAuth ?: "unknown")
 
     Scaffold(
         topBar = {
@@ -273,81 +281,55 @@ fun ProfileScreen(
                 isPassword = true,
             )
 
-            Text(
-                stringResource(id = R.string.change_password),
-                modifier = Modifier.clickable {
-                    if (resendBtnEnabled && userAuth != null) {
-                        sendResetLink(userAuth)
-                    }
-                },
-                style = TextStyle(
-                    color = BlueMedium
+            if (userAuth != null) {
+
+                Text(
+                    stringResource(id = R.string.change_password),
+                    modifier = Modifier
+                        .clickable(enabled = resendBtnEnabled) {
+                            sendResetLink(
+                                userAuth,
+                                {
+                                    lastResetTime = System.currentTimeMillis()
+                                    Toast.makeText(
+                                        context,
+                                        resetPasswordEmailSentMsg,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                },
+                                {
+                                    Toast.makeText(
+                                        context,
+                                        resetPasswordErr,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            )
+                        }
+                    ,
+                    style = TextStyle(
+                        color = if (resendBtnEnabled) BlueMedium else TextMuted
+                    )
                 )
-            )
-        }
-        URSnackBar(
-            type = if (markPasswordResetAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
-            isVisible = markPasswordResetAsSent || passwordResetError != null,
-            onDismiss = {
-                if (passwordResetError != null) {
-                    setPasswordResetError(null)
-                }
-                if (markPasswordResetAsSent) {
-                    setMarkPasswordResetAsSent(false)
-                }
-            }
-        ) {
-            if (markPasswordResetAsSent) {
-                Column() {
-                    Text("Verification email sent to $userAuth")
-                }
-            } else {
-                Column() {
-                    Text(stringResource(id = R.string.something_went_wrong))
-                    Text(stringResource(id = R.string.please_wait))
-                }
-            }
-        }
 
-        URSnackBar(
-            type = if (markPasswordResetAsSent) SnackBarType.SUCCESS else SnackBarType.ERROR,
-            isVisible = markPasswordResetAsSent || passwordResetError != null,
-            onDismiss = {
-                if (passwordResetError != null) {
-                    setPasswordResetError(null)
-                }
-                if (markPasswordResetAsSent) {
-                    setMarkPasswordResetAsSent(false)
-                }
-            }
-        ) {
-            if (markPasswordResetAsSent) {
-                Column() {
-                    Text("Verification email sent to $userAuth")
-                }
-            } else {
-                Column() {
-                    Text(stringResource(id = R.string.something_went_wrong))
-                    Text(stringResource(id = R.string.please_wait))
-                }
             }
         }
     }
-    URSnackBar(
-        type = SnackBarType.ERROR,
-        isVisible = errorUpdatingProfile,
-        onDismiss = {
-            if (errorUpdatingProfile) {
-                setErrorUpdatingProfile(false)
-            }
-        }
-    ) {
-
-        Column() {
-            Text(stringResource(id = R.string.something_went_wrong))
-            Text(stringResource(id = R.string.please_wait))
-        }
-    }
+//    URSnackBar(
+//        type = SnackBarType.ERROR,
+//        isVisible = errorUpdatingProfile,
+//        onDismiss = {
+//            if (errorUpdatingProfile) {
+//                setErrorUpdatingProfile(false)
+//            }
+//        }
+//    ) {
+//
+//        Column() {
+//            Text(stringResource(id = R.string.something_went_wrong))
+//            Text(stringResource(id = R.string.please_wait))
+//        }
+//    }
 }
 
 @Preview
@@ -359,11 +341,7 @@ fun ProfileScreenPreview() {
             navController,
             loginMode = LoginMode.Authenticated,
             isSendingResetPassLink = false,
-            sendResetLink = {},
-            passwordResetError = null,
-            markPasswordResetAsSent = false,
-            setPasswordResetError = {},
-            setMarkPasswordResetAsSent = {},
+            sendResetLink = {_, _, _ ->},
             userAuth = "hello@bringyour.com",
             networkName = "my_network",
             networkNameTextFieldValue = TextFieldValue("my_network"),
@@ -392,11 +370,7 @@ fun ProfileScreenEditingPreview() {
             navController,
             loginMode = LoginMode.Authenticated,
             isSendingResetPassLink = false,
-            sendResetLink = {},
-            passwordResetError = null,
-            markPasswordResetAsSent = false,
-            setPasswordResetError = {},
-            setMarkPasswordResetAsSent = {},
+            sendResetLink = {_, _, _ ->},
             userAuth = "hello@bringyour.com",
             networkName = "my_network",
             networkNameTextFieldValue = TextFieldValue("my_network"),
@@ -425,11 +399,7 @@ fun ProfileScreenErrorUpdatingPreview() {
             navController,
             loginMode = LoginMode.Authenticated,
             isSendingResetPassLink = false,
-            sendResetLink = {},
-            passwordResetError = null,
-            markPasswordResetAsSent = false,
-            setPasswordResetError = {},
-            setMarkPasswordResetAsSent = {},
+            sendResetLink = {_, _, _ ->},
             userAuth = "hello@bringyour.com",
             networkName = "my_network",
             networkNameTextFieldValue = TextFieldValue("my_network"),

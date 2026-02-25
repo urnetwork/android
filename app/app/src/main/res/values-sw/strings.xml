@@ -354,4 +354,5 @@
     <string name="step_into_the_internet">Ingia kwenye mtandao\nkama inavyopaswa kuwa.</string>
     <string name="auth_code_error">Hitilafu katika kuthibitisha nambari. Tafadhali jaribu tena au tengeneza nambari mpya.</string>
     <string name="auth_code_login_button_text">Ingia kwa nambari ya uthibitishaji</string>
+    <string name="reset_password_email_sent">Barua pepe ya kuweka upya nywila imetumwa kwa %s</string>
 </resources>

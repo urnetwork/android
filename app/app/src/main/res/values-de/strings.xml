@@ -354,4 +354,5 @@
     <string name="step_into_the_internet">Tauche ins Internet ein\nwie es sein sollte.</string>
     <string name="auth_code_error">Fehler bei der Code-Authentifizierung. Bitte versuchen Sie es erneut oder generieren Sie einen neuen Code.</string>
     <string name="auth_code_login_button_text">Mit Authentifizierungscode anmelden</string>
+    <string name="reset_password_email_sent">" E-Mail zum Zurücksetzen des Passworts wurde an %s gesendet"</string>
 </resources>

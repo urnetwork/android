@@ -354,4 +354,5 @@
     <string name="step_into_the_internet">踏入互联网\n如其本应如此。</string>
     <string name="auth_code_error">验证代码时出错。请重试或生成新代码。</string>
     <string name="auth_code_login_button_text">使用验证码登录</string>
+    <string name="reset_password_email_sent">重置密码邮件已发送至 %s</string>
 </resources>

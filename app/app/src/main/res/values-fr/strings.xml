@@ -355,4 +355,5 @@
     <string name="step_into_the_internet">Entrez dans Internet\ncomme il devrait être.</string>
     <string name="auth_code_error">Erreur lors de l’authentification du code. Veuillez réessayer ou générer un nouveau code.</string>
     <string name="auth_code_login_button_text">Se connecter avec le code d’authentification</string>
+    <string name="reset_password_email_sent">E-mail de réinitialisation du mot de passe envoyé à %s</string>
 </resources>

@@ -526,4 +526,5 @@
     <string name="step_into_the_internet">Step into the internet\nas it should be.</string>
     <string name="auth_code_error">Error authenticating code. Please try again or generate a new code.</string>
     <string name="auth_code_login_button_text">Log in with Auth Code</string>
+    <string name="reset_password_email_sent">Reset password email sent to %s</string>
 </resources>
