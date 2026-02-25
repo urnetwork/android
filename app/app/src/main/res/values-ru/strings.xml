@@ -379,4 +379,5 @@
     <string name="step_into_the_internet">Войдите в интернет\nтаким, каким он должен быть.</string>
     <string name="auth_code_error">Ошибка при аутентификации кода. Пожалуйста, попробуйте снова или сгенерируйте новый код.</string>
     <string name="auth_code_login_button_text">Войти с кодом аутентификации</string>
+    <string name="reset_password_email_sent">Письмо для сброса пароля отправлено на %s</string>
 </resources>

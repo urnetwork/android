@@ -379,4 +379,5 @@
     <string name="step_into_the_internet">Stap het internet in\nzoals het hoort te zijn.</string>
     <string name="auth_code_error">Fout bij het verifiëren van de code. Probeer het opnieuw of genereer een nieuwe code.</string>
     <string name="auth_code_login_button_text">Inloggen met authenticatiecode</string>
+    <string name="reset_password_email_sent">E-mail voor wachtwoordherstel verzonden naar %s</string>
 </resources>

@@ -353,4 +353,5 @@
     <string name="step_into_the_internet">Entra a Internet\ncomo debería ser.</string>
     <string name="auth_code_error">Error al autenticar el código. Por favor, inténtalo de nuevo o genera un nuevo código.</string>
     <string name="auth_code_login_button_text">Iniciar sesión con código de autenticación</string>
+    <string name="reset_password_email_sent">Correo de restablecimiento de contraseña enviado a %s</string>
 </resources>

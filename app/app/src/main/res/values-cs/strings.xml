@@ -499,4 +499,5 @@
     <string name="step_into_the_internet">Vstupte do internetu\njaký by měl být.</string>
     <string name="auth_code_error">Chyba při ověřování kódu. Zkuste to prosím znovu nebo vygenerujte nový kód.</string>
     <string name="auth_code_login_button_text">Přihlásit se ověřovacím kódem</string>
+    <string name="reset_password_email_sent">E-mail pro reset hesla byl odeslán na %s</string>
 </resources>

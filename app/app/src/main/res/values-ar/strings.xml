@@ -487,4 +487,5 @@
     <string name="step_into_the_internet">" ادخل إلى الإنترنت\n كما يجب أن يكون."</string>
     <string name="auth_code_error">حدث خطأ أثناء التحقق من الرمز. يرجى المحاولة مرة أخرى أو إنشاء رمز جديد.</string>
     <string name="auth_code_login_button_text">تسجيل الدخول برمز المصادقة</string>
+    <string name="reset_password_email_sent">تم إرسال بريد إعادة تعيين كلمة المرور إلى %s</string>
 </resources>
