@@ -377,4 +377,8 @@
     <string name="auth_code_error">コードの認証中にエラーが発生しました。もう一度お試しいただくか、新しいコードを生成してください。</string>
     <string name="auth_code_login_button_text">認証コードでログイン</string>
     <string name="reset_password_email_sent">パスワードリセットのメールが %s に送信されました</string>
+    <string name="fixed_ip">固定IP</string>
+    <string name="window_type_auto">自動</string>
+    <string name="window_type_quality">ウェブ</string>
+    <string name="window_type_speed">ストリーミング</string>
 </resources>

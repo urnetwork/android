@@ -500,4 +500,8 @@
     <string name="auth_code_error">Chyba při ověřování kódu. Zkuste to prosím znovu nebo vygenerujte nový kód.</string>
     <string name="auth_code_login_button_text">Přihlásit se ověřovacím kódem</string>
     <string name="reset_password_email_sent">E-mail pro reset hesla byl odeslán na %s</string>
+    <string name="fixed_ip">Pevná IP</string>
+    <string name="window_type_auto">Automaticky</string>
+    <string name="window_type_quality">Web</string>
+    <string name="window_type_speed">Streamování</string>
 </resources>

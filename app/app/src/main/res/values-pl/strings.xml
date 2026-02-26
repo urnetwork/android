@@ -377,5 +377,9 @@
     <string name="auth_code_error">Błąd podczas uwierzytelniania kodu. Spróbuj ponownie lub wygeneruj nowy kod.</string>
     <string name="auth_code_login_button_text">Zaloguj się kodem uwierzytelniającym</string>
     <string name="reset_password_email_sent">E-mail do resetowania hasła wysłano na %s</string>
+    <string name="fixed_ip">Stały adres IP</string>
+    <string name="window_type_auto">Automatycznie</string>
+    <string name="window_type_quality">WWW</string>
+    <string name="window_type_speed">Streaming</string>
 
 </resources>

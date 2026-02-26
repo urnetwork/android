@@ -17,6 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,6 +36,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.Plan
@@ -67,6 +71,10 @@ fun ConnectActions(
     totalReferrals: Long,
     dailyByteCount: Long,
     launchIntro: () -> Unit,
+    fixedIpSize: Boolean,
+    toggleFixedIpSize: () -> Unit,
+    selectedWindowType: WindowType,
+    setSelectedWindowType: (WindowType) -> Unit
 ) {
 
     Column(
@@ -94,6 +102,9 @@ fun ConnectActions(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            /**
+             * Connect / Disconnect buttons
+             */
             Box(
                 modifier = Modifier
                     .height(48.dp)
@@ -166,6 +177,60 @@ fun ConnectActions(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Window Type Segmented Button
+             */
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                WindowType.entries.forEachIndexed { index, windowType ->
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = WindowType.entries.size
+                        ),
+                        onClick = {
+                            setSelectedWindowType(windowType)
+                        },
+                        selected = selectedWindowType == windowType,
+                        label = {
+                            WindowTypeButtonText(windowType)
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.fixed_ip),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                /**
+                 * Fixed IP Switch
+                 */
+
+                URSwitch(
+                    checked = fixedIpSize,
+                    toggle = {
+                        toggleFixedIpSize()
+                    },
+                    enabled = selectedWindowType != WindowType.AUTO
+                )
+            }
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -354,4 +419,17 @@ fun OpenProviderListButton(
             )
         }
     }
+}
+
+@Composable
+fun WindowTypeButtonText(windowType: WindowType) {
+    val displayName = stringResource(
+        when (windowType) {
+            WindowType.AUTO -> R.string.window_type_auto
+            WindowType.QUALITY -> R.string.window_type_quality
+            WindowType.SPEED -> R.string.window_type_speed
+        }
+    )
+
+    Text(displayName)
 }

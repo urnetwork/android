@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
@@ -13,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
@@ -25,8 +27,11 @@ import com.bringyour.sdk.ConnectViewController
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Id
+import com.bringyour.sdk.PerformanceProfile
 import com.bringyour.sdk.ProviderGridPoint
+import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
+import com.bringyour.sdk.WindowSizeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -71,6 +76,39 @@ constructor(
 
     val setDisplayReconnectTunnel: (Boolean) -> Unit = { display ->
         displayReconnectTunnel = display
+    }
+
+    var fixedIpSize by mutableStateOf(false)
+        private set
+
+    val toggleFixedIp: () -> Unit = {
+        val fixed = this.fixedIpSize
+        setFixedIpSize(!fixed)
+    }
+
+    val setFixedIpSize: (Boolean) -> Unit = {
+        fixedIpSize = it
+        updatePerformanceProfile()
+    }
+
+    var selectedWindowType by mutableStateOf<WindowType>(WindowType.AUTO)
+        private set
+
+    val setSelectedWindowType: (WindowType) -> Unit = {
+        selectedWindowType = it
+
+        if (selectedWindowType == WindowType.AUTO) {
+            /**
+             * disable "fixed IP size"
+             * this will trigger updatePerformanceProfile so we don't need to call it
+             */
+
+            setFixedIpSize(false)
+
+        } else {
+            updatePerformanceProfile()
+        }
+
     }
 
     private val _contractStatus = MutableStateFlow<ContractStatus?>(null)
@@ -149,6 +187,23 @@ constructor(
         } else {
             connectVc?.connectBestAvailable()
         }
+    }
+
+
+
+    val updatePerformanceProfile: () -> Unit = {
+
+        val performanceProfile = PerformanceProfile()
+        val windowType = if (this.selectedWindowType == WindowType.QUALITY) Sdk.WindowTypeQuality else Sdk.WindowTypeSpeed
+        performanceProfile.windowType = windowType
+
+        val windowSizeSettings = WindowSizeSettings()
+        windowSizeSettings.windowSizeMin = if (this.fixedIpSize) 1 else 2
+        windowSizeSettings.windowSizeMax = if (this.fixedIpSize) 1 else 4
+        performanceProfile.windowSize = windowSizeSettings
+
+        deviceManager.performanceProfile = performanceProfile
+
     }
 
     private fun addListener(listener: (ConnectViewController) -> Sub) {
@@ -282,6 +337,22 @@ constructor(
         addConnectionStatusListener()
         addContractStatusListener()
 
+        val performanceProfile = deviceManager.performanceProfile
+        if (performanceProfile != null) {
+            this.setFixedIpSize(
+                performanceProfile.windowSize.windowSizeMin.toInt() == 1 &&
+                        performanceProfile.windowSize.windowSizeMax.toInt() == 1
+            )
+            setSelectedWindowType(
+                WindowType.fromRawValueOrDefault(
+                    performanceProfile.windowType
+                )
+            )
+
+        } else {
+            this.setFixedIpSize(false)
+        }
+
         update()
     }
 
@@ -296,10 +367,6 @@ constructor(
 
         subs.forEach { sub -> sub.close() }
         subs.clear()
-
-        //        connectVc?.let {
-        //            byDeviceManager.getByDevice()?.closeViewController(it)
-        //        }
 
         viewModelScope.cancel()
     }
@@ -334,3 +401,28 @@ data class AnimatedSuccessPoint(
         val color: Color,
         val radius: Float
 )
+
+enum class WindowType(val rawValue: String) {
+    AUTO("auto"),
+    QUALITY("quality"),
+    SPEED("speed");
+
+    val displayName: String
+        get() = when (this) {
+            AUTO -> "Auto"
+            QUALITY -> "Web"
+            SPEED -> "Streaming"
+        }
+
+    companion object {
+        val default = AUTO
+
+        fun fromRawValue(value: String): WindowType? {
+            return entries.find { it.rawValue == value }
+        }
+        
+        fun fromRawValueOrDefault(value: String): WindowType {
+            return entries.find { it.rawValue == value } ?: default
+        }
+    }
+}

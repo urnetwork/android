@@ -356,4 +356,8 @@
     <string name="auth_code_error">Erreur lors de l’authentification du code. Veuillez réessayer ou générer un nouveau code.</string>
     <string name="auth_code_login_button_text">Se connecter avec le code d’authentification</string>
     <string name="reset_password_email_sent">E-mail de réinitialisation du mot de passe envoyé à %s</string>
+    <string name="fixed_ip">IP fixe</string>
+    <string name="window_type_auto">Automatique</string>
+    <string name="window_type_quality">Web</string>
+    <string name="window_type_speed">Streaming</string>
 </resources>

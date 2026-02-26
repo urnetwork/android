@@ -81,16 +81,20 @@ fun URSwitch(
                 isFocused = focusState.isFocused
             }
             .focusable()
-            .pointerInput(Unit) {
+            .pointerInput(enabled) {
                 detectTapGestures(
                     onTap = {
-                        toggle()
+                        if (enabled) {
+                            toggle()
+                        }
                     }
                 )
             }
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Enter) {
-                    toggle()
+                    if (enabled) {
+                        toggle()
+                    }
                     true
                 } else {
                     false

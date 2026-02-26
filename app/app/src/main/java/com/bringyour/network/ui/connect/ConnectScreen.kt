@@ -15,9 +15,7 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -80,7 +78,6 @@ fun ConnectScreen(
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
     val contractStatus by connectViewModel.contractStatus.collectAsState()
-//    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
 
@@ -165,7 +162,11 @@ fun ConnectScreen(
                 meanReliabilityWeight = meanReliabilityWeight,
                 totalReferrals = totalReferrals,
                 launchIntro = launchIntro,
-                dailyByteCount = subscriptionBalanceViewModel.startBalanceByteCount.collectAsState().value
+                dailyByteCount = subscriptionBalanceViewModel.startBalanceByteCount.collectAsState().value,
+                fixedIpSize = connectViewModel.fixedIpSize,
+                toggleFixedIpSize = connectViewModel.toggleFixedIp,
+                selectedWindowType = connectViewModel.selectedWindowType,
+                setSelectedWindowType = connectViewModel.setSelectedWindowType
             )
         },
         mainContent = {
@@ -339,111 +340,9 @@ fun ConnectMainContent(
                     isPollingSubscriptionBalance = isPollingSubscriptionBalance
                 )
 
-//                Spacer(modifier = Modifier.height(16.dp))
 
-//                Box(
-//                    modifier = Modifier
-//                        .height(48.dp)
-//                ) {
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.Center
-//                    ) {
-//                        /**
-//                         * Disconnect Button
-//                         */
-//                        AnimatedVisibility(
-//                            visible = disconnectBtnVisible && !displayReconnectTunnel && !displayInsufficientBalance,
-//                            enter = fadeIn(),
-//                            exit = fadeOut()
-//                        ) {
-//
-//                            URButton(
-//                                onClick = {
-//                                    disconnect()
-//                                },
-//                                style = ButtonStyle.OUTLINE
-//                            ) { buttonTextStyle ->
-//                                Text(
-//                                    stringResource(id = R.string.disconnect),
-//                                    style = buttonTextStyle,
-//                                    modifier = Modifier.padding(horizontal = 16.dp)
-//                                )
-//                            }
-//
-//                        }
-//                    }
-//
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.Center
-//                    ) {
-//                        /**
-//                         * Reconnect tunnel button
-//                         */
-//
-//                        AnimatedVisibility(
-//                            visible = displayReconnectTunnel,
-//                            enter = fadeIn(),
-//                            exit = fadeOut()
-//                        ) {
-//                            URButton(
-//                                onClick = {
-//                                    application?.startVpnService()
-//                                },
-//                                style = ButtonStyle.OUTLINE
-//                            ) { buttonTextStyle ->
-//                                Text(
-//                                    stringResource(id = R.string.reconnect),
-//                                    style = buttonTextStyle,
-//                                    modifier = Modifier.padding(horizontal = 16.dp)
-//                                )
-//                            }
-//                        }
-//                    }
-//
-//
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.Center
-//                    ) {
-//                        /**
-//                         * Insufficient balance, subscribe to fix
-//                         */
-//                        AnimatedVisibility(
-//                            visible = displayInsufficientBalance && !isPollingSubscriptionBalance,
-//                            enter = fadeIn(),
-//                            exit = fadeOut()
-//                        ) {
-//                            URButton(
-//                                onClick = {
-//                                    navController.navigate(Route.Upgrade)
-//                                },
-//                                style = ButtonStyle.OUTLINE
-//                            ) { buttonTextStyle ->
-//                                Text(
-//                                    "Subscribe to fix",
-//                                    style = buttonTextStyle,
-//                                    modifier = Modifier.padding(horizontal = 16.dp)
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
             }
         }
-
-//        OpenProviderListButton(
-//            selectedLocation = selectedLocation,
-//            getLocationColor = locationsViewModel.getLocationColor,
-//            onClick = {
-//                locationsViewModel.refreshLocations()
-//                navController.navigate(Route.BrowseLocations)
-//            }
-//        )
 
     }
 

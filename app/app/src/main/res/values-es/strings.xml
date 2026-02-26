@@ -354,4 +354,8 @@
     <string name="auth_code_error">Error al autenticar el código. Por favor, inténtalo de nuevo o genera un nuevo código.</string>
     <string name="auth_code_login_button_text">Iniciar sesión con código de autenticación</string>
     <string name="reset_password_email_sent">Correo de restablecimiento de contraseña enviado a %s</string>
+    <string name="fixed_ip">IP fija</string>
+    <string name="window_type_auto">Automático</string>
+    <string name="window_type_quality">Web</string>
+    <string name="window_type_speed">Streaming</string>
 </resources>

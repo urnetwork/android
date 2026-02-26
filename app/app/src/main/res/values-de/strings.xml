@@ -355,4 +355,8 @@
     <string name="auth_code_error">Fehler bei der Code-Authentifizierung. Bitte versuchen Sie es erneut oder generieren Sie einen neuen Code.</string>
     <string name="auth_code_login_button_text">Mit Authentifizierungscode anmelden</string>
     <string name="reset_password_email_sent">" E-Mail zum Zurücksetzen des Passworts wurde an %s gesendet"</string>
+    <string name="fixed_ip">Feste IP</string>
+    <string name="window_type_auto">Automatisch</string>
+    <string name="window_type_quality">Web</string>
+    <string name="window_type_speed">Streaming</string>
 </resources>
