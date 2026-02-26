@@ -488,4 +488,8 @@
     <string name="auth_code_error">حدث خطأ أثناء التحقق من الرمز. يرجى المحاولة مرة أخرى أو إنشاء رمز جديد.</string>
     <string name="auth_code_login_button_text">تسجيل الدخول برمز المصادقة</string>
     <string name="reset_password_email_sent">تم إرسال بريد إعادة تعيين كلمة المرور إلى %s</string>
+    <string name="fixed_ip">IP ثابت</string>
+    <string name="window_type_auto">تلقائي</string>
+    <string name="window_type_quality">الويب</string>
+    <string name="window_type_speed">البث</string>
 </resources>

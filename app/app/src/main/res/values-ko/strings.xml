@@ -377,4 +377,8 @@
     <string name="auth_code_error">코드 인증 오류입니다. 다시 시도하거나 새 코드를 생성하세요.</string>
     <string name="auth_code_login_button_text">인증 코드로 로그인</string>
     <string name="reset_password_email_sent">비밀번호 재설정 이메일이 %s로 전송되었습니다</string>
+    <string name="fixed_ip">고정 IP</string>
+    <string name="window_type_auto">자동</string>
+    <string name="window_type_quality">웹</string>
+    <string name="window_type_speed">스트리밍</string>
 </resources>

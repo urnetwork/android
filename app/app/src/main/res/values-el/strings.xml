@@ -354,4 +354,8 @@
     <string name="auth_code_error">Σφάλμα κατά τον έλεγχο ταυτοποίησης του κωδικού. Δοκιμάστε ξανά ή δημιουργήστε νέο κωδικό.</string>
     <string name="auth_code_login_button_text">Σύνδεση με κωδικό ταυτοποίησης</string>
     <string name="reset_password_email_sent">Το email επαναφοράς κωδικού στάλθηκε στο %s</string>
+    <string name="fixed_ip">Σταθερή IP</string>
+    <string name="window_type_auto">Αυτόματο</string>
+    <string name="window_type_quality">Ιστός</string>
+    <string name="window_type_speed">Ροή</string>
 </resources>

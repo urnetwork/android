@@ -355,4 +355,8 @@
     <string name="auth_code_error">Hitilafu katika kuthibitisha nambari. Tafadhali jaribu tena au tengeneza nambari mpya.</string>
     <string name="auth_code_login_button_text">Ingia kwa nambari ya uthibitishaji</string>
     <string name="reset_password_email_sent">Barua pepe ya kuweka upya nywila imetumwa kwa %s</string>
+    <string name="fixed_ip">IP ya kudumu</string>
+    <string name="window_type_auto">Moja kwa moja</string>
+    <string name="window_type_quality">Wavuti</string>
+    <string name="window_type_speed">Utiririshaji</string>
 </resources>

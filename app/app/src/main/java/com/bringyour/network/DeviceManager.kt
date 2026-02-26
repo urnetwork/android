@@ -5,6 +5,7 @@ import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.NetworkSpace
+import com.bringyour.sdk.PerformanceProfile
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import javax.inject.Inject
@@ -77,6 +78,13 @@ class DeviceManager @Inject constructor(
             device?.vpnInterfaceWhileOffline = it
         }
 
+    var performanceProfile: PerformanceProfile?
+        get() = device?.performanceProfile
+        set(it) {
+            asyncLocalState?.localState?.performanceProfile = it
+            device?.performanceProfile = it
+        }
+
     fun initDevice(
         networkSpace: NetworkSpace?,
         byClientJwt: String,
@@ -98,6 +106,7 @@ class DeviceManager @Inject constructor(
         val vpnInterfaceWhileOffline = localState.vpnInterfaceWhileOffline
         val canRefer = localState.canRefer
         val allowForeground = localState.allowForeground
+        val performanceProfile = localState.performanceProfile
 
         device = Sdk.newDeviceLocalWithDefaults(
             networkSpace,
@@ -132,6 +141,7 @@ class DeviceManager @Inject constructor(
         device?.allowForeground = allowForeground
         device?.provideNetworkMode = ProvideNetworkMode.toString(provideNetworkMode)
         device?.canPromptIntroFunnel = canPromptIntroFunnel
+        device?.performanceProfile = performanceProfile
 
         /**
          * set initial jwt on device creation

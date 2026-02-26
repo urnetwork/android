@@ -380,4 +380,8 @@
     <string name="auth_code_error">Fout bij het verifiëren van de code. Probeer het opnieuw of genereer een nieuwe code.</string>
     <string name="auth_code_login_button_text">Inloggen met authenticatiecode</string>
     <string name="reset_password_email_sent">E-mail voor wachtwoordherstel verzonden naar %s</string>
+    <string name="fixed_ip">Vast IP-adres</string>
+    <string name="window_type_auto">Automatisch</string>
+    <string name="window_type_quality">Web</string>
+    <string name="window_type_speed">Streamen</string>
 </resources>

@@ -527,4 +527,8 @@
     <string name="auth_code_error">Error authenticating code. Please try again or generate a new code.</string>
     <string name="auth_code_login_button_text">Log in with Auth Code</string>
     <string name="reset_password_email_sent">Reset password email sent to %s</string>
+    <string name="fixed_ip">Fixed IP</string>
+    <string name="window_type_auto">Auto</string>
+    <string name="window_type_quality">Web</string>
+    <string name="window_type_speed">Streaming</string>
 </resources>

@@ -355,4 +355,8 @@
     <string name="auth_code_error">验证代码时出错。请重试或生成新代码。</string>
     <string name="auth_code_login_button_text">使用验证码登录</string>
     <string name="reset_password_email_sent">重置密码邮件已发送至 %s</string>
+    <string name="fixed_ip">固定 IP</string>
+    <string name="window_type_auto">自动</string>
+    <string name="window_type_quality">网页</string>
+    <string name="window_type_speed">流媒体</string>
 </resources>

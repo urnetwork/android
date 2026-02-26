@@ -354,4 +354,8 @@
     <string name="auth_code_error">कोड प्रमाणित करने में त्रुटि। कृपया पुनः प्रयास करें या नया कोड जनरेट करें।</string>
     <string name="auth_code_login_button_text">ऑथ कोड से लॉगिन करें</string>
     <string name="reset_password_email_sent">पासवर्ड रीसेट ईमेल %s पर भेजा गया है</string>
+    <string name="fixed_ip">िर IP</string>
+    <string name="window_type_auto">स्वचालित</string>
+    <string name="window_type_quality">वेब</string>
+    <string name="window_type_speed">स्ट्रीमिंग</string>
 </resources>
