@@ -114,7 +114,8 @@ fun AuthCodeLoginSheet(
                     value = authCode,
                     onValueChange = {setAuthCode(it)},
                     label = stringResource(id = R.string.authentication_code),
-                    placeholder = stringResource(id = R.string.authentication_code_input_placeholder)
+                    placeholder = stringResource(id = R.string.authentication_code_input_placeholder),
+                    isPassword = true
                 )
 
                 Spacer(modifier = Modifier.height(48.dp))
