@@ -86,6 +86,19 @@ constructor(
         setFixedIpSize(!fixed)
     }
 
+    var allowDirect by mutableStateOf(false)
+        private set
+
+    val setAllowDirect: (Boolean) -> Unit = {
+        this.allowDirect = it
+        updatePerformanceProfile()
+    }
+
+    val toggleAllowDirect: () -> Unit = {
+        val allow = this.allowDirect
+        setAllowDirect(!allowDirect)
+    }
+
     val setFixedIpSize: (Boolean) -> Unit = {
         fixedIpSize = it
         updatePerformanceProfile()
@@ -196,6 +209,7 @@ constructor(
         val performanceProfile = PerformanceProfile()
         val windowType = if (this.selectedWindowType == WindowType.QUALITY) Sdk.WindowTypeQuality else Sdk.WindowTypeSpeed
         performanceProfile.windowType = windowType
+        performanceProfile.allowDirect = allowDirect
 
         val windowSizeSettings = WindowSizeSettings()
         windowSizeSettings.windowSizeMin = if (this.fixedIpSize) 1 else 2
@@ -348,6 +362,7 @@ constructor(
                     performanceProfile.windowType
                 )
             )
+            setAllowDirect(performanceProfile.allowDirect)
 
         } else {
             this.setFixedIpSize(false)

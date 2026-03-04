@@ -358,4 +358,5 @@
     <string name="window_type_auto">Αυτόματο</string>
     <string name="window_type_quality">Ιστός</string>
     <string name="window_type_speed">Ροή</string>
+    <string name="strong_anonymization">Ισχυρή ανωνυμοποίηση</string>
 </resources>

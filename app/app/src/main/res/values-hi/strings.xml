@@ -358,4 +358,5 @@
     <string name="window_type_auto">स्वचालित</string>
     <string name="window_type_quality">वेब</string>
     <string name="window_type_speed">स्ट्रीमिंग</string>
+    <string name="strong_anonymization">मजबूत गुमनामीकरण</string>
 </resources>

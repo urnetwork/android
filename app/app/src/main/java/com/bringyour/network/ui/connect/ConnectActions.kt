@@ -74,7 +74,9 @@ fun ConnectActions(
     fixedIpSize: Boolean,
     toggleFixedIpSize: () -> Unit,
     selectedWindowType: WindowType,
-    setSelectedWindowType: (WindowType) -> Unit
+    setSelectedWindowType: (WindowType) -> Unit,
+    allowDirect: Boolean,
+    toggleAllowDirect: () -> Unit
 ) {
 
     Column(
@@ -205,7 +207,6 @@ fun ConnectActions(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -228,6 +229,33 @@ fun ConnectActions(
                         toggleFixedIpSize()
                     },
                     enabled = selectedWindowType != WindowType.AUTO
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.strong_anonymization),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                /**
+                 * Allow direct
+                 * When "Strong Anonymization" is true, "allowDirect" is false and vice versa
+                 */
+
+                URSwitch(
+                    checked = !allowDirect,
+                    toggle = {
+                        toggleAllowDirect()
+                    },
                 )
             }
 

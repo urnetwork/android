@@ -381,5 +381,6 @@
     <string name="window_type_auto">Automatycznie</string>
     <string name="window_type_quality">WWW</string>
     <string name="window_type_speed">Streaming</string>
+    <string name="strong_anonymization">Silna anonimizacja</string>
 
 </resources>

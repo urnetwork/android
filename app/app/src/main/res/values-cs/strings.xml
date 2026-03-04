@@ -504,4 +504,5 @@
     <string name="window_type_auto">Automaticky</string>
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streamování</string>
+    <string name="strong_anonymization">Silná anonymizace</string>
 </resources>
