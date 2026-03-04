@@ -360,4 +360,5 @@
     <string name="window_type_auto">Automatique</string>
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streaming</string>
+    <string name="strong_anonymization">Anonymisation renforcée</string>
 </resources>

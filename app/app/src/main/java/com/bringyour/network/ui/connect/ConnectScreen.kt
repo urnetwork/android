@@ -166,7 +166,9 @@ fun ConnectScreen(
                 fixedIpSize = connectViewModel.fixedIpSize,
                 toggleFixedIpSize = connectViewModel.toggleFixedIp,
                 selectedWindowType = connectViewModel.selectedWindowType,
-                setSelectedWindowType = connectViewModel.setSelectedWindowType
+                setSelectedWindowType = connectViewModel.setSelectedWindowType,
+                allowDirect = connectViewModel.allowDirect,
+                toggleAllowDirect = connectViewModel.toggleAllowDirect
             )
         },
         mainContent = {
