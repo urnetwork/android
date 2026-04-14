@@ -463,7 +463,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
 
     // serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     // for QR Code generation
     implementation 'com.google.zxing:core:3.5.4'
@@ -476,7 +476,7 @@ dependencies {
     kapt 'com.google.dagger:hilt-compiler:2.58'
     implementation 'androidx.hilt:hilt-navigation-compose:1.3.0'
 
-    implementation "androidx.work:work-runtime-ktx:2.11.1"
+    implementation "androidx.work:work-runtime-ktx:2.11.2"
     implementation "androidx.concurrent:concurrent-futures:1.3.0"
 }
 
@@ -485,7 +485,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.18.0'
 
     // jetpack compose
-    def composeBom = platform('androidx.compose:compose-bom:2026.03.00')
+    def composeBom = platform('androidx.compose:compose-bom:2026.03.01')
     implementation composeBom
     androidTestImplementation composeBom
 
@@ -498,12 +498,12 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:1.7.8"
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.10.5'
-    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.10.5'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.10.6'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.10.6'
 
     // Android Studio Preview support
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.10.5'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.10.5'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.10.6'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.10.6'
 
     // reflect
     implementation 'org.jetbrains.kotlin:kotlin-reflect:2.2.0'
@@ -555,8 +555,8 @@ dependencies {
 
 /*build:google*/    solana_dappImplementation 'com.google.android.gms:play-services-auth:21.5.1'
 
-/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:23.0.2")
-/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:23.0.2")
+/*build:google*/        solana_dappImplementation("com.stripe:stripe-android:23.3.0")
+/*build:google*/        solana_dappImplementation("com.stripe:financial-connections:23.3.0")
 }
 
 // ethos dapp
@@ -572,8 +572,8 @@ dependencies {
 
 /*build:google*/    ethos_dappImplementation 'com.google.android.gms:play-services-auth:21.5.1'
 
-/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:23.0.2")
-/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:23.0.2")
+/*build:google*/        ethos_dappImplementation("com.stripe:stripe-android:23.3.0")
+/*build:google*/        ethos_dappImplementation("com.stripe:financial-connections:23.3.0")
 
     //noinspection NewerVersionAvailable newer version incompatible with the WalletSDK
     ethos_dappImplementation("org.web3j:core:4.9.4")
