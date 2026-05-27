@@ -4,9 +4,12 @@ package com.bringyour.network.ui.login
 // - must start with a letter
 // - alpha numeric and DNS compatible
 fun networkNameInputFilter(input: String): String {
-    // must start with a letter
-    if (input.isEmpty() || !input[0].isLetter()) {
+    if (input.isEmpty()) {
         return input
+    }
+    // must start with a letter
+    if (!input[0].isLetter()) {
+        return ""
     }
 
     // convert all uppercase letters to lowercase

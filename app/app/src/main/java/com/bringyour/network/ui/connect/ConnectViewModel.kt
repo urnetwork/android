@@ -34,8 +34,8 @@ import com.bringyour.sdk.Sub
 import com.bringyour.sdk.WindowSizeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import androidx.compose.runtime.mutableStateListOf
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 class ConnectViewModel
 @Inject
 constructor(
-        val deviceManager: DeviceManager,
+        private val deviceManager: DeviceManager,
 ) : ViewModel() {
 
     private var connectVc: ConnectViewController? = null
@@ -53,8 +53,7 @@ constructor(
     private val subs = mutableListOf<Sub>()
 
     private val _connectStatus = MutableStateFlow(ConnectStatus.DISCONNECTED)
-    val connectStatus: StateFlow<ConnectStatus>
-        get() = _connectStatus
+    val connectStatus: StateFlow<ConnectStatus> = _connectStatus
 
     var selectedLocation by mutableStateOf<ConnectLocation?>(null)
         private set
@@ -96,7 +95,7 @@ constructor(
 
     val toggleAllowDirect: () -> Unit = {
         val allow = this.allowDirect
-        setAllowDirect(!allowDirect)
+        setAllowDirect(!allow)
     }
 
     val setFixedIpSize: (Boolean) -> Unit = {
@@ -125,14 +124,13 @@ constructor(
     }
 
     private val _contractStatus = MutableStateFlow<ContractStatus?>(null)
-    val contractStatus: StateFlow<ContractStatus?>
-        get() = _contractStatus
+    val contractStatus: StateFlow<ContractStatus?> = _contractStatus
 
     private val successPoints = mutableListOf<AnimatedSuccessPoint>()
 
     val canvasSize = 248.dp
 
-    val shuffledSuccessPoints = mutableListOf<AnimatedSuccessPoint>()
+    val shuffledSuccessPoints = mutableStateListOf<AnimatedSuccessPoint>()
 
     val device: DeviceLocal?
         get() = this.deviceManager.device
@@ -225,7 +223,7 @@ constructor(
     }
 
     private val addGridListener = {
-        addListener { vc -> vc.addGridListener { viewModelScope.launch { updateGrid() } } }
+        addListener { vc -> vc.addGridListener { updateGrid() } }
     }
 
     val refreshContractStatus = { _contractStatus.value = deviceManager.device?.contractStatus }
@@ -235,12 +233,10 @@ constructor(
         // initialize contract status
         refreshContractStatus()
 
-        deviceManager.device?.addContractStatusChangeListener {
+        val sub = deviceManager.device?.addContractStatusChangeListener {
             viewModelScope.launch {
                 refreshContractStatus()
 
-                // contract status is updated when the user tries and connects
-                // if they have insufficient balance, disconnect them
                 if (_contractStatus.value?.insufficientBalance == true &&
                                 _connectStatus.value != ConnectStatus.DISCONNECTED
                 ) {
@@ -248,26 +244,34 @@ constructor(
                 }
             }
         }
+        sub?.let { subs.add(it) }
     }
 
     private fun updateGrid() {
         val grid = connectVc?.grid
-        this.grid = grid
-        grid?.let {
-            windowCurrentSize = it.windowCurrentSize
+        val newWindowCurrentSize: Int
+        val newProviderGridPoints: Map<Id, ProviderGridPoint>
 
-            val updateProviderGridPointsList = it.providerGridPointList
+        if (grid != null) {
+            newWindowCurrentSize = grid.windowCurrentSize
+
+            val updateProviderGridPointsList = grid.providerGridPointList
             val updateProviderGridPoints = mutableMapOf<Id, ProviderGridPoint>()
             for (i in 0 until updateProviderGridPointsList.len()) {
                 val point = updateProviderGridPointsList.get(i)
                 updateProviderGridPoints[point.clientId] = point
             }
-            providerGridPoints = updateProviderGridPoints
+            newProviderGridPoints = updateProviderGridPoints
+        } else {
+            newWindowCurrentSize = 0
+            newProviderGridPoints = mapOf()
         }
-                ?: run {
-                    windowCurrentSize = 0
-                    providerGridPoints = mapOf()
-                }
+
+        viewModelScope.launch {
+            this@ConnectViewModel.grid = grid
+            windowCurrentSize = newWindowCurrentSize
+            providerGridPoints = newProviderGridPoints
+        }
     }
 
     val getStateColor: (ProviderPointState?) -> Color = { state ->
@@ -299,8 +303,10 @@ constructor(
     }
 
     private fun updateSelectedLocation() {
-
-        connectVc?.let { selectedLocation = it.selectedLocation }
+        connectVc?.let {
+            val location = it.selectedLocation
+            viewModelScope.launch { selectedLocation = location }
+        }
     }
 
     val addSelectedLocationListener = {
@@ -319,8 +325,10 @@ constructor(
 
         val sub =
                 deviceManager.device?.addTunnelChangeListener { tunnelConnected ->
-                    this.tunnelConnected = tunnelConnected
-                    updateDisplayReconnectTunnel()
+                    viewModelScope.launch {
+                        this@ConnectViewModel.tunnelConnected = tunnelConnected
+                        updateDisplayReconnectTunnel()
+                    }
                 }
 
         // unwrap sub
@@ -353,19 +361,11 @@ constructor(
 
         val performanceProfile = deviceManager.performanceProfile
         if (performanceProfile != null) {
-            this.setFixedIpSize(
-                performanceProfile.windowSize.windowSizeMin.toInt() == 1 &&
-                        performanceProfile.windowSize.windowSizeMax.toInt() == 1
-            )
-            setSelectedWindowType(
-                WindowType.fromRawValueOrDefault(
-                    performanceProfile.windowType
-                )
-            )
-            setAllowDirect(performanceProfile.allowDirect)
-
-        } else {
-            this.setFixedIpSize(false)
+            fixedIpSize = performanceProfile.windowSize.windowSizeMin.toInt() == 1 &&
+                    performanceProfile.windowSize.windowSizeMax.toInt() == 1
+            selectedWindowType = WindowType.fromRawValueOrDefault(performanceProfile.windowType)
+            allowDirect = performanceProfile.allowDirect
+            updatePerformanceProfile()
         }
 
         update()
@@ -383,7 +383,7 @@ constructor(
         subs.forEach { sub -> sub.close() }
         subs.clear()
 
-        viewModelScope.cancel()
+        connectVc?.let { deviceManager.device?.closeViewController(it) }
     }
 }
 

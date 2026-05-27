@@ -26,6 +26,7 @@ class ProfileViewModel @Inject constructor(
 
     private var networkUserVc: NetworkUserViewController? = null
     private var networkNameValidationVc: NetworkNameValidationViewController? = null
+    private val subs = mutableListOf<Sub>()
 
     var isEditingProfile by mutableStateOf(false)
         private set
@@ -65,8 +66,10 @@ class ProfileViewModel @Inject constructor(
 
     private val addIsUpdatingListener = {
         networkUserVc?.addIsUpdatingListener { isUpdating ->
-            isUpdatingProfile = isUpdating
-        }
+            viewModelScope.launch {
+                isUpdatingProfile = isUpdating
+            }
+        }?.let { subs.add(it) }
     }
 
     val setNetworkNameTextFieldValue: (TextFieldValue) -> Unit = {
@@ -125,19 +128,29 @@ class ProfileViewModel @Inject constructor(
     }
 
     private var updateSuccessListener: (() -> Unit)? = null
+    private var updateSuccessSubInstance: Sub? = null
 
     val updateSuccessSub: (() -> Unit) -> Sub? = { callback ->
+        updateSuccessSubInstance?.let { oldSub ->
+            subs.remove(oldSub)
+            oldSub.close()
+        }
         updateSuccessListener = callback
-        networkUserVc?.addNetworkUserUpdateSuccessListener {
+        val sub = networkUserVc?.addNetworkUserUpdateSuccessListener {
             updateSuccessListener?.invoke()
         }
+        updateSuccessSubInstance = sub
+        sub?.let { subs.add(it) }
+        sub
     }
 
     val addUpdateErrorListener = {
         networkUserVc?.addNetworkUserUpdateErrorListener {
-            cancelEdits()
-            setErrorUpdatingProfile(true)
-        }
+            viewModelScope.launch {
+                cancelEdits()
+                setErrorUpdatingProfile(true)
+            }
+        }?.let { subs.add(it) }
     }
 
     init {
@@ -159,9 +172,14 @@ class ProfileViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
+        subs.forEach { it.close() }
+        subs.clear()
+
         networkUserVc?.let {
             deviceManager.device?.closeViewController(it)
         }
+
+        networkNameValidationVc?.close()
 
         updateSuccessListener = null
     }

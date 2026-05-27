@@ -3,16 +3,16 @@ package com.bringyour.network.utils
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import java.sql.Time
-import java.text.SimpleDateFormat
+import androidx.compose.runtime.remember
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+private val todayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM d")
+
 fun todayFormatted(): String {
     val today = LocalDate.now()
-    val formatter = DateTimeFormatter.ofPattern("MMM d")
-    return today.format(formatter)
+    return today.format(todayFormatter)
 }
 
 @SuppressLint("LocalContextConfigurationRead")
@@ -20,6 +20,6 @@ fun todayFormatted(): String {
 fun formatDateLocalized(date: LocalDateTime): String {
     val context = LocalContext.current
     val locale = context.resources.configuration.locales[0]
-    val formatter = DateTimeFormatter.ofPattern("MMM d", locale)
+    val formatter = remember(locale) { DateTimeFormatter.ofPattern("MMM d", locale) }
     return date.format(formatter)
 }

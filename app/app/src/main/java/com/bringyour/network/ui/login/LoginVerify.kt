@@ -36,6 +36,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,9 +61,8 @@ import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,6 +95,8 @@ fun LoginVerify(
     val verifySendErrMsg = stringResource(id = R.string.verify_send_error)
     val verifyErrMsg = stringResource(id = R.string.verify_error)
 
+    val scope = rememberCoroutineScope()
+
     val resendCode = {
 
         resendInProgress = true
@@ -104,15 +106,15 @@ fun LoginVerify(
         args.useNumeric = true
 
         application?.api?.authVerifySend(args) { _, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
 
                 resendInProgress = false
-                markResendAsSent = true
-
-                Toast.makeText(context, "Verification code sent", Toast.LENGTH_SHORT).show()
 
                 if (err != null) {
                     resendError = verifySendErrMsg
+                } else {
+                    markResendAsSent = true
+                    Toast.makeText(context, "Verification code sent", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -127,7 +129,7 @@ fun LoginVerify(
         args.verifyCode = code.joinToString("")
 
         application?.api?.authVerify(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
                 verifyInProgress = false
 
                 if (err != null) {
@@ -165,11 +167,19 @@ fun LoginVerify(
         }
     }
 
+    LaunchedEffect(markResendAsSent) {
+        if (markResendAsSent) {
+            delay(30000L)
+            markResendAsSent = false
+        }
+    }
+
     LaunchedEffect(code) {
 
         val codeStr = code.joinToString("")
 
         if (codeStr.length == codeLength && !verifyInProgress) {
+            verifyInProgress = true
             verify()
         }
 
@@ -214,7 +224,7 @@ fun LoginVerify(
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .widthIn(512.dp)
+                        .widthIn(max = 512.dp)
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally

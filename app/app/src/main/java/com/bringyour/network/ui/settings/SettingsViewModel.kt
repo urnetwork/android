@@ -25,6 +25,7 @@ import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.StripeCreateCustomerPortalArgs
+import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,7 @@ class SettingsViewModel @Inject constructor(
 ): ViewModel() {
 
     private var accountPreferencesVc: AccountPreferencesViewController? = null
+    private val subs = mutableListOf<Sub>()
 
     private val _permissionGranted = MutableStateFlow(false)
     val permissionGranted: StateFlow<Boolean> = _permissionGranted
@@ -173,7 +175,7 @@ class SettingsViewModel @Inject constructor(
                 viewModelScope.launch {
                     setAllowProductUpdates(vc.allowProductUpdates)
                 }
-            }
+            }?.let { subs.add(it) }
         }
     }
 
@@ -212,6 +214,8 @@ class SettingsViewModel @Inject constructor(
                 _isDeletingAccount.value = false
 
             }
+        } ?: run {
+            _isDeletingAccount.value = false
         }
     }
 
@@ -260,11 +264,13 @@ class SettingsViewModel @Inject constructor(
 
                 if (error != null) {
                     Log.i(TAG, "error creating auth code: ${error.message}")
+                    viewModelScope.launch { _isCreatingAuthCode.value = false }
                     return@authCodeCreate
                 }
 
                 if (result.error != null) {
                     Log.i(TAG, "result error creating auth code: ${result.error.message}")
+                    viewModelScope.launch { _isCreatingAuthCode.value = false }
                     return@authCodeCreate
                 }
 
@@ -316,21 +322,23 @@ class SettingsViewModel @Inject constructor(
 
     val addProvideEnabledListener: () -> Unit = {
         deviceManager.device?.let { device ->
-            device.addProvideChangeListener {
+            val sub = device.addProvideChangeListener {
                 viewModelScope.launch {
                     _provideEnabled.value = device.provideEnabled
                 }
             }
+            sub?.let { subs.add(it) }
         }
     }
 
     val addProvidePausedListener: () -> Unit = {
         deviceManager.device?.let { device ->
-            device.addProvidePausedChangeListener {
+            val sub = device.addProvidePausedChangeListener {
                 viewModelScope.launch {
                     _providePaused.value = device.providePaused
                 }
             }
+            sub?.let { subs.add(it) }
         }
     }
 
@@ -373,6 +381,17 @@ class SettingsViewModel @Inject constructor(
             _provideEnabled.value = device.provideEnabled
         }
 
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        subs.forEach { it.close() }
+        subs.clear()
+
+        accountPreferencesVc?.let {
+            deviceManager.device?.closeViewController(it)
+        }
     }
 
 }

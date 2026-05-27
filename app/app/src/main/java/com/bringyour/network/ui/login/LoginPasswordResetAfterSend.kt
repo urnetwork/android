@@ -46,9 +46,9 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +68,8 @@ fun LoginPasswordResetAfterSend(
     }
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
 
+    val scope = rememberCoroutineScope()
+
     val sendResetLink = {
         val args = AuthPasswordResetArgs()
         args.userAuth = userAuth.trim()
@@ -75,7 +77,7 @@ fun LoginPasswordResetAfterSend(
         inProgress = true
 
         app?.api?.authPasswordReset(args) { _, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
                 inProgress = false
 
                 if (err != null) {
@@ -86,7 +88,7 @@ fun LoginPasswordResetAfterSend(
                     markAsSent = true
                 }
             }
-        }
+        } ?: run { inProgress = false }
     }
 
     LaunchedEffect(markAsSent) {
@@ -123,7 +125,7 @@ fun LoginPasswordResetAfterSend(
         ) {
             Column (
                 modifier = Modifier
-                    .fillMaxWidth().widthIn(512.dp)
+                    .fillMaxWidth().widthIn(max = 512.dp)
             ) {
                 Text(
                     stringResource(id = R.string.reset_link_sent),

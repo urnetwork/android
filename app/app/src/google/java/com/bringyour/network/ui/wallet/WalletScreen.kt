@@ -35,7 +35,7 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -261,7 +261,7 @@ fun RemoveWalletDialog(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                ClickableText(
+                Text(
                     text = AnnotatedString(
                         "Cancel",
                         spanStyle = SpanStyle(
@@ -269,14 +269,14 @@ fun RemoveWalletDialog(
                             fontSize = 14.sp
                         )
                     ),
-                    onClick = {
+                    modifier = Modifier.clickable {
                         closeRemoveWalletModal()
                     },
                 )
 
                 Spacer(modifier = Modifier.width(32.dp))
 
-                ClickableText(
+                Text(
                     text = AnnotatedString(
                         "Remove wallet",
                         spanStyle = if (!isRemovingWallet && walletId != null)
@@ -289,8 +289,8 @@ fun RemoveWalletDialog(
                                 fontSize = 14.sp
                             )
                     ),
-                    onClick = {
-                        if (walletId != null) {
+                    modifier = Modifier.clickable {
+                        if (walletId != null && !isRemovingWallet) {
                             removeWallet(walletId)
                             closeRemoveWalletModal()
                             navController.popBackStack()
@@ -349,7 +349,7 @@ fun ExternalWalletScreenContent(
 
                         Column {
                             Text(
-                                "${blockchain.toString().lowercase().capitalize()} Wallet",
+                                "${blockchain.toString().lowercase().replaceFirstChar { it.titlecase() }} Wallet",
                                 style = MaterialTheme.typography.headlineSmall
                             )
 
@@ -439,7 +439,7 @@ fun MaskedWalletAddress(
     walletAddress: String?
 ) {
     Text(
-        "***${walletAddress?.takeLast(7)}",
+        "***${walletAddress?.takeLast(7) ?: ""}",
         style = TextStyle(
             fontSize = 20.sp,
             fontFamily = ppNeueBitBold

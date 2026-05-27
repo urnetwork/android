@@ -29,6 +29,7 @@ class ReferralCodeViewModel @Inject constructor(
     val totalReferralCount: StateFlow<Long> = _totalReferralCount.asStateFlow()
 
     val pollReferralCode: () -> Unit = {
+        pollingJob?.cancel()
         pollingJob = viewModelScope.launch {
             fetchReferralCode()
 

@@ -101,10 +101,6 @@ private fun UpgradePlanSheetContent(
 
     val colModifier = Modifier
 
-    if (!isTablet()) {
-        colModifier.fillMaxSize()
-    }
-
     Column(
         modifier = colModifier
             .padding(horizontal = 16.dp)

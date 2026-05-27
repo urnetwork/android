@@ -41,6 +41,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,12 +76,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.TextUnit
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import android.net.Uri
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.ppNeueBitBold
@@ -214,73 +214,70 @@ fun LoginCreateNetwork(
     val application = context.applicationContext as? MainApplication
     val loginActivity = context as? LoginActivity
 
-    when(params) {
-        is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-            setEmailOrPhone(TextFieldValue(params.userAuth))
+    LaunchedEffect(params) {
+        when(params) {
+            is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
+                setEmailOrPhone(TextFieldValue(params.userAuth))
+            }
+            else -> Unit
         }
-        else -> Unit
     }
 
-    var isBtnEnabled by remember { mutableStateOf(false) }
     var inProgress by remember { mutableStateOf(false) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(
-        inProgress,
-        params,
-        networkName.text,
-        password.text,
-        termsAgreed,
-        networkNameIsValid,
-        networkNameErrorExists
-    ) {
-
-        isBtnEnabled = when(params) {
-            is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-                !inProgress &&
-                        (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
-                                Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
+    val isBtnEnabled by remember {
+        derivedStateOf {
+            when(params) {
+                is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
+                    !inProgress &&
+                            (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
+                                    Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
+                            (networkName.text.length >= 6) &&
+                            (password.text.length >= 12) &&
+                            !isValidatingNetworkName &&
+                            !networkNameErrorExists &&
+                            networkNameIsValid &&
+                            termsAgreed
+                }
+                is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
+                    !inProgress &&
+                            (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
+                            (networkName.text.length >= 6) &&
+                            (params.authJwt.isNotEmpty()) &&
+                            (params.authJwtType.isNotEmpty()) &&
+                            !isValidatingNetworkName &&
+                            !networkNameErrorExists &&
+                            networkNameIsValid &&
+                            termsAgreed
+                }
+                is LoginCreateNetworkParams.LoginCreateWalletParams -> {
+                    !inProgress &&
                         (networkName.text.length >= 6) &&
-                        (password.text.length >= 12) &&
+                        (params.publicKey.isNotEmpty()) &&
+                        (params.signature.isNotEmpty()) &&
+                        (params.signedMessage.isNotEmpty()) &&
+                        (params.blockchain.isNotEmpty()) &&
                         !isValidatingNetworkName &&
                         !networkNameErrorExists &&
                         networkNameIsValid &&
                         termsAgreed
-            }
-            is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-                !inProgress &&
-                        (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
-                        (networkName.text.length >= 6) &&
-                        (params.authJwt.isNotEmpty()) &&
-                        (params.authJwtType.isNotEmpty()) &&
-                        !isValidatingNetworkName &&
-                        !networkNameErrorExists &&
-                        networkNameIsValid &&
-                        termsAgreed
-            }
-            is LoginCreateNetworkParams.LoginCreateWalletParams -> {
-                    (networkName.text.length >= 6) &&
-                    (params.publicKey.isNotEmpty()) &&
-                    (params.signature.isNotEmpty()) &&
-                    (params.signedMessage.isNotEmpty()) &&
-                    (params.blockchain.isNotEmpty()) &&
-                    !isValidatingNetworkName &&
-                    !networkNameErrorExists &&
-                    networkNameIsValid &&
-                    termsAgreed
+                }
             }
         }
     }
 
     val createNetworkError = stringResource(id = R.string.create_network_error)
 
+    val scope = rememberCoroutineScope()
+
     val createNetwork = {
         val args = createNetworkArgs(params)
         inProgress = true
 
         application?.api?.networkCreate(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
 
                 if (err != null) {
                     Toast.makeText(context, "Error creating network. Try again later", Toast.LENGTH_SHORT).show()
@@ -317,7 +314,7 @@ fun LoginCreateNetwork(
                     }
 
                     userAuth?.let {
-                        navController.navigate("verify/${it}")
+                        navController.navigate("verify/${Uri.encode(it)}")
                     } ?: run {
                         Toast.makeText(context, "There was a problem parsing user auth for verification", Toast.LENGTH_SHORT).show()
                     }

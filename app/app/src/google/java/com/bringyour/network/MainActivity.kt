@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
@@ -23,6 +25,7 @@ import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
 import com.bringyour.network.ui.MainNavHost
+import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -54,6 +57,8 @@ class MainActivity: AppCompatActivity() {
 
     // used for solana mobile adapter
     val activityResultSender = ActivityResultSender(this)
+
+    var subscriptionUpgradeSuccess: Boolean = false
 
     private val walletViewModel: WalletViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
@@ -149,6 +154,7 @@ class MainActivity: AppCompatActivity() {
         val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
         val targetUrl = intent.getStringExtra("TARGET_URL")
         val defaultLocation = intent.getStringExtra("DEFAULT_LOCATION")
+        subscriptionUpgradeSuccess = intent.getBooleanExtra("UPGRADE_SUBSCRIPTION_SUCCESS", false)
 
         // disable animation in if mobile or tablet
         if (Build.VERSION.SDK_INT >= 34) {
@@ -176,6 +182,18 @@ class MainActivity: AppCompatActivity() {
                 )
             }
         }
+
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onPause(owner: LifecycleOwner) {
+                Log.i("Lifecycle", "Activity onPause")
+                subscriptionBalanceViewModel.stopBackgroundPolling()
+            }
+            override fun onResume(owner: LifecycleOwner) {
+                Log.i("Lifecycle", "Activity onResume")
+                subscriptionBalanceViewModel.setErrorReachingSubscriptionBalance(false)
+                subscriptionBalanceViewModel.createBackgroundPollingJob()
+            }
+        })
     }
 
     override fun onStart() {
@@ -220,6 +238,11 @@ class MainActivity: AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        if (subscriptionUpgradeSuccess) {
+            overlayViewModel.launch(OverlayMode.Upgrade)
+            subscriptionBalanceViewModel.pollSubscriptionBalance()
         }
 
         // for upgrading plan

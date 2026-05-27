@@ -9,7 +9,9 @@ import javax.inject.Singleton
 @Singleton
 class NetworkSpaceManagerProvider @Inject constructor() {
 
+    @Volatile
     private var networkSpaceManager: NetworkSpaceManager? = null
+    @Volatile
     private var networkSpace: NetworkSpace? = null
 
     val init: (filesDirPath: String) -> Unit = { filesDirPath ->

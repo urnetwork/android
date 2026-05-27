@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthPasswordResetArgs
+import android.net.Uri
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
@@ -58,8 +59,8 @@ import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,6 +81,8 @@ fun LoginPasswordReset(
     }
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
 
+    val scope = rememberCoroutineScope()
+
     val sendResetLink = {
         val args = AuthPasswordResetArgs()
         args.userAuth = user.text.trim()
@@ -87,7 +90,7 @@ fun LoginPasswordReset(
         inProgress = true
 
         app?.api?.authPasswordReset(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
                 inProgress = false
 
                 if (err != null) {
@@ -95,12 +98,12 @@ fun LoginPasswordReset(
                 } else {
                     passwordResetError = null
 
-                    navController.navigate("reset-password-after-send/${userAuth}") {
+                    navController.navigate("reset-password-after-send/${Uri.encode(userAuth)}") {
                         popUpTo("login-initial") { inclusive = false }
                     }
                 }
             }
-        }
+        } ?: run { inProgress = false }
     }
 
     Scaffold(
@@ -193,6 +196,11 @@ fun LoginPasswordReset(
                                 tint = if (isBtnEnabled) Color.White else Color.Gray
                             )
                         }
+                    }
+
+                    if (passwordResetError != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("$passwordResetError")
                     }
                 }
             }

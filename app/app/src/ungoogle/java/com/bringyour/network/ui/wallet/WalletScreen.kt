@@ -11,9 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -60,7 +58,7 @@ import com.bringyour.sdk.Id
 
 @Composable
 fun WalletScreen(
-    navController: NavController,
+    navController: NavHostController,
     accountWallet: AccountWallet?,
     walletViewModel: WalletViewModel
 ) {
@@ -94,7 +92,7 @@ fun WalletScreen(
 
 @Composable
 fun WalletScreen(
-    navController: NavController,
+    navController: NavHostController,
     walletId: Id?,
     walletAddress: String?,
     isPayoutWallet: Boolean,
@@ -180,7 +178,7 @@ fun WalletContentScaffold(
 
 @Composable
 fun PayoutsList(
-    navController: NavController,
+    navController: NavHostController,
     payouts: List<AccountPayment>,
     walletAddress: String?,
 ) {
@@ -205,7 +203,7 @@ fun PayoutsList(
                 HorizontalDivider()
 
                 PayoutRow(
-                    navController = navController as NavHostController,
+                    navController = navController,
                     walletAddress = walletAddress ?: "",
                     completeTime = if (payout.completeTime != null) payout.completeTime.format("Jan 2") else null,
                     amountUsd = payout.tokenAmount,
@@ -265,7 +263,7 @@ fun RemoveWalletDialog(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                ClickableText(
+                Text(
                     text = AnnotatedString(
                         "Cancel",
                         spanStyle = SpanStyle(
@@ -273,14 +271,14 @@ fun RemoveWalletDialog(
                             fontSize = 14.sp
                         )
                     ),
-                    onClick = {
+                    modifier = Modifier.clickable {
                         closeRemoveWalletModal()
                     },
                 )
 
                 Spacer(modifier = Modifier.width(32.dp))
 
-                ClickableText(
+                Text(
                     text = AnnotatedString(
                         "Remove wallet",
                         spanStyle = if (!isRemovingWallet && walletId != null)
@@ -293,8 +291,8 @@ fun RemoveWalletDialog(
                                 fontSize = 14.sp
                             )
                     ),
-                    onClick = {
-                        if (walletId != null) {
+                    modifier = Modifier.clickable {
+                        if (walletId != null && !isRemovingWallet) {
                             removeWallet(walletId)
                             closeRemoveWalletModal()
                             navController.popBackStack()
@@ -308,7 +306,7 @@ fun RemoveWalletDialog(
 
 @Composable
 fun ExternalWalletScreenContent(
-    navController: NavController,
+    navController: NavHostController,
     walletId: Id?,
     walletAddress: String?,
     isPayoutWallet: Boolean,
@@ -353,7 +351,7 @@ fun ExternalWalletScreenContent(
 
                         Column {
                             Text(
-                                "${blockchain.toString().lowercase().capitalize()} Wallet",
+                                "${blockchain.toString().lowercase().replaceFirstChar { it.titlecase() }} Wallet",
                                 style = MaterialTheme.typography.headlineSmall
                             )
 
@@ -444,7 +442,7 @@ fun MaskedWalletAddress(
     walletAddress: String?
 ) {
     Text(
-        "***${walletAddress?.takeLast(7)}",
+        "***${walletAddress?.takeLast(7) ?: ""}",
         style = TextStyle(
             fontSize = 20.sp,
             fontFamily = ppNeueBitBold

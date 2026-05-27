@@ -42,7 +42,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.LaunchedEffect
@@ -92,7 +92,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.ethereumphone.walletsdk.WalletSDK
 import java.util.Date
 
@@ -239,37 +238,41 @@ fun LoginInitial(
 
         if (hasEthOsWallet) {
 
-            val wallet = WalletSDK(
-                context = context,
-                bundlerRPCUrl = BuildConfig.BUNDLER_RPC_URL,
-                // optional: override default web3 provider used for reads (eth_call, code, etc.)
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val wallet = WalletSDK(
+                        context = context,
+                        bundlerRPCUrl = BuildConfig.BUNDLER_RPC_URL,
+                        // optional: override default web3 provider used for reads (eth_call, code, etc.)
 //                web3jInstance = Web3j.build(HttpService("https://base.llamarpc.com")/)
-            )
+                    )
 
-            val timestamp = Date().time.toString()
-            val message = "Welcome to URnetwork - $timestamp"
+                    val timestamp = Date().time.toString()
+                    val message = "Welcome to URnetwork - $timestamp"
 
-            CoroutineScope(Dispatchers.IO).launch {
+                    val address = wallet.getAddress()
 
-                val address = wallet.getAddress()
+                    val signature = wallet.signMessage(
+                        message = message,
+                        chainId = 1,
+                        // type = "personal_sign" // optional (default)
+                    )
 
-                val signature = wallet.signMessage(
-                    message = message,
-                    chainId = 1,
-                    // type = "personal_sign" // optional (default)
-                )
-
-                loginViewModel.walletLoginEthereum(
-                    context,
-                    application?.api,
-                    address,
-                    message,
-                    signature,
-                    {result ->
-                        onLogin(result.network.byJwt)
-                    },
-                    onCreateNetworkWallet
-                )
+                    loginViewModel.walletLoginEthereum(
+                        context,
+                        application?.api,
+                        address,
+                        message,
+                        signature,
+                        {result ->
+                            onLogin(result.network.byJwt)
+                        },
+                        onCreateNetworkWallet
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "EthOS wallet error", e)
+                    loginViewModel.setLoginError("EthOS wallet error: ${e.message}")
+                }
             }
 
         } else {
@@ -363,6 +366,8 @@ fun LoginInitial(
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
 
+    val scope = rememberCoroutineScope()
+
     var guestModeOverlayVisible by remember { mutableStateOf(false) }
 
     val setGuestModeOverlayVisible: (Boolean) -> Unit = { isVisible ->
@@ -378,11 +383,11 @@ fun LoginInitial(
     val loginActivity = context as? LoginActivity
 
     val navigateToLoginPassword: (AuthLoginResult) -> Unit = { result ->
-        navController.navigate("login-password/${result.userAuth}")
+        navController.navigate("login-password/${Uri.encode(result.userAuth)}")
     }
 
     val onNewNetwork: (AuthLoginResult) -> Unit = { result ->
-        navController.navigate("create-network/${result.userAuth}")
+        navController.navigate("create-network/${Uri.encode(result.userAuth)}")
     }
 
     val googleClientId = stringResource(id = R.string.google_client_id)
@@ -403,7 +408,7 @@ fun LoginInitial(
         args.guestMode = true
 
         application?.api?.networkCreate(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
 
                 if (err != null) {
                     Log.i("OnboardingGuestModeOverlay", "error ${err.message}")
@@ -454,7 +459,7 @@ fun LoginInitial(
         authJwt: String?,
         userName: String
             ) -> Unit = { email, authJwt, userName ->
-        navController.navigate("create-network-jwt/${email}/$authJwt/$userName")
+        navController.navigate("create-network-jwt/${Uri.encode(email)}/${Uri.encode(authJwt)}/${Uri.encode(userName)}")
     }
 
     val googleSignInLauncher = rememberLauncherForActivityResult(
@@ -827,16 +832,12 @@ private fun TryGuestMode(
     }
 
     Row {
-        ClickableText(
+        Text(
             text = guestModeStr,
-            onClick = { offset ->
-                guestModeStr.getStringAnnotations(
-                    tag = "GUEST_MODE", start = offset, end = offset
-                ).firstOrNull()?.let {
+            modifier = Modifier
+                .clickable {
                     setGuestModeOverlayVisible(true)
                 }
-            },
-            modifier = Modifier
                 .onFocusChanged {
                     isFocused = it.isFocused
                 }

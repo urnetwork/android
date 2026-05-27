@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,11 +49,13 @@ fun WalletCard(
     payouts: List<AccountPayment>,
 ) {
 
-    val walletPayments = payouts.filter { it.walletId == walletId }
-    val totalPayouts = if (walletPayments.isEmpty()) {
-        "0.00"
-    } else {
-        formatDecimalString(walletPayments.sumOf { it.tokenAmount }, 4)
+    val totalPayouts = remember(payouts, walletId) {
+        val walletPayments = payouts.filter { it.walletId == walletId }
+        if (walletPayments.isEmpty()) {
+            "0.00"
+        } else {
+            formatDecimalString(walletPayments.sumOf { it.tokenAmount }, 4)
+        }
     }
 
     val walletType = if (blockchain == Blockchain.SOLANA)

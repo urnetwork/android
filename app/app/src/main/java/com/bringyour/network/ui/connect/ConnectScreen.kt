@@ -81,6 +81,9 @@ fun ConnectScreen(
 
     val networkUser by accountViewModel.networkUser.collectAsState()
 
+    val availableBytes by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
+    val dailyByteCount by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
+
     val displayInsufficientBalance = contractStatus?.insufficientBalance == true && !isPro
 
     var promptSolanaReview by remember { mutableStateOf(false) }
@@ -158,11 +161,11 @@ fun ConnectScreen(
                 insufficientBalance = displayInsufficientBalance,
                 usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                 pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
-                availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
+                availableBytes = availableBytes,
                 meanReliabilityWeight = meanReliabilityWeight,
                 totalReferrals = totalReferrals,
                 launchIntro = launchIntro,
-                dailyByteCount = subscriptionBalanceViewModel.startBalanceByteCount.collectAsState().value,
+                dailyByteCount = dailyByteCount,
                 fixedIpSize = connectViewModel.fixedIpSize,
                 toggleFixedIpSize = connectViewModel.toggleFixedIp,
                 selectedWindowType = connectViewModel.selectedWindowType,
@@ -268,7 +271,7 @@ fun ConnectMainContent(
     providerGridPoints: Map<Id, ProviderGridPoint>,
     windowCurrentSize: Int,
     connect: (ConnectLocation?) -> Unit,
-    disconnect: () -> Unit?,
+    disconnect: () -> Unit,
     loginMode: LoginMode,
     animatedSuccessPoints: List<AnimatedSuccessPoint>,
     shuffleSuccessPoints: () -> Unit,

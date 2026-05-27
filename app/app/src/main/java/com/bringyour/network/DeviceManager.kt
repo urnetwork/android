@@ -16,71 +16,75 @@ class DeviceManager @Inject constructor(
     private val jwtManager: JwtManager
 ) {
 
-    var device: DeviceLocal? = null
+    private val deviceLock = Any()
+
+    @Volatile var device: DeviceLocal? = null
         private set
+
+    private var jwtRefreshSub: Sub? = null
 
     val networkSpace get() = device?.networkSpace
     val asyncLocalState get() = device?.networkSpace?.asyncLocalState
 
     var routeLocal: Boolean
-        get() = device?.routeLocal!!
-        set(it) {
+        get() = synchronized(deviceLock) { device?.routeLocal ?: true }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.routeLocal = it
             device?.routeLocal = it
         }
 
     var canShowRatingDialog: Boolean
-        get() = device?.canShowRatingDialog!!
-        set(it) {
+        get() = synchronized(deviceLock) { device?.canShowRatingDialog ?: false }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.canShowRatingDialog = it
             device?.canShowRatingDialog = it
         }
 
     var canRefer: Boolean
-        get() = if (device == null) false else device?.canRefer!!
-        set(it) {
-            asyncLocalState?.localState?.canShowRatingDialog = it
-            device?.canShowRatingDialog = it
+        get() = synchronized(deviceLock) { device?.canRefer ?: false }
+        set(it) = synchronized(deviceLock) {
+            asyncLocalState?.localState?.canRefer = it
+            device?.canRefer = it
         }
 
     var canPromptIntroFunnel: Boolean
-        get() = if (device == null) true else device?.canPromptIntroFunnel!!
-        set(it) {
+        get() = synchronized(deviceLock) { device?.canPromptIntroFunnel ?: true }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.setIntroFunnelLastPrompted()
             device?.canPromptIntroFunnel = it
         }
 
     var provideControlMode: ProvideControlMode
-        get() = ProvideControlMode.fromString(device?.provideControlMode!!) ?: ProvideControlMode.AUTO
-        set(it) {
+        get() = synchronized(deviceLock) { device?.provideControlMode?.let { ProvideControlMode.fromString(it) } ?: ProvideControlMode.AUTO }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.provideControlMode = ProvideControlMode.toString(it)
             device?.provideControlMode = ProvideControlMode.toString(it)
         }
 
     var provideNetworkMode: ProvideNetworkMode
-        get() = ProvideNetworkMode.fromString(device?.provideNetworkMode!!) ?: ProvideNetworkMode.WIFI
-        set(it) {
+        get() = synchronized(deviceLock) { device?.provideNetworkMode?.let { ProvideNetworkMode.fromString(it) } ?: ProvideNetworkMode.WIFI }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.provideNetworkMode = ProvideNetworkMode.toString(it)
             device?.provideNetworkMode = ProvideNetworkMode.toString(it)
         }
 
     var allowForeground: Boolean
-        get() = device?.allowForeground!!
-        set(it) {
+        get() = synchronized(deviceLock) { device?.allowForeground ?: false }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.allowForeground = it
             device?.allowForeground = it
         }
 
     var vpnInterfaceWhileOffline: Boolean
-        get() = device?.vpnInterfaceWhileOffline!!
-        set(it) {
+        get() = synchronized(deviceLock) { device?.vpnInterfaceWhileOffline ?: false }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.vpnInterfaceWhileOffline = it
             device?.vpnInterfaceWhileOffline = it
         }
 
     var performanceProfile: PerformanceProfile?
-        get() = device?.performanceProfile
-        set(it) {
+        get() = synchronized(deviceLock) { device?.performanceProfile }
+        set(it) = synchronized(deviceLock) {
             asyncLocalState?.localState?.performanceProfile = it
             device?.performanceProfile = it
         }
@@ -91,10 +95,17 @@ class DeviceManager @Inject constructor(
         deviceDescription: String,
         deviceSpec: String
     ) {
-        device?.close()  // Ensure old instance is cleaned up
-
-        val localState = networkSpace!!.asyncLocalState.localState!!
-        val instanceId = localState.instanceId!!
+        if (networkSpace == null) {
+            synchronized(deviceLock) {
+                jwtRefreshSub?.close()
+                jwtRefreshSub = null
+                device?.close()
+                device = null
+            }
+            return
+        }
+        val localState = networkSpace.asyncLocalState.localState ?: return
+        val instanceId = localState.instanceId ?: return
         val routeLocal = localState.routeLocal
         val connectLocation = localState.connectLocation
         val defaultLocation = localState.defaultLocation // when user selects location, disconnects, restarts app, we want to persist the location
@@ -108,7 +119,7 @@ class DeviceManager @Inject constructor(
         val allowForeground = localState.allowForeground
         val performanceProfile = localState.performanceProfile
 
-        device = Sdk.newDeviceLocalWithDefaults(
+        val newDevice = Sdk.newDeviceLocalWithDefaults(
             networkSpace,
             byClientJwt,
             deviceDescription,
@@ -116,51 +127,62 @@ class DeviceManager @Inject constructor(
             getAppVersion(),
             instanceId,
             false
-        )
+        ) ?: return
 
-        localState.provideSecretKeys?.let {
-            device?.loadProvideSecretKeys(it)
-        } ?: run {
-            var sub: Sub? = null
-            sub = device?.addProvideSecretKeysListener {
-                localState.provideSecretKeys = it
-                sub?.close()
+        synchronized(deviceLock) {
+            jwtRefreshSub?.close()
+            jwtRefreshSub = null
+            device?.close()
+            device = newDevice
+
+            localState.provideSecretKeys?.let {
+                newDevice.loadProvideSecretKeys(it)
+            } ?: run {
+                var sub: Sub? = null
+                sub = newDevice.addProvideSecretKeysListener {
+                    localState.provideSecretKeys = it
+                    sub?.close()
+                }
+                newDevice.initProvideSecretKeys()
             }
-            device?.initProvideSecretKeys()
-        }
 
-        device?.providePaused = true
-        device?.routeLocal = routeLocal
-        device?.provideMode = provideMode
-        device?.connectLocation = connectLocation
-        device?.defaultLocation = defaultLocation
-        device?.canShowRatingDialog = canShowRatingDialog
-        device?.provideControlMode = ProvideControlMode.toString(provideControlMode)
-        device?.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
-        device?.canRefer = canRefer
-        device?.allowForeground = allowForeground
-        device?.provideNetworkMode = ProvideNetworkMode.toString(provideNetworkMode)
-        device?.canPromptIntroFunnel = canPromptIntroFunnel
-        device?.performanceProfile = performanceProfile
+            newDevice.providePaused = true
+            newDevice.routeLocal = routeLocal
+            newDevice.provideMode = provideMode
+            newDevice.connectLocation = connectLocation
+            newDevice.defaultLocation = defaultLocation
+            newDevice.canShowRatingDialog = canShowRatingDialog
+            newDevice.provideControlMode = ProvideControlMode.toString(provideControlMode)
+            newDevice.vpnInterfaceWhileOffline = vpnInterfaceWhileOffline
+            newDevice.canRefer = canRefer
+            newDevice.allowForeground = allowForeground
+            newDevice.provideNetworkMode = ProvideNetworkMode.toString(provideNetworkMode)
+            newDevice.canPromptIntroFunnel = canPromptIntroFunnel
+            newDevice.performanceProfile = performanceProfile
 
-        /**
-         * set initial jwt on device creation
-         */
-        val byJwt = localState.parseByJwt()
-        jwtManager.updateJwt(byJwt)
-
-        device?.addJwtRefreshListener { jwt ->
-
-            val localState = networkSpace.asyncLocalState.localState
+            /**
+             * set initial jwt on device creation
+             */
             val byJwt = localState.parseByJwt()
-
             jwtManager.updateJwt(byJwt)
+
+            jwtRefreshSub = newDevice.addJwtRefreshListener { jwt ->
+
+                val localState = newDevice.networkSpace?.asyncLocalState?.localState ?: return@addJwtRefreshListener
+                val byJwt = localState.parseByJwt()
+
+                jwtManager.updateJwt(byJwt)
+            }
         }
     }
 
     fun clearDevice() {
-        device?.close()
-        device = null
+        synchronized(deviceLock) {
+            jwtRefreshSub?.close()
+            jwtRefreshSub = null
+            device?.close()
+            device = null
+        }
     }
 
     private fun getAppVersion(): String {

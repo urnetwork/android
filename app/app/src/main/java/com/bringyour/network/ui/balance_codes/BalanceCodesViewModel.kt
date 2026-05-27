@@ -3,7 +3,6 @@ package com.bringyour.network.ui.balance_codes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
-import com.bringyour.sdk.BlockedLocation
 import com.bringyour.sdk.RedeemedBalanceCode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -72,7 +71,7 @@ class BalanceCodesViewModel @Inject constructor(
 
                 }
 
-            } ?: {
+            } ?: run {
                 viewModelScope.launch {
                     _errorEvents.send("API not found")
                     _isFetchingBalanceCodes.value = false

@@ -22,6 +22,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -84,7 +85,7 @@ fun ReferOverlay(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (referralLink != null) {
+            if (referralCode != null) {
 
                 QRCodeWithImage(
                     text = referralLink,
@@ -128,6 +129,10 @@ fun ReferOverlay(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ShareButton(referralLink)
             } else {
                 CircularProgressIndicator(
                     modifier = Modifier
@@ -137,10 +142,6 @@ fun ReferOverlay(
                     trackColor = TextMuted,
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ShareButton(referralLink)
 
         }
     }
@@ -174,8 +175,12 @@ fun QRCodeWithImage(
             // Adjust the size to account for padding
             val qrCodeSize = (size - 2 * paddingPx).toInt()
 
-            val bitmap = generateQRCode(text, qrCodeSize)
-            val trimmedBitmap = trimWhiteSpace(bitmap)
+            val trimmedBitmap = remember(text, qrCodeSize) {
+                val bitmap = generateQRCode(text, qrCodeSize)
+                trimWhiteSpace(bitmap)
+            }
+
+            val imageBitmap = remember(trimmedBitmap) { trimmedBitmap.asImageBitmap() }
 
             Canvas(modifier = Modifier.fillMaxSize()) {
 
@@ -191,7 +196,7 @@ fun QRCodeWithImage(
                         )
                     }) {
                         canvas.drawImage(
-                            trimmedBitmap.asImageBitmap(),
+                            imageBitmap,
                             Offset(offsetX, offsetY),
                             Paint()
                         )

@@ -142,8 +142,6 @@ fun MainNavHost(
 
     val currentTopLevelRoute by mainNavViewModel.currentTopLevelRoute.collectAsState()
     val currentRoute by mainNavViewModel.currentRoute.collectAsState()
-    val currentPlanLoaded by subscriptionBalanceViewModel.isInitialized.collectAsState()
-//    val currentPlan by subscriptionBalanceViewModel.currentPlan.collectAsState()
     val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
     val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
     val referralCode by referralCodeViewModel.referralCode.collectAsState()
@@ -151,7 +149,6 @@ fun MainNavHost(
     val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
     val displayIntroFunnel by mainNavViewModel.displayIntroFunnel.collectAsState()
     val allowPromptIntroFunnel by mainNavViewModel.allowDisplayIntroFunnel.collectAsState()
-    val subscriptionBalanceError by subscriptionBalanceViewModel.errorFetchingSubscriptionBalance.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -251,11 +248,9 @@ fun MainNavHost(
             overlayViewModel.launch(OverlayMode.Upgrade)
             subscriptionBalanceViewModel.pollSubscriptionBalance()
 
-            if (displayIntroFunnel) {
-                // close intro flow
+            if (mainNavViewModel.displayIntroFunnel.value) {
                 mainNavViewModel.setDisplayIntroFunnel(false)
             } else {
-                // back to account screen
                 navController.popBackStack()
             }
         }
@@ -614,15 +609,6 @@ fun MainNavContent(
 
     LaunchedEffect(Unit) {
         connectViewModel.initSuccessPoints(canvasSizePx)
-
-        // potentially deprecate, I don't think this is firing
-        planViewModel.onUpgradeSuccess.collect {
-
-            // poll subscription balance until it's updated
-            subscriptionBalanceViewModel.pollSubscriptionBalance()
-
-        }
-
     }
 
     LifecycleResumeEffect(Unit) {

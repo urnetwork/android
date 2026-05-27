@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
@@ -26,12 +27,11 @@ import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
+import kotlin.time.Duration.Companion.hours
 
 
 @HiltAndroidApp
@@ -58,8 +58,6 @@ class MainApplication : Application() {
     var tunnelChangeSub: Sub? = null
     var contractStatusChangeSub: Sub? = null
 
-    var provideNetworkModeSub: Sub? = null
-
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
 
@@ -76,6 +74,9 @@ class MainApplication : Application() {
 
     var vpnRequestStart: Boolean = false
         private set
+
+    @Volatile
+    private var vpnStartPending: Boolean = false
 
     var vpnRequestStartListener: (() -> Unit)? = null
 
@@ -165,17 +166,16 @@ class MainApplication : Application() {
         }
 
         networkSpaceSub = networkSpaceManager?.addActiveNetworkSpaceChangeListener { networkSpace ->
-            runBlocking(Dispatchers.Main.immediate) {
+            Handler(mainLooper).post {
                 updateActiveNetworkSpace(networkSpace)
 
-                // launch the initial activity
                 val intent = Intent(applicationContext, LoginActivity::class.java)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_TASK_ON_HOME))
                 startActivity(intent)
             }
         }
 
-        updateActiveNetworkSpace(networkSpaceManager?.activeNetworkSpace!!)
+        networkSpaceManager?.activeNetworkSpace?.let { updateActiveNetworkSpace(it) }
 
         Handler(mainLooper).post {
             scheduleBackgroundUpdate()
@@ -189,7 +189,11 @@ class MainApplication : Application() {
             TimeUnit.MINUTES
         ).build()
 
-        WorkManager.getInstance(this).enqueue(request)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "background_update",
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
     }
 
     fun backgroundUpdate() {
@@ -230,7 +234,7 @@ class MainApplication : Application() {
             var connectedNetwork: Network? = null
 
             override fun onAvailable(network: Network) {
-                runBlocking(Dispatchers.Main.immediate) {
+                Handler(mainLooper).post {
                     Log.i(TAG, "network available device = $network")
                     connectedNetwork = network
                     device?.offline = false
@@ -238,13 +242,13 @@ class MainApplication : Application() {
             }
 
             override fun onUnavailable() {
-                runBlocking(Dispatchers.Main.immediate) {
+                Handler(mainLooper).post {
                     device?.offline = true
                 }
             }
 
             override fun onLost(network: Network) {
-                runBlocking(Dispatchers.Main.immediate) {
+                Handler(mainLooper).post {
                     if (network == connectedNetwork) {
                         Log.i(TAG, "network lost device = $network")
                         connectedNetwork = null
@@ -268,9 +272,12 @@ class MainApplication : Application() {
 
     fun removeOfflineCallback() {
         offlineCallback?.let {
-            val connectivityManager =
-                getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-            connectivityManager.unregisterNetworkCallback(it)
+            try {
+                val connectivityManager =
+                    getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+                connectivityManager.unregisterNetworkCallback(it)
+            } catch (_: IllegalArgumentException) {
+            }
         }
         offlineCallback = null
     }
@@ -282,7 +289,7 @@ class MainApplication : Application() {
             var connectedNetwork: Network? = null
 
             override fun onAvailable(network: Network) {
-                runBlocking(Dispatchers.Main.immediate) {
+                Handler(mainLooper).post {
                     Log.i(TAG, "network available device = $network")
                     connectedNetwork = network
                     device?.providePaused = false
@@ -294,27 +301,29 @@ class MainApplication : Application() {
                 networkCapabilities: NetworkCapabilities
             ) {
                 val internet = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                val ethernet = !networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-                val wifi = !networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                val ethernet = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                val wifi = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
 
-                device?.let {
-                    val networkReady = if (ProvideNetworkMode.fromString(it.provideNetworkMode) == ProvideNetworkMode.WIFI) {
-                        internet && (ethernet || wifi)
-                    } else {
-                        internet
+                Handler(mainLooper).post {
+                    device?.let {
+                        val networkReady = if (ProvideNetworkMode.fromString(it.provideNetworkMode) == ProvideNetworkMode.WIFI) {
+                            internet && (ethernet || wifi)
+                        } else {
+                            internet
+                        }
+                        it.providePaused = !networkReady
                     }
-                    it.providePaused = !networkReady
                 }
             }
 
             override fun onUnavailable() {
-                runBlocking(Dispatchers.Main.immediate) {
+                Handler(mainLooper).post {
                     device?.providePaused = true
                 }
             }
 
             override fun onLost(network: Network) {
-                runBlocking(Dispatchers.Main.immediate) {
+                Handler(mainLooper).post {
                     if (network == connectedNetwork) {
                         Log.i(TAG, "network lost device = $network")
                         connectedNetwork = null
@@ -363,9 +372,12 @@ class MainApplication : Application() {
 
     fun removeNetworkCallback() {
         networkCallback?.let {
-            val connectivityManager =
-                getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-            connectivityManager.unregisterNetworkCallback(it)
+            try {
+                val connectivityManager =
+                    getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+                connectivityManager.unregisterNetworkCallback(it)
+            } catch (_: IllegalArgumentException) {
+            }
         }
         networkCallback = null
     }
@@ -394,6 +406,11 @@ class MainApplication : Application() {
     fun stop() {
         stopVpnService()
 
+        if (wakeLock?.isHeld == true) wakeLock?.release()
+        wakeLock = null
+        if (wifiLock?.isHeld == true) wifiLock?.release()
+        wifiLock = null
+
         removeNetworkCallback()
         removeOfflineCallback()
 
@@ -420,8 +437,6 @@ class MainApplication : Application() {
         tunnelChangeSub = null
         contractStatusChangeSub?.close()
         contractStatusChangeSub = null
-        provideNetworkModeSub?.close()
-        provideNetworkModeSub = null
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -523,12 +538,6 @@ class MainApplication : Application() {
             }
         }
 
-        provideNetworkModeSub = device?.addProvideNetworkModeChangeListener {
-            Handler(mainLooper).post {
-                addNetworkCallback()
-            }
-        }
-
         addOfflineCallback()
         addNetworkCallback()
 
@@ -571,7 +580,7 @@ class MainApplication : Application() {
                 if (wakeLock == null) {
                     wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
                         newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "urnetwork::provide").apply {
-                            acquire()
+                            acquire(24.hours.inWholeMilliseconds)
                         }
                     }
 
@@ -595,18 +604,18 @@ class MainApplication : Application() {
             } else {
                 // turn off any wake lock or wifi lock
 
-                wakeLock?.release()
+                if (wakeLock?.isHeld == true) wakeLock?.release()
                 wakeLock = null
-                wifiLock?.release()
+                if (wifiLock?.isHeld == true) wifiLock?.release()
                 wifiLock = null
             }
         } else {
             stopVpnService()
             // turn off any wake lock or wifi lock
 
-            wakeLock?.release()
+            if (wakeLock?.isHeld == true) wakeLock?.release()
             wakeLock = null
-            wifiLock?.release()
+            if (wifiLock?.isHeld == true) wifiLock?.release()
             wifiLock = null
         }
     }
@@ -629,7 +638,7 @@ class MainApplication : Application() {
         // as of Android 16, this appears to work better to reset the network on connect
         stopVpnService()
 
-        if (!serviceActive) {
+        if (!serviceActive && !vpnStartPending) {
             try {
                 if (VpnService.prepare(this) != null) {
                     // prepare returns an intent when the user must grant additional permissions
@@ -657,10 +666,12 @@ class MainApplication : Application() {
                     } else {
                         serviceActive = true
                         vpnRequestStart = false
+                        vpnStartPending = true
 
                         // *important* calling startService for a VpnService in OnCreate will *not* correctly set up the routes
                         // we need to delay this after onCreate for the routes to set up correctly (wtf)
                         Handler(mainLooper).post {
+                            vpnStartPending = false
                             if (this@MainApplication.serviceActive) {
                                 val vpnIntent = Intent(this, MainService::class.java)
                                 vpnIntent.putExtra("source", "app")
@@ -701,6 +712,7 @@ class MainApplication : Application() {
                     TAG,
                     "Error trying to communicate with the vpn service to start: ${e.message}"
                 )
+                vpnStartPending = false
                 vpnRequestStart = true
                 // do not request start here
                 // that could lead to a loop
@@ -710,6 +722,7 @@ class MainApplication : Application() {
 
     private fun stopVpnService() {
         vpnRequestStart = false
+        vpnStartPending = false
 
         // note
         // - using startService with stop intent to stop the service is broken

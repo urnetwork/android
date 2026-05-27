@@ -54,39 +54,8 @@ class PlanViewModel @Inject constructor(
             setChangePlanError(null)
 
             createBillingClientConnection {
-                if (_billingClient.value != null) {
-                    _billingClient.value?.startConnection(object : BillingClientStateListener {
-                        override fun onBillingSetupFinished(billingResult: BillingResult) {
-
-                            Log.i("Upgrade", "billing result ${billingResult.responseCode}")
-
-                            if (billingResult.responseCode == BillingResponseCode.OK) {
-
-                                viewModelScope.launch {
-                                    _requestPlanUpgrade.emit(Unit)
-                                }
-
-
-                            } else {
-                                // show error message of billing error
-                                // FIXME show error
-
-                                setChangePlanError("Billing error: ${billingResult.responseCode} ${billingResult.debugMessage}")
-
-                                setInProgress(false)
-                                _billingClient.value?.endConnection()
-                            }
-                        }
-
-                        override fun onBillingServiceDisconnected() {
-                            // Try to restart the connection on the next request to
-                            // Google Play by calling the startConnection() method.
-
-                            setChangePlanError("Billing error: Disconnected")
-                            setInProgress(false)
-                            _billingClient.value?.endConnection()
-                        }
-                    })
+                viewModelScope.launch {
+                    _requestPlanUpgrade.emit(Unit)
                 }
             }
         }
@@ -95,11 +64,9 @@ class PlanViewModel @Inject constructor(
     val createBillingClientConnection: (() -> Unit) -> Unit = { onConnection ->
         val pul = initPurchasesUpdatedListener()
 
-        if (_billingClient.value != null) {
-            _billingClient.value?.endConnection()
-        }
+        _billingClient.value?.endConnection()
 
-        _billingClient.value = BillingClient.newBuilder(context)
+        val client = BillingClient.newBuilder(context)
             .setListener(pul)
             .enablePendingPurchases(
                 PendingPurchasesParams.newBuilder()
@@ -109,23 +76,25 @@ class PlanViewModel @Inject constructor(
             )
             .build()
 
-        _billingClient.value?.startConnection(object : BillingClientStateListener {
+        _billingClient.value = client
+
+        client.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
 
                 Log.i("Upgrade", "billing result ${billingResult.responseCode}")
 
                 if (billingResult.responseCode == BillingResponseCode.OK) {
                     onConnection()
+                } else {
+                    setChangePlanError("Billing setup error: ${billingResult.responseCode} ${billingResult.debugMessage}")
+                    setInProgress(false)
                 }
             }
 
             override fun onBillingServiceDisconnected() {
-                // Try to restart the connection on the next request to
-                // Google Play by calling the startConnection() method.
-
                 setChangePlanError("Billing error: Disconnected")
                 setInProgress(false)
-                _billingClient.value?.endConnection()
+                client.endConnection()
             }
         })
     }
@@ -136,7 +105,6 @@ class PlanViewModel @Inject constructor(
     val initPurchasesUpdatedListener: () -> PurchasesUpdatedListener = {
         PurchasesUpdatedListener { billingResult, purchases ->
             setInProgress(false)
-            _billingClient.value?.endConnection()
             setChangePlanError(null)
 
             if (billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
@@ -185,10 +153,10 @@ class PlanViewModel @Inject constructor(
             if (productDetails != null) {
 
                 formattedMonthlySubscriptionPrice = productDetails.subscriptionOfferDetails
-                        ?.first()
+                        ?.firstOrNull()
                         ?.pricingPhases
                         ?.pricingPhaseList
-                        ?.first()
+                        ?.firstOrNull()
                         ?.formattedPrice
                     ?: "$5.00"
 
@@ -205,6 +173,11 @@ class PlanViewModel @Inject constructor(
     val setChangePlanError: (String?) -> Unit = { msg ->
         Log.i("PlanViewModel", "setChangePlanError: $msg")
         changePlanError = msg
+    }
+
+    override fun onCleared() {
+        _billingClient.value?.endConnection()
+        super.onCleared()
     }
 
     init {

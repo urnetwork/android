@@ -37,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,10 +64,10 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
+import android.net.Uri
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +91,8 @@ fun LoginPassword(
         inProgress = false
     }
 
+    val scope = rememberCoroutineScope()
+
     val login = {
         inProgress = true
 
@@ -99,7 +102,7 @@ fun LoginPassword(
         args.verifyOtpNumeric = true
 
         app?.api?.authLoginWithPassword(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
 
                 if (err != null) {
                     inProgress = false
@@ -111,8 +114,8 @@ fun LoginPassword(
                     loginError = null
 
                     if (result.verificationRequired != null) {
-                        
-                        navController.navigate("verify/${userAuth}")
+
+                        navController.navigate("verify/${Uri.encode(userAuth)}")
 
                     } else {
                         app.login(result.network.byJwt)
@@ -142,6 +145,7 @@ fun LoginPassword(
                 }
             }
         }
+        Unit
     }
 
     AnimatedVisibility(
@@ -197,7 +201,7 @@ fun LoginPassword(
                     inProgress = inProgress,
                     loginError = loginError,
                     onResetPassword = {
-                        navController.navigate("reset-password/${userAuth}")
+                        navController.navigate("reset-password/${Uri.encode(userAuth)}")
                     }
                 )
             }
@@ -214,7 +218,7 @@ fun LoginPasswordForm(
     user: TextFieldValue,
     password: TextFieldValue,
     setPassword: (TextFieldValue) -> Unit,
-    login: () -> Unit?,
+    login: () -> Unit,
     inProgress: Boolean,
     loginError: String?,
     onResetPassword: () -> Unit
@@ -249,7 +253,7 @@ fun LoginPasswordForm(
             isPassword = true,
             label = stringResource(id = R.string.password_label),
             onGo = {
-                login()
+                if (password.text.isNotEmpty()) { login() }
             }
         )
         // }
@@ -260,7 +264,7 @@ fun LoginPasswordForm(
             onClick = {
                 login()
             },
-            enabled = !inProgress,
+            enabled = !inProgress && password.text.isNotEmpty(),
             isProcessing = inProgress
         ) { buttonTextStyle ->
             Row(

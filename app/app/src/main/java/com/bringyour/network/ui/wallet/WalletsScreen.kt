@@ -470,7 +470,7 @@ fun WalletsScreen(
                                             Spacer(modifier = Modifier.width(16.dp))
                                         }
 
-                                        items(wallets) { wallet ->
+                                        items(wallets, key = { it.walletId.toString() }) { wallet ->
 
                                             WalletCard(
                                                 blockchain = Blockchain.fromString(wallet.blockchain),

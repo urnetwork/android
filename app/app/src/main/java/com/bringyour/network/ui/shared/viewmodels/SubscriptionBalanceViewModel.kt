@@ -106,7 +106,13 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
                     } else {
 
-                        result?.currentSubscription?.plan?.let { plan ->
+                        if (result == null) {
+                            _isLoading.value = false
+                            isRefreshingSubscriptionBalance = false
+                            return@launch
+                        }
+
+                        result.currentSubscription?.plan?.let { plan ->
 
                             val currentIsPro = jwtManager.jwtFlow.value?.pro == true
 
@@ -119,14 +125,14 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             }
                         }
 
-                        result?.currentSubscription?.store.let { store ->
+                        result.currentSubscription?.store.let { store ->
                             _currentStore.value = store
                         }
 
                         _availableBalanceByteCount.value = result.balanceByteCount
                         pendingBalanceByteCount = result.openTransferByteCount
                         _startBalanceByteCount.value = result.startBalanceByteCount
-                        usedBalanceByteCount = result.startBalanceByteCount - result.balanceByteCount - pendingBalanceByteCount
+                        usedBalanceByteCount = (result.startBalanceByteCount - result.balanceByteCount - pendingBalanceByteCount).coerceAtLeast(0)
                         _errorFetchingSubscriptionBalance.value = false
                         _isLoading.value = false
                     }
@@ -177,6 +183,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     val createPollingJob: (maxDurationMs: Long) -> Unit = { maxDurationMs ->
+        pollingJob?.cancel()
         pollingJob = viewModelScope.launch {
             val deadline = System.currentTimeMillis() + maxDurationMs
 
@@ -208,7 +215,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
             fetchSubscriptionBalance()
 
-            while (true) {
+            while (isActive) {
                 delay(60_000) // poll every minute
                 fetchSubscriptionBalance()
                 if (isSupporterWithBalance()) {
@@ -221,19 +228,15 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     fun stopBackgroundPolling() {
-        viewModelScope.launch {
-            backgroundPollingJob?.cancel()
-            backgroundPollingJob = null
-        }
+        backgroundPollingJob?.cancel()
+        backgroundPollingJob = null
     }
 
     private fun stopPolling() {
-        viewModelScope.launch {
-            pollingJob?.cancel()
-            pollingJob = null
-            isPollingSubscriptionBalance = false
-            _isCheckingSolanaTransaction.value = false
-        }
+        pollingJob?.cancel()
+        pollingJob = null
+        isPollingSubscriptionBalance = false
+        _isCheckingSolanaTransaction.value = false
     }
 
     init {

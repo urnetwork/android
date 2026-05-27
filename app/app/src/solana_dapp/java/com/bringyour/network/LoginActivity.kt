@@ -1,11 +1,14 @@
 package com.bringyour.network
 
 import android.content.Intent
+import android.graphics.Color.TRANSPARENT
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +22,6 @@ import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -46,6 +48,14 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        val lightTransparentStyle = SystemBarStyle.dark(
+            scrim = TRANSPARENT
+        )
+        enableEdgeToEdge(
+            statusBarStyle = lightTransparentStyle,
+            navigationBarStyle = lightTransparentStyle
+        )
+
         super.onCreate(savedInstanceState)
 
         app = application as MainApplication
@@ -58,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
         if (Intent.ACTION_VIEW == action) {
             Log.i(TAG, "Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
-                if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c" || u.scheme == "ur") {
+                if ((u.scheme == "https" && u.host == "ur.io" && u.path == "/c") || u.scheme == "ur") {
                     Log.i(TAG, "createWithUri $u")
                     createWithUri(u)
                 }
@@ -153,7 +163,7 @@ class LoginActivity : AppCompatActivity() {
 
                 if (err == null && result.jwt != null) {
 
-                    runBlocking(Dispatchers.Main.immediate) {
+                    lifecycleScope.launch {
 
                         if (app.asyncLocalState?.localState?.byJwt == result.jwt) {
                             // user already logged into this network
@@ -187,9 +197,12 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                 } else {
+                    isLoadingAuthCode = false
                     Log.i(TAG, "authCodeLogin: error: result is: $result")
                 }
 
+            } ?: run {
+                isLoadingAuthCode = false
             }
 
         } else if (guest) {
@@ -213,7 +226,7 @@ class LoginActivity : AppCompatActivity() {
                 args.guestMode = true
 
                 app.api?.networkCreate(args) { result, err ->
-                    runBlocking(Dispatchers.Main.immediate) {
+                    lifecycleScope.launch {
 
                         if (err != null) {
                             Log.i(TAG, "error ${err.message}")

@@ -29,6 +29,7 @@ class UpdateReferralNetworkBottomSheetViewModel @Inject constructor(
     val setReferralCode: (TextFieldValue) -> Unit = { _referralCode.value = it }
 
     var codeInputSupportingText by mutableStateOf("")
+        private set
 
     var displayUnlinkAlert by mutableStateOf(false)
         private set
@@ -84,17 +85,25 @@ class UpdateReferralNetworkBottomSheetViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: () -> Unit
     ) {
+        if (_isUpdatingReferralNetwork.value) {
+            return
+        }
+
+        _isUpdatingReferralNetwork.value = true
+
         deviceManager.device?.api?.unlinkReferralNetwork { _, error ->
+            viewModelScope.launch {
+                _isUpdatingReferralNetwork.value = false
 
-            if (error != null) {
-                Log.e(TAG, "error unlinking referral network: ${error.message}")
-                onError()
+                if (error != null) {
+                    Log.e(TAG, "error unlinking referral network: ${error.message}")
+                    onError()
 
-                return@unlinkReferralNetwork
+                    return@launch
+                }
+
+                onSuccess()
             }
-
-            onSuccess()
-
         }
     }
 }

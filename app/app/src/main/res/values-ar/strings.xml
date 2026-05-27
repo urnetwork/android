@@ -455,7 +455,7 @@
     <string name="get_connected">اتصل الآن</string>
     <string
         name="api_error_contact"
-    >إذا استمرت المشكلة، تواصل معنا على %s أو انضم إلى %s الخاص بنا للحصول على دعم مباشر.</string>
+    >إذا استمرت المشكلة، تواصل معنا على %1$s أو انضم إلى %2$s الخاص بنا للحصول على دعم مباشر.</string>
     <string
         name="error_loading_account_plan"
     >حدث خطأ أثناء تحميل خطة حسابك.</string>

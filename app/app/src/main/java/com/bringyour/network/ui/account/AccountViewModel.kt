@@ -26,6 +26,7 @@ class AccountViewModel @Inject constructor(
 ): ViewModel() {
 
     private var networkUserVc: NetworkUserViewController? = null
+    private val subs = mutableListOf<com.bringyour.sdk.Sub>()
 
     var loginMode by mutableStateOf<LoginMode>(LoginMode.Guest)
         private set
@@ -44,8 +45,10 @@ class AccountViewModel @Inject constructor(
 
     private val addNetworkUserListener = {
         networkUserVc?.addNetworkUserListener {
-            setNetworkUser(networkUserVc?.networkUser)
-        }
+            viewModelScope.launch {
+                setNetworkUser(networkUserVc?.networkUser)
+            }
+        }?.let { subs.add(it) }
     }
 
     var clientId by mutableStateOf("")
@@ -83,6 +86,17 @@ class AccountViewModel @Inject constructor(
 
         networkUserVc?.start()
 
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        subs.forEach { it.close() }
+        subs.clear()
+
+        networkUserVc?.let {
+            deviceManager.device?.closeViewController(it)
+        }
     }
 
 }

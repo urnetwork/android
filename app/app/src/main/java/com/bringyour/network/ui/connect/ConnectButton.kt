@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -241,16 +240,18 @@ private fun ConnectingButtonContent(
     }
 }
 
-data class AnimatedProviderGridPoint(
+class AnimatedProviderGridPoint(
     val clientId: Id,
     val x: Int,
     val y: Int,
-    var state: ProviderPointState,
-//    var endTime: Time?,
-    var done: Boolean = false,
+    initialState: ProviderPointState,
+    initialDone: Boolean = false,
     val radius: Animatable<Float, AnimationVector1D> = Animatable(0f),
     val color: Animatable<Color, AnimationVector4D> = Animatable(Color.Transparent)
-)
+) {
+    var state by mutableStateOf(initialState)
+    var done by mutableStateOf(initialDone)
+}
 
 @Composable
 fun GridCanvas(
@@ -383,7 +384,6 @@ fun GridCanvas(
         // disconnect
         //
         if (updatedStatus == ConnectStatus.DISCONNECTED) {
-            Log.i("ConnectButton", "setting to disconnected")
             // pull out the large dots
             animatedSuccessPoints.forEach { point ->
                 launch {
@@ -460,7 +460,7 @@ fun GridCanvas(
 
 
             var animatedPoint = animatedPoints[point.clientId]
-            val newState = ProviderPointState.fromString(point.state)
+            val newState = ProviderPointState.fromString(point.state) ?: return@forEach
 
 
             if (animatedPoint == null) {
@@ -473,7 +473,7 @@ fun GridCanvas(
                         point.clientId,
                         point.x,
                         point.y,
-                        newState!!
+                        newState
                     )
                     if (currentStatus != ConnectStatus.CONNECTED) {
                         launch {
@@ -524,7 +524,7 @@ fun GridCanvas(
                     }
                 }
 
-                animatedPoint.state = newState!!
+                animatedPoint.state = newState
 
                 val done =
                     newState == ProviderPointState.REMOVED || newState == ProviderPointState.EVALUATION_FAILED || newState == ProviderPointState.NOT_ADDED

@@ -34,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,6 +84,7 @@ fun InfoPopup(
     onDismiss: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val density = LocalDensity.current
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -91,7 +93,7 @@ fun InfoPopup(
         Popup(
             onDismissRequest = onDismiss,
             alignment = Alignment.TopStart,
-            offset = IntOffset(x = 0, y = 96),
+            offset = with(density) { IntOffset(0, 96.dp.roundToPx()) },
             properties = PopupProperties(
                 focusable = true
             )
