@@ -3,6 +3,7 @@ package com.bringyour.network.ui.settings
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
@@ -73,6 +74,8 @@ class SettingsViewModel @Inject constructor(
 
     var notificationsPermanentlyDenied by mutableStateOf(false)
 
+    private var notificationPermissionRequested = false
+
     val setNotificationsPermanentlyDenied: (Boolean) -> Unit = { pd ->
         notificationsPermanentlyDenied = pd
     }
@@ -136,15 +139,21 @@ class SettingsViewModel @Inject constructor(
         _isPresentingAuthCodeDialog.value = it
     }
 
-    fun onPermissionResult(isGranted: Boolean) {
+    fun onPermissionResult(isGranted: Boolean, activity: ComponentActivity? = null) {
+        notificationPermissionRequested = true
         _permissionGranted.value = isGranted
-
-        if (!isGranted) {
-            setNotificationsPermanentlyDenied(true)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || isGranted) {
+            setNotificationsPermanentlyDenied(false)
+        } else {
+            val shouldShowRationale = activity?.shouldShowRequestPermissionRationale(
+                Manifest.permission.POST_NOTIFICATIONS
+            ) ?: true
+            setNotificationsPermanentlyDenied(!shouldShowRationale)
         }
     }
 
     val triggerPermissionRequest: () -> Unit = {
+        notificationPermissionRequested = true
         _requestPermission.value = true
     }
 
@@ -153,6 +162,12 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun checkPermissionStatus(activity: ComponentActivity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            _permissionGranted.value = true
+            setNotificationsPermanentlyDenied(false)
+            return
+        }
+
         val isGranted = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.POST_NOTIFICATIONS
@@ -160,12 +175,13 @@ class SettingsViewModel @Inject constructor(
 
         _permissionGranted.value = isGranted
 
-        if (!isGranted) {
+        if (isGranted) {
+            setNotificationsPermanentlyDenied(false)
+        } else {
             val shouldShowRationale = activity.shouldShowRequestPermissionRationale(
                 Manifest.permission.POST_NOTIFICATIONS
             )
-            setNotificationsPermanentlyDenied(!shouldShowRationale)
-
+            setNotificationsPermanentlyDenied(notificationPermissionRequested && !shouldShowRationale)
         }
     }
 

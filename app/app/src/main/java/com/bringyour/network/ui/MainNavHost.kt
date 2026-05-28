@@ -244,7 +244,11 @@ fun MainNavHost(
      * On upgrade success, if in the intro funnel, close flow
      */
     LaunchedEffect(Unit) {
-        planViewModel.onUpgradeSuccess.collect {
+        planViewModel.upgradeSuccessSequence.collect { sequence ->
+            if (!planViewModel.consumeUpgradeSuccessSequence(sequence)) {
+                return@collect
+            }
+
             overlayViewModel.launch(OverlayMode.Upgrade)
             subscriptionBalanceViewModel.pollSubscriptionBalance()
 
@@ -253,6 +257,20 @@ fun MainNavHost(
             } else {
                 navController.popBackStack()
             }
+        }
+    }
+
+    /**
+     * Recovered Play purchases should refresh entitlement state without closing the current screen.
+     */
+    LaunchedEffect(Unit) {
+        planViewModel.restoredSubscriptionSequence.collect { sequence ->
+            if (!planViewModel.consumeRestoredSubscriptionSequence(sequence)) {
+                return@collect
+            }
+
+            overlayViewModel.launch(OverlayMode.Upgrade)
+            subscriptionBalanceViewModel.pollSubscriptionBalance()
         }
     }
 

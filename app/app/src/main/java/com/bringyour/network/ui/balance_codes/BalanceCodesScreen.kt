@@ -203,7 +203,7 @@ private fun BalanceCodesTable(
                     }
                 }
 
-                items(balanceCodes, key = {it.balanceCodeId.idStr}) { balanceCode ->
+                items(balanceCodes, key = { it.balanceCodeId.toString() }) { balanceCode ->
                     BalanceCodeListItem(
                         balanceCode = balanceCode,
                     )

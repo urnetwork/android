@@ -331,7 +331,7 @@
     <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
     <string name="kill_switch">キルスイッチ</string>
     <string name="unstable_providers_warning">*（不安定な場合があります）</string>
-    <string name="open_source_transparent">100%オープンソースで透明性があります</string>
+    <string name="open_source_transparent">100%%オープンソースで透明性があります</string>
     <string name="low_user_ip_ratio">コンテンツにアクセスするための最も低いユーザー/IP比率</string>
     <string name="trusted_by_private_networks">%s以上のプライベートネットワークに信頼されています</string>
     <string name="community_edition">コミュニティ版</string>

@@ -45,6 +45,7 @@ fun SwitchAccountScreen(
 
     val (createGuestNetworkError, setCreateGuestNetworkError) = remember { mutableStateOf<String?>(null) }
     val (createGuestNetworkInProgress, setCreateGuestNetworkInProgress) = remember { mutableStateOf(false) }
+    val createNetworkErrorMessage = stringResource(id = R.string.create_network_error)
 
     val scope = rememberCoroutineScope()
 
@@ -85,7 +86,7 @@ fun SwitchAccountScreen(
                         )
 
                     } else {
-                        setCreateGuestNetworkError(context.getString(R.string.create_network_error))
+                        setCreateGuestNetworkError(createNetworkErrorMessage)
                         setCreateGuestNetworkInProgress(false)
                     }
                 }

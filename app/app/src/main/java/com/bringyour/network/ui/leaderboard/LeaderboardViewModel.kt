@@ -303,9 +303,9 @@ class LeaderboardViewModel @Inject constructor(
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState
 
-        localState?.parseByJwt { jwt, _ ->
+        localState?.parseByJwt { jwt, success ->
             viewModelScope.launch {
-                networkId = jwt?.networkId?.toString() ?: ""
+                networkId = if (success) jwt?.networkId?.toString() ?: "" else ""
             }
         }
     }

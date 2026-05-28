@@ -15,8 +15,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bringyour.network.ui.MainNavHost
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.settings.SettingsViewModel
@@ -114,7 +116,7 @@ class MainActivity: AppCompatActivity() {
             ) { isGranted ->
                 // the vpn service can start with degraded options if not granted
                 prepareVpnService()
-                settingsViewModel.onPermissionResult(isGranted)
+                settingsViewModel.onPermissionResult(isGranted, this)
                 settingsViewModel.resetPermissionRequest()
             }
 
@@ -122,7 +124,7 @@ class MainActivity: AppCompatActivity() {
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
-            settingsViewModel.onPermissionResult(isGranted)
+            settingsViewModel.onPermissionResult(isGranted, this)
             settingsViewModel.resetPermissionRequest()
         }
 
@@ -167,6 +169,16 @@ class MainActivity: AppCompatActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    settingsViewModel.requestPermission.collect { shouldRequest ->
+                        requestNotificationPermissionIfNeeded(shouldRequest)
+                    }
+                }
+            }
+        }
+
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onPause(owner: LifecycleOwner) {
                 Log.i("Lifecycle", "Activity onPause")
@@ -184,7 +196,6 @@ class MainActivity: AppCompatActivity() {
         super.onStart()
 
         val app = application as MainApplication
-        val activity = this
 
         // do this once at start
         lifecycleScope.launch {
@@ -203,28 +214,9 @@ class MainActivity: AppCompatActivity() {
 
         settingsViewModel.checkPermissionStatus(this)
 
-        // Observe the requestPermission state
-        lifecycleScope.launch {
-            settingsViewModel.requestPermission.collect { shouldRequest ->
-                if (shouldRequest) {
-                    // Check if the permission is already granted
-                    if (ContextCompat.checkSelfPermission(
-                            activity,
-                            android.Manifest.permission.POST_NOTIFICATIONS
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        settingsViewModel.onPermissionResult(true)
-                    } else {
-                        // Request the permission
-                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                            requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                        }
-                    }
-                }
-            }
-        }
-
         if (subscriptionUpgradeSuccess) {
+            subscriptionUpgradeSuccess = false
+            intent.removeExtra("UPGRADE_SUBSCRIPTION_SUCCESS")
             overlayViewModel.launch(OverlayMode.Upgrade)
             subscriptionBalanceViewModel.pollSubscriptionBalance()
         }
@@ -245,6 +237,29 @@ class MainActivity: AppCompatActivity() {
         // val app = application as MainApplication
 
         // app.allowForeground = false
+    }
+
+    private fun requestNotificationPermissionIfNeeded(shouldRequest: Boolean) {
+        if (!shouldRequest) {
+            return
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            settingsViewModel.onPermissionResult(true)
+            settingsViewModel.resetPermissionRequest()
+            return
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            settingsViewModel.onPermissionResult(true)
+            settingsViewModel.resetPermissionRequest()
+        } else {
+            requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     private suspend fun getWalletAddress(walletAdapter: MobileWalletAdapter, activitySender: ActivityResultSender): String? {

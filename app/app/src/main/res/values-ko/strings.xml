@@ -331,7 +331,7 @@
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="kill_switch">킬 스위치</string>
     <string name="unstable_providers_warning">* (불안정할 수 있음)</string>
-    <string name="open_source_transparent">100% 오픈 소스 및 투명성</string>
+    <string name="open_source_transparent">100%% 오픈 소스 및 투명성</string>
     <string name="low_user_ip_ratio">콘텐츠 접근 시 최저 사용자/IP 비율</string>
     <string name="trusted_by_private_networks">%s개 이상의 프라이빗 네트워크에서 신뢰받음</string>
     <string name="community_edition">커뮤니티 에디션</string>

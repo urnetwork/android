@@ -310,7 +310,7 @@
     <string name="feedback_include_logs">Joindre les journaux au retour (optionnel)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (peut être instable)</string>
-    <string name="open_source_transparent">100 % open source et transparent</string>
+    <string name="open_source_transparent">100 %% open source et transparent</string>
     <string name="low_user_ip_ratio">Le ratio utilisateur/IP le plus bas pour accéder au contenu</string>
     <string name="trusted_by_private_networks">Fiable pour plus de %s réseaux privés</string>
     <string name="community_edition">Édition communautaire</string>

@@ -300,7 +300,7 @@
     <string name="none">Žádné</string>
     <string
         name="send_feedback"
-    >Pošlete nám svůj názor přímo nebo se připojte k našemu Discordu pro přímou podporu.</string>
+    >Pošlete nám svůj názor přímo nebo se připojte k našemu %1$s pro přímou podporu.</string>
     <string name="referral_network">Síť doporučení</string>
     <string name="pending_payout">Čeká se na výplatu</string>
     <string name="amount">Částka</string>
@@ -422,7 +422,7 @@
     <string name="unstable_providers_warning">* (může být nestabilní)</string>
     <string
         name="open_source_transparent"
-    >100% open source a transparentní</string>
+    >100%% open source a transparentní</string>
     <string
         name="low_user_ip_ratio"
     >Nejnižší poměr uživatelů na IP pro přístup k obsahu</string>

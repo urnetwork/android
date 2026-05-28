@@ -250,7 +250,7 @@
     <string name="reliability">Надежность</string>
     <string name="browse_locations">Просмотр локаций</string>
     <string name="none">Нет</string>
-    <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему Discord для прямой поддержки.</string>
+    <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему %1$s для прямой поддержки.</string>
     <string name="referral_network">Реферальная сеть</string>
     <string name="pending_payout">Ожидаемая выплата</string>
     <string name="amount">Сумма</string>
@@ -334,7 +334,7 @@
     <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (может быть нестабильным)</string>
-    <string name="open_source_transparent">100% с открытым исходным кодом и прозрачностью</string>
+    <string name="open_source_transparent">100%% с открытым исходным кодом и прозрачностью</string>
     <string name="low_user_ip_ratio">Самое низкое соотношение пользователей к IP для доступа к контенту</string>
     <string name="trusted_by_private_networks">Доверяют более чем %s частных сетей</string>
     <string name="community_edition">Версия для сообщества</string>

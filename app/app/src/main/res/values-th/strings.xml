@@ -198,7 +198,7 @@
     <string name="reliability">ความน่าเชื่อถือ</string>
     <string name="browse_locations">สำรวจพื้นที่ต่างๆ</string>
     <string name="none">ไม่มี</string>
-    <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม Discord เพื่อรับการช่วยเหลือของเราโดยตรง</string>
+    <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม %1$s เพื่อรับการช่วยเหลือของเราโดยตรง</string>
     <string name="referral_network">แนะนำเครือข่าย</string>
     <string name="pending_payout">ยอดที่รอจ่าย</string>
     <string name="amount">ยอด</string>
@@ -282,7 +282,7 @@
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="kill_switch">สวิตช์หยุดการเชื่อมต่อ</string>
     <string name="unstable_providers_warning">* (อาจไม่เสถียร)</string>
-    <string name="open_source_transparent">โอเพ่นซอร์สและโปร่งใส 100%</string>
+    <string name="open_source_transparent">โอเพ่นซอร์สและโปร่งใส 100%%</string>
     <string name="low_user_ip_ratio">อัตราส่วนผู้ใช้/IP ต่ำที่สุดสำหรับการเข้าถึงเนื้อหา</string>
     <string name="trusted_by_private_networks">ได้รับความไว้วางใจจากเครือข่ายส่วนตัวมากกว่า %s เครือข่าย</string>
     <string name="community_edition">ฉบับชุมชน</string>

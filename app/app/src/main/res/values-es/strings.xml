@@ -308,7 +308,7 @@
     <string name="feedback_include_logs">Adjuntar registros al comentario (opcional)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (puede ser inestable)</string>
-    <string name="open_source_transparent">100% de código abierto y transparente</string>
+    <string name="open_source_transparent">100%% de código abierto y transparente</string>
     <string name="low_user_ip_ratio">La menor proporción de usuarios por IP para acceder a contenido</string>
     <string name="trusted_by_private_networks">Confiado por más de %s redes privadas</string>
     <string name="community_edition">Edición comunitaria</string>

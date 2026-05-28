@@ -211,14 +211,31 @@ class MainApplication : Application() {
         loginVc = Sdk.newLoginViewController(api)
 
         asyncLocalState?.localState?.let { localState ->
-            localState.byClientJwt?.let { byClientJwt ->
-                if (byClientJwt == "") {
+            val byClientJwt = localState.byClientJwt
+            val hasByJwt = !localState.byJwt.isNullOrEmpty()
+
+            if (byClientJwt.isNullOrEmpty()) {
+                if (hasByJwt) {
+                    // missing client jwt after saving byJwt; clean up partial auth state
+                    localState.logout()
+                    api?.byJwt = null
+                }
+            } else {
+                val hasValidByJwt = runCatching {
+                    localState.parseByJwt()
+                }.getOrNull() != null
+
+                if (!hasValidByJwt) {
                     // missing one or both of jwt or client jwt
                     // clean up the local state
                     localState.logout()
+                    api?.byJwt = null
                 } else {
                     // the device wraps the api and sets the jwt
-                    initDevice(byClientJwt)
+                    if (!initDevice(byClientJwt)) {
+                        localState.logout()
+                        api?.byJwt = null
+                    }
                 }
             }
         }
@@ -388,11 +405,17 @@ class MainApplication : Application() {
         api?.byJwt = byJwt
     }
 
-    fun loginClient(byClientJwt: String) {
-        asyncLocalState?.localState?.let { localState ->
+    fun loginClient(byClientJwt: String): Boolean {
+        return asyncLocalState?.localState?.let { localState ->
             localState.byClientJwt = byClientJwt
-            initDevice(byClientJwt)
-        }
+            if (initDevice(byClientJwt)) {
+                true
+            } else {
+                localState.logout()
+                api?.byJwt = null
+                false
+            }
+        } ?: false
     }
 
     fun logout() {
@@ -453,8 +476,8 @@ class MainApplication : Application() {
     }
 
 
-    private fun initDevice(byClientJwt: String) {
-        deviceManager.initDevice(
+    private fun initDevice(byClientJwt: String): Boolean {
+        return deviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
             deviceDescription,
@@ -630,7 +653,7 @@ class MainApplication : Application() {
         // note starting in Android 15, boot completed receivers cannot start foreground services
         // the app will not allow foreground until the activity is explicitly opened
         // see https://developer.android.com/about/versions/15/behavior-changes-15#fgs-boot-completed
-        startVpnServiceWithForeground(allowForeground && device.providerEnabled)
+        startVpnServiceWithForeground(allowForeground && device.provideEnabled)
     }
 
     private fun startVpnServiceWithForeground(foreground: Boolean) {

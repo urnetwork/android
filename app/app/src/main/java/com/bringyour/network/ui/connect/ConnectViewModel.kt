@@ -204,17 +204,26 @@ constructor(
 
     val updatePerformanceProfile: () -> Unit = {
 
-        val performanceProfile = PerformanceProfile()
-        val windowType = if (this.selectedWindowType == WindowType.QUALITY) Sdk.WindowTypeQuality else Sdk.WindowTypeSpeed
-        performanceProfile.windowType = windowType
-        performanceProfile.allowDirect = allowDirect
+        val windowType = when (selectedWindowType) {
+            WindowType.AUTO -> null
+            WindowType.QUALITY -> Sdk.WindowTypeQuality
+            WindowType.SPEED -> Sdk.WindowTypeSpeed
+        }
 
-        val windowSizeSettings = WindowSizeSettings()
-        windowSizeSettings.windowSizeMin = if (this.fixedIpSize) 1 else 2
-        windowSizeSettings.windowSizeMax = if (this.fixedIpSize) 1 else 4
-        performanceProfile.windowSize = windowSizeSettings
+        if (windowType == null) {
+            deviceManager.performanceProfile = null
+        } else {
+            val performanceProfile = PerformanceProfile()
+            performanceProfile.windowType = windowType
+            performanceProfile.allowDirect = allowDirect
 
-        deviceManager.performanceProfile = performanceProfile
+            val windowSizeSettings = WindowSizeSettings()
+            windowSizeSettings.windowSizeMin = if (this.fixedIpSize) 1 else 2
+            windowSizeSettings.windowSizeMax = if (this.fixedIpSize) 1 else 4
+            performanceProfile.windowSize = windowSizeSettings
+
+            deviceManager.performanceProfile = performanceProfile
+        }
 
     }
 

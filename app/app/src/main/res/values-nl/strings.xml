@@ -250,7 +250,7 @@
     <string name="reliability">Betrouwbaarheid</string>
     <string name="browse_locations">Locaties bekijken</string>
     <string name="none">Geen</string>
-    <string name="send_feedback">Stuur je feedback rechtstreeks naar ons of sluit je aan bij onze Discord voor directe hulp.</string>
+    <string name="send_feedback">Stuur je feedback rechtstreeks naar ons of sluit je aan bij onze %1$s voor directe hulp.</string>
     <string name="referral_network">Referentienetwerk</string>
     <string name="pending_payout">Uitbetaling in behandeling</string>
     <string name="amount">Bedrag</string>
@@ -334,7 +334,7 @@
     <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (kan onstabiel zijn)</string>
-    <string name="open_source_transparent">100% open source en transparant</string>
+    <string name="open_source_transparent">100%% open source en transparant</string>
     <string name="low_user_ip_ratio">Laagste gebruiker/IP-verhouding voor toegang tot content</string>
     <string name="trusted_by_private_networks">Vertrouwd door meer dan %s privénetwerken</string>
     <string name="community_edition">Community-editie</string>

@@ -71,16 +71,16 @@ class AccountViewModel @Inject constructor(
 
         addNetworkUserListener()
 
-        localState?.parseByJwt { jwt, _ ->
+        localState?.parseByJwt { jwt, success ->
             viewModelScope.launch {
-                setLoginMode(if (jwt?.guestMode == true) LoginMode.Guest else LoginMode.Authenticated)
+                setLoginMode(if (success && jwt?.guestMode != true) LoginMode.Authenticated else LoginMode.Guest)
                // setNetworkName(jwt?.networkName ?: "guest")
             }
         }
 
         deviceManager.device.let { device ->
             viewModelScope.launch {
-                clientId = device?.clientId?.idStr ?: ""
+                clientId = device?.clientId?.toString() ?: ""
             }
         }
 

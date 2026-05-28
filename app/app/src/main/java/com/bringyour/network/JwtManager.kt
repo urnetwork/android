@@ -1,6 +1,5 @@
 package com.bringyour.network
 
-import android.util.Log
 import com.bringyour.sdk.ByJwt
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +15,10 @@ class JwtManager @Inject constructor() {
 
     fun updateJwt(newJwt: ByJwt) {
         _jwtFlow.value = newJwt
+    }
+
+    fun clearJwt() {
+        _jwtFlow.value = null
     }
 
 }

@@ -308,7 +308,7 @@
     <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="kill_switch">िल स्विच</string>
     <string name="unstable_providers_warning">* (अस्थिर हो सकता है)</string>
-    <string name="open_source_transparent">100% ओपन सोर्स और पारदर्शी</string>
+    <string name="open_source_transparent">100%% ओपन सोर्स और पारदर्शी</string>
     <string name="low_user_ip_ratio">कंटेंट एक्सेस के लिए सबसे कम यूज़र/IP अनुपात</string>
     <string name="trusted_by_private_networks">%s से अधिक निजी नेटवर्क द्वारा विश्वसनीय</string>
     <string name="community_edition">कम्युनिटी एडिशन</string>

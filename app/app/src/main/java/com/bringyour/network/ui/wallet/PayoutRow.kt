@@ -54,7 +54,7 @@ fun PayoutRow(
                 horizontal = 16.dp
             )
             .clickable {
-                navController.navigate(Route.Payout(id.idStr))
+                navController.navigate(Route.Payout(id.toString()))
             },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,

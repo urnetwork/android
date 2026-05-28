@@ -16,8 +16,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
@@ -131,7 +133,7 @@ class MainActivity: AppCompatActivity() {
             ) { isGranted ->
                 // the vpn service can start with degraded options if not granted
                 prepareVpnService()
-                settingsViewModel.onPermissionResult(isGranted)
+                settingsViewModel.onPermissionResult(isGranted, this)
                 settingsViewModel.resetPermissionRequest()
             }
 
@@ -139,7 +141,7 @@ class MainActivity: AppCompatActivity() {
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
-            settingsViewModel.onPermissionResult(isGranted)
+            settingsViewModel.onPermissionResult(isGranted, this)
             settingsViewModel.resetPermissionRequest()
         }
 
@@ -183,6 +185,29 @@ class MainActivity: AppCompatActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    settingsViewModel.requestPermission.collect { shouldRequest ->
+                        requestNotificationPermissionIfNeeded(shouldRequest)
+                    }
+                }
+                launch {
+                    planViewModel.requestPlanUpgrade.collect { shouldRequest ->
+                        if (shouldRequest) {
+                            planViewModel.resetPlanUpgradeRequest()
+                            handlePlanUpgradeRequest(app)
+                        }
+                    }
+                }
+                launch {
+                    walletViewModel.requestSagaWallet.collect {
+                        requestSagaWallet()
+                    }
+                }
+            }
+        }
+
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onPause(owner: LifecycleOwner) {
                 Log.i("Lifecycle", "Activity onPause")
@@ -200,7 +225,6 @@ class MainActivity: AppCompatActivity() {
         super.onStart()
 
         val app = application as MainApplication
-        val activity = this
 
         // do this once at start
         lifecycleScope.launch {
@@ -219,71 +243,11 @@ class MainActivity: AppCompatActivity() {
 
         settingsViewModel.checkPermissionStatus(this)
 
-        // Observe the requestPermission state
-        lifecycleScope.launch {
-            settingsViewModel.requestPermission.collect { shouldRequest ->
-                if (shouldRequest) {
-                    // Check if the permission is already granted
-                    if (ContextCompat.checkSelfPermission(
-                            activity,
-                            android.Manifest.permission.POST_NOTIFICATIONS
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        settingsViewModel.onPermissionResult(true)
-                    } else {
-                        // Request the permission
-                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                            requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                        }
-                    }
-                }
-            }
-        }
-
         if (subscriptionUpgradeSuccess) {
+            subscriptionUpgradeSuccess = false
+            intent.removeExtra("UPGRADE_SUBSCRIPTION_SUCCESS")
             overlayViewModel.launch(OverlayMode.Upgrade)
             subscriptionBalanceViewModel.pollSubscriptionBalance()
-        }
-
-        // for upgrading plan
-        lifecycleScope.launch {
-            planViewModel.requestPlanUpgrade.collect {
-
-                Log.i(TAG, "requestPlanUpgrade triggered")
-
-                // var networkId: String? = null
-                val networkSpace = app.networkSpaceManagerProvider.getNetworkSpace()
-
-                if (networkSpace == null) {
-                    Log.i(TAG, "network space is null")
-                    return@collect
-                }
-
-                val localState = networkSpace.asyncLocalState
-
-                if (localState == null) {
-                    Log.i(TAG, "network space is null")
-                    return@collect
-                }
-
-                localState.parseByJwt { jwt, _ ->
-
-                    Log.i(TAG, "jwt.network id is ${jwt.networkId.idStr}")
-                    if (jwt.networkId != null) {
-
-                        lifecycleScope.launch {
-                            upgradePlan(jwt.networkId.idStr)
-                        }
-                    }
-                }
-            }
-        }
-
-        // for requesting saga wallet
-        lifecycleScope.launch {
-            walletViewModel.requestSagaWallet.collect {
-                requestSagaWallet()
-            }
         }
     }
 
@@ -322,6 +286,65 @@ class MainActivity: AppCompatActivity() {
             lifecycleScope.launch {
                 val address = getWalletAddress(solanaWalletAdapter, sagaActivitySender!!)
                 walletViewModel.sagaWalletAddressRetrieved(address)
+            }
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded(shouldRequest: Boolean) {
+        if (!shouldRequest) {
+            return
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            settingsViewModel.onPermissionResult(true)
+            settingsViewModel.resetPermissionRequest()
+            return
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            settingsViewModel.onPermissionResult(true)
+            settingsViewModel.resetPermissionRequest()
+        } else {
+            requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    private fun handlePlanUpgradeRequest(app: MainApplication) {
+        Log.i(TAG, "requestPlanUpgrade triggered")
+
+        val networkSpace = app.networkSpaceManagerProvider.getNetworkSpace()
+
+        if (networkSpace == null) {
+            Log.i(TAG, "network space is null")
+            planViewModel.setChangePlanError("Network not found.")
+            planViewModel.setInProgress(false)
+            return
+        }
+
+        val localState = networkSpace.asyncLocalState
+
+        if (localState == null) {
+            Log.i(TAG, "local state is null")
+            planViewModel.setChangePlanError("Network not found.")
+            planViewModel.setInProgress(false)
+            return
+        }
+
+        localState.parseByJwt { jwt, success ->
+            val networkId = if (success) jwt?.networkId else null
+            if (networkId == null) {
+                Log.i(TAG, "jwt network id is null")
+                planViewModel.setChangePlanError("Network not found.")
+                planViewModel.setInProgress(false)
+            } else {
+                Log.i(TAG, "jwt.network id is $networkId")
+                lifecycleScope.launch {
+                    upgradePlan(networkId.toString())
+                }
             }
         }
     }
@@ -390,7 +413,7 @@ class MainActivity: AppCompatActivity() {
         }
 
         // just choose the first offer
-        val offer = productDetails.subscriptionOfferDetails?.first()
+        val offer = productDetails.subscriptionOfferDetails?.firstOrNull()
 
         if (offer == null) {
 
@@ -425,6 +448,12 @@ class MainActivity: AppCompatActivity() {
         activity.let { a ->
             val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)
             Log.i("MainActivity", "billing result: $billingResult")
+            if (billingResult == null || billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                planViewModel.setChangePlanError(
+                    "Billing flow error: ${billingResult?.responseCode} ${billingResult?.debugMessage}"
+                )
+                planViewModel.setInProgress(false)
+            }
         }
 
     }
