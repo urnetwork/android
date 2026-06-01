@@ -64,17 +64,23 @@ class LoginViewModel @Inject constructor(
         api: Api?,
         onLogin: (AuthLoginResult) -> Unit,
         onNewNetwork: (AuthLoginResult) -> Unit,
-    ) -> Unit = { ctx, api, onLogin, onNewNetwork ->
+    ) -> Unit = login@{ ctx, api, onLogin, onNewNetwork ->
 
         when {
-            !isValidUserAuth -> {}
+            !isValidUserAuth || userAuthInProgress -> {}
             else -> {
+                val authApi = api ?: run {
+                    setLoginError(ctx.getString(R.string.login_error))
+                    return@login
+                }
+
+                setLoginError(null)
                 userAuthInProgress = true
 
                 val args = AuthLoginArgs()
                 args.userAuth = userAuth.text.trim()
 
-                api?.authLogin(args) { result, err ->
+                authApi.authLogin(args) { result, err ->
                     viewModelScope.launch {
 
                         if (err != null) {
@@ -118,10 +124,16 @@ class LoginViewModel @Inject constructor(
         signature: String,
         onLogin: (AuthLoginResult) -> Unit,
         onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit
-    ) -> Unit = { ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
+    ) -> Unit = walletLogin@{ ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
 
         if (!solanaAuthInProgress) {
 
+            val authApi = api ?: run {
+                setLoginError(ctx.getString(R.string.login_error))
+                return@walletLogin
+            }
+
+            setLoginError(null)
             setSolanaAuthInProgress(true)
 
             val args = AuthLoginArgs()
@@ -136,7 +148,7 @@ class LoginViewModel @Inject constructor(
 
             args.walletAuth = walletAuth
 
-            api?.authLogin(args) { result, err ->
+            authApi.authLogin(args) { result, err ->
                 viewModelScope.launch {
                     // googleAuthInProgress = false
 
@@ -184,6 +196,7 @@ class LoginViewModel @Inject constructor(
         val filteredTextFieldValue = newValue.copy(text = filteredText)
 
         userAuth = filteredTextFieldValue
+        loginError = null
 
         isValidUserAuth = userAuth.text.isNotEmpty() &&
                 (Patterns.EMAIL_ADDRESS.matcher(userAuth.text).matches() ||

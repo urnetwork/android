@@ -61,11 +61,13 @@ import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import android.net.Uri
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.theme.TextMuted
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -93,7 +95,12 @@ fun LoginPassword(
 
     val scope = rememberCoroutineScope()
 
-    val login = {
+    val login: () -> Unit = login@{
+        if (inProgress || password.text.isEmpty()) {
+            return@login
+        }
+
+        loginError = null
         inProgress = true
 
         val args = AuthLoginWithPasswordArgs()
@@ -144,6 +151,9 @@ fun LoginPassword(
                     inProgress = false
                 }
             }
+        } ?: run {
+            loginError = loginErrMsg
+            inProgress = false
         }
         Unit
     }
@@ -196,7 +206,10 @@ fun LoginPassword(
                 LoginPasswordForm(
                     user = user,
                     password = password,
-                    setPassword = { password = it },
+                    setPassword = {
+                        password = it
+                        loginError = null
+                    },
                     login = login,
                     inProgress = inProgress,
                     loginError = loginError,
@@ -252,8 +265,9 @@ fun LoginPasswordForm(
             ),
             isPassword = true,
             label = stringResource(id = R.string.password_label),
+            enabled = !inProgress,
             onGo = {
-                if (password.text.isNotEmpty()) { login() }
+                if (password.text.isNotEmpty() && !inProgress) { login() }
             }
         )
         // }
@@ -281,10 +295,8 @@ fun LoginPasswordForm(
             }
         }
 
-        if (loginError != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("$loginError")
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+        URInlineErrorText(loginError)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -298,11 +310,13 @@ fun LoginPasswordForm(
             Text(
                 stringResource(id = R.string.reset_it),
                 style = TextStyle(
-                    color = BlueMedium,
+                    color = if (inProgress) TextMuted else BlueMedium,
                     fontSize = 16.sp
                 ),
                 modifier = Modifier.clickable {
-                    onResetPassword()
+                    if (!inProgress) {
+                        onResetPassword()
+                    }
                 }
             )
         }

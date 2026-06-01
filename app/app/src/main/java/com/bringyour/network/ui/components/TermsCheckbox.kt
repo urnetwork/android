@@ -35,7 +35,8 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun TermsCheckbox(
     checked: Boolean,
     onCheckChanged: (Boolean) -> Unit,
-    focusRequester: FocusRequester? = null
+    focusRequester: FocusRequester? = null,
+    enabled: Boolean = true
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
@@ -91,8 +92,11 @@ fun TermsCheckbox(
             ),
             checked = checked,
             onCheckedChange = {
-                onCheckChanged(it)
+                if (enabled) {
+                    onCheckChanged(it)
+                }
             },
+            enabled = enabled,
 
         )
         Spacer(modifier = Modifier.width(12.dp))
