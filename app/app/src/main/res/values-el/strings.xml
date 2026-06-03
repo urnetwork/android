@@ -308,7 +308,7 @@
     <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (μπορεί να είναι ασταθές)</string>
-    <string name="open_source_transparent">100%% ανοιχτού κώδικα και διαφανές</string>
+    <string name="open_source_transparent">100% ανοιχτού κώδικα και διαφανές</string>
     <string name="low_user_ip_ratio">Η χαμηλότερη αναλογία χρηστών/IP για πρόσβαση σε περιεχόμενο</string>
     <string name="trusted_by_private_networks">Εμπιστεύεται από πάνω από %s ιδιωτικά δίκτυα</string>
     <string name="community_edition">Έκδοση κοινότητας</string>

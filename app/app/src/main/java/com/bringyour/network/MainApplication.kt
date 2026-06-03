@@ -31,7 +31,6 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
-import kotlin.time.Duration.Companion.hours
 
 
 @HiltAndroidApp
@@ -477,12 +476,14 @@ class MainApplication : Application() {
 
 
     private fun initDevice(byClientJwt: String): Boolean {
-        return deviceManager.initDevice(
+        if (!deviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
             deviceDescription,
             deviceSpec
-        )
+        )) {
+            return false
+        }
 
 //        router = Router(device!!) {
 //            runBlocking(Dispatchers.Main.immediate) {
@@ -568,7 +569,7 @@ class MainApplication : Application() {
         updateContractStatus()
         updateVpnService()
 
-        // return byDevice
+        return true
     }
 
     private fun updateTunnelStarted() {
@@ -603,7 +604,7 @@ class MainApplication : Application() {
                 if (wakeLock == null) {
                     wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
                         newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "urnetwork::provide").apply {
-                            acquire(24.hours.inWholeMilliseconds)
+                            acquire()
                         }
                     }
 

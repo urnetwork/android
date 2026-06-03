@@ -416,7 +416,7 @@
     <string name="unstable_providers_warning">* (قد يكون غير مستقر)</string>
     <string
         name="open_source_transparent"
-    >" مفتوح المصدر وشفاف بنسبة100%%"</string>
+    >" مفتوح المصدر وشفاف بنسبة100%"</string>
     <string
         name="low_user_ip_ratio"
     >أقل نسبة مستخدم/عنوان IP للوصول إلى المحتوى</string>

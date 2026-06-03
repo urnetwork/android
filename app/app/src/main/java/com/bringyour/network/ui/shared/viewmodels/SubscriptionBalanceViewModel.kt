@@ -211,6 +211,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     val createBackgroundPollingJob: () -> Unit = {
+        backgroundPollingJob?.cancel()
         backgroundPollingJob = viewModelScope.launch {
 
             fetchSubscriptionBalance()

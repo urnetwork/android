@@ -4,21 +4,12 @@ package com.bringyour.network.ui.login
 // - must start with a letter
 // - alpha numeric and DNS compatible
 fun networkNameInputFilter(input: String): String {
-    if (input.isEmpty()) {
-        return input
-    }
-    // must start with a letter
-    if (!input[0].isLetter()) {
-        return ""
-    }
-
-    // convert all uppercase letters to lowercase
-    val filtered = input.map {
-        if (it.isUpperCase()) it.lowercaseChar() else it
-    }.filter {
-        // allow only alphanumeric characters and hyphens
-        it.isLetterOrDigit()
-    }.joinToString("")
-
-    return filtered
+    // lowercase, keep only alphanumeric characters, and drop any leading
+    // non-letters so the name always starts with a letter. Stripping the
+    // leading non-letters (rather than clearing the whole field) avoids
+    // wiping a valid name when a stray non-letter is entered at the start.
+    return input
+        .lowercase()
+        .filter { it.isLetterOrDigit() }
+        .dropWhile { !it.isLetter() }
 }

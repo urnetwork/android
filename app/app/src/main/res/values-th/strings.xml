@@ -282,7 +282,7 @@
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="kill_switch">สวิตช์หยุดการเชื่อมต่อ</string>
     <string name="unstable_providers_warning">* (อาจไม่เสถียร)</string>
-    <string name="open_source_transparent">โอเพ่นซอร์สและโปร่งใส 100%%</string>
+    <string name="open_source_transparent">โอเพ่นซอร์สและโปร่งใส 100%</string>
     <string name="low_user_ip_ratio">อัตราส่วนผู้ใช้/IP ต่ำที่สุดสำหรับการเข้าถึงเนื้อหา</string>
     <string name="trusted_by_private_networks">ได้รับความไว้วางใจจากเครือข่ายส่วนตัวมากกว่า %s เครือข่าย</string>
     <string name="community_edition">ฉบับชุมชน</string>

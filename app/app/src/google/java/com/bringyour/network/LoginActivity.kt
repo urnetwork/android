@@ -325,6 +325,7 @@ class LoginActivity : AppCompatActivity() {
         return uri.queryParameterNames
             .firstOrNull { it.lowercase() !in reservedQueryNames }
             ?.removeSuffix("=")
+            ?.replace('+', ' ')
             ?.takeIf { it.isNotBlank() }
     }
 

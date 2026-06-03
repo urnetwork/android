@@ -40,8 +40,8 @@ fun SwitchAccountScreen(
 ) {
 
     val context = LocalContext.current
-    val application = context.applicationContext as MainApplication
-    val loginActivity = context as LoginActivity
+    val application = context.applicationContext as? MainApplication ?: return
+    val loginActivity = context as? LoginActivity ?: return
 
     val (createGuestNetworkError, setCreateGuestNetworkError) = remember { mutableStateOf<String?>(null) }
     val (createGuestNetworkInProgress, setCreateGuestNetworkInProgress) = remember { mutableStateOf(false) }
@@ -108,7 +108,7 @@ fun SwitchAccountScreen(
     }
 
     val onDecline: () -> Unit = {
-        loginActivity?.navigateToMain()
+        loginActivity.navigateToMain()
     }
 
     Scaffold() { innerPadding ->
