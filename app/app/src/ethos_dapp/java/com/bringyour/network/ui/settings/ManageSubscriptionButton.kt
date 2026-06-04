@@ -20,8 +20,10 @@ fun ManageSubscriptionButton(
 
     TextButton(
         onClick = {
-            val intent = Intent(Intent.ACTION_VIEW, stripePortalUrl?.toUri())
-            context.startActivity(intent)
+            if (stripePortalUrl != null) {
+                val intent = Intent(Intent.ACTION_VIEW, stripePortalUrl.toUri())
+                context.startActivity(intent)
+            }
         }
     ) {
         Text(

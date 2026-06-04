@@ -96,7 +96,7 @@ fun LocationsList(
                         }
                     }
 
-                    items(bestSearchMatches) { location ->
+                    items(bestSearchMatches, key = { "best-${it.connectLocationId}" }) { location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -156,7 +156,7 @@ fun LocationsList(
                         }
                     }
 
-                    items(connectCountries) { location ->
+                    items(connectCountries, key = { "country-${it.connectLocationId}" }) { location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -184,7 +184,7 @@ fun LocationsList(
                         }
                     }
 
-                    items(regions) { location ->
+                    items(regions, key = { "region-${it.connectLocationId}" }) { location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -212,7 +212,7 @@ fun LocationsList(
                         }
                     }
 
-                    items(cities) { location ->
+                    items(cities, key = { "city-${it.connectLocationId}" }) { location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -241,7 +241,7 @@ fun LocationsList(
                         }
                     }
 
-                    items(devices) { location ->
+                    items(devices, key = { "device-${it.connectLocationId}" }) { location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,

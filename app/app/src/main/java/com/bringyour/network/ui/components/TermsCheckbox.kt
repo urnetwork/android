@@ -1,8 +1,5 @@
 package com.bringyour.network.ui.components
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
@@ -11,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,60 +20,53 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import androidx.core.net.toUri
 
 @Composable
 fun TermsCheckbox(
     checked: Boolean,
     onCheckChanged: (Boolean) -> Unit,
-    focusRequester: FocusRequester? = null
+    focusRequester: FocusRequester? = null,
+    enabled: Boolean = true
 ) {
-
-    val context = LocalContext.current
 
     var isFocused by remember { mutableStateOf(false) }
 
-    val checkboxStr = buildAnnotatedString {
+    val checkboxStr = remember { buildAnnotatedString {
         append("I agree to URnetwork's ")
 
-        pushStringAnnotation(
-            tag = "URL",
-            annotation = "https://ur.io/terms"
-        )
-        withStyle(
-            style = SpanStyle(
-                color = BlueMedium
-            )
-        ) {
-            append("Terms and Services")
+        withLink(LinkAnnotation.Url("https://ur.io/terms")) {
+            withStyle(
+                style = SpanStyle(
+                    color = BlueMedium
+                )
+            ) {
+                append("Terms and Services")
+            }
         }
-        pop()
 
         append(" and ")
 
-        pushStringAnnotation(
-            tag = "URL",
-            annotation = "https://ur.io/privacy"
-        )
-        withStyle(
-            style = SpanStyle(
-                color = BlueMedium
-            )
-        ) {
-            append("Privacy Policy")
+        withLink(LinkAnnotation.Url("https://ur.io/privacy")) {
+            withStyle(
+                style = SpanStyle(
+                    color = BlueMedium
+                )
+            ) {
+                append("Privacy Policy")
+            }
         }
-        pop()
 
-    }
+    } }
 
     val checkboxModifier = if (focusRequester != null)
         Modifier
@@ -102,27 +92,17 @@ fun TermsCheckbox(
             ),
             checked = checked,
             onCheckedChange = {
-                onCheckChanged(it)
+                if (enabled) {
+                    onCheckChanged(it)
+                }
             },
+            enabled = enabled,
 
         )
         Spacer(modifier = Modifier.width(12.dp))
 
-        ClickableText(
+        Text(
             text = checkboxStr,
-            onClick = { offset ->
-                checkboxStr.getStringAnnotations(
-                    tag = "URL", start = offset, end = offset
-                ).firstOrNull()?.let { annotation ->
-                    // open the link in browser
-                    val intent = Intent(Intent.ACTION_VIEW, annotation.item.toUri())
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: ActivityNotFoundException) {
-                        Toast.makeText(context, "No app found to handle this link", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            },
             style = MaterialTheme.typography.bodyMedium.copy(color = TextMuted),
         )
     }

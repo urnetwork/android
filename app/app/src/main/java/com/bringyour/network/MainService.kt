@@ -19,8 +19,6 @@ import com.bringyour.sdk.IoLoop
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import com.bringyour.sdk.WindowStatus
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
 import java.net.InetAddress
 import java.util.concurrent.locks.ReentrantLock
@@ -87,7 +85,10 @@ import kotlin.concurrent.thread
     private var windowStatusChangeSub: Sub? = null
     private var connected: Boolean = false
 
+    @Volatile
     private var closeMonitorStarted: Boolean = false
+
+    private val closeMonitorGeneration = java.util.concurrent.atomic.AtomicLong(0)
 
         private var offline: Boolean = false
 
@@ -108,8 +109,8 @@ import kotlin.concurrent.thread
             }
             app.service = WeakReference(this)
 
-            val foreground = intent.getBooleanExtra("foreground", false)
-            val source = intent.getStringExtra("source") ?: "unknown"
+            val foreground = intent?.getBooleanExtra("foreground", false) ?: false
+            val source = intent?.getStringExtra("source") ?: "unknown"
 //            val offline = intent.getBooleanExtra("offline", false)
 
             if (foreground) {
@@ -166,15 +167,11 @@ import kotlin.concurrent.thread
             }
 
             fun updateWindowStatus(windowStatus: WindowStatus) {
-                runBlocking(Dispatchers.Main.immediate) {
-                    val connected = windowStatus?.let {
-                        0 < it.providerStateAdded
-                    } ?: false
-                    if (!(packetFlow?.isActive() ?: false) || this@MainService.connected != connected) {
-                        this@MainService.connected = connected
-                        if (canUpdatePfd(source)) {
-                            updatePfd(offline)
-                        }
+                val connected = 0 < windowStatus.providerStateAdded
+                if (!(packetFlow?.isActive() ?: false) || this@MainService.connected != connected) {
+                    this@MainService.connected = connected
+                    if (canUpdatePfd(source)) {
+                        updatePfd(offline)
                     }
                 }
             }
@@ -230,9 +227,11 @@ import kotlin.concurrent.thread
             builder.addAllowedApplication("${packageName}.offline")
         } else {
             builder.addDisallowedApplication(packageName)
-            // add split tunnel excluded configuration
             for (excludedPackageName in defaultExcludedPackageNames()) {
-                builder.addDisallowedApplication(excludedPackageName)
+                try {
+                    builder.addDisallowedApplication(excludedPackageName)
+                } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
+                }
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -343,16 +342,14 @@ import kotlin.concurrent.thread
                 // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
                 val replacedPacketFlow = packetFlow
                 packetFlow = PacketFlow(device, pfd) {
-                    runBlocking(Dispatchers.Main.immediate) {
+                    Handler(mainLooper).post {
                         if (packetFlow == it) {
-                            // unexpected exit
                             packetFlow = null
                             if (app.service?.get() == this@MainService) {
                                 device.tunnelStarted = false
                                 updatePfd(offline)
                             }
                         }
-                        // else the ended packet flow was replaced by a new one
                     }
                 }
                 replacedPacketFlow?.close()
@@ -453,28 +450,31 @@ import kotlin.concurrent.thread
 
         private fun startCloseMonitor() {
             val app = application as MainApplication
-            if (!closeMonitorStarted) {
-                closeMonitorStarted = true
+            // Reset the flag so a new monitor can always be started,
+            // even if a previous monitor is still winding down.
+            closeMonitorStarted = true
+            val generation = closeMonitorGeneration.incrementAndGet()
 
-                thread {
-                    var done = false
-                    while (!done) {
-                        runBlocking(Dispatchers.Main.immediate) {
-                            if (app.service?.get() != this@MainService) {
+            thread {
+                var done = false
+                while (!done) {
+                    if (app.service?.get() != this@MainService) {
+                        done = true
+                    }
+                    if (!done) {
+                        synchronized(app.serviceActiveMonitor) {
+                            if (!app.serviceActive) {
                                 done = true
                             }
-                        }
-                        if (!done) {
-                            synchronized(app.serviceActiveMonitor) {
-                                if (!app.serviceActive) {
-                                    done = true
-                                }
-                                app.serviceActiveMonitor.wait(1000, 0)
-                            }
+                            app.serviceActiveMonitor.wait(1000, 0)
                         }
                     }
-                    runBlocking(Dispatchers.Main.immediate) {
+                }
+                Handler(mainLooper).post {
+                    // Only stop if no newer monitor has been started since this one.
+                    if (closeMonitorGeneration.get() == generation) {
                         stop()
+                        closeMonitorStarted = false
                     }
                 }
             }

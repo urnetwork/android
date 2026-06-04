@@ -29,22 +29,29 @@ class ResetPasswordViewModel @Inject constructor(
 
     val sendResetLink: ResetPasswordFunction = { userAuth, onSuccess, onErr ->
 
+        isSendingResetPassLink = true
+
         val args = AuthPasswordResetArgs()
         args.userAuth = userAuth.trim()
 
-        val byDevice = deviceManager.device
-        byDevice?.api?.authPasswordReset(args) { _, err ->
-            viewModelScope.launch {
+        val api = deviceManager.device?.api
+        if (api != null) {
+            api.authPasswordReset(args) { _, err ->
+                viewModelScope.launch {
 
-                if (err != null) {
-                    Log.i(TAG, "authPasswordReset error: ${err.message}")
-                    onErr()
-                } else {
-                    onSuccess()
+                    if (err != null) {
+                        Log.i(TAG, "authPasswordReset error: ${err.message}")
+                        onErr()
+                    } else {
+                        onSuccess()
+                    }
+
+                    isSendingResetPassLink = false
                 }
-
-                isSendingResetPassLink = false
             }
+        } else {
+            isSendingResetPassLink = false
+            onErr()
         }
     }
 

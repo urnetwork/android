@@ -198,7 +198,7 @@
     <string name="reliability">ความน่าเชื่อถือ</string>
     <string name="browse_locations">สำรวจพื้นที่ต่างๆ</string>
     <string name="none">ไม่มี</string>
-    <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม Discord เพื่อรับการช่วยเหลือของเราโดยตรง</string>
+    <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม %1$s เพื่อรับการช่วยเหลือของเราโดยตรง</string>
     <string name="referral_network">แนะนำเครือข่าย</string>
     <string name="pending_payout">ยอดที่รอจ่าย</string>
     <string name="amount">ยอด</string>
@@ -299,7 +299,7 @@
     <string name="refer_friends_they_get_data">เพื่อนของคุณได้รับ +%s GiB/เดือนตลอดชีวิต</string>
     <string name="friends_save_too">เพื่อนของคุณก็ประหยัดได้ -- ทุกคนได้ประโยชน์</string>
     <string name="get_connected">เชื่อมต่อ</string>
-    <string name="api_error_contact">หากปัญหายังคงอยู่ กรุณาติดต่อเราที่ %s หรือเข้าร่วม %s ของเราเพื่อรับการสนับสนุนโดยตรง</string>
+    <string name="api_error_contact">หากปัญหายังคงอยู่ กรุณาติดต่อเราที่ %1$s หรือเข้าร่วม %2$s ของเราเพื่อรับการสนับสนุนโดยตรง</string>
     <string name="error_loading_account_plan">เกิดข้อผิดพลาดในการโหลดแผนบัญชีของคุณ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="retry">ลองอีกครั้ง</string>

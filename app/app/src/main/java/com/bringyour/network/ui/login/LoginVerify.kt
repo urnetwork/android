@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -23,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +39,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,13 +60,13 @@ import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URCodeInput
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,14 +83,14 @@ fun LoginVerify(
     var resendInProgress by remember { mutableStateOf(false) }
     var markResendAsSent by remember { mutableStateOf(false) }
     var resendError by remember { mutableStateOf<String?>(null) }
+    var verifyInProgress by remember { mutableStateOf(false) }
     val resendBtnEnabled by remember {
         derivedStateOf {
-            resendError == null &&
-                    !resendInProgress &&
+            !resendInProgress &&
+                    !verifyInProgress &&
                     !markResendAsSent
         }
     }
-    var verifyInProgress by remember { mutableStateOf(false) }
     var verifyError by remember { mutableStateOf<String?>(null) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
@@ -95,8 +99,14 @@ fun LoginVerify(
     val verifySendErrMsg = stringResource(id = R.string.verify_send_error)
     val verifyErrMsg = stringResource(id = R.string.verify_error)
 
-    val resendCode = {
+    val scope = rememberCoroutineScope()
 
+    val resendCode: () -> Unit = resendCode@{
+        if (!resendBtnEnabled) {
+            return@resendCode
+        }
+
+        resendError = null
         resendInProgress = true
 
         val args = AuthVerifySendArgs()
@@ -104,22 +114,29 @@ fun LoginVerify(
         args.useNumeric = true
 
         application?.api?.authVerifySend(args) { _, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
 
                 resendInProgress = false
-                markResendAsSent = true
-
-                Toast.makeText(context, "Verification code sent", Toast.LENGTH_SHORT).show()
 
                 if (err != null) {
                     resendError = verifySendErrMsg
+                } else {
+                    markResendAsSent = true
+                    Toast.makeText(context, "Verification code sent", Toast.LENGTH_SHORT).show()
                 }
             }
+        } ?: run {
+            resendInProgress = false
+            resendError = verifySendErrMsg
         }
     }
 
-    val verify = {
+    val verify: () -> Unit = verify@{
+        if (verifyInProgress || resendInProgress) {
+            return@verify
+        }
 
+        verifyError = null
         verifyInProgress = true
 
         val args = AuthVerifyArgs()
@@ -127,7 +144,7 @@ fun LoginVerify(
         args.verifyCode = code.joinToString("")
 
         application?.api?.authVerify(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
                 verifyInProgress = false
 
                 if (err != null) {
@@ -162,6 +179,16 @@ fun LoginVerify(
                     code = List(codeLength) { "" }
                 }
             }
+        } ?: run {
+            verifyInProgress = false
+            verifyError = verifyErrMsg
+        }
+    }
+
+    LaunchedEffect(markResendAsSent) {
+        if (markResendAsSent) {
+            delay(30000L)
+            markResendAsSent = false
         }
     }
 
@@ -169,7 +196,7 @@ fun LoginVerify(
 
         val codeStr = code.joinToString("")
 
-        if (codeStr.length == codeLength && !verifyInProgress) {
+        if (codeStr.length == codeLength && !verifyInProgress && !resendInProgress) {
             verify()
         }
 
@@ -214,7 +241,7 @@ fun LoginVerify(
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .widthIn(512.dp)
+                        .widthIn(max = 512.dp)
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -245,10 +272,14 @@ fun LoginVerify(
                             value = code,
                             onValueChange = { newCode ->
                                 code = newCode
+                                verifyError = null
                             },
                             codeLength = codeLength,
-                            enabled = !verifyInProgress
+                            enabled = !verifyInProgress && !resendInProgress
                         )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        URInlineErrorText(verifyError)
 
                         Spacer(modifier = Modifier.height(32.dp))
 
@@ -256,7 +287,9 @@ fun LoginVerify(
                             resendCode = {
                                 resendCode()
                             },
-                            resendBtnEnabled = resendBtnEnabled
+                            resendBtnEnabled = resendBtnEnabled,
+                            resendInProgress = resendInProgress,
+                            resendError = resendError
                         )
                     }
                 }
@@ -272,29 +305,48 @@ fun LoginVerify(
 @Composable
 private fun ResendCode(
     resendCode: () -> Unit,
-    resendBtnEnabled: Boolean
+    resendBtnEnabled: Boolean,
+    resendInProgress: Boolean,
+    resendError: String?
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start
     ) {
-        Text(
-            stringResource(id = R.string.dont_see_it),
-            color = TextMuted
-        )
-        Spacer(modifier = Modifier.width(4.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(id = R.string.dont_see_it),
+                color = TextMuted
+            )
+            Spacer(modifier = Modifier.width(4.dp))
 
-        Text(
-            stringResource(id = R.string.resend_verify_code),
-            style = TextStyle(
-                color = if (resendBtnEnabled) Color.White else TextMuted,
-                fontSize = 16.sp
-            ),
-            modifier = Modifier.clickable {
-                if (resendBtnEnabled) {
-                    resendCode()
+            Text(
+                stringResource(id = R.string.resend_verify_code),
+                style = TextStyle(
+                    color = if (resendBtnEnabled) Color.White else TextMuted,
+                    fontSize = 16.sp
+                ),
+                modifier = Modifier.clickable {
+                    if (resendBtnEnabled) {
+                        resendCode()
+                    }
                 }
+            )
+
+            if (resendInProgress) {
+                Spacer(modifier = Modifier.width(8.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = TextMuted,
+                )
             }
-        )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        URInlineErrorText(resendError)
     }
 }
 

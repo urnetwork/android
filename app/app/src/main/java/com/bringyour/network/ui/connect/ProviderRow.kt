@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.connect
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -59,7 +58,7 @@ fun ProviderRow(
     displayIcons: Boolean = true
 ) {
 
-    val formatter = NumberFormat.getNumberInstance(Locale.US)
+    val formatter = remember { NumberFormat.getNumberInstance(Locale.US) }
 
     var isFocused by remember { mutableStateOf(false) }
 
@@ -70,9 +69,6 @@ fun ProviderRow(
             .onFocusChanged {
                 isFocused = it.isFocused
                 onFocusChanged()
-                if (it.isFocused) {
-                    Log.i("ProviderRow", "$location is focused")
-                }
             }
             .focusable()
             .clickable {

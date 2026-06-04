@@ -35,7 +35,6 @@ fun SubscriptionOptions(
 
         val url = buildSolanaPaymentUrl(reference)
 
-        uriHandler.openUri(url)
         var uriOpened = false
 
         try {

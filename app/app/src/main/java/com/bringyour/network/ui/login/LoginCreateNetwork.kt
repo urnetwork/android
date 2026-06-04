@@ -1,7 +1,6 @@
 package com.bringyour.network.ui.login
 
 import android.util.Patterns
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
@@ -41,6 +40,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,18 +69,18 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.TextUnit
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
+import android.net.Uri
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.ppNeueBitBold
@@ -214,81 +214,85 @@ fun LoginCreateNetwork(
     val application = context.applicationContext as? MainApplication
     val loginActivity = context as? LoginActivity
 
-    when(params) {
-        is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-            setEmailOrPhone(TextFieldValue(params.userAuth))
+    LaunchedEffect(params) {
+        when(params) {
+            is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
+                setEmailOrPhone(TextFieldValue(params.userAuth))
+            }
+            else -> Unit
         }
-        else -> Unit
     }
 
-    var isBtnEnabled by remember { mutableStateOf(false) }
     var inProgress by remember { mutableStateOf(false) }
+    var createNetworkError by remember { mutableStateOf<String?>(null) }
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(
-        inProgress,
-        params,
-        networkName.text,
-        password.text,
-        termsAgreed,
-        networkNameIsValid,
-        networkNameErrorExists
-    ) {
-
-        isBtnEnabled = when(params) {
-            is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-                !inProgress &&
-                        (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
-                                Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
+    val isBtnEnabled by remember {
+        derivedStateOf {
+            when(params) {
+                is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
+                    !inProgress &&
+                            (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
+                                    Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
+                            (networkName.text.length >= 6) &&
+                            (password.text.length >= 12) &&
+                            !isValidatingNetworkName &&
+                            !networkNameErrorExists &&
+                            networkNameIsValid &&
+                            termsAgreed
+                }
+                is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
+                    !inProgress &&
+                            (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
+                            (networkName.text.length >= 6) &&
+                            (params.authJwt.isNotEmpty()) &&
+                            (params.authJwtType.isNotEmpty()) &&
+                            !isValidatingNetworkName &&
+                            !networkNameErrorExists &&
+                            networkNameIsValid &&
+                            termsAgreed
+                }
+                is LoginCreateNetworkParams.LoginCreateWalletParams -> {
+                    !inProgress &&
                         (networkName.text.length >= 6) &&
-                        (password.text.length >= 12) &&
+                        (params.publicKey.isNotEmpty()) &&
+                        (params.signature.isNotEmpty()) &&
+                        (params.signedMessage.isNotEmpty()) &&
+                        (params.blockchain.isNotEmpty()) &&
                         !isValidatingNetworkName &&
                         !networkNameErrorExists &&
                         networkNameIsValid &&
                         termsAgreed
-            }
-            is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-                !inProgress &&
-                        (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
-                        (networkName.text.length >= 6) &&
-                        (params.authJwt.isNotEmpty()) &&
-                        (params.authJwtType.isNotEmpty()) &&
-                        !isValidatingNetworkName &&
-                        !networkNameErrorExists &&
-                        networkNameIsValid &&
-                        termsAgreed
-            }
-            is LoginCreateNetworkParams.LoginCreateWalletParams -> {
-                    (networkName.text.length >= 6) &&
-                    (params.publicKey.isNotEmpty()) &&
-                    (params.signature.isNotEmpty()) &&
-                    (params.signedMessage.isNotEmpty()) &&
-                    (params.blockchain.isNotEmpty()) &&
-                    !isValidatingNetworkName &&
-                    !networkNameErrorExists &&
-                    networkNameIsValid &&
-                    termsAgreed
+                }
             }
         }
     }
 
-    val createNetworkError = stringResource(id = R.string.create_network_error)
+    val createNetworkErrorMsg = stringResource(id = R.string.create_network_error)
 
-    val createNetwork = {
+    val scope = rememberCoroutineScope()
+
+    val createNetwork: () -> Unit = createNetwork@{
+        if (!isBtnEnabled || inProgress) {
+            return@createNetwork
+        }
+
         val args = createNetworkArgs(params)
+        createNetworkError = null
         inProgress = true
 
         application?.api?.networkCreate(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
 
                 if (err != null) {
-                    Toast.makeText(context, "Error creating network. Try again later", Toast.LENGTH_SHORT).show()
+                    createNetworkError = err.message ?: createNetworkErrorMsg
                     inProgress = false
                 } else if (result.error != null) {
-                    Toast.makeText(context, result.error.message, Toast.LENGTH_SHORT).show()
+                    createNetworkError = result.error.message
                     inProgress = false
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                    createNetworkError = null
 
                     application.login(result.network.byJwt)
 
@@ -303,8 +307,11 @@ fun LoginCreateNetwork(
                     loginActivity?.authClientAndFinish(
                         { error ->
                             inProgress = false
+                            createNetworkError = error
 
-                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                            if (error != null) {
+                                isContentVisible = true
+                            }
                         }
                     )
                 } else if (result.verificationRequired != null) {
@@ -317,18 +324,21 @@ fun LoginCreateNetwork(
                     }
 
                     userAuth?.let {
-                        navController.navigate("verify/${it}")
+                        navController.navigate("verify/${Uri.encode(it)}")
                     } ?: run {
-                        Toast.makeText(context, "There was a problem parsing user auth for verification", Toast.LENGTH_SHORT).show()
+                        createNetworkError = createNetworkErrorMsg
                     }
 
                     inProgress = false
 
                 } else {
-                    Toast.makeText(context, createNetworkError, Toast.LENGTH_SHORT).show()
+                    createNetworkError = createNetworkErrorMsg
                     inProgress = false
                 }
             }
+        } ?: run {
+            createNetworkError = createNetworkErrorMsg
+            inProgress = false
         }
 
     }
@@ -424,7 +434,11 @@ fun LoginCreateNetwork(
                     isValidReferralCode = isValidReferralCode,
                     isReferralCodeCapped = isReferralCodeCapped,
                     referralCode = referralCode,
-                    isInProgress = inProgress
+                    isInProgress = inProgress,
+                    createNetworkError = createNetworkError,
+                    clearCreateNetworkError = {
+                        createNetworkError = null
+                    }
                 )
             }
 
@@ -460,7 +474,8 @@ fun LoginCreateNetwork(
                             onValueChange = setReferralCode,
                             supportingText = if (referralCodeInputSupportingTextRes != null) stringResource(id = referralCodeInputSupportingTextRes) else "",
                             isValidating = isValidatingReferralCode,
-                            isValid = (!referralValidationComplete || (isValidReferralCode && !isReferralCodeCapped))
+                            isValid = (!referralValidationComplete || (isValidReferralCode && !isReferralCodeCapped)),
+                            enabled = !isValidatingReferralCode
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -473,7 +488,8 @@ fun LoginCreateNetwork(
                                     }
                                 }
                             },
-                            enabled = !isValidatingReferralCode && referralCode.text.isNotEmpty()
+                            enabled = !isValidatingReferralCode && referralCode.text.isNotEmpty(),
+                            isProcessing = isValidatingReferralCode
                         ) { buttonTextStyle ->
                             Text(
                                 stringResource(id = R.string.apply_bonus),
@@ -514,6 +530,8 @@ private fun NetworkCreateForm(
     isValidReferralCode: Boolean,
     isReferralCodeCapped: Boolean,
     referralCode: TextFieldValue,
+    createNetworkError: String?,
+    clearCreateNetworkError: () -> Unit,
 ) {
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
@@ -559,6 +577,7 @@ private fun NetworkCreateForm(
                     )
 
                     setNetworkName(newNetworkName)
+                    clearCreateNetworkError()
 
                     debounceJob?.cancel()
                     debounceJob = coroutineScope.launch {
@@ -573,7 +592,8 @@ private fun NetworkCreateForm(
                 ),
                 isValidating = isValidatingNetworkName,
                 isValid = !networkNameErrorExists,
-                supportingText = networkNameSupportingText
+                supportingText = networkNameSupportingText,
+                enabled = !isInProgress
             )
 
             if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
@@ -581,13 +601,17 @@ private fun NetworkCreateForm(
                 URTextInput(
                     label = stringResource(id = R.string.password_label),
                     value = password,
-                    onValueChange = setPassword,
+                    onValueChange = { newValue ->
+                        setPassword(newValue)
+                        clearCreateNetworkError()
+                    },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
                     isPassword = true,
-                    supportingText = stringResource(id = R.string.password_support_txt)
+                    supportingText = stringResource(id = R.string.password_support_txt),
+                    enabled = !isInProgress
                 )
             }
 
@@ -598,7 +622,11 @@ private fun NetworkCreateForm(
 
                 TermsCheckbox(
                     checked = termsAgreed,
-                    onCheckChanged = setTermsAgreed
+                    onCheckChanged = { checked ->
+                        setTermsAgreed(checked)
+                        clearCreateNetworkError()
+                    },
+                    enabled = !isInProgress
                 )
 
             }
@@ -651,6 +679,9 @@ private fun NetworkCreateForm(
                 )
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+            URInlineErrorText(createNetworkError)
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(
@@ -662,8 +693,10 @@ private fun NetworkCreateForm(
                         else stringResource(id = R.string.edit_referral_code),
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .clickable() {
-                            setPresentBonusSheet(true)
+                        .clickable {
+                            if (!isInProgress) {
+                                setPresentBonusSheet(true)
+                            }
                         }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     style = TextStyle(

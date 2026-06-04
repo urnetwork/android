@@ -13,6 +13,7 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.network.TAG
 import com.bringyour.sdk.FeedbackSendArgs
 import com.bringyour.sdk.FeedbackSendNeeds
+import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,11 +27,12 @@ class FeedbackViewModel @Inject constructor(
 ): ViewModel() {
 
     private var feedbackVc: FeedbackViewController? = null
+    private var isSendingSub: Sub? = null
 
     var feedbackMsg by mutableStateOf(TextFieldValue())
         private set
 
-    private var isSendingFeedback = false
+    private var isSendingFeedback by mutableStateOf(false)
 
     var starCount by mutableIntStateOf(0)
         private set
@@ -82,6 +84,10 @@ class FeedbackViewModel @Inject constructor(
 
                 if (err != null) {
                     Log.i(TAG, "error sending feedback: ${err.message}")
+                    viewModelScope.launch {
+                        isSendingFeedback = false
+                        validateIsSendEnabled()
+                    }
                     return@sendFeedback
                 }
 
@@ -123,9 +129,11 @@ class FeedbackViewModel @Inject constructor(
     }
 
     val addIsSendingListener = {
-        feedbackVc?.addIsSendingFeedbackListener { isSending ->
-            isSendingFeedback = isSending
-            validateIsSendEnabled()
+        isSendingSub = feedbackVc?.addIsSendingFeedbackListener { isSending ->
+            viewModelScope.launch {
+                isSendingFeedback = isSending
+                validateIsSendEnabled()
+            }
         }
     }
 
@@ -137,6 +145,10 @@ class FeedbackViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+
+        isSendingFeedback = false
+
+        isSendingSub?.close()
 
         feedbackVc?.let {
             deviceManager.device?.closeViewController(it)

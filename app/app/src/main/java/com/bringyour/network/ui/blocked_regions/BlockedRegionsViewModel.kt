@@ -63,7 +63,7 @@ class BlockedRegionsViewModel @Inject constructor(
 
                     for (i in 0 until n) {
                         val location = result.blockedLocations.get(i)
-                        locations.add(result.blockedLocations.get(i))
+                        locations.add(location)
                     }
 
                     locations.sortBy { it.locationName.lowercase() }
@@ -140,9 +140,11 @@ class BlockedRegionsViewModel @Inject constructor(
 
     val unblockLocation: (Id) -> Unit = { id ->
 
-        if (isInList(id)) {
+        if (!_isProcessing.value && isInList(id)) {
 
-            // immediately remove from the list
+            _isProcessing.value = true
+
+            val removedItem = _blockedRegions.value.find { it.locationId.cmp(id).toInt() == 0 }
             removeFromList(id)
 
             val args = NetworkUnblockLocationArgs()
@@ -151,12 +153,28 @@ class BlockedRegionsViewModel @Inject constructor(
 
                 if (error != null) {
                     Log.i(TAG, "error unblocking location: ${error.message}")
+                    removedItem?.let { item ->
+                        viewModelScope.launch {
+                            _blockedRegions.value = (_blockedRegions.value + item).sortedBy { it.locationName.lowercase() }
+                            _isProcessing.value = false
+                        }
+                    } ?: viewModelScope.launch { _isProcessing.value = false }
                     return@networkUnblockLocation
                 }
 
                 if (result.error != null) {
                     Log.i(TAG, "result error unblocking location: ${result.error.message}")
+                    removedItem?.let { item ->
+                        viewModelScope.launch {
+                            _blockedRegions.value = (_blockedRegions.value + item).sortedBy { it.locationName.lowercase() }
+                            _isProcessing.value = false
+                        }
+                    } ?: viewModelScope.launch { _isProcessing.value = false }
                     return@networkUnblockLocation
+                }
+
+                viewModelScope.launch {
+                    _isProcessing.value = false
                 }
 
             }

@@ -9,8 +9,11 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -44,7 +47,13 @@ fun LoginNavHost(
 ) {
     val navController = rememberNavController()
 
-    val (switchAccount, setSwitchAccount) = remember { mutableStateOf(promptAccountSwitch) }
+    var switchAccount by remember { mutableStateOf(promptAccountSwitch) }
+
+    LaunchedEffect(promptAccountSwitch) {
+        if (promptAccountSwitch) {
+            switchAccount = true
+        }
+    }
 
     Box(
        modifier = Modifier.fillMaxSize()
@@ -59,7 +68,7 @@ fun LoginNavHost(
                     currentNetworkName = currentNetworkName,
                     targetJwt = targetJwt,
                     switchToGuestMode = switchToGuestMode,
-                    setSwitchAccount = setSwitchAccount
+                    setSwitchAccount = { switchAccount = it }
                 )
             } else {
                 NavHost(

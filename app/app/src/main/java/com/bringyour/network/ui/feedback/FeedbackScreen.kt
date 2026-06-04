@@ -337,8 +337,10 @@ private fun FeedbackForm(
     val feedbackAnnotatedString = buildAnnotatedString {
         withStyle(style = MaterialTheme.typography.bodyLarge.toSpanStyle().copy(color = Color.White)) {
             append(feedbackFull)
-            addStyle(SpanStyle(color = Pink), startIndex, endIndex)
-            addStringAnnotation("URL", supportUrl, startIndex, endIndex)
+            if (startIndex >= 0) {
+                addStyle(SpanStyle(color = Pink), startIndex, endIndex)
+                addStringAnnotation("URL", supportUrl, startIndex, endIndex)
+            }
         }
     }
 

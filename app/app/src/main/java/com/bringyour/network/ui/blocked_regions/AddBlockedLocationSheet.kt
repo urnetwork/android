@@ -119,7 +119,7 @@ fun AddBlockedLocationSheet(
             }
 
 
-            items(filteredCountries, key = { it.connectLocationId.locationId.idStr }) { location ->
+            items(filteredCountries, key = { it.connectLocationId.locationId.toString() }) { location ->
 
                 Column {
 

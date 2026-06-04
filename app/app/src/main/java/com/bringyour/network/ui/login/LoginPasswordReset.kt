@@ -51,15 +51,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthPasswordResetArgs
+import android.net.Uri
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,15 +81,24 @@ fun LoginPasswordReset(
         }
     }
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
+    val passwordResetErrorMsg = stringResource(id = R.string.login_error)
 
-    val sendResetLink = {
+    val scope = rememberCoroutineScope()
+
+    val sendResetLink: () -> Unit = sendResetLink@{
+        if (!isBtnEnabled) {
+            return@sendResetLink
+        }
+
+        passwordResetError = null
+
         val args = AuthPasswordResetArgs()
         args.userAuth = user.text.trim()
 
         inProgress = true
 
         app?.api?.authPasswordReset(args) { result, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
                 inProgress = false
 
                 if (err != null) {
@@ -95,11 +106,14 @@ fun LoginPasswordReset(
                 } else {
                     passwordResetError = null
 
-                    navController.navigate("reset-password-after-send/${userAuth}") {
+                    navController.navigate("reset-password-after-send/${Uri.encode(userAuth)}") {
                         popUpTo("login-initial") { inclusive = false }
                     }
                 }
             }
+        } ?: run {
+            passwordResetError = passwordResetErrorMsg
+            inProgress = false
         }
     }
 
@@ -152,6 +166,7 @@ fun LoginPasswordReset(
                         value = user,
                         onValueChange = { newValue ->
                             user = newValue
+                            passwordResetError = null
                         },
                         placeholder = stringResource(id = R.string.user_auth_placeholder),
                         keyboardOptions = KeyboardOptions(
@@ -161,7 +176,8 @@ fun LoginPasswordReset(
                         onGo = {
                             sendResetLink()
                         },
-                        label = stringResource(id = R.string.user_auth_label)
+                        label = stringResource(id = R.string.user_auth_label),
+                        enabled = !inProgress
                     )
 
 
@@ -179,7 +195,8 @@ fun LoginPasswordReset(
                         onClick = {
                             sendResetLink()
                         },
-                        enabled = isBtnEnabled
+                        enabled = isBtnEnabled,
+                        isProcessing = inProgress
                     ) { buttonTextStyle ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -194,6 +211,9 @@ fun LoginPasswordReset(
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    URInlineErrorText(passwordResetError)
                 }
             }
         }
@@ -221,4 +241,3 @@ private fun LoginPasswordResetPreview() {
         }
     }
 }
-

@@ -48,6 +48,7 @@ class NetworkReliabilityViewModel @Inject constructor(
     }
 
     val pollReliabilityWindow: () -> Unit = {
+        pollingJob?.cancel()
         pollingJob = viewModelScope.launch {
             fetchReliabilityWindow()
 

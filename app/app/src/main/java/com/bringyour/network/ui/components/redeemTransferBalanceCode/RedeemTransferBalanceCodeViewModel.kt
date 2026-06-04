@@ -4,7 +4,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
-import com.bringyour.network.JwtManager
 import com.bringyour.sdk.RedeemBalanceCodeArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,26 +42,32 @@ class RedeemTransferBalanceCodeViewModel @Inject constructor(
 
             val args = RedeemBalanceCodeArgs()
             args.secret = code.text
-            deviceManager.device?.api?.redeemBalanceCode(args) { result, error ->
+            val api = deviceManager.device?.api
+            if (api != null) {
+                api.redeemBalanceCode(args) { result, error ->
 
-                viewModelScope.launch {
-                    if (error != null) {
+                    viewModelScope.launch {
+                        if (error != null) {
+                            _isLoading.value = false
+                            onError()
+                            return@launch
+                        }
+
+                        if (result.error != null) {
+                            _isLoading.value = false
+                            onError()
+                            return@launch
+                        }
+
+                        onSuccess()
                         _isLoading.value = false
-                        onError()
-                        return@launch
-                    }
 
-                    if (result.error != null) {
-                        _isLoading.value = false
-                        onError()
-                        return@launch
                     }
-
-                    onSuccess()
-                    _isLoading.value = false
 
                 }
-
+            } else {
+                _isLoading.value = false
+                onError()
             }
 
         }

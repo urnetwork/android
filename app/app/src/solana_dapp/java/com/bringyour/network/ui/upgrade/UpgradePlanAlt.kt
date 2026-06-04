@@ -67,7 +67,6 @@ fun UpgradePlanAlt(
 
         val url = buildSolanaPaymentUrl(reference)
 
-        uriHandler.openUri(url)
         var uriOpened = false
 
         try {
@@ -157,10 +156,6 @@ private fun UpgradePlanContent(
     var isPromptingSolanaPayment by remember { mutableStateOf(false) }
 
     val colModifier = Modifier
-
-    if (!isTablet()) {
-        colModifier.fillMaxSize()
-    }
 
     Column(
         modifier = colModifier

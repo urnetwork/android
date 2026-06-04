@@ -38,7 +38,6 @@ import com.bringyour.network.ui.theme.Yellow
 fun AltSubscriptionOptions(
     upgradeStripeMonthly: () -> Unit,
     upgradeStripeYearly: () -> Unit,
-    onStripePaymentSuccess: () -> Unit,
     upgradeSolana: () -> Unit,
     isPromptingSolanaPayment: Boolean,
     setIsPromptingSolanaPayment: (Boolean) -> Unit,

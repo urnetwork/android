@@ -93,11 +93,19 @@ fun UpgradePlanBottomSheet(
 
         val url = buildSolanaPaymentUrl(reference)
 
-        uriHandler.openUri(url)
+        var uriOpened = false
 
-        setPendingSolanaSubscriptionReference(reference)
+        try {
+            uriHandler.openUri(url)
+            uriOpened = true
+        } catch (e: Exception) {
+            Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
+        }
 
-        closeSheet()
+        if (uriOpened) {
+            setPendingSolanaSubscriptionReference(reference)
+            closeSheet()
+        }
 
     }
 
@@ -133,7 +141,9 @@ fun UpgradePlanBottomSheet(
 
         UpgradePlanSheetContent(
             upgradeStripe = {
-                uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${planViewModel.networkId}")
+                if (planViewModel.networkId != null) {
+                    uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${planViewModel.networkId}")
+                }
                 // closeSheet()
             },
             upgradeSolana = upgradeWithSolana,
@@ -157,10 +167,6 @@ private fun UpgradePlanSheetContent(
     val colModifier = Modifier
 
     var isPromptingSolanaPayment by remember { mutableStateOf(false) }
-
-    if (!isTablet()) {
-        colModifier.fillMaxSize()
-    }
 
     Column(
         modifier = colModifier

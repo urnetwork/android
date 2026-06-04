@@ -130,7 +130,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
                         isValidatingReferralCode = false
                         referralValidationComplete = true
 
-                        _referralCodeIsCapped.value = result.isCapped
+                        _referralCodeIsCapped.value = result?.isCapped ?: false
 
                         setReferralCodeInputSupportingText()
 
@@ -253,5 +253,10 @@ class LoginCreateNetworkViewModel @Inject constructor(
         networkNameValidationVc = Sdk.newNetworkNameValidationViewController(
             networkSpaceManagerProvider.getNetworkSpace()?.api
         )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        networkNameValidationVc?.close()
     }
 }

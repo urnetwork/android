@@ -2,12 +2,12 @@ package com.bringyour.network.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -87,26 +88,46 @@ fun URButton(
         modifier = baseModifier.then(
             Modifier.defaultMinSize(minHeight = 48.dp)
         ),
-        enabled = enabled,
+        enabled = enabled && !isProcessing,
         shape = RoundedCornerShape(12.dp)
 
     ) {
-        if (!isProcessing) {
-            content(buttonTextStyle)
-        } else {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
+                content(buttonTextStyle)
+            }
+
+            if (isProcessing) {
                 CircularProgressIndicator(
                     modifier = Modifier
-                        .width(24.dp)
-                        .height(24.dp),
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 4.dp)
+                        .size(24.dp),
                     color = MaterialTheme.colorScheme.secondary,
                     trackColor = TextMuted,
                 )
             }
         }
+    }
+}
+
+@Composable
+fun URInlineErrorText(
+    message: String?,
+    modifier: Modifier = Modifier
+) {
+    if (!message.isNullOrEmpty()) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = Red,
+            modifier = modifier.fillMaxWidth()
+        )
     }
 }
 

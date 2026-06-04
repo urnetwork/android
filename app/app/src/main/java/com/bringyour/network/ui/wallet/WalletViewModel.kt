@@ -25,6 +25,7 @@ import com.bringyour.network.utils.roundToDecimals
 import com.bringyour.sdk.ReliabilityWindow
 import com.bringyour.sdk.VerifySeekerNftHolderArgs
 import com.solana.publickey.SolanaPublicKey
+import java.util.concurrent.atomic.AtomicBoolean
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,6 +45,7 @@ class WalletViewModel @Inject constructor(
 
     private var byDevice: DeviceLocal? = null
     private var walletVc: WalletViewController? = null
+    private val subs = mutableListOf<com.bringyour.sdk.Sub>()
 
     var nextPayoutDateStr by mutableStateOf("")
         private set
@@ -140,14 +142,14 @@ class WalletViewModel @Inject constructor(
         this.isRefreshingWallet = isRefreshing
     }
 
-    private var paymentsRefreshed = false
-    private var transferStatsRefreshed = false
+    private val paymentsRefreshed = AtomicBoolean(false)
+    private val transferStatsRefreshed = AtomicBoolean(false)
 
     val refreshWalletsInfo = {
         if (!isRefreshingWallets) {
             setIsRefreshingWallets(true)
-            paymentsRefreshed = false
-            transferStatsRefreshed = false
+            paymentsRefreshed.set(false)
+            transferStatsRefreshed.set(false)
 
             walletVc?.fetchPayments()
             walletVc?.fetchTransferStats()
@@ -156,9 +158,9 @@ class WalletViewModel @Inject constructor(
 
     val refreshWalletInfo: () -> Unit = {
 
-        if (!isRefreshingWallet && !isRefreshingWallets && paymentsRefreshed) {
+        if (!isRefreshingWallet && !isRefreshingWallets && paymentsRefreshed.get()) {
             setIsRefreshingWallet(true)
-            paymentsRefreshed = false
+            paymentsRefreshed.set(false)
 
             walletVc?.fetchPayments()
 
@@ -207,29 +209,31 @@ class WalletViewModel @Inject constructor(
 
         walletVc?.let { vc ->
 
-            val result = vc.wallets
-            val n = result.len()
-
-            val updatedWallets = mutableListOf<AccountWallet>()
-
-            for (i in 0 until n) {
-                val wallet = result.get(i)
-
-                if (!_isSeekerHolder.value && wallet.hasSeekerToken) {
-                    viewModelScope.launch {
-                        _isSeekerHolder.value = true
-                    }
-                }
-
-                if (wallet.circleWalletId.isNullOrEmpty()) {
-                    updatedWallets.add(wallet)
-                }
-
-            }
-
-            val prevWalletCount = _wallets.value.count()
-
             viewModelScope.launch {
+                val result = vc.wallets
+                val n = result.len()
+
+                val updatedWallets = mutableListOf<AccountWallet>()
+                var hasSeekerToken = false
+
+                for (i in 0 until n) {
+                    val wallet = result.get(i)
+
+                    if (wallet.hasSeekerToken) {
+                        hasSeekerToken = true
+                    }
+
+                    if (wallet.circleWalletId.isNullOrEmpty()) {
+                        updatedWallets.add(wallet)
+                    }
+
+                }
+
+                if (hasSeekerToken && !_isSeekerHolder.value) {
+                    _isSeekerHolder.value = true
+                }
+
+                val prevWalletCount = _wallets.value.count()
 
                 _wallets.update { updatedWallets }
 
@@ -240,7 +244,6 @@ class WalletViewModel @Inject constructor(
                 if (prevWalletCount <= 0 && n > 0 && initializingFirstWallet) {
                     setInitializingFirstWallet(false)
                 }
-
             }
 
         }
@@ -253,9 +256,9 @@ class WalletViewModel @Inject constructor(
         viewModelScope.launch {
 
             val callback = ValidateAddressCallback { result ->
-
-                setExternalWalletAddressIsValid(chain, result)
-
+                viewModelScope.launch {
+                    setExternalWalletAddressIsValid(chain, result)
+                }
             }
 
             walletVc?.validateAddress(address, chain, callback)
@@ -297,74 +300,62 @@ class WalletViewModel @Inject constructor(
     }
 
     val addAccountWalletsListener = {
-
-        viewModelScope.launch {
-            walletVc?.let { vc ->
-                vc.addAccountWalletsListener {
-                    updateWallets()
-                }
-            }
-        }
-
+        walletVc?.addAccountWalletsListener {
+            updateWallets()
+        }?.let { subs.add(it) }
     }
 
     val addExternalWalletProcessingListener = {
-        viewModelScope.launch {
-            walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
+        walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
+            viewModelScope.launch {
                 isProcessingExternalWallet = isProcessing
             }
-        }
+        }?.let { subs.add(it) }
     }
 
     val addPayoutWalletListener = {
-        viewModelScope.launch {
-            walletVc?.addPayoutWalletListener { id ->
+        walletVc?.addPayoutWalletListener { id ->
+            viewModelScope.launch {
                 payoutWalletId = id
 
                 if (isSettingPayoutWallet) {
                     isSettingPayoutWallet = false
                 }
             }
-        }
+        }?.let { subs.add(it) }
     }
 
     private val getPayouts = {
 
         walletVc?.let { vc ->
-            val result = vc.accountPayments
-            val n = result.len()
 
-            val updatedPayouts = mutableListOf<AccountPayment>()
+            viewModelScope.launch {
+                val result = vc.accountPayments
+                val n = result.len()
 
-            var totalPayoutsUsdc: Double = 0.0
+                val updatedPayouts = mutableListOf<AccountPayment>()
 
-            for (i in 0 until n) {
-                val payout = result.get(i)
-                updatedPayouts.add(payout)
+                var totalPayoutsUsdc: Double = 0.0
 
-                payout.tokenAmount
-                
-                totalPayoutsUsdc += payout.tokenAmount.roundToDecimals(4)
-            }
+                for (i in 0 until n) {
+                    val payout = result.get(i)
+                    updatedPayouts.add(payout)
+                    totalPayoutsUsdc += payout.tokenAmount.roundToDecimals(4)
+                }
 
-            _payouts.value = updatedPayouts
-            totalPayoutAmount = totalPayoutsUsdc
-            if (!totalPayoutAmountInitialized) {
-                totalPayoutAmountInitialized = true
-            }
+                _payouts.value = updatedPayouts
+                totalPayoutAmount = totalPayoutsUsdc
+                if (!totalPayoutAmountInitialized) {
+                    totalPayoutAmountInitialized = true
+                }
 
-            paymentsRefreshed = true
+                paymentsRefreshed.set(true)
 
-            // refreshing all wallets
-            if (isRefreshingWallets && transferStatsRefreshed) {
-                viewModelScope.launch {
+                if (isRefreshingWallets && transferStatsRefreshed.get()) {
                     setIsRefreshingWallets(false)
                 }
-            }
 
-            // refreshing individual wallet
-            if (isRefreshingWallet) {
-                viewModelScope.launch {
+                if (isRefreshingWallet) {
                     setIsRefreshingWallet(false)
                 }
             }
@@ -381,11 +372,9 @@ class WalletViewModel @Inject constructor(
     }
 
     val addPayoutsListener = {
-        viewModelScope.launch {
-            walletVc?.addPaymentsListener {
-                getPayouts()
-            }
-        }
+        walletVc?.addPaymentsListener {
+            getPayouts()
+        }?.let { subs.add(it) }
     }
 
     val setPayoutWallet: (Id) -> Unit = { walletId ->
@@ -398,11 +387,11 @@ class WalletViewModel @Inject constructor(
     }
 
     val addIsRemovingWalletListener = {
-        viewModelScope.launch {
-            walletVc?.addIsRemovingWalletListener { isRemoving ->
+        walletVc?.addIsRemovingWalletListener { isRemoving ->
+            viewModelScope.launch {
                 isRemovingWallet = isRemoving
             }
-        }
+        }?.let { subs.add(it) }
     }
 
     val pollWallets = {
@@ -424,12 +413,12 @@ class WalletViewModel @Inject constructor(
         walletVc?.addUnpaidByteCountListener{ ubc ->
             viewModelScope.launch(Dispatchers.Main) {
                 unpaidMegaByteCount = formatUnpaidByteCount(ubc.toDouble())
-                transferStatsRefreshed = true
-                if (isRefreshingWallets && paymentsRefreshed) {
+                transferStatsRefreshed.set(true)
+                if (isRefreshingWallets && paymentsRefreshed.get()) {
                         setIsRefreshingWallets(false)
                 }
             }
-        }
+        }?.let { subs.add(it) }
     }
 
     val connectSagaWallet:  () -> Unit = {
@@ -469,7 +458,7 @@ class WalletViewModel @Inject constructor(
             isVerifyingSeekerHolder = true
 
             val args = VerifySeekerNftHolderArgs()
-            args.publicKey = publicKey.string() // should be base58?
+            args.publicKey = publicKey.address
             args.signature = signature
             args.message = message
 
@@ -479,6 +468,7 @@ class WalletViewModel @Inject constructor(
                     Log.i(TAG, "[verifySeekerHolder] result = $result, error = $error")
 
                     if (error != null) {
+                        isVerifyingSeekerHolder = false
                         return@launch
                     }
 
@@ -486,7 +476,7 @@ class WalletViewModel @Inject constructor(
                         _isSeekerHolder.value = true
                         walletVc?.fetchAccountWallets()
                     } else {
-                        val errorMessage = result?.error?.message ?: "No Seeker NFT found in wallet ...${publicKey.string().takeLast(7)}"
+                        val errorMessage = result?.error?.message ?: "No Seeker NFT found in wallet ...${publicKey.address.takeLast(7)}"
                         onError(errorMessage)
                     }
                     isVerifyingSeekerHolder = false
@@ -522,6 +512,9 @@ class WalletViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
+        subs.forEach { it.close() }
+        subs.clear()
+
         walletVc?.let {
             deviceManager.device?.closeViewController(it)
         }
@@ -547,7 +540,7 @@ enum class Blockchain {
 }
 
 data class WalletValidationState(
-    var solana: Boolean = false,
-    var polygon: Boolean = false
+    val solana: Boolean = false,
+    val polygon: Boolean = false
 )
 

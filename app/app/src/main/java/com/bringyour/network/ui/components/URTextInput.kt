@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -93,7 +94,8 @@ fun URTextInput(
                         textStyle = TextStyle(color = Color.LightGray),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.Transparent),
+                            .background(Color.Transparent)
+                            .onFocusChanged { isFocused = it.isFocused },
                         decorationBox = { innerTextField ->
                             if (value.text.isEmpty()) {
                                 Text(

@@ -34,24 +34,29 @@ class SolanaPaymentViewModel @Inject constructor(
                 val args = SolanaPaymentIntentArgs()
                 args.reference = reference
 
-                deviceManager.device?.api?.createSolanaPaymentIntent(args) { result, err ->
+                val api = deviceManager.device?.api
+                if (api != null) {
+                    api.createSolanaPaymentIntent(args) { result, err ->
 
-                    viewModelScope.launch {
+                        viewModelScope.launch {
 
-                        if (err != null || result == null) {
-                            onError()
-                            return@launch
+                            if (err != null || result == null) {
+                                onError()
+                                return@launch
+                            }
+
+                            if (result.error != null) {
+                                onError()
+                                return@launch
+                            }
+
+                            onSuccess()
+
                         }
-
-                        if (result.error != null) {
-                            onError()
-                            return@launch
-                        }
-
-                        onSuccess()
 
                     }
-
+                } else {
+                    onError()
                 }
     }
 

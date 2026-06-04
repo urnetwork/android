@@ -310,7 +310,7 @@
     <string name="feedback_include_logs">Joindre les journaux au retour (optionnel)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (peut être instable)</string>
-    <string name="open_source_transparent">100 % open source et transparent</string>
+    <string name="open_source_transparent">100 %% open source et transparent</string>
     <string name="low_user_ip_ratio">Le ratio utilisateur/IP le plus bas pour accéder au contenu</string>
     <string name="trusted_by_private_networks">Fiable pour plus de %s réseaux privés</string>
     <string name="community_edition">Édition communautaire</string>
@@ -327,7 +327,7 @@
     <string name="refer_friends_they_get_data">Votre ami reçoit +%s GiB/mois à vie</string>
     <string name="friends_save_too">Vos amis économisent aussi -- tout le monde y gagne.</string>
     <string name="get_connected">Se connecter</string>
-    <string name="api_error_contact">Si le problème persiste, contactez-nous à %s ou rejoignez notre %s pour un support direct.</string>
+    <string name="api_error_contact">Si le problème persiste, contactez-nous à %1$s ou rejoignez notre %2$s pour un support direct.</string>
     <string name="error_loading_account_plan">Erreur lors du chargement de votre formule de compte.</string>
     <string name="please_try_again">Veuillez réessayer.</string>
     <string name="retry">Réessayer</string>

@@ -335,7 +335,7 @@
     <string name="none">None</string>
     <string
         name="send_feedback"
-    >Send us your feedback directly or join our Discord for direct support.</string>
+    >Send us your feedback directly or join our %1$s for direct support.</string>
     <string name="referral_network">Referral network</string>
     <string name="pending_payout">Pending payout</string>
     <string name="amount">Amount</string>
@@ -492,7 +492,7 @@
     <string name="get_connected">Get connected</string>
     <string
         name="api_error_contact"
-    >If the problem persists, contact us at %s or join our %s for direct support.</string>
+    >If the problem persists, contact us at %1$s or join our %2$s for direct support.</string>
     <string
         name="error_loading_account_plan"
     >Error loading your account plan.</string>

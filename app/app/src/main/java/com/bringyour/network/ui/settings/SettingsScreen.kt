@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
-import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -601,34 +600,36 @@ fun SettingsScreen(
                 )
             }
 
-            /**
-             * Battery optimization
-             */
+            if (supportsBatteryOptimizationExemption()) {
+                /**
+                 * Battery optimization
+                 */
 
-            Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(id = R.string.ignore_battery_optimizations),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(id = R.string.ignore_battery_optimizations),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
 
-                BatteryOptimizationToggle()
+                    BatteryOptimizationToggle()
 
-            }
+                }
 
-            Row {
-                Text(
-                    stringResource(id = R.string.disable_ignore_battery_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted
-                )
+                Row {
+                    Text(
+                        stringResource(id = R.string.disable_ignore_battery_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -1203,12 +1204,7 @@ fun BatteryOptimizationToggle() {
         checked = isIgnored,
         toggle = {
             if (!isIgnored) {
-                val intent = Intent(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                intent.data = Uri.parse("package:${context.packageName}")
-                if (context !is Activity) {
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(intent)
+                requestBatteryOptimizationExemption(context)
             }
         },
         enabled = !isIgnored

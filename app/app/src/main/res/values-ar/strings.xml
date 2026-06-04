@@ -290,7 +290,7 @@
     <string name="current_network_referral">شبكة الإحالة الحالية</string>
     <string
         name="unlink_alert_description"
-    >" عند فك ارتباط شبكة الإحالة الخاصة بك، لن تتمكن بعد الآن من كسب النقاط من1$s"</string>
+    >" عند فك ارتباط شبكة الإحالة الخاصة بك، لن تتمكن بعد الآن من كسب النقاط من %1$s"</string>
     <string name="account_points">نقاط الحساب</string>
     <string name="points_breakdown">تفصيل النقاط</string>
     <string name="payouts">المدفوعات</string>
@@ -304,7 +304,7 @@
     <string name="reliability">الموثوقية</string>
     <string name="browse_locations">تصفح المواقع</string>
     <string name="none">لا يوجد</string>
-    <string name="send_feedback">1$s الخاص بنا للحصول على دعم مباشر.</string>
+    <string name="send_feedback">أرسل لنا ملاحظاتك مباشرة أو انضم إلى %1$s الخاص بنا للحصول على دعم مباشر.</string>
     <string name="referral_network">شبكة الإحالة</string>
     <string name="pending_payout">دفعة معلقة</string>
     <string name="amount">المبلغ</string>
@@ -455,7 +455,7 @@
     <string name="get_connected">اتصل الآن</string>
     <string
         name="api_error_contact"
-    >إذا استمرت المشكلة، تواصل معنا على %s أو انضم إلى %s الخاص بنا للحصول على دعم مباشر.</string>
+    >إذا استمرت المشكلة، تواصل معنا على %1$s أو انضم إلى %2$s الخاص بنا للحصول على دعم مباشر.</string>
     <string
         name="error_loading_account_plan"
     >حدث خطأ أثناء تحميل خطة حسابك.</string>

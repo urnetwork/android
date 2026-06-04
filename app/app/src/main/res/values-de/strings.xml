@@ -309,7 +309,7 @@
     <string name="feedback_include_logs">Protokolle dem Feedback anhängen (optional)</string>
     <string name="kill_switch">Kill switch</string>
     <string name="unstable_providers_warning">* (kann instabil sein)</string>
-    <string name="open_source_transparent">100 % Open Source und transparent</string>
+    <string name="open_source_transparent">100 %% Open Source und transparent</string>
     <string name="low_user_ip_ratio">Niedrigstes Nutzer/IP-Verhältnis für den Zugriff auf Inhalte</string>
     <string name="trusted_by_private_networks">Vertraut von über %s privaten Netzwerken</string>
     <string name="community_edition">Community Edition</string>
@@ -326,7 +326,7 @@
     <string name="refer_friends_they_get_data">Dein Freund erhält +%s GiB/Monat – ein Leben lang</string>
     <string name="friends_save_too">Deine Freunde sparen ebenfalls – alle gewinnen.</string>
     <string name="get_connected">Verbinden</string>
-    <string name="api_error_contact">Wenn das Problem weiterhin besteht, kontaktiere uns unter %s oder tritt unserem %s für direkten Support bei.</string>
+    <string name="api_error_contact">Wenn das Problem weiterhin besteht, kontaktiere uns unter %1$s oder tritt unserem %2$s für direkten Support bei.</string>
     <string name="error_loading_account_plan">Fehler beim Laden Ihres Kontoplans.</string>
     <string name="please_try_again">Bitte versuchen Sie es erneut.</string>
     <string name="retry">Erneut versuchen</string>

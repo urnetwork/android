@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.sdk.ConnectLocation
@@ -24,6 +25,7 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 ): ViewModel() {
 
     private var locationsVc: LocationsViewController? = null
+    private var filteredLocationsSub: com.bringyour.sdk.Sub? = null
 
     private val _filterLocationsState = MutableStateFlow(FilterLocationsState.Loading)
     val filterLocationsState: StateFlow<FilterLocationsState> = _filterLocationsState.asStateFlow()
@@ -70,14 +72,19 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
     private val addFilteredLocationsListener = {
 
         locationsVc?.let { vc ->
-            vc.addFilteredLocationsListener { filteredLocation, state ->
+            filteredLocationsSub = vc.addFilteredLocationsListener { filteredLocation, state ->
                 viewModelScope.launch {
 
-                    searchLocationResults.clear()
+                    val newResults = mutableListOf<ConnectLocation>()
 
                     filteredLocation?.let {
-                        searchLocationResults.addAll(makeConnectLocationCollection(it.bestMatches))
-                        searchLocationResults.addAll(makeConnectLocationCollection(it.devices))
+                        newResults.addAll(makeConnectLocationCollection(it.bestMatches))
+                        newResults.addAll(makeConnectLocationCollection(it.devices))
+                    }
+
+                    Snapshot.withMutableSnapshot {
+                        searchLocationResults.clear()
+                        searchLocationResults.addAll(newResults)
                     }
 
                     FilterLocationsState.fromString(state)?.let {
@@ -99,6 +106,9 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+
+        filteredLocationsSub?.close()
+        filteredLocationsSub = null
 
         locationsVc?.let {
             deviceManager.device?.closeViewController(it)

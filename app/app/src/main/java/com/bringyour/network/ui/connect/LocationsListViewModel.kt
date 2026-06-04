@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -25,6 +26,7 @@ class LocationsListViewModel @Inject constructor(
 ): ViewModel() {
 
     private var locationsVc: LocationsViewController? = null
+    private var filteredLocationsSub: com.bringyour.sdk.Sub? = null
 
     private val _filterLocationsState = MutableStateFlow(FilterLocationsState.Loading)
     val filterLocationsState: StateFlow<FilterLocationsState> = _filterLocationsState.asStateFlow()
@@ -69,7 +71,15 @@ class LocationsListViewModel @Inject constructor(
 
     val getLocationColor: (String) -> Color = { color ->
         val hex = locationsVc?.getColorHex(color)
-        Color(android.graphics.Color.parseColor("#$hex"))
+        if (hex != null) {
+            try {
+                Color(android.graphics.Color.parseColor("#$hex"))
+            } catch (_: IllegalArgumentException) {
+                Color.White
+            }
+        } else {
+            Color.White
+        }
     }
 
     private val makeConnectLocationCollection: (ConnectLocationList) -> Collection<ConnectLocation> = { list ->
@@ -86,21 +96,34 @@ class LocationsListViewModel @Inject constructor(
     private val addFilteredLocationsListener = {
 
         locationsVc?.let { vc ->
-            vc.addFilteredLocationsListener { filteredLocation, state ->
+            filteredLocationsSub = vc.addFilteredLocationsListener { filteredLocation, state ->
                 viewModelScope.launch {
 
-                    bestSearchMatches.clear()
-                    connectCountries.clear()
-                    devices.clear()
-                    cities.clear()
-                    regions.clear()
+                    val newBestSearchMatches = mutableListOf<ConnectLocation>()
+                    val newConnectCountries = mutableListOf<ConnectLocation>()
+                    val newDevices = mutableListOf<ConnectLocation>()
+                    val newCities = mutableListOf<ConnectLocation>()
+                    val newRegions = mutableListOf<ConnectLocation>()
 
                     filteredLocation?.let {
-                        bestSearchMatches.addAll(makeConnectLocationCollection(it.bestMatches))
-                        connectCountries.addAll(makeConnectLocationCollection(it.countries))
-                        devices.addAll(makeConnectLocationCollection(it.devices))
-                        cities.addAll(makeConnectLocationCollection(it.cities))
-                        regions.addAll(makeConnectLocationCollection(it.regions))
+                        newBestSearchMatches.addAll(makeConnectLocationCollection(it.bestMatches))
+                        newConnectCountries.addAll(makeConnectLocationCollection(it.countries))
+                        newDevices.addAll(makeConnectLocationCollection(it.devices))
+                        newCities.addAll(makeConnectLocationCollection(it.cities))
+                        newRegions.addAll(makeConnectLocationCollection(it.regions))
+                    }
+
+                    Snapshot.withMutableSnapshot {
+                        bestSearchMatches.clear()
+                        bestSearchMatches.addAll(newBestSearchMatches)
+                        connectCountries.clear()
+                        connectCountries.addAll(newConnectCountries)
+                        devices.clear()
+                        devices.addAll(newDevices)
+                        cities.clear()
+                        cities.addAll(newCities)
+                        regions.clear()
+                        regions.addAll(newRegions)
                     }
 
                     FilterLocationsState.fromString(state)?.let {
@@ -124,6 +147,9 @@ class LocationsListViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+
+        filteredLocationsSub?.close()
+        filteredLocationsSub = null
 
         locationsVc?.let {
             deviceManager.device?.closeViewController(it)

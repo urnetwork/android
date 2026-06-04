@@ -26,6 +26,7 @@ class AccountViewModel @Inject constructor(
 ): ViewModel() {
 
     private var networkUserVc: NetworkUserViewController? = null
+    private val subs = mutableListOf<com.bringyour.sdk.Sub>()
 
     var loginMode by mutableStateOf<LoginMode>(LoginMode.Guest)
         private set
@@ -44,8 +45,10 @@ class AccountViewModel @Inject constructor(
 
     private val addNetworkUserListener = {
         networkUserVc?.addNetworkUserListener {
-            setNetworkUser(networkUserVc?.networkUser)
-        }
+            viewModelScope.launch {
+                setNetworkUser(networkUserVc?.networkUser)
+            }
+        }?.let { subs.add(it) }
     }
 
     var clientId by mutableStateOf("")
@@ -68,21 +71,32 @@ class AccountViewModel @Inject constructor(
 
         addNetworkUserListener()
 
-        localState?.parseByJwt { jwt, _ ->
+        localState?.parseByJwt { jwt, success ->
             viewModelScope.launch {
-                setLoginMode(if (jwt?.guestMode == true) LoginMode.Guest else LoginMode.Authenticated)
+                setLoginMode(if (success && jwt?.guestMode != true) LoginMode.Authenticated else LoginMode.Guest)
                // setNetworkName(jwt?.networkName ?: "guest")
             }
         }
 
         deviceManager.device.let { device ->
             viewModelScope.launch {
-                clientId = device?.clientId?.idStr ?: ""
+                clientId = device?.clientId?.toString() ?: ""
             }
         }
 
         networkUserVc?.start()
 
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        subs.forEach { it.close() }
+        subs.clear()
+
+        networkUserVc?.let {
+            deviceManager.device?.closeViewController(it)
+        }
     }
 
 }

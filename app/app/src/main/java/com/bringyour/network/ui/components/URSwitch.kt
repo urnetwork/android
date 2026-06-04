@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.components
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -77,11 +76,10 @@ fun URSwitch(
         modifier = Modifier
             .size(width = width, height = height)
             .onFocusChanged { focusState ->
-                Log.i("switch", "onFocusChanged: $focusState")
                 isFocused = focusState.isFocused
             }
             .focusable()
-            .pointerInput(enabled) {
+            .pointerInput(enabled, toggle) {
                 detectTapGestures(
                     onTap = {
                         if (enabled) {

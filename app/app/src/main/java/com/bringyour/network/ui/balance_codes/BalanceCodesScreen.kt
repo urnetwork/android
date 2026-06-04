@@ -24,9 +24,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,12 +55,15 @@ fun BalanceCodesScreen(
     )
 
     val balanceCodes by viewModel.balanceCodes.collectAsState()
+    val isFetchingBalanceCodes by viewModel.isFetchingBalanceCodes.collectAsState()
+    val displayBottomSheet by viewModel.displayBottonSheet.collectAsState()
 
     val context = LocalContext.current
 
-    val errorEvents = viewModel.errorEvents.collectAsState(initial = null)
-    errorEvents.value?.let { message ->
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.errorEvents.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     Scaffold(
@@ -106,12 +109,12 @@ fun BalanceCodesScreen(
                 onRefresh = {
                     viewModel.fetchNetworkBalanceCodes()
                 },
-                isRefreshing = viewModel.isFetchingBalanceCodes.collectAsState().value
+                isRefreshing = isFetchingBalanceCodes
             )
 
         }
 
-        if (viewModel.displayBottonSheet.collectAsState().value) {
+        if (displayBottomSheet) {
             RedeemTransferBalanceCodeSheet(
                 sheetState = sheetState,
                 setIsPresenting = {
@@ -200,7 +203,7 @@ private fun BalanceCodesTable(
                     }
                 }
 
-                items(balanceCodes, key = {it.balanceCodeId.idStr}) { balanceCode ->
+                items(balanceCodes, key = { it.balanceCodeId.toString() }) { balanceCode ->
                     BalanceCodeListItem(
                         balanceCode = balanceCode,
                     )

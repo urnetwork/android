@@ -300,7 +300,7 @@
     <string name="none">Žádné</string>
     <string
         name="send_feedback"
-    >Pošlete nám svůj názor přímo nebo se připojte k našemu Discordu pro přímou podporu.</string>
+    >Pošlete nám svůj názor přímo nebo se připojte k našemu %1$s pro přímou podporu.</string>
     <string name="referral_network">Síť doporučení</string>
     <string name="pending_payout">Čeká se na výplatu</string>
     <string name="amount">Částka</string>
@@ -465,7 +465,7 @@
     <string name="get_connected">Připojit se</string>
     <string
         name="api_error_contact"
-    >Pokud problém přetrvává, kontaktujte nás na %s nebo se připojte k našemu %s pro přímou podporu.</string>
+    >Pokud problém přetrvává, kontaktujte nás na %1$s nebo se připojte k našemu %2$s pro přímou podporu.</string>
     <string
         name="error_loading_account_plan"
     >Chyba při načítání plánu vašeho účtu.</string>

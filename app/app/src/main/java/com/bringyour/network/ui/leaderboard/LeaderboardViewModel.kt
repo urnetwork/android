@@ -46,6 +46,7 @@ class LeaderboardViewModel @Inject constructor(
      * The string formatted net provided by the network
      */
     var netProvidedFormatted by mutableStateOf("")
+        private set
 
     /**
      * Whether the network is publicly displayed on the leaderboard
@@ -71,6 +72,7 @@ class LeaderboardViewModel @Inject constructor(
      * Network ID
      */
     var networkId by mutableStateOf<String?>(null)
+        private set
 
     val resetErrorOccurred: () -> Unit = {
         errorOccurred = false
@@ -146,7 +148,6 @@ class LeaderboardViewModel @Inject constructor(
                 deviceManager.device?.api?.getNetworkLeaderboardRanking { result, error ->
                     if (error != null) {
                         Log.i(TAG, "errorgetRanking: ${error.message}")
-                        errorOccurred = true
                         continuation.resumeWith(Result.failure(error))
                         return@getNetworkLeaderboardRanking
                     }
@@ -162,7 +163,7 @@ class LeaderboardViewModel @Inject constructor(
                 } ?: continuation.resumeWith(Result.failure(IllegalStateException("Device or API is null")))
             }
         } catch (e: Exception) {
-            errorOccurred = true
+            viewModelScope.launch { errorOccurred = true }
             Result.failure(e)
         }
 
@@ -177,7 +178,6 @@ class LeaderboardViewModel @Inject constructor(
                 deviceManager.device?.api?.getLeaderboard(args) { result, error ->
                     if (error != null) {
                         Log.i(TAG, "error fetching leaderboard: ${error.message}")
-                        errorOccurred = true
                         continuation.resumeWith(Result.failure(error))
                         return@getLeaderboard
                     }
@@ -208,14 +208,12 @@ class LeaderboardViewModel @Inject constructor(
                 } ?: continuation.resumeWith(Result.failure(IllegalStateException("Device or API is null")))
             }
         } catch (e: Exception) {
-            errorOccurred = true
+            viewModelScope.launch { errorOccurred = true }
             Result.failure(e)
         }
     }
 
     suspend fun toggleNetworkRankingVisibility() {
-
-        val isPublic = !isNetworkRankingPublic
 
         if (isSettingNetworkRankingPublic) {
             return
@@ -223,8 +221,10 @@ class LeaderboardViewModel @Inject constructor(
 
         isSettingNetworkRankingPublic = true
 
+        val isPublic = !isNetworkRankingPublic
+
         try {
-            suspendCancellableCoroutine { continuation ->
+            suspendCancellableCoroutine<Unit> { continuation ->
                 val args = SetNetworkRankingPublicArgs()
                 args.isPublic = isPublic
                 deviceManager.device?.api?.setNetworkLeaderboardPublic(args) { result, error ->
@@ -239,26 +239,29 @@ class LeaderboardViewModel @Inject constructor(
                         return@setNetworkLeaderboardPublic
                     }
 
-                    continuation.resumeWith(Result.success(Result.success(Unit)))
+                    continuation.resumeWith(Result.success(Unit))
                 } ?: continuation.resumeWith(Result.failure(IllegalStateException("Device or API is null")))
             }
         } catch (e: Exception) {
             setDisplayErrorMsg(true)
-            Result.failure(e)
+            isSettingNetworkRankingPublic = false
+            return
         }
 
         isNetworkRankingPublic = isPublic
 
         viewModelScope.launch {
-            val leaderboardDeferred = async { getLeaderboard() }
-            val leaderboardResult = leaderboardDeferred.await()
+            try {
+                val leaderboardDeferred = async { getLeaderboard() }
+                val leaderboardResult = leaderboardDeferred.await()
 
-            leaderboardResult.onSuccess { earners ->
-                _leaderboardEntries.value = earners
+                leaderboardResult.onSuccess { earners ->
+                    _leaderboardEntries.value = earners
+                }
+            } finally {
+                isSettingNetworkRankingPublic = false
             }
         }
-
-        isSettingNetworkRankingPublic = false
 
     }
 
@@ -300,8 +303,10 @@ class LeaderboardViewModel @Inject constructor(
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState
 
-        localState?.parseByJwt { jwt, _ ->
-            networkId = jwt.networkId.toString()
+        localState?.parseByJwt { jwt, success ->
+            viewModelScope.launch {
+                networkId = if (success) jwt?.networkId?.toString() ?: "" else ""
+            }
         }
     }
 

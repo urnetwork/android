@@ -64,17 +64,23 @@ class LoginViewModel @Inject constructor(
         api: Api?,
         onLogin: (AuthLoginResult) -> Unit,
         onNewNetwork: (AuthLoginResult) -> Unit,
-    ) -> Unit = { ctx, api, onLogin, onNewNetwork ->
+    ) -> Unit = login@{ ctx, api, onLogin, onNewNetwork ->
 
         when {
-            !isValidUserAuth -> {}
+            !isValidUserAuth || userAuthInProgress -> {}
             else -> {
+                val authApi = api ?: run {
+                    setLoginError(ctx.getString(R.string.login_error))
+                    return@login
+                }
+
+                setLoginError(null)
                 userAuthInProgress = true
 
                 val args = AuthLoginArgs()
                 args.userAuth = userAuth.text.trim()
 
-                api?.authLogin(args) { result, err ->
+                authApi.authLogin(args) { result, err ->
                     viewModelScope.launch {
 
                         if (err != null) {
@@ -120,15 +126,25 @@ class LoginViewModel @Inject constructor(
         account: GoogleSignInAccount,
         onLogin: (AuthLoginResult) -> Unit,
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
-    ) -> Unit = { ctx, api, account, onLogin, onCreateNetwork ->
+    ) -> Unit = googleLogin@{ ctx, api, account, onLogin, onCreateNetwork ->
 
+        if (googleAuthInProgress) {
+            return@googleLogin
+        }
+
+        val authApi = api ?: run {
+            setLoginError(ctx.getString(R.string.login_error))
+            return@googleLogin
+        }
+
+        setLoginError(null)
         setGoogleAuthInProgress(true)
 
         val args = AuthLoginArgs()
         args.authJwt = account.idToken
         args.authJwtType = "google"
 
-        api?.authLogin(args) { result, err ->
+        authApi.authLogin(args) { result, err ->
             viewModelScope.launch {
                 // googleAuthInProgress = false
 
@@ -176,10 +192,16 @@ class LoginViewModel @Inject constructor(
         signature: String,
         onLogin: (AuthLoginResult) -> Unit,
         onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit
-    ) -> Unit = { ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
+    ) -> Unit = walletLoginSolana@{ ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
 
         if (!solanaAuthInProgress) {
 
+            val authApi = api ?: run {
+                setLoginError(ctx.getString(R.string.login_error))
+                return@walletLoginSolana
+            }
+
+            setLoginError(null)
             setSolanaAuthInProgress(true)
 
             val args = AuthLoginArgs()
@@ -194,14 +216,16 @@ class LoginViewModel @Inject constructor(
 
             args.walletAuth = walletAuth
 
-            api?.authLogin(args) { result, err ->
+            authApi.authLogin(args) { result, err ->
                 viewModelScope.launch {
                     // googleAuthInProgress = false
 
                     if (err != null) {
                         setLoginError(err.message)
+                        setSolanaAuthInProgress(false)
                     } else if (result.error != null) {
                         setLoginError(result.error.message)
+                        setSolanaAuthInProgress(false)
                     } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                         setLoginError(null)
 
@@ -234,10 +258,16 @@ class LoginViewModel @Inject constructor(
         signature: String,
         onLogin: (AuthLoginResult) -> Unit,
         onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit
-    ) -> Unit = { ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
+    ) -> Unit = walletLoginEthereum@{ ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
 
         if (!ethOsAuthInProgress) {
 
+            val authApi = api ?: run {
+                setLoginError(ctx.getString(R.string.login_error))
+                return@walletLoginEthereum
+            }
+
+            setLoginError(null)
             setEthOsAuthInProgress(true)
 
             val args = AuthLoginArgs()
@@ -252,14 +282,16 @@ class LoginViewModel @Inject constructor(
 
             args.walletAuth = walletAuth
 
-            api?.authLogin(args) { result, err ->
+            authApi.authLogin(args) { result, err ->
                 viewModelScope.launch {
                     // googleAuthInProgress = false
 
                     if (err != null) {
                         setLoginError(err.message)
+                        setEthOsAuthInProgress(false)
                     } else if (result.error != null) {
                         setLoginError(result.error.message)
+                        setEthOsAuthInProgress(false)
                     } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                         setLoginError(null)
 
@@ -306,6 +338,7 @@ class LoginViewModel @Inject constructor(
         val filteredTextFieldValue = newValue.copy(text = filteredText)
 
         userAuth = filteredTextFieldValue
+        loginError = null
 
         isValidUserAuth = userAuth.text.isNotEmpty() &&
                 (Patterns.EMAIL_ADDRESS.matcher(userAuth.text).matches() ||

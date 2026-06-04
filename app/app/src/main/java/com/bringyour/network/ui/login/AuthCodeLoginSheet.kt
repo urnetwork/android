@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.login
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +28,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
@@ -53,13 +53,25 @@ fun AuthCodeLoginSheet(
         }
     }
 
+    val authCodeErrorText = stringResource(id = R.string.auth_code_error)
+
     AuthCodeLoginSheet(
         isPresenting = isPresenting,
         setIsPresenting = setIsPresenting,
         authCode = viewModel.authCode,
         setAuthCode = viewModel.setAuthCode,
-        authCodeLogin = viewModel.authCodeLogin,
+        authCodeLogin = { api, onError, onSuccess ->
+            viewModel.authCodeLogin(
+                api,
+                { message ->
+                    viewModel.setAuthCodeLoginError(message ?: authCodeErrorText)
+                    onError(message)
+                },
+                onSuccess
+            )
+        },
         authCodeLoginLoading = viewModel.isLoading,
+        authCodeLoginError = viewModel.authCodeLoginError,
         sheetState = sheetState,
         onLogin = onLogin
     )
@@ -74,6 +86,7 @@ fun AuthCodeLoginSheet(
     setAuthCode: (TextFieldValue) -> Unit,
     authCodeLogin: AuthCodeLoginFunction,
     authCodeLoginLoading: Boolean,
+    authCodeLoginError: String?,
     sheetState: SheetState,
     onLogin: (String) -> Unit, // network jwt
 ) {
@@ -81,7 +94,6 @@ fun AuthCodeLoginSheet(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-    val authCodeErrorText = stringResource(id = R.string.auth_code_error)
 
     if (isPresenting) {
 
@@ -115,7 +127,8 @@ fun AuthCodeLoginSheet(
                     onValueChange = {setAuthCode(it)},
                     label = stringResource(id = R.string.authentication_code),
                     placeholder = stringResource(id = R.string.authentication_code_input_placeholder),
-                    isPassword = true
+                    isPassword = true,
+                    enabled = !authCodeLoginLoading
                 )
 
                 Spacer(modifier = Modifier.height(48.dp))
@@ -124,9 +137,7 @@ fun AuthCodeLoginSheet(
                     onClick = {
                         authCodeLogin(
                             application?.api,
-                            {
-                                Toast.makeText(context, authCodeErrorText, Toast.LENGTH_SHORT).show()
-                            },
+                            {},
                             { result ->
 
                                 scope.launch { sheetState.hide() }.invokeOnCompletion {
@@ -142,7 +153,8 @@ fun AuthCodeLoginSheet(
 
                     },
                     borderColor = if (authCode.text.isNotEmpty()) Black else TextMuted,
-                    enabled = authCode.text.isNotEmpty() && !authCodeLoginLoading
+                    enabled = authCode.text.isNotEmpty() && !authCodeLoginLoading,
+                    isProcessing = authCodeLoginLoading
                 ) { buttonTextStyle ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -155,6 +167,9 @@ fun AuthCodeLoginSheet(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                URInlineErrorText(authCodeLoginError)
 
                 Spacer(modifier = Modifier.height(16.dp))
 

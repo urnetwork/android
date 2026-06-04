@@ -72,7 +72,6 @@ fun UpgradePlanAlt(
 
         val url = buildSolanaPaymentUrl(reference)
 
-        uriHandler.openUri(url)
         var uriOpened = false
 
         try {
@@ -169,10 +168,6 @@ private fun UpgradePlanContent(
 
     val colModifier = Modifier
 
-    if (!isTablet()) {
-        colModifier.fillMaxSize()
-    }
-
     Column(
         modifier = colModifier
             .padding(horizontal = 16.dp)
@@ -192,12 +187,15 @@ private fun UpgradePlanContent(
                 setIsPromptingSolanaPayment = {
                     isPromptingSolanaPayment = it
                 },
-                onStripePaymentSuccess = onStripePaymentSuccess,
                 upgradeStripeMonthly = {
-                    uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${networkId}")
+                    if (networkId != null) {
+                        uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${networkId}")
+                    }
                 },
                 upgradeStripeYearly = {
-                    uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${networkId}")
+                    if (networkId != null) {
+                        uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${networkId}")
+                    }
                 },
                 isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )

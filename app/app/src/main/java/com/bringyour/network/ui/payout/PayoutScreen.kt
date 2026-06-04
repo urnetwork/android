@@ -165,8 +165,11 @@ fun PayoutScreen(
                                     "https://polygonscan.com/tx/"
 
                                 val intent = Intent(Intent.ACTION_VIEW,
-                                    "${baseUrl}/${accountPayment.txHash}".toUri())
-                                context.startActivity(intent)
+                                    "${baseUrl}${accountPayment.txHash}".toUri())
+                                try {
+                                    context.startActivity(intent)
+                                } catch (_: android.content.ActivityNotFoundException) {
+                                }
                             },
                             color = Pink
                         )

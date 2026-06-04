@@ -28,8 +28,8 @@ import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun SwitchAccountScreen(
@@ -40,14 +40,17 @@ fun SwitchAccountScreen(
 ) {
 
     val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-    val loginActivity = context as? LoginActivity
+    val application = context.applicationContext as? MainApplication ?: return
+    val loginActivity = context as? LoginActivity ?: return
 
     val (createGuestNetworkError, setCreateGuestNetworkError) = remember { mutableStateOf<String?>(null) }
     val (createGuestNetworkInProgress, setCreateGuestNetworkInProgress) = remember { mutableStateOf(false) }
+    val createNetworkErrorMessage = stringResource(id = R.string.create_network_error)
+
+    val scope = rememberCoroutineScope()
 
     val onAccept: () -> Unit = {
-        application?.logout()
+        application.logout()
 
         if (switchToGuestMode) {
             // switch to guest mode
@@ -57,21 +60,23 @@ fun SwitchAccountScreen(
             args.terms = true
             args.guestMode = true
 
-            application?.api?.networkCreate(args) { result, err ->
-                runBlocking(Dispatchers.Main.immediate) {
+            application.api?.networkCreate(args) { result, err ->
+                scope.launch {
 
                     if (err != null) {
                         Log.i(TAG, "error ${err.message}")
                         setCreateGuestNetworkError(err.message)
+                        setCreateGuestNetworkInProgress(false)
                     } else if (result.error != null) {
                         Log.i(TAG, "error ${result.error.message}")
                         setCreateGuestNetworkError(result.error.message)
+                        setCreateGuestNetworkInProgress(false)
                     } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                         setCreateGuestNetworkError(null)
 
                         application.login(result.network.byJwt)
 
-                        loginActivity?.authClientAndFinish(
+                        loginActivity.authClientAndFinish(
                             { error ->
                                 setCreateGuestNetworkInProgress(false)
 
@@ -81,7 +86,8 @@ fun SwitchAccountScreen(
                         )
 
                     } else {
-                        setCreateGuestNetworkError(context.getString(R.string.create_network_error))
+                        setCreateGuestNetworkError(createNetworkErrorMessage)
+                        setCreateGuestNetworkInProgress(false)
                     }
                 }
             }
@@ -89,8 +95,8 @@ fun SwitchAccountScreen(
         } else if (!targetJwt.isNullOrEmpty()) {
             // switch to different account
 
-            application?.login(targetJwt)
-            loginActivity?.authClientAndFinish(
+            application.login(targetJwt)
+            loginActivity.authClientAndFinish(
                 {err ->
                     setSwitchAccount(false)
                 },
@@ -102,7 +108,7 @@ fun SwitchAccountScreen(
     }
 
     val onDecline: () -> Unit = {
-        loginActivity?.navigateToMain()
+        loginActivity.navigateToMain()
     }
 
     Scaffold() { innerPadding ->

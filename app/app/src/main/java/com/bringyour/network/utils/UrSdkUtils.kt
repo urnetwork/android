@@ -6,7 +6,7 @@ import com.bringyour.sdk.IntList
 val sdkIntListToArray: (IntList) -> MutableList<Long> = { list ->
 
     val n = list.len()
-    var arr = mutableListOf<Long>()
+    val arr = mutableListOf<Long>()
 
     for (i in 0 until n) {
 
@@ -21,7 +21,7 @@ val sdkIntListToArray: (IntList) -> MutableList<Long> = { list ->
 val sdkFloat64ListToArray: (Float64List) -> MutableList<Double> = { list ->
 
     val n = list.len()
-    var arr = mutableListOf<Double>()
+    val arr = mutableListOf<Double>()
 
     for (i in 0 until n) {
 

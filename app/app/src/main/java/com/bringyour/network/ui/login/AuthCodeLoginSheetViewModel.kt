@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 typealias AuthCodeLoginFunction = (
     api: Api?,
-    onError: () -> Unit,
+    onError: (String?) -> Unit,
     onSuccess: (AuthCodeLoginResult) -> Unit
 ) -> Unit
 
@@ -29,13 +29,22 @@ class AuthCodeLoginSheetViewModel @Inject constructor(): ViewModel() {
 
     val setAuthCode: (TextFieldValue) -> Unit = {
         authCode = it
+        authCodeLoginError = null
     }
 
     var isLoading by mutableStateOf(false)
         private set
 
+    var authCodeLoginError by mutableStateOf<String?>(null)
+        private set
+
+    val setAuthCodeLoginError: (String?) -> Unit = { message ->
+        authCodeLoginError = message
+    }
+
     fun clearAuthCode() {
         authCode = TextFieldValue()
+        authCodeLoginError = null
     }
 
     val authCodeLogin: AuthCodeLoginFunction = { api, onErr, onSuccess ->
@@ -43,6 +52,7 @@ class AuthCodeLoginSheetViewModel @Inject constructor(): ViewModel() {
         if (!isLoading) {
 
             isLoading = true
+            authCodeLoginError = null
 
             val authCodeLoginArgs = AuthCodeLoginArgs()
             authCodeLoginArgs.authCode = authCode.text
@@ -53,14 +63,16 @@ class AuthCodeLoginSheetViewModel @Inject constructor(): ViewModel() {
 
                     if (error != null) {
                         Log.i(TAG, "authCodeLogin err: ${error.message}")
-                        onErr()
+                        authCodeLoginError = error.message
+                        onErr(error.message)
                         isLoading = false
                         return@launch
                     }
 
                     if (result.error != null) {
                         Log.i(TAG, "authCodeLogin result.err: ${result.error.message}")
-                        onErr()
+                        authCodeLoginError = result.error.message
+                        onErr(result.error.message)
                         isLoading = false
                         return@launch
                     }
@@ -72,7 +84,7 @@ class AuthCodeLoginSheetViewModel @Inject constructor(): ViewModel() {
             } ?: run {
                 Log.i(TAG, "authCodeLogin api not found")
                 isLoading = false
-                onErr()
+                onErr(null)
             }
         }
 

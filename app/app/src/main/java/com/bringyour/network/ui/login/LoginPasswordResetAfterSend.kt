@@ -43,12 +43,13 @@ import com.bringyour.sdk.AuthPasswordResetArgs
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
-import kotlinx.coroutines.Dispatchers
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,15 +68,24 @@ fun LoginPasswordResetAfterSend(
         }
     }
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
+    val passwordResetErrorMsg = stringResource(id = R.string.login_error)
 
-    val sendResetLink = {
+    val scope = rememberCoroutineScope()
+
+    val sendResetLink: () -> Unit = sendResetLink@{
+        if (!isBtnEnabled) {
+            return@sendResetLink
+        }
+
+        passwordResetError = null
+
         val args = AuthPasswordResetArgs()
         args.userAuth = userAuth.trim()
 
         inProgress = true
 
         app?.api?.authPasswordReset(args) { _, err ->
-            runBlocking(Dispatchers.Main.immediate) {
+            scope.launch {
                 inProgress = false
 
                 if (err != null) {
@@ -86,6 +96,9 @@ fun LoginPasswordResetAfterSend(
                     markAsSent = true
                 }
             }
+        } ?: run {
+            passwordResetError = passwordResetErrorMsg
+            inProgress = false
         }
     }
 
@@ -123,7 +136,7 @@ fun LoginPasswordResetAfterSend(
         ) {
             Column (
                 modifier = Modifier
-                    .fillMaxWidth().widthIn(512.dp)
+                    .fillMaxWidth().widthIn(max = 512.dp)
             ) {
                 Text(
                     stringResource(id = R.string.reset_link_sent),
@@ -155,7 +168,8 @@ fun LoginPasswordResetAfterSend(
                     onClick = {
                         sendResetLink()
                     },
-                    enabled = isBtnEnabled
+                    enabled = isBtnEnabled,
+                    isProcessing = inProgress
                 ) { buttonTextStyle ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -166,6 +180,9 @@ fun LoginPasswordResetAfterSend(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                URInlineErrorText(passwordResetError)
             }
         }
     }

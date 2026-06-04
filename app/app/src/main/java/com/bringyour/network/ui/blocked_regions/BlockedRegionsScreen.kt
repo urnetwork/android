@@ -182,7 +182,7 @@ fun BlockedRegionsScreen(
                 state = listState
             ) {
 
-                items(blockedLocations, key = {it.locationId.idStr}) { location ->
+                items(blockedLocations, key = { it.locationId.toString() }) { location ->
                     BlockedRegionListItem(
                         blockedLocation = location,
                         onRemove = { id ->
