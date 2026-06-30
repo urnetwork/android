@@ -64,7 +64,8 @@ import kotlin.concurrent.thread
 
 
 
-    val clientIpv4: String? = "169.254.2.1"
+    // clientIpv4 (the TUN interface address) is sourced at tunnel-build time from the
+    // SDK device's tunnelLocalAddress() (reserved from connect's pool); see updatePfd.
     val clientIpv4PrefixLength = 32
     // see:
     // https://security.googleblog.com/2022/07/dns-over-http3-in-android.html#fn2
@@ -238,13 +239,24 @@ import kotlin.concurrent.thread
             builder.setMetered(false)
         }
 
+        val clientIpv4: String? = app.device?.tunnelLocalAddress()
         if (clientIpv4 != null) {
             builder.allowFamily(AF_INET)
             builder.addAddress(
                 clientIpv4,
                 clientIpv4PrefixLength
             )
-            for (dnsIpv4 in dnsIpv4s) {
+            // DNS from the SDK device's tunnel DNS setting (default plain 1.1.1.1);
+            // plain :53 lets the UpgradeMux intercept and upgrade it. Falls back to the
+            // static list when the device or setting is unavailable.
+            val tunnelDns = app.device?.tunnelDnsSetting()
+            val tunnelDnsServers =
+                if (tunnelDns != null && tunnelDns.server.isNotEmpty()) {
+                    listOf(tunnelDns.server)
+                } else {
+                    dnsIpv4s
+                }
+            for (dnsIpv4 in tunnelDnsServers) {
                 builder.addDnsServer(dnsIpv4)
             }
             if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
