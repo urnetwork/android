@@ -371,7 +371,7 @@ fun OpenProviderListButton(
     val text = if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
         stringResource(id = R.string.best_available_provider)
     } else {
-        selectedLocation.name
+        selectedLocation.name.truncateClientId()
     }
 
     val iconTint = if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
@@ -448,6 +448,10 @@ fun OpenProviderListButton(
             )
         }
     }
+}
+
+fun String.truncateClientId(): String {
+    return if (length > 12) "${take(4)}...${takeLast(4)}" else this
 }
 
 @Composable
