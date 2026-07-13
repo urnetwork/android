@@ -40,7 +40,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -228,44 +227,61 @@ fun LoginCreateNetwork(
     var welcomeOverlayVisible by remember { mutableStateOf(false) }
     var isContentVisible by remember { mutableStateOf(true) }
 
-    val isBtnEnabled by remember {
-        derivedStateOf {
-            when(params) {
-                is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
-                    !inProgress &&
-                            (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
-                                    Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
-                            (networkName.text.length >= 6) &&
-                            (password.text.length >= 12) &&
-                            !isValidatingNetworkName &&
-                            !networkNameErrorExists &&
-                            networkNameIsValid &&
-                            termsAgreed
-                }
-                is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
-                    !inProgress &&
-                            (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
-                            (networkName.text.length >= 6) &&
-                            (params.authJwt.isNotEmpty()) &&
-                            (params.authJwtType.isNotEmpty()) &&
-                            !isValidatingNetworkName &&
-                            !networkNameErrorExists &&
-                            networkNameIsValid &&
-                            termsAgreed
-                }
-                is LoginCreateNetworkParams.LoginCreateWalletParams -> {
-                    !inProgress &&
-                        (networkName.text.length >= 6) &&
-                        (params.publicKey.isNotEmpty()) &&
-                        (params.signature.isNotEmpty()) &&
-                        (params.signedMessage.isNotEmpty()) &&
-                        (params.blockchain.isNotEmpty()) &&
-                        !isValidatingNetworkName &&
-                        !networkNameErrorExists &&
-                        networkNameIsValid &&
-                        termsAgreed
-                }
-            }
+    // NOTE: this is intentionally a plain `val`, recomputed on every recomposition,
+    // and NOT wrapped in `remember { derivedStateOf { ... } }`.
+    //
+    // `remember` with no keys only evaluates its calculation once, on this
+    // composable's first composition, and caches the result forever after.
+    // The lambda passed to `derivedStateOf` closes over this function's plain
+    // parameters (termsAgreed, networkName, networkNameIsValid, etc.) - not
+    // Compose State objects - so that closure freezes at their FIRST-composition
+    // values (all false/empty) and never observes later updates. That made the
+    // "Continue" button appear permanently disabled/gray no matter what the user
+    // typed or checked, until something forced a full teardown-and-rebuild of the
+    // composition (e.g. rotating the device, which recreates the Activity because
+    // this screen has no `android:configChanges` entry for orientation) - a fresh
+    // first composition then captured the already-correct state and rendered
+    // correctly. See LoginVerify.kt's resendBtnEnabled for a *correct* use of this
+    // pattern: it only closes over `remember { mutableStateOf(...) }` locals
+    // (stable State references), not passed-in parameters, so it isn't stale.
+    //
+    // This calculation is cheap, so there's no benefit to memoizing it anyway -
+    // recomputing a few boolean checks on every recomposition is free, and doing
+    // so guarantees it always reflects the current parameter values.
+    val isBtnEnabled = when(params) {
+        is LoginCreateNetworkParams.LoginCreateUserAuthParams -> {
+            !inProgress &&
+                    (Patterns.EMAIL_ADDRESS.matcher(emailOrPhone.text).matches() ||
+                            Patterns.PHONE.matcher(emailOrPhone.text).matches()) &&
+                    (networkName.text.length >= 6) &&
+                    (password.text.length >= 12) &&
+                    !isValidatingNetworkName &&
+                    !networkNameErrorExists &&
+                    networkNameIsValid &&
+                    termsAgreed
+        }
+        is LoginCreateNetworkParams.LoginCreateAuthJwtParams -> {
+            !inProgress &&
+                    (Patterns.EMAIL_ADDRESS.matcher(params.userAuth).matches()) &&
+                    (networkName.text.length >= 6) &&
+                    (params.authJwt.isNotEmpty()) &&
+                    (params.authJwtType.isNotEmpty()) &&
+                    !isValidatingNetworkName &&
+                    !networkNameErrorExists &&
+                    networkNameIsValid &&
+                    termsAgreed
+        }
+        is LoginCreateNetworkParams.LoginCreateWalletParams -> {
+            !inProgress &&
+                (networkName.text.length >= 6) &&
+                (params.publicKey.isNotEmpty()) &&
+                (params.signature.isNotEmpty()) &&
+                (params.signedMessage.isNotEmpty()) &&
+                (params.blockchain.isNotEmpty()) &&
+                !isValidatingNetworkName &&
+                !networkNameErrorExists &&
+                networkNameIsValid &&
+                termsAgreed
         }
     }
 
