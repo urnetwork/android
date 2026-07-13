@@ -135,7 +135,7 @@ fun LoginInitial(
         publicKey: String,
         signedMessage: String,
         signature: String
-            ) -> Unit = { blockchain, _, _, _ ->
+            ) -> Unit = { blockchain, publicKey, _, _ ->
 
         scope.launch {
             activityResultSender?.let { sender ->

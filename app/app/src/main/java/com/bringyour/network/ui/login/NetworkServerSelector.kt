@@ -60,10 +60,9 @@ private fun normalizeNetworkHost(raw: String): String {
     if (value.startsWith("[") && value.contains("]:")) {
         // IPv6 with port: "[...]:port" — keep the brackets
         value = value.substringBeforeLast(":")
-    } else if (!value.contains("[") && !value.contains(":")) {
-        // Plain hostname — no colon, nothing to strip
-    } else if (!value.contains("[")) {
-        // IPv4 host:port — strip after the last colon
+    } else if (!value.contains("[") && value.count { it == ':' } == 1) {
+        // Exactly one colon means "host:port" (IPv4 or hostname). A bare
+        // IPv6 literal has multiple colons and must not be mangled.
         value = value.substringBeforeLast(":")
     }
     return value.trim().trim('.')

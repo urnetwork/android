@@ -168,7 +168,7 @@ fun LoginInitial(
                         is SolanaChallengeSignResult.Success -> {
                             Log.d("LoginInitial", "onCreateNetworkWallet (solana) signed pk=${result.signed.publicKey.isNotEmpty()}, message=${result.signed.message.isNotEmpty()}, signature=${result.signed.signature.isNotEmpty()}")
 
-                            if (result.signed.publicKey != publicKey) {
+                            if (result.signed.publicKey != pk) {
                                 loginViewModel.setLoginError("Wallet account changed. Please use the same account for create network.")
                                 return@launch
                             }
