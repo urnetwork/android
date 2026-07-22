@@ -90,10 +90,12 @@
     <string name="connect_and_open">Připojení a otevření odkazu</string>
     <string name="connect_external_wallet">Připojit externí peněženku</string>
     <string name="connect_external_wallet_supported_chains">Adresa USDC na síti Solana a Polygon jsou aktuálně podporovány.</string>
+    <string name="connect_options">Možnosti připojení</string>
     <string name="connect_saga_wallet">Připojte peněženku Saga</string>
     <string name="connect_seeker_wallet">Připojení peněženky s žetonem předobjednávky Saga Genesis nebo Seeker</string>
     <string name="connect_to_location">Připojit k %1$s</string>
     <string name="connecting_status_indicator">Připojení k poskytovatelům</string>
+    <string name="connection_mode">Režim připojení</string>
     <string name="connections">Připojení</string>
     <string name="connectivity_label">Připojení</string>
     <string name="continue_txt">Pokračovat</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">Výplata ze dne %1$s</string>
     <string name="default_bandwidth_earn_more_by">Ve výchozím nastavení získáte %1$d GiB/měsíc. Zde je návod, jak získat další šířku pásma:</string>
     <string name="default_wallet">Výchozí</string>
+    <string name="delete">Odstranit</string>
     <string name="delete_account">Odstranit účet</string>
     <string name="device">Zařízení</string>
     <string name="device_discoverable">Toto zařízení je viditelné pro ostatní</string>

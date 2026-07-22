@@ -90,10 +90,12 @@
     <string name="connect_and_open">接続してリンクを開く</string>
     <string name="connect_external_wallet">外部ウォレットを接続</string>
     <string name="connect_external_wallet_supported_chains">現在、SolanaとPolygonのUSDCアドレスがサポートされています。</string>
+    <string name="connect_options">接続オプション</string>
     <string name="connect_saga_wallet">Sagaウォレットを接続</string>
     <string name="connect_seeker_wallet">Saga Genesisまたはシーカー事前予約トークンでウォレットを接続する</string>
     <string name="connect_to_location">%1$sに接続</string>
     <string name="connecting_status_indicator">プロバイダーに接続中</string>
+    <string name="connection_mode">接続モード</string>
     <string name="connections">接続</string>
     <string name="connectivity_label">接続性</string>
     <string name="continue_txt">続ける</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">%1$s の支払い</string>
     <string name="default_bandwidth_earn_more_by">デフォルトでは、%1$d GiB/月が付与されます。追加の帯域幅を獲得する方法はこちらです：</string>
     <string name="default_wallet">デフォルト</string>
+    <string name="delete">削除</string>
     <string name="delete_account">アカウントを削除</string>
     <string name="device">デバイス</string>
     <string name="device_discoverable">このデバイスは検出可能です</string>

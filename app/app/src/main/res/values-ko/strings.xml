@@ -90,10 +90,12 @@
     <string name="connect_and_open">연결하고 링크를 엽니다</string>
     <string name="connect_external_wallet">외부 지갑 연결</string>
     <string name="connect_external_wallet_supported_chains">현재 Solana와 Polygon의 USDC 주소가 지원됩니다.</string>
+    <string name="connect_options">연결 옵션</string>
     <string name="connect_saga_wallet">Saga 지갑 연결</string>
     <string name="connect_seeker_wallet">Saga Genesis 또는 Seeker 선주문 토큰으로 지갑을 연결하세요</string>
     <string name="connect_to_location">%1$s에 연결</string>
     <string name="connecting_status_indicator">제공업체에 연결 중</string>
+    <string name="connection_mode">연결 모드</string>
     <string name="connections">연결</string>
     <string name="connectivity_label">연결성</string>
     <string name="continue_txt">계속</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">%1$s 지급</string>
     <string name="default_bandwidth_earn_more_by">기본적으로 매월 %1$d GiB를 받습니다. 추가 대역폭을 얻는 방법은 다음과 같습니다:</string>
     <string name="default_wallet">기본값</string>
+    <string name="delete">삭제</string>
     <string name="delete_account">계정 삭제</string>
     <string name="device">기기</string>
     <string name="device_discoverable">이 기기는 검색될 수 있습니다</string>

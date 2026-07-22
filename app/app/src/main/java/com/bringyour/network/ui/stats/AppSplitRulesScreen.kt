@@ -70,7 +70,7 @@ private data class AppRuleEditorTarget(
 
 /**
  * App split rules: all installed apps, with the overridden apps pinned
- * on top showing their included or excluded state. Tapping an app opens
+ * on top showing their included or local state. Tapping an app opens
  * a dialog to exclude it from the vpn or force it through the vpn.
  * Inclusions take precedence over exclusions.
  */
@@ -189,8 +189,10 @@ fun AppSplitRulesScreen(
                                         icon = app?.icon,
                                         trailing = {
                                             StateChip(
+                                                // an excluded app routes locally: same Local language
+                                                // as the split rules screen
                                                 text = stringResource(
-                                                    id = if (rule.includedInTunnel) R.string.included else R.string.excluded
+                                                    id = if (rule.includedInTunnel) R.string.included else R.string.local
                                                 ),
                                                 color = if (ruleActive) {
                                                     if (rule.includedInTunnel) BlueMedium else Green

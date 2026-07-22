@@ -90,10 +90,12 @@
     <string name="connect_and_open">Σύνδεση και άνοιγμα συνδέσμου</string>
     <string name="connect_external_wallet">Σύνδεση εξωτερικού πορτοφολιού</string>
     <string name="connect_external_wallet_supported_chains">Οι διευθύνσεις USDC σε Solana και Polygon υποστηρίζονται αυτήν τη στιγμή.</string>
+    <string name="connect_options">Επιλογές σύνδεσης</string>
     <string name="connect_saga_wallet">Σύνδεση πορτοφολιού Saga</string>
     <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Saga Genesis ή το Seeker Pre-Order Token</string>
     <string name="connect_to_location">Σύνδεση με %1$s</string>
     <string name="connecting_status_indicator">Σύνδεση με παρόχους</string>
+    <string name="connection_mode">Λειτουργία σύνδεσης</string>
     <string name="connections">Συνδέσεις</string>
     <string name="connectivity_label">Συνδεσιμότητα</string>
     <string name="continue_txt">Συνέχεια</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">Πληρωμή %1$s</string>
     <string name="default_bandwidth_earn_more_by">Από προεπιλογή, λαμβάνετε %1$d GiB/μήνα. Δείτε πώς μπορείτε να κερδίσετε επιπλέον εύρος ζώνης:</string>
     <string name="default_wallet">Προεπιλογή</string>
+    <string name="delete">Διαγραφή</string>
     <string name="delete_account">Διαγραφή λογαριασμού</string>
     <string name="device">Συσκευή</string>
     <string name="device_discoverable">Αυτή η συσκευή είναι ανιχνεύσιμη</string>

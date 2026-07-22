@@ -90,10 +90,12 @@
     <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>
     <string name="connect_external_wallet">बाहरी वॉलेट कनेक्ट करें</string>
     <string name="connect_external_wallet_supported_chains">Solana और Polygon पर USDC पते वर्तमान में समर्थित हैं।</string>
+    <string name="connect_options">कनेक्शन विकल्प</string>
     <string name="connect_saga_wallet">Saga वॉलेट कनेक्ट करें</string>
     <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
     <string name="connect_to_location">%1$s से कनेक्ट करें</string>
     <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है</string>
+    <string name="connection_mode">कनेक्शन मोड</string>
     <string name="connections">कनेक्शन</string>
     <string name="connectivity_label">कनेक्टिविटी</string>
     <string name="continue_txt">जारी रखें</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">%1$s भुगतान</string>
     <string name="default_bandwidth_earn_more_by">डिफ़ॉल्ट रूप से, आपको %1$d GiB/महीना मिलता है। ऐसे आप अतिरिक्त बैंडविड्थ कमा सकते हैं:</string>
     <string name="default_wallet">डिफ़ॉल्ट</string>
+    <string name="delete">डिलीट करें</string>
     <string name="delete_account">अकाउंट डिलीट करें</string>
     <string name="device">डिवाइस</string>
     <string name="device_discoverable">यह डिवाइस खोजा जा सकता है</string>

@@ -90,10 +90,12 @@
     <string name="connect_and_open">Verbinden und Link öffnen</string>
     <string name="connect_external_wallet">Externe Wallet verbinden</string>
     <string name="connect_external_wallet_supported_chains">USDC-Adressen auf Solana und Polygon werden derzeit unterstützt.</string>
+    <string name="connect_options">Verbindungsoptionen</string>
     <string name="connect_saga_wallet">Saga Wallet verbinden</string>
     <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Saga Genesis oder Seeker Vorbestellungs-Token</string>
     <string name="connect_to_location">Mit %1$s verbinden</string>
     <string name="connecting_status_indicator">Verbindung zu Anbietern wird hergestellt</string>
+    <string name="connection_mode">Verbindungsmodus</string>
     <string name="connections">Verbindungen</string>
     <string name="connectivity_label">Konnektivität</string>
     <string name="continue_txt">Weiter</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">Auszahlung am %1$s</string>
     <string name="default_bandwidth_earn_more_by">Standardmäßig erhältst du %1$d GiB/Monat. So kannst du zusätzliche Bandbreite verdienen:</string>
     <string name="default_wallet">Standard</string>
+    <string name="delete">Löschen</string>
     <string name="delete_account">Konto löschen</string>
     <string name="device">Gerät</string>
     <string name="device_discoverable">Dieses Gerät ist auffindbar</string>

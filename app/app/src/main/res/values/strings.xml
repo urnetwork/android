@@ -93,10 +93,12 @@
     <string name="connect_and_open">Connect and open link</string>
     <string name="connect_external_wallet">Connect external wallet</string>
     <string name="connect_external_wallet_supported_chains">USDC addresses on Solana and Polygon are currently supported.</string>
+    <string name="connect_options">Connect options</string>
     <string name="connect_saga_wallet">Connect Saga wallet</string>
     <string name="connect_seeker_wallet">Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
     <string name="connect_to_location">Connect to %1$s</string>
     <string name="connecting_status_indicator">Connecting to providers</string>
+    <string name="connection_mode">Connection Mode</string>
     <string name="connections">Connections</string>
     <string name="connectivity_label">Connectivity</string>
     <string name="continue_txt">Continue</string>
@@ -122,6 +124,7 @@
     <string name="date_payout">%1$s Payout</string>
     <string name="default_bandwidth_earn_more_by">By default, you get %1$d GiB/month. Here\'s how you can earn extra bandwidth:</string>
     <string name="default_wallet">Default</string>
+    <string name="delete">Delete</string>
     <string name="delete_account">Delete Account</string>
     <string name="device">Device</string>
     <string name="device_discoverable">This device is discoverable</string>
@@ -180,6 +183,7 @@
     <string name="google_auth_btn_text">Log in with Google</string>
     <string name="guest">Guest</string>
     <string name="how_are_we_doing">How are we doing?</string>
+    <string name="identity_key_hash_copied">Identity key hash copied</string>
     <string name="ignore_battery_optimizations">Ignore battery optimizations</string>
     <string name="in_guest_mode">You\'re in guest mode</string>
     <string name="include_app">Route through VPN</string>
@@ -287,6 +291,8 @@
     <string name="payout_wallets">Payout Wallets</string>
     <string name="payouts">Payouts</string>
     <string name="payouts_amount_threshold">Payouts occur every Sunday at 00:00 UTC, and require meeting a minimum USDC threshold.</string>
+    <string name="peer_count_one">1 peer</string>
+    <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">Pending</string>
     <string name="pending_mb_provided">Pending: %1$s MB provided</string>
     <string name="pending_payout">Pending payout</string>
@@ -294,12 +300,17 @@
     <string name="please_try_again">Please try again.</string>
     <string name="please_wait">Please wait a few minutes and try again.</string>
     <string name="points_breakdown">Points breakdown</string>
+    <string name="post_quantum_encryption">Post Quantum Encryption</string>
+    <string name="post_quantum_encryption_fallback_note">Fallback enabled (temporary)</string>
+    <string name="post_quantum_identity">Post Quantum Identity</string>
+    <string name="post_quantum_identity_explanation">Your identity key is stored locally on this device. If any peer\'s key appears different than their locally stored key, it means the network operator cannot be trusted.</string>
     <string name="private_network">Private Network</string>
     <string name="processing_payment">Processing payment</string>
     <string name="profile">Profile</string>
     <string name="promoted_locations">Promoted Locations</string>
     <string name="provide_mode">Provide mode</string>
     <string name="provider_contracts">Provider contracts</string>
+    <string name="provider_identities">Provider Identities</string>
     <string name="provider_statistics">Provider statistics</string>
     <string name="providing_disabled">Providing is disabled</string>
     <string name="ready_to_connect">Ready to connect</string>
@@ -357,6 +368,7 @@
     <string name="see_world_content">See all the\nworld\'s content</string>
     <string name="see_world_content_description">See all the world\'s content with URnetwork</string>
     <string name="seeker_token_verified">Seeker Token Verified!</string>
+    <string name="select_location_provider_content_description">Select location provider globe</string>
     <string name="send">Send</string>
     <string name="send_feedback">Send us your feedback directly or join our %1$s for direct support.</string>
     <string name="send_product_updates">Send me product updates</string>

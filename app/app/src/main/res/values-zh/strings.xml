@@ -90,10 +90,12 @@
     <string name="connect_and_open">连接并打开链接</string>
     <string name="connect_external_wallet">连接外部钱包</string>
     <string name="connect_external_wallet_supported_chains">当前支持 Solana 和 Polygon 上的 USDC 地址。</string>
+    <string name="connect_options">连接选项</string>
     <string name="connect_saga_wallet">连接 Saga 钱包</string>
     <string name="connect_seeker_wallet">连接带有 Saga Genesis 或 Seeker 预售代币的钱包</string>
     <string name="connect_to_location">连接到 %1$s</string>
     <string name="connecting_status_indicator">正在连接到提供商</string>
+    <string name="connection_mode">连接模式</string>
     <string name="connections">连接</string>
     <string name="connectivity_label">连接</string>
     <string name="continue_txt">继续</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">%1$s 支付</string>
     <string name="default_bandwidth_earn_more_by">默认情况下，您每月获得 %1$d GiB。以下是赚取额外带宽的方法：</string>
     <string name="default_wallet">默认</string>
+    <string name="delete">删除</string>
     <string name="delete_account">删除帐户</string>
     <string name="device">设备</string>
     <string name="device_discoverable">此设备可被发现</string>

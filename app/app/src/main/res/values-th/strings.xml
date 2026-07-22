@@ -90,10 +90,12 @@
     <string name="connect_and_open">เชื่อมต่อและเปิดลิงก์</string>
     <string name="connect_external_wallet">เชื่อมต่อกระเป๋า</string>
     <string name="connect_external_wallet_supported_chains">ปัจจุบันรอบรับเลขกระเป๋า USDC บน Solana และ Polygon</string>
+    <string name="connect_options">ตัวเลือกการเชื่อมต่อ</string>
     <string name="connect_saga_wallet">เชื่อมต่อ Saga wallet</string>
     <string name="connect_seeker_wallet">เชื่อมกระเป๋ากับ Saga Genesis หรือ Seeker Pre-Order Token</string>
     <string name="connect_to_location">เชื่อมต่อไปที่ %1$s</string>
     <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ</string>
+    <string name="connection_mode">โหมดการเชื่อมต่อ</string>
     <string name="connections">การเชื่อมต่อ</string>
     <string name="connectivity_label">การเชื่อมต่อ</string>
     <string name="continue_txt">ดำเนินการต่อ</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">ยอดจ่าย %1$s</string>
     <string name="default_bandwidth_earn_more_by">โดยค่าเริ่มต้น คุณจะได้รับ %1$d GiB/เดือน นี่คือวิธีที่คุณสามารถรับแบนด์วิดท์เพิ่มเติม:</string>
     <string name="default_wallet">ค่าเริ่มต้น</string>
+    <string name="delete">ลบ</string>
     <string name="delete_account">ลบบัญชี</string>
     <string name="device">อุปกรณ์</string>
     <string name="device_discoverable">อุปกรณ์นี้สามารถถูกค้นพบได้</string>

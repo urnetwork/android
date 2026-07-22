@@ -56,7 +56,7 @@ if [ -z "${SKIP_FDROID:-}" ]; then
         export BUILD_HOME="${BUILD_HOME:-$root/build}"
         export SRC_HOME="$root"
         source "$root/build/all/stage-local-repos.sh"
-        stage_local_repos sdk connect glog android
+        stage_local_repos sdk connect glog goidenticons android
         ver="$(sed -n 's/^warp\.version=//p' "$here/app/local.properties" 2>/dev/null | tail -1)"
         code="$(sed -n 's/^warp\.version_code=//p' "$here/app/local.properties" 2>/dev/null | tail -1)"
         [ -n "$ver" ] || ver="$(warpctl ls version)"

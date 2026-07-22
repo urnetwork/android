@@ -90,10 +90,12 @@
     <string name="connect_and_open">Conectar y abrir enlace</string>
     <string name="connect_external_wallet">Conectar una billetera externa</string>
     <string name="connect_external_wallet_supported_chains">Actualmente se admiten las direcciones USDC en Solana y Polygon.</string>
+    <string name="connect_options">Opciones de conexión</string>
     <string name="connect_saga_wallet">Conectar la billetera Saga</string>
     <string name="connect_seeker_wallet">Conecta una billetera con el token Saga Genesis o el token de pre-pedido de Seeker</string>
     <string name="connect_to_location">Conectar a %1$s</string>
     <string name="connecting_status_indicator">Conectando a proveedores</string>
+    <string name="connection_mode">Modo de conexión</string>
     <string name="connections">Conexiones</string>
     <string name="connectivity_label">Conectividad</string>
     <string name="continue_txt">Continúa</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">Pago del %1$s</string>
     <string name="default_bandwidth_earn_more_by">Por defecto, obtienes %1$d GiB/mes. Así puedes ganar ancho de banda extra:</string>
     <string name="default_wallet">Predeterminado</string>
+    <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar cuenta</string>
     <string name="device">Dispositivo</string>
     <string name="device_discoverable">Este dispositivo es detectable</string>

@@ -22,6 +22,7 @@ import androidx.work.WorkManager
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.AccountViewController
 import com.bringyour.sdk.DevicesViewController
+import com.bringyour.sdk.LocalState
 import com.bringyour.sdk.LoginViewController
 import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sdk
@@ -245,7 +246,7 @@ class MainApplication : Application() {
             if (byClientJwt.isNullOrEmpty()) {
                 if (hasByJwt) {
                     // missing client jwt after saving byJwt; clean up partial auth state
-                    localState.logout()
+                    logoutStaleLocalState(localState)
                     api?.byJwt = null
                 }
             } else {
@@ -256,12 +257,12 @@ class MainApplication : Application() {
                 if (!hasValidByJwt) {
                     // missing one or both of jwt or client jwt
                     // clean up the local state
-                    localState.logout()
+                    logoutStaleLocalState(localState)
                     api?.byJwt = null
                 } else {
                     // the device wraps the api and sets the jwt
                     if (!initDevice(byClientJwt)) {
-                        localState.logout()
+                        logoutStaleLocalState(localState)
                         api?.byJwt = null
                     }
                 }
@@ -439,11 +440,26 @@ class MainApplication : Application() {
             if (initDevice(byClientJwt)) {
                 true
             } else {
-                localState.logout()
+                logoutStaleLocalState(localState)
                 api?.byJwt = null
                 false
             }
         } ?: false
+    }
+
+    // Clear a stale or partial auth state WITHOUT rotating the device
+    // identity. The identity key material is device-scoped, not
+    // session-scoped: auth staleness (token rotation, partial auth state,
+    // re-login) must not change the key peers use to verify this device, so
+    // re-persist the material across the localState.logout() wipe (which
+    // clears the whole local storage dir). Only an explicit user logout()
+    // deliberately severs and rotates the identity.
+    private fun logoutStaleLocalState(localState: LocalState) {
+        val keyMaterial = runCatching { localState.deviceLocalKeyMaterial }.getOrNull()
+        localState.logout()
+        keyMaterial?.let {
+            runCatching { localState.deviceLocalKeyMaterial = it }
+        }
     }
 
     fun logout() {

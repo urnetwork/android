@@ -1,3 +1,5 @@
 <paths>
     <files-path name="logs" path="." />
+    <!-- share payloads written to cacheDir/share (post quantum identity identicon png) -->
+    <cache-path name="share" path="share/" />
 </paths>

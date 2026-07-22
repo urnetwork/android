@@ -7,25 +7,37 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Red
@@ -37,12 +49,13 @@ import kotlin.math.roundToInt
  * behavior: the swipe only reveals the button, and the user must tap it to
  * delete. Swiping back (or the button tap) closes the row.
  *
- * Like iOS, the delete button is a normal-sized, vertically centered button
- * (not the full row height). It grows and fades in as the row slides out and
- * shrinks/fades away as it slides back — the scale and alpha track the open
- * fraction so the resize is smooth and proportional to the slide distance. The
- * button also stays centered within the revealed gap the whole way, so it reads
- * as growing out of the trailing edge.
+ * Like iOS, the delete button is a normal-sized, vertically centered capsule
+ * (not the full row height) with a trash icon and a small Delete label. It
+ * grows and fades in as the row slides out and shrinks/fades away as it slides
+ * back — the scale and alpha track the open fraction so the resize is smooth
+ * and proportional to the slide distance. The button also stays centered
+ * within the revealed gap the whole way, so it reads as growing out of the
+ * trailing edge.
  */
 @Composable
 fun SwipeToRevealRow(
@@ -50,10 +63,12 @@ fun SwipeToRevealRow(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    // how far the row slides to fully reveal the button, and the button size
-    val revealWidth = 72.dp
-    val buttonSize = 44.dp
-    val revealPx = with(LocalDensity.current) { revealWidth.toPx() }
+    // the row slides far enough to fully reveal the measured button plus the
+    // same side margins as a bare-icon reveal; the label width varies by locale
+    val gapMarginPx = with(LocalDensity.current) { 28.dp.toPx() }
+    val buttonHeight = 44.dp
+    var buttonWidthPx by remember { mutableFloatStateOf(0f) }
+    val revealPx = buttonWidthPx + gapMarginPx
 
     val offsetX = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
@@ -74,11 +89,12 @@ fun SwipeToRevealRow(
             modifier = Modifier.matchParentSize(),
             contentAlignment = Alignment.CenterEnd
         ) {
-            Box(
+            Row(
                 modifier = Modifier
-                    .size(buttonSize)
+                    .height(buttonHeight)
+                    .onSizeChanged { buttonWidthPx = it.width.toFloat() }
                     .graphicsLayer {
-                        val openFraction = (-offsetX.value / revealPx).coerceIn(0f, 1f)
+                        val openFraction = if (revealPx <= 0f) 0f else (-offsetX.value / revealPx).coerceIn(0f, 1f)
                         // scale + alpha track the slide: 0 when closed (hidden),
                         // full size when open. Grows from its center (default origin).
                         scaleX = openFraction
@@ -94,13 +110,22 @@ fun SwipeToRevealRow(
                     .clickable {
                         onDelete()
                         close()
-                    },
-                contentAlignment = Alignment.Center
+                    }
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
+                    // the label names the button; the icon is decorative
                     Icons.Filled.Delete,
-                    contentDescription = stringResource(id = R.string.remove),
+                    contentDescription = null,
                     tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    stringResource(id = R.string.delete),
+                    style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium),
+                    color = Color.White,
+                    maxLines = 1
                 )
             }
         }

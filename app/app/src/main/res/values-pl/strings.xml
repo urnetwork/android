@@ -90,10 +90,12 @@
     <string name="connect_and_open">Połącz i otwórz link</string>
     <string name="connect_external_wallet">Połącz zewnętrzny portfel</string>
     <string name="connect_external_wallet_supported_chains">Obecnie obsługiwane są adresy USDC na Solana i Polygon.</string>
+    <string name="connect_options">Opcje połączenia</string>
     <string name="connect_saga_wallet">Połącz portfel Saga</string>
     <string name="connect_seeker_wallet">Połącz portfel z tokenem Saga Genesis lub tokenem zamówienia przedpremierowego Seeker</string>
     <string name="connect_to_location">Połącz z %1$s</string>
     <string name="connecting_status_indicator">Łączenie z dostawcami</string>
+    <string name="connection_mode">Tryb połączenia</string>
     <string name="connections">Połączenia</string>
     <string name="connectivity_label">Łączność</string>
     <string name="continue_txt">Kontynuuj</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">Wypłata %1$s</string>
     <string name="default_bandwidth_earn_more_by">Domyślnie otrzymujesz %1$d GiB/miesiąc. Oto jak możesz zdobyć dodatkową przepustowość:</string>
     <string name="default_wallet">Domyślny</string>
+    <string name="delete">Usuń</string>
     <string name="delete_account">Usuń konto</string>
     <string name="device">Urządzenie</string>
     <string name="device_discoverable">To urządzenie jest wykrywalne</string>

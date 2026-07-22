@@ -88,6 +88,8 @@ fun ConnectActions(
     setSelectedWindowType: (WindowType) -> Unit,
     allowDirect: Boolean,
     toggleAllowDirect: () -> Unit,
+    postQuantumEncryption: Boolean,
+    togglePostQuantumEncryption: () -> Unit,
     throughputViewModel: ThroughputViewModel,
     blockActionsViewModel: BlockActionsViewModel,
     dnsSettingsViewModel: DnsSettingsViewModel,
@@ -313,6 +315,34 @@ fun ConnectActions(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.post_quantum_encryption),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                /**
+                 * Post quantum encryption
+                 * Opportunistic e2e: providers without support fall back to
+                 * plaintext at this layer
+                 */
+
+                URSwitch(
+                    checked = postQuantumEncryption,
+                    toggle = {
+                        togglePostQuantumEncryption()
+                    },
+                )
+            }
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -472,7 +502,7 @@ fun OpenProviderListButton(
 
             Icon(
                 painter = painterResource(id = R.drawable.main_nav_globe),
-                contentDescription = "Select location provider globe",
+                contentDescription = stringResource(id = R.string.select_location_provider_content_description),
                 tint = iconTint,
                 modifier = Modifier.size(36.dp)
             )

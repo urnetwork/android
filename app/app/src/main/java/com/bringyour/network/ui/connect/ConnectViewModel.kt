@@ -103,6 +103,19 @@ constructor(
         setAllowDirect(!allow)
     }
 
+    var postQuantumEncryption by mutableStateOf(false)
+        private set
+
+    val setPostQuantumEncryption: (Boolean) -> Unit = {
+        this.postQuantumEncryption = it
+        updatePerformanceProfile()
+    }
+
+    val togglePostQuantumEncryption: () -> Unit = {
+        val enabled = this.postQuantumEncryption
+        setPostQuantumEncryption(!enabled)
+    }
+
     val setFixedIpSize: (Boolean) -> Unit = {
         fixedIpSize = it
         updatePerformanceProfile()
@@ -209,26 +222,31 @@ constructor(
 
     val updatePerformanceProfile: () -> Unit = {
 
-        val windowType = when (selectedWindowType) {
-            WindowType.AUTO -> null
-            WindowType.QUALITY -> Sdk.WindowTypeQuality
-            WindowType.SPEED -> Sdk.WindowTypeSpeed
+        // always a profile, even for window type auto, so the orthogonal
+        // settings (allow direct, post quantum encryption) persist and apply
+        // in every mode
+        val performanceProfile = PerformanceProfile()
+        performanceProfile.allowDirect = allowDirect
+        performanceProfile.postQuantumEncryption = postQuantumEncryption
+
+        when (selectedWindowType) {
+            WindowType.AUTO -> {
+                // no fixed window type or size
+                performanceProfile.windowType = Sdk.WindowTypeAuto
+            }
+            WindowType.QUALITY, WindowType.SPEED -> {
+                performanceProfile.windowType =
+                        if (selectedWindowType == WindowType.QUALITY) Sdk.WindowTypeQuality
+                        else Sdk.WindowTypeSpeed
+
+                val windowSizeSettings = WindowSizeSettings()
+                windowSizeSettings.windowSizeMin = if (this.fixedIpSize) 1 else 2
+                windowSizeSettings.windowSizeMax = if (this.fixedIpSize) 1 else 4
+                performanceProfile.windowSize = windowSizeSettings
+            }
         }
 
-        if (windowType == null) {
-            deviceManager.performanceProfile = null
-        } else {
-            val performanceProfile = PerformanceProfile()
-            performanceProfile.windowType = windowType
-            performanceProfile.allowDirect = allowDirect
-
-            val windowSizeSettings = WindowSizeSettings()
-            windowSizeSettings.windowSizeMin = if (this.fixedIpSize) 1 else 2
-            windowSizeSettings.windowSizeMax = if (this.fixedIpSize) 1 else 4
-            performanceProfile.windowSize = windowSizeSettings
-
-            deviceManager.performanceProfile = performanceProfile
-        }
+        deviceManager.performanceProfile = performanceProfile
 
     }
 
@@ -390,14 +408,18 @@ constructor(
         addConnectionStatusListener()
         addContractStatusListener()
 
+        // a null profile and window type auto mean the same thing; the
+        // orthogonal settings (allow direct, post quantum encryption) are read
+        // off the profile with false defaults
         val performanceProfile = deviceManager.performanceProfile
-        if (performanceProfile != null) {
-            fixedIpSize = performanceProfile.windowSize.windowSizeMin.toInt() == 1 &&
-                    performanceProfile.windowSize.windowSizeMax.toInt() == 1
-            selectedWindowType = WindowType.fromRawValueOrDefault(performanceProfile.windowType)
-            allowDirect = performanceProfile.allowDirect
-            updatePerformanceProfile()
-        }
+        selectedWindowType = WindowType.fromRawValueOrDefault(performanceProfile?.windowType.orEmpty())
+        allowDirect = performanceProfile?.allowDirect ?: false
+        postQuantumEncryption = performanceProfile?.postQuantumEncryption ?: false
+        val windowSize = performanceProfile?.windowSize
+        fixedIpSize = windowSize != null &&
+                windowSize.windowSizeMin.toInt() == 1 &&
+                windowSize.windowSizeMax.toInt() == 1
+        updatePerformanceProfile()
 
         update()
     }
@@ -453,12 +475,8 @@ enum class WindowType(val rawValue: String) {
     QUALITY("quality"),
     SPEED("speed");
 
-    val displayName: String
-        get() = when (this) {
-            AUTO -> "Auto"
-            QUALITY -> "Web"
-            SPEED -> "Streaming"
-        }
+    // display names are localized at the UI layer (window_type_* store keys,
+    // see WindowTypeButtonText)
 
     companion object {
         val default = AUTO

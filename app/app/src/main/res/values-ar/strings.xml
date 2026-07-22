@@ -90,10 +90,12 @@
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
     <string name="connect_external_wallet">ربط محفظة خارجية</string>
     <string name="connect_external_wallet_supported_chains">عناوين USDC على Solana و Polygon مدعومة حاليًا.</string>
+    <string name="connect_options">خيارات الاتصال</string>
     <string name="connect_saga_wallet">ربط محفظة Saga</string>
     <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>
     <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة</string>
+    <string name="connection_mode">وضع الاتصال</string>
     <string name="connections">الاتصالات</string>
     <string name="connectivity_label">الاتصال</string>
     <string name="continue_txt">تابع</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">دفعة %1$s</string>
     <string name="default_bandwidth_earn_more_by">بشكل افتراضي، تحصل على %1$d GiB/شهر. إليك كيفية كسب عرض نطاق إضافي:</string>
     <string name="default_wallet">الافتراضي</string>
+    <string name="delete">حذف</string>
     <string name="delete_account">حذف الحساب</string>
     <string name="device">الجهاز</string>
     <string name="device_discoverable">هذا الجهاز قابل للاكتشاف</string>

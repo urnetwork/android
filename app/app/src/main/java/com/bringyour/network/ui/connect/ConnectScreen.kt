@@ -195,6 +195,8 @@ fun ConnectScreen(
                 setSelectedWindowType = connectViewModel.setSelectedWindowType,
                 allowDirect = connectViewModel.allowDirect,
                 toggleAllowDirect = connectViewModel.toggleAllowDirect,
+                postQuantumEncryption = connectViewModel.postQuantumEncryption,
+                togglePostQuantumEncryption = connectViewModel.togglePostQuantumEncryption,
                 throughputViewModel = throughputViewModel,
                 blockActionsViewModel = blockActionsViewModel,
                 dnsSettingsViewModel = dnsSettingsViewModel,

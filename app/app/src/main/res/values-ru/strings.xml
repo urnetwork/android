@@ -90,10 +90,12 @@
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
     <string name="connect_external_wallet">Подключить внешний кошелек</string>
     <string name="connect_external_wallet_supported_chains">В настоящее время поддерживаются адреса USDC в сетях Solana и Polygon.</string>
+    <string name="connect_options">Параметры подключения</string>
     <string name="connect_saga_wallet">Подключить кошелек Saga</string>
     <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или Seeker Pre-Order</string>
     <string name="connect_to_location">Подключиться к %1$s</string>
     <string name="connecting_status_indicator">Подключение к провайдерам</string>
+    <string name="connection_mode">Режим подключения</string>
     <string name="connections">Подключения</string>
     <string name="connectivity_label">Подключение</string>
     <string name="continue_txt">Продолжить</string>
@@ -119,6 +121,7 @@
     <string name="date_payout">Выплата за %1$s</string>
     <string name="default_bandwidth_earn_more_by">По умолчанию вы получаете %1$d GiB/месяц. Вот как можно заработать дополнительную пропускную способность:</string>
     <string name="default_wallet">По умолчанию</string>
+    <string name="delete">Удалить</string>
     <string name="delete_account">Удалить аккаунт</string>
     <string name="device">Устройство</string>
     <string name="device_discoverable">Это устройство доступно для обнаружения</string>

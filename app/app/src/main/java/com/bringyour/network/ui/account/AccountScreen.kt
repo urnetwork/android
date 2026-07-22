@@ -52,6 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.LoginActivity
@@ -67,6 +68,7 @@ import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTrans
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.PostQuantumIdentityViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
@@ -93,6 +95,7 @@ fun AccountScreen(
     totalReferrals: Long,
     meanReliabilityWeight: Double,
     isPro: Boolean,
+    postQuantumIdentityViewModel: PostQuantumIdentityViewModel = hiltViewModel(),
 ) {
 
     val scope = rememberCoroutineScope()
@@ -154,7 +157,8 @@ fun AccountScreen(
                         dailyBalanceBytes = dailyBalanceBytes,
                         launchRedeemTransferBalanceCodeSheet = {
                             isPresentingRedeemTransferBalanceSheet = true
-                        }
+                        },
+                        postQuantumIdentityViewModel = postQuantumIdentityViewModel
                     )
                 }
             }
@@ -198,7 +202,9 @@ fun AccountScreenContent(
     totalReferrals: Long,
     meanReliabilityWeight: Double,
     dailyBalanceBytes: Long,
-    launchRedeemTransferBalanceCodeSheet: () -> Unit
+    launchRedeemTransferBalanceCodeSheet: () -> Unit,
+    // null in previews, rendering the panel's empty (no key) state
+    postQuantumIdentityViewModel: PostQuantumIdentityViewModel? = null,
 ) {
 
     val context = LocalContext.current
@@ -477,6 +483,20 @@ fun AccountScreenContent(
             }
         }
         HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        /**
+         * Post Quantum Identity
+         */
+        PostQuantumIdentityPanel(
+            viewModel = postQuantumIdentityViewModel,
+            navigateToProviderIdentities = {
+                navController.navigate(Route.ProviderIdentities)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
     }
 }

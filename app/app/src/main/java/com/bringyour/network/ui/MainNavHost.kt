@@ -70,6 +70,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.account.AccountScreen
+import com.bringyour.network.ui.account.ProviderIdentitiesScreen
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
 import com.bringyour.network.ui.connect.ConnectScreen
@@ -903,6 +904,17 @@ fun MainNavContent(
                 isPro = isPro,
                 totalReferrals = referralCodeViewModel.totalReferralCount.collectAsState().value
             ) }
+
+            composable<Route.ProviderIdentities>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                ProviderIdentitiesScreen(
+                    navController = navController,
+                )
+            }
 
             composable<Route.BlockedRegions>(
                 enterTransition = NavigationAnimations.enterTransition(),
