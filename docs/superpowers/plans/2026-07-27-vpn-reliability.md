@@ -82,6 +82,59 @@ One commit per fix, each with unit tests in the existing style. Every fix lands 
 
 ---
 
+---
+
+## Phase 6 — connection setup latency (added 2026-07-27, from device measurement)
+
+Measured on device with `curl -w` phase timings, VPN on, warm cache:
+
+| phase | time | |
+|---|---|---|
+| DNS | 1.5ms warm / 190ms cold | not a problem |
+| TCP handshake | ~90ms | client↔provider only, see below |
+| **TLS handshake** | **~510ms** | dominant cost; ~1.3s for apple.com, reddit.com |
+| response | ~90ms | fine |
+
+Off-VPN the same requests total ~90ms, so the tunnel costs roughly **10x on
+every new connection**. This is separate from the freeze work in Phase 1: every
+request in the sample returned 200, nothing broke.
+
+**Why TLS looks so expensive.** Providers are split-TCP -- `ConnectionState.SynAck`
+synthesizes the SYN-ACK locally, so `time_connect` measures only client↔provider
+and the provider does not dial the real server until traffic arrives. The
+provider→server TCP connect therefore lands *inside* the TLS bucket. ~510ms is
+provider→server connect (~100ms) plus TLS round trips across two legs (~190ms
+each), not a protocol defect.
+
+**A rejected hypothesis, recorded so it is not re-run:** that the transport pays
+a round trip per packet rather than windowing, which would have made the
+multi-packet certificate flight cost 5-6 RTTs. Not supported -- `transfer.go` has
+a proper ack window, a 32-deep pack buffer and a 256KiB in-flight floor
+(`ResendQueueMinByteCount`).
+
+Candidate improvements, each needing its own toggle and A/B:
+
+- [ ] **6.1 TLS session resumption across exits.** Resumption tickets are per
+  server *and* per source IP path. If a flow's exit changes, or a new connection
+  lands on a different exit, the ticket is useless and a full handshake is paid
+  again. Measure how often resumption actually succeeds before optimizing.
+- [ ] **6.2 Provider-side connection reuse.** The provider opens a fresh socket
+  per flow. Pooling provider→destination connections for popular destinations
+  would remove the ~100ms connect from the TLS bucket entirely. Largest single
+  win if it holds.
+- [ ] **6.3 Exit selection weighted by destination proximity.** Two-leg latency
+  is client→provider plus provider→destination. Selection currently optimizes
+  the first leg (throughput/health), not the second.
+- [ ] **6.4 Happy-eyeballs on first contact.** COLD showed 1.6-6.4s for a new
+  destination. Racing the first connection across two exits and keeping the
+  winner would cut the tail.
+
+**Also observed, and belongs with Phase 1 rather than here:** github.com COLD
+showed `tot=6.38s` with `tls=0.81s` -- a normal handshake followed by a 5.5s
+stall in the response body. That is a flow stalling after connecting, which is
+exactly what C1/C2 and the RST fix address, and the first direct evidence of the
+freeze in a measurement.
+
 ## Working notes
 
 - **Merge bottom-up.** `connect` → `sdk` → `android`. Merging android first breaks CI with "Unresolved reference" against SDK symbols that do not exist yet — this has already cost three CI round-trips once.
