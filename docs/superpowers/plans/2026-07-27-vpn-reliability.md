@@ -139,14 +139,21 @@ and it does not matter here since tls is not the bottleneck.
 Candidate improvements, in the order the measurement supports, each needing its
 own toggle and A/B:
 
-- [ ] **6.1 Provider-side connection reuse.** The provider opens a fresh socket
-  per flow. Pooling provider→destination connections removes the dial round trip
-  from every new flow. The measurement points here first.
+- [ ] **6.1 Provider-side connection reuse. CONFIRMED by measurement.** Three
+  sequential connections to the same destination held ttfb-conn flat at 559 /
+  571 / 521 ms while conn itself fell from 213ms to 100ms as the client↔provider
+  path settled. Nothing on the provider→server leg is reused between flows, so
+  every new flow pays the full dial again. Pooling provider→destination
+  connections is the fix.
 - [ ] **6.2 Exit selection weighted by destination proximity.** Two-leg latency
   is client→provider plus provider→destination. Selection currently optimizes
   the first leg (throughput, health) and ignores the second, which is where the
   ~600ms lives.
-- [ ] **6.3 Investigate pre-dial and relay overhead.** Three round trips is more
+- [ ] **6.3 Investigate pre-dial and relay overhead. Do this before building
+  the pool.** ~550ms is far more than a dial to an anycast host should cost -- a
+  healthy host reaches example.com in about two round trips. Pooling would hide
+  that overhead rather than remove it, so if a few hundred ms of it is avoidable
+  work, that is worth knowing before caching around it.** Three round trips is more
   than a bare tcp connect should need. Check whether contract setup, security
   policy, or buffering delays the provider's dial -- the `[contract]wait` logs in
   the test suite suggest per-destination setup worth ruling in or out.
