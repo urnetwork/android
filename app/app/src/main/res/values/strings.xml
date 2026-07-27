@@ -225,6 +225,7 @@
     <string name="make_default">Make default</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="member">Member</string>
+    <string name="multiple_ips">Multiple IPs</string>
     <string name="multiplier">Multiplier</string>
     <string name="name_label">Name</string>
     <string name="name_placeholder">Your name</string>

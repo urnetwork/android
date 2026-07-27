@@ -82,8 +82,8 @@ fun ConnectActions(
     totalReferrals: Long,
     dailyByteCount: Long,
     launchIntro: () -> Unit,
-    fixedIpSize: Boolean,
-    toggleFixedIpSize: () -> Unit,
+    multipleIps: Boolean,
+    toggleMultipleIps: () -> Unit,
     selectedWindowType: WindowType,
     setSelectedWindowType: (WindowType) -> Unit,
     allowDirect: Boolean,
@@ -270,19 +270,23 @@ fun ConnectActions(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(id = R.string.fixed_ip),
+                    stringResource(id = R.string.multiple_ips),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
 
                 /**
-                 * Fixed IP Switch
-                 */
+                  * Multiple IPs switch. Available identically in Web and
+                  * Streaming -- the two differ in how providers are selected,
+                  * not in whether the connection can spread across exits.
+                  * Auto balances across both windows and ignores an explicit
+                  * window size, so the switch has nothing to act on there.
+                  */
 
                 URSwitch(
-                    checked = fixedIpSize,
+                    checked = multipleIps,
                     toggle = {
-                        toggleFixedIpSize()
+                        toggleMultipleIps()
                     },
                     enabled = selectedWindowType != WindowType.AUTO
                 )
