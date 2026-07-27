@@ -112,22 +112,49 @@ multi-packet certificate flight cost 5-6 RTTs. Not supported -- `transfer.go` ha
 a proper ack window, a 32-deep pack buffer and a 256KiB in-flight floor
 (`ResendQueueMinByteCount`).
 
-Candidate improvements, each needing its own toggle and A/B:
+**TLS is not the cost -- measured, not inferred.** Running the same hosts over
+plain http and https:
 
-- [ ] **6.1 TLS session resumption across exits.** Resumption tickets are per
-  server *and* per source IP path. If a flow's exit changes, or a new connection
-  lands on a different exit, the ticket is useless and a full handshake is paid
-  again. Measure how often resumption actually succeeds before optimizing.
-- [ ] **6.2 Provider-side connection reuse.** The provider opens a fresh socket
-  per flow. Pooling provider→destination connections for popular destinations
-  would remove the ~100ms connect from the TLS bucket entirely. Largest single
-  win if it holds.
-- [ ] **6.3 Exit selection weighted by destination proximity.** Two-leg latency
+| | conn | ttfb-conn | tls-conn |
+|---|---|---|---|
+| example.com http | 134ms | **663ms** | no tls |
+| example.com https | 121ms | 781ms | **663ms** |
+| cloudflare.com http | 110ms | **593ms** | no tls |
+| cloudflare.com https | 122ms | 733ms | **612ms** |
+
+Plain http, with no handshake at all, pays the same ~600ms between tcp connect
+and first byte. On https that same ~600ms simply occupies the tls window, and
+the request afterwards costs only ~120ms. So the cost is **the first round trip
+to a new destination through a provider**, and tls is incidental to it.
+
+Client↔provider is healthy at ~120ms. The ~600ms is the provider dialing the
+destination and relaying the first exchange -- roughly three round trips on the
+provider→server leg.
+
+Do not re-run `openssl s_client -reconnect` to test resumption: under tls 1.3 it
+reports `New` for every connection because the session ticket arrives after the
+handshake and `-reconnect` does not wait for it. It is a known false negative,
+and it does not matter here since tls is not the bottleneck.
+
+Candidate improvements, in the order the measurement supports, each needing its
+own toggle and A/B:
+
+- [ ] **6.1 Provider-side connection reuse.** The provider opens a fresh socket
+  per flow. Pooling provider→destination connections removes the dial round trip
+  from every new flow. The measurement points here first.
+- [ ] **6.2 Exit selection weighted by destination proximity.** Two-leg latency
   is client→provider plus provider→destination. Selection currently optimizes
-  the first leg (throughput/health), not the second.
+  the first leg (throughput, health) and ignores the second, which is where the
+  ~600ms lives.
+- [ ] **6.3 Investigate pre-dial and relay overhead.** Three round trips is more
+  than a bare tcp connect should need. Check whether contract setup, security
+  policy, or buffering delays the provider's dial -- the `[contract]wait` logs in
+  the test suite suggest per-destination setup worth ruling in or out.
 - [ ] **6.4 Happy-eyeballs on first contact.** COLD showed 1.6-6.4s for a new
-  destination. Racing the first connection across two exits and keeping the
-  winner would cut the tail.
+  destination. Racing first contact across two exits and keeping the winner
+  would cut the tail.
+- [ ] ~~TLS session resumption across exits~~ -- ruled out by the http/https
+  comparison above.
 
 **Also observed, and belongs with Phase 1 rather than here:** github.com COLD
 showed `tot=6.38s` with `tls=0.81s` -- a normal handshake followed by a 5.5s
