@@ -142,7 +142,9 @@ class DeveloperViewModel @Inject constructor(
         }
         val results = device.probeResults
         probeResults = (0 until results.len()).map { results.get(it) }
-        probeRunning = device.probeSuiteRunning
+        // a call, not a property: gomobile only emits a Kotlin property for Go
+        // methods named Get*, and this one is ProbeSuiteRunning
+        probeRunning = device.probeSuiteRunning()
     }
 
     private fun update(mutate: (ReliabilitySettings) -> Unit) {
