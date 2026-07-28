@@ -256,6 +256,20 @@ private fun DeveloperDurationSetting(
     }
 }
 
+/**
+ * A short label that actually distinguishes one exit from another.
+ *
+ * Client ids are ULIDs, so the leading characters encode creation time. The
+ * channels in a window are opened within milliseconds of each other, so a
+ * leading substring renders every row identical -- which makes Drop and Stall
+ * unusable, since you cannot tell which exit you are acting on. The random
+ * component is in the tail.
+ */
+fun exitLabel(exit: Exit): String {
+    val clientId = exit.clientId.toString()
+    return clientId.takeLast(8)
+}
+
 /** 0 reads as "Off"; sub-second as ms; otherwise seconds or minutes. */
 fun formatDurationMillis(millis: Long): String = when {
     millis <= 0L -> "Off"
@@ -323,7 +337,11 @@ private fun DeveloperExitRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                exit.clientId.toString().take(8),
+                // client ids are ULIDs: the leading characters encode creation
+                // time, so channels opened in the same millisecond share a
+                // prefix and a leading substring makes them indistinguishable.
+                // the entropy is in the tail.
+                exitLabel(exit),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White,
             )

@@ -114,7 +114,7 @@ class DeveloperViewModel @Inject constructor(
      */
     val dropExit: (Exit) -> Unit = { exit ->
         val dropped = deviceManager.device?.dropExit(exit.clientId) ?: false
-        lastAction = if (dropped) "Dropped exit ${exit.clientId.toString().take(8)}" else "Exit already gone"
+        lastAction = if (dropped) "Dropped exit ${exitLabel(exit)}" else "Exit already gone"
         refresh()
     }
 
@@ -128,8 +128,8 @@ class DeveloperViewModel @Inject constructor(
         val applied = deviceManager.device?.stallExit(exit.clientId, stalled) ?: false
         lastAction = when {
             !applied -> "Exit already gone"
-            stalled -> "Stalled exit ${exit.clientId.toString().take(8)}"
-            else -> "Resumed exit ${exit.clientId.toString().take(8)}"
+            stalled -> "Stalled exit ${exitLabel(exit)}"
+            else -> "Resumed exit ${exitLabel(exit)}"
         }
         refresh()
     }
