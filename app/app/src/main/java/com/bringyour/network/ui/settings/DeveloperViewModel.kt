@@ -230,10 +230,15 @@ class DeveloperViewModel @Inject constructor(
         val BLACKHOLE_RECEIVE_PRESETS = listOf(0L, 5_000L, 10_000L, 20_000L, 25_000L)
 
         /**
-         * connect default 64. 0 is unlimited, the behaviour that shipped and
-         * the one that produced a 484-connection teardown. The low values are
-         * worth trying: they cut the worst event further, at the cost of
-         * splitting more sites across exits.
+         * connect default 16. 0 is unlimited, the behaviour that shipped and
+         * the one that produced a 484-connection teardown.
+         *
+         * 16 is set from measured recovery: teardowns of 4-6 flows recovered
+         * in about 3-5s, while 44 took about 15s and 484 about 35s. The median
+         * teardown observed was 36 flows, so the higher presets barely move
+         * the common case -- 64 would not have touched any of the 15s stalls.
+         * They are here to A/B the affinity cost, which is that a site's flows
+         * split across exits and it sees more than one egress IP.
          */
         val MAX_FLOWS_PER_EXIT_PRESETS = listOf(0, 16, 32, 64, 128)
     }
