@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,6 +41,7 @@ import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.sdk.Exit
+import kotlinx.coroutines.delay
 import java.util.Locale
 
 /**
@@ -61,6 +63,19 @@ fun DeveloperScreen(
     navController: NavController,
     developerViewModel: DeveloperViewModel = hiltViewModel(),
 ) {
+    // The counters below change while this screen is open -- a stalled exit
+    // takes seconds to be detected and removed, and the actions here refresh
+    // immediately, which captures the state *before* anything has happened.
+    // Without polling a stale zero reads as "no provider failures" rather than
+    // "nothing measured yet", which during device testing was very nearly
+    // taken as evidence that detection was broken.
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(DeveloperViewModel.REFRESH_POLL_MILLIS)
+            developerViewModel.refresh()
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

@@ -241,6 +241,109 @@ the product worse, and one number alone cannot catch that.
 - [ ] **QUIC with a stream per flow.** Real fix; needs the load-balancer work
   server-side before the client path can be re-enabled.
 
+## Phase 8 — device testing on mainnet (2026-07-28)
+
+Tested beta-104 against mainnet providers with a USB logcat capture
+(`.tools/testA.txt`). Two tests, and the first one's instrument turned out to
+be broken — which is itself the main finding.
+
+### The Stall control could not be detected by its own detector
+
+`SendDetailedWithAck` returned on `stalled.Load()` **before** `addSend`.
+`addSend` is what sets `pendingSendTime` and increments `sendNackCount`, and
+`sendStalled` treats a channel with nothing outstanding as idle rather than
+broken. So a stalled exit was invisible to the detection built for it.
+
+Device evidence: stalled an exit carrying a running ISO download at 05:07:20.
+Egress to tcp:443 went 97082 → 97105 in the next 30s (~23 packets — the
+download was dead), no stall detection, **no `remove error client` at all**,
+and Chrome sat at "pending". The window changed at 05:07:52 with no removal
+behind it, so that was unrelated rotation.
+
+Fixed by moving the check after `addSend`, which is also the faithful
+simulation: a provider that really blackholes commits the packet and never
+acknowledges it.
+
+**This invalidated the conclusion drawn from that test.** "Teardown never
+happens" and "the browser-backoff theory is dead" were both read off a broken
+instrument. They are unproven, not disproved.
+
+### What Drop showed
+
+`DropExit` bypasses that path entirely. Dropping produced removals within ~1s:
+
+```
+05:12:31.390  remove error client [019fa89d...] = Blackhole (7 360B)
+05:12:31.478  remove error client [019fa8a0...] = Blackhole (7 360B)
+05:12:32.132  remove error client [019fa8a0...] = Blackhole (8 400B)
+```
+
+So removal and teardown **do** run, and fast, via pre-existing blackhole
+detection independent of `sendStalled`. Three removals because the tester
+dropped three exits to bisect which carried the download — not a cascade.
+
+But the download still sat at 0bps rather than failing. So the teardown path
+executes and the browser still does not recover. **That is the open question:
+whether the teardown packets reach the app at all, or reach it and are
+ignored.** Those need different fixes and cannot be told apart by watching
+Chrome's UI, which is why teardown emission is now logged.
+
+### 8.1 Done
+
+- [x] Stall check moved after `addSend`, so the control reproduces what it
+  claims to. `TestStalledChannelSwallowsWithoutError` now asserts the stall
+  clock actually starts, and builds a channel with the state accounting
+  touches — the old bare struct passed only because the early return skipped
+  everything.
+- [x] Teardown emission logged in `removeClient`, including the `ctx.Done()`
+  branch where teardown is skipped entirely — otherwise "never sent" and
+  "sent and ignored" are indistinguishable.
+
+### 8.2 Next
+
+- [ ] **Re-run the stall test on a build with the fix.** Everything about
+  stall behaviour is currently unmeasured, not measured-and-bad.
+- [ ] **Settle teardown vs browser** using the new logs: teardown sent → does
+  Chrome error? If the packet is emitted and the download still hangs, the
+  problem is delivery into the tun, not generation.
+- [ ] **`watchSendStalls` only calls `resizeMonitor.NotifyAll()`** — it never
+  removes the client itself. Confirm the resize pass actually removes a
+  stalled client, or detection fires into the void.
+- [x] Metrics panel now polls while open. A stale zero read as "no provider
+  failures" rather than "nothing measured yet" during testing, and was nearly
+  taken as evidence that detection was broken.
+- [ ] Test B (new-domain latency) still unrun.
+
+### 8.3 False positive in the same detector (found in review, pre-existing)
+
+`addSend` runs *before* the transport call. If
+`SendMultiHopWithTimeoutDetailed` returns `(false, nil)` -- `sendBuffer.Pack`
+timing out under backpressure -- or errors, the `ackCallback` is never
+invoked: it is only stored on the `SendPack`, and a `Pack` that never enqueues
+never reaches `ackItem`. So `sendNackCount` is permanently incremented for
+every dropped send.
+
+Failure: a client hits its send-buffer limit during a burst, a few `Pack`
+calls time out, traffic shifts elsewhere and the client goes idle. With no
+further acks `pendingSendTime` is never reset, so `sendStalled` returns true
+and `resize` removes a client that never misbehaved.
+
+Not introduced by the stall fix and already reachable in production, since
+real providers always took the `addSend` path. Impact is bounded -- the client
+is replaced -- but it is a false positive in the detector, and it becomes more
+consequential now that the detector is known to work. Fix by decrementing on
+the transport failure paths, or by starting the clock only once the transport
+accepts the packet.
+
+### Standing lesson
+
+Four times this session a change was correct in a unit test and wrong in
+place: the ICMP code Linux discards, the 15s detection cadence, the leaderboard
+fix that was unreachable, and now a Stall control invisible to its own
+detector. The failure mode is verifying that code *works* rather than that it
+is *reached*. Prefer a device measurement over a passing test when the claim is
+about runtime behaviour.
+
 ## Working notes
 
 - **Merge bottom-up.** `connect` → `sdk` → `android`. Merging android first breaks CI with "Unresolved reference" against SDK symbols that do not exist yet — this has already cost three CI round-trips once.

@@ -162,6 +162,13 @@ class DeveloperViewModel @Inject constructor(
     }
 
     companion object {
+        /**
+         * How often the developer screen re-reads the counters while open.
+         * Slow enough to be free, fast enough that a stall detected a few
+         * seconds after the button press is visible without a manual refresh.
+         */
+        const val REFRESH_POLL_MILLIS = 2_000L
+
         // the first entry of every list is 0 -- the behaviour that shipped
         // before the fix -- so each one can still be switched off entirely.
         // the defaults in connect's DefaultMultiClientSettings are marked.
