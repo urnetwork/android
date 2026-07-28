@@ -134,6 +134,8 @@
     <string name="dev_measurements">Measurements</string>
     <string name="dev_measurements_detail">What a provider failure costs. Reset, run a test, read back.</string>
     <string name="dev_measure_none">No provider failures yet. Stall an exit below to cause one.</string>
+    <string name="dev_blackhole_receive">Keep quiet providers longer</string>
+    <string name="dev_blackhole_receive_detail">How long a provider still acknowledging traffic may return nothing before it is dropped. Off keeps them until they stop acknowledging</string>
     <string name="dev_blast_radius">Blast radius</string>
     <string name="dev_blast_radius_detail">Connections lost per provider failure. Lower is better</string>
     <string name="dev_blast_radius_value">%1$s per failure</string>

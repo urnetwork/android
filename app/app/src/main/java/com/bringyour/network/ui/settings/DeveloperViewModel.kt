@@ -114,6 +114,22 @@ class DeveloperViewModel @Inject constructor(
         update { s -> s.sequenceIdleTimeoutMillis = millis }
     }
 
+    /**
+     * How long a provider that is still acknowledging our sends may return no
+     * destination data before it is dropped.
+     *
+     * This is the weaker of the two blackhole signals and the one responsible
+     * for the churn: at 5s it removed a provider roughly every 18s under real
+     * load, and every one of those providers was still acknowledging traffic
+     * -- some as much as 602 sends. Since removing an exit destroys every flow
+     * pinned to it, that is a destructive action taken on very little
+     * evidence. Off leaves only the unambiguous signal, a provider that
+     * acknowledges nothing at all.
+     */
+    val setBlackholeReceiveTimeoutMillis: (Long) -> Unit = { millis ->
+        update { s -> s.blackholeReceiveTimeoutMillis = millis }
+    }
+
     /** Restores everything the app shipped with. */
     val resetReliability: () -> Unit = {
         deviceManager.device?.resetReliabilitySettings()
@@ -184,5 +200,18 @@ class DeveloperViewModel @Inject constructor(
 
         /** connect default 120s, shared by non-tcp flows */
         val UDP_IDLE_TIMEOUT_PRESETS = listOf(0L, 30_000L, 60_000L, 120_000L, 300_000L)
+
+        /**
+         * connect default 20s. 5s is what shipped and is the churn being
+         * measured; 0 disables the check entirely, which is the comparison
+         * point for how much of the churn it accounts for.
+         *
+         * Nothing above ~30s appears here on purpose. The bound is compared
+         * against an age derived from stat buckets that are dropped once they
+         * pass the 30s stats window, so a larger value never fires and is
+         * silently identical to off -- it would present as "even more grace"
+         * while measuring nothing.
+         */
+        val BLACKHOLE_RECEIVE_PRESETS = listOf(0L, 5_000L, 10_000L, 20_000L, 25_000L)
     }
 }

@@ -243,6 +243,13 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         presets = DeveloperViewModel.UDP_IDLE_TIMEOUT_PRESETS,
         onSelect = developerViewModel.setSequenceIdleTimeoutMillis,
     )
+    DeveloperDurationSetting(
+        label = stringResource(id = R.string.dev_blackhole_receive),
+        detail = stringResource(id = R.string.dev_blackhole_receive_detail),
+        millis = reliability?.blackholeReceiveTimeoutMillis ?: 0L,
+        presets = DeveloperViewModel.BLACKHOLE_RECEIVE_PRESETS,
+        onSelect = developerViewModel.setBlackholeReceiveTimeoutMillis,
+    )
 
     Spacer(modifier = Modifier.height(16.dp))
 
