@@ -69,29 +69,26 @@ class DeveloperViewModel @Inject constructor(
     val setServerNameAffinityBridge: (Boolean) -> Unit = { update { s -> s.serverNameAffinityBridge = it } }
 
     /**
-     * The collapse bound is a duration, not a flag. Off means unbounded, which
-     * is the pre-fix behaviour: a stalled exit keeps swallowing retransmits
-     * until failure detection notices, up to 30s.
+     * The timing controls are values, not switches. How long to wait before
+     * giving up on an exit trades recovery speed against dropping one that was
+     * slow but alive, and the right balance differs per connection -- so these
+     * are tuned per user rather than guessed once. 0 always reproduces the
+     * behaviour that shipped before the fix it controls.
      */
-    val setTcpCollapseHold: (Boolean) -> Unit = { enabled ->
-        update { s -> s.tcpCollapseMaxHoldMillis = if (enabled) TCP_COLLAPSE_HOLD_MILLIS else 0L }
+    val setSendStallTimeoutMillis: (Long) -> Unit = { millis ->
+        update { s -> s.sendStallTimeoutMillis = millis }
     }
 
-    /**
-     * Off waits for the 30s ack timeout before giving up on an exit that is
-     * accepting packets and delivering none, which freezes every flow pinned to
-     * it for that whole window.
-     */
-    val setSendStallTimeout: (Boolean) -> Unit = { enabled ->
-        update { s -> s.sendStallTimeoutMillis = if (enabled) SEND_STALL_TIMEOUT_MILLIS else 0L }
+    val setTcpCollapseHoldMillis: (Long) -> Unit = { millis ->
+        update { s -> s.tcpCollapseMaxHoldMillis = millis }
     }
 
-    /**
-     * Off collapses the tcp idle bound back onto the shared one, which is the
-     * pre-fix behaviour of reaping any flow idle for two minutes.
-     */
-    val setTcpIdleTimeout: (Boolean) -> Unit = { enabled ->
-        update { s -> s.tcpSequenceIdleTimeoutMillis = if (enabled) TCP_IDLE_TIMEOUT_MILLIS else 0L }
+    val setTcpIdleTimeoutMillis: (Long) -> Unit = { millis ->
+        update { s -> s.tcpSequenceIdleTimeoutMillis = millis }
+    }
+
+    val setSequenceIdleTimeoutMillis: (Long) -> Unit = { millis ->
+        update { s -> s.sequenceIdleTimeoutMillis = millis }
     }
 
     /** Restores everything the app shipped with. */
@@ -142,9 +139,20 @@ class DeveloperViewModel @Inject constructor(
     }
 
     companion object {
-        // mirrors connect's DefaultMultiClientSettings
-        const val TCP_COLLAPSE_HOLD_MILLIS = 1500L
-        const val SEND_STALL_TIMEOUT_MILLIS = 3000L
-        const val TCP_IDLE_TIMEOUT_MILLIS = 600_000L
+        // the first entry of every list is 0 -- the behaviour that shipped
+        // before the fix -- so each one can still be switched off entirely.
+        // the defaults in connect's DefaultMultiClientSettings are marked.
+
+        /** connect default 3s */
+        val SEND_STALL_PRESETS = listOf(0L, 1_000L, 2_000L, 3_000L, 5_000L, 10_000L)
+
+        /** connect default 1.5s */
+        val TCP_COLLAPSE_HOLD_PRESETS = listOf(0L, 500L, 1_000L, 1_500L, 3_000L, 5_000L)
+
+        /** connect default 600s; 0 falls back to the shared udp bound */
+        val TCP_IDLE_TIMEOUT_PRESETS = listOf(0L, 120_000L, 300_000L, 600_000L, 1_800_000L)
+
+        /** connect default 120s, shared by non-tcp flows */
+        val UDP_IDLE_TIMEOUT_PRESETS = listOf(0L, 30_000L, 60_000L, 120_000L, 300_000L)
     }
 }
