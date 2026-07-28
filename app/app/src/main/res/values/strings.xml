@@ -131,6 +131,8 @@
     <string name="dev_drop_exit">Drop</string>
     <string name="dev_exit_flows">%1$d flows</string>
     <string name="dev_exits">Exits</string>
+    <string name="dev_max_flows_per_exit">Max connections per exit</string>
+    <string name="dev_max_flows_per_exit_detail">Losing an exit kills every connection on it. Lower spreads the damage; a site may then use more than one exit IP</string>
     <string name="dev_measurements">Measurements</string>
     <string name="dev_measurements_detail">What a provider failure costs. Reset, run a test, read back.</string>
     <string name="dev_measure_none">No provider failures yet. Stall an exit below to cause one.</string>

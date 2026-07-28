@@ -130,6 +130,21 @@ class DeveloperViewModel @Inject constructor(
         update { s -> s.blackholeReceiveTimeoutMillis = millis }
     }
 
+    /**
+     * How many live flows one exit may carry.
+     *
+     * Providers are split-TCP, so removing an exit destroys every flow pinned
+     * to it. Over 40 minutes of real use, 25 removals destroyed 821 flows --
+     * but four of them accounted for 756, the worst being 484 connections in a
+     * single event. Removal rate is not what a user feels; concentration is.
+     *
+     * The cost is that a site's flows can end up split across exits, so it
+     * sees more than one egress IP. Unlimited restores the previous behaviour.
+     */
+    val setMaxFlowsPerExit: (Int) -> Unit = { maxFlows ->
+        update { s -> s.maxFlowsPerExit = maxFlows }
+    }
+
     /** Restores everything the app shipped with. */
     val resetReliability: () -> Unit = {
         deviceManager.device?.resetReliabilitySettings()
@@ -213,5 +228,13 @@ class DeveloperViewModel @Inject constructor(
          * while measuring nothing.
          */
         val BLACKHOLE_RECEIVE_PRESETS = listOf(0L, 5_000L, 10_000L, 20_000L, 25_000L)
+
+        /**
+         * connect default 64. 0 is unlimited, the behaviour that shipped and
+         * the one that produced a 484-connection teardown. The low values are
+         * worth trying: they cut the worst event further, at the cost of
+         * splitting more sites across exits.
+         */
+        val MAX_FLOWS_PER_EXIT_PRESETS = listOf(0, 16, 32, 64, 128)
     }
 }

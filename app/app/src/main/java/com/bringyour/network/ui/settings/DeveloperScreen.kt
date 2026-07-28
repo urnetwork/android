@@ -250,6 +250,13 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         presets = DeveloperViewModel.BLACKHOLE_RECEIVE_PRESETS,
         onSelect = developerViewModel.setBlackholeReceiveTimeoutMillis,
     )
+    DeveloperCountSetting(
+        label = stringResource(id = R.string.dev_max_flows_per_exit),
+        detail = stringResource(id = R.string.dev_max_flows_per_exit_detail),
+        count = reliability?.maxFlowsPerExit ?: 0,
+        presets = DeveloperViewModel.MAX_FLOWS_PER_EXIT_PRESETS,
+        onSelect = developerViewModel.setMaxFlowsPerExit,
+    )
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -362,6 +369,43 @@ private fun DeveloperDurationSetting(
         }
         Text(
             formatDurationMillis(millis),
+            style = MaterialTheme.typography.bodyLarge,
+            color = BlueMedium,
+        )
+    }
+}
+
+/**
+ * A count that cycles through presets on tap, mirroring
+ * [DeveloperDurationSetting]. 0 reads as "Unlimited" rather than "Off",
+ * because an unbounded cap is not the feature being switched off -- it is the
+ * behaviour that shipped.
+ */
+@Composable
+private fun DeveloperCountSetting(
+    label: String,
+    detail: String,
+    count: Int,
+    presets: List<Int>,
+    onSelect: (Int) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                val index = presets.indexOf(count)
+                onSelect(presets[(index + 1) % presets.size])
+            }
+            .padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth(0.72f)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            Text(detail, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+        }
+        Text(
+            if (count <= 0) "Unlimited" else count.toString(),
             style = MaterialTheme.typography.bodyLarge,
             color = BlueMedium,
         )
