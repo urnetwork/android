@@ -80,6 +80,12 @@ fun DeveloperSection(
         toggle = developerViewModel.setTcpCollapseHold,
     )
     DeveloperToggle(
+        label = stringResource(id = R.string.dev_send_stall),
+        detail = stringResource(id = R.string.dev_send_stall_detail),
+        checked = (reliability?.sendStallTimeoutMillis ?: 0L) > 0L,
+        toggle = developerViewModel.setSendStallTimeout,
+    )
+    DeveloperToggle(
         label = stringResource(id = R.string.dev_cluster_affinity),
         detail = stringResource(id = R.string.dev_cluster_affinity_detail),
         checked = reliability?.clusterAffinityFallback == true,

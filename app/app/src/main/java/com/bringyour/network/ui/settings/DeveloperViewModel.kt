@@ -78,6 +78,15 @@ class DeveloperViewModel @Inject constructor(
     }
 
     /**
+     * Off waits for the 30s ack timeout before giving up on an exit that is
+     * accepting packets and delivering none, which freezes every flow pinned to
+     * it for that whole window.
+     */
+    val setSendStallTimeout: (Boolean) -> Unit = { enabled ->
+        update { s -> s.sendStallTimeoutMillis = if (enabled) SEND_STALL_TIMEOUT_MILLIS else 0L }
+    }
+
+    /**
      * Off collapses the tcp idle bound back onto the shared one, which is the
      * pre-fix behaviour of reaping any flow idle for two minutes.
      */
@@ -135,6 +144,7 @@ class DeveloperViewModel @Inject constructor(
     companion object {
         // mirrors connect's DefaultMultiClientSettings
         const val TCP_COLLAPSE_HOLD_MILLIS = 1500L
+        const val SEND_STALL_TIMEOUT_MILLIS = 3000L
         const val TCP_IDLE_TIMEOUT_MILLIS = 600_000L
     }
 }

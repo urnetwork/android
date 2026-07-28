@@ -134,6 +134,8 @@
     <string name="dev_no_exits">No exits. Connect first.</string>
     <string name="dev_refresh">Refresh</string>
     <string name="dev_reset_defaults">Reset to shipped defaults</string>
+    <string name="dev_send_stall">Drop stalled exits fast</string>
+    <string name="dev_send_stall_detail">Off waits 30s before giving up on an exit that stopped delivering</string>
     <string name="dev_server_name_bridge">Converge late-named flows</string>
     <string name="dev_server_name_bridge_detail">Moves later connections onto the exit the first one already uses</string>
     <string name="dev_shuffle_exits">Shuffle all exits</string>
