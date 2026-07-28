@@ -163,10 +163,6 @@
     <string name="dev_server_name_bridge_detail">Moves later connections onto the exit the first one already uses</string>
     <string name="dev_shuffle_exits">Shuffle all exits</string>
     <string name="dev_stall_exit">Stall</string>
-    <string name="dev_tests">Tests</string>
-    <string name="dev_tests_detail">Runs real requests through the tunnel and times them. Start a run, then stall the exit with the most flows and watch what the next results do.</string>
-    <string name="dev_tests_start">Run tests</string>
-    <string name="dev_tests_stop">Stop tests</string>
     <string name="dev_tcp_collapse_hold">Release stuck retransmits</string>
     <string name="dev_tcp_collapse_hold_detail">How long retransmits are held before one is released. Off waits 30s</string>
     <string name="dev_tcp_idle_timeout">Longer TCP idle timeout</string>

@@ -40,7 +40,6 @@ import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.sdk.Exit
-import com.bringyour.sdk.ProbeResult
 import java.util.Locale
 
 /**
@@ -296,40 +295,13 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         )
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
-
-    /**
-     * Tests. These run real requests through the tunnel and time them, which
-     * separates what the tunnel did from what a browser decided to do about
-     * it. The measurement to run first: start a test, stall the exit carrying
-     * the flows, and see whether the next results fail in milliseconds or hang
-     * for the full timeout. Fast failures mean teardown is reaching the client
-     * and the delay you see is browser backoff; hangs mean it is not.
-     */
-    URTextInputLabel(text = stringResource(id = R.string.dev_tests))
-
-    Text(
-        stringResource(id = R.string.dev_tests_detail),
-        style = MaterialTheme.typography.bodySmall,
-        color = TextMuted,
-    )
-
-    DeveloperAction(
-        label = if (developerViewModel.probeRunning) {
-            stringResource(id = R.string.dev_tests_stop)
-        } else {
-            stringResource(id = R.string.dev_tests_start)
-        },
-        onClick = if (developerViewModel.probeRunning) {
-            developerViewModel.stopProbes
-        } else {
-            developerViewModel.startProbes
-        },
-    )
-
-    developerViewModel.probeResults.forEach { result ->
-        DeveloperProbeRow(result)
-    }
+    // The probe suite is deliberately not surfaced here. Its dns probe resolves
+    // through Go's pure-go resolver, which has no server list on android and
+    // falls back to [::1]:53, and its http probes resolve through a tun built
+    // without resolver settings -- so every probe times out at 15s regardless
+    // of the tunnel's health. A control that always reports failure is worse
+    // than no control: it invites reading a harness bug as a tunnel fault.
+    // Measurements above are collected from real traffic and are unaffected.
 
     developerViewModel.lastAction?.let { lastAction ->
         Text(lastAction, style = MaterialTheme.typography.bodySmall, color = TextMuted)
@@ -405,62 +377,6 @@ fun formatDurationMillis(millis: Long): String = when {
  * integer that would hide a change between, say, 4.0 and 4.4.
  */
 fun formatBlastRadius(value: Double): String = String.format(Locale.US, "%.1f", value)
-
-/**
- * One probe result. The failure text is shown verbatim rather than reduced to
- * "failed", because which failure it was is the finding: a reset means the
- * teardown reached the client, a timeout means nothing arrived and the flow
- * simply hung. Those point at opposite fixes.
- */
-@Composable
-private fun DeveloperProbeRow(result: ProbeResult) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.fillMaxWidth(0.62f)) {
-            Text(
-                probeName(result),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-            )
-            Text(
-                if (result.ok) probePhases(result) else result.error,
-                style = MaterialTheme.typography.bodySmall,
-                color = TextMuted,
-            )
-        }
-        Text(
-            formatDurationMillis(result.totalMillis),
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (result.ok) Color.White else BlueMedium,
-        )
-    }
-}
-
-/** Urls are too long for the row, so show the host and the kind. */
-fun probeName(result: ProbeResult): String {
-    val name = result.name
-    val host = name.substringAfter("://").substringBefore("/")
-    return if (host.isEmpty()) "${result.kind} $name" else "${result.kind} $host"
-}
-
-/**
- * The phase breakdown, skipping phases that did not happen (-1). A slow total
- * means something different depending on which phase held it: connect points at
- * exit selection, first-byte at the exit's upstream.
- */
-fun probePhases(result: ProbeResult): String {
-    val parts = mutableListOf<String>()
-    if (0 <= result.dnsMillis) parts.add("dns ${result.dnsMillis}ms")
-    if (0 <= result.connectMillis) parts.add("conn ${result.connectMillis}ms")
-    if (0 <= result.ttfbMillis) parts.add("ttfb ${result.ttfbMillis}ms")
-    if (0 < result.byteCount) parts.add("${result.byteCount}B")
-    return parts.joinToString(", ")
-}
 
 /** A read-only counter row, matching the toggle rows but with a value in place of the switch. */
 @Composable
