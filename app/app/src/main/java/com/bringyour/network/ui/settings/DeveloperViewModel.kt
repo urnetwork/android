@@ -79,6 +79,41 @@ class DeveloperViewModel @Inject constructor(
         refresh()
     }
 
+    private fun update(mutate: (ReliabilitySettings) -> Unit) {
+        val current = reliability ?: return
+        // the binding hands back a copy, so mutate and send the whole struct
+        mutate(current)
+        deviceManager.device?.reliabilitySettings = current
+        refresh()
+    }
+
+    val setUdpTeardownSignal: (Boolean) -> Unit = { update { s -> s.udpTeardownSignal = it } }
+    val setClusterAffinityFallback: (Boolean) -> Unit = { update { s -> s.clusterAffinityFallback = it } }
+    val setServerNameAffinityBridge: (Boolean) -> Unit = { update { s -> s.serverNameAffinityBridge = it } }
+
+    /**
+     * The timing controls are values, not switches. How long to wait before
+     * giving up on an exit trades recovery speed against dropping one that was
+     * slow but alive, and the right balance differs per connection -- so these
+     * are tuned per user rather than guessed once. 0 always reproduces the
+     * behaviour that shipped before the fix it controls.
+     */
+    val setSendStallTimeoutMillis: (Long) -> Unit = { millis ->
+        update { s -> s.sendStallTimeoutMillis = millis }
+    }
+
+    val setTcpCollapseHoldMillis: (Long) -> Unit = { millis ->
+        update { s -> s.tcpCollapseMaxHoldMillis = millis }
+    }
+
+    val setTcpIdleTimeoutMillis: (Long) -> Unit = { millis ->
+        update { s -> s.tcpSequenceIdleTimeoutMillis = millis }
+    }
+
+    val setSequenceIdleTimeoutMillis: (Long) -> Unit = { millis ->
+        update { s -> s.sequenceIdleTimeoutMillis = millis }
+    }
+
     /** Restores everything the app shipped with. */
     val resetReliability: () -> Unit = {
         deviceManager.device?.resetReliabilitySettings()
