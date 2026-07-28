@@ -169,6 +169,78 @@ stall in the response body. That is a flow stalling after connecting, which is
 exactly what C1/C2 and the RST fix address, and the first direct evidence of the
 freeze in a measurement.
 
+## Phase 7 — measurement and A/B (added 2026-07-28)
+
+Requested scope widened: A/B every candidate, and make a provider drop or
+blackhole minimally affect the client on **every** platform (iOS, extension,
+Android, desktop). That means candidates land in `connect`/`sdk`, never in
+Android UI — the dev menu is one front-end onto shared Go, which is already how
+the reliability toggles are built.
+
+### What device evidence established first
+
+- **Exit churn is not the cause.** A 10-minute filtered logcat capture during
+  normal use recorded **zero** `remove error client` events, grid stable at
+  7→7 throughout. The freeze is not exits being replaced. This killed the
+  hypothesis that faster removal/failover was the fix.
+- **One transport per exit.** `ip_remote_multi_client_api.go:381` creates a
+  `PlatformTransport` per `Client`, so every flow pinned to an exit shares one
+  ordered TCP stream and head-of-line blocks together. Matches the device
+  result exactly: stalling the 55-flow exit is catastrophic, stalling a 0-flow
+  exit is free.
+- **QUIC exists and is switched off.** `transport.go:391` — `TransportModeAuto`
+  runs only `runH1`; all three `runH3` calls are commented out, above a TODO
+  that UDP needs PROXY protocol support in the load balancer
+  (nginx/nginx#1061). Upstream's own note says h3 is more CPU efficient with
+  better throughput on poor networks.
+- **QUIC as implemented would not fix HOL blocking.** `transport.go:1165` opens
+  exactly one stream (`OpenStreamSync`, the only stream call in the file). A
+  single QUIC stream is reliable and ordered, like TCP. The win that would
+  address the symptom — a stream per flow — is not taken.
+
+### Hard limit, applies to every platform
+
+Providers are split-TCP: the exit *is* the remote TCP endpoint. When it dies
+those connections cannot migrate, and no client-side work recovers them. The
+achievable goal is "the peer is told immediately and reconnects in ~1 RTT",
+not "the user sees nothing". State this rather than let it be discovered.
+
+### 7.1 Measurement *(blocks every candidate below)*
+
+- [x] `connect/reliability_metrics.go` — blast radius (flows destroyed per exit
+  loss, plus worst single event) and recovery time (exit death → first packet
+  back from that destination over a replacement exit). Nil-receiver safe: the
+  counters sit on the packet path and must never be able to crash it.
+- [x] `sdk` bindings — `GetReliabilityMetrics` / `ResetReliabilityMetrics`,
+  int64 and milliseconds since gomobile binds neither uint64 nor
+  time.Duration.
+- [x] Android readout at the top of the Developer screen, with reset.
+- [ ] Measured failure-injection workload: N parallel fetches, blackhole an
+  exit mid-run, report recovery as a number. Turns the existing Stall button
+  from a vibes test into an A/B measurement.
+- [ ] Config snapshot + tagged JSON export so runs compare offline.
+
+`RecoveryMissed` is deliberately reported next to recovery time: a change that
+abandons flows rather than recovering them improves the average while making
+the product worse, and one number alone cannot catch that.
+
+### 7.2 Candidates, in expected-value order
+
+- [ ] **Cap flows per exit.** Observed distribution 55/18/10/0/0/0 across six
+  exits. Spreading cuts blast radius directly. Weigh against destination
+  affinity, which concentrates same-domain flows deliberately for stable
+  exit IP.
+- [ ] **Multiple transports per exit.** The structural fix for per-exit HOL
+  blocking.
+- [ ] **Pre-warmed spare exits** so replacement costs ~1 RTT, not a cold
+  contract negotiation.
+- [ ] **Confirm teardown reaches the app.** ICMP port-unreachable and
+  RST-with-correct-sequence are built but never verified on-device to reach
+  the browser. The whole 30s→1RTT argument depends on this and it is still
+  assumed.
+- [ ] **QUIC with a stream per flow.** Real fix; needs the load-balancer work
+  server-side before the client path can be re-enabled.
+
 ## Working notes
 
 - **Merge bottom-up.** `connect` → `sdk` → `android`. Merging android first breaks CI with "Unresolved reference" against SDK symbols that do not exist yet — this has already cost three CI round-trips once.

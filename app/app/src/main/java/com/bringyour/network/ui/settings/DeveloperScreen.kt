@@ -40,6 +40,8 @@ import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.sdk.Exit
+import com.bringyour.sdk.ProbeResult
+import java.util.Locale
 
 /**
  * Developer tools for diagnosing connection problems.
@@ -110,6 +112,87 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         )
         return
     }
+
+    /**
+     * Measurements come first because they are what the rest of this screen is
+     * for. Reliability changes have been judged on how long a freeze felt,
+     * which is why fixes that were correct in isolation changed nothing in
+     * use. A candidate that does not move blast radius or recovery time did
+     * not work, however good the reasoning behind it was.
+     */
+    URTextInputLabel(text = stringResource(id = R.string.dev_measurements))
+
+    Text(
+        stringResource(id = R.string.dev_measurements_detail),
+        style = MaterialTheme.typography.bodySmall,
+        color = TextMuted,
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    val metrics = developerViewModel.metrics
+
+    DeveloperMetric(
+        label = stringResource(id = R.string.dev_flows_opened),
+        detail = stringResource(id = R.string.dev_flows_opened_detail),
+        value = (metrics?.flowsOpened ?: 0L).toString(),
+    )
+
+    // the loss numbers are meaningless until something has actually failed,
+    // and showing zeros reads as "nothing is wrong" rather than "nothing has
+    // been measured yet"
+    if (metrics == null || metrics.exitLossEvents == 0L) {
+        Text(
+            stringResource(id = R.string.dev_measure_none),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextMuted,
+        )
+    } else {
+        DeveloperMetric(
+            label = stringResource(id = R.string.dev_blast_radius),
+            detail = stringResource(id = R.string.dev_blast_radius_detail),
+            value = stringResource(
+                id = R.string.dev_blast_radius_value,
+                formatBlastRadius(metrics.meanFlowsLostPerExitLoss),
+            ),
+        )
+        DeveloperMetric(
+            label = stringResource(id = R.string.dev_worst_loss),
+            detail = stringResource(id = R.string.dev_worst_loss_detail),
+            value = stringResource(
+                id = R.string.dev_worst_loss_value,
+                metrics.maxFlowsLostInOneEvent,
+            ),
+        )
+        DeveloperMetric(
+            label = stringResource(id = R.string.dev_recovery),
+            detail = stringResource(id = R.string.dev_recovery_detail),
+            value = stringResource(
+                id = R.string.dev_recovery_value,
+                formatDurationMillis(metrics.recoveryMeanMillis),
+                formatDurationMillis(metrics.recoveryMaxMillis),
+            ),
+        )
+        // read together with recovery time: a change that abandons flows
+        // instead of recovering them makes the average look better while this
+        // climbs
+        DeveloperMetric(
+            label = stringResource(id = R.string.dev_recovery_missed),
+            detail = stringResource(id = R.string.dev_recovery_missed_detail),
+            value = stringResource(
+                id = R.string.dev_recovery_missed_value,
+                metrics.recoveryMissed,
+                metrics.flowsLostToExit,
+            ),
+        )
+    }
+
+    DeveloperAction(
+        label = stringResource(id = R.string.dev_reset_measurements),
+        onClick = developerViewModel.resetMetrics,
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
 
     /**
      * Timing. Each fix's "off" value reproduces the behaviour that shipped
@@ -213,6 +296,41 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         )
     }
 
+    Spacer(modifier = Modifier.height(16.dp))
+
+    /**
+     * Tests. These run real requests through the tunnel and time them, which
+     * separates what the tunnel did from what a browser decided to do about
+     * it. The measurement to run first: start a test, stall the exit carrying
+     * the flows, and see whether the next results fail in milliseconds or hang
+     * for the full timeout. Fast failures mean teardown is reaching the client
+     * and the delay you see is browser backoff; hangs mean it is not.
+     */
+    URTextInputLabel(text = stringResource(id = R.string.dev_tests))
+
+    Text(
+        stringResource(id = R.string.dev_tests_detail),
+        style = MaterialTheme.typography.bodySmall,
+        color = TextMuted,
+    )
+
+    DeveloperAction(
+        label = if (developerViewModel.probeRunning) {
+            stringResource(id = R.string.dev_tests_stop)
+        } else {
+            stringResource(id = R.string.dev_tests_start)
+        },
+        onClick = if (developerViewModel.probeRunning) {
+            developerViewModel.stopProbes
+        } else {
+            developerViewModel.startProbes
+        },
+    )
+
+    developerViewModel.probeResults.forEach { result ->
+        DeveloperProbeRow(result)
+    }
+
     developerViewModel.lastAction?.let { lastAction ->
         Text(lastAction, style = MaterialTheme.typography.bodySmall, color = TextMuted)
     }
@@ -279,6 +397,91 @@ fun formatDurationMillis(millis: Long): String = when {
         if (seconds == seconds.toLong().toDouble()) "${seconds.toLong()}s" else "${seconds}s"
     }
     else -> "${millis / 60_000L}m"
+}
+
+/**
+ * Blast radius is a ratio, not a count -- 4.0 connections per failure is a
+ * different claim from 4 -- so it keeps one decimal rather than rounding to an
+ * integer that would hide a change between, say, 4.0 and 4.4.
+ */
+fun formatBlastRadius(value: Double): String = String.format(Locale.US, "%.1f", value)
+
+/**
+ * One probe result. The failure text is shown verbatim rather than reduced to
+ * "failed", because which failure it was is the finding: a reset means the
+ * teardown reached the client, a timeout means nothing arrived and the flow
+ * simply hung. Those point at opposite fixes.
+ */
+@Composable
+private fun DeveloperProbeRow(result: ProbeResult) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth(0.62f)) {
+            Text(
+                probeName(result),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+            )
+            Text(
+                if (result.ok) probePhases(result) else result.error,
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+            )
+        }
+        Text(
+            formatDurationMillis(result.totalMillis),
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (result.ok) Color.White else BlueMedium,
+        )
+    }
+}
+
+/** Urls are too long for the row, so show the host and the kind. */
+fun probeName(result: ProbeResult): String {
+    val name = result.name
+    val host = name.substringAfter("://").substringBefore("/")
+    return if (host.isEmpty()) "${result.kind} $name" else "${result.kind} $host"
+}
+
+/**
+ * The phase breakdown, skipping phases that did not happen (-1). A slow total
+ * means something different depending on which phase held it: connect points at
+ * exit selection, first-byte at the exit's upstream.
+ */
+fun probePhases(result: ProbeResult): String {
+    val parts = mutableListOf<String>()
+    if (0 <= result.dnsMillis) parts.add("dns ${result.dnsMillis}ms")
+    if (0 <= result.connectMillis) parts.add("conn ${result.connectMillis}ms")
+    if (0 <= result.ttfbMillis) parts.add("ttfb ${result.ttfbMillis}ms")
+    if (0 < result.byteCount) parts.add("${result.byteCount}B")
+    return parts.joinToString(", ")
+}
+
+/** A read-only counter row, matching the toggle rows but with a value in place of the switch. */
+@Composable
+private fun DeveloperMetric(
+    label: String,
+    detail: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth(0.6f)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            Text(detail, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+        }
+        Text(value, style = MaterialTheme.typography.bodyMedium, color = TextMuted)
+    }
 }
 
 @Composable

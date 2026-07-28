@@ -4,10 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.sdk.Exit
+import com.bringyour.sdk.ProbeResult
+import com.bringyour.sdk.ReliabilityMetrics
 import com.bringyour.sdk.ReliabilitySettings
+import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -30,6 +37,16 @@ class DeveloperViewModel @Inject constructor(
         private set
 
     /**
+     * What the toggles are judged against. Every reliability change so far has
+     * been evaluated on how long a freeze felt, which is why fixes that tested
+     * clean in isolation changed nothing in use. These are the numbers that
+     * make a candidate falsifiable: how many connections a provider failure
+     * destroys, and how long the sites behind them stay dark.
+     */
+    var metrics by mutableStateOf<ReliabilityMetrics?>(null)
+        private set
+
+    /**
      * Null while disconnected -- there is no multi client to read from, so the
      * toggles have nothing to act on and the section shows them disabled
      * rather than reporting defaults that are not in force.
@@ -47,13 +64,85 @@ class DeveloperViewModel @Inject constructor(
         if (device == null) {
             exits = listOf()
             reliability = null
+            metrics = null
             return
         }
 
         reliability = device.reliabilitySettings
+        metrics = device.reliabilityMetrics
 
         val exitList = device.exits
         exits = (0 until exitList.len()).map { exitList.get(it) }
+    }
+
+    /**
+     * Zeroes the counters so a run starts clean. The A/B cycle is: reset, set
+     * the config, drive the same workload, read the numbers back.
+     */
+    val resetMetrics: () -> Unit = {
+        deviceManager.device?.resetReliabilityMetrics()
+        lastAction = "Reset measurements"
+        refresh()
+    }
+
+    /**
+     * Probe suite state. Probes run through their own userspace tun pumped into
+     * the live device, so they take the same exits as the browser -- an
+     * ordinary HTTP client would leave the tunnel entirely, since the app
+     * excludes itself from it.
+     */
+    var probeRunning by mutableStateOf(false)
+        private set
+
+    var probeResults by mutableStateOf<List<ProbeResult>>(listOf())
+        private set
+
+    private var probePollJob: Job? = null
+
+    /**
+     * Starts a run and polls while it lasts. Results are read during the run,
+     * not after: the measurement that matters is what the next probe does in
+     * the moment right after an exit is stalled.
+     */
+    val startProbes: () -> Unit = start@{
+        val device = deviceManager.device ?: return@start
+        val config = Sdk.getDefaultProbeSuiteConfig()
+        if (!device.startProbeSuite(config)) {
+            lastAction = "A test run is already going"
+            return@start
+        }
+        lastAction = "Running tests"
+        probeRunning = true
+        pollProbes()
+    }
+
+    val stopProbes: () -> Unit = {
+        deviceManager.device?.stopProbeSuite()
+        lastAction = "Stopped tests"
+    }
+
+    private fun pollProbes() {
+        probePollJob?.cancel()
+        probePollJob = viewModelScope.launch {
+            // poll until the run ends, then read once more so the final
+            // results are not lost to the last interval
+            do {
+                readProbeResults()
+                delay(PROBE_POLL_MILLIS)
+            } while (probeRunning)
+            readProbeResults()
+        }
+    }
+
+    private fun readProbeResults() {
+        val device = deviceManager.device
+        if (device == null) {
+            probeRunning = false
+            return
+        }
+        val results = device.probeResults
+        probeResults = (0 until results.len()).map { results.get(it) }
+        probeRunning = device.probeSuiteRunning
     }
 
     private fun update(mutate: (ReliabilitySettings) -> Unit) {
@@ -139,6 +228,12 @@ class DeveloperViewModel @Inject constructor(
     }
 
     companion object {
+        /**
+         * Fast enough to watch results land as an exit is stalled, slow enough
+         * that polling is not itself load on the connection being measured.
+         */
+        const val PROBE_POLL_MILLIS = 500L
+
         // the first entry of every list is 0 -- the behaviour that shipped
         // before the fix -- so each one can still be switched off entirely.
         // the defaults in connect's DefaultMultiClientSettings are marked.
