@@ -414,6 +414,73 @@ whether Chrome's QUIC stack acts on it is still unverified. This is the
 standing candidate for why recovery is seconds rather than immediate, and it
 is what task 7 should settle.
 
+## Phase 10 — flow cap verified, and what it exposed (2026-07-28)
+
+### The cap holds
+
+beta-108, on device. Teardown sizes across the session: 13 14 15 16 16 16 16 --
+never above the bound, on both the affinity and race paths. In-app
+measurements agreed:
+
+| | beta-104 | beta-108 |
+|---|---|---|
+| Worst single failure | **484 connections** | **16** |
+| Blast radius | -- | 3.9 per failure |
+| Removal rate | 1.92/min | ~0.4/min |
+
+Exits readout confirmed the distribution: 14 / 15 / 7 / 0 / 0.
+
+### Recovery latency is independent of blast radius
+
+	Recovery time:   avg 14.554s, worst 1m
+	Never came back: 13 of 70
+
+Blast radius fell 30x and recovery barely moved. **Losing 16 connections costs
+about the same wall clock as losing 484**, which rules out connection rebuild
+as the cost. Something is waiting on a timeout.
+
+### QUIC cannot be signalled, by design
+
+56% of traffic is QUIC (udp:443 700,715 packets vs tcp:443 540,958).
+
+`ipOosUnreachable` is correctly formed -- embeds the original ip header plus
+the 8 transport bytes RFC 792 requires, port-unreachable code, correct v4 and
+v6 checksums. It does not matter: **RFC 9000 requires QUIC endpoints not to
+terminate a connection on ICMP**, because ICMP is spoofable. It is honoured
+only for PMTU. So `UdpTeardownSignal` is well-built and structurally inert for
+the majority of traffic.
+
+The useful corollary: QUIC identifies connections by Connection ID, not by ip
+4-tuple -- which is what makes migration work across a wifi/cellular switch.
+So a QUIC flow *can* survive its exit dying. Verified the mechanism already
+exists: `removeClient` sets `update.client` to nil but keeps the update, and
+`raceClients` in `sendPacket` re-races the flow onto a surviving exit on the
+next packet. The server sees the same CID from a new source ip and validates
+the path.
+
+### Suspected: the blackhole fix partly undid itself
+
+If flows already re-race, the 14.5s is most likely Chrome's PTO backoff,
+accumulated while the flow black-holed **before** the exit was removed. The
+recovery clock starts at removal, so that pre-removal period is invisible in
+the metric but is felt by the user.
+
+`BlackholeReceiveTimeout` went 5s -> 20s, which is what cut removals 78%. It
+also quadrupled how long a flow on a quiet exit black-holes before rescue, and
+QUIC's PTO doubles per loss.
+
+- [ ] **A/B this, no build needed.** Reset, 20 min at 20s, note recovery avg;
+  set the knob to 5s, reset, 20 min, compare. If recovery drops at 5s the two
+  fixes are fighting and the answer is somewhere near 8-10s with the flow cap
+  carrying more of the load. If it does not move, the backoff theory is wrong
+  and 20s is free.
+
+### Still unexplained
+
+The 68s stall against a 2-flow teardown from Phase 9 remains unaccounted for.
+Leads unchanged: the tunnel drops all ICMP (222 protocol-1 rejects in one
+session), and the window runs below target more often than at it.
+
 ## Working notes
 
 - **Merge bottom-up.** `connect` → `sdk` → `android`. Merging android first breaks CI with "Unresolved reference" against SDK symbols that do not exist yet — this has already cost three CI round-trips once.
