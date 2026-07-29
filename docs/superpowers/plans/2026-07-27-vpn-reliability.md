@@ -344,6 +344,76 @@ detector. The failure mode is verifying that code *works* rather than that it
 is *reached*. Prefer a device measurement over a passing test when the claim is
 about runtime behaviour.
 
+## Phase 9 — mainnet under load (2026-07-28)
+
+### beta-104 baseline vs beta-106 (blackhole fix)
+
+| | beta-104 | beta-106 |
+|---|---|---|
+| removals/min | 1.92 | **0.40** |
+| median gap | 18.5s | **60.5s** |
+| span | 18 min | 128 min |
+
+The blackhole receive-timeout split cut removals ~79%. Measured, not argued.
+
+Reasons, now attributable because each branch names itself: **41 no-receive-ack,
+10 no-receive-syn**. The earlier claim that all removals came from the
+receive-ack branch was inference; the syn branch is real and accounts for ~20%.
+
+### Blast radius is the dominant term
+
+beta-106, 51 removals over 128 min, teardown sizes:
+
+	1 1 2 2 4 4 6 7 20 20 26 35 36 36 43 44 46 53 62 71 73 101 157 484
+
+Most removals cost nothing. A handful cost almost everything. Reported stalls
+against sizes:
+
+| flows | stall |
+|---|---|
+| 4-6 | 3-5s |
+| 44 | ~15s |
+| 157 | ~15s |
+| 484 | ~35s |
+
+Recovery grows sublinearly with a long plateau. **The median teardown was 36
+flows, so a permissive cap does nothing** -- 64 would not have touched a single
+15s stall. Hence MaxFlowsPerExit default 16.
+
+### The cap must apply to affinity, not just the race
+
+`inheritAffinityClient{4,6}WithLock` writes `update.client` directly and never
+reaches `raceClients`. A cap enforced only at client selection would test clean
+and never fire for the flows that concentrate -- a feed opens many connections
+to a handful of domains, which is exactly what affinity pins together. Applied
+at both points.
+
+Never makes a flow unroutable: if every candidate is at the cap the flow is
+placed anyway. Bounding blast radius must not turn a slow page into a broken
+one.
+
+### Unexplained, and not addressed by anything built so far
+
+A **68 second** stall against a teardown of **2 flows**. The flow-count model
+predicts this should have been imperceptible. Ruled out during triage:
+`create client args expired` fires on a fixed 2-minute cadence and is not
+stall-correlated.
+
+Two leads, both new:
+
+- [ ] **The tunnel drops all ICMP.** 222 `No support for protocol 1` and 6 for
+  protocol 58 in one session. Unknown whether anything depends on it.
+- [ ] **The window runs below target more than at it** -- grid samples at 5
+  (131) and 6 (96) versus 7 (128), and one backfill took ~45s.
+
+### QUIC is the majority of traffic
+
+udp:443 700,715 packets vs tcp:443 540,958 -- **56% QUIC**. Those flows get an
+ICMP unreachable rather than a RST (`UdpTeardownSignal` is on by default), and
+whether Chrome's QUIC stack acts on it is still unverified. This is the
+standing candidate for why recovery is seconds rather than immediate, and it
+is what task 7 should settle.
+
 ## Working notes
 
 - **Merge bottom-up.** `connect` → `sdk` → `android`. Merging android first breaks CI with "Unresolved reference" against SDK symbols that do not exist yet — this has already cost three CI round-trips once.
