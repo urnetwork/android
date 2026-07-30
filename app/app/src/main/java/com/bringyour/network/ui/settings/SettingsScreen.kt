@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -89,8 +90,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.URDialog
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueLight
+import com.bringyour.network.ui.theme.TextDanger
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -125,6 +128,7 @@ import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.CopyReferralCode
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
+import com.bringyour.network.ui.login.SeedphraseDisplayScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,6 +150,32 @@ fun SettingsScreen(
     val referralNetwork = settingsViewModel.referralNetwork.collectAsState().value
     val isPresentingAuthCodeDialog = settingsViewModel.isPresentingAuthCodeDialog.collectAsState().value
     val authCode = settingsViewModel.authCode.collectAsState().value
+
+    val networkUser = accountViewModel.networkUser.collectAsState().value
+    val authMethods = remember(networkUser) { networkUser?.let { parseAuthMethods(it) } ?: emptyList() }
+    val isAddingAuth = settingsViewModel.isAddingAuth.collectAsState().value
+    val isRemovingAuth = settingsViewModel.isRemovingAuth.collectAsState().value
+
+    var presentAddAuthSheet by remember { mutableStateOf(false) }
+    var pendingRemoveMethod by remember { mutableStateOf<String?>(null) }
+    var removeAuthError by remember { mutableStateOf<String?>(null) }
+
+    val generatedSeedphrase = settingsViewModel.generatedSeedphrase.collectAsState().value
+    val isGeneratingSeedphrase = settingsViewModel.isGeneratingSeedphrase.collectAsState().value
+    val isRegeneratingSeedphrase = settingsViewModel.isRegeneratingSeedphrase.collectAsState().value
+
+    var pendingSeedphraseAction by remember { mutableStateOf<SeedphraseAction?>(null) }
+    var seedphraseActionError by remember { mutableStateOf<String?>(null) }
+
+    // Close the confirm dialog only once the request actually succeeds (mirrors
+    // the remove-sign-in-method dialog, which closes on its onSuccess callback,
+    // not eagerly on tap) -- otherwise an async error has nowhere to render,
+    // since seedphraseActionError lives inside this dialog's own content.
+    LaunchedEffect(generatedSeedphrase) {
+        if (generatedSeedphrase != null) {
+            pendingSeedphraseAction = null
+        }
+    }
 
     val scope = rememberCoroutineScope()
 
@@ -274,7 +304,14 @@ fun SettingsScreen(
         provideIndicatorColor = settingsViewModel.provideIndicatorColor,
         provideIndicatorRingColor = settingsViewModel.provideIndicatorRingColor,
         stripePortalUrl = settingsViewModel.stripePortalUrl.collectAsState().value,
-        totalReferrals = totalReferrals
+        totalReferrals = totalReferrals,
+        authMethods = authMethods,
+        onRemoveAuthMethod = { method -> pendingRemoveMethod = method },
+        onAddAuthMethodClick = { presentAddAuthSheet = true },
+        hasSeedphrase = authMethods.contains("seedphrase"),
+        isGeneratingSeedphrase = isGeneratingSeedphrase,
+        isRegeneratingSeedphrase = isRegeneratingSeedphrase,
+        onSeedphraseActionClick = { action -> pendingSeedphraseAction = action },
     )
 
     if (isPresentingRenameDevice) {
@@ -359,11 +396,130 @@ fun SettingsScreen(
         )
     }
 
+    AddAuthMethodSheet(
+        visible = presentAddAuthSheet,
+        onDismiss = { presentAddAuthSheet = false },
+        showGoogleOption = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE,
+        activityResultSender = activityResultSender,
+        isAddingAuth = isAddingAuth,
+        addAuth = settingsViewModel.addAuth,
+        onAdded = {
+            presentAddAuthSheet = false
+            accountViewModel.refreshNetworkUser()
+        }
+    )
+
+    URDialog(
+        visible = pendingRemoveMethod != null,
+        onDismiss = {
+            pendingRemoveMethod = null
+            removeAuthError = null
+        }
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                "Remove ${pendingRemoveMethod?.let { methodDisplayName(it) } ?: ""}?",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "You won't be able to sign in with this method anymore.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White
+            )
+            if (removeAuthError != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                URInlineErrorText(removeAuthError)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            URButton(
+                onClick = {
+                    val method = pendingRemoveMethod ?: return@URButton
+                    removeAuthError = null
+                    settingsViewModel.removeAuth(
+                        method,
+                        {
+                            pendingRemoveMethod = null
+                            accountViewModel.refreshNetworkUser()
+                        },
+                        { msg -> removeAuthError = msg }
+                    )
+                },
+                enabled = !isRemovingAuth,
+                isProcessing = isRemovingAuth
+            ) { buttonTextStyle ->
+                Text("Remove", style = buttonTextStyle)
+            }
+        }
+    }
+
+    URDialog(
+        visible = pendingSeedphraseAction != null,
+        onDismiss = {
+            pendingSeedphraseAction = null
+            seedphraseActionError = null
+        }
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            val isRegenerate = pendingSeedphraseAction == SeedphraseAction.REGENERATE
+            Text(
+                if (isRegenerate) "Regenerate your seedphrase?" else "Generate a seedphrase?",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                if (isRegenerate) {
+                    "Your current seedphrase will stop working. You'll be shown a new one to save."
+                } else {
+                    "A seedphrase lets you recover your account if you lose access. You'll be shown it once."
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White
+            )
+            if (seedphraseActionError != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                URInlineErrorText(seedphraseActionError)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            URButton(
+                onClick = {
+                    seedphraseActionError = null
+                    val onError: (String) -> Unit = { msg -> seedphraseActionError = msg }
+                    if (isRegenerate) {
+                        settingsViewModel.regenerateSeedphrase(onError)
+                    } else {
+                        settingsViewModel.generateSeedphrase(onError)
+                    }
+                },
+                enabled = !isGeneratingSeedphrase && !isRegeneratingSeedphrase,
+                isProcessing = isGeneratingSeedphrase || isRegeneratingSeedphrase
+            ) { buttonTextStyle ->
+                Text(if (isRegenerate) "Regenerate" else "Generate", style = buttonTextStyle)
+            }
+        }
+    }
+
+    if (generatedSeedphrase != null) {
+        SeedphraseDisplayScreen(
+            seedphrase = generatedSeedphrase,
+            onConfirmed = {
+                settingsViewModel.dismissSeedphraseDisplay()
+                accountViewModel.refreshNetworkUser()
+            },
+            onBack = {
+                settingsViewModel.dismissSeedphraseDisplay()
+                accountViewModel.refreshNetworkUser()
+            }
+        )
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+private fun SettingsScreen(
     navController: NavController,
     clientId: String,
     currentPlan: Plan,
@@ -401,7 +557,14 @@ fun SettingsScreen(
     provideIndicatorColor: Color,
     provideIndicatorRingColor: Color? = null,
     stripePortalUrl: String?,
-    totalReferrals: Long = 0L
+    totalReferrals: Long = 0L,
+    authMethods: List<String>,
+    onRemoveAuthMethod: (String) -> Unit,
+    onAddAuthMethodClick: () -> Unit,
+    hasSeedphrase: Boolean,
+    isGeneratingSeedphrase: Boolean,
+    isRegeneratingSeedphrase: Boolean,
+    onSeedphraseActionClick: (SeedphraseAction) -> Unit,
 ) {
 
     val context = LocalContext.current
@@ -613,6 +776,90 @@ fun SettingsScreen(
                 )
             }
 
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            /**
+             * Seedphrase
+             */
+            URTextInputLabel(text = "Seedphrase")
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    if (hasSeedphrase) "Regenerate Seedphrase" else "Generate Seedphrase",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if ((hasSeedphrase && isRegeneratingSeedphrase) || (!hasSeedphrase && isGeneratingSeedphrase)) {
+                        CircularProgressIndicator(modifier = Modifier.width(16.dp))
+                    } else {
+                        TextButton(onClick = {
+                            onSeedphraseActionClick(
+                                if (hasSeedphrase) SeedphraseAction.REGENERATE else SeedphraseAction.GENERATE
+                            )
+                        }) {
+                            Text(
+                                if (hasSeedphrase) "Regenerate" else "Generate",
+                                color = BlueMedium
+                            )
+                        }
+                    }
+                }
+            }
+            Text(
+                "A seedphrase lets you recover your account if you lose access.",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            /**
+             * Sign-In Methods
+             */
+            URTextInputLabel(text = "Sign-In Methods")
+
+            authMethods.forEach { method ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        methodDisplayName(method),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+
+                    // removing the last method would permanently lock the
+                    // account after logout -- keep at least one way to sign in
+                    if (authMethods.size > 1) {
+                        TextButton(onClick = { onRemoveAuthMethod(method) }) {
+                            Text(
+                                "Remove",
+                                color = TextDanger
+                            )
+                        }
+                    }
+                }
+            }
+
+            TextButton(onClick = onAddAuthMethodClick) {
+                Text(
+                    "Add sign-in method",
+                    color = BlueMedium
+                )
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -1300,7 +1547,14 @@ private fun SettingsScreenPreview() {
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
             provideIndicatorColor = Green,
-            stripePortalUrl = null
+            stripePortalUrl = null,
+            authMethods = listOf("email"),
+            onRemoveAuthMethod = {},
+            onAddAuthMethodClick = {},
+            hasSeedphrase = false,
+            isGeneratingSeedphrase = false,
+            isRegeneratingSeedphrase = false,
+            onSeedphraseActionClick = {},
         )
     }
 }
@@ -1375,7 +1629,14 @@ private fun SettingsScreenSupporterPreview() {
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
             provideIndicatorColor = Green,
-            stripePortalUrl = null
+            stripePortalUrl = null,
+            authMethods = listOf("email"),
+            onRemoveAuthMethod = {},
+            onAddAuthMethodClick = {},
+            hasSeedphrase = false,
+            isGeneratingSeedphrase = false,
+            isRegeneratingSeedphrase = false,
+            onSeedphraseActionClick = {},
         )
     }
 }
@@ -1418,7 +1679,14 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
             provideIndicatorColor = Green,
-            stripePortalUrl = null
+            stripePortalUrl = null,
+            authMethods = listOf("email"),
+            onRemoveAuthMethod = {},
+            onAddAuthMethodClick = {},
+            hasSeedphrase = false,
+            isGeneratingSeedphrase = false,
+            isRegeneratingSeedphrase = false,
+            onSeedphraseActionClick = {},
         )
     }
 }
@@ -1461,7 +1729,14 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
             provideIndicatorColor = Green,
-            stripePortalUrl = null
+            stripePortalUrl = null,
+            authMethods = listOf("email"),
+            onRemoveAuthMethod = {},
+            onAddAuthMethodClick = {},
+            hasSeedphrase = false,
+            isGeneratingSeedphrase = false,
+            isRegeneratingSeedphrase = false,
+            onSeedphraseActionClick = {},
         )
     }
 }
@@ -1504,7 +1779,16 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             isCreatingAuthCode = false,
             setDisplayAuthCodeDialog = {},
             provideIndicatorColor = Green,
-            stripePortalUrl = null
+            stripePortalUrl = null,
+            authMethods = listOf("email"),
+            onRemoveAuthMethod = {},
+            onAddAuthMethodClick = {},
+            hasSeedphrase = false,
+            isGeneratingSeedphrase = false,
+            isRegeneratingSeedphrase = false,
+            onSeedphraseActionClick = {},
         )
     }
 }
+
+private enum class SeedphraseAction { GENERATE, REGENERATE }

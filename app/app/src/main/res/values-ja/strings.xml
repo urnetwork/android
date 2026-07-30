@@ -82,7 +82,6 @@
     <string name="client_statistics">クライアント統計</string>
     <string name="clients">クライアント</string>
     <string name="close">閉じる</string>
-    <string name="commitment_issues">やることを決めかねていますか？</string>
     <string name="community_edition">コミュニティ版</string>
     <string name="community_edition_details">ネットワークに参加して、コミュニティ版に無料でアクセスしましょう。</string>
     <string name="companion">相手</string>
@@ -181,7 +180,6 @@
     <string name="guest">ゲスト</string>
     <string name="how_are_we_doing">私たちの調子はどうですか？</string>
     <string name="ignore_battery_optimizations">バッテリー最適化を無視する</string>
-    <string name="in_guest_mode">ゲストモードです</string>
     <string name="include_app">VPN経由でルーティング</string>
     <string name="include_app_description">含めたアプリのみトンネルを使用します。</string>
     <string name="included">含める</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">下のトラフィックをタップすると、トンネルを迂回してローカルにルーティングされます。</string>
     <string name="split_rules_info_note">除外は関連するネットワーククラスタ全体に適用されるため、関連するトラフィックもまとめて対象になります。</string>
     <string name="start_earning">収益を得始めるには、暗号通貨ウォレットをURnetworkに接続するか、Circleでセットアップしてください。</string>
-    <string name="start_earning_join">収益を得始めるには、ネットワークに参加してください</string>
     <string name="stay_in_touch">連絡を取り合う</string>
     <string name="stay_private">完全に\nプライベートで\n匿名性を\n保つ</string>
     <string name="stay_private_description">URnetworkで完全にプライベートで匿名性を保つ</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">送金が開始されました。チェーン上で取引が処理されると完了します。</string>
     <string name="trusted_by_private_networks">%1$s以上のプライベートネットワークに信頼されています</string>
     <string name="try_again">再試行</string>
-    <string name="try_guest_mode">ゲストモードを試す</string>
     <string name="unencrypted_dns">暗号化なしのDNS</string>
     <string name="unknown">不明</string>
     <string name="unlink">リンク解除</string>

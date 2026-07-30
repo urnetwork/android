@@ -43,6 +43,10 @@ class MainNavViewModel @Inject constructor(
         deviceManager.canPromptIntroFunnel = false
     }
 
+    val refreshTokenOnForeground: () -> Unit = {
+        deviceManager.device?.refreshToken(0)
+    }
+
     init {
         _allowDisplayIntroFunnel.value = deviceManager.canPromptIntroFunnel
     }

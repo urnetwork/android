@@ -11,12 +11,10 @@ import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 
 enum class OverlayMode {
-    GuestMode,
     Upgrade,
     Refer,
     FeedbackSubmitted,
     Onboarding,
-    OnboardingGuestMode,
     // a purchase Play accepted but has not completed -- awaiting approval or an
     // out-of-band payment. Distinct from Upgrade, which means it actually went through.
     PurchasePending,
@@ -32,20 +30,6 @@ fun FullScreenOverlay(
     val exitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
     val overlayMode = overlayViewModel.overlayModeState.collectAsState().value
-
-    // You're in Guest mode overlay
-    AnimatedVisibility(
-        visible = overlayMode == OverlayMode.GuestMode,
-        enter = enterTransition,
-        exit = exitTransition,
-    ) {
-
-        GuestModeOverlay(
-            onDismiss = {
-                overlayViewModel.launch(null)
-            }
-        )
-    }
 
     // Refer overlay
     AnimatedVisibility(

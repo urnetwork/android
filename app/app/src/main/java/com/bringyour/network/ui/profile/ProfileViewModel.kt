@@ -6,14 +6,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.sdk.Sdk
-import com.bringyour.sdk.NetworkNameValidationViewController
-import com.bringyour.sdk.NetworkUser
-import com.bringyour.sdk.NetworkUserViewController
-import com.bringyour.sdk.Sub
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.ui.settings.authTypesContains
+import com.bringyour.sdk.ChangeNetworkNameArgs
+import com.bringyour.sdk.ClaimNetworkNameArgs
+import com.bringyour.sdk.NetworkNameValidationViewController
+import com.bringyour.sdk.NetworkUser
+import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,9 +27,7 @@ class ProfileViewModel @Inject constructor(
     networkSpaceManagerProvider: NetworkSpaceManagerProvider
 ): ViewModel() {
 
-    private var networkUserVc: NetworkUserViewController? = null
     private var networkNameValidationVc: NetworkNameValidationViewController? = null
-    private val subs = mutableListOf<Sub>()
 
     var isEditingProfile by mutableStateOf(false)
         private set
@@ -36,17 +37,6 @@ class ProfileViewModel @Inject constructor(
 
     val setIsValidatingNetworkName: (Boolean) -> Unit = { iv ->
         isValidatingNetworkName = iv
-    }
-
-    var isUpdatingProfile by mutableStateOf(false)
-        private set
-
-    // todo - make this more robust with error messages
-    var errorUpdatingProfile by mutableStateOf(false)
-        private set
-
-    val setErrorUpdatingProfile: (Boolean) -> Unit = { errExists ->
-        errorUpdatingProfile = errExists
     }
 
     private var networkUser: NetworkUser? = null
@@ -61,16 +51,14 @@ class ProfileViewModel @Inject constructor(
         networkNameIsValid = isValid
     }
 
-    var usernameIsValid by mutableStateOf(false)
-        private set
+    private val _isSavingNetworkName = MutableStateFlow(false)
+    val isSavingNetworkName: StateFlow<Boolean> = _isSavingNetworkName
 
-    private val addIsUpdatingListener = {
-        networkUserVc?.addIsUpdatingListener { isUpdating ->
-            viewModelScope.launch {
-                isUpdatingProfile = isUpdating
-            }
-        }?.let { subs.add(it) }
-    }
+    private val _networkNameError = MutableStateFlow<String?>(null)
+    val networkNameError: StateFlow<String?> = _networkNameError
+
+    private val _needsNameClaim = MutableStateFlow(false)
+    val needsNameClaim: StateFlow<Boolean> = _needsNameClaim
 
     val setNetworkNameTextFieldValue: (TextFieldValue) -> Unit = {
         networkNameTextFieldValue = it
@@ -78,6 +66,9 @@ class ProfileViewModel @Inject constructor(
 
     val setIsEditingProfile: (Boolean) -> Unit = {
         isEditingProfile = it
+        if (it) {
+            _networkNameError.value = null
+        }
     }
 
     val validateNetworkName: (String) -> Unit = { nn ->
@@ -108,80 +99,111 @@ class ProfileViewModel @Inject constructor(
 
     }
 
-    val updateProfile: () -> Unit = {
-        if (networkNameIsValid && usernameIsValid) {
-            setIsEditingProfile(false)
-            networkUserVc?.updateNetworkUser(networkNameTextFieldValue.text)
-        } else {
-            setErrorUpdatingProfile(true)
+    val saveNetworkName: (
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) -> Unit = { onSuccess, onError ->
+
+        val name = networkNameTextFieldValue.text.trim()
+        _isSavingNetworkName.value = true
+        _networkNameError.value = null
+
+        val args = ChangeNetworkNameArgs()
+        args.newName = name
+
+        deviceManager.device?.api?.changeNetworkName(args) { result, err ->
+            viewModelScope.launch {
+                _isSavingNetworkName.value = false
+
+                if (err != null) {
+                    val msg = err.message ?: "Failed to change network name"
+                    _networkNameError.value = msg
+                    onError(msg)
+                } else if (result?.error != null) {
+                    val msg = result.error.message ?: "Failed to change network name"
+                    _networkNameError.value = msg
+                    onError(msg)
+                } else {
+                    deviceManager.device?.refreshToken(0)
+                    onSuccess()
+                }
+            }
+        } ?: run {
+            _isSavingNetworkName.value = false
+            val msg = "Unable to connect. Please try again."
+            _networkNameError.value = msg
+            onError(msg)
+        }
+    }
+
+    val claimNetworkName: (
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) -> Unit = { onSuccess, onError ->
+
+        val name = networkNameTextFieldValue.text.trim()
+        _isSavingNetworkName.value = true
+        _networkNameError.value = null
+
+        val args = ClaimNetworkNameArgs()
+        args.newName = name
+
+        deviceManager.device?.api?.claimNetworkName(args) { result, err ->
+            viewModelScope.launch {
+                _isSavingNetworkName.value = false
+
+                if (err != null) {
+                    val msg = err.message ?: "Failed to claim network name"
+                    _networkNameError.value = msg
+                    onError(msg)
+                } else if (result?.error != null) {
+                    val msg = result.error.message ?: "Failed to claim network name"
+                    _networkNameError.value = msg
+                    onError(msg)
+                } else {
+                    deviceManager.device?.refreshToken(0)
+                    onSuccess()
+                }
+            }
+        } ?: run {
+            _isSavingNetworkName.value = false
+            val msg = "Unable to connect. Please try again."
+            _networkNameError.value = msg
+            onError(msg)
         }
     }
 
     val cancelEdits = {
         setNetworkNameTextFieldValue(TextFieldValue(networkUser?.networkName ?: ""))
+        _networkNameError.value = null
         setIsEditingProfile(false)
     }
 
     val setNetworkUser: (NetworkUser?) -> Unit = { nu ->
         networkUser = nu
         setNetworkNameTextFieldValue(TextFieldValue(nu?.networkName ?: ""))
-    }
-
-    private var updateSuccessListener: (() -> Unit)? = null
-    private var updateSuccessSubInstance: Sub? = null
-
-    val updateSuccessSub: (() -> Unit) -> Sub? = { callback ->
-        updateSuccessSubInstance?.let { oldSub ->
-            subs.remove(oldSub)
-            oldSub.close()
-        }
-        updateSuccessListener = callback
-        val sub = networkUserVc?.addNetworkUserUpdateSuccessListener {
-            updateSuccessListener?.invoke()
-        }
-        updateSuccessSubInstance = sub
-        sub?.let { subs.add(it) }
-        sub
-    }
-
-    val addUpdateErrorListener = {
-        networkUserVc?.addNetworkUserUpdateErrorListener {
-            viewModelScope.launch {
-                cancelEdits()
-                setErrorUpdatingProfile(true)
-            }
-        }?.let { subs.add(it) }
+        _needsNameClaim.value = nu?.let {
+            val hasIdentityMethod = authTypesContains(it.authTypes, "email") ||
+                authTypesContains(it.authTypes, "phone") ||
+                authTypesContains(it.authTypes, "google") ||
+                authTypesContains(it.authTypes, "apple") ||
+                authTypesContains(it.authTypes, "solana")
+            !hasIdentityMethod
+        } ?: false
     }
 
     init {
 
-        networkUserVc = deviceManager.device?.openNetworkUserViewController()
-
         networkNameValidationVc = Sdk.newNetworkNameValidationViewController(
             networkSpaceManagerProvider.getNetworkSpace()?.api
         )
-
-        addIsUpdatingListener()
-
-        addUpdateErrorListener()
-
-        networkUserVc?.start()
 
     }
 
     override fun onCleared() {
         super.onCleared()
 
-        subs.forEach { it.close() }
-        subs.clear()
-
-        networkUserVc?.let {
-            deviceManager.device?.closeViewController(it)
-        }
-
         networkNameValidationVc?.close()
-
-        updateSuccessListener = null
     }
 
 }

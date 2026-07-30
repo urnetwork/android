@@ -22,8 +22,12 @@ import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
+import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthCodeCreateArgs
+import com.bringyour.sdk.GenerateSeedphraseArgs
 import com.bringyour.sdk.ReferralNetwork
+import com.bringyour.sdk.RegenerateSeedphraseArgs
+import com.bringyour.sdk.RemoveAuthArgs
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.StripeCreateCustomerPortalArgs
 import com.bringyour.sdk.Sub
@@ -289,6 +293,132 @@ class SettingsViewModel @Inject constructor(
         } ?: run {
             _isDeletingAccount.value = false
         }
+    }
+
+    private val _isAddingAuth = MutableStateFlow(false)
+    val isAddingAuth: StateFlow<Boolean> = _isAddingAuth
+
+    val addAuth: (
+        args: AddAuthArgs,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) -> Unit = { args, onSuccess, onError ->
+
+        _isAddingAuth.value = true
+
+        deviceManager.device?.api?.addAuth(args) { result, err ->
+            viewModelScope.launch {
+                _isAddingAuth.value = false
+
+                if (err != null) {
+                    onError(err.message ?: "Failed to add sign-in method")
+                } else if (result?.error != null) {
+                    onError(result.error.message ?: "Failed to add sign-in method")
+                } else if (result != null) {
+                    onSuccess()
+                } else {
+                    onError("Failed to add sign-in method")
+                }
+            }
+        } ?: run {
+            _isAddingAuth.value = false
+            onError("Unable to connect. Please try again.")
+        }
+    }
+
+    private val _isRemovingAuth = MutableStateFlow(false)
+    val isRemovingAuth: StateFlow<Boolean> = _isRemovingAuth
+
+    val removeAuth: (
+        authType: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) -> Unit = { authType, onSuccess, onError ->
+
+        _isRemovingAuth.value = true
+
+        val args = RemoveAuthArgs()
+        args.authType = authType
+
+        deviceManager.device?.api?.removeAuth(args) { result, err ->
+            viewModelScope.launch {
+                _isRemovingAuth.value = false
+
+                if (err != null) {
+                    onError(err.message ?: "Failed to remove sign-in method")
+                } else if (result?.error != null) {
+                    onError(result.error.message ?: "Failed to remove sign-in method")
+                } else if (result != null) {
+                    onSuccess()
+                } else {
+                    onError("Failed to remove sign-in method")
+                }
+            }
+        } ?: run {
+            _isRemovingAuth.value = false
+            onError("Unable to connect. Please try again.")
+        }
+    }
+
+    private val _generatedSeedphrase = MutableStateFlow<String?>(null)
+    val generatedSeedphrase: StateFlow<String?> = _generatedSeedphrase
+
+    private val _isGeneratingSeedphrase = MutableStateFlow(false)
+    val isGeneratingSeedphrase: StateFlow<Boolean> = _isGeneratingSeedphrase
+
+    private val _isRegeneratingSeedphrase = MutableStateFlow(false)
+    val isRegeneratingSeedphrase: StateFlow<Boolean> = _isRegeneratingSeedphrase
+
+    val generateSeedphrase: (onError: (String) -> Unit) -> Unit = { onError ->
+
+        _isGeneratingSeedphrase.value = true
+
+        deviceManager.device?.api?.generateSeedphrase(GenerateSeedphraseArgs()) { result, err ->
+            viewModelScope.launch {
+                _isGeneratingSeedphrase.value = false
+
+                if (err != null) {
+                    onError(err.message ?: "Failed to generate seedphrase")
+                } else if (result?.error != null) {
+                    onError(result.error.message ?: "Failed to generate seedphrase")
+                } else if (result != null && result.seedphrase.isNotEmpty()) {
+                    _generatedSeedphrase.value = result.seedphrase
+                } else {
+                    onError("Failed to generate seedphrase")
+                }
+            }
+        } ?: run {
+            _isGeneratingSeedphrase.value = false
+            onError("Unable to connect. Please try again.")
+        }
+    }
+
+    val regenerateSeedphrase: (onError: (String) -> Unit) -> Unit = { onError ->
+
+        _isRegeneratingSeedphrase.value = true
+
+        deviceManager.device?.api?.regenerateSeedphrase(RegenerateSeedphraseArgs()) { result, err ->
+            viewModelScope.launch {
+                _isRegeneratingSeedphrase.value = false
+
+                if (err != null) {
+                    onError(err.message ?: "Failed to regenerate seedphrase")
+                } else if (result?.error != null) {
+                    onError(result.error.message ?: "Failed to regenerate seedphrase")
+                } else if (result != null && result.seedphrase.isNotEmpty()) {
+                    _generatedSeedphrase.value = result.seedphrase
+                } else {
+                    onError("Failed to regenerate seedphrase")
+                }
+            }
+        } ?: run {
+            _isRegeneratingSeedphrase.value = false
+            onError("Unable to connect. Please try again.")
+        }
+    }
+
+    val dismissSeedphraseDisplay: () -> Unit = {
+        _generatedSeedphrase.value = null
     }
 
     val toggleRouteLocal: () -> Unit = {

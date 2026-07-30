@@ -32,7 +32,7 @@ import com.bringyour.network.ui.theme.Yellow
 fun OnboardingOverlay() {
 
     val context = LocalContext.current
-    val backgroundBitmap: ImageBitmap = remember { ImageBitmap.imageResource(context.resources, R.drawable.overlay_guest_onboarding_bg) }
+    val backgroundBitmap: ImageBitmap = remember { ImageBitmap.imageResource(context.resources, R.drawable.overlay_plan_upgraded_bg) }
 
     Box(
         modifier = Modifier

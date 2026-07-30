@@ -82,7 +82,6 @@
     <string name="client_statistics">Στατιστικά πελάτη</string>
     <string name="clients">Πελάτες</string>
     <string name="close">Κλείσιμο</string>
-    <string name="commitment_issues">Προβλήματα δέσμευσης;</string>
     <string name="community_edition">Έκδοση κοινότητας</string>
     <string name="community_edition_details">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
     <string name="companion">Συμβαλλόμενος</string>
@@ -181,7 +180,6 @@
     <string name="guest">Επισκέπτης</string>
     <string name="how_are_we_doing">Πώς τα πάμε;</string>
     <string name="ignore_battery_optimizations">Παράβλεψη βελτιστοποιήσεων μπαταρίας</string>
-    <string name="in_guest_mode">Είστε σε λειτουργία επισκέπτη</string>
     <string name="include_app">Δρομολόγηση μέσω VPN</string>
     <string name="include_app_description">Μόνο οι συμπεριλαμβανόμενες εφαρμογές χρησιμοποιούν το τούνελ.</string>
     <string name="included">Συμπερίληψη</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Πατήστε την κίνηση παρακάτω για να δρομολογηθεί τοπικά, παρακάμπτοντας το τούνελ.</string>
     <string name="split_rules_info_note">Οι εξαιρέσεις ισχύουν για ολόκληρη τη συσχετισμένη ομάδα δικτύων, ώστε η σχετική κίνηση να καλύπτεται μαζί.</string>
     <string name="start_earning">Για να ξεκινήσετε να κερδίζετε, συνδέστε το πορτοφόλι κρυπτονομισμάτων σας στο URnetwork ή ρυθμίστε ένα με το Circle.</string>
-    <string name="start_earning_join">Για να ξεκινήσετε να κερδίζετε, γίνετε μέλος του δικτύου</string>
     <string name="stay_in_touch">Μείνετε σε επαφή</string>
     <string name="stay_private">Παραμείνετε\nεντελώς\nιδιωτικοί και\nανώνυμοι</string>
     <string name="stay_private_description">Παραμείνετε εντελώς ιδιωτικοί και ανώνυμοι με το URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Η μεταφορά σας ξεκίνησε και θα ολοκληρωθεί μόλις η συναλλαγή υποβληθεί σε επεξεργασία στην αλυσίδα.</string>
     <string name="trusted_by_private_networks">Εμπιστεύεται από πάνω από %1$s ιδιωτικά δίκτυα</string>
     <string name="try_again">Δοκιμάστε ξανά</string>
-    <string name="try_guest_mode">Δοκιμάστε τη λειτουργία επισκέπτη</string>
     <string name="unencrypted_dns">Μη κρυπτογραφημένο DNS</string>
     <string name="unknown">άγνωστο</string>
     <string name="unlink">Αποσύνδεση</string>

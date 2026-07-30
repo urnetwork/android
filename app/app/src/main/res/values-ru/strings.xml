@@ -82,7 +82,6 @@
     <string name="client_statistics">Статистика клиента</string>
     <string name="clients">Клиенты</string>
     <string name="close">Закрыть</string>
-    <string name="commitment_issues">Не хотите регистрироваться?</string>
     <string name="community_edition">Версия для сообщества</string>
     <string name="community_edition_details">Участвуйте в сети и получите бесплатный доступ к версии для сообщества.</string>
     <string name="companion">Партнёр</string>
@@ -181,7 +180,6 @@
     <string name="guest">Гость</string>
     <string name="how_are_we_doing">Как наши успехи?</string>
     <string name="ignore_battery_optimizations">Игнорировать оптимизацию батареи</string>
-    <string name="in_guest_mode">Вы в гостевом режиме</string>
     <string name="include_app">Направить через VPN</string>
     <string name="include_app_description">Туннель используют только включённые приложения.</string>
     <string name="included">Включённые</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Нажмите на трафик ниже, чтобы направить его локально, в обход туннеля.</string>
     <string name="split_rules_info_note">Исключения применяются ко всему связанному сетевому кластеру, поэтому сопутствующий трафик исключается вместе.</string>
     <string name="start_earning">Чтобы начать зарабатывать, подключите свой криптовалютный кошелек к URnetwork или создайте новый с помощью Circle.</string>
-    <string name="start_earning_join">Чтобы начать зарабатывать, присоединяйтесь к сети</string>
     <string name="stay_in_touch">Оставайтесь на связи</string>
     <string name="stay_private">Оставайтесь\nполностью\nприватными и\nанонимными</string>
     <string name="stay_private_description">Оставайтесь полностью приватными и анонимными с URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Ваш перевод инициирован и будет завершен после обработки транзакции в сети.</string>
     <string name="trusted_by_private_networks">Доверяют более чем %1$s частных сетей</string>
     <string name="try_again">Попробовать снова</string>
-    <string name="try_guest_mode">Попробуйте гостевой режим</string>
     <string name="unencrypted_dns">Незашифрованный DNS</string>
     <string name="unknown">неизвестно</string>
     <string name="unlink">Отвязать</string>

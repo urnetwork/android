@@ -82,7 +82,6 @@
     <string name="client_statistics">क्लाइंट आँकड़े</string>
     <string name="clients">क्लाइंट्स</string>
     <string name="close">बंद करें</string>
-    <string name="commitment_issues">प्रतिबद्धता संबंधी समस्याएं?</string>
     <string name="community_edition">कम्युनिटी एडिशन</string>
     <string name="community_edition_details">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
     <string name="companion">साथी</string>
@@ -181,7 +180,6 @@
     <string name="guest">अतिथि</string>
     <string name="how_are_we_doing">हम कैसा कर रहे हैं?</string>
     <string name="ignore_battery_optimizations">बैटरी ऑप्टिमाइज़ेशन को अनदेखा करें</string>
-    <string name="in_guest_mode">आप गेस्ट मोड में हैं</string>
     <string name="include_app">VPN से रूट करें</string>
     <string name="include_app_description">केवल शामिल ऐप्स ही टनल का उपयोग करते हैं।</string>
     <string name="included">शामिल</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">नीचे किसी ट्रैफ़िक पर टैप करें ताकि वह टनल को बायपास कर स्थानीय रूप से रूट हो।</string>
     <string name="split_rules_info_note">अपवाद पूरे संबद्ध नेटवर्क क्लस्टर पर लागू होते हैं, इसलिए संबंधित ट्रैफ़िक एक साथ शामिल हो जाता है।</string>
     <string name="start_earning">कमाई शुरू करने के लिए, अपने क्रिप्टोकरेंसी वॉलेट को URnetwork से कनेक्ट करें या Circle के साथ एक सेट करें।</string>
-    <string name="start_earning_join">कमाई शुरू करने के लिए, नेटवर्क से जुड़ें</string>
     <string name="stay_in_touch">संपर्क में रहें</string>
     <string name="stay_private">पूरी तरह से\nनिजी और\nगुमनाम रहें</string>
     <string name="stay_private_description">URnetwork के साथ पूरी तरह से निजी और गुमनाम रहें</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">आपका हस्तांतरण शुरू हो गया है और चेन पर लेनदेन संसाधित होने के बाद पूरा हो जाएगा।</string>
     <string name="trusted_by_private_networks">%1$s से अधिक निजी नेटवर्क द्वारा विश्वसनीय</string>
     <string name="try_again">पुनः प्रयास करें</string>
-    <string name="try_guest_mode">गेस्ट मोड आज़माएँ</string>
     <string name="unencrypted_dns">अनएन्क्रिप्टेड DNS</string>
     <string name="unknown">अज्ञात</string>
     <string name="unlink">अनलिंक करें</string>

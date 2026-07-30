@@ -118,9 +118,16 @@ class LeaderboardViewModel @Inject constructor(
                 }
 
                 rankingResult.onSuccess { result ->
-                    isNetworkRankingPublic = result.networkRanking.leaderboardPublic
-                    networkRank = result.networkRanking.leaderboardRank.toInt()
-                    netProvidedFormatted = formatDataProvided(result.networkRanking.netMiBCount)
+                    // `NetworkRanking` is a pointer in the sdk, so it is null
+                    // whenever the server does not populate it -- a network
+                    // with no ranking yet, or an api that does not serve it.
+                    // The header already renders "-" for rank 0, so leaving the
+                    // defaults in place is the right no-data state.
+                    result.networkRanking?.let { networkRanking ->
+                        isNetworkRankingPublic = networkRanking.leaderboardPublic
+                        networkRank = networkRanking.leaderboardRank.toInt()
+                        netProvidedFormatted = formatDataProvided(networkRanking.netMiBCount)
+                    }
                 }
 
                 val anyFailure = leaderboardResult.isFailure || rankingResult.isFailure
@@ -196,10 +203,19 @@ class LeaderboardViewModel @Inject constructor(
                     }
 
                     val earners = mutableListOf<LeaderboardEarner>()
-                    val n = result.earners.len()
 
-                    for (i in 0 until n) {
-                        earners.add(result.earners.get(i))
+                    // `LeaderboardResult.Earners` is a pointer in the sdk, so it
+                    // is null whenever the server does not populate it -- an
+                    // empty leaderboard, or an api that does not serve this
+                    // endpoint at all. Dereferencing it threw inside a gomobile
+                    // callback, where the exception cannot cross JNI, so ART
+                    // aborted the whole process rather than surfacing an error.
+                    // No earners is an empty leaderboard, not a failure.
+                    val earnersList = result.earners
+                    if (earnersList != null) {
+                        for (i in 0 until earnersList.len()) {
+                            earners.add(earnersList.get(i))
+                        }
                     }
 
                     // You need Result.success(Result.success(Unit)) because the coroutine expects a Result of your function's return type,
@@ -233,9 +249,22 @@ class LeaderboardViewModel @Inject constructor(
                         return@setNetworkLeaderboardPublic
                     }
 
-                    if (result.error != null) {
-                        val resultError = IllegalStateException("get leaderboard: result error: ${result.error.message}")
-                        continuation.resumeWith(Result.failure(resultError))
+                    // unlike getLeaderboard, this callback never null-checked
+                    // `result`. Throwing here aborts the process rather than
+                    // failing the call, because the exception cannot cross JNI
+                    // out of a gomobile callback.
+                    if (result == null) {
+                        continuation.resumeWith(
+                            Result.failure(IllegalStateException("set leaderboard public: result is null"))
+                        )
+                        return@setNetworkLeaderboardPublic
+                    }
+
+                    val resultError = result.error
+                    if (resultError != null) {
+                        continuation.resumeWith(
+                            Result.failure(IllegalStateException("set leaderboard public: result error: ${resultError.message}"))
+                        )
                         return@setNetworkLeaderboardPublic
                     }
 

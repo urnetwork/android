@@ -82,7 +82,6 @@
     <string name="client_statistics">Estadísticas del cliente</string>
     <string name="clients">Clientes</string>
     <string name="close">Cerrar</string>
-    <string name="commitment_issues">¿Problemas de compromiso?</string>
     <string name="community_edition">Edición comunitaria</string>
     <string name="community_edition_details">Participa en la red y obtén acceso gratuito a la edición comunitaria.</string>
     <string name="companion">Compañero</string>
@@ -181,7 +180,6 @@
     <string name="guest">Invitado</string>
     <string name="how_are_we_doing">¿Cómo lo estamos haciendo?</string>
     <string name="ignore_battery_optimizations">Ignorar optimizaciones de batería</string>
-    <string name="in_guest_mode">Estás en modo invitado</string>
     <string name="include_app">Enrutar por la VPN</string>
     <string name="include_app_description">Solo las apps incluidas usan el túnel.</string>
     <string name="included">Incluidas</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Pulsa el tráfico de abajo para enrutarlo localmente, evitando el túnel.</string>
     <string name="split_rules_info_note">Las exclusiones se aplican a todo el clúster de red asociado, así que el tráfico relacionado queda cubierto en conjunto.</string>
     <string name="start_earning">Para empezar a ganar, conecta tu billetera de criptomonedas a URnetwork o configura una con Circle.</string>
-    <string name="start_earning_join">Para empezar a ganar, únete a la red</string>
     <string name="stay_in_touch">Mantente en contacto</string>
     <string name="stay_private">Mantente\ntotalmente\nprivado y\nanónimo</string>
     <string name="stay_private_description">Mantente totalmente privado y anónimo con URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Tu transferencia se ha iniciado y se completará una vez que la transacción se haya procesado en la cadena.</string>
     <string name="trusted_by_private_networks">Confiado por más de %1$s redes privadas</string>
     <string name="try_again">Reintentar</string>
-    <string name="try_guest_mode">Probar el modo invitado</string>
     <string name="unencrypted_dns">DNS sin cifrar</string>
     <string name="unknown">desconocido</string>
     <string name="unlink">Desvincular</string>

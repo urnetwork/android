@@ -82,7 +82,6 @@
     <string name="client_statistics">Client-Statistiken</string>
     <string name="clients">Clients</string>
     <string name="close">Schließen</string>
-    <string name="commitment_issues">Bindungsprobleme?</string>
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Nimm am Netzwerk teil und erhalte kostenlosen Zugang zur Community Edition.</string>
     <string name="companion">Gegenstelle</string>
@@ -181,7 +180,6 @@
     <string name="guest">Gast</string>
     <string name="how_are_we_doing">Wie geht es uns?</string>
     <string name="ignore_battery_optimizations">Akku-Optimierungen ignorieren</string>
-    <string name="in_guest_mode">Du befindest dich im Gastmodus</string>
     <string name="include_app">Über VPN leiten</string>
     <string name="include_app_description">Nur eingeschlossene Apps nutzen den Tunnel.</string>
     <string name="included">Eingeschlossen</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Tippe unten auf Datenverkehr, um ihn lokal zu leiten und den Tunnel zu umgehen.</string>
     <string name="split_rules_info_note">Ausschlüsse gelten für den gesamten zusammengehörigen Netzwerk-Cluster, sodass verwandter Datenverkehr gemeinsam erfasst wird.</string>
     <string name="start_earning">Um mit dem Verdienen zu beginnen, verbinde deine Kryptowährungs-Wallet mit URnetwork oder richte eine mit Circle ein.</string>
-    <string name="start_earning_join">Um mit dem Verdienen zu beginnen, trete dem Netzwerk bei</string>
     <string name="stay_in_touch">In Kontakt bleiben</string>
     <string name="stay_private">Bleib\nabsolut\nprivat und\nanonym</string>
     <string name="stay_private_description">Bleib absolut privat und anonym mit URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Deine Überweisung wurde eingeleitet und wird abgeschlossen, sobald die Transaktion in der Chain verarbeitet wurde.</string>
     <string name="trusted_by_private_networks">Vertraut von über %1$s privaten Netzwerken</string>
     <string name="try_again">Erneut versuchen</string>
-    <string name="try_guest_mode">Gastmodus testen</string>
     <string name="unencrypted_dns">Unverschlüsseltes DNS</string>
     <string name="unknown">unbekannt</string>
     <string name="unlink">Trennen</string>

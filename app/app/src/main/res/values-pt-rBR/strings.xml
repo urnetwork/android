@@ -82,7 +82,6 @@
     <string name="client_statistics">Estatísticas do cliente</string>
     <string name="clients">Clientes</string>
     <string name="close">Fechar</string>
-    <string name="commitment_issues">Problemas de compromisso?</string>
     <string name="community_edition">Edição comunitária</string>
     <string name="community_edition_details">Participe da rede e tenha acesso gratuito à edição comunitária.</string>
     <string name="companion">Parceiro</string>
@@ -181,7 +180,6 @@
     <string name="guest">Convidado</string>
     <string name="how_are_we_doing">Como estamos indo?</string>
     <string name="ignore_battery_optimizations">Ignorar otimizações da bateria</string>
-    <string name="in_guest_mode">Você está no modo convidado</string>
     <string name="include_app">Rotear pela VPN</string>
     <string name="include_app_description">Apenas os apps incluídos usam o túnel.</string>
     <string name="included">Incluídos</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Toque no tráfego abaixo para roteá-lo localmente, contornando o túnel.</string>
     <string name="split_rules_info_note">As exclusões se aplicam a todo o cluster de rede coassociado, para que o tráfego relacionado seja capturado em conjunto.</string>
     <string name="start_earning">Para começar a ganhar, conecte sua carteira de criptomoedas à URnetwork ou configure uma com a Circle.</string>
-    <string name="start_earning_join">Para começar a ganhar, entre na rede</string>
     <string name="stay_in_touch">Manter contato</string>
     <string name="stay_private">Permanecer\ncompletamente\nprivado e\nanônimo</string>
     <string name="stay_private_description">Permanecer completamente privado e anônimo com a URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Sua transferência foi iniciada e será concluída assim que a transação for processada na cadeia.</string>
     <string name="trusted_by_private_networks">Confiado por mais de %1$s redes privadas</string>
     <string name="try_again">Tentar novamente</string>
-    <string name="try_guest_mode">Experimentar o Modo Convidado</string>
     <string name="unencrypted_dns">DNS não criptografado</string>
     <string name="unknown">desconhecido</string>
     <string name="unlink">Desvincular</string>

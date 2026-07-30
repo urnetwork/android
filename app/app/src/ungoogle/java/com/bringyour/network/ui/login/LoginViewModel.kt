@@ -45,12 +45,8 @@ class LoginViewModel @Inject constructor(
     var loginError by mutableStateOf<String?>(null)
         private set
 
-    var createGuestModeInProgress by mutableStateOf(false)
+    var seedphraseAuthInProgress by mutableStateOf(false)
         private set
-
-    val setCreateGuestModeInProgress: (Boolean) -> Unit = { inProgress ->
-        createGuestModeInProgress = inProgress
-    }
 
     var solanaAuthInProgress by mutableStateOf(false)
         private set
@@ -119,6 +115,50 @@ class LoginViewModel @Inject constructor(
                         userAuthInProgress = false
                     }
                 }
+            }
+        }
+    }
+
+    fun loginWithSeedphrase(
+        ctx: Context,
+        api: Api?,
+        seedphrase: String,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        if (seedphraseAuthInProgress) return
+
+        val authApi = api ?: run {
+            val msg = ctx.getString(R.string.login_error)
+            setLoginError(msg)
+            onError(msg)
+            return
+        }
+
+        setLoginError(null)
+        seedphraseAuthInProgress = true
+
+        val normalized = seedphrase.lowercase().trim().replace(Regex("\\s+"), " ")
+        val args = AuthLoginArgs()
+        args.seedphrase = normalized
+
+        authApi.authLogin(args) { result, err ->
+            viewModelScope.launch {
+                if (err != null) {
+                    setLoginError(err.message)
+                    onError(err.message ?: "Seedphrase login failed")
+                } else if (result?.error != null) {
+                    setLoginError(result.error.message)
+                    onError(result.error.message ?: "Invalid seedphrase")
+                } else if (result?.network != null && result.network.byJwt.isNotEmpty()) {
+                    setLoginError(null)
+                    onSuccess(result.network.byJwt)
+                } else {
+                    val msg = "Invalid seedphrase"
+                    setLoginError(msg)
+                    onError(msg)
+                }
+                seedphraseAuthInProgress = false
             }
         }
     }

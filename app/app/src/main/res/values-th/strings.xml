@@ -82,7 +82,6 @@
     <string name="client_statistics">สถิติไคลเอ็นต์</string>
     <string name="clients">ไคลเอ็นต์</string>
     <string name="close">ปิด</string>
-    <string name="commitment_issues">ยังตัดสินใจไม่ได้ใช่ไหม?</string>
     <string name="community_edition">ฉบับชุมชน</string>
     <string name="community_edition_details">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
     <string name="companion">คู่สัญญา</string>
@@ -181,7 +180,6 @@
     <string name="guest">ผู้เยี่ยมชม</string>
     <string name="how_are_we_doing">ใช้งานเป็นยังไงบ้าง?</string>
     <string name="ignore_battery_optimizations">ไม่สนใจการเพิ่มประสิทธิภาพแบตเตอรี่</string>
-    <string name="in_guest_mode">คุณกำลังใช้งานโหมดผู้เยี่ยมชม</string>
     <string name="include_app">ส่งผ่าน VPN</string>
     <string name="include_app_description">เฉพาะแอปที่รวมไว้เท่านั้นที่ใช้อุโมงค์</string>
     <string name="included">รวมไว้</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">แตะทราฟฟิกด้านล่างเพื่อส่งผ่านภายในเครื่องโดยไม่ผ่านอุโมงค์</string>
     <string name="split_rules_info_note">การยกเว้นจะมีผลกับคลัสเตอร์เครือข่ายที่เกี่ยวข้องกันทั้งกลุ่ม ทราฟฟิกที่เกี่ยวข้องจึงถูกยกเว้นไปพร้อมกัน</string>
     <string name="start_earning">หากต้องการเริ่มหารายได้ ให้เชื่อมต่อกระเป๋าเงินคริปโตของคุณกับ URnetwork หรือตั้งค่ากระเป๋าใหม่ด้วย Circle</string>
-    <string name="start_earning_join">เพื่อเริ่มสร้างรายได้ เข้าร่วมกับระบบเน็ตเวิร์ค</string>
     <string name="stay_in_touch">ติดตามเรา</string>
     <string name="stay_private">เป็นส่วนตัว\nอย่างแท้จริง\nไร้ตัวตน\nไร้การติดตาม</string>
     <string name="stay_private_description">เชื่อมต่อด้วยความปลอดภัย ไม่ทิ้งร่องรอยด้วย URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">การโอนของคุณได้เริ่มแล้ว และจะได้รับยอดเมื่อรายการประมวลผลเสร็จสิ้นบนเครือข่าย</string>
     <string name="trusted_by_private_networks">ได้รับความไว้วางใจจากเครือข่ายส่วนตัวมากกว่า %1$s เครือข่าย</string>
     <string name="try_again">ลองอีกครั้ง</string>
-    <string name="try_guest_mode">ลองใช้ในโหมดผู้เยี่ยมชม</string>
     <string name="unencrypted_dns">DNS ที่ไม่เข้ารหัส</string>
     <string name="unknown">ไม่ทราบ</string>
     <string name="unlink">ยกเลิกการเชื่อม</string>

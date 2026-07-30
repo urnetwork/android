@@ -113,7 +113,14 @@ fun LeaderboardScreen(
 
                     itemsIndexed(
                         leaderboardEntries.value,
-                        key = { _, entry -> entry.networkId.toString() },
+                        // the server blanks out network_id for networks that opted out
+                        // of the public leaderboard, so every private row arrives with
+                        // the same empty id. lazy list keys have to be unique, so those
+                        // rows fall back to their position
+                        key = { index, entry ->
+                            val networkId = entry.networkId
+                            if (networkId.isNullOrEmpty()) "private-$index" else networkId
+                        },
                     ) { index, entry ->
                         Column {
                             HorizontalDivider()
@@ -256,6 +263,19 @@ private fun LeaderboardHeader(
     }
 }
 
+/**
+ * Keeps the first and last character and stars out the middle, so
+ * "badname" reads as "b*****e". Names shorter than three characters have no
+ * middle to star out -- indexing into them threw (empty names on `first()`,
+ * single characters on a negative `repeat()` count) -- so they are masked
+ * whole rather than left legible.
+ */
+private fun maskNetworkName(name: String): String =
+    if (name.length < 3)
+        "*".repeat(name.length.coerceAtLeast(1))
+    else
+        "${name.first()}${"*".repeat(name.length - 2)}${name.last()}"
+
 @Composable
 private fun LeaderboardEntry(
     row: LeaderboardEarner,
@@ -270,7 +290,7 @@ private fun LeaderboardEntry(
         stringResource(id = R.string.private_network)
     else
         if (row.containsProfanity)
-            "${row.networkName.first()}${"*".repeat(row.networkName.length - 2)}${row.networkName.last()}"
+            maskNetworkName(row.networkName)
         else
             row.networkName
 

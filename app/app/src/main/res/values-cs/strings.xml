@@ -82,7 +82,6 @@
     <string name="client_statistics">Statistiky klienta</string>
     <string name="clients">Klienti</string>
     <string name="close">Zavřít</string>
-    <string name="commitment_issues">Problémy s angažovaností?</string>
     <string name="community_edition">Komunitní edice</string>
     <string name="community_edition_details">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
     <string name="companion">Protějšek</string>
@@ -181,7 +180,6 @@
     <string name="guest">Host</string>
     <string name="how_are_we_doing">Jak se nám daří?</string>
     <string name="ignore_battery_optimizations">Ignorovat optimalizace baterie</string>
-    <string name="in_guest_mode">Jste v režimu pro hosty</string>
     <string name="include_app">Směrovat přes VPN</string>
     <string name="include_app_description">Tunel používají jen zahrnuté aplikace.</string>
     <string name="included">Zahrnuto</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Klepnutím na provoz níže jej nasměrujete lokálně, mimo tunel.</string>
     <string name="split_rules_info_note">Výjimky platí pro celý propojený síťový cluster, takže související provoz je zachycen společně.</string>
     <string name="start_earning">Chcete-li začít vydělávat, připojte svou kryptoměnovou peněženku k URnetwork nebo si s pomocí Circle nastavte novou.</string>
-    <string name="start_earning_join">Chcete-li začít vydělávat, připojte se k síti</string>
     <string name="stay_in_touch">Zůstaňte v kontaktu</string>
     <string name="stay_private">Zůstaňte\nkompletně\nprivátní a\nanonymní</string>
     <string name="stay_private_description">Zůstaňte zcela soukromí a anonymní s URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Váš převod byl zahájen a bude dokončen, jakmile bude transakce zpracována na řetězci.</string>
     <string name="trusted_by_private_networks">Důvěřováno více než %1$s soukromými sítěmi</string>
     <string name="try_again">Zkusit znovu</string>
-    <string name="try_guest_mode">Zkuste režim hosta</string>
     <string name="unencrypted_dns">Nešifrovaný DNS</string>
     <string name="unknown">neznámé</string>
     <string name="unlink">Odpojení</string>

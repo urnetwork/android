@@ -82,7 +82,6 @@
     <string name="client_statistics">Takwimu za mteja</string>
     <string name="clients">Wateja</string>
     <string name="close">Funga</string>
-    <string name="commitment_issues">Masuala ya kujitolea?</string>
     <string name="community_edition">Toleo la jamii</string>
     <string name="community_edition_details">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
     <string name="companion">Mshirika</string>
@@ -181,7 +180,6 @@
     <string name="guest">Mgeni</string>
     <string name="how_are_we_doing">Tunaendaje?</string>
     <string name="ignore_battery_optimizations">Puuzia uboreshaji wa betri</string>
-    <string name="in_guest_mode">Uko katika hali ya mgeni</string>
     <string name="include_app">Pitisha kupitia VPN</string>
     <string name="include_app_description">Ni programu zilizojumuishwa pekee zinazotumia tuneli.</string>
     <string name="included">Imejumuishwa</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Gusa trafiki hapa chini ili ipitishwe ndani, ikiepuka tuneli.</string>
     <string name="split_rules_info_note">Utengaji hutumika kwa kundi zima la mtandao linalohusiana, hivyo trafiki inayohusiana hunaswa pamoja.</string>
     <string name="start_earning">Ili kuanza kupata, unganisha pochi yako ya cryptocurrency kwa URnetwork au usanidi moja na Circle.</string>
-    <string name="start_earning_join">Ili kuanza kupata, jiunge na mtandao</string>
     <string name="stay_in_touch">Kaa nasi</string>
     <string name="stay_private">Kaa\nkabisa\nfaragha na\nbila majina</string>
     <string name="stay_private_description">Kaa faragha kabisa na bila majina ukitumia URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Uhamisho wako umeanza na utakamilika mara tu muamala utakapochakatwa kwenye mnyororo.</string>
     <string name="trusted_by_private_networks">Inatumiwa na zaidi ya %1$s mitandao ya kibinafsi</string>
     <string name="try_again">Jaribu tena</string>
-    <string name="try_guest_mode">Jaribu Hali ya Mgeni</string>
     <string name="unencrypted_dns">DNS isiyosimbwa</string>
     <string name="unknown">haijulikani</string>
     <string name="unlink">Ondoa kiungo</string>

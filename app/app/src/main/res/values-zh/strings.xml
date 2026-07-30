@@ -82,7 +82,6 @@
     <string name="client_statistics">客户端统计</string>
     <string name="clients">客户端</string>
     <string name="close">关闭</string>
-    <string name="commitment_issues">承诺问题？</string>
     <string name="community_edition">社区版</string>
     <string name="community_edition_details">参与网络并免费获得社区版的访问权限。</string>
     <string name="companion">对端</string>
@@ -181,7 +180,6 @@
     <string name="guest">访客</string>
     <string name="how_are_we_doing">我们做得怎么样？</string>
     <string name="ignore_battery_optimizations">忽略电池优化</string>
-    <string name="in_guest_mode">您处于访客模式</string>
     <string name="include_app">通过 VPN 路由</string>
     <string name="include_app_description">只有已包含的应用会使用隧道。</string>
     <string name="included">已包含</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">点击下方流量，将其改走本地路由，绕过隧道。</string>
     <string name="split_rules_info_note">排除会应用到整个关联网络集群，因此相关流量会被一并排除。</string>
     <string name="start_earning">要开始赚取收入，请将您的加密货币钱包连接到 URnetwork 或使用 Circle 设置一个。</string>
-    <string name="start_earning_join">要开始赚取收入，请加入网络</string>
     <string name="stay_in_touch">保持联系</string>
     <string name="stay_private">保持\n完全\n私密和\n匿名</string>
     <string name="stay_private_description">使用 URnetwork 保持完全私密和匿名</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">您的转账已启动，一旦在链上处理完交易，转账就会完成。</string>
     <string name="trusted_by_private_networks">受到超过 %1$s 个私人网络的信任</string>
     <string name="try_again">重试</string>
-    <string name="try_guest_mode">尝试访客模式</string>
     <string name="unencrypted_dns">未加密 DNS</string>
     <string name="unknown">未知</string>
     <string name="unlink">解除关联</string>

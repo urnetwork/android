@@ -82,7 +82,6 @@
     <string name="client_statistics">Clientstatistieken</string>
     <string name="clients">Clients</string>
     <string name="close">Sluiten</string>
-    <string name="commitment_issues">Problemen met commitment?</string>
     <string name="community_edition">Community-editie</string>
     <string name="community_edition_details">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
     <string name="companion">Tegenpartij</string>
@@ -181,7 +180,6 @@
     <string name="guest">Gast</string>
     <string name="how_are_we_doing">Hoe gaat het met ons?</string>
     <string name="ignore_battery_optimizations">Batterijoptimalisaties negeren</string>
-    <string name="in_guest_mode">Je bent in de gastmodus</string>
     <string name="include_app">Via VPN routeren</string>
     <string name="include_app_description">Alleen inbegrepen apps gebruiken de tunnel.</string>
     <string name="included">Inbegrepen</string>
@@ -378,7 +376,6 @@
     <string name="split_rules_hint">Tik hieronder op verkeer om het lokaal te routeren, buiten de tunnel om.</string>
     <string name="split_rules_info_note">Uitsluitingen gelden voor het hele samenhangende netwerkcluster, zodat gerelateerd verkeer samen wordt meegenomen.</string>
     <string name="start_earning">Om te beginnen met verdienen, verbind je cryptocurrency-wallet met URnetwork of stel er een in via Circle.</string>
-    <string name="start_earning_join">Om te beginnen met verdienen, sluit je aan bij ons netwerk</string>
     <string name="stay_in_touch">Blijf in contact</string>
     <string name="stay_private">Blijf\nvolledig\nprivé en\nanoniem</string>
     <string name="stay_private_description">Blijf volledig privé en anoniem met URnetwork</string>
@@ -409,7 +406,6 @@
     <string name="transfer_submitted_details">Je overdracht is gestart en wordt voltooid zodra de transactie op de blockchain is verwerkt.</string>
     <string name="trusted_by_private_networks">Vertrouwd door meer dan %1$s privénetwerken</string>
     <string name="try_again">Opnieuw proberen</string>
-    <string name="try_guest_mode">Probeer de gastmodus</string>
     <string name="unencrypted_dns">Onversleutelde DNS</string>
     <string name="unknown">onbekend</string>
     <string name="unlink">Ontkoppelen</string>

@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,12 +38,10 @@ import com.bringyour.network.ui.theme.TextMuted
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
@@ -48,29 +49,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.withStyle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.Api
-import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
-import com.bringyour.network.ui.theme.BlueMedium
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable()
@@ -209,6 +202,14 @@ fun LoginInitial(
         }
     }
 
+    val onSeedphraseLogin: () -> Unit = {
+        navController.navigate("login_seedphrase")
+    }
+
+    val onInstantAccountCreate: () -> Unit = {
+        navController.navigate("create-network-instant")
+    }
+
     LoginInitial(
         navController,
         userAuth = loginViewModel.userAuth,
@@ -218,8 +219,6 @@ fun LoginInitial(
         login = loginViewModel.login,
         loginError = loginViewModel.loginError,
         setLoginError = loginViewModel.setLoginError,
-        createGuestModeInProgress = loginViewModel.createGuestModeInProgress,
-        setCreateGuestModeInProgress = loginViewModel.setCreateGuestModeInProgress,
         solanaLogin = {
             connectSolanaWallet()
         },
@@ -236,7 +235,9 @@ fun LoginInitial(
         welcomeOverlayVisible = welcomeOverlayVisible,
         setWelcomeOverlayVisible = {
             welcomeOverlayVisible = it
-        }
+        },
+        onSeedphraseLogin = onSeedphraseLogin,
+        onInstantAccountCreate = onInstantAccountCreate
     )
 
     if (noSolanaWalletsFound) {
@@ -266,8 +267,6 @@ fun LoginInitial(
     ) -> Unit,
     loginError: String?,
     setLoginError: (String?) -> Unit,
-    createGuestModeInProgress: Boolean,
-    setCreateGuestModeInProgress: (Boolean) -> Unit,
     solanaLogin: () -> Unit,
     solanaAuthInProgress: Boolean,
     bittensorLogin: () -> Unit,
@@ -277,20 +276,13 @@ fun LoginInitial(
     setContentVisible: (Boolean) -> Unit,
     welcomeOverlayVisible: Boolean,
     setWelcomeOverlayVisible: (Boolean) -> Unit,
+    onSeedphraseLogin: () -> Unit,
+    onInstantAccountCreate: () -> Unit,
 ) {
 
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
     val scope = rememberCoroutineScope()
-
-    var guestModeOverlayVisible by remember { mutableStateOf(false) }
-
-    val setGuestModeOverlayVisible: (Boolean) -> Unit = { isVisible ->
-        if (isVisible) {
-            setLoginError(null)
-        }
-        guestModeOverlayVisible = isVisible
-    }
 
     var authCodeLoginSheetVisible by remember { mutableStateOf(false) }
 
@@ -309,67 +301,6 @@ fun LoginInitial(
     }
 
     val createNetworkErrorMsg = stringResource(id = R.string.create_network_error)
-
-    val createGuestNetwork = createGuestNetwork@{
-        if (createGuestModeInProgress) {
-            return@createGuestNetwork
-        }
-
-        setLoginError(null)
-        setCreateGuestModeInProgress(true)
-
-        val args = NetworkCreateArgs()
-        args.terms = true
-        args.guestMode = true
-
-        application?.api?.networkCreate(args) { result, err ->
-            scope.launch {
-
-                if (err != null) {
-                    Log.i("OnboardingGuestModeOverlay", "error ${err.message}")
-                    setLoginError(err.message)
-                    setCreateGuestModeInProgress(false)
-                } else if (result.error != null) {
-                    Log.i("OnboardingGuestModeOverlay", "error ${result.error.message}")
-                    setLoginError(result.error.message)
-                    setCreateGuestModeInProgress(false)
-                } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
-                    setLoginError(null)
-                    setGuestModeOverlayVisible(false)
-
-                    application.login(result.network.byJwt)
-
-                    setContentVisible(false)
-
-                    delay(500)
-
-                    setWelcomeOverlayVisible(true)
-
-                    delay(2250)
-
-                    loginActivity?.authClientAndFinish(
-                        { error ->
-                            setCreateGuestModeInProgress(false)
-
-                            setLoginError(error)
-
-                            if (error != null) {
-                                setContentVisible(true)
-                            }
-                        }
-                    )
-
-                } else {
-                    setLoginError(createNetworkErrorMsg)
-                    setCreateGuestModeInProgress(false)
-                }
-            }
-        } ?: run {
-            setLoginError(createNetworkErrorMsg)
-            setCreateGuestModeInProgress(false)
-        }
-
-    }
 
     AnimatedVisibility(
         visible = contentVisible,
@@ -402,8 +333,6 @@ fun LoginInitial(
                         setUserAuth = setUserAuth,
                         userAuthInProgress = userAuthInProgress,
                         isValidUserAuth = isValidUserAuth,
-                        setGuestModeOverlayVisible = setGuestModeOverlayVisible,
-                        createGuestModeInProgress = createGuestModeInProgress,
                         loginError = loginError,
                         onLogin = {
                             login(
@@ -419,7 +348,9 @@ fun LoginInitial(
                         bittensorAuthInProgress = bittensorAuthInProgress,
                         launchAuthCodeLoginSheet = {
                             setAuthCodeLoginSheetVisible(true)
-                        }
+                        },
+                        onSeedphraseLogin = onSeedphraseLogin,
+                        onInstantAccountCreate = onInstantAccountCreate
                     )
                 }
 
@@ -438,18 +369,6 @@ fun LoginInitial(
     )
 
 
-    OnboardingGuestModeSheet(
-        isPresenting = guestModeOverlayVisible,
-        setIsPresenting = {
-            setGuestModeOverlayVisible(it)
-        },
-        onCreateGuestNetwork = {
-            createGuestNetwork()
-        },
-        createGuestModeInProgress = createGuestModeInProgress,
-        errorMessage = if (guestModeOverlayVisible) loginError else null
-    )
-
     if (welcomeOverlayVisible) {
 
         WelcomeAnimatedOverlayLogin()
@@ -463,8 +382,6 @@ fun LoginInitialActions(
     setUserAuth: (TextFieldValue) -> Unit,
     userAuthInProgress: Boolean,
     isValidUserAuth: Boolean,
-    setGuestModeOverlayVisible: (Boolean) -> Unit,
-    createGuestModeInProgress: Boolean,
     loginError: String?,
     onLogin: () -> Unit,
     onSolanaLogin: () -> Unit,
@@ -472,9 +389,11 @@ fun LoginInitialActions(
     onBittensorLogin: () -> Unit,
     bittensorAuthInProgress: Boolean,
     launchAuthCodeLoginSheet: () -> Unit,
+    onSeedphraseLogin: () -> Unit,
+    onInstantAccountCreate: () -> Unit,
 ) {
 
-    val isLoginInProgress = userAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress || createGuestModeInProgress
+    val isLoginInProgress = userAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -627,10 +546,59 @@ fun LoginInitialActions(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TryGuestMode(
-                setGuestModeOverlayVisible = setGuestModeOverlayVisible,
+            /**
+             * Seedphrase Sign in
+             */
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = {
+                    onSeedphraseLogin()
+                },
                 enabled = !isLoginInProgress
-            )
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Key,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Sign in with Seedphrase",
+                        style = buttonTextStyle
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Instant account creation
+             */
+            URButton(
+                style = ButtonStyle.SECONDARY,
+                onClick = {
+                    onInstantAccountCreate()
+                },
+                enabled = !isLoginInProgress
+            ) { buttonTextStyle ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Bolt,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Create Instant Account",
+                        style = buttonTextStyle
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -638,50 +606,6 @@ fun LoginInitialActions(
         }
     }
 
-}
-
-@Composable
-private fun TryGuestMode(
-    setGuestModeOverlayVisible: (Boolean) -> Unit,
-    enabled: Boolean
-) {
-
-    var isFocused by remember { mutableStateOf(false) }
-
-    val guestModeStr = buildAnnotatedString {
-        append(stringResource(id = R.string.commitment_issues))
-
-        pushStringAnnotation(
-            tag = "GUEST_MODE",
-            annotation = "Guest Mode"
-        )
-        withStyle(
-            style = SpanStyle(
-                color = if (!enabled) TextMuted else if (isFocused) BlueMedium else Color.White
-            )
-        ) {
-            append(" ${stringResource(id = R.string.try_guest_mode)}")
-        }
-        pop()
-
-    }
-
-    Row {
-        Text(
-            text = guestModeStr,
-            modifier = Modifier
-                .clickable {
-                    if (enabled) {
-                        setGuestModeOverlayVisible(true)
-                    }
-                }
-                .onFocusChanged {
-                    isFocused = it.isFocused
-                }
-                .focusable(),
-            style = MaterialTheme.typography.bodyLarge.copy(color = TextMuted),
-        )
-    }
 }
 
 @Preview()
@@ -717,8 +641,6 @@ private fun LoginInitialPreview() {
                     login = login,
                     loginError = null,
                     setLoginError = {},
-                    createGuestModeInProgress = false,
-                    setCreateGuestModeInProgress = {},
                     solanaAuthInProgress = false,
                     solanaLogin = {},
                     bittensorAuthInProgress = false,
@@ -727,7 +649,9 @@ private fun LoginInitialPreview() {
                     contentVisible = true,
                     setContentVisible = {},
                     welcomeOverlayVisible = false,
-                    setWelcomeOverlayVisible = {}
+                    setWelcomeOverlayVisible = {},
+                    onSeedphraseLogin = {},
+                    onInstantAccountCreate = {},
                 )
             }
         }
@@ -769,8 +693,6 @@ private fun LoginInitialLandscapePreview() {
                     login = login,
                     loginError = null,
                     setLoginError = {},
-                    createGuestModeInProgress = false,
-                    setCreateGuestModeInProgress = {},
                     solanaAuthInProgress = false,
                     solanaLogin = {},
                     bittensorAuthInProgress = false,
@@ -780,6 +702,8 @@ private fun LoginInitialLandscapePreview() {
                     welcomeOverlayVisible = false,
                     setWelcomeOverlayVisible = {},
                     onLogin = {},
+                    onSeedphraseLogin = {},
+                    onInstantAccountCreate = {},
                 )
             }
         }
