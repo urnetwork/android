@@ -104,7 +104,7 @@ class ProfileViewModel @Inject constructor(
         onError: (String) -> Unit
     ) -> Unit = { onSuccess, onError ->
 
-        val name = networkNameTextFieldValue.text
+        val name = networkNameTextFieldValue.text.trim()
         _isSavingNetworkName.value = true
         _networkNameError.value = null
 
@@ -141,7 +141,7 @@ class ProfileViewModel @Inject constructor(
         onError: (String) -> Unit
     ) -> Unit = { onSuccess, onError ->
 
-        val name = networkNameTextFieldValue.text
+        val name = networkNameTextFieldValue.text.trim()
         _isSavingNetworkName.value = true
         _networkNameError.value = null
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +53,10 @@ fun LoginSeedphrase(
     val application = context.applicationContext as? MainApplication
     var seedphrase by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    // the view model clears its in-progress flag as soon as authLogin returns,
+    // but the login isn't done until the activity finishes -- keep the button
+    // spinning until then so a second tap can't start a duplicate login
+    var isFinishing by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -105,6 +111,12 @@ fun LoginSeedphrase(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 6,
+                    // password keyboard type keeps IMEs from autocorrecting
+                    // BIP39 words or learning the phrase into their dictionary
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        autoCorrectEnabled = false
+                    ),
                     placeholder = {
                         Text(
                             "Paste your 12 or 24-word seedphrase here",
@@ -135,15 +147,17 @@ fun LoginSeedphrase(
                             api = application?.api,
                             seedphrase = normalized,
                             onSuccess = { jwt ->
+                                isFinishing = true
                                 onLoginSuccess(jwt)
                             },
                             onError = { msg ->
+                                isFinishing = false
                                 error = msg
                             }
                         )
                     },
-                    enabled = seedphrase.isNotBlank(),
-                    isProcessing = loginViewModel.seedphraseAuthInProgress
+                    enabled = seedphrase.isNotBlank() && !isFinishing,
+                    isProcessing = loginViewModel.seedphraseAuthInProgress || isFinishing
                 ) { buttonTextStyle ->
                     Text("Sign In", style = buttonTextStyle)
                 }

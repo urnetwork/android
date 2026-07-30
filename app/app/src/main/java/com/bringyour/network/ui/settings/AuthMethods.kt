@@ -21,7 +21,7 @@ fun parseAuthMethods(networkUser: NetworkUser): List<String> {
     }
     val userAuth = networkUser.userAuth
     if (userAuth.isNotEmpty()) {
-        val methodLabel = if (userAuth.contains("@")) "email" else userAuth
+        val methodLabel = if (userAuth.contains("@")) "email" else "phone"
         if (!methods.contains(methodLabel)) {
             methods.add(methodLabel)
         }
@@ -33,6 +33,7 @@ fun parseAuthMethods(networkUser: NetworkUser): List<String> {
 fun methodDisplayName(method: String): String {
     return when (method) {
         "email" -> "Email"
+        "phone" -> "Phone"
         "google" -> "Google"
         "apple" -> "Apple"
         "solana" -> "Solana Wallet"

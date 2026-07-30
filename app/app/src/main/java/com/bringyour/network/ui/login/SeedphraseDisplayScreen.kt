@@ -1,8 +1,10 @@
 package com.bringyour.network.ui.login
 
 import android.content.ClipData
+import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.PersistableBundle
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -197,6 +199,11 @@ fun SeedphraseDisplayScreen(
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Seedphrase", seedphrase)
+                        // sensitive flag: Android 13+ hides the phrase from the
+                        // clipboard preview overlay and marks it for clipboard sync
+                        clip.description.extras = PersistableBundle().apply {
+                            putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true)
+                        }
                         clipboard.setPrimaryClip(clip)
                         Toast.makeText(context, "Seedphrase copied to clipboard", Toast.LENGTH_SHORT).show()
                     }

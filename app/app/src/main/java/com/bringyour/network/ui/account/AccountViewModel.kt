@@ -73,8 +73,11 @@ class AccountViewModel @Inject constructor(
 
         localState?.parseByJwt { jwt, success ->
             viewModelScope.launch {
-                setLoginMode(if (success && jwt?.networkName != null) LoginMode.Authenticated else LoginMode.Guest)
-               // setNetworkName(jwt?.networkName ?: "guest")
+                // a parsed jwt is a real account: guest mode is gone, and every
+                // account now has a network name (auto-generated for seedphrase
+                // accounts until claimed). networkName is a gomobile-bound Go
+                // string, so it is never null and can't be tested for one.
+                setLoginMode(if (success) LoginMode.Authenticated else LoginMode.Guest)
             }
         }
 

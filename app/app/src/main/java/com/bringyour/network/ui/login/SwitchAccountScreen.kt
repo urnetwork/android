@@ -13,29 +13,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.URNetworkTheme
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun SwitchAccountScreen(
     currentNetworkName: String,
     targetJwt: String?,
-    switchToGuestMode: Boolean = false,
     setSwitchAccount: (Boolean) -> Unit
 ) {
 
@@ -43,55 +36,10 @@ fun SwitchAccountScreen(
     val application = context.applicationContext as? MainApplication ?: return
     val loginActivity = context as? LoginActivity ?: return
 
-    val (createGuestNetworkError, setCreateGuestNetworkError) = remember { mutableStateOf<String?>(null) }
-    val (createGuestNetworkInProgress, setCreateGuestNetworkInProgress) = remember { mutableStateOf(false) }
-    val createNetworkErrorMessage = stringResource(id = R.string.create_network_error)
-
-    val scope = rememberCoroutineScope()
-
     val onAccept: () -> Unit = {
         application.logout()
 
-        if (switchToGuestMode) {
-            // switch to guest mode
-
-            setCreateGuestNetworkInProgress(true)
-            val args = NetworkCreateArgs()
-            args.terms = true
-
-            application.api?.networkCreate(args) { result, err ->
-                scope.launch {
-
-                    if (err != null) {
-                        Log.i(TAG, "error ${err.message}")
-                        setCreateGuestNetworkError(err.message)
-                        setCreateGuestNetworkInProgress(false)
-                    } else if (result.error != null) {
-                        Log.i(TAG, "error ${result.error.message}")
-                        setCreateGuestNetworkError(result.error.message)
-                        setCreateGuestNetworkInProgress(false)
-                    } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
-                        setCreateGuestNetworkError(null)
-
-                        application.login(result.network.byJwt)
-
-                        loginActivity.authClientAndFinish(
-                            { error ->
-                                setCreateGuestNetworkInProgress(false)
-
-                                setCreateGuestNetworkError(error)
-                                setSwitchAccount(false)
-                            },
-                        )
-
-                    } else {
-                        setCreateGuestNetworkError(createNetworkErrorMessage)
-                        setCreateGuestNetworkInProgress(false)
-                    }
-                }
-            }
-
-        } else if (!targetJwt.isNullOrEmpty()) {
+        if (!targetJwt.isNullOrEmpty()) {
             // switch to different account
 
             application.login(targetJwt)
@@ -102,7 +50,7 @@ fun SwitchAccountScreen(
             )
 
         } else {
-            Log.i("SwitchAccountScreen", "Not guest mode and no target jwt found")
+            Log.i("SwitchAccountScreen", "No target jwt found")
         }
     }
 
@@ -133,8 +81,7 @@ fun SwitchAccountScreen(
             )
 
             URButton(
-                onClick = onAccept,
-                enabled = !createGuestNetworkInProgress
+                onClick = onAccept
             ) { textStyle ->
                 Text(
                     stringResource(id = R.string.switch_account),
@@ -148,8 +95,7 @@ fun SwitchAccountScreen(
 
             URButton(
                 onClick = onDecline,
-                style = ButtonStyle.OUTLINE,
-                enabled = !createGuestNetworkInProgress
+                style = ButtonStyle.OUTLINE
             ) { textStyle ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),

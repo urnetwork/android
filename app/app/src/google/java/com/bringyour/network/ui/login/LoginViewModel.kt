@@ -55,10 +55,6 @@ class LoginViewModel @Inject constructor(
     var seedphraseAuthInProgress by mutableStateOf(false)
         private set
 
-    val setSeedphraseAuthInProgress: (Boolean) -> Unit = { inProgress ->
-        seedphraseAuthInProgress = inProgress
-    }
-
     val login: (
         ctx: Context,
         api: Api?,
@@ -126,7 +122,9 @@ class LoginViewModel @Inject constructor(
         if (seedphraseAuthInProgress) return
 
         val authApi = api ?: run {
-            setLoginError(ctx.getString(R.string.login_error))
+            val msg = ctx.getString(R.string.login_error)
+            setLoginError(msg)
+            onError(msg)
             return
         }
 
@@ -142,10 +140,10 @@ class LoginViewModel @Inject constructor(
                 if (err != null) {
                     setLoginError(err.message)
                     onError(err.message ?: "Seedphrase login failed")
-                } else if (result.error != null) {
+                } else if (result?.error != null) {
                     setLoginError(result.error.message)
                     onError(result.error.message ?: "Invalid seedphrase")
-                } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                } else if (result?.network != null && result.network.byJwt.isNotEmpty()) {
                     setLoginError(null)
                     onSuccess(result.network.byJwt)
                 } else {

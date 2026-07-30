@@ -22,37 +22,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.bringyour.network.MainApplication
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.sdk.NetworkCreateArgs
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNetworkInstant(
-    onSeedphraseCreated: (seedphrase: String, jwt: String) -> Unit,
+    appLogin: (String) -> Unit,
     onBack: () -> Unit,
+    createNetworkInstantViewModel: CreateNetworkInstantViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-    val scope = rememberCoroutineScope()
-
-    var termsAgreed by remember { mutableStateOf(false) }
-    var inProgress by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var termsAgreed by rememberSaveable { mutableStateOf(false) }
+    val inProgress by createNetworkInstantViewModel.inProgress.collectAsState()
+    val error by createNetworkInstantViewModel.error.collectAsState()
 
     Scaffold(
         topBar = {
@@ -114,41 +108,7 @@ fun CreateNetworkInstant(
 
                 URButton(
                     onClick = {
-                        if (inProgress) return@URButton
-                        inProgress = true
-                        error = null
-
-                        val api = application?.api ?: run {
-                            inProgress = false
-                            error = "Unable to connect. Please try again."
-                            return@URButton
-                        }
-
-                        val args = NetworkCreateArgs()
-                        args.terms = termsAgreed
-                        // No userAuth, userName, password, walletAuth — triggers seedphrase path
-
-                        api.networkCreate(args) { result, err ->
-                            scope.launch {
-                                if (err != null) {
-                                    error = err.message ?: "Unable to connect. Please try again."
-                                    inProgress = false
-                                } else if (result.error != null) {
-                                    error = result.error.message ?: "Failed to create account"
-                                    inProgress = false
-                                } else if (result.seedphrase != null && result.network?.byJwt != null) {
-                                    error = null
-                                    inProgress = false
-                                    onSeedphraseCreated(
-                                        result.seedphrase,
-                                        result.network.byJwt
-                                    )
-                                } else {
-                                    error = "Failed to create account"
-                                    inProgress = false
-                                }
-                            }
-                        }
+                        createNetworkInstantViewModel.createNetwork(termsAgreed, appLogin)
                     },
                     enabled = termsAgreed && !inProgress,
                     isProcessing = inProgress

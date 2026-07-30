@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -30,11 +31,13 @@ fun GoogleAddAuthButton(
     val context = LocalContext.current
 
     val googleClientId = stringResource(id = R.string.google_client_id)
-    val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(googleClientId)
-        .requestEmail()
-        .build()
-    val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOpts)
+    val googleSignInClient = remember(googleClientId) {
+        val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(googleClientId)
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(context, googleSignInOpts)
+    }
 
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()

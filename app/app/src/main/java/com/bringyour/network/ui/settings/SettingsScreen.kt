@@ -152,7 +152,7 @@ fun SettingsScreen(
     val authCode = settingsViewModel.authCode.collectAsState().value
 
     val networkUser = accountViewModel.networkUser.collectAsState().value
-    val authMethods = networkUser?.let { parseAuthMethods(it) } ?: emptyList()
+    val authMethods = remember(networkUser) { networkUser?.let { parseAuthMethods(it) } ?: emptyList() }
     val isAddingAuth = settingsViewModel.isAddingAuth.collectAsState().value
     val isRemovingAuth = settingsViewModel.isRemovingAuth.collectAsState().value
 
@@ -308,7 +308,7 @@ fun SettingsScreen(
         authMethods = authMethods,
         onRemoveAuthMethod = { method -> pendingRemoveMethod = method },
         onAddAuthMethodClick = { presentAddAuthSheet = true },
-        hasSeedphrase = authTypesContains(networkUser?.authTypes, "seedphrase"),
+        hasSeedphrase = authMethods.contains("seedphrase"),
         isGeneratingSeedphrase = isGeneratingSeedphrase,
         isRegeneratingSeedphrase = isRegeneratingSeedphrase,
         onSeedphraseActionClick = { action -> pendingSeedphraseAction = action },
@@ -510,6 +510,7 @@ fun SettingsScreen(
             },
             onBack = {
                 settingsViewModel.dismissSeedphraseDisplay()
+                accountViewModel.refreshNetworkUser()
             }
         )
     }
@@ -840,11 +841,15 @@ private fun SettingsScreen(
                         color = Color.White
                     )
 
-                    TextButton(onClick = { onRemoveAuthMethod(method) }) {
-                        Text(
-                            "Remove",
-                            color = TextDanger
-                        )
+                    // removing the last method would permanently lock the
+                    // account after logout -- keep at least one way to sign in
+                    if (authMethods.size > 1) {
+                        TextButton(onClick = { onRemoveAuthMethod(method) }) {
+                            Text(
+                                "Remove",
+                                color = TextDanger
+                            )
+                        }
                     }
                 }
             }

@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.bringyour.sdk.AuthNetworkClientArgs
-import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.sdk.WalletAuthArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_MESSAGE
@@ -50,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
     private var targetJwt by mutableStateOf<String?>(null)
     private var targetUrl: String? = null
     private var defaultLocation: String? = null
-    private var switchToGuestMode by mutableStateOf(false)
+    private var startInstantCreate by mutableStateOf(false)
     private var isLoadingAuthCode by mutableStateOf(false)
     private var walletCreateNetworkParams by mutableStateOf<LoginCreateNetworkParams.LoginCreateWalletParams?>(null)
 
@@ -140,7 +139,7 @@ class LoginActivity : AppCompatActivity() {
                     promptAccountSwitch = promptAccountSwitch,
                     targetJwt = targetJwt,
                     currentNetworkName = currentNetworkName,
-                    switchToGuestMode = switchToGuestMode,
+                    startInstantCreate = startInstantCreate,
                     isLoadingAuthCode = isLoadingAuthCode,
                     referralCode = referralCode,
                     activityResultSender = activityResultSender,
@@ -269,25 +268,23 @@ class LoginActivity : AppCompatActivity() {
             }
 
         } else if (guest) {
-            // login as guest
-
+            // guest accounts are gone. the same request now mints a permanent
+            // seedphrase-backed account, so a "?guest" link offers the instant
+            // account screen (which shows the generated seedphrase) instead of
+            // creating one silently and discarding the only credential for it
             if (localState != null) {
                 localState.parseByJwt { jwt, success ->
                     lifecycleScope.launch {
-                        if (!success || jwt == null) {
-                            Log.i(TAG, "guest login: local byJwt parse failed")
-                            createGuestNetworkAndFinish(app)
-                        } else if (jwt.networkName != null) {
+                        if (success && jwt != null) {
                             setLinksAndStartMain(targetUrl, defaultLocation)
                         } else {
-                            currentNetworkName = jwt.networkName
-                            switchToGuestMode = true
-                            promptAccountSwitch = true
+                            Log.i(TAG, "guest link: no local byJwt, offering instant account")
+                            startInstantCreate = true
                         }
                     }
                 }
             } else {
-                createGuestNetworkAndFinish(app)
+                startInstantCreate = true
             }
 
         } else if (upgradeSuccess) {
@@ -367,37 +364,6 @@ class LoginActivity : AppCompatActivity() {
             }
         } ?: run {
             isLoadingAuthCode = false
-        }
-    }
-
-    private fun createGuestNetworkAndFinish(app: MainApplication) {
-        val args = NetworkCreateArgs()
-        args.terms = true
-
-        app.api?.networkCreate(args) { result, err ->
-            lifecycleScope.launch {
-
-                if (err != null) {
-                    Log.i(TAG, "error ${err.message}")
-                } else if (result.error != null) {
-                    Log.i(TAG, "error ${result.error.message}")
-                } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
-
-                    app.login(result.network.byJwt)
-
-                    authClientAndFinish(
-                        { error ->
-
-                            if (error != null) {
-                                Log.i(TAG, "authClientAndFinish error: $error")
-                            }
-                        }
-                    )
-
-                } else {
-                    Log.i(TAG, "authClientAndFinish error: ${R.string.create_network_error}")
-                }
-            }
         }
     }
 

@@ -314,8 +314,10 @@ class SettingsViewModel @Inject constructor(
                     onError(err.message ?: "Failed to add sign-in method")
                 } else if (result?.error != null) {
                     onError(result.error.message ?: "Failed to add sign-in method")
-                } else {
+                } else if (result != null) {
                     onSuccess()
+                } else {
+                    onError("Failed to add sign-in method")
                 }
             }
         } ?: run {
@@ -346,8 +348,10 @@ class SettingsViewModel @Inject constructor(
                     onError(err.message ?: "Failed to remove sign-in method")
                 } else if (result?.error != null) {
                     onError(result.error.message ?: "Failed to remove sign-in method")
-                } else {
+                } else if (result != null) {
                     onSuccess()
+                } else {
+                    onError("Failed to remove sign-in method")
                 }
             }
         } ?: run {
@@ -377,8 +381,10 @@ class SettingsViewModel @Inject constructor(
                     onError(err.message ?: "Failed to generate seedphrase")
                 } else if (result?.error != null) {
                     onError(result.error.message ?: "Failed to generate seedphrase")
-                } else if (result != null) {
+                } else if (result != null && result.seedphrase.isNotEmpty()) {
                     _generatedSeedphrase.value = result.seedphrase
+                } else {
+                    onError("Failed to generate seedphrase")
                 }
             }
         } ?: run {
@@ -399,8 +405,10 @@ class SettingsViewModel @Inject constructor(
                     onError(err.message ?: "Failed to regenerate seedphrase")
                 } else if (result?.error != null) {
                     onError(result.error.message ?: "Failed to regenerate seedphrase")
-                } else if (result != null) {
+                } else if (result != null && result.seedphrase.isNotEmpty()) {
                     _generatedSeedphrase.value = result.seedphrase
+                } else {
+                    onError("Failed to regenerate seedphrase")
                 }
             }
         } ?: run {

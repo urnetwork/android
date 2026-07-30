@@ -85,7 +85,6 @@
     <string name="client_statistics">Client statistics</string>
     <string name="clients">Clients</string>
     <string name="close">Close</string>
-    <string name="commitment_issues">Commitment issues?</string>
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Get free access to the community edition.</string>
     <string name="companion">Companion</string>
@@ -184,7 +183,6 @@
     <string name="guest">Guest</string>
     <string name="how_are_we_doing">How are we doing?</string>
     <string name="ignore_battery_optimizations">Ignore battery optimizations</string>
-    <string name="in_guest_mode">You\'re in guest mode</string>
     <string name="include_app">Route through VPN</string>
     <string name="include_app_description">Only included apps use the tunnel.</string>
     <string name="included">Included</string>
@@ -382,7 +380,6 @@
     <string name="split_rules_hint">Tap traffic below to route it locally, bypassing the tunnel.</string>
     <string name="split_rules_info_note">Exclusions apply to the whole co-associated network cluster, so related traffic is caught together.</string>
     <string name="start_earning">To start earning, connect your cryptocurrency wallet to URnetwork or set one up with Circle.</string>
-    <string name="start_earning_join">To start earning, join the network</string>
     <string name="stay_in_touch">Stay in touch</string>
     <string name="stay_private">Stay\ncompletely\nprivate and\nanonymous</string>
     <string name="stay_private_description">Stay completely private and anonymous with URnetwork</string>
@@ -415,7 +412,6 @@
     <string name="transfer_submitted_details">Your transfer has been initiated and will complete once the transaction is processed on chain.</string>
     <string name="trusted_by_private_networks">Trusted by over %1$s private networks</string>
     <string name="try_again">Try again</string>
-    <string name="try_guest_mode">Try Guest Mode</string>
     <string name="unencrypted_dns">Unencrypted DNS</string>
     <string name="unknown">unknown</string>
     <string name="unlink">Unlink</string>
