@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -49,6 +49,7 @@ import androidx.compose.foundation.background
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.URDialog
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
@@ -175,7 +176,16 @@ fun AppSplitRulesScreen(
                                 )
                             }
 
-                            items(appRules, key = { "rule-${it.id}-${it.appId}" }) { rule ->
+                            itemsIndexed(
+                                appRules,
+                                key = { index, rule ->
+                                    indexedLazyListKey(
+                                        "app-rule",
+                                        index,
+                                        "${rule.id}:${rule.appId}"
+                                    )
+                                }
+                            ) { _, rule ->
                                 val app = appsByPackage[rule.appId]
                                 // an exclude rule has no effect while include
                                 // mode is active, so render it muted
@@ -227,7 +237,12 @@ fun AppSplitRulesScreen(
                             )
                         }
 
-                        items(unruledApps, key = { "app-${it.packageName}" }) { app ->
+                        itemsIndexed(
+                            unruledApps,
+                            key = { index, app ->
+                                indexedLazyListKey("app", index, app.packageName)
+                            }
+                        ) { _, app ->
                             AppRow(
                                 label = app.label,
                                 packageName = app.packageName,

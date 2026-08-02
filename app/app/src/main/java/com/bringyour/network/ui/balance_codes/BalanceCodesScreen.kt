@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
@@ -203,7 +204,12 @@ private fun BalanceCodesTable(
                     }
                 }
 
-                items(balanceCodes, key = { it.balanceCodeId.toString() }) { balanceCode ->
+                itemsIndexed(
+                    balanceCodes,
+                    key = { index, balanceCode ->
+                        indexedLazyListKey("balance-code", index, balanceCode.balanceCodeId)
+                    }
+                ) { _, balanceCode ->
                     BalanceCodeListItem(
                         balanceCode = balanceCode,
                     )

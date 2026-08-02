@@ -3,11 +3,17 @@ package com.bringyour.network.ui.stats
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.sdk.ContractDetailsViewController
 import com.bringyour.sdk.ContractEntryList
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -75,11 +81,20 @@ data class ContractPeerRowUi(
 @HiltViewModel
 class ContractStatsViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private var contractDetailsVc: ContractDetailsViewController? = null
     private val subs = mutableListOf<Sub>()
     private var started = false
+    private var providerMode = false
+    private var availableDevice: DeviceLocal? = null
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, ContractDetailsViewController>(
+            open = { openContractDetailsViewController(it) },
+            close = { device, vc -> closeContractDetailsViewController(device, vc) },
+        )
 
     var rows by mutableStateOf<List<ContractPeerRowUi>>(listOf())
         private set
@@ -89,30 +104,73 @@ class ContractStatsViewModel @Inject constructor(
     var pendingCount by mutableStateOf(0)
         private set
 
+    init {
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                availableDevice = device
+                rows = listOf()
+                pendingCount = 0
+                if (started) {
+                    controllerOwner.setDevice(device)
+                }
+            }
+        }
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
+
     fun start(provider: Boolean) {
         if (started) {
             return
         }
         started = true
+        providerMode = provider
+        controllerOwner.setDevice(availableDevice)
+    }
 
-        deviceManager.device?.let { device ->
-            // the client and provider lists are two instances of the same
-            // single-feed controller; open the one for this screen's feed
-            val vc = if (provider) {
-                device.openProviderContractDetailsViewController()
-            } else {
-                device.openClientContractDetailsViewController()
+    private fun openContractDetailsViewController(
+        device: DeviceLocal
+    ): ContractDetailsViewController {
+        // The client and provider lists are two instances of the same
+        // single-feed controller; open the one for this screen's feed.
+        val vc = if (providerMode) {
+            device.openProviderContractDetailsViewController()
+        } else {
+            device.openClientContractDetailsViewController()
+        }
+        contractDetailsVc = vc
+
+        subs.add(vc.addContractRowsListener {
+            viewModelScope.launch {
+                update()
             }
-            contractDetailsVc = vc
+        })
 
-            subs.add(vc.addContractRowsListener {
-                viewModelScope.launch {
-                    update()
-                }
-            })
+        vc.start()
+        update()
+        return vc
+    }
 
-            vc.start()
-            update()
+    private fun closeContractDetailsViewController(
+        device: DeviceLocal,
+        vc: ContractDetailsViewController,
+    ) {
+        subs.forEach { it.close() }
+        subs.clear()
+        vc.stop()
+        device.closeViewController(vc)
+        if (contractDetailsVc === vc) {
+            contractDetailsVc = null
         }
     }
 
@@ -178,12 +236,10 @@ class ContractStatsViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
         super.onCleared()
-        subs.forEach { it.close() }
-        subs.clear()
-        contractDetailsVc?.let { vc ->
-            deviceManager.device?.closeViewController(vc)
-        }
-        contractDetailsVc = null
     }
 }

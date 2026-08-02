@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
@@ -224,7 +225,12 @@ fun SplitRulesScreen(
                         )
                     }
                 } else {
-                    items(rules, key = { "rule-${it.id}" }) { rule ->
+                    itemsIndexed(
+                        rules,
+                        key = { index, rule ->
+                            indexedLazyListKey("split-rule", index, rule.id)
+                        }
+                    ) { _, rule ->
                         SwipeToRevealRow(
                             onDelete = { blockActionsViewModel.removeRule(rule.id) }
                         ) {
@@ -278,7 +284,12 @@ fun SplitRulesScreen(
                         )
                     }
                 } else {
-                    items(actions, key = { "action-${it.id}" }) { action ->
+                    itemsIndexed(
+                        actions,
+                        key = { index, action ->
+                            indexedLazyListKey("block-action", index, action.id)
+                        }
+                    ) { _, action ->
                         BlockActionRow(
                             action = action,
                             onClick = { openEditor(action) }
@@ -617,7 +628,12 @@ private fun SplitRuleEditor(
         LazyColumn(
             modifier = Modifier.weight(1f, fill = false)
         ) {
-            items(target.candidates, key = { it }) { host ->
+            itemsIndexed(
+                target.candidates,
+                key = { index, host ->
+                    indexedLazyListKey("rule-candidate", index, host)
+                }
+            ) { _, host ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

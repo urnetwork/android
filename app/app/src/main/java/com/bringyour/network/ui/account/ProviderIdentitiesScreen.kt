@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -20,12 +20,18 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -39,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.Identicon
 import com.bringyour.network.ui.shared.viewmodels.PostQuantumIdentityViewModel
 import com.bringyour.network.ui.shared.viewmodels.ProviderIdentityRowUi
@@ -51,7 +58,9 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
  * Provider Identities: a live list with one row per provider with an
  * established, identity-verified e2e session. Each row shows the provider's
  * identity key identicon, its canonical hash and its client id; tapping the
- * hash copies the full hash, tapping the client id copies the client id.
+ * identicon opens the identity details dialog for that peer (the same dialog
+ * as the panel's own identicon), tapping the hash copies the full hash,
+ * tapping the client id copies the client id.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +68,9 @@ fun ProviderIdentitiesScreen(
     navController: NavController,
     viewModel: PostQuantumIdentityViewModel = hiltViewModel(),
 ) {
+
+    // the peer whose identity details dialog is open, nil for none
+    var presentingRow by remember { mutableStateOf<ProviderIdentityRowUi?>(null) }
 
     Scaffold(
         topBar = {
@@ -88,24 +100,48 @@ fun ProviderIdentitiesScreen(
                 .padding(innerPadding),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            items(
+            itemsIndexed(
                 viewModel.providerIdentities,
-                key = { it.clientId }
-            ) { row ->
+                key = { index, row ->
+                    indexedLazyListKey("provider-identity", index, row.clientId)
+                }
+            ) { _, row ->
                 Column(
                     modifier = Modifier.animateItem()
                 ) {
-                    ProviderIdentityRowView(row = row)
+                    ProviderIdentityRowView(
+                        row = row,
+                        onIdenticonClick = {
+                            presentingRow = row
+                        }
+                    )
                     HorizontalDivider()
                 }
             }
         }
+    }
+
+    // the identity details dialog for a tapped peer identicon — the same
+    // dialog the panel opens for this device's own identicon
+    presentingRow?.let { row ->
+        PostQuantumIdentityShareDialog(
+            row = row,
+            shareIdenticon = viewModel.identicon(
+                row.publicKey,
+                row.publicKeyHash,
+                PostQuantumIdentityViewModel.SHARE_IDENTICON_SIZE
+            ),
+            onDismiss = {
+                presentingRow = null
+            }
+        )
     }
 }
 
 @Composable
 private fun ProviderIdentityRowView(
     row: ProviderIdentityRowUi,
+    onIdenticonClick: () -> Unit,
 ) {
 
     val context = LocalContext.current
@@ -118,9 +154,15 @@ private fun ProviderIdentityRowView(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
+        // tap opens the identity details dialog for this peer
         Identicon(
             image = row.identicon,
-            size = PostQuantumIdentityViewModel.ROW_IDENTICON_SIZE.dp
+            size = PostQuantumIdentityViewModel.ROW_IDENTICON_SIZE.dp,
+            modifier = Modifier
+                .clip(RoundedCornerShape(PostQuantumIdentityViewModel.ROW_IDENTICON_SIZE.dp / 6))
+                .clickable {
+                    onIdenticonClick()
+                }
         )
 
         Spacer(modifier = Modifier.width(16.dp))

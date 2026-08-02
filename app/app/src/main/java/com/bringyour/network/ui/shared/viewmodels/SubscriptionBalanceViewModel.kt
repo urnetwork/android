@@ -5,9 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundWorkOwner
+import com.bringyour.network.ForegroundPollingResume
+import com.bringyour.network.ForegroundPollingSession
 import com.bringyour.network.JwtManager
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
@@ -29,7 +36,7 @@ import kotlinx.coroutines.isActive
 class SubscriptionBalanceViewModel @Inject constructor(
     deviceManager: DeviceManager,
     jwtManager: JwtManager
-): ViewModel() {
+): ViewModel(), DefaultLifecycleObserver {
 
     private val _currentStore = MutableStateFlow<String?>(null)
     val currentStore: StateFlow<String?> get() = _currentStore
@@ -42,11 +49,26 @@ class SubscriptionBalanceViewModel @Inject constructor(
      */
     private var pollingJob: Job? = null
     private var pollingInterval: Long = 5000 // 5 seconds
+    private val pollingSession = ForegroundPollingSession()
 
     /**
      * Background polling for available bytes
      */
     private var backgroundPollingJob: Job? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val foregroundWork = ForegroundWorkOwner(
+        start = {
+            if (isPolling) {
+                resumePollingJob()
+            } else {
+                createBackgroundPollingJob()
+            }
+        },
+        stop = {
+            stopBackgroundPolling()
+            pausePolling()
+        },
+    )
 
     var isPollingSubscriptionBalance by mutableStateOf(false)
         private set
@@ -198,8 +220,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
         if (isPollingSubscriptionBalance) return
 
         isPollingSubscriptionBalance = true
-
-        createPollingJob(maxDurationMs)
+        startPolling(maxDurationMs)
     }
 
     /**
@@ -211,22 +232,38 @@ class SubscriptionBalanceViewModel @Inject constructor(
         if (isPolling) return
 
         _isCheckingSolanaTransaction.value = true
-
-        createPollingJob(maxDurationMs)
+        startPolling(maxDurationMs)
     }
 
-    val createPollingJob: (maxDurationMs: Long) -> Unit = { maxDurationMs ->
-        pollingJob?.cancel()
-        pollingJob = viewModelScope.launch {
-            val deadline = System.currentTimeMillis() + maxDurationMs
+    private fun startPolling(maxDurationMs: Long) {
+        pollingSession.start(maxDurationMs)
+        if (processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            resumePollingJob()
+        }
+    }
 
+    private fun resumePollingJob() {
+        pollingJob?.cancel()
+        when (pollingSession.resume()) {
+            ForegroundPollingResume.INACTIVE -> return
+            ForegroundPollingResume.EXPIRED -> {
+                // Observe a webhook that landed while backgrounded before
+                // ending the bounded confirmation session.
+                fetchSubscriptionBalance()
+                stopPolling()
+                return
+            }
+            ForegroundPollingResume.ACTIVE -> Unit
+        }
+
+        pollingJob = viewModelScope.launch {
             fetchSubscriptionBalance()
             if (isSupporterWithBalance()) {
                 stopPolling()
                 return@launch
             }
 
-            while (isPolling && isActive && System.currentTimeMillis() < deadline) {
+            while (isPolling && isActive && !pollingSession.hasExpired()) {
 
                 delay(pollingInterval)
                 fetchSubscriptionBalance()
@@ -237,13 +274,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
             }
 
             if (isPolling) {
-                Log.i(TAG, "polling timed out after ${maxDurationMs}ms")
+                Log.i(TAG, "polling timed out")
                 stopPolling()
             }
         }
     }
 
-    val createBackgroundPollingJob: () -> Unit = {
+    fun createBackgroundPollingJob() {
+        if (isPolling) {
+            return
+        }
         backgroundPollingJob?.cancel()
         backgroundPollingJob = viewModelScope.launch {
 
@@ -269,20 +309,38 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private fun stopPolling() {
         pollingJob?.cancel()
         pollingJob = null
+        pollingSession.stop()
         isPollingSubscriptionBalance = false
         _isCheckingSolanaTransaction.value = false
     }
 
+    private fun pausePolling() {
+        pollingJob?.cancel()
+        pollingJob = null
+        pollingSession.pause()
+    }
+
     init {
-        createBackgroundPollingJob()
+        processLifecycle.addObserver(this)
+        foregroundWork.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        foregroundWork.setForeground(true)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        foregroundWork.setForeground(false)
     }
 
     override fun onCleared() {
+        processLifecycle.removeObserver(this)
+        foregroundWork.close()
+        stopPolling()
+        stopBackgroundPolling()
         super.onCleared()
-        pollingJob?.cancel()
-        pollingJob = null
-        backgroundPollingJob?.cancel()
-        backgroundPollingJob = null
     }
 
 }

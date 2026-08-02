@@ -8,25 +8,30 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.sdk.AccountPayment
-import com.bringyour.sdk.AccountWallet
-import com.bringyour.sdk.DeviceLocal
-import com.bringyour.sdk.Sdk
-import com.bringyour.sdk.Id
-import com.bringyour.sdk.ValidateAddressCallback
-import com.bringyour.sdk.WalletViewController
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.utils.formatDecimalString
 import com.bringyour.network.utils.formatUnpaidByteCount
 import com.bringyour.network.utils.roundToDecimals
+import com.bringyour.sdk.AccountPayment
+import com.bringyour.sdk.AccountWallet
+import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.Id
 import com.bringyour.sdk.ReliabilityWindow
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.ValidateAddressCallback
 import com.bringyour.sdk.VerifySeekerNftHolderArgs
+import com.bringyour.sdk.WalletViewController
 import com.solana.publickey.SolanaPublicKey
-import java.util.concurrent.atomic.AtomicBoolean
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,11 +46,18 @@ import javax.inject.Inject
 @HiltViewModel
 class WalletViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-): ViewModel() {
+): ViewModel(), DefaultLifecycleObserver {
 
     private var byDevice: DeviceLocal? = null
     private var walletVc: WalletViewController? = null
     private val subs = mutableListOf<com.bringyour.sdk.Sub>()
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, WalletViewController>(
+            open = { openWalletViewController(it) },
+            close = { device, vc -> closeWalletViewController(device, vc) },
+        )
 
     var nextPayoutDateStr by mutableStateOf("")
         private set
@@ -207,48 +219,49 @@ class WalletViewModel @Inject constructor(
     }
 
     val updateWallets = {
+        walletVc?.let { updateWallets(it) }
+    }
 
-        walletVc?.let { vc ->
+    private fun updateWallets(vc: WalletViewController) {
+        viewModelScope.launch {
+            if (walletVc !== vc) {
+                return@launch
+            }
+            val result = vc.wallets
+            val n = result.len()
 
-            viewModelScope.launch {
-                val result = vc.wallets
-                val n = result.len()
+            val updatedWallets = mutableListOf<AccountWallet>()
+            var hasSeekerToken = false
 
-                val updatedWallets = mutableListOf<AccountWallet>()
-                var hasSeekerToken = false
+            for (i in 0 until n) {
+                val wallet = result.get(i)
 
-                for (i in 0 until n) {
-                    val wallet = result.get(i)
-
-                    if (wallet.hasSeekerToken) {
-                        hasSeekerToken = true
-                    }
-
-                    if (wallet.circleWalletId.isNullOrEmpty()) {
-                        updatedWallets.add(wallet)
-                    }
-
+                if (wallet.hasSeekerToken) {
+                    hasSeekerToken = true
                 }
 
-                if (hasSeekerToken && !_isSeekerHolder.value) {
-                    _isSeekerHolder.value = true
+                if (wallet.circleWalletId.isNullOrEmpty()) {
+                    updatedWallets.add(wallet)
                 }
 
-                val prevWalletCount = _wallets.value.count()
-
-                _wallets.update { updatedWallets }
-
-                if (initializingWallets) {
-                    setInitializingWallets(false)
-                }
-
-                if (prevWalletCount <= 0 && n > 0 && initializingFirstWallet) {
-                    setInitializingFirstWallet(false)
-                }
             }
 
-        }
+            if (hasSeekerToken && !_isSeekerHolder.value) {
+                _isSeekerHolder.value = true
+            }
 
+            val prevWalletCount = _wallets.value.count()
+
+            _wallets.update { updatedWallets }
+
+            if (initializingWallets) {
+                setInitializingWallets(false)
+            }
+
+            if (prevWalletCount <= 0 && n > 0 && initializingFirstWallet) {
+                setInitializingFirstWallet(false)
+            }
+        }
     }
 
 
@@ -304,23 +317,29 @@ class WalletViewModel @Inject constructor(
         walletVc?.filterWalletsById(id)
     }
 
-    val addAccountWalletsListener = {
-        walletVc?.addAccountWalletsListener {
-            updateWallets()
+    private fun addAccountWalletsListener(vc: WalletViewController) {
+        vc.addAccountWalletsListener {
+            updateWallets(vc)
         }?.let { subs.add(it) }
     }
 
-    val addExternalWalletProcessingListener = {
-        walletVc?.addIsCreatingExternalWalletListener { isProcessing ->
+    private fun addExternalWalletProcessingListener(vc: WalletViewController) {
+        vc.addIsCreatingExternalWalletListener { isProcessing ->
             viewModelScope.launch {
+                if (walletVc !== vc) {
+                    return@launch
+                }
                 isProcessingExternalWallet = isProcessing
             }
         }?.let { subs.add(it) }
     }
 
-    val addPayoutWalletListener = {
-        walletVc?.addPayoutWalletListener { id ->
+    private fun addPayoutWalletListener(vc: WalletViewController) {
+        vc.addPayoutWalletListener { id ->
             viewModelScope.launch {
+                if (walletVc !== vc) {
+                    return@launch
+                }
                 payoutWalletId = id
 
                 if (isSettingPayoutWallet) {
@@ -330,42 +349,40 @@ class WalletViewModel @Inject constructor(
         }?.let { subs.add(it) }
     }
 
-    private val getPayouts = {
+    private fun getPayouts(vc: WalletViewController) {
+        viewModelScope.launch {
+            if (walletVc !== vc) {
+                return@launch
+            }
+            val result = vc.accountPayments
+            val n = result.len()
 
-        walletVc?.let { vc ->
+            val updatedPayouts = mutableListOf<AccountPayment>()
 
-            viewModelScope.launch {
-                val result = vc.accountPayments
-                val n = result.len()
+            var totalPayoutsUsdc: Double = 0.0
 
-                val updatedPayouts = mutableListOf<AccountPayment>()
+            for (i in 0 until n) {
+                val payout = result.get(i)
+                updatedPayouts.add(payout)
+                totalPayoutsUsdc += payout.tokenAmount.roundToDecimals(4)
+            }
 
-                var totalPayoutsUsdc: Double = 0.0
+            _payouts.value = updatedPayouts
+            totalPayoutAmount = totalPayoutsUsdc
+            if (!totalPayoutAmountInitialized) {
+                totalPayoutAmountInitialized = true
+            }
 
-                for (i in 0 until n) {
-                    val payout = result.get(i)
-                    updatedPayouts.add(payout)
-                    totalPayoutsUsdc += payout.tokenAmount.roundToDecimals(4)
-                }
+            paymentsRefreshed.set(true)
 
-                _payouts.value = updatedPayouts
-                totalPayoutAmount = totalPayoutsUsdc
-                if (!totalPayoutAmountInitialized) {
-                    totalPayoutAmountInitialized = true
-                }
+            if (isRefreshingWallets && transferStatsRefreshed.get()) {
+                setIsRefreshingWallets(false)
+            }
 
-                paymentsRefreshed.set(true)
-
-                if (isRefreshingWallets && transferStatsRefreshed.get()) {
-                    setIsRefreshingWallets(false)
-                }
-
-                if (isRefreshingWallet) {
-                    setIsRefreshingWallet(false)
-                }
+            if (isRefreshingWallet) {
+                setIsRefreshingWallet(false)
             }
         }
-
     }
 
     val getPayoutById: (String) -> AccountPayment? = { id ->
@@ -376,9 +393,9 @@ class WalletViewModel @Inject constructor(
         payout
     }
 
-    val addPayoutsListener = {
-        walletVc?.addPaymentsListener {
-            getPayouts()
+    private fun addPayoutsListener(vc: WalletViewController) {
+        vc.addPaymentsListener {
+            getPayouts(vc)
         }?.let { subs.add(it) }
     }
 
@@ -391,9 +408,12 @@ class WalletViewModel @Inject constructor(
         walletVc?.removeWallet(id)
     }
 
-    val addIsRemovingWalletListener = {
-        walletVc?.addIsRemovingWalletListener { isRemoving ->
+    private fun addIsRemovingWalletListener(vc: WalletViewController) {
+        vc.addIsRemovingWalletListener { isRemoving ->
             viewModelScope.launch {
+                if (walletVc !== vc) {
+                    return@launch
+                }
                 isRemovingWallet = isRemoving
             }
         }?.let { subs.add(it) }
@@ -414,9 +434,12 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    val addUnpaidByteCountListener = {
-        walletVc?.addUnpaidByteCountListener{ ubc ->
+    private fun addUnpaidByteCountListener(vc: WalletViewController) {
+        vc.addUnpaidByteCountListener{ ubc ->
             viewModelScope.launch(Dispatchers.Main) {
+                if (walletVc !== vc) {
+                    return@launch
+                }
                 unpaidMegaByteCount = formatUnpaidByteCount(ubc.toDouble())
                 transferStatsRefreshed.set(true)
                 if (isRefreshingWallets && paymentsRefreshed.get()) {
@@ -457,19 +480,32 @@ class WalletViewModel @Inject constructor(
         String,
         String,
         (String) -> Unit
-    ) -> Unit = { publicKey, message, signature, onError ->
+    ) -> Unit = verifySeekerHolder@{ publicKey, message, signature, onError ->
 
         if (!isVerifyingSeekerHolder) {
             isVerifyingSeekerHolder = true
+            val device = byDevice
+            if (device == null) {
+                isVerifyingSeekerHolder = false
+                return@verifySeekerHolder
+            }
 
             val args = VerifySeekerNftHolderArgs()
             args.publicKey = publicKey.address
             args.signature = signature
             args.message = message
 
-            byDevice?.api?.verifySeekerHolder(args) { result, error ->
+            val api = device.api
+            if (api == null) {
+                isVerifyingSeekerHolder = false
+                return@verifySeekerHolder
+            }
+            api.verifySeekerHolder(args) { result, error ->
 
                 viewModelScope.launch {
+                    if (byDevice !== device) {
+                        return@launch
+                    }
                     Log.i(TAG, "[verifySeekerHolder] result = $result, error = $error")
 
                     if (error != null) {
@@ -493,36 +529,71 @@ class WalletViewModel @Inject constructor(
     }
 
     init {
-
-        byDevice = deviceManager.device
-        walletVc = byDevice?.openWalletViewController()
-
-        updateNextPayoutDateStr()
-        addAccountWalletsListener()
-        addExternalWalletProcessingListener()
-        addPayoutWalletListener()
-        addPayoutsListener()
-        addIsRemovingWalletListener()
-        addUnpaidByteCountListener()
-
-        viewModelScope.launch {
-            walletVc?.start()
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                setupDevice(device)
+            }
         }
+    }
 
-        getPayouts()
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
 
-        // updateWallets()
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
+
+    private fun setupDevice(device: DeviceLocal?) {
+        byDevice = device
+        _wallets.value = emptyList()
+        _payouts.value = emptyList()
+        payoutWalletId = null
+        totalPayoutAmount = 0.0
+        totalPayoutAmountInitialized = false
+        initializingWallets = true
+        controllerOwner.setDevice(device)
+    }
+
+    private fun openWalletViewController(device: DeviceLocal): WalletViewController {
+        val vc = device.openWalletViewController()
+        walletVc = vc
+        nextPayoutDateStr = vc.nextPayoutDate
+        addAccountWalletsListener(vc)
+        addExternalWalletProcessingListener(vc)
+        addPayoutWalletListener(vc)
+        addPayoutsListener(vc)
+        addIsRemovingWalletListener(vc)
+        addUnpaidByteCountListener(vc)
+        vc.start()
+        getPayouts(vc)
+        return vc
+    }
+
+    private fun closeWalletViewController(
+        device: DeviceLocal,
+        vc: WalletViewController,
+    ) {
+        subs.forEach { it.close() }
+        subs.clear()
+        vc.stop()
+        device.closeViewController(vc)
+        if (walletVc === vc) {
+            walletVc = null
+        }
     }
 
     override fun onCleared() {
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
+        byDevice = null
         super.onCleared()
-
-        subs.forEach { it.close() }
-        subs.clear()
-
-        walletVc?.let {
-            deviceManager.device?.closeViewController(it)
-        }
     }
 
 }
@@ -552,4 +623,3 @@ data class WalletValidationState(
     val polygon: Boolean = false,
     val tao: Boolean = false
 )
-

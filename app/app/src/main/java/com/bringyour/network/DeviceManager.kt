@@ -16,6 +16,15 @@ class DeviceManager @Inject constructor(
     private val jwtManager: JwtManager
 ) {
 
+    companion object {
+        // per-device memory target passed where the device is created: split
+        // dns 2 : client 14 : provider 4 by ratio inside the sdk, with the
+        // provider share backing the client pair while providing is off. The
+        // process-level Sdk.setMemoryLimit (MainApplication) sizes the
+        // shared message pools and go soft limit separately.
+        const val DEVICE_MEMORY_TARGET_BYTE_COUNT = 20L * 1024 * 1024
+    }
+
     private val deviceLock = Any()
 
     // set by the application; fired when the sdk detects the stored auth is
@@ -35,28 +44,12 @@ class DeviceManager @Inject constructor(
     // Device lifecycle listeners: view models wire their SDK subscriptions per
     // device, and the device is (re)created asynchronously (login, network
     // change) — an init-time `device?.let` silently wires NOTHING when the view
-    // model is created first. Listeners fire immediately with the current
-    // device on add, then on every init/clear.
-    private val deviceChangeListeners = mutableListOf<(DeviceLocal?) -> Unit>()
+    // model is created first. Sequencing prevents a delayed notification for a
+    // retired device from arriving after its replacement.
+    private val deviceChanges = SequencedValueListeners<DeviceLocal?>(null)
 
     fun addDeviceChangeListener(listener: (DeviceLocal?) -> Unit): () -> Unit {
-        synchronized(deviceLock) {
-            deviceChangeListeners.add(listener)
-        }
-        // fire with the current device so late subscribers wire immediately
-        listener(device)
-        return {
-            synchronized(deviceLock) {
-                deviceChangeListeners.remove(listener)
-            }
-        }
-    }
-
-    private fun notifyDeviceChanged(device: DeviceLocal?) {
-        val listeners = synchronized(deviceLock) {
-            deviceChangeListeners.toList()
-        }
-        listeners.forEach { it(device) }
+        return deviceChanges.add(listener)
     }
 
     val networkSpace get() = device?.networkSpace
@@ -119,10 +112,27 @@ class DeviceManager @Inject constructor(
         }
 
     var performanceProfile: PerformanceProfile?
-        get() = synchronized(deviceLock) { device?.performanceProfile }
+        get() = synchronized(deviceLock) {
+            device?.performanceProfile ?: asyncLocalState?.localState?.performanceProfile
+        }
         set(it) = synchronized(deviceLock) {
-            asyncLocalState?.localState?.performanceProfile = it
-            device?.performanceProfile = it
+            val localState = asyncLocalState?.localState
+            val liveDevice = device
+            val plan = performanceProfileWritePlan(
+                stored = localState?.let { state ->
+                    performanceProfileSnapshot(state.performanceProfile)
+                },
+                live = liveDevice?.let { currentDevice ->
+                    performanceProfileSnapshot(currentDevice.performanceProfile)
+                },
+                target = performanceProfileSnapshot(it),
+            )
+            if (plan.persist) {
+                localState?.performanceProfile = it
+            }
+            if (plan.applyLive) {
+                liveDevice?.performanceProfile = it
+            }
         }
 
     fun initDevice(
@@ -173,7 +183,7 @@ class DeviceManager @Inject constructor(
             )
         } else {
             runCatching {
-                Sdk.newDeviceLocalWithKeyMaterial(
+                Sdk.newDeviceLocalWithMemoryTarget(
                     networkSpace,
                     byClientJwt,
                     deviceDescription,
@@ -181,7 +191,10 @@ class DeviceManager @Inject constructor(
                     getAppVersion(),
                     instanceId,
                     false,
-                    keyMaterial
+                    keyMaterial,
+                    // per-device memory target (split dns 2 : client 14 :
+                    // provider 4); the process pools are sized by setMemoryLimit
+                    DEVICE_MEMORY_TARGET_BYTE_COUNT
                 )
             }.getOrNull() ?: run {
                 localState.deviceLocalKeyMaterial = null
@@ -198,7 +211,7 @@ class DeviceManager @Inject constructor(
             return false
         }
 
-        synchronized(deviceLock) {
+        val notifyDeviceChanged = synchronized(deviceLock) {
             closeDeviceSubscriptionsLocked()
             device?.close()
             device = newDevice
@@ -256,8 +269,9 @@ class DeviceManager @Inject constructor(
             authLogoutSub = newDevice.addAuthLogoutListener {
                 onAuthLogout?.invoke()
             }
+            deviceChanges.prepareUpdate(newDevice)
         }
-        notifyDeviceChanged(newDevice)
+        notifyDeviceChanged()
         return true
     }
 
@@ -269,14 +283,18 @@ class DeviceManager @Inject constructor(
         instanceId: com.bringyour.sdk.Id
     ): DeviceLocal? {
         return runCatching {
-            Sdk.newDeviceLocalWithDefaults(
+            Sdk.newDeviceLocalWithMemoryTarget(
                 networkSpace,
                 byClientJwt,
                 deviceDescription,
                 deviceSpec,
                 getAppVersion(),
                 instanceId,
-                false
+                false,
+                null,
+                // per-device memory target (split dns 2 : client 14 :
+                // provider 4); the process pools are sized by setMemoryLimit
+                DEVICE_MEMORY_TARGET_BYTE_COUNT
             )
         }.getOrNull()
     }
@@ -349,13 +367,14 @@ class DeviceManager @Inject constructor(
     }
 
     fun clearDevice() {
-        synchronized(deviceLock) {
+        val notifyDeviceChanged = synchronized(deviceLock) {
             closeDeviceSubscriptionsLocked()
             device?.close()
             device = null
             jwtManager.clearJwt()
+            deviceChanges.prepareUpdate(null)
         }
-        notifyDeviceChanged(null)
+        notifyDeviceChanged()
     }
 
     private fun closeDeviceSubscriptionsLocked() {

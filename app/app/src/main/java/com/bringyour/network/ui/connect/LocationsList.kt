@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import com.bringyour.sdk.ConnectLocation
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.stats.NetworkPeerUi
 import com.bringyour.network.ui.stats.networkPeersSection
 import com.bringyour.network.ui.theme.Red400
@@ -108,7 +109,12 @@ fun LocationsList(
                         }
                     }
 
-                    items(bestSearchMatches, key = { "best-${it.connectLocationId}" }) { location ->
+                    itemsIndexed(
+                        bestSearchMatches,
+                        key = { index, location ->
+                            indexedLazyListKey("best", index, location.connectLocationId)
+                        }
+                    ) { _, location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -168,7 +174,12 @@ fun LocationsList(
                         }
                     }
 
-                    items(connectCountries, key = { "country-${it.connectLocationId}" }) { location ->
+                    itemsIndexed(
+                        connectCountries,
+                        key = { index, location ->
+                            indexedLazyListKey("country", index, location.connectLocationId)
+                        }
+                    ) { _, location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -196,7 +207,12 @@ fun LocationsList(
                         }
                     }
 
-                    items(regions, key = { "region-${it.connectLocationId}" }) { location ->
+                    itemsIndexed(
+                        regions,
+                        key = { index, location ->
+                            indexedLazyListKey("region", index, location.connectLocationId)
+                        }
+                    ) { _, location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -224,7 +240,12 @@ fun LocationsList(
                         }
                     }
 
-                    items(cities, key = { "city-${it.connectLocationId}" }) { location ->
+                    itemsIndexed(
+                        cities,
+                        key = { index, location ->
+                            indexedLazyListKey("city", index, location.connectLocationId)
+                        }
+                    ) { _, location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
@@ -253,7 +274,12 @@ fun LocationsList(
                         }
                     }
 
-                    items(devices, key = { "device-${it.connectLocationId}" }) { location ->
+                    itemsIndexed(
+                        devices,
+                        key = { index, location ->
+                            indexedLazyListKey("device", index, location.connectLocationId)
+                        }
+                    ) { _, location ->
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,

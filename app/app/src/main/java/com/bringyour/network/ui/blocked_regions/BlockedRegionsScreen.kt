@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.CircleImage
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
@@ -182,7 +183,12 @@ fun BlockedRegionsScreen(
                 state = listState
             ) {
 
-                items(blockedLocations, key = { it.locationId.toString() }) { location ->
+                itemsIndexed(
+                    blockedLocations,
+                    key = { index, location ->
+                        indexedLazyListKey("blocked-location", index, location.locationId)
+                    }
+                ) { _, location ->
                     BlockedRegionListItem(
                         blockedLocation = location,
                         onRemove = { id ->

@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -47,9 +46,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.bringyour.sdk.ConnectGrid
-import com.bringyour.sdk.Id
-import com.bringyour.sdk.ProviderGridPoint
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.bringyour.network.R
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.Black
@@ -59,7 +58,11 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.network.utils.isTv
+import com.bringyour.sdk.ConnectGrid
+import com.bringyour.sdk.Id
+import com.bringyour.sdk.ProviderGridPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @Composable
@@ -667,63 +670,60 @@ fun TapToConnectAnimation() {
 
     val initialSize = 56f
     val targetSize = 82f
-    val size = remember { Animatable(initialSize) }
-    val alpha = remember { Animatable(1f) }
+    val progress = remember { Animatable(0f) }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(100)
-            launch {
-                size.animateTo(
-                    targetValue = targetSize,
-                    animationSpec = tween(durationMillis = 1000)
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            progress.snapTo(0f)
+            while (isActive) {
+                delay(100)
+                progress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = 1000),
                 )
+                delay(3000)
+                progress.snapTo(0f)
+                delay(100)
             }
-            launch {
-                alpha.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(durationMillis = 1000)
-                )
-            }
-            delay(4000)
-            size.snapTo(initialSize)
-            alpha.snapTo(1f)
-            delay(100)
         }
     }
 
-    Box(
-        modifier = Modifier.size(82.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-
-        // pulsing animation
-        Box(
-            modifier = Modifier
-                .size(size.value.dp)
-                .background(color = BlueMedium.copy(alpha = alpha.value), shape = CircleShape)
+    Canvas(modifier = Modifier.size(82.dp)) {
+        // Read the animation state only in the draw phase. The former nested
+        // Box read two Animatable values in composition and changed layout
+        // size every frame, turning a decorative pulse into repeated
+        // composition, measure, layout, and render work.
+        val frame = tapToConnectPulseFrame(
+            initialDiameter = initialSize,
+            targetDiameter = targetSize,
+            progress = progress.value,
         )
-
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .background(color = BlueMedium, shape = CircleShape)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(color = Black, shape = CircleShape)
-                    .align(Alignment.Center)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(color = BlueMedium, shape = CircleShape)
-                        .align(Alignment.Center)
-                )
-            }
-        }
+        drawCircle(
+            color = BlueMedium.copy(alpha = frame.alpha),
+            radius = (frame.diameter / 2f).dp.toPx(),
+        )
+        drawCircle(color = BlueMedium, radius = 28.dp.toPx())
+        drawCircle(color = Black, radius = 26.dp.toPx())
+        drawCircle(color = BlueMedium, radius = 24.dp.toPx())
     }
+}
+
+internal data class TapToConnectPulseFrame(
+    val diameter: Float,
+    val alpha: Float,
+)
+
+internal fun tapToConnectPulseFrame(
+    initialDiameter: Float,
+    targetDiameter: Float,
+    progress: Float,
+): TapToConnectPulseFrame {
+    val boundedProgress = progress.coerceIn(0f, 1f)
+    return TapToConnectPulseFrame(
+        diameter = initialDiameter + (targetDiameter - initialDiameter) * boundedProgress,
+        alpha = 1f - boundedProgress,
+    )
 }
 
 

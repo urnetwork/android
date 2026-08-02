@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SettingsInputAntenna
 import androidx.compose.material3.Icon
@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.CircleImage
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
@@ -55,7 +56,12 @@ fun LazyListScope.networkPeersSection(
         }
     }
 
-    items(peers, key = { "peer-${it.clientId}" }) { peer ->
+    itemsIndexed(
+        peers,
+        key = { index, peer ->
+            indexedLazyListKey("peer", index, peer.clientId)
+        }
+    ) { _, peer ->
         NetworkPeerRow(
             peer = peer,
             isSelected = selectedLocation?.connectLocationId?.clientId?.idStr == peer.clientId,

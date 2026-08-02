@@ -31,7 +31,20 @@ object DeviceNames {
             }
             names
         }
-        return loaded?.get(model) ?: model
+        if (loaded == null) {
+            return model
+        }
+        loaded[model]?.let { return it }
+        // Robustness for carrier/region variants Google has not listed yet:
+        // Samsung codes are "<base><carrier>[<sub-variant digit>]" (e.g.
+        // SM-S928U, SM-S928U1). If the exact code is absent, retry with the
+        // trailing sub-variant digit stripped and accept only an exact hit —
+        // so a future SM-S928U1 still resolves via SM-S928U. Nothing broader
+        // is stripped, to avoid mapping to a different device family.
+        if (1 < model.length && model.last().isDigit() && model[model.length - 2].isLetter()) {
+            loaded[model.dropLast(1)]?.let { return it }
+        }
+        return model
     }
 
     private fun load(context: Context): Map<String, String> {

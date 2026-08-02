@@ -12,17 +12,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 @Composable
 fun AnimatedEllipsis() {
     var dotCount by remember { mutableIntStateOf(0) }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Launch a coroutine that updates dotCount every 400ms
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(400)
-            dotCount = (dotCount + 1) % 4
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (isActive) {
+                delay(400)
+                dotCount = (dotCount + 1) % 4
+            }
         }
     }
 

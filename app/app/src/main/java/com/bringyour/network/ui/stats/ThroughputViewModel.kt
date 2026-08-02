@@ -3,10 +3,16 @@ package com.bringyour.network.ui.stats
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.sdk.ContractViewController
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sub
 import com.bringyour.sdk.ThroughputPointList
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -59,10 +65,18 @@ enum class ThroughputRoute {
 @HiltViewModel
 class ThroughputViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private var contractVc: ContractViewController? = null
     private val subs = mutableListOf<Sub>()
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private var viewControllerDevice: DeviceLocal? = null
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, ContractViewController>(
+            open = { openLiveUpdates(it) },
+            close = { device, vc -> closeLiveUpdates(device, vc) },
+        )
 
     var clientPoints by mutableStateOf<List<ThroughputPointUi>>(listOf())
         private set
@@ -80,18 +94,60 @@ class ThroughputViewModel @Inject constructor(
         private set
 
     init {
-        deviceManager.device?.let { device ->
-            val vc = device.openContractViewController()
-            contractVc = vc
-            windowSeconds = vc.windowDurationSeconds
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                setupDevice(device)
+            }
+        }
+    }
 
-            subs.add(vc.addThroughputListener {
-                viewModelScope.launch {
-                    update()
-                }
-            })
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
 
-            update()
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
+
+    /**
+     * Stats are presentation work, not part of the packet path. Keep the SDK
+     * controller open only while this app is visible so another foreground
+     * app's first page load does not pay for JNI snapshots and Compose state.
+     */
+    private fun setupDevice(device: DeviceLocal?) {
+        clientPoints = listOf()
+        providerPoints = listOf()
+        hasProviderStats = false
+        controllerOwner.setDevice(device)
+    }
+
+    private fun openLiveUpdates(device: DeviceLocal): ContractViewController {
+        val vc = device.openContractViewController()
+        viewControllerDevice = device
+        contractVc = vc
+        windowSeconds = vc.windowDurationSeconds
+        subs.add(vc.addThroughputListener {
+            viewModelScope.launch {
+                update()
+            }
+        })
+        vc.start()
+        update()
+        return vc
+    }
+
+    private fun closeLiveUpdates(device: DeviceLocal, vc: ContractViewController) {
+        subs.forEach { it.close() }
+        subs.clear()
+        vc.stop()
+        device.closeViewController(vc)
+        if (contractVc === vc) {
+            contractVc = null
+            viewControllerDevice = null
         }
     }
 
@@ -144,12 +200,10 @@ class ThroughputViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
         super.onCleared()
-        subs.forEach { it.close() }
-        subs.clear()
-        contractVc?.let { vc ->
-            deviceManager.device?.closeViewController(vc)
-        }
-        contractVc = null
     }
 }

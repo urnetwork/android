@@ -5,10 +5,13 @@ import android.app.Application
 import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.net.VpnService
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -16,12 +19,8 @@ import android.os.Handler
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
-import com.bringyour.sdk.AccountViewController
-import com.bringyour.sdk.DevicesViewController
 import com.bringyour.sdk.LocalState
 import com.bringyour.sdk.LoginViewController
 import com.bringyour.sdk.NetworkSpace
@@ -29,40 +28,61 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.HiltAndroidApp
 import java.lang.ref.WeakReference
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
 
 
 @HiltAndroidApp
 class MainApplication : Application() {
-    val deviceDescription = "New device"
+    private companion object {
+        const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
+    }
+
+    // The initial device name defaults to the human model name — e.g.
+    // "Samsung Galaxy S24 Ultra", "Pixel 8 Pro" — never "New device". Users can
+    // still rename their device in settings (a separate, server-side
+    // device_name); this is only the default a brand-new device registers with.
+    val deviceDescription: String get() = deviceModelName
 
     // concise, human-readable spec shown in the peers list: "<os> <make model>",
-    // e.g. "16.1 Google Pixel 8 Pro", "14 Samsung Galaxy S24 Ultra". The
-    // retail name comes from the bundled catalog (`DeviceNames`); the full
-    // Build.FINGERPRINT was unreadably long in the ui
-    val deviceSpec: String get() {
+    // e.g. "17.1 Pixel 8 Pro", "16 Samsung Galaxy S24 Ultra". Reuses the same
+    // model name as `deviceDescription` so the name and spec agree; the full
+    // Build.FINGERPRINT was unreadably long in the ui.
+    val deviceSpec: String get() = "$osVersion $deviceModelName"
+
+    // the retail model name, brand-prefixed unless it is already
+    // self-identifying: the marketing name comes from the bundled catalog
+    // (`DeviceNames`, e.g. "Galaxy S24 Ultra" for "SM-S928U1"); a Samsung gets
+    // the "Samsung" prefix, while Google's Pixel names ("Pixel 8 Pro") and any
+    // marketing name that already leads with the manufacturer stand alone.
+    private val deviceModelName: String get() {
         val model = DeviceNames.marketingName(this)
-        // some names already lead with the brand (google's "Pixel 8 Pro" is
-        // the exception the manufacturer prefix covers)
-        return if (model.startsWith(Build.MANUFACTURER, ignoreCase = true)) {
-            "$osVersion $model"
+        return if (
+            model.startsWith(Build.MANUFACTURER, ignoreCase = true) ||
+            Build.MANUFACTURER.equals("Google", ignoreCase = true)
+        ) {
+            model
         } else {
             val manufacturer = Build.MANUFACTURER.replaceFirstChar { it.uppercase() }
-            "$osVersion $manufacturer $model"
+            "$manufacturer $model"
         }
     }
 
-    // the exact os version. RELEASE is major-only on modern android ("16");
-    // older builds carried the point ("8.1.0"). From android 16 (api 36) the
-    // minor os revision is exposed through the full sdk version — append it
-    // so the spec reads "16.1" like the ios side's point versions
+    // the exact os version, always NUMERIC ("17", "16.1"), never a dev
+    // codename. RELEASE is major-only on modern android ("16"); older builds
+    // carried the point ("8.1.0"). From android 16 (api 36) the minor os
+    // revision is exposed through the full sdk version — append it so the spec
+    // reads "16.1" like the ios side's point versions.
+    //
+    // NOTE: use RELEASE, not RELEASE_OR_CODENAME. On a preview/beta build the
+    // latter returns the dev codename (e.g. "CinnamonBun" on the Android 17
+    // preview), producing nonsense like "CinnamonBun.1"; RELEASE stays numeric
+    // ("17") on those builds. If RELEASE is ever non-numeric (very early dev
+    // images), fall back to the numeric version derived from the api level.
     private val osVersion: String get() {
-        val release = if (32 <= Build.VERSION.SDK_INT) {
-            Build.VERSION.RELEASE_OR_CODENAME
-        } else {
-            Build.VERSION.RELEASE
+        var release = Build.VERSION.RELEASE
+        if (release.isEmpty() || !release[0].isDigit()) {
+            release = androidMajorVersionForSdk(Build.VERSION.SDK_INT) ?: release
         }
         if (36 <= Build.VERSION.SDK_INT && !release.contains('.')) {
             val minor = Build.getMinorSdkVersion(Build.VERSION.SDK_INT_FULL)
@@ -71,6 +91,21 @@ class MainApplication : Application() {
             }
         }
         return release
+    }
+
+    // numeric android major version for an api level, used only when
+    // Build.VERSION.RELEASE is unavailable/non-numeric on a preview image.
+    private fun androidMajorVersionForSdk(sdkInt: Int): String? = when {
+        sdkInt >= 36 -> (sdkInt - 20).toString() // 36->16, 37->17, forward-compatible
+        sdkInt == 35 -> "15"
+        sdkInt == 34 -> "14"
+        sdkInt == 33 -> "13"
+        sdkInt == 32 || sdkInt == 31 -> "12"
+        sdkInt == 30 -> "11"
+        sdkInt == 29 -> "10"
+        sdkInt == 28 -> "9"
+        sdkInt >= 26 -> "8"
+        else -> null
     }
 
     var networkSpaceSub: Sub? = null
@@ -89,11 +124,16 @@ class MainApplication : Application() {
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
+    var defaultNetworkCallback: ConnectivityManager.NetworkCallback? = null
+    var powerSaveReceiver: BroadcastReceiver? = null
+    var thermalStatusListener: PowerManager.OnThermalStatusChangedListener? = null
 
-    // use one set of view controllers across the entire app
+    // main-looper confined; latest thermal status composed into
+    // setPerformanceDegraded alongside battery saver (see
+    // updatePerformanceDegraded / addThermalStatusListener)
+    private var thermalDegraded = false
+
     var loginVc: LoginViewController? = null
-    var devicesVc: DevicesViewController? = null
-    var accountVc: AccountViewController? = null
 
     @Inject
     lateinit var deviceManager: DeviceManager
@@ -106,6 +146,11 @@ class MainApplication : Application() {
 
     @Volatile
     private var vpnStartPending: Boolean = false
+    // SDK state changes arrive in bursts for one logical connect transition.
+    // Coalesce them on the main looper and make the service start idempotent.
+    private var vpnServiceUpdatePosted: Boolean = false
+    private var vpnServiceUpdateGeneration: Long = 0
+    private var activeVpnForeground: Boolean? = null
 
     var vpnRequestStartListener: (() -> Unit)? = null
 
@@ -207,28 +252,16 @@ class MainApplication : Application() {
         networkSpaceManager?.activeNetworkSpace?.let { updateActiveNetworkSpace(it) }
 
         Handler(mainLooper).post {
-            scheduleBackgroundUpdate()
+            // Older builds installed a 15-minute periodic worker whose body
+            // became empty. Merely leaving it registered still wakes the app
+            // indefinitely, so remove the persisted work during migration.
+            WorkManager.getInstance(this).cancelUniqueWork("background_update")
         }
     }
 
-    private fun scheduleBackgroundUpdate() {
-        val request = PeriodicWorkRequest.Builder(
-            BackgroundUpdateWorker::class.java,
-            15,
-            TimeUnit.MINUTES
-        ).build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "background_update",
-            ExistingPeriodicWorkPolicy.KEEP,
-            request
-        )
-    }
-
+    // Retained while installed jobs from older versions can still instantiate
+    // BackgroundUpdateWorker before the cancellation above is committed.
     fun backgroundUpdate() {
-//        Handler(mainLooper).post {
-//            updateVpnService()
-//        }
     }
 
 
@@ -276,44 +309,75 @@ class MainApplication : Application() {
     private fun addOfflineCallback() {
         removeOfflineCallback()
 
+        val callbackDevice = device
+        val availableNetworks = AvailableNetworkTracker<Network>()
         offlineCallback = object : ConnectivityManager.NetworkCallback() {
-            var connectedNetwork: Network? = null
-
             override fun onAvailable(network: Network) {
-                Handler(mainLooper).post {
-                    Log.i(TAG, "network available device = $network")
-                    connectedNetwork = network
-                    device?.offline = false
+                if (offlineCallback !== this || device !== callbackDevice) {
+                    return
+                }
+                val change = availableNetworks.onAvailable(network)
+                Log.i(TAG, "network available device = $network count=${availableNetworks.size}")
+                callbackDevice?.offline = false
+                if (change.topologyChanged) {
+                    // Existing sockets may be bound to the previous physical path:
+                    // re-dial platform transports and re-warm tunnel DoH now instead
+                    // of waiting for ping timeouts.
+                    callbackDevice?.networkChanged()
                 }
             }
 
-            override fun onUnavailable() {
-                Handler(mainLooper).post {
-                    device?.offline = true
+            override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+                if (offlineCallback !== this || device !== callbackDevice) {
+                    return
+                }
+                // Same network, new addressing (DHCP renew, IPv6 renumbering,
+                // AP roam, DNS or route update): old sockets may be stale too.
+                val fingerprint = listOf(
+                    linkProperties.interfaceName.orEmpty(),
+                    linkProperties.linkAddresses.map { it.toString() }.sorted().joinToString(","),
+                    linkProperties.routes.map { it.toString() }.sorted().joinToString(","),
+                    linkProperties.dnsServers.map { it.toString() }.sorted().joinToString(","),
+                    linkProperties.domains.orEmpty(),
+                    linkProperties.mtu.toString(),
+                ).joinToString("|")
+                if (availableNetworks.onLinkPropertiesChanged(network, fingerprint)) {
+                    Log.i(TAG, "network link changed device = $network")
+                    callbackDevice?.networkChanged()
                 }
             }
 
             override fun onLost(network: Network) {
-                Handler(mainLooper).post {
-                    if (network == connectedNetwork) {
-                        Log.i(TAG, "network lost device = $network")
-                        connectedNetwork = null
-                        device?.offline = true
-                    }
+                if (offlineCallback !== this || device !== callbackDevice) {
+                    return
+                }
+                val change = availableNetworks.onLost(network)
+                if (!change.topologyChanged) {
+                    return
+                }
+                Log.i(TAG, "network lost device = $network count=${availableNetworks.size}")
+                callbackDevice?.offline = !change.available
+                if (change.available) {
+                    // Another physical path remains. It may now become the route
+                    // for transport sockets even though the device stayed online.
+                    callbackDevice?.networkChanged()
                 }
             }
         }
 
-
-        val networkRequestBuilder = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-
-        val networkRequest = networkRequestBuilder.build()
+        // Android 15+ adds NOT_METERED to a new NetworkRequest by default. Build
+        // from an empty capability set so cellular and future constrained
+        // physical paths are not silently excluded. Explicit NOT_VPN prevents
+        // the tunnel from satisfying its own underlying-network observer.
+        val networkRequest = physicalInternetNetworkRequestBuilder().build()
 
         val connectivityManager =
             getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-        connectivityManager.requestNetwork(networkRequest, offlineCallback!!, 100)
-
+        connectivityManager.registerNetworkCallback(
+            networkRequest,
+            offlineCallback!!,
+            Handler(mainLooper),
+        )
     }
 
     fun removeOfflineCallback() {
@@ -328,63 +392,174 @@ class MainApplication : Application() {
         offlineCallback = null
     }
 
-    private fun addNetworkCallback() {
-        removeNetworkCallback()
+    /**
+     * The membership callback above tracks the SET of physical networks, so it
+     * cannot see a default-preference flip between two still-attached networks
+     * (bad-wifi avoidance moving the default to cell while wifi stays
+     * associated, or the reverse). Existing transport sockets do not migrate on
+     * such a flip; they linger on the old path until a ping timeout. Track the
+     * per-app default network's identity and kick the transports the moment it
+     * changes. This app never routes through its own tunnel (see MainService
+     * updatePfd's app rules for every mode), so the per-app default here is
+     * always a physical network, never the tunnel itself.
+     */
+    private fun addDefaultNetworkCallback() {
+        removeDefaultNetworkCallback()
 
-        networkCallback = object : ConnectivityManager.NetworkCallback() {
-            var connectedNetwork: Network? = null
+        val callbackDevice = device
+        defaultNetworkCallback = object : ConnectivityManager.NetworkCallback() {
+            // main-looper confined (registered with a main handler)
+            var lastDefaultNetwork: Network? = null
 
             override fun onAvailable(network: Network) {
-                Handler(mainLooper).post {
-                    Log.i(TAG, "network available device = $network")
-                    connectedNetwork = network
-                    device?.providePaused = false
+                if (defaultNetworkCallback !== this || device !== callbackDevice) {
+                    return
                 }
-            }
-
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
-            ) {
-                val internet = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                val ethernet = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-                val wifi = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-
-                Handler(mainLooper).post {
-                    device?.let {
-                        val networkReady = if (ProvideNetworkMode.fromString(it.provideNetworkMode) == ProvideNetworkMode.WIFI) {
-                            internet && (ethernet || wifi)
-                        } else {
-                            internet
-                        }
-                        it.providePaused = !networkReady
-                    }
-                }
-            }
-
-            override fun onUnavailable() {
-                Handler(mainLooper).post {
-                    device?.providePaused = true
+                val previous = lastDefaultNetwork
+                lastDefaultNetwork = network
+                if (previous != null && previous != network) {
+                    Log.i(TAG, "network default changed $previous -> $network")
+                    callbackDevice?.networkChanged()
                 }
             }
 
             override fun onLost(network: Network) {
-                Handler(mainLooper).post {
-                    if (network == connectedNetwork) {
-                        Log.i(TAG, "network lost device = $network")
-                        connectedNetwork = null
-                        device?.providePaused = true
-                    }
+                if (defaultNetworkCallback !== this || device !== callbackDevice) {
+                    return
+                }
+                // No default remains. A replacement arrives as onAvailable; a
+                // true loss is also a membership loss, so the offline state and
+                // the reconnect kick stay owned by the membership callback.
+                if (lastDefaultNetwork == network) {
+                    lastDefaultNetwork = null
                 }
             }
         }
 
+        val connectivityManager =
+            getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        connectivityManager.registerDefaultNetworkCallback(
+            defaultNetworkCallback!!,
+            Handler(mainLooper),
+        )
+    }
+
+    fun removeDefaultNetworkCallback() {
+        defaultNetworkCallback?.let {
+            try {
+                val connectivityManager =
+                    getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+                connectivityManager.unregisterNetworkCallback(it)
+            } catch (_: IllegalArgumentException) {
+            }
+        }
+        defaultNetworkCallback = null
+    }
+
+    private fun updatePerformanceDegraded() {
+        // battery saver throttles cpu/network and severe thermal throttling
+        // slows the whole host: the device answers control pings slowly, so
+        // ease the sdk's liveness probe timings — slow must not be misread as
+        // a dead peer. Mirrors the apple extension's composition (low power
+        // mode / thermal state).
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        device?.setPerformanceDegraded(powerManager.isPowerSaveMode || thermalDegraded)
+    }
+
+    private fun addPowerSaveReceiver() {
+        removePowerSaveReceiver()
+
+        powerSaveReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                Handler(mainLooper).post {
+                    updatePerformanceDegraded()
+                }
+            }
+        }
+        registerReceiver(
+            powerSaveReceiver,
+            IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+        )
+        updatePerformanceDegraded()
+    }
+
+    fun removePowerSaveReceiver() {
+        powerSaveReceiver?.let {
+            try {
+                unregisterReceiver(it)
+            } catch (_: IllegalArgumentException) {
+            }
+        }
+        powerSaveReceiver = null
+    }
+
+    private fun addThermalStatusListener() {
+        removeThermalStatusListener()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return
+        }
+
+        // SEVERE matches the apple extension's .serious/.critical threshold:
+        // the point where the OS throttles enough that control pings answer
+        // slowly. The listener also fires once with the current status at
+        // registration, which initializes thermalDegraded.
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val listener = object : PowerManager.OnThermalStatusChangedListener {
+            override fun onThermalStatusChanged(status: Int) {
+                if (thermalStatusListener !== this) {
+                    return
+                }
+                thermalDegraded = status >= PowerManager.THERMAL_STATUS_SEVERE
+                updatePerformanceDegraded()
+            }
+        }
+        thermalStatusListener = listener
+        powerManager.addThermalStatusListener(mainExecutor, listener)
+    }
+
+    fun removeThermalStatusListener() {
+        thermalStatusListener?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                try {
+                    powerManager.removeThermalStatusListener(it)
+                } catch (_: IllegalArgumentException) {
+                }
+            }
+        }
+        thermalStatusListener = null
+        thermalDegraded = false
+    }
+
+    private fun addNetworkCallback() {
+        removeNetworkCallback()
+
+        val callbackDevice = device
+        val availableNetworks = AvailableNetworkTracker<Network>()
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                if (networkCallback !== this || device !== callbackDevice) {
+                    return
+                }
+                availableNetworks.onAvailable(network)
+                Log.i(TAG, "network available provider = $network count=${availableNetworks.size}")
+                callbackDevice?.providePaused = false
+            }
+
+            override fun onLost(network: Network) {
+                if (networkCallback !== this || device !== callbackDevice) {
+                    return
+                }
+                val change = availableNetworks.onLost(network)
+                if (change.topologyChanged) {
+                    Log.i(TAG, "network lost provider = $network count=${availableNetworks.size}")
+                    callbackDevice?.providePaused = !change.available
+                }
+            }
+        }
 
         // see https://developer.android.com/training/monitoring-device-state/connectivity-status-type
-        val networkRequestBuilder = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            // 2025-01 drop the non-metered requirement. This appears to limit some networks globally
-//            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+        val networkRequestBuilder = physicalInternetNetworkRequestBuilder()
 
         /**
          * restrict to wifi if provideNetworkMode == wifi or device is null
@@ -401,19 +576,18 @@ class MainApplication : Application() {
                 .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
         }
 
-//            .build()
-
-
-        // note the following capabilities appear to never be satisfied
-        // NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_LATENCY
-        // NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_BANDWIDTH
-
         val networkRequest = networkRequestBuilder.build()
 
         val connectivityManager =
             getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-        connectivityManager.requestNetwork(networkRequest, networkCallback!!, 100)
-
+        // Until the passive callback reports a matching path, do not expose the
+        // device as a provider on a stale path from the previous configuration.
+        callbackDevice?.providePaused = true
+        connectivityManager.registerNetworkCallback(
+            networkRequest,
+            networkCallback!!,
+            Handler(mainLooper),
+        )
     }
 
     fun removeNetworkCallback() {
@@ -471,6 +645,10 @@ class MainApplication : Application() {
     }
 
     fun stop() {
+        // Invalidate a reconcile already queued by a listener before tearing
+        // down the device; it must not restart the service after logout.
+        vpnServiceUpdateGeneration += 1
+        vpnServiceUpdatePosted = false
         stopVpnService()
 
         if (wakeLock?.isHeld == true) wakeLock?.release()
@@ -480,11 +658,9 @@ class MainApplication : Application() {
 
         removeNetworkCallback()
         removeOfflineCallback()
-
-        devicesVc?.let {
-            device?.closeViewController(it)
-        }
-        devicesVc = null
+        removeDefaultNetworkCallback()
+        removePowerSaveReceiver()
+        removeThermalStatusListener()
 
 //        router?.close()
 //        router = null
@@ -511,9 +687,6 @@ class MainApplication : Application() {
 //        byDevice?.close()
 //        byDevice = null
         deviceManager.clearDevice()
-
-        accountVc?.close()
-        accountVc = null
 
         loginVc?.close()
         loginVc = null
@@ -547,13 +720,6 @@ class MainApplication : Application() {
 //                updateVpnService()
 //            }
 //        }
-
-        // connectVc = byDevice?.openConnectViewController()
-//        devicesVc = byDevice?.openDevicesViewController()
-//        accountVc = byDevice?.openAccountViewController()
-
-        devicesVc = device?.openDevicesViewController()
-        accountVc = device?.openAccountViewController()
 
 //        byDevice?.providePaused = true
 //        byDevice?.routeLocal = routeLocal
@@ -620,7 +786,10 @@ class MainApplication : Application() {
         }
 
         addOfflineCallback()
+        addDefaultNetworkCallback()
         addNetworkCallback()
+        addPowerSaveReceiver()
+        addThermalStatusListener()
 
         updateTunnelStarted()
         updateContractStatus()
@@ -647,6 +816,28 @@ class MainApplication : Application() {
 
 
     fun updateVpnService() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            Handler(mainLooper).post {
+                updateVpnService()
+            }
+            return
+        }
+        if (vpnServiceUpdatePosted) {
+            return
+        }
+
+        vpnServiceUpdatePosted = true
+        val generation = vpnServiceUpdateGeneration
+        Handler(mainLooper).postDelayed({
+            if (generation != vpnServiceUpdateGeneration) {
+                return@postDelayed
+            }
+            vpnServiceUpdatePosted = false
+            reconcileVpnService()
+        }, VPN_STATE_BURST_COALESCE_MILLIS)
+    }
+
+    private fun reconcileVpnService() {
         val device = device ?: return
 
         // the vpn service is the packet router: it must run whenever the device
@@ -718,9 +909,30 @@ class MainApplication : Application() {
     }
 
     private fun startVpnServiceWithForeground(foreground: Boolean) {
-        // stop the service before starting
-        // as of Android 16, this appears to work better to reset the network on connect
-        stopVpnService()
+        // Listener echoes for the same logical state are no-ops. MainService
+        // already rebuilds the TUN descriptor on material window/DNS/split
+        // changes, so stop/start here only creates a traffic pause.
+        if ((serviceActive || vpnStartPending) && activeVpnForeground == foreground) {
+            return
+        }
+
+        // Foreground policy does not change the TUN. Promote/demote the live
+        // service in place so a provide<->connect handoff does not close the
+        // descriptor and pause traffic.
+        if (serviceActive && !vpnStartPending) {
+            service?.get()?.let { activeService ->
+                if (activeService.setForegroundEnabled(foreground)) {
+                    activeVpnForeground = foreground
+                    return
+                }
+            }
+        }
+
+        // If the service has not reached onStartCommand yet, or Android
+        // rejected the in-place policy change, replace that incomplete start.
+        if (serviceActive || vpnStartPending) {
+            stopVpnService()
+        }
 
         if (!serviceActive && !vpnStartPending) {
             try {
@@ -749,6 +961,7 @@ class MainApplication : Application() {
                         vpnRequestStartListener?.let { it() }
                     } else {
                         serviceActive = true
+                        activeVpnForeground = foreground
                         vpnRequestStart = false
                         vpnStartPending = true
 
@@ -764,28 +977,38 @@ class MainApplication : Application() {
                                 vpnIntent.putExtra("foreground", foreground)
 //                                vpnIntent.putExtra("offline", offline && !vpnInterfaceWhileOffline)
 
-                                if (foreground) {
-                                    // use a foreground service to allow notifications
-                                    if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                                        try {
-                                            startForegroundService(vpnIntent)
-                                        } catch (e: ForegroundServiceStartNotAllowedException) {
-                                            startService(vpnIntent)
-                                        }
-                                    } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
-                                        try {
-                                            ContextCompat.startForegroundService(
-                                                this,
-                                                vpnIntent
-                                            )
-                                        } catch (e: ForegroundServiceStartNotAllowedException) {
-                                            startService(vpnIntent)
+                                try {
+                                    if (foreground) {
+                                        // use a foreground service to allow notifications
+                                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                                            try {
+                                                startForegroundService(vpnIntent)
+                                            } catch (e: ForegroundServiceStartNotAllowedException) {
+                                                startService(vpnIntent)
+                                            }
+                                        } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
+                                            try {
+                                                ContextCompat.startForegroundService(
+                                                    this,
+                                                    vpnIntent
+                                                )
+                                            } catch (e: ForegroundServiceStartNotAllowedException) {
+                                                startService(vpnIntent)
+                                            }
+                                        } else {
+                                            ContextCompat.startForegroundService(this, vpnIntent)
                                         }
                                     } else {
-                                        ContextCompat.startForegroundService(this, vpnIntent)
+                                        startService(vpnIntent)
                                     }
-                                } else {
-                                    startService(vpnIntent)
+                                } catch (e: Exception) {
+                                    Log.i(
+                                        TAG,
+                                        "Error trying to start the vpn service: ${e.message}"
+                                    )
+                                    serviceActive = false
+                                    activeVpnForeground = null
+                                    vpnRequestStart = true
                                 }
                             }
                         }
@@ -797,6 +1020,7 @@ class MainApplication : Application() {
                     "Error trying to communicate with the vpn service to start: ${e.message}"
                 )
                 vpnStartPending = false
+                activeVpnForeground = null
                 vpnRequestStart = true
                 // do not request start here
                 // that could lead to a loop
@@ -807,6 +1031,7 @@ class MainApplication : Application() {
     private fun stopVpnService() {
         vpnRequestStart = false
         vpnStartPending = false
+        activeVpnForeground = null
 
         // note
         // - using startService with stop intent to stop the service is broken
@@ -825,6 +1050,21 @@ class MainApplication : Application() {
                 serviceActiveMonitor.notifyAll()
             }
         }
+    }
+
+    /**
+     * MainService calls this when Android (or an internal tunnel failure)
+     * destroys the active instance. Clear optimistic start state so the
+     * tunnel-change listener can actually restart it.
+     */
+    fun vpnServiceDidStop(stoppedService: MainService) {
+        if (service?.get() != stoppedService) {
+            return
+        }
+        service = null
+        serviceActive = false
+        vpnStartPending = false
+        activeVpnForeground = null
     }
 
     fun forceStopVpnService() {

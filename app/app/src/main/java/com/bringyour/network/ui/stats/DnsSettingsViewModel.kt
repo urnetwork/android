@@ -3,12 +3,18 @@ package com.bringyour.network.ui.stats
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.utils.listToSdkStringList
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.sdk.DnsResolverSettings
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,9 +70,17 @@ data class RegionalDnsSuggestionUi(
 @HiltViewModel
 class DnsSettingsViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private val subs = mutableListOf<Sub>()
+    private var subscribedDevice: DeviceLocal? = null
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val subscriptionOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, Unit>(
+            open = { openDeviceSubscription(it) },
+            close = { device, _ -> closeDeviceSubscription(device) },
+        )
 
     var settings by mutableStateOf<DnsSettingsUi?>(null)
         private set
@@ -121,13 +135,15 @@ class DnsSettingsViewModel @Inject constructor(
     }
 
     init {
-        deviceManager.device?.let { device ->
-            subs.add(device.addDnsResolverSettingsChangeListener {
-                viewModelScope.launch {
-                    update()
-                }
-            })
-            update()
+        processLifecycle.addObserver(this)
+        subscriptionOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                settings = null
+                subscriptionOwner.setDevice(device)
+            }
         }
 
         val servers = mutableListOf<RegionalDnsSuggestionUi>()
@@ -148,8 +164,35 @@ class DnsSettingsViewModel @Inject constructor(
         regionalServers = servers
     }
 
-    private fun update() {
-        val device = deviceManager.device ?: return
+    override fun onStart(owner: LifecycleOwner) {
+        subscriptionOwner.setForeground(true)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        subscriptionOwner.setForeground(false)
+    }
+
+    private fun openDeviceSubscription(device: DeviceLocal) {
+        subscribedDevice = device
+        subs.add(device.addDnsResolverSettingsChangeListener {
+            viewModelScope.launch {
+                if (subscribedDevice === device) {
+                    update(device)
+                }
+            }
+        })
+        update(device)
+    }
+
+    private fun closeDeviceSubscription(device: DeviceLocal) {
+        subs.forEach { it.close() }
+        subs.clear()
+        if (subscribedDevice === device) {
+            subscribedDevice = null
+        }
+    }
+
+    private fun update(device: DeviceLocal) {
         val sdkSettings = device.dnsResolverSettings
         settings = if (sdkSettings != null) {
             DnsSettingsUi(
@@ -189,12 +232,14 @@ class DnsSettingsViewModel @Inject constructor(
         sdkSettings.localDnsIpv4 = listToSdkStringList(newSettings.localDnsIpv4)
         sdkSettings.localDnsIpv6 = listToSdkStringList(newSettings.localDnsIpv6)
         device.dnsResolverSettings = sdkSettings
-        update()
+        update(device)
     }
 
     override fun onCleared() {
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        subscriptionOwner.close()
         super.onCleared()
-        subs.forEach { it.close() }
-        subs.clear()
     }
 }

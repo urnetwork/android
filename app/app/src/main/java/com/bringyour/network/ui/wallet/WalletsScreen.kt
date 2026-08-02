@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -36,7 +37,6 @@ import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -58,6 +58,7 @@ import com.bringyour.sdk.AccountPayment
 import com.bringyour.sdk.Id
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.InfoIconWithOverlay
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.login.NoSolanaWalletsAlert
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -478,7 +479,16 @@ fun WalletsScreen(
                                             Spacer(modifier = Modifier.width(16.dp))
                                         }
 
-                                        items(wallets, key = { it.walletId.toString() }) { wallet ->
+                                        itemsIndexed(
+                                            wallets,
+                                            key = { index, wallet ->
+                                                indexedLazyListKey(
+                                                    "wallet",
+                                                    index,
+                                                    wallet.walletId
+                                                )
+                                            }
+                                        ) { _, wallet ->
 
                                             WalletCard(
                                                 blockchain = Blockchain.fromString(wallet.blockchain),
@@ -740,4 +750,3 @@ fun WalletsScreen(
 //        )
 //    }
 //}
-

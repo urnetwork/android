@@ -6,13 +6,19 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.sdk.FeedbackViewController
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.TAG
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.FeedbackSendArgs
 import com.bringyour.sdk.FeedbackSendNeeds
+import com.bringyour.sdk.FeedbackViewController
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,10 +30,17 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedbackViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-): ViewModel() {
+): ViewModel(), DefaultLifecycleObserver {
 
     private var feedbackVc: FeedbackViewController? = null
     private var isSendingSub: Sub? = null
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, FeedbackViewController>(
+            open = { openFeedbackViewController(it) },
+            close = { device, vc -> closeFeedbackViewController(device, vc) },
+        )
 
     var feedbackMsg by mutableStateOf(TextFieldValue())
         private set
@@ -69,9 +82,10 @@ class FeedbackViewModel @Inject constructor(
         isSendEnabled = !isSendingFeedback && (feedbackMsg.text.isNotEmpty() || starCount > 0)
     }
 
-    val sendFeedback:() -> Unit = {
+    val sendFeedback:() -> Unit = sendFeedback@{
 
-        if (!isSendingFeedback) {
+        val device = deviceManager.device
+        if (!isSendingFeedback && device != null) {
             isSendingFeedback = true
 
             val feedbackArgs = FeedbackSendArgs()
@@ -80,7 +94,13 @@ class FeedbackViewModel @Inject constructor(
             feedbackArgs.starCount = starCount.toLong()
             feedbackArgs.needs = needs
 
-            deviceManager.device?.api?.sendFeedback(feedbackArgs) { result, err ->
+            val api = device.api
+            if (api == null) {
+                isSendingFeedback = false
+                validateIsSendEnabled()
+                return@sendFeedback
+            }
+            api.sendFeedback(feedbackArgs) { result, err ->
 
                 if (err != null) {
                     Log.i(TAG, "error sending feedback: ${err.message}")
@@ -98,10 +118,10 @@ class FeedbackViewModel @Inject constructor(
                     /**
                      * upload logs
                      */
-                    deviceManager.device?.uploadLogs(result.feedbackId.string()) { result, err ->
+                    device.uploadLogs(result.feedbackId.string()) { _, uploadError ->
 
-                        if (err != null) {
-                            Log.i(TAG, "error uploading logs: ${err.message}")
+                        if (uploadError != null) {
+                            Log.i(TAG, "error uploading logs: ${uploadError.message}")
                         }
 
                         viewModelScope.launch {
@@ -128,9 +148,12 @@ class FeedbackViewModel @Inject constructor(
 
     }
 
-    val addIsSendingListener = {
-        isSendingSub = feedbackVc?.addIsSendingFeedbackListener { isSending ->
+    private fun addIsSendingListener(vc: FeedbackViewController) {
+        isSendingSub = vc.addIsSendingFeedbackListener { isSending ->
             viewModelScope.launch {
+                if (feedbackVc !== vc) {
+                    return@launch
+                }
                 isSendingFeedback = isSending
                 validateIsSendEnabled()
             }
@@ -138,21 +161,53 @@ class FeedbackViewModel @Inject constructor(
     }
 
     init {
-        feedbackVc = deviceManager.device?.openFeedbackViewController()
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                controllerOwner.setDevice(device)
+            }
+        }
+    }
 
-        addIsSendingListener()
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
+
+    private fun openFeedbackViewController(device: DeviceLocal): FeedbackViewController {
+        val vc = device.openFeedbackViewController()
+        feedbackVc = vc
+        addIsSendingListener(vc)
+        vc.start()
+        return vc
+    }
+
+    private fun closeFeedbackViewController(
+        device: DeviceLocal,
+        vc: FeedbackViewController,
+    ) {
+        isSendingSub?.close()
+        isSendingSub = null
+        vc.stop()
+        device.closeViewController(vc)
+        if (feedbackVc === vc) {
+            feedbackVc = null
+        }
     }
 
     override fun onCleared() {
-        super.onCleared()
-
         isSendingFeedback = false
-
-        isSendingSub?.close()
-
-        feedbackVc?.let {
-            deviceManager.device?.closeViewController(it)
-        }
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
+        super.onCleared()
     }
 
 }

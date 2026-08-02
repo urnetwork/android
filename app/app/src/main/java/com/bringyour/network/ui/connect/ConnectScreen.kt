@@ -12,10 +12,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,7 +36,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -159,9 +163,11 @@ fun ConnectScreen(
 
     ConnectActionsSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetContent = { minSheetHeight ->
+        sheetContent = { minSheetHeight, belowFoldGap, onFoldMarkerPositioned ->
             ConnectActions(
                 navController = navController,
+                onFoldMarkerPositioned = onFoldMarkerPositioned,
+                belowFoldGap = belowFoldGap,
                 selectedLocation = connectViewModel.selectedLocation,
                 peerCount = networkPeersViewModel.connectedCount,
                 providerDiscoverable = networkPeersViewModel.providerDiscoverable,
@@ -256,19 +262,59 @@ fun ConnectScreen(
 @Composable
 fun ConnectActionsSheetScaffold(
     scaffoldState: BottomSheetScaffoldState,
-    sheetContent: @Composable (peekHeight: Dp) -> Unit,
+    sheetContent: @Composable (peekHeight: Dp, belowFoldGap: Dp, onFoldMarkerPositioned: (Int) -> Unit) -> Unit,
     mainContent: @Composable () -> Unit,
     baseSheetPeekHeight: Dp = dimensionResource(id = R.dimen.connect_actions_sheet_peek_height),
 ) {
 
     val scrollState = rememberScrollState()
+    val density = LocalDensity.current
 
-    // the scaffold draws edge-to-edge behind the navigation bar, so the peek
-    // and the sheet's bottom padding must both add the nav-bar inset — without
-    // it the connect button's bottom padding sits BEHIND the nav bar instead of
-    // aligning to the edge above it (iOS respects the safe area the same way)
-    val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val sheetPeekHeight = baseSheetPeekHeight + navBarPadding
+    // Only the part of the system bottom inset that nothing below the sheet
+    // absorbs may be added to the sheet geometry. Above the bottom tab bar
+    // (phones) NavigationSuiteScaffold consumes the inset — the tab bar itself
+    // clears the system bar — so the remainder is zero. Next to a navigation
+    // rail (tablet landscape) the sheet reaches the screen edge and the full
+    // inset remains. Adding the RAW inset here double-counted it above the tab
+    // bar, so the gap under the connect button varied with the device's nav
+    // mode (gesture vs 3-button) instead of staying standard.
+    var consumedWindowInsets by remember { mutableStateOf(WindowInsets(0, 0, 0, 0)) }
+    val unconsumedBottomInset = with(density) {
+        (WindowInsets.navigationBars.getBottom(this) - consumedWindowInsets.getBottom(this))
+            .coerceAtLeast(0)
+            .toDp()
+    }
+
+    // The collapsed drawer shows EXACTLY the above-the-fold content — the
+    // location row with the connect button — and nothing else (iOS parity: no
+    // peers line, no hint of the connection-type selector below the fold). A
+    // fixed peek constant cannot do that across devices and font scales. Use
+    // only local integer geometry: the handle height plus the fold marker's
+    // offset within sheet content. Root coordinates feed the sheet's own
+    // movement back into sheetPeekHeight and can create a perpetual
+    // measure/layout/render loop. Until both measurements land, the dimen keeps
+    // a sane peek.
+    // the standard visible padding between the bottom of the connect button
+    // and the top of the tab bar at the collapsed peek — the same 12dp on
+    // every device and nav mode, matching the iOS drawer
+    val foldGap = 12.dp
+    var dragHandleHeightPx by remember { mutableIntStateOf(0) }
+    var foldMarkerOffsetPx by remember { mutableIntStateOf(0) }
+    val sheetPeekHeight = with(density) {
+        connectSheetPeekHeightPx(
+            baseHeightPx = baseSheetPeekHeight.roundToPx(),
+            dragHandleHeightPx = dragHandleHeightPx,
+            foldMarkerOffsetPx = foldMarkerOffsetPx,
+            foldGapPx = foldGap.roundToPx(),
+            unconsumedBottomInsetPx = unconsumedBottomInset.roundToPx(),
+        ).toDp()
+    }
+
+    // spacing between the connect button and the peers line: it must exceed
+    // the collapsed peek's overhang past the fold marker (foldGap + the
+    // unconsumed inset) so the peers line never peeks out of the collapsed
+    // drawer, and at 24dp on phones it matches the iOS expanded spacing
+    val belowFoldGap = 24.dp + unconsumedBottomInset
 
     // when the sheet settles back to the peek, reset the content to the top so
     // the peek always shows the top of the actions (matches the iOS drawer)
@@ -281,42 +327,63 @@ fun ConnectActionsSheetScaffold(
             }
     }
 
-    BottomSheetScaffold(
-        sheetPeekHeight = sheetPeekHeight,
-        scaffoldState = scaffoldState,
-        sheetContainerColor = SheetBlack,
-        sheetContent = {
-            // the sheet body scrolls when expanded. BottomSheetScaffold installs a
-            // nested scroll connection so a downward drag with the content at the
-            // top hands off to the sheet and collapses it instead of overscrolling,
-            // and an upward drag expands the sheet before the content scrolls
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 16.dp)
-                    // 16dp visible gap + the nav-bar inset, so the collapsed
-                    // content's bottom padding lands at the edge above the nav
-                    // bar (matches the iOS collapsed drawer)
-                    .padding(bottom = 16.dp + navBarPadding)
-            ) {
-                sheetContent(baseSheetPeekHeight)
-            }
-        },
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Black)
-        ) {
-
+    Box(
+        // reports the insets ancestors already consumed (the tab bar scaffold),
+        // so the sheet geometry above only adds the unconsumed remainder
+        modifier = Modifier.onConsumedWindowInsetsChanged { consumedWindowInsets = it }
+    ) {
+        BottomSheetScaffold(
+            sheetPeekHeight = sheetPeekHeight,
+            scaffoldState = scaffoldState,
+            sheetContainerColor = SheetBlack,
+            sheetDragHandle = {
+                // Measure only the handle's local size. Moving the sheet does not
+                // change it.
+                Box(
+                    modifier = Modifier.onSizeChanged { dragHandleHeightPx = it.height }
+                ) {
+                    BottomSheetDefaults.DragHandle()
+                }
+            },
+            sheetContent = {
+                // the sheet body scrolls when expanded. BottomSheetScaffold installs a
+                // nested scroll connection so a downward drag with the content at the
+                // top hands off to the sheet and collapses it instead of overscrolling,
+                // and an upward drag expands the sheet before the content scrolls
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 16.dp)
+                        // the same standard gap above the sheet's bottom edge
+                        // (the tab bar on phones, the screen edge past the
+                        // unconsumed inset next to a rail), so the expanded
+                        // content's last card ends with the padding the
+                        // collapsed connect button gets
+                        .padding(bottom = foldGap + unconsumedBottomInset)
+                ) {
+                    sheetContent(
+                        baseSheetPeekHeight,
+                        belowFoldGap,
+                        { foldMarkerOffsetPx = it },
+                    )
+                }
+            },
+        ) { innerPadding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .background(Black)
             ) {
-                // Main screen content
-                mainContent()
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    // Main screen content
+                    mainContent()
+                }
             }
         }
     }
@@ -449,4 +516,3 @@ fun ConnectMainContent(
 //        }
 //    }
 //}
-

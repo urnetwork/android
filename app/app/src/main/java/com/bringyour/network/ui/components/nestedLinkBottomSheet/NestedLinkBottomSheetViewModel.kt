@@ -5,13 +5,19 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
+import com.bringyour.network.ui.connect.FilterLocationsState
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationList
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.LocationsViewController
-import com.bringyour.network.DeviceManager
-import com.bringyour.network.ui.connect.FilterLocationsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,10 +28,17 @@ import javax.inject.Inject
 @HiltViewModel
 class NestedLinkBottomSheetViewModel @Inject constructor(
     private val deviceManager: DeviceManager
-): ViewModel() {
+): ViewModel(), DefaultLifecycleObserver {
 
     private var locationsVc: LocationsViewController? = null
     private var filteredLocationsSub: com.bringyour.sdk.Sub? = null
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, LocationsViewController>(
+            open = { openLocationsViewController(it) },
+            close = { device, vc -> closeLocationsViewController(device, vc) },
+        )
 
     private val _filterLocationsState = MutableStateFlow(FilterLocationsState.Loading)
     val filterLocationsState: StateFlow<FilterLocationsState> = _filterLocationsState.asStateFlow()
@@ -69,50 +82,83 @@ class NestedLinkBottomSheetViewModel @Inject constructor(
         locationsVc?.filterLocations(search)
     }
 
-    private val addFilteredLocationsListener = {
+    private fun addFilteredLocationsListener(vc: LocationsViewController) {
+        filteredLocationsSub = vc.addFilteredLocationsListener { filteredLocation, state ->
+            viewModelScope.launch {
+                if (locationsVc !== vc) {
+                    return@launch
+                }
 
-        locationsVc?.let { vc ->
-            filteredLocationsSub = vc.addFilteredLocationsListener { filteredLocation, state ->
-                viewModelScope.launch {
+                val newResults = mutableListOf<ConnectLocation>()
 
-                    val newResults = mutableListOf<ConnectLocation>()
+                filteredLocation?.let {
+                    newResults.addAll(makeConnectLocationCollection(it.bestMatches))
+                    newResults.addAll(makeConnectLocationCollection(it.devices))
+                }
 
-                    filteredLocation?.let {
-                        newResults.addAll(makeConnectLocationCollection(it.bestMatches))
-                        newResults.addAll(makeConnectLocationCollection(it.devices))
-                    }
+                Snapshot.withMutableSnapshot {
+                    searchLocationResults.clear()
+                    searchLocationResults.addAll(newResults)
+                }
 
-                    Snapshot.withMutableSnapshot {
-                        searchLocationResults.clear()
-                        searchLocationResults.addAll(newResults)
-                    }
-
-                    FilterLocationsState.fromString(state)?.let {
-                        _filterLocationsState.value = it
-                    }
+                FilterLocationsState.fromString(state)?.let {
+                    _filterLocationsState.value = it
                 }
             }
         }
     }
 
     init {
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                _filterLocationsState.value = FilterLocationsState.Loading
+                Snapshot.withMutableSnapshot {
+                    searchLocationResults.clear()
+                }
+                controllerOwner.setDevice(device)
+            }
+        }
+    }
 
-        locationsVc = deviceManager.device?.openLocationsViewController()
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
 
-        addFilteredLocationsListener()
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
 
-        locationsVc?.start()
+    private fun openLocationsViewController(device: DeviceLocal): LocationsViewController {
+        val vc = device.openLocationsViewController()
+        locationsVc = vc
+        addFilteredLocationsListener(vc)
+        vc.start()
+        return vc
+    }
+
+    private fun closeLocationsViewController(
+        device: DeviceLocal,
+        vc: LocationsViewController,
+    ) {
+        filteredLocationsSub?.close()
+        filteredLocationsSub = null
+        vc.stop()
+        device.closeViewController(vc)
+        if (locationsVc === vc) {
+            locationsVc = null
+        }
     }
 
     override fun onCleared() {
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
         super.onCleared()
-
-        filteredLocationsSub?.close()
-        filteredLocationsSub = null
-
-        locationsVc?.let {
-            deviceManager.device?.closeViewController(it)
-        }
     }
 
 }

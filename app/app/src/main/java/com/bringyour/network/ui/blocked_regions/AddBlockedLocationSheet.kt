@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.CircleImage
 import com.bringyour.network.ui.components.URSearchInput
 import com.bringyour.network.ui.theme.Black
@@ -119,7 +120,16 @@ fun AddBlockedLocationSheet(
             }
 
 
-            items(filteredCountries, key = { it.connectLocationId.locationId.toString() }) { location ->
+            itemsIndexed(
+                filteredCountries,
+                key = { index, location ->
+                    indexedLazyListKey(
+                        "blocked-location-candidate",
+                        index,
+                        location.connectLocationId.locationId
+                    )
+                }
+            ) { _, location ->
 
                 Column {
 

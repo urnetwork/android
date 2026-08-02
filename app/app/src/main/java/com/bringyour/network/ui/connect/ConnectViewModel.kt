@@ -11,9 +11,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.BlueLight
@@ -46,11 +51,19 @@ class ConnectViewModel
 @Inject
 constructor(
         private val deviceManager: DeviceManager,
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private var connectVc: ConnectViewController? = null
+    private var viewControllerDevice: DeviceLocal? = null
 
     private val subs = mutableListOf<Sub>()
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, ConnectViewController>(
+            open = { openConnectViewController(it) },
+            close = { device, vc -> closeConnectViewController(device, vc) },
+        )
 
     private val _connectStatus = MutableStateFlow(ConnectStatus.DISCONNECTED)
     val connectStatus: StateFlow<ConnectStatus> = _connectStatus
@@ -151,7 +164,7 @@ constructor(
     val shuffledSuccessPoints = mutableStateListOf<AnimatedSuccessPoint>()
 
     val device: DeviceLocal?
-        get() = this.deviceManager.device
+        get() = viewControllerDevice ?: deviceManager.device
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
 
@@ -258,21 +271,25 @@ constructor(
         addListener { vc -> vc.addGridListener { updateGrid() } }
     }
 
-    val refreshContractStatus = { _contractStatus.value = deviceManager.device?.contractStatus }
+    val refreshContractStatus = {
+        _contractStatus.value = viewControllerDevice?.contractStatus
+    }
 
     private val addContractStatusListener = {
 
         // initialize contract status
         refreshContractStatus()
 
-        val sub = deviceManager.device?.addContractStatusChangeListener {
+        val device = viewControllerDevice
+        val sub = device?.addContractStatusChangeListener {
             viewModelScope.launch {
-                refreshContractStatus()
-
-                if (_contractStatus.value?.insufficientBalance == true &&
+                if (viewControllerDevice === device) {
+                    refreshContractStatus()
+                    if (_contractStatus.value?.insufficientBalance == true &&
                                 _connectStatus.value != ConnectStatus.DISCONNECTED
-                ) {
-                    disconnect()
+                    ) {
+                        disconnect()
+                    }
                 }
             }
         }
@@ -365,7 +382,8 @@ constructor(
     val disconnect: () -> Unit = { connectVc?.disconnect() }
 
     val addTunnelListener: () -> Unit = {
-        val tunnelStarted = deviceManager.device?.tunnelStarted
+        val device = viewControllerDevice
+        val tunnelStarted = device?.tunnelStarted
 
         if (tunnelStarted == true) {
             this.tunnelConnected = true
@@ -373,10 +391,12 @@ constructor(
         }
 
         val sub =
-                deviceManager.device?.addTunnelChangeListener { tunnelConnected ->
+                device?.addTunnelChangeListener { tunnelConnected ->
                     viewModelScope.launch {
-                        this@ConnectViewModel.tunnelConnected = tunnelConnected
-                        updateDisplayReconnectTunnel()
+                        if (viewControllerDevice === device) {
+                            this@ConnectViewModel.tunnelConnected = tunnelConnected
+                            updateDisplayReconnectTunnel()
+                        }
                     }
                 }
 
@@ -398,30 +418,85 @@ constructor(
     }
 
     init {
+        loadPerformanceProfile()
 
-        connectVc = deviceManager.device?.openConnectViewController()
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                setupDevice(device)
+            }
+        }
+    }
 
-        addTunnelListener()
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
 
-        addSelectedLocationListener()
-        addGridListener()
-        addConnectionStatusListener()
-        addContractStatusListener()
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
 
-        // a null profile and window type auto mean the same thing; the
-        // orthogonal settings (allow direct, post quantum encryption) are read
-        // off the profile with false defaults
+    private fun loadPerformanceProfile() {
+        // A null profile and window type auto mean the same thing; the
+        // orthogonal settings are read off the profile with false defaults.
         val performanceProfile = deviceManager.performanceProfile
-        selectedWindowType = WindowType.fromRawValueOrDefault(performanceProfile?.windowType.orEmpty())
+        selectedWindowType =
+            WindowType.fromRawValueOrDefault(performanceProfile?.windowType.orEmpty())
         allowDirect = performanceProfile?.allowDirect ?: false
         postQuantumEncryption = performanceProfile?.postQuantumEncryption ?: false
         val windowSize = performanceProfile?.windowSize
         fixedIpSize = windowSize != null &&
-                windowSize.windowSizeMin.toInt() == 1 &&
-                windowSize.windowSizeMax.toInt() == 1
-        updatePerformanceProfile()
+            windowSize.windowSizeMin.toInt() == 1 &&
+            windowSize.windowSizeMax.toInt() == 1
+    }
 
+    private fun setupDevice(device: DeviceLocal?) {
+        selectedLocation = null
+        grid = null
+        providerGridPoints = mapOf()
+        windowCurrentSize = 0
+        lastGridSignature = ""
+        tunnelConnected = false
+        displayReconnectTunnel = false
+        _contractStatus.value = null
+        if (device == null) {
+            _connectStatus.value = ConnectStatus.DISCONNECTED
+        } else {
+            loadPerformanceProfile()
+        }
+        controllerOwner.setDevice(device)
+    }
+
+    private fun openConnectViewController(device: DeviceLocal): ConnectViewController {
+        val vc = device.openConnectViewController()
+        viewControllerDevice = device
+        connectVc = vc
+        addTunnelListener()
+        addSelectedLocationListener()
+        addGridListener()
+        addConnectionStatusListener()
+        addContractStatusListener()
+        vc.start()
         update()
+        return vc
+    }
+
+    private fun closeConnectViewController(device: DeviceLocal, vc: ConnectViewController) {
+        subs.forEach { sub -> sub.close() }
+        subs.clear()
+        vc.stop()
+        device.closeViewController(vc)
+        if (connectVc === vc) {
+            connectVc = null
+            viewControllerDevice = null
+            grid = null
+            providerGridPoints = mapOf()
+            windowCurrentSize = 0
+            lastGridSignature = ""
+        }
     }
 
     fun update() {
@@ -431,12 +506,11 @@ constructor(
     }
 
     override fun onCleared() {
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
         super.onCleared()
-
-        subs.forEach { sub -> sub.close() }
-        subs.clear()
-
-        connectVc?.let { deviceManager.device?.closeViewController(it) }
     }
 }
 

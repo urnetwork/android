@@ -27,6 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -55,6 +58,7 @@ import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.ConnectLocation
+import kotlin.math.roundToInt
 
 @Composable
 fun ConnectActions(
@@ -96,7 +100,24 @@ fun ConnectActions(
     blockerViewModel: BlockerViewModel,
     // opens the referral flow from the usage bar referral row
     onReferralClick: () -> Unit,
+    // Reports the local integer Y offset of the fold marker placed right after
+    // the connect button, measured from the top of ConnectActions — the top of
+    // the sheet content. The sheet scaffold sizes the collapsed peek to this
+    // point without feeding the sheet's root position back into its own layout.
+    onFoldMarkerPositioned: (Int) -> Unit = {},
+    // spacing between the connect button and the peers line, supplied by the
+    // sheet scaffold so it always exceeds the collapsed peek's overhang past
+    // the fold marker (the peers line must stay below the fold)
+    belowFoldGap: Dp = 24.dp,
 ) {
+
+    // The card's uniform content padding. The fold marker below measures its
+    // position in the card's content area, which excludes this padding, so the
+    // card's top padding is added back to anchor the reported fold offset at
+    // the top of the sheet content. The card is the first child of
+    // ConnectActions with nothing above it, so no other height contributes.
+    val cardPadding = 16.dp
+    val cardPaddingPx = with(LocalDensity.current) { cardPadding.roundToPx() }
 
     Column(
         modifier = Modifier
@@ -112,25 +133,36 @@ fun ConnectActions(
                     MainTintedBackgroundBase,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(16.dp)
+                .padding(cardPadding)
         ) {
 
-            OpenProviderListButton(
-                selectedLocation = selectedLocation,
-                selectedPeerName = selectedPeerName,
-                getLocationColor = getLocationColor,
-                onClick = { presentSelectProvider(true) }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            /**
-             * Connect / Disconnect buttons
-             */
-            Box(
-                modifier = Modifier
-                    .height(48.dp)
+            // The above-the-fold block — the location row and the connect/
+            // disconnect button. A zero-height fold marker is placed right after
+            // it (below) so the collapsed drawer peek can be sized to show
+            // exactly this and nothing below it (iOS parity). Everything after
+            // the marker (the peers line, the connection-type selector, the
+            // toggles) stays inside the same card but falls below the fold when
+            // collapsed.
+            Column(
+                modifier = Modifier.fillMaxWidth()
             ) {
+
+                OpenProviderListButton(
+                    selectedLocation = selectedLocation,
+                    selectedPeerName = selectedPeerName,
+                    getLocationColor = getLocationColor,
+                    onClick = { presentSelectProvider(true) }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                /**
+                 * Connect / Disconnect buttons
+                 */
+                Box(
+                    modifier = Modifier
+                        .height(48.dp)
+                ) {
 
                 if (insufficientBalance && currentPlan != Plan.Supporter && !isPollingSubscriptionBalance) {
                     URButton(
@@ -198,11 +230,26 @@ fun ConnectActions(
                         }
                     }
                 }
+                }
             }
 
-            // the extra top spacing pushes the peers line just below the collapsed
-            // drawer's peek fold, so it appears only when the drawer opens (iOS parity)
-            Spacer(modifier = Modifier.height(24.dp))
+            // the fold marker: a zero-height anchor at the bottom of the
+            // location + connect block. positionInParent is relative to the
+            // card's content area (inside its padding), so the card's top
+            // padding is added to yield the fold's offset from the top of the
+            // sheet content. Still local geometry only: translating the sheet
+            // cannot retrigger layout.
+            Spacer(
+                modifier = Modifier.onGloballyPositioned {
+                    onFoldMarkerPositioned(cardPaddingPx + it.positionInParent().y.roundToInt())
+                }
+            )
+
+            // Everything from here down falls below the collapsed fold: the
+            // scaffold-supplied gap clears the peek's overhang past the fold
+            // marker, so the peers line lands off-screen when collapsed and
+            // only appears once the drawer is opened (iOS parity).
+            Spacer(modifier = Modifier.height(belowFoldGap))
 
             /**
              * Network peers status line: a small dot (brand green when peers are online,

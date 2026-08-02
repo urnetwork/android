@@ -28,17 +28,23 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTextBase
@@ -47,6 +53,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.utils.formatByteRate
 import com.bringyour.network.utils.formatPacketRate
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlin.math.max
 import kotlin.math.min
 
@@ -141,11 +148,18 @@ fun TransferChart(
         clock - lastActivityMillis < windowSeconds * 1000
     val scaleSettling = clock - byteScaleTransition.startMillis < TRANSITION_MILLIS ||
         clock - packetScaleTransition.startMillis < TRANSITION_MILLIS
-    val animationActive = hasRecentActivity || scaleSettling
-    LaunchedEffect(animationActive) {
-        while (animationActive) {
-            nowMillis = System.currentTimeMillis()
-            delay(50)
+    val rootView = LocalView.current
+    var chartVisible by remember { mutableStateOf(false) }
+    val animationActive = chartVisible && (hasRecentActivity || scaleSettling)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(animationActive, lifecycleOwner) {
+        if (animationActive) {
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (isActive) {
+                    nowMillis = System.currentTimeMillis()
+                    delay(50)
+                }
+            }
         }
     }
 
@@ -153,6 +167,13 @@ fun TransferChart(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
+            .onGloballyPositioned { coordinates ->
+                chartVisible = transferChartIntersectsViewport(
+                    coordinates.boundsInWindow(),
+                    rootView.width,
+                    rootView.height,
+                )
+            }
             .graphicsLayer()
     ) {
 
@@ -216,6 +237,20 @@ fun TransferChart(
         }
 
     }
+}
+
+internal fun transferChartIntersectsViewport(
+    bounds: Rect,
+    viewportWidth: Int,
+    viewportHeight: Int,
+): Boolean {
+    if (viewportWidth <= 0 || viewportHeight <= 0) {
+        return false
+    }
+    return bounds.right > 0f &&
+        bounds.left < viewportWidth.toFloat() &&
+        bounds.bottom > 0f &&
+        bounds.top < viewportHeight.toFloat()
 }
 
 // the top-right stats average over the last N buckets (≈ N seconds)

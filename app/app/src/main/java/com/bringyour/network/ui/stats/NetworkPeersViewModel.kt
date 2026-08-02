@@ -3,11 +3,17 @@ package com.bringyour.network.ui.stats
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationId
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.PeerViewController
 import com.bringyour.sdk.ProvideSecretKeyList
 import com.bringyour.sdk.Sdk
@@ -45,11 +51,18 @@ data class NetworkPeerUi(
 @HiltViewModel
 class NetworkPeersViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-) : ViewModel() {
+) : ViewModel(), DefaultLifecycleObserver {
 
     private val subs = mutableListOf<Sub>()
+    private var viewControllerDevice: DeviceLocal? = null
     private var peerVc: PeerViewController? = null
     private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, PeerViewController>(
+            open = { openPeerViewController(it) },
+            close = { device, vc -> closePeerViewController(device, vc) },
+        )
 
     var connectedProvidePeers by mutableStateOf<List<NetworkPeerUi>>(listOf())
         private set
@@ -82,6 +95,10 @@ class NetworkPeersViewModel @Inject constructor(
         get() = provideEnabled && providerHasNetworkKey
 
     init {
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
         // the device is (re)created asynchronously (login, network change) and
         // this view model can be created first — wire per device, every time,
         // never once at init (the init-once `device?.let` left the peers
@@ -93,24 +110,28 @@ class NetworkPeersViewModel @Inject constructor(
         }
     }
 
-    private fun setupDevice(device: com.bringyour.sdk.DeviceLocal?) {
-        subs.forEach { it.close() }
-        subs.clear()
-        peerVc?.close()
-        peerVc = null
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
+
+    private fun setupDevice(device: DeviceLocal?) {
         connectedProvidePeers = listOf()
         connectedCount = 0
         provideEnabled = false
         providerHasNetworkKey = false
         deviceName = ""
+        controllerOwner.setDevice(device)
+    }
 
-        if (device == null) {
-            return
-        }
-
+    private fun openPeerViewController(device: DeviceLocal): PeerViewController {
         // the SDK peer view controller carries both the connected count and
         // the connectable (provide-enabled) peers
         val vc = device.openPeerViewController()
+        viewControllerDevice = device
         peerVc = vc
         subs.add(vc.addPeersListener {
             viewModelScope.launch {
@@ -123,13 +144,33 @@ class NetworkPeersViewModel @Inject constructor(
         provideEnabled = device.provideEnabled
         providerHasNetworkKey = keysContainNetwork(device.provideSecretKeys)
         subs.add(device.addProvideChangeListener { enabled ->
-            viewModelScope.launch { provideEnabled = enabled }
+            viewModelScope.launch {
+                if (viewControllerDevice === device) {
+                    provideEnabled = enabled
+                }
+            }
         })
         subs.add(device.addProvideSecretKeysListener { keys ->
             val hasNetworkKey = keysContainNetwork(keys)
-            viewModelScope.launch { providerHasNetworkKey = hasNetworkKey }
+            viewModelScope.launch {
+                if (viewControllerDevice === device) {
+                    providerHasNetworkKey = hasNetworkKey
+                }
+            }
         })
-        fetchDeviceName()
+        fetchDeviceName(device)
+        return vc
+    }
+
+    private fun closePeerViewController(device: DeviceLocal, vc: PeerViewController) {
+        subs.forEach { it.close() }
+        subs.clear()
+        vc.stop()
+        device.closeViewController(vc)
+        if (peerVc === vc) {
+            peerVc = null
+            viewControllerDevice = null
+        }
     }
 
     private fun keysContainNetwork(keys: ProvideSecretKeyList?): Boolean {
@@ -144,8 +185,7 @@ class NetworkPeersViewModel @Inject constructor(
     }
 
     // this device's editable network name, from its network client record
-    private fun fetchDeviceName() {
-        val device = deviceManager.device ?: return
+    private fun fetchDeviceName(device: DeviceLocal) {
         val clientId = device.clientId?.idStr ?: return
         device.api?.getNetworkClients { result, _ ->
             val clients = result?.clients ?: return@getNetworkClients
@@ -153,7 +193,9 @@ class NetworkPeersViewModel @Inject constructor(
                 val info = clients.get(i) ?: continue
                 if (info.clientId?.idStr == clientId) {
                     viewModelScope.launch {
-                        deviceName = info.deviceName.ifEmpty { info.deviceDescription }
+                        if (viewControllerDevice === device) {
+                            deviceName = info.deviceName.ifEmpty { info.deviceDescription }
+                        }
                     }
                     break
                 }
@@ -211,12 +253,10 @@ class NetworkPeersViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        super.onCleared()
         removeDeviceChangeListener?.invoke()
         removeDeviceChangeListener = null
-        subs.forEach { it.close() }
-        subs.clear()
-        peerVc?.close()
-        peerVc = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
+        super.onCleared()
     }
 }

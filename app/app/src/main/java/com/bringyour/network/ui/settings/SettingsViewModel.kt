@@ -11,19 +11,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bringyour.sdk.AccountPreferencesViewController
 import com.bringyour.network.DeviceManager
-import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
+import com.bringyour.sdk.AccountPreferencesViewController
 import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthCodeCreateArgs
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.GenerateSeedphraseArgs
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.RegenerateSeedphraseArgs
@@ -41,12 +46,18 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
-    networkSpaceManagerProvider: NetworkSpaceManagerProvider,
     @ApplicationContext private val context: Context
-): ViewModel() {
+): ViewModel(), DefaultLifecycleObserver {
 
     private var accountPreferencesVc: AccountPreferencesViewController? = null
     private val subs = mutableListOf<Sub>()
+    private var removeDeviceChangeListener: (() -> Unit)? = null
+    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
+    private val controllerOwner =
+        ForegroundDeviceControllerOwner<DeviceLocal, AccountPreferencesViewController>(
+            open = { openAccountPreferencesViewController(it) },
+            close = { device, vc -> closeAccountPreferencesViewController(device, vc) },
+        )
 
     private val _permissionGranted = MutableStateFlow(false)
     val permissionGranted: StateFlow<Boolean> = _permissionGranted
@@ -245,14 +256,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    val addAllowProductUpdatesListener = {
-        accountPreferencesVc?.let { vc ->
-            vc.addAllowProductUpdatesListener {
-                viewModelScope.launch {
-                    setAllowProductUpdates(vc.allowProductUpdates)
+    private fun addAllowProductUpdatesListener(vc: AccountPreferencesViewController) {
+        vc.addAllowProductUpdatesListener {
+            viewModelScope.launch {
+                if (accountPreferencesVc !== vc) {
+                    return@launch
                 }
-            }?.let { subs.add(it) }
-        }
+                setAllowProductUpdates(vc.allowProductUpdates)
+            }
+        }?.let { subs.add(it) }
     }
 
     val toggleAllowProductUpdates: () -> Unit = {
@@ -522,30 +534,38 @@ class SettingsViewModel @Inject constructor(
 
     }
 
-    val addProvideEnabledListener: () -> Unit = {
-        deviceManager.device?.let { device ->
-            // track the LIVE effective provide mode: Network provide (same-network
-            // peers) is always active, so the provider merely existing
-            // (provideEnabled) no longer means the device provides publicly.
-            // ProvideMode is a bit set: compare per-case, never with ranges.
-            val sub = device.addProvideModeChangeListener { provideMode ->
-                viewModelScope.launch {
-                    _provideMode.value = provideMode
+    private fun addProvideEnabledListener(
+        device: DeviceLocal,
+        vc: AccountPreferencesViewController,
+    ) {
+        // Track the LIVE effective provide mode: Network provide (same-network
+        // peers) is always active, so the provider merely existing
+        // (provideEnabled) no longer means the device provides publicly.
+        // ProvideMode is a bit set: compare per-case, never with ranges.
+        val sub = device.addProvideModeChangeListener { provideMode ->
+            viewModelScope.launch {
+                if (accountPreferencesVc !== vc) {
+                    return@launch
                 }
+                _provideMode.value = provideMode
             }
-            sub?.let { subs.add(it) }
         }
+        sub?.let { subs.add(it) }
     }
 
-    val addProvidePausedListener: () -> Unit = {
-        deviceManager.device?.let { device ->
-            val sub = device.addProvidePausedChangeListener {
-                viewModelScope.launch {
-                    _providePaused.value = device.providePaused
+    private fun addProvidePausedListener(
+        device: DeviceLocal,
+        vc: AccountPreferencesViewController,
+    ) {
+        val sub = device.addProvidePausedChangeListener {
+            viewModelScope.launch {
+                if (accountPreferencesVc !== vc) {
+                    return@launch
                 }
+                _providePaused.value = device.providePaused
             }
-            sub?.let { subs.add(it) }
         }
+        sub?.let { subs.add(it) }
     }
 
     // the indicator encodes the LIVE effective provide tier (apple parity):
@@ -567,48 +587,71 @@ class SettingsViewModel @Inject constructor(
         }
 
     init {
-        accountPreferencesVc = deviceManager.device?.openAccountPreferencesViewController()
-        
         provideControlMode = deviceManager.provideControlMode
 
         allowForeground = deviceManager.allowForeground
 
-        val routeLocal = deviceManager.device?.routeLocal
-
-        _routeLocal.value = routeLocal == true
-
         _allowProvideOnCell.value = deviceManager.provideNetworkMode == ProvideNetworkMode.ALL
-
-        addAllowProductUpdatesListener()
-
-        accountPreferencesVc?.start()
-
-        fetchReferralNetwork()
-
-        fetchStripeCustomerPortalUrl()
 
         version = Sdk.Version
 
-        addProvideEnabledListener()
-
-        addProvidePausedListener()
-
-        deviceManager.device?.let { device ->
-            _providePaused.value = device.providePaused
-            _provideMode.value = device.provideMode
+        processLifecycle.addObserver(this)
+        controllerOwner.setForeground(
+            processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+            viewModelScope.launch {
+                _routeLocal.value = device?.routeLocal == true
+                _providePaused.value = device?.providePaused == true
+                _provideMode.value = device?.provideMode ?: Sdk.ProvideModeNone
+                controllerOwner.setDevice(device)
+                if (device != null) {
+                    fetchReferralNetwork()
+                    fetchStripeCustomerPortalUrl()
+                }
+            }
         }
+    }
 
+    override fun onStart(owner: LifecycleOwner) {
+        controllerOwner.setForeground(true)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        controllerOwner.setForeground(false)
+    }
+
+    private fun openAccountPreferencesViewController(
+        device: DeviceLocal
+    ): AccountPreferencesViewController {
+        val vc = device.openAccountPreferencesViewController()
+        accountPreferencesVc = vc
+        addAllowProductUpdatesListener(vc)
+        addProvideEnabledListener(device, vc)
+        addProvidePausedListener(device, vc)
+        vc.start()
+        return vc
+    }
+
+    private fun closeAccountPreferencesViewController(
+        device: DeviceLocal,
+        vc: AccountPreferencesViewController,
+    ) {
+        subs.forEach { it.close() }
+        subs.clear()
+        vc.stop()
+        device.closeViewController(vc)
+        if (accountPreferencesVc === vc) {
+            accountPreferencesVc = null
+        }
     }
 
     override fun onCleared() {
+        removeDeviceChangeListener?.invoke()
+        removeDeviceChangeListener = null
+        processLifecycle.removeObserver(this)
+        controllerOwner.close()
         super.onCleared()
-
-        subs.forEach { it.close() }
-        subs.clear()
-
-        accountPreferencesVc?.let {
-            deviceManager.device?.closeViewController(it)
-        }
     }
 
 }

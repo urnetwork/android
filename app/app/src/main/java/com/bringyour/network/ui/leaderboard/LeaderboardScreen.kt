@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.theme.Green500
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
@@ -114,12 +115,10 @@ fun LeaderboardScreen(
                     itemsIndexed(
                         leaderboardEntries.value,
                         // the server blanks out network_id for networks that opted out
-                        // of the public leaderboard, so every private row arrives with
-                        // the same empty id. lazy list keys have to be unique, so those
-                        // rows fall back to their position
+                        // of the public leaderboard, so private rows all share the
+                        // same empty id; the indexed key keeps every row unique
                         key = { index, entry ->
-                            val networkId = entry.networkId
-                            if (networkId.isNullOrEmpty()) "private-$index" else networkId
+                            indexedLazyListKey("leaderboard", index, entry.networkId)
                         },
                     ) { index, entry ->
                         Column {

@@ -70,17 +70,13 @@ import kotlin.concurrent.thread
     val clientIpv4PrefixLength = 32
     // static fallback for when the sdk device is unavailable; the builder dns
     // normally comes from the device (see `tunnelDnsServers`). matches the SDK
-    // default tunnel resolvers.
-    //
-    // order is deliberate, and OS-level encrypted DNS is exactly what it avoids:
-    // https://security.googleblog.com/2022/07/dns-over-http3-in-android.html#fn2
-    // Android opportunistically upgrades well-known public resolvers (notably
-    // Google 8.8.8.8 and CloudFlare 1.1.1.1) to DoT/DoH. we do NOT want that: an
-    // OS-level encrypted resolver bypasses our UpgradeMux, which needs plain :53 to
-    // intercept unencrypted DNS and run our own DoH upgrade. Quad9 (9.9.9.9) leads
-    // because the OS does not auto-upgrade it, keeping the tunnel resolver on plain
-    // DNS; 1.1.1.1 follows as a secondary.
-    val dnsIpv4s = listOf("9.9.9.9", "1.1.1.1")
+    // Fallback tunnel DNS identity for the unlikely interval where no SDK device
+    // is available. This is not the upstream resolver: UpgradeMux claims plain
+    // :53 and resolves over DoH. Normally tunnelDnsServers() returns the device's
+    // configured DnsUpgradeMaskAddress. The fallback belongs to URnetwork's
+    // 65.49.70.64/27 public subnet and stands in for the UpgradeMux; it is not
+    // an upstream DNS resolver.
+    val dnsIpv4s = listOf("65.49.70.65")
 
     val clientIpv6: String? = null
     val clientIpv6PrefixLength = 64
@@ -97,15 +93,10 @@ import kotlin.concurrent.thread
     private var dnsResolverSettingsSub: Sub? = null
     private var connected: Boolean = false
 
-    // the app split rule state currently applied to the tunnel, used to
-    // detect when a rebuild is needed
-    private var appliedTunnelIncludedAppIds: Set<String> = emptySet()
-    private var appliedTunnelExcludedAppIds: Set<String> = emptySet()
-
-    // the (ipv4, ipv6) dns servers currently applied to the tunnel, used to
-    // detect when a rebuild is needed
-    private var appliedTunnelDnsServers: Pair<List<String>, List<String>> =
-        Pair(emptyList(), emptyList())
+    // Committed only after Builder.establish() succeeds. A failed seamless
+    // handover must remain visibly unapplied so the next listener/recovery
+    // callback retries it.
+    private var appliedTunnelConfiguration: VpnPacketFlowConfiguration? = null
 
     @Volatile
     private var closeMonitorStarted: Boolean = false
@@ -132,7 +123,6 @@ import kotlin.concurrent.thread
             app.service = WeakReference(this)
 
             val foreground = intent?.getBooleanExtra("foreground", false) ?: false
-            val source = intent?.getStringExtra("source") ?: "unknown"
 //            val offline = intent.getBooleanExtra("offline", false)
 
             if (foreground) {
@@ -143,30 +133,9 @@ import kotlin.concurrent.thread
                 stopForegroundNotification()
             }
 
-            // FIXME just let the user toggle route local which is also called "kill switch"
-            /*
-            // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
-            var alwaysOn = source != "app"
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (isAlwaysOn) {
-                    alwaysOn = true
-                }
-            }
-            if (alwaysOn) {
-                // this was started with always-on mode
-                // turn off local routing
-                app.deviceManager.routeLocal = false
-            }
-            */
-
             connected = app.device?.windowStatus?.let {
                 0 < it.providerStateAdded
             } ?: false
-
-//            if (canUpdatePfd(source)) {
-//                updatePfd(offline)
-//            }
-
 
             fun offline():Boolean {
                 return app.device?.let { device ->
@@ -176,26 +145,19 @@ import kotlin.concurrent.thread
             this@MainService.offline = offline()
 
             deviceOfflineSub?.close()
-            deviceOfflineSub = app.device?.addOfflineChangeListener { deviceOffline, vpnInterfaceWhileOffline ->
+            deviceOfflineSub = app.device?.addOfflineChangeListener { _, _ ->
                 Handler(mainLooper).post {
                     val offline = offline()
                     if (this@MainService.offline != offline) {
                         this@MainService.offline = offline
-                        if (canUpdatePfd(source)) {
-                            updatePfd(offline)
-                        }
+                        reconcilePfd()
                     }
                 }
             }
 
             fun updateWindowStatus(windowStatus: WindowStatus) {
-                val connected = 0 < windowStatus.providerStateAdded
-                if (!(packetFlow?.isActive() ?: false) || this@MainService.connected != connected) {
-                    this@MainService.connected = connected
-                    if (canUpdatePfd(source)) {
-                        updatePfd(offline)
-                    }
-                }
+                this@MainService.connected = 0 < windowStatus.providerStateAdded
+                reconcilePfd()
             }
 
             windowStatusChangeSub?.close()
@@ -213,12 +175,7 @@ import kotlin.concurrent.thread
             blockActionOverridesSub?.close()
             blockActionOverridesSub = app.device?.addBlockActionOverridesChangeListener {
                 Handler(mainLooper).post {
-                    val (included, excluded) = tunnelAppSplit()
-                    if (included != appliedTunnelIncludedAppIds || excluded != appliedTunnelExcludedAppIds) {
-                        if (canUpdatePfd(source)) {
-                            updatePfd(offline)
-                        }
-                    }
+                    reconcilePfd()
                 }
             }
 
@@ -227,11 +184,7 @@ import kotlin.concurrent.thread
             dnsResolverSettingsSub?.close()
             dnsResolverSettingsSub = app.device?.addDnsResolverSettingsChangeListener {
                 Handler(mainLooper).post {
-                    if (tunnelDnsServers() != appliedTunnelDnsServers) {
-                        if (canUpdatePfd(source)) {
-                            updatePfd(offline)
-                        }
-                    }
+                    reconcilePfd()
                 }
             }
 
@@ -242,26 +195,35 @@ import kotlin.concurrent.thread
         return START_REDELIVER_INTENT
     }
 
-    fun canUpdatePfd(source: String): Boolean {
-        // see https://developer.android.com/develop/connectivity/vpn#detect_always-on
-        var alwaysOn = source != "app"
-        if (Build.VERSION_CODES.Q <= Build.VERSION.SDK_INT) {
-            if (isAlwaysOn) {
-                alwaysOn = true
-            }
-        }
+    private fun desiredTunnelConfiguration(): VpnPacketFlowConfiguration {
+        val app = application as MainApplication
+        val (includedAppIds, excludedAppIds) = tunnelAppSplit()
+        val clientIpv4 = app.device?.tunnelLocalAddress()
+        val (deviceDnsIpv4s, dnsIpv6s) = tunnelDnsServers()
+        return VpnPacketFlowConfiguration(
+            offline = offline,
+            connected = connected,
+            includedAppIds = includedAppIds.toSet(),
+            excludedAppIds = excludedAppIds.toSet(),
+            dnsIpv4s = vpnDnsServersForClient(clientIpv4, deviceDnsIpv4s, dnsIpv4s),
+            dnsIpv6s = dnsIpv6s.toList(),
+            clientIpv4 = clientIpv4,
+        )
+    }
 
-        if (alwaysOn) {
-            // when always on, it appears we cannot recreate the pfd
-            // TODO is there some documentation on this?
-            return !(packetFlow?.isActive() ?: false)
-        } else {
-            return true
+    private fun reconcilePfd() {
+        val desired = desiredTunnelConfiguration()
+        if (vpnPacketFlowNeedsRebuild(
+                packetFlow?.isActive() ?: false,
+                appliedTunnelConfiguration,
+                desired,
+            )
+        ) {
+            updatePfd(desired)
         }
     }
 
-    fun updatePfd(offline: Boolean) {
-//        Log.i(TAG, "[io]UPDATE VPN")
+    private fun updatePfd(configuration: VpnPacketFlowConfiguration) {
         val app = application as MainApplication
 
         val builder = Builder()
@@ -269,20 +231,21 @@ import kotlin.concurrent.thread
         builder.setMtu(1440)
         builder.setBlocking(false)
         builder.setUnderlyingNetworks(null)
-        val (tunnelIncludedAppIds, tunnelExcludedAppIds) = tunnelAppSplit()
-        appliedTunnelIncludedAppIds = tunnelIncludedAppIds
-        appliedTunnelExcludedAppIds = tunnelExcludedAppIds
-        val (tunnelDnsIpv4s, tunnelDnsIpv6s) = tunnelDnsServers()
-        appliedTunnelDnsServers = Pair(tunnelDnsIpv4s, tunnelDnsIpv6s)
+        val tunnelIncludedAppIds = configuration.includedAppIds
+        val tunnelExcludedAppIds = configuration.excludedAppIds
+        val tunnelDnsIpv4s = configuration.dnsIpv4s
+        val tunnelDnsIpv6s = configuration.dnsIpv6s
 
-        if (offline) {
+        if (configuration.offline) {
 //            Log.i(TAG, "[io]OFFLINE")
             // when offline, only allow traffic from a fake package name
             // in this way, the vpn service remains active but no apps detect it as an interface
             builder.addAllowedApplication("${packageName}.offline")
         } else if (tunnelIncludedAppIds.isNotEmpty()) {
             // per-app inclusions take precedence: allowlist mode, only the
-            // included apps use the tunnel (this app is excluded by omission)
+            // included apps use the tunnel. tunnelAppSplit sanitizes the VPN
+            // owner before this mode decision, so a stale self-only rule
+            // cannot create an empty Android UID set.
             for (includedPackageName in tunnelIncludedAppIds) {
                 try {
                     builder.addAllowedApplication(includedPackageName)
@@ -304,15 +267,17 @@ import kotlin.concurrent.thread
             builder.setMetered(false)
         }
 
-        val clientIpv4: String? = app.device?.tunnelLocalAddress()
+        val clientIpv4 = configuration.clientIpv4
         if (clientIpv4 != null) {
             builder.allowFamily(AF_INET)
             builder.addAddress(
                 clientIpv4,
                 clientIpv4PrefixLength
             )
-            // DNS from the SDK device, like the tunnel address (see `tunnelDnsServers`);
-            // plain :53 lets the UpgradeMux intercept and upgrade it
+            // DNS from the SDK device (see `tunnelDnsServers`). It must be a
+            // distinct address routed through the TUN: Android locally
+            // terminates packets addressed to clientIpv4 before PacketFlow can
+            // hand them to UpgradeMux.
             for (dnsIpv4 in tunnelDnsIpv4s) {
                 builder.addDnsServer(dnsIpv4)
             }
@@ -407,21 +372,34 @@ import kotlin.concurrent.thread
         }
 
         app.device?.let { device ->
-            builder.establish()?.let { pfd ->
+            val pfd = try {
+                builder.establish()
+            } catch (e: Exception) {
+                Log.i(TAG, "[service]WARNING tunnel handover failed; retaining the existing interface: ${e.message}")
+                return
+            }
+            pfd?.let {
                 // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
                 val replacedPacketFlow = packetFlow
-                packetFlow = PacketFlow(device, pfd) {
+                packetFlow = PacketFlow(device, it) {
                     Handler(mainLooper).post {
                         if (packetFlow == it) {
                             packetFlow = null
                             if (app.service?.get() == this@MainService) {
                                 device.tunnelStarted = false
-                                updatePfd(offline)
+                                reconcilePfd()
                             }
                         }
                     }
                 }
+                appliedTunnelConfiguration = configuration
                 replacedPacketFlow?.close()
+                Log.i(
+                    TAG,
+                    "[service]tunnel applied offline=${configuration.offline} connected=${configuration.connected} " +
+                        "included=${configuration.includedAppIds.size} excluded=${configuration.excludedAppIds.size} " +
+                        "dns=${configuration.dnsIpv4s + configuration.dnsIpv6s} address=${configuration.clientIpv4}",
+                )
                 if (app.service?.get() == this@MainService) {
                     device.tunnelStarted = true
                 } else {
@@ -453,14 +431,36 @@ import kotlin.concurrent.thread
         val overrideAppIds = app.device?.localOverrideAppIds ?: return Pair(emptySet(), emptySet())
         val tunnelIncluded = sdkStringListToSet(overrideAppIds.excluded)
         val tunnelExcluded = sdkStringListToSet(overrideAppIds.included)
-        return Pair(tunnelIncluded, tunnelExcluded)
+        return sanitizeTunnelAppSplit(
+            packageName,
+            tunnelIncluded,
+            tunnelExcluded,
+            isPackageInstalled = { isPackageInstalled(it) },
+        )
+    }
+
+    private fun isPackageInstalled(packageName: String): Boolean {
+        return try {
+            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                packageManager.getApplicationInfo(
+                    packageName,
+                    android.content.pm.PackageManager.ApplicationInfoFlags.of(0),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getApplicationInfo(packageName, 0)
+            }
+            true
+        } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
+            false
+        }
     }
 
     /**
      * The (ipv4, ipv6) dns servers for the tunnel builder, from the sdk device
      * like the tunnel address: the dns settings' unencrypted local servers when
-     * set, otherwise the device default (plain 1.1.1.1, which the UpgradeMux can
-     * intercept and upgrade). Falls back to the static defaults when the device
+     * set, otherwise the distinct DnsUpgradeMaskAddress, which the UpgradeMux
+     * intercepts and upgrades. Falls back to the static identity when the device
      * is unavailable.
      */
     private fun tunnelDnsServers(): Pair<List<String>, List<String>> {
@@ -519,13 +519,14 @@ import kotlin.concurrent.thread
 
         packetFlow?.close()
         packetFlow = null
+        appliedTunnelConfiguration = null
 
         stopForegroundNotification()
         stopSelf()
 
         if (app.service?.get() == this) {
             app.device?.tunnelStarted = false
-            app.service = null
+            app.vpnServiceDidStop(this)
         }
     }
 
@@ -560,6 +561,25 @@ import kotlin.concurrent.thread
 
         startForeground(NOTIFICATION_ID, notification)
         foregroundStarted = true
+    }
+
+    /**
+     * Foreground notification policy is orthogonal to the TUN descriptor.
+     * Updating it in place avoids a service/TUN restart when Auto providing
+     * hands off to a client connection (or back again).
+     */
+    fun setForegroundEnabled(enabled: Boolean): Boolean {
+        return try {
+            if (enabled) {
+                startForegroundNotification("On")
+            } else {
+                stopForegroundNotification()
+            }
+            true
+        } catch (e: Exception) {
+            Log.i(TAG, "Unable to update VPN foreground state in place: ${e.message}")
+            false
+        }
     }
 
 
@@ -635,4 +655,3 @@ private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, en
         }
     }
 }
-
