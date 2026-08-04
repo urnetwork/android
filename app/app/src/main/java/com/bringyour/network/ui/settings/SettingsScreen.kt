@@ -1294,6 +1294,29 @@ private fun SettingsScreen(
             /**
             * Version
              */
+            URTextInputLabel(stringResource(id = R.string.developer))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.Developer)
+                    }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.dev_open_tools),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = stringResource(id = R.string.dev_open_tools),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             URTextInputLabel(stringResource(id = R.string.version_info))
 
             Row(

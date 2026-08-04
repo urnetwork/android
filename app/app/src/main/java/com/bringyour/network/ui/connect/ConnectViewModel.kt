@@ -95,12 +95,16 @@ constructor(
         displayReconnectTunnel = display
     }
 
-    var fixedIpSize by mutableStateOf(false)
+    /**
+     * Whether the connection spreads across several exit IPs. Phrased
+     * positively -- this used to be "Fixed IP", its inverse -- so multi-IP is
+     * an explicit choice rather than something implied by picking Web.
+     */
+    var multipleIps by mutableStateOf(true)
         private set
 
-    val toggleFixedIp: () -> Unit = {
-        val fixed = this.fixedIpSize
-        setFixedIpSize(!fixed)
+    val toggleMultipleIps: () -> Unit = {
+        setMultipleIps(!this.multipleIps)
     }
 
     var allowDirect by mutableStateOf(false)
@@ -129,8 +133,8 @@ constructor(
         setPostQuantumEncryption(!enabled)
     }
 
-    val setFixedIpSize: (Boolean) -> Unit = {
-        fixedIpSize = it
+    val setMultipleIps: (Boolean) -> Unit = {
+        multipleIps = it
         updatePerformanceProfile()
     }
 
@@ -146,7 +150,7 @@ constructor(
              * this will trigger updatePerformanceProfile so we don't need to call it
              */
 
-            setFixedIpSize(false)
+            setMultipleIps(true)
 
         } else {
             updatePerformanceProfile()
@@ -253,8 +257,8 @@ constructor(
                         else Sdk.WindowTypeSpeed
 
                 val windowSizeSettings = WindowSizeSettings()
-                windowSizeSettings.windowSizeMin = if (this.fixedIpSize) 1 else 2
-                windowSizeSettings.windowSizeMax = if (this.fixedIpSize) 1 else 4
+                windowSizeSettings.windowSizeMin = if (this.multipleIps) 2 else 1
+                windowSizeSettings.windowSizeMax = if (this.multipleIps) 4 else 1
                 performanceProfile.windowSize = windowSizeSettings
             }
         }
@@ -451,6 +455,7 @@ constructor(
         fixedIpSize = windowSize != null &&
             windowSize.windowSizeMin.toInt() == 1 &&
             windowSize.windowSizeMax.toInt() == 1
+        updatePerformanceProfile()
     }
 
     private fun setupDevice(device: DeviceLocal?) {

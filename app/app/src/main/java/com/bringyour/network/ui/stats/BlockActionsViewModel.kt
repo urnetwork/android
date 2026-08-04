@@ -55,6 +55,11 @@ data class BlockActionUi(
     // the deciding route override id, when a rule determined the decision
     val overrideId: String?,
     val byteCount: Long,
+    // short client ids of the exits CURRENTLY carrying flows to this
+    // cluster's ips (live join against the flow table). One id is the normal
+    // healthy shape; two ids on one row is a site split across egress IPs --
+    // the exact event the affinity work exists to prevent
+    val exitShortIds: List<String> = listOf(),
 ) {
     /** every host name (matched + unmatched) and every ip (matched + unmatched) */
     val allHostNames: List<String>
@@ -88,16 +93,54 @@ data class SplitRuleUi(
 )
 
 /**
- * An app split rule (a block action override with app ids).
- * `includedInTunnel` means the app is forced through the vpn
- * (the sdk route override is remote); otherwise the app is
- * excluded and bypasses the vpn (the sdk route override is local)
+ * What an app split rule does with the app's traffic.
+ *
+ * EXCLUDED and INCLUDED are tunnel MEMBERSHIP (enforced by the VpnService
+ * builder's disallow/allow lists). PINNED is not membership at all: the app
+ * uses the tunnel like any other, but all of its flows are held to one exit,
+ * so its API session and its CDNs present a single egress IP -- the fix for
+ * apps whose images fail to load behind a multi-exit VPN. A pinned app must
+ * never reach the builder's allow list, or the VPN would flip to
+ * allowlist mode and route ONLY pinned apps.
+ */
+enum class AppRuleMode {
+    EXCLUDED,
+    INCLUDED,
+    PINNED;
+
+    fun toRouteOverride(): RouteOverride {
+        val route = RouteOverride()
+        when (this) {
+            EXCLUDED -> route.local = true
+            INCLUDED -> route.local = false
+            PINNED -> {
+                route.local = false
+                route.pin = true
+            }
+        }
+        return route
+    }
+
+    companion object {
+        fun of(local: Boolean, pin: Boolean): AppRuleMode = when {
+            local -> EXCLUDED
+            pin -> PINNED
+            else -> INCLUDED
+        }
+    }
+}
+
+/**
+ * An app split rule (a block action override with app ids); see [AppRuleMode]
  */
 data class AppSplitRuleUi(
     val id: String,
     val appId: String,
-    val includedInTunnel: Boolean,
-)
+    val mode: AppRuleMode,
+) {
+    val includedInTunnel: Boolean
+        get() = mode == AppRuleMode.INCLUDED
+}
 
 /**
  * Publishes the live block action window, block stats, and the block
@@ -121,6 +164,9 @@ class BlockActionsViewModel @Inject constructor(
 
     // coalesces bursts of block-action updates (see the listener below)
     private var blockActionsUpdateJob: Job? = null
+    // the exit-attribution re-poll (see openLiveUpdates); canceled with the
+    // rest of the live updates
+    private var exitAttributionJob: Job? = null
 
     /**
      * newest first
@@ -145,13 +191,20 @@ class BlockActionsViewModel @Inject constructor(
      * precedence and the tunnel runs in allowlist mode
      */
     val tunnelIncludedAppIds: List<String>
-        get() = appRules.filter { it.includedInTunnel }.map { it.appId }
+        get() = appRules.filter { it.mode == AppRuleMode.INCLUDED }.map { it.appId }
 
     /**
-     * apps that bypass the vpn
+     * apps that bypass the vpn. PINNED apps are deliberately absent from both
+     * of these: pinning is exit placement inside the tunnel, not membership,
+     * so a pinned app must neither flip the tunnel into allowlist mode nor
+     * bypass it
      */
     val tunnelExcludedAppIds: List<String>
-        get() = appRules.filter { !it.includedInTunnel }.map { it.appId }
+        get() = appRules.filter { it.mode == AppRuleMode.EXCLUDED }.map { it.appId }
+
+    /** apps held to a single exit */
+    val pinnedAppIds: List<String>
+        get() = appRules.filter { it.mode == AppRuleMode.PINNED }.map { it.appId }
 
     init {
         processLifecycle.addObserver(this)
@@ -217,12 +270,28 @@ class BlockActionsViewModel @Inject constructor(
         updateBlockActions()
         updateBlockStats()
         updateOverrides()
+
+        // keep the exit attribution live: flows re-race and rebind between
+        // block-action events, so the join is refreshed on a slow tick as
+        // well -- a row growing a second exit chip mid-session is exactly
+        // the observation this feature exists for
+        exitAttributionJob?.cancel()
+        exitAttributionJob = viewModelScope.launch {
+            while (true) {
+                delay(5_000L)
+                if (blockActions.isNotEmpty()) {
+                    updateBlockActions()
+                }
+            }
+        }
         return vc
     }
 
     private fun closeLiveUpdates(device: DeviceLocal, vc: BlockActionViewController) {
         blockActionsUpdateJob?.cancel()
         blockActionsUpdateJob = null
+        exitAttributionJob?.cancel()
+        exitAttributionJob = null
         subs.forEach { it.close() }
         subs.clear()
         vc.stop()
@@ -235,6 +304,21 @@ class BlockActionsViewModel @Inject constructor(
 
     private fun updateBlockActions() {
         val vc = blockActionVc ?: return
+
+        // the live destination->exit attribution, joined onto each cluster's
+        // ips below. Pull-model: this reflects the exit CURRENTLY carrying
+        // each ip, after any re-race or rebind -- so a row growing a second
+        // exit chip is a site split across egress IPs, live
+        val exitsByIp = mutableMapOf<String, MutableSet<String>>()
+        deviceManager.device?.destinationExits?.let { destinationExits ->
+            val n = destinationExits.len()
+            for (i in 0 until n) {
+                val row = destinationExits.get(i) ?: continue
+                val shortId = row.clientId?.idStr?.take(8) ?: continue
+                exitsByIp.getOrPut(row.destinationIp) { mutableSetOf() }.add(shortId)
+            }
+        }
+
         val items = mutableListOf<BlockActionUi>()
         val list = vc.blockActions
         if (list != null) {
@@ -242,14 +326,16 @@ class BlockActionsViewModel @Inject constructor(
             for (i in 0 until n) {
                 val action = list.get(i) ?: continue
                 val unmatchedHosts = sdkStringListToList(action.hosts)
+                val ips = sdkStringListToList(action.ips)
+                val matchedIps = sdkStringListToList(action.matchedIps)
                 items.add(
                     BlockActionUi(
                         id = action.blockActionId?.idStr ?: "$i-${action.time}",
                         timeMillis = action.time,
                         hosts = unmatchedHosts,
-                        ips = sdkStringListToList(action.ips),
+                        ips = ips,
                         matchedHosts = sdkStringListToList(action.matchedHosts),
-                        matchedIps = sdkStringListToList(action.matchedIps),
+                        matchedIps = matchedIps,
                         hostBaseNames = collapseHosts(unmatchedHosts),
                         block = action.block,
                         local = action.local,
@@ -257,6 +343,10 @@ class BlockActionsViewModel @Inject constructor(
                         hasRouteOverride = action.routeOverride != null,
                         overrideId = action.overrideId?.idStr,
                         byteCount = action.byteCount,
+                        exitShortIds = (matchedIps + ips)
+                            .flatMap { exitsByIp[it] ?: emptySet() }
+                            .distinct()
+                            .sorted(),
                     )
                 )
             }
@@ -284,15 +374,18 @@ class BlockActionsViewModel @Inject constructor(
                 val overrideId = override.overrideId?.idStr ?: continue
                 val appIds = sdkStringListToList(override.appIds)
                 if (appIds.isNotEmpty()) {
-                    // an app rule. included in the tunnel when the route
-                    // override is remote, excluded when local
-                    val local = override.routeOverride?.local ?: false
+                    // an app rule: excluded when the route override is local,
+                    // pinned when it carries a pin, else included
+                    val mode = AppRuleMode.of(
+                        local = override.routeOverride?.local ?: false,
+                        pin = override.routeOverride?.pin ?: false,
+                    )
                     for (appId in appIds) {
                         appSplitRules.add(
                             AppSplitRuleUi(
                                 id = overrideId,
                                 appId = appId,
-                                includedInTunnel = !local,
+                                mode = mode,
                             )
                         )
                     }
@@ -375,28 +468,23 @@ class BlockActionsViewModel @Inject constructor(
     }
 
     /**
-     * creates an app split rule. `includeInTunnel` forces the app through
-     * the vpn (route remote); otherwise the app bypasses the vpn (route local)
+     * creates an app split rule in one of the three modes; see [AppRuleMode]
      */
-    fun createAppRule(appId: String, includeInTunnel: Boolean) {
+    fun createAppRule(appId: String, mode: AppRuleMode) {
         val device = deviceManager.device ?: return
         val override = BlockActionOverride()
         override.overrideId = Sdk.newId()
         val appIds = listToSdkStringList(listOf(appId))
         override.appIds = appIds
-        val route = RouteOverride()
-        route.local = !includeInTunnel
-        override.routeOverride = route
+        override.routeOverride = mode.toRouteOverride()
         device.addBlockActionOverride(override)
         updateOverrides()
     }
 
-    fun updateAppRule(id: String, includeInTunnel: Boolean) {
+    fun updateAppRule(id: String, mode: AppRuleMode) {
         replaceOverrides { override ->
             if (override.overrideId?.idStr == id) {
-                val route = RouteOverride()
-                route.local = !includeInTunnel
-                override.routeOverride = route
+                override.routeOverride = mode.toRouteOverride()
             }
             override
         }

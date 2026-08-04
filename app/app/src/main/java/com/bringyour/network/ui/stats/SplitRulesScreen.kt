@@ -493,6 +493,17 @@ private fun BlockActionRow(
                         color = TextFaint
                     )
                 }
+                // which exit(s) carry this cluster right now. One id is the
+                // healthy shape; two on one row is a site split across
+                // egress IPs, live
+                for (exitId in action.exitShortIds) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        stringResource(id = R.string.via_exit, exitId),
+                        style = TextStyle(fontSize = 11.sp),
+                        color = BlueMedium
+                    )
+                }
             }
 
         }
