@@ -439,7 +439,7 @@ import kotlin.concurrent.thread
      * entirely.
      */
     @Synchronized
-    private fun applyPinnedAppLookup() {
+    private fun applyPinnedAppLookup(force: Boolean = false) {
         val app = application as MainApplication
         val device = app.device ?: return
         val pinnedPackages = sdkStringListToSet(device.pinnedAppIds)
@@ -449,7 +449,12 @@ import kotlin.concurrent.thread
         // reader for an answer only a NEW flow consumes. This fires on any
         // block-action change and on any package broadcast -- a play store
         // batch update would otherwise replay that burst dozens of times.
-        if (pinnedPackages == appliedPinnedAppIds) {
+        //
+        // force bypasses the memo: a package event never changes the pinned
+        // package-name SET, only the uid map frozen inside the lookup, so
+        // the receiver's rebuild would otherwise always be a no-op -- and a
+        // reinstalled (uid-recycled) pinned app would keep a stale map.
+        if (!force && pinnedPackages == appliedPinnedAppIds) {
             return
         }
         appliedPinnedAppIds = pinnedPackages
@@ -483,8 +488,19 @@ import kotlin.concurrent.thread
             // getPackageUid per pinned app plus two gomobile crossings: small,
             // but this runs on the main looper inside a broadcast, and a
             // package replace fires it more than once
+            val changedPackage = intent?.data?.schemeSpecificPart
             thread {
-                applyPinnedAppLookup()
+                // only a PINNED package's install state can invalidate the
+                // frozen uid map; every other app's broadcast is noise, and
+                // reinstalling an identical lookup wipes the go-side flow
+                // caches (a play store batch update would replay that burst
+                // dozens of times). An event with no package forces, safely.
+                val app = application as MainApplication
+                val pinned = sdkStringListToSet(app.device?.pinnedAppIds)
+                if (changedPackage != null && changedPackage !in pinned) {
+                    return@thread
+                }
+                applyPinnedAppLookup(force = true)
             }
         }
     }
