@@ -20,6 +20,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
+import com.bringyour.network.location.MockLocationController
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.LocalState
 import com.bringyour.sdk.LoginViewController
@@ -141,6 +142,9 @@ class MainApplication : Application() {
     @Inject
     lateinit var networkSpaceManagerProvider: NetworkSpaceManagerProvider
 
+    @Inject
+    lateinit var mockLocationController: MockLocationController
+
     var vpnRequestStart: Boolean = false
         private set
 
@@ -208,6 +212,12 @@ class MainApplication : Application() {
         // target 3/4 of the max memory for the sdk
         val sdkMemoryMib = min((3 * maxMemoryMib) / 4, 64)
         Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
+
+        // Nothing removes location test providers when a process dies — not a
+        // crash, not force-stop, not uninstall. Start the controller here (not
+        // from the feature UI) so a previous process's leftovers are cleared
+        // even when the user never opens the provider locations sheet.
+        mockLocationController.start()
 
         networkSpaceManagerProvider.init(filesDir.absolutePath)
 

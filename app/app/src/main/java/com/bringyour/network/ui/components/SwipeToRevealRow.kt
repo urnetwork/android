@@ -1,4 +1,4 @@
-package com.bringyour.network.ui.stats
+package com.bringyour.network.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background

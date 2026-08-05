@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -24,13 +22,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,6 +41,7 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
@@ -213,37 +209,11 @@ fun BlockedRegionListItem(
     modifier: Modifier = Modifier,
 ) {
 
-    val swipeToDismissBoxState = rememberSwipeToDismissBoxState(
-        confirmValueChange = {
-            if (it == SwipeToDismissBoxValue.EndToStart) onRemove(blockedLocation.locationId)
-            // Reset item when toggling done status
-            it != SwipeToDismissBoxValue.StartToEnd
-        }
-    )
-
-    SwipeToDismissBox (
-        state = swipeToDismissBoxState,
+    SwipeToRevealRow(
+        onDelete = { onRemove(blockedLocation.locationId) },
         modifier = modifier
             .fillMaxWidth()
             .height(64.dp),
-        backgroundContent = {
-            when (swipeToDismissBoxState.dismissDirection) {
-                SwipeToDismissBoxValue.StartToEnd -> {}
-                SwipeToDismissBoxValue.EndToStart -> {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove item",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Red)
-                            .wrapContentSize(Alignment.CenterEnd)
-                            .padding(12.dp),
-                        tint = Color.White
-                    )
-                }
-                SwipeToDismissBoxValue.Settled -> {}
-            }
-        }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
 

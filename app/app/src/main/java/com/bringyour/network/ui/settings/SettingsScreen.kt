@@ -1034,6 +1034,33 @@ private fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
+            /**
+             * Device location sync (the mock location provider setup guide)
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.MockLocationGuide)
+                    }
+                    .padding(vertical = 6.dp)
+                ,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.mock_location_settings_row),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Keyboard Arrow Right",
+                    tint = TextMuted
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

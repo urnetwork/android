@@ -108,6 +108,7 @@ fun ConnectScreen(
         promptSolanaReview = it
     }
 
+
     val reviewManagerRequest = rememberReviewManager()
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
@@ -235,6 +236,7 @@ fun ConnectScreen(
                 displayInsufficientBalance = displayInsufficientBalance,
                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                 device = connectViewModel.device,
+                showProviderLocations = { navController.navigate(Route.ProviderLocations) },
                 promptReview = {
                     if (bundleStore == BundleStore.SOLANA_DAPP) {
                         setPromptSolanaReview(true)
@@ -256,6 +258,7 @@ fun ConnectScreen(
             }
         )
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -412,7 +415,8 @@ fun ConnectMainContent(
     currentPlan: Plan,
     isPollingSubscriptionBalance: Boolean,
     device: DeviceLocal?, // fixme, we don't need to pass the entire device
-    promptReview: () -> Unit
+    promptReview: () -> Unit,
+    showProviderLocations: () -> Unit
 ) {
 
     Column(
@@ -469,7 +473,8 @@ fun ConnectMainContent(
                     displayReconnectTunnel = displayReconnectTunnel,
                     contractStatus = contractStatus,
                     currentPlan = currentPlan,
-                    isPollingSubscriptionBalance = isPollingSubscriptionBalance
+                    isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+                    onShowProviderLocations = showProviderLocations
                 )
 
 

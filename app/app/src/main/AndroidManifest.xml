@@ -25,6 +25,18 @@
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <!-- signature-level permission that is never actually granted; declaring it
+         only makes the app appear in Developer options > Select mock location
+         app. The real gate is the MOCK_LOCATION app op set by that picker.
+         Lint's MockLocation check assumes this is test-only scaffolding and
+         wants it in src/debug. It has to ship in the release manifest instead:
+         the picker lists an app only if the INSTALLED build declares the
+         permission, and it excludes debuggable builds, so a debug-only
+         declaration would make the "sync device location with oldest provider"
+         feature impossible to enable for real users. -->
+    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"
+        tools:ignore="MockLocation" />
+
     <!-- for tv support -->
     <uses-feature android:name="android.hardware.touchscreen"
         android:required="false" />

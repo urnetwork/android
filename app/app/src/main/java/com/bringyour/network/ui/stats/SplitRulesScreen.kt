@@ -59,6 +59,7 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium

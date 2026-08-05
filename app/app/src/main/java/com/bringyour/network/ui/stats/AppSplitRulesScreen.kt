@@ -50,6 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
+import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.components.URDialog
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black

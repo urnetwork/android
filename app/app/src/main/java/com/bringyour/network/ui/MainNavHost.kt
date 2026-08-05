@@ -120,6 +120,9 @@ import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.SolanaPaymentViewModel
 import com.bringyour.network.ui.stats.AppSplitRulesScreen
 import com.bringyour.network.ui.stats.ContractStatsScreen
+import com.bringyour.network.ui.connect.providerlocations.MockLocationGuideScreen
+import com.bringyour.network.ui.connect.providerlocations.MockLocationSection
+import com.bringyour.network.ui.connect.providerlocations.ProviderLocationsScreen
 import com.bringyour.network.ui.stats.DnsSettingsScreen
 import com.bringyour.network.ui.stats.SplitRulesScreen
 import com.bringyour.network.ui.theme.Pink
@@ -830,6 +833,32 @@ fun MainNavContent(
                 popExitTransition = NavigationAnimations.popExitTransition()
             ) {
                 DnsSettingsScreen(
+                    navController = navController,
+                )
+            }
+
+            composable<Route.ProviderLocations>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                ProviderLocationsScreen(
+                    navController = navController,
+                    getLocationColor = locationsListViewModel.getLocationColor,
+                    mockLocationSection = {
+                        MockLocationSection(navController = navController)
+                    },
+                )
+            }
+
+            composable<Route.MockLocationGuide>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                MockLocationGuideScreen(
                     navController = navController,
                 )
             }
