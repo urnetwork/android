@@ -70,6 +70,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.account.AccountScreen
+import com.bringyour.network.ui.settings.DeveloperScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
@@ -929,6 +930,15 @@ fun MainNavContent(
                 ProviderIdentitiesScreen(
                     navController = navController,
                 )
+            }
+
+            composable<Route.Developer>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                DeveloperScreen(navController = navController)
             }
 
             composable<Route.BlockedRegions>(

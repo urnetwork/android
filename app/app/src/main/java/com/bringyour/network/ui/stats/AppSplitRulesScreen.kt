@@ -66,7 +66,7 @@ private data class AppRuleEditorTarget(
     val label: String,
     // null when creating
     val ruleId: String?,
-    val includeInTunnel: Boolean,
+    val mode: AppRuleMode,
 )
 
 /**
@@ -189,7 +189,7 @@ fun AppSplitRulesScreen(
                                 val app = appsByPackage[rule.appId]
                                 // an exclude rule has no effect while include
                                 // mode is active, so render it muted
-                                val ruleActive = rule.includedInTunnel || !includeMode
+                                val ruleActive = rule.mode != AppRuleMode.EXCLUDED || !includeMode
                                 SwipeToRevealRow(
                                     onDelete = { blockActionsViewModel.removeAppRule(rule.id) }
                                 ) {
@@ -200,12 +200,21 @@ fun AppSplitRulesScreen(
                                         trailing = {
                                             StateChip(
                                                 // an excluded app routes locally: same Local language
-                                                // as the split rules screen
+                                                // as the split rules screen. a pinned app is in the
+                                                // tunnel like any other, just held to one exit
                                                 text = stringResource(
-                                                    id = if (rule.includedInTunnel) R.string.included else R.string.local
+                                                    id = when (rule.mode) {
+                                                        AppRuleMode.INCLUDED -> R.string.included
+                                                        AppRuleMode.EXCLUDED -> R.string.local
+                                                        AppRuleMode.PINNED -> R.string.pinned
+                                                    }
                                                 ),
                                                 color = if (ruleActive) {
-                                                    if (rule.includedInTunnel) BlueMedium else Green
+                                                    when (rule.mode) {
+                                                        AppRuleMode.INCLUDED -> BlueMedium
+                                                        AppRuleMode.EXCLUDED -> Green
+                                                        AppRuleMode.PINNED -> BlueMedium
+                                                    }
                                                 } else {
                                                     TextMuted
                                                 },
@@ -217,7 +226,7 @@ fun AppSplitRulesScreen(
                                                 packageName = rule.appId,
                                                 label = app?.label ?: rule.appId,
                                                 ruleId = rule.id,
-                                                includeInTunnel = rule.includedInTunnel,
+                                                mode = rule.mode,
                                             )
                                         }
                                     )
@@ -253,7 +262,7 @@ fun AppSplitRulesScreen(
                                         packageName = app.packageName,
                                         label = app.label,
                                         ruleId = null,
-                                        includeInTunnel = false,
+                                        mode = AppRuleMode.EXCLUDED,
                                     )
                                 }
                             )
@@ -274,21 +283,25 @@ fun AppSplitRulesScreen(
     editorTarget?.let { target ->
         AppRuleDialog(
             target = target,
-            onCreate = { includeInTunnel ->
-                blockActionsViewModel.createAppRule(target.packageName, includeInTunnel)
+            onCreate = { mode ->
+                blockActionsViewModel.createAppRule(target.packageName, mode)
                 Toast.makeText(
                     context,
                     context.getString(
-                        if (includeInTunnel) R.string.app_included_toast else R.string.app_excluded_toast,
+                        when (mode) {
+                            AppRuleMode.INCLUDED -> R.string.app_included_toast
+                            AppRuleMode.EXCLUDED -> R.string.app_excluded_toast
+                            AppRuleMode.PINNED -> R.string.app_pinned_toast
+                        },
                         target.label
                     ),
                     Toast.LENGTH_SHORT
                 ).show()
                 editorTarget = null
             },
-            onUpdate = { includeInTunnel ->
+            onUpdate = { mode ->
                 target.ruleId?.let {
-                    blockActionsViewModel.updateAppRule(it, includeInTunnel)
+                    blockActionsViewModel.updateAppRule(it, mode)
                 }
                 editorTarget = null
             },
@@ -419,13 +432,13 @@ private fun AppRow(
 @Composable
 private fun AppRuleDialog(
     target: AppRuleEditorTarget,
-    onCreate: (Boolean) -> Unit,
-    onUpdate: (Boolean) -> Unit,
+    onCreate: (AppRuleMode) -> Unit,
+    onUpdate: (AppRuleMode) -> Unit,
     onRemove: () -> Unit,
     onDismiss: () -> Unit,
 ) {
 
-    var includeInTunnel by remember { mutableStateOf(target.includeInTunnel) }
+    var mode by remember { mutableStateOf(target.mode) }
     val isEditing = target.ruleId != null
 
     URDialog(
@@ -455,12 +468,12 @@ private fun AppRuleDialog(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { includeInTunnel = false },
+                    .clickable { mode = AppRuleMode.EXCLUDED },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
-                    selected = !includeInTunnel,
-                    onClick = { includeInTunnel = false }
+                    selected = mode == AppRuleMode.EXCLUDED,
+                    onClick = { mode = AppRuleMode.EXCLUDED }
                 )
                 Column {
                     Text(
@@ -478,15 +491,43 @@ private fun AppRuleDialog(
 
             Spacer(modifier = Modifier.padding(4.dp))
 
+            // pin: the app stays in the tunnel, but all of its traffic is
+            // held to one exit so its api and cdn share an egress ip
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { includeInTunnel = true },
+                    .clickable { mode = AppRuleMode.PINNED },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
-                    selected = includeInTunnel,
-                    onClick = { includeInTunnel = true }
+                    selected = mode == AppRuleMode.PINNED,
+                    onClick = { mode = AppRuleMode.PINNED }
+                )
+                Column {
+                    Text(
+                        stringResource(id = R.string.pin_app),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                    Text(
+                        stringResource(id = R.string.pin_app_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(4.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { mode = AppRuleMode.INCLUDED },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = mode == AppRuleMode.INCLUDED,
+                    onClick = { mode = AppRuleMode.INCLUDED }
                 )
                 Column {
                     Text(
@@ -507,9 +548,9 @@ private fun AppRuleDialog(
             URButton(
                 onClick = {
                     if (isEditing) {
-                        onUpdate(includeInTunnel)
+                        onUpdate(mode)
                     } else {
-                        onCreate(includeInTunnel)
+                        onCreate(mode)
                     }
                 }
             ) { buttonTextStyle ->
