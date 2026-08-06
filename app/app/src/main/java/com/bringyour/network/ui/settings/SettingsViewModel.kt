@@ -593,7 +593,7 @@ class SettingsViewModel @Inject constructor(
 
         _allowProvideOnCell.value = deviceManager.provideNetworkMode == ProvideNetworkMode.ALL
 
-        version = Sdk.Version
+        version = Sdk.getVersion()
 
         processLifecycle.addObserver(this)
         controllerOwner.setForeground(
