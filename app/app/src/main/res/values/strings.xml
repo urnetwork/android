@@ -373,6 +373,7 @@
     <string name="mock_location_step_location_services">Turn on Location in system settings so apps can receive the location.</string>
     <string name="mock_location_step_select_app">In developer options, tap Select mock location app and choose URnetwork.</string>
     <string name="mock_location_waiting_for_provider">Waiting for a provider location</string>
+    <string name="multiple_ips">Multiple IPs</string>
     <string name="multiplier">Multiplier</string>
     <string name="name_label">Name</string>
     <string name="name_placeholder">Your name</string>
