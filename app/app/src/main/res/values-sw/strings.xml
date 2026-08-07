@@ -20,11 +20,13 @@
     <string name="api_error_contact">Ikiwa tatizo litaendelea, wasiliana nasi kupitia %1$s au jiunge na %2$s yetu kwa msaada wa moja kwa moja.</string>
     <string name="app_excluded_toast">%1$s itaepuka VPN</string>
     <string name="app_included_toast">%1$s itapitia VPN</string>
+    <string name="app_pinned_toast">%1$s itatumia mtoa huduma mmoja</string>
     <string name="app_split_active_exclude">Utengaji unatumika — programu zilizotengwa zinaepuka VPN</string>
     <string name="app_split_active_include">Ujumuishaji unatumika — programu zilizojumuishwa pekee zinatumia VPN</string>
     <string name="app_split_active_none">Hakuna mgawanyo — programu zote zinatumia VPN</string>
     <string name="app_split_precedence_note">Programu zilizojumuishwa hupewa kipaumbele: programu yoyote ikijumuishwa, ni programu zilizojumuishwa pekee zinazotumia VPN na utengaji hauna athari.</string>
     <string name="app_split_rules">Sheria za mgawanyo wa programu</string>
+    <string name="app_split_starter">Programu 0 zilizogawanywa</string>
     <string name="apply_bonus">Tumia bonasi</string>
     <string name="apps">Programu</string>
     <string name="are_you_sure_delete_account">Una uhakika unataka kufuta akaunti yako?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Ingia ukitumia Google</string>
     <string name="guest">Mgeni</string>
     <string name="how_are_we_doing">Tunaendaje?</string>
+    <string name="identity_key_hash_copied">Heshi ya ufunguo wa utambulisho imenakiliwa</string>
     <string name="ignore_battery_optimizations">Puuzia uboreshaji wa betri</string>
     <string name="in_guest_mode">Uko katika hali ya mgeni</string>
     <string name="include_app">Pitisha kupitia VPN</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">Washa “Mahali” katika mipangilio ya mfumo ili programu ziweze kupokea mahali.</string>
     <string name="mock_location_step_select_app">Katika chaguo za wasanidi programu, gusa “Chagua programu ya kuiga mahali” kisha uchague URnetwork.</string>
     <string name="mock_location_waiting_for_provider">Inasubiri mahali pa mtoa huduma</string>
+    <string name="multiple_ips">IP nyingi</string>
     <string name="multiplier">Vizidishi</string>
     <string name="name_label">Jina</string>
     <string name="name_placeholder">Jina lako</string>
     <string name="need_more_data_faster">Unahitaji data zaidi, haraka zaidi?</string>
     <string name="net_points_earned">Jumla ya pointi zilizopatikana</string>
     <string name="net_provided">Data Zilizotolewa</string>
+    <string name="network">Mtandao</string>
     <string name="network_api_api_url_help">Acha wazi ili itokane na kikoa cha mtandao.</string>
     <string name="network_api_api_url_label">URL ya API (hiari)</string>
     <string name="network_api_apply">Tumia API ya mtandao</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">Pochi za Malipo</string>
     <string name="payouts">Malipo</string>
     <string name="payouts_amount_threshold">Malipo hufanyika kila Jumapili saa 00:00 UTC, na yanahitaji kufikia kizingiti cha chini cha USDC.</string>
+    <string name="peer_count_one">Mshirika 1</string>
+    <string name="peer_count_other">Washirika %d</string>
     <string name="pending_data_key">Inasubiri</string>
     <string name="pending_mb_provided">Inasubiri: MB %1$s zimetolewa</string>
     <string name="pending_payout">Malipo yanayosubiri</string>
+    <string name="pin_app">Bandika kwa mtoa huduma mmoja</string>
+    <string name="pin_app_description">Huweka miunganisho yote ya programu hii kwa mtoa huduma mmoja, ili API na picha zake zitumie anwani moja ya IP. Tumia kwa programu ambazo maudhui yake hayapakii kupitia VPN</string>
+    <string name="pinned">Imebandikwa</string>
     <string name="plan">Mpango</string>
     <string name="please_try_again">Tafadhali jaribu tena.</string>
     <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>
     <string name="points_breakdown">Muhtasari wa pointi</string>
+    <string name="post_quantum_encryption">Usimbaji fiche wa baada ya kwantamu</string>
+    <string name="post_quantum_encryption_fallback_note">Mbadala umewashwa (kwa muda)</string>
+    <string name="post_quantum_identity">Utambulisho wa baada ya kwantamu</string>
+    <string name="post_quantum_identity_explanation">Ufunguo wako wa utambulisho huhifadhiwa ndani ya kifaa hiki. Ikiwa ufunguo wa mshirika yeyote unaonekana tofauti na ufunguo wake uliohifadhiwa ndani ya kifaa, inamaanisha mwendeshaji wa mtandao hawezi kuaminiwa.</string>
     <string name="private_network">Mtandao wa kibinafsi</string>
     <string name="processing_payment">Inashughulikia malipo</string>
     <string name="profile">Wasifu</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">dak %1$d</string>
     <string name="provider_connected_duration_seconds">sek %1$d</string>
     <string name="provider_contracts">Mikataba ya mtoa huduma</string>
+    <string name="provider_identities">Vitambulisho vya watoa huduma</string>
     <string name="provider_location_unknown">Mahali hapajulikani</string>
     <string name="provider_locations_empty">Hakuna watoa huduma waliounganishwa</string>
     <string name="provider_locations_title">Maeneo ya watoa huduma</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">Tazama yote\nmaudhui ya dunia</string>
     <string name="see_world_content_description">Tazama maudhui yote ya dunia ukitumia URnetwork</string>
     <string name="seeker_token_verified">Tokeni ya Seeker imethibitishwa!</string>
+    <string name="select_location_provider_content_description">Tufe: chagua eneo la mtoa huduma</string>
     <string name="send">Tuma</string>
     <string name="send_feedback">Tuma maoni yako moja kwa moja au jiunge na %1$s yetu kwa msaada wa moja kwa moja.</string>
     <string name="send_product_updates">Nitumie masasisho ya bidhaa</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">Gusa ili kuunganisha</string>
     <string name="tap_to_refetch">Gusa ili kujaribu kupata eneo.</string>
     <string name="this_region">eneo hili</string>
+    <string name="tile_status_connected">Imeunganishwa</string>
+    <string name="tile_status_disconnected">Haijaunganishwa</string>
     <string name="title_login">Ingia</string>
     <string name="top_matches">Milinganisho Bora</string>
     <string name="total_account_points">Jumla ya pointi za akaunti</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">Thibitisha Tokeni ya Agizo la Mapema la Seeker</string>
     <string name="verify_send_error">Hitilafu</string>
     <string name="version_info">Taarifa za toleo na ujenzi</string>
+    <string name="via_exit">kupitia %1$s</string>
     <string name="wallet">Pochi</string>
     <string name="wallet_address">Anwani ya pochi</string>
     <string name="wallet_address_label">Anwani ya pochi</string>
@@ -495,6 +514,14 @@
     <plurals name="host_count">
         <item quantity="one">%1$d kikoa</item>
         <item quantity="other">%1$d vikoa</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="one">anwani %1$d ya IP</item>
+        <item quantity="other">anwani %1$d za IP</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="one">Una kifaa kingine %1$d mtandaoni</item>
+        <item quantity="other">Una vifaa vingine %1$d mtandaoni</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="one">%1$d mpya</item>

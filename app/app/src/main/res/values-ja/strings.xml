@@ -20,11 +20,13 @@
     <string name="api_error_contact">問題が解決しない場合は、%1$s までご連絡いただくか、直接サポートのために私たちの %2$s にご参加ください。</string>
     <string name="app_excluded_toast">%1$sはVPNを迂回します</string>
     <string name="app_included_toast">%1$sはVPN経由でルーティングされます</string>
+    <string name="app_pinned_toast">%1$sは1つのプロバイダーを使用します</string>
     <string name="app_split_active_exclude">除外モードが有効 — 除外したアプリはVPNを迂回</string>
     <string name="app_split_active_include">含めるモードが有効 — 含めたアプリのみVPNを使用</string>
     <string name="app_split_active_none">アプリ分割なし — すべてのアプリがVPNを使用</string>
     <string name="app_split_precedence_note">含めるアプリが優先されます。1つでもアプリを含めると、含めたアプリのみがVPNを使用し、除外は無効になります。</string>
     <string name="app_split_rules">アプリ分割ルール</string>
+    <string name="app_split_starter">分割アプリ 0 件</string>
     <string name="apply_bonus">ボーナスを適用</string>
     <string name="apps">アプリ</string>
     <string name="are_you_sure_delete_account">本当にアカウントを削除しますか？</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Googleでログイン</string>
     <string name="guest">ゲスト</string>
     <string name="how_are_we_doing">私たちの調子はどうですか？</string>
+    <string name="identity_key_hash_copied">IDキーのハッシュをコピーしました</string>
     <string name="ignore_battery_optimizations">バッテリー最適化を無視する</string>
     <string name="in_guest_mode">ゲストモードです</string>
     <string name="include_app">VPN経由でルーティング</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">アプリが位置情報を受け取れるように、システム設定で「位置情報」をオンにします。</string>
     <string name="mock_location_step_select_app">開発者向けオプションで「仮の現在地情報アプリを選択」をタップし、URnetwork を選択します。</string>
     <string name="mock_location_waiting_for_provider">プロバイダーの場所を待っています</string>
+    <string name="multiple_ips">複数のIP</string>
     <string name="multiplier">倍率</string>
     <string name="name_label">名前</string>
     <string name="name_placeholder">あなたの名前</string>
     <string name="need_more_data_faster">より多くのデータをより速く必要ですか？</string>
     <string name="net_points_earned">純獲得ポイント</string>
     <string name="net_provided">提供済みネット</string>
+    <string name="network">ネットワーク</string>
     <string name="network_api_api_url_help">空欄にするとネットワークドメインから導出されます。</string>
     <string name="network_api_api_url_label">API URL（任意）</string>
     <string name="network_api_apply">ネットワークAPIを適用</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">支払いウォレット</string>
     <string name="payouts">支払い</string>
     <string name="payouts_amount_threshold">支払いは毎週日曜日の00:00 UTCに行われ、最低USDC基準を満たす必要があります。</string>
+    <string name="peer_count_one">1 ピア</string>
+    <string name="peer_count_other">%d ピア</string>
     <string name="pending_data_key">保留中</string>
     <string name="pending_mb_provided">保留中: %1$s MB 提供済み</string>
     <string name="pending_payout">保留中の支払い</string>
+    <string name="pin_app">1つのプロバイダーに固定</string>
+    <string name="pin_app_description">このアプリのすべての接続を1つのプロバイダーにまとめ、APIと画像が同じIPアドレスを使うようにします。VPN経由でコンテンツが読み込めないアプリに使用してください</string>
+    <string name="pinned">固定済み</string>
     <string name="plan">プラン</string>
     <string name="please_try_again">もう一度お試しください。</string>
     <string name="please_wait">しばらく待ってから再試行してください。</string>
     <string name="points_breakdown">ポイントの内訳</string>
+    <string name="post_quantum_encryption">ポスト量子暗号</string>
+    <string name="post_quantum_encryption_fallback_note">フォールバック有効（一時的）</string>
+    <string name="post_quantum_identity">ポスト量子ID</string>
+    <string name="post_quantum_identity_explanation">あなたのIDキーはこのデバイスにローカル保存されます。いずれかのピアのキーがローカルに保存されたキーと異なって表示される場合、そのネットワーク運営者は信頼できません。</string>
     <string name="private_network">プライベートネットワーク</string>
     <string name="processing_payment">支払いを処理中</string>
     <string name="profile">プロフィール</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d分</string>
     <string name="provider_connected_duration_seconds">%1$d秒</string>
     <string name="provider_contracts">プロバイダー契約</string>
+    <string name="provider_identities">プロバイダーのID</string>
     <string name="provider_location_unknown">場所は不明</string>
     <string name="provider_locations_empty">接続中のプロバイダーはありません</string>
     <string name="provider_locations_title">プロバイダーの場所</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">世界中のコンテンツを\n見る</string>
     <string name="see_world_content_description">URnetworkで世界中のコンテンツを見る</string>
     <string name="seeker_token_verified">Seekerトークンが認証されました！</string>
+    <string name="select_location_provider_content_description">地球儀: プロバイダーの場所を選択</string>
     <string name="send">送信</string>
     <string name="send_feedback">ご意見を直接お送りいただくか、直接サポートのために私たちの%1$sにご参加ください。</string>
     <string name="send_product_updates">製品のアップデートを送信する</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">タップして接続</string>
     <string name="tap_to_refetch">タップして位置情報を取得します。</string>
     <string name="this_region">この地域</string>
+    <string name="tile_status_connected">接続済み</string>
+    <string name="tile_status_disconnected">未接続</string>
     <string name="title_login">ログイン</string>
     <string name="top_matches">トップマッチ</string>
     <string name="total_account_points">アカウントの合計ポイント</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">シーカー事前予約トークンを認証</string>
     <string name="verify_send_error">エラー</string>
     <string name="version_info">バージョンおよびビルド情報</string>
+    <string name="via_exit">%1$s 経由</string>
     <string name="wallet">ウォレット</string>
     <string name="wallet_address">ウォレットアドレス</string>
     <string name="wallet_address_label">ウォレットアドレス</string>
@@ -490,6 +509,12 @@
     </plurals>
     <plurals name="host_count">
         <item quantity="other">%1$d件のホスト</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="other">%1$d 個の IP</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="other">他に%1$d台のデバイスがオンラインです</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="other">新着%1$d件</item>

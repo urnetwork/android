@@ -20,11 +20,13 @@
     <string name="api_error_contact">Si le problème persiste, contactez-nous à %1$s ou rejoignez notre %2$s pour un support direct.</string>
     <string name="app_excluded_toast">%1$s contournera le VPN</string>
     <string name="app_included_toast">%1$s passera par le VPN</string>
+    <string name="app_pinned_toast">%1$s utilisera un seul fournisseur</string>
     <string name="app_split_active_exclude">Exclusion active — les applications exclues contournent le VPN</string>
     <string name="app_split_active_include">Inclusion active — seules les applications incluses utilisent le VPN</string>
     <string name="app_split_active_none">Aucune séparation — toutes les applications utilisent le VPN</string>
     <string name="app_split_precedence_note">Les applications incluses ont la priorité : dès qu\'une application est incluse, seules les applications incluses utilisent le VPN et les exclusions n\'ont aucun effet.</string>
     <string name="app_split_rules">Règles par application</string>
+    <string name="app_split_starter">0 application séparée</string>
     <string name="apply_bonus">Appliquer le bonus</string>
     <string name="apps">Applications</string>
     <string name="are_you_sure_delete_account">Êtes-vous sûr de vouloir supprimer votre compte ?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Connectez-vous avec Google</string>
     <string name="guest">Invité</string>
     <string name="how_are_we_doing">Comment allons-nous ?</string>
+    <string name="identity_key_hash_copied">Empreinte de la clé d\'identité copiée</string>
     <string name="ignore_battery_optimizations">Ignorer les optimisations de la batterie</string>
     <string name="in_guest_mode">Vous êtes en mode invité</string>
     <string name="include_app">Router via le VPN</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">Activez la « Localisation » dans les paramètres système pour que les applications puissent recevoir la position.</string>
     <string name="mock_location_step_select_app">Dans les options pour les développeurs, appuyez sur « Sélectionner l\'application de position fictive » et choisissez URnetwork.</string>
     <string name="mock_location_waiting_for_provider">En attente de l\'emplacement d\'un fournisseur</string>
+    <string name="multiple_ips">Plusieurs IP</string>
     <string name="multiplier">Multiplicateur</string>
     <string name="name_label">Nom</string>
     <string name="name_placeholder">Votre nom</string>
     <string name="need_more_data_faster">Besoin de plus de données, plus rapidement ?</string>
     <string name="net_points_earned">Points nets gagnés</string>
     <string name="net_provided">Données Fournies</string>
+    <string name="network">Réseau</string>
     <string name="network_api_api_url_help">Laissez vide pour la dériver du domaine réseau.</string>
     <string name="network_api_api_url_label">URL de l\'API (optionnelle)</string>
     <string name="network_api_apply">Appliquer l\'API réseau</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">Portefeuilles de paiement</string>
     <string name="payouts">Paiements</string>
     <string name="payouts_amount_threshold">Les paiements ont lieu chaque dimanche à 00h00 UTC et nécessitent d’atteindre un seuil minimum de USDC.</string>
+    <string name="peer_count_one">1 pair</string>
+    <string name="peer_count_other">%d pairs</string>
     <string name="pending_data_key">En attente</string>
     <string name="pending_mb_provided">En attente : %1$s MB fournis</string>
     <string name="pending_payout">Paiement en attente</string>
+    <string name="pin_app">Épingle à un seul fournisseur</string>
+    <string name="pin_app_description">Maintient toutes les connexions de cette application sur un seul fournisseur, afin que son API et ses images partagent une même adresse IP. À utiliser pour les applications dont le contenu ne se charge pas via le VPN</string>
+    <string name="pinned">Épinglé</string>
     <string name="plan">Plan</string>
     <string name="please_try_again">Veuillez réessayer.</string>
     <string name="please_wait">Veuillez patienter quelques minutes et réessayer.</string>
     <string name="points_breakdown">Répartition des points</string>
+    <string name="post_quantum_encryption">Chiffrement post-quantique</string>
+    <string name="post_quantum_encryption_fallback_note">Secours activé (temporaire)</string>
+    <string name="post_quantum_identity">Identité post-quantique</string>
+    <string name="post_quantum_identity_explanation">Votre clé d\'identité est stockée localement sur cet appareil. Si la clé d\'un pair diffère de sa clé stockée localement, cela signifie que l\'opérateur du réseau n\'est pas digne de confiance.</string>
     <string name="private_network">Réseau privé</string>
     <string name="processing_payment">Traitement du paiement</string>
     <string name="profile">Profil</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
     <string name="provider_contracts">Contrats fournisseur</string>
+    <string name="provider_identities">Identités des fournisseurs</string>
     <string name="provider_location_unknown">Emplacement inconnu</string>
     <string name="provider_locations_empty">Aucun fournisseur connecté</string>
     <string name="provider_locations_title">Emplacements des fournisseurs</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">Voir tout\nle contenu\ndu monde</string>
     <string name="see_world_content_description">Voyez tout le contenu du monde avec URnetwork</string>
     <string name="seeker_token_verified">Jeton Seeker vérifié !</string>
+    <string name="select_location_provider_content_description">Globe : sélectionner l\'emplacement du fournisseur</string>
     <string name="send">Envoie</string>
     <string name="send_feedback">Envoyez-nous directement vos retours ou rejoignez notre %1$s pour un support direct.</string>
     <string name="send_product_updates">M\'envoyer des mises à jour sur le produit</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">Appuyez pour connecter</string>
     <string name="tap_to_refetch">Appuyez pour essayer de récupérer l\'emplacement.</string>
     <string name="this_region">Cette région</string>
+    <string name="tile_status_connected">Connecté</string>
+    <string name="tile_status_disconnected">Déconnecté</string>
     <string name="title_login">Connexion</string>
     <string name="top_matches">Meilleures correspondances</string>
     <string name="total_account_points">Total des points du compte</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">Vérifier le jeton de précommande Seeker</string>
     <string name="verify_send_error">Erreur</string>
     <string name="version_info">Informations sur la version et la build</string>
+    <string name="via_exit">via %1$s</string>
     <string name="wallet">Portefeuille</string>
     <string name="wallet_address">Adresse du portefeuille</string>
     <string name="wallet_address_label">Adresse du portefeuille</string>
@@ -495,6 +514,14 @@
     <plurals name="host_count">
         <item quantity="one">%1$d hôte</item>
         <item quantity="other">%1$d hôtes</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="one">%1$d IP</item>
+        <item quantity="other">%1$d IP</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="one">Vous avez %1$d autre appareil en ligne</item>
+        <item quantity="other">Vous avez %1$d autres appareils en ligne</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="one">%1$d nouveau</item>

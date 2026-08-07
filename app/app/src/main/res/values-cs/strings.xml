@@ -20,11 +20,13 @@
     <string name="api_error_contact">Pokud problém přetrvává, kontaktujte nás na %1$s nebo se připojte k našemu %2$s pro přímou podporu.</string>
     <string name="app_excluded_toast">%1$s bude obcházet VPN</string>
     <string name="app_included_toast">%1$s bude používat VPN</string>
+    <string name="app_pinned_toast">%1$s bude používat jednoho poskytovatele</string>
     <string name="app_split_active_exclude">Vyloučení aktivní — vyloučené aplikace obcházejí VPN</string>
     <string name="app_split_active_include">Zahrnutí aktivní — VPN používají jen zahrnuté aplikace</string>
     <string name="app_split_active_none">Bez rozdělení — VPN používají všechny aplikace</string>
     <string name="app_split_precedence_note">Zahrnuté aplikace mají přednost: pokud je zahrnutá jakákoli aplikace, VPN používají jen zahrnuté aplikace a vyloučení nemá žádný účinek.</string>
     <string name="app_split_rules">Pravidla rozdělení aplikací</string>
+    <string name="app_split_starter">0 rozdělených aplikací</string>
     <string name="apply_bonus">Použít bonus</string>
     <string name="apps">Aplikace</string>
     <string name="are_you_sure_delete_account">Opravdu chcete svůj účet odstranit?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Přihlásit se přes Google</string>
     <string name="guest">Host</string>
     <string name="how_are_we_doing">Jak se nám daří?</string>
+    <string name="identity_key_hash_copied">Otisk identitního klíče zkopírován</string>
     <string name="ignore_battery_optimizations">Ignorovat optimalizace baterie</string>
     <string name="in_guest_mode">Jste v režimu pro hosty</string>
     <string name="include_app">Směrovat přes VPN</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">V nastavení systému zapněte funkci „Poloha“, aby aplikace mohly polohu přijímat.</string>
     <string name="mock_location_step_select_app">V možnostech pro vývojáře klepněte na „Vybrat aplikaci pro simulovanou polohu“ a zvolte URnetwork.</string>
     <string name="mock_location_waiting_for_provider">Čeká se na polohu poskytovatele</string>
+    <string name="multiple_ips">Více IP adres</string>
     <string name="multiplier">Násobitel</string>
     <string name="name_label">Jméno</string>
     <string name="name_placeholder">Vaše jméno</string>
     <string name="need_more_data_faster">Potřebujete více dat a rychleji?</string>
     <string name="net_points_earned">získané net body</string>
     <string name="net_provided">Poskytnutá čistá hodnota</string>
+    <string name="network">Síť</string>
     <string name="network_api_api_url_help">Ponechte prázdné pro odvození ze síťové domény.</string>
     <string name="network_api_api_url_label">URL API (volitelné)</string>
     <string name="network_api_apply">Použít síťové API</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">Výplatní peněženky</string>
     <string name="payouts">Výplaty</string>
     <string name="payouts_amount_threshold">Výplaty probíhají každou neděli v 00:00 UTC a vyžadují dosažení minimální hranice USDC.</string>
+    <string name="peer_count_one">1 uzel</string>
+    <string name="peer_count_other">%d uzlů</string>
     <string name="pending_data_key">Čekající</string>
     <string name="pending_mb_provided">Čekající: %1$s MB poskytnuto</string>
     <string name="pending_payout">Čeká se na výplatu</string>
+    <string name="pin_app">Připnout k jednomu poskytovateli</string>
+    <string name="pin_app_description">Udrží všechna připojení této aplikace u jednoho poskytovatele, takže její API a obrázky sdílejí jednu IP adresu. Použijte u aplikací, jejichž obsah se přes VPN nenačte</string>
+    <string name="pinned">Připnuto</string>
     <string name="plan">Plán</string>
     <string name="please_try_again">Prosím, zkuste to znovu.</string>
     <string name="please_wait">Prosím, počkejte několik minut a zkuste to znovu.</string>
     <string name="points_breakdown">Rozdělení bodů</string>
+    <string name="post_quantum_encryption">Postkvantové šifrování</string>
+    <string name="post_quantum_encryption_fallback_note">Záložní režim zapnut (dočasně)</string>
+    <string name="post_quantum_identity">Postkvantová identita</string>
+    <string name="post_quantum_identity_explanation">Váš identitní klíč je uložen lokálně v tomto zařízení. Pokud se klíč některého uzlu liší od jeho lokálně uloženého klíče, znamená to, že provozovateli sítě nelze důvěřovat.</string>
     <string name="private_network">Soukromá síť</string>
     <string name="processing_payment">Zpracovává se platba</string>
     <string name="profile">Profil</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
     <string name="provider_contracts">Kontrakty poskytovatele</string>
+    <string name="provider_identities">Identity poskytovatelů</string>
     <string name="provider_location_unknown">Neznámá poloha</string>
     <string name="provider_locations_empty">Žádní připojení poskytovatelé</string>
     <string name="provider_locations_title">Lokality poskytovatelů</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">Zobrazit veškerý\nkontent světa</string>
     <string name="see_world_content_description">Prohlédněte si veškerý obsah světa pomocí sítě URnetwork</string>
     <string name="seeker_token_verified">Token Seeker ověřen!</string>
+    <string name="select_location_provider_content_description">Glóbus: výběr lokality poskytovatele</string>
     <string name="send">Odeslat</string>
     <string name="send_feedback">Pošlete nám svůj názor přímo nebo se připojte k našemu %1$s pro přímou podporu.</string>
     <string name="send_product_updates">Zasílání aktualizací produktů</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">Klepnout pro připojení</string>
     <string name="tap_to_refetch">Klepněte pro pokus o načtení polohy.</string>
     <string name="this_region">tomto regionu</string>
+    <string name="tile_status_connected">Připojeno</string>
+    <string name="tile_status_disconnected">Odpojeno</string>
     <string name="title_login">Přihlásit se</string>
     <string name="top_matches">Nejlepší shody</string>
     <string name="total_account_points">Celkový počet bodů na účtu</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">Ověřte si žeton předběžné objednávky Seeker</string>
     <string name="verify_send_error">Chyba</string>
     <string name="version_info">Informace o verzi a sestavení</string>
+    <string name="via_exit">přes %1$s</string>
     <string name="wallet">Peněženka</string>
     <string name="wallet_address">Adresa peněženky</string>
     <string name="wallet_address_label">Adresa peněženky</string>
@@ -505,6 +524,18 @@
         <item quantity="few">%1$d hostitelé</item>
         <item quantity="many">%1$d hostitele</item>
         <item quantity="other">%1$d hostitelů</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="one">%1$d IP adresa</item>
+        <item quantity="few">%1$d IP adresy</item>
+        <item quantity="many">%1$d IP adresy</item>
+        <item quantity="other">%1$d IP adres</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="one">Máte %1$d další zařízení online</item>
+        <item quantity="few">Máte %1$d další zařízení online</item>
+        <item quantity="many">Máte %1$d dalšího zařízení online</item>
+        <item quantity="other">Máte %1$d dalších zařízení online</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="one">%1$d nový</item>

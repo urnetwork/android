@@ -20,11 +20,13 @@
     <string name="api_error_contact">إذا استمرت المشكلة، تواصل معنا على %1$s أو انضم إلى %2$s الخاص بنا للحصول على دعم مباشر.</string>
     <string name="app_excluded_toast">سيتجاوز %1$s شبكة VPN</string>
     <string name="app_included_toast">سيتم توجيه %1$s عبر VPN</string>
+    <string name="app_pinned_toast">سيستخدم %1$s مزودًا واحدًا</string>
     <string name="app_split_active_exclude">الاستثناء نشط — التطبيقات المستثناة تتجاوز VPN</string>
     <string name="app_split_active_include">التضمين نشط — التطبيقات المشمولة فقط تستخدم VPN</string>
     <string name="app_split_active_none">لا يوجد تقسيم للتطبيقات — جميع التطبيقات تستخدم VPN</string>
     <string name="app_split_precedence_note">التطبيقات المشمولة لها الأولوية: عند تضمين أي تطبيق، تستخدم التطبيقات المشمولة فقط VPN ولا يكون للاستثناءات أي تأثير.</string>
     <string name="app_split_rules">قواعد تقسيم التطبيقات</string>
+    <string name="app_split_starter">0 تطبيقات مقسّمة</string>
     <string name="apply_bonus">تطبيق المكافأة</string>
     <string name="apps">التطبيقات</string>
     <string name="are_you_sure_delete_account">هل أنت متأكد أنك تريد حذف حسابك؟</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
     <string name="guest">ضيف</string>
     <string name="how_are_we_doing">كيف حالنا؟</string>
+    <string name="identity_key_hash_copied">تم نسخ بصمة مفتاح الهوية</string>
     <string name="ignore_battery_optimizations">تجاهل تحسينات البطارية</string>
     <string name="in_guest_mode">أنت في وضع الضيف</string>
     <string name="include_app">التوجيه عبر VPN</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">فعّل «الموقع الجغرافي» في إعدادات النظام حتى تتمكن التطبيقات من استقبال الموقع.</string>
     <string name="mock_location_step_select_app">في خيارات المطوّرين، انقر على «اختيار تطبيق الموقع الوهمي» ثم اختر URnetwork.</string>
     <string name="mock_location_waiting_for_provider">في انتظار موقع مزود الخدمة</string>
+    <string name="multiple_ips">عناوين IP متعددة</string>
     <string name="multiplier">المضاعف</string>
     <string name="name_label">الاسم</string>
     <string name="name_placeholder">اسمك</string>
     <string name="need_more_data_faster">هل تحتاج إلى المزيد من البيانات وبشكل أسرع؟</string>
     <string name="net_points_earned">صافي النقاط المكتسبة</string>
     <string name="net_provided">البيانات المقدمة</string>
+    <string name="network">الشبكة</string>
     <string name="network_api_api_url_help">اتركه فارغًا ليتم اشتقاقه من نطاق الشبكة.</string>
     <string name="network_api_api_url_label">عنوان URL لواجهة API (اختياري)</string>
     <string name="network_api_apply">تطبيق API الشبكة</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">محافظ الدفع</string>
     <string name="payouts">المدفوعات</string>
     <string name="payouts_amount_threshold">تحدث الدفعات كل يوم أحد في الساعة 00:00 بتوقيت UTC، ويتطلب ذلك تحقيق حد أدنى من USDC.</string>
+    <string name="peer_count_one">قرين واحد</string>
+    <string name="peer_count_other">%d قرين</string>
     <string name="pending_data_key">معلّق</string>
     <string name="pending_mb_provided">قيد الانتظار: تم توفير %1$s ميغابايت</string>
     <string name="pending_payout">دفعة معلقة</string>
+    <string name="pin_app">ثبّت على مزود واحد</string>
+    <string name="pin_app_description">يُبقي جميع اتصالات هذا التطبيق على مزود واحد، بحيث تشترك واجهة API والصور في عنوان IP واحد. استخدمه للتطبيقات التي يفشل تحميل محتواها عبر VPN</string>
+    <string name="pinned">مثبّت</string>
     <string name="plan">خطة</string>
     <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
     <string name="please_wait">يرجى الانتظار بضع دقائق وحاول مرة أخرى.</string>
     <string name="points_breakdown">تفصيل النقاط</string>
+    <string name="post_quantum_encryption">التشفير ما بعد الكمومي</string>
+    <string name="post_quantum_encryption_fallback_note">الرجوع الاحتياطي مفعّل (مؤقتًا)</string>
+    <string name="post_quantum_identity">الهوية ما بعد الكمومية</string>
+    <string name="post_quantum_identity_explanation">يُخزَّن مفتاح هويتك محليًا على هذا الجهاز. إذا ظهر مفتاح أي قرين مختلفًا عن مفتاحه المخزَّن محليًا، فهذا يعني أنه لا يمكن الوثوق بمشغّل الشبكة.</string>
     <string name="private_network">شبكة خاصة</string>
     <string name="processing_payment">جارٍ معالجة الدفع</string>
     <string name="profile">الملف الشخصي</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d د</string>
     <string name="provider_connected_duration_seconds">%1$d ث</string>
     <string name="provider_contracts">عقود المزود</string>
+    <string name="provider_identities">هويات المزودين</string>
     <string name="provider_location_unknown">الموقع غير معروف</string>
     <string name="provider_locations_empty">لم يتم الاتصال بأي مزود خدمة</string>
     <string name="provider_locations_title">مواقع مزودي الخدمة</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">شاهد كل\nمحتوى\nالعالم</string>
     <string name="see_world_content_description">شاهد كل محتوى العالم مع URnetwork</string>
     <string name="seeker_token_verified">تم التحقق من رمز Seeker!</string>
+    <string name="select_location_provider_content_description">الكرة الأرضية: اختيار موقع المزود</string>
     <string name="send">أرسل</string>
     <string name="send_feedback">أرسل لنا ملاحظاتك مباشرة أو انضم إلى %1$s الخاص بنا للحصول على دعم مباشر.</string>
     <string name="send_product_updates">إرسال تحديثات المنتج لي</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">انقر للاتصال</string>
     <string name="tap_to_refetch">انقر للمحاولة وجلب الموقع</string>
     <string name="this_region">هذه المنطقة</string>
+    <string name="tile_status_connected">متصل</string>
+    <string name="tile_status_disconnected">غير متصل</string>
     <string name="title_login">تسجيل الدخول</string>
     <string name="top_matches">أفضل التطابقات</string>
     <string name="total_account_points">إجمالي نقاط الحساب</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">تحقق من رمز Seeker للطلب المسبق</string>
     <string name="verify_send_error">خطأ</string>
     <string name="version_info">معلومات الإصدار والبناء</string>
+    <string name="via_exit">عبر %1$s</string>
     <string name="wallet">المحفظة</string>
     <string name="wallet_address">عنوان المحفظة</string>
     <string name="wallet_address_label">عنوان المحفظة</string>
@@ -515,6 +534,22 @@
         <item quantity="few">%1$d مضيفين</item>
         <item quantity="many">%1$d مضيفًا</item>
         <item quantity="other">%1$d مضيف</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="zero">%1$d عنوان IP</item>
+        <item quantity="one">عنوان IP واحد</item>
+        <item quantity="two">عنوانا IP</item>
+        <item quantity="few">%1$d عناوين IP</item>
+        <item quantity="many">%1$d عنوان IP</item>
+        <item quantity="other">%1$d عنوان IP</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="zero">ليس لديك أي أجهزة أخرى متصلة</item>
+        <item quantity="one">لديك جهاز آخر متصل</item>
+        <item quantity="two">لديك جهازان آخران متصلان</item>
+        <item quantity="few">لديك %1$d أجهزة أخرى متصلة</item>
+        <item quantity="many">لديك %1$d جهازًا آخر متصلًا</item>
+        <item quantity="other">لديك %1$d من الأجهزة الأخرى المتصلة</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="zero">%1$d جديد</item>

@@ -20,11 +20,13 @@
     <string name="api_error_contact">如果问题仍然存在，请通过 %1$s 联系我们，或加入我们的 %2$s 获取直接支持。</string>
     <string name="app_excluded_toast">%1$s 将绕过 VPN</string>
     <string name="app_included_toast">%1$s 将通过 VPN 路由</string>
+    <string name="app_pinned_toast">%1$s 将使用单个提供商</string>
     <string name="app_split_active_exclude">排除模式已启用 — 已排除的应用绕过 VPN</string>
     <string name="app_split_active_include">包含模式已启用 — 只有已包含的应用使用 VPN</string>
     <string name="app_split_active_none">未设置应用分流 — 所有应用都使用 VPN</string>
     <string name="app_split_precedence_note">包含优先：只要有应用被包含，就只有已包含的应用使用 VPN，排除设置不再生效。</string>
     <string name="app_split_rules">应用分流规则</string>
+    <string name="app_split_starter">0 个分流应用</string>
     <string name="apply_bonus">应用奖励</string>
     <string name="apps">应用</string>
     <string name="are_you_sure_delete_account">您确定要删除您的帐户吗？</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">使用 Google 登录</string>
     <string name="guest">访客</string>
     <string name="how_are_we_doing">我们做得怎么样？</string>
+    <string name="identity_key_hash_copied">身份密钥哈希已复制</string>
     <string name="ignore_battery_optimizations">忽略电池优化</string>
     <string name="in_guest_mode">您处于访客模式</string>
     <string name="include_app">通过 VPN 路由</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">在系统设置中开启“位置信息”，以便应用能够接收位置。</string>
     <string name="mock_location_step_select_app">在开发者选项中，点按“选择模拟位置信息应用”，然后选择 URnetwork。</string>
     <string name="mock_location_waiting_for_provider">正在等待提供商位置</string>
+    <string name="multiple_ips">多个 IP</string>
     <string name="multiplier">倍增器</string>
     <string name="name_label">姓名</string>
     <string name="name_placeholder">您的姓名</string>
     <string name="need_more_data_faster">需要更多数据，更快吗？</string>
     <string name="net_points_earned">净赚积分</string>
     <string name="net_provided">已提供网络量</string>
+    <string name="network">网络</string>
     <string name="network_api_api_url_help">留空则从网络域名派生。</string>
     <string name="network_api_api_url_label">API URL（可选）</string>
     <string name="network_api_apply">应用网络 API</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">支付钱包</string>
     <string name="payouts">支付</string>
     <string name="payouts_amount_threshold">支付在每周日 00:00 UTC 进行，并且需要达到最低 USDC 门槛。</string>
+    <string name="peer_count_one">1 个对等节点</string>
+    <string name="peer_count_other">%d 个对等节点</string>
     <string name="pending_data_key">待处理</string>
     <string name="pending_mb_provided">待处理：提供了 %1$s MB</string>
     <string name="pending_payout">待支付款项</string>
+    <string name="pin_app">固定到一个提供商</string>
+    <string name="pin_app_description">将此应用的所有连接保持在同一个提供商上，使其 API 和图片共用同一个 IP 地址。适用于内容无法通过 VPN 加载的应用</string>
+    <string name="pinned">已固定</string>
     <string name="plan">计划</string>
     <string name="please_try_again">请再试一次。</string>
     <string name="please_wait">请稍等片刻，然后重试。</string>
     <string name="points_breakdown">积分明细</string>
+    <string name="post_quantum_encryption">后量子加密</string>
+    <string name="post_quantum_encryption_fallback_note">已启用回退（临时）</string>
+    <string name="post_quantum_identity">后量子身份</string>
+    <string name="post_quantum_identity_explanation">你的身份密钥存储在本设备本地。如果某个对等节点的密钥与本地存储的密钥不一致，说明网络运营方不可信。</string>
     <string name="private_network">私有网络</string>
     <string name="processing_payment">正在处理付款</string>
     <string name="profile">个人资料</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d分钟</string>
     <string name="provider_connected_duration_seconds">%1$d秒</string>
     <string name="provider_contracts">提供商合约</string>
+    <string name="provider_identities">提供商身份</string>
     <string name="provider_location_unknown">位置未知</string>
     <string name="provider_locations_empty">未连接任何提供商</string>
     <string name="provider_locations_title">提供商位置</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">查看所有\n世界内容</string>
     <string name="see_world_content_description">使用 URnetwork 查看所有世界内容</string>
     <string name="seeker_token_verified">Seeker 令牌已验证</string>
+    <string name="select_location_provider_content_description">地球图标：选择提供商位置</string>
     <string name="send">发送</string>
     <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>
     <string name="send_product_updates">向我发送产品更新</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">点击连接</string>
     <string name="tap_to_refetch">点击重试获取位置信息</string>
     <string name="this_region">此地区</string>
+    <string name="tile_status_connected">已连接</string>
+    <string name="tile_status_disconnected">已断开连接</string>
     <string name="title_login">登录</string>
     <string name="top_matches">最佳匹配</string>
     <string name="total_account_points">账户总积分</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">验证 Seeker 预售代币</string>
     <string name="verify_send_error">错误</string>
     <string name="version_info">版本和构建信息</string>
+    <string name="via_exit">经由 %1$s</string>
     <string name="wallet">钱包</string>
     <string name="wallet_address">钱包地址</string>
     <string name="wallet_address_label">钱包地址</string>
@@ -490,6 +509,12 @@
     </plurals>
     <plurals name="host_count">
         <item quantity="other">%1$d 个主机</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="other">%1$d 个 IP</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="other">你还有 %1$d 台其他设备在线</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="other">%1$d 个新增</item>

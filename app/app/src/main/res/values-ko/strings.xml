@@ -20,11 +20,13 @@
     <string name="api_error_contact">문제가 계속되면 %1$s로 문의하거나 직접 지원을 위해 저희 %2$s에 참여하세요.</string>
     <string name="app_excluded_toast">%1$s은(는) VPN을 우회합니다</string>
     <string name="app_included_toast">%1$s은(는) VPN으로 라우팅됩니다</string>
+    <string name="app_pinned_toast">%1$s은(는) 하나의 제공업체만 사용합니다</string>
     <string name="app_split_active_exclude">제외 모드 활성 — 제외된 앱은 VPN 우회</string>
     <string name="app_split_active_include">포함 모드 활성 — 포함된 앱만 VPN 사용</string>
     <string name="app_split_active_none">앱 분할 없음 — 모든 앱이 VPN 사용</string>
     <string name="app_split_precedence_note">포함이 우선합니다. 앱을 하나라도 포함하면 포함된 앱만 VPN을 사용하고 제외는 적용되지 않습니다.</string>
     <string name="app_split_rules">앱 분할 규칙</string>
+    <string name="app_split_starter">분할 앱 0개</string>
     <string name="apply_bonus">보너스 적용</string>
     <string name="apps">앱</string>
     <string name="are_you_sure_delete_account">정말로 계정을 삭제하시겠습니까?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Google로 로그인</string>
     <string name="guest">게스트</string>
     <string name="how_are_we_doing">우리는 어떻게 하고 있나요?</string>
+    <string name="identity_key_hash_copied">신원 키 해시가 복사되었습니다</string>
     <string name="ignore_battery_optimizations">배터리 최적화 무시</string>
     <string name="in_guest_mode">게스트 모드입니다</string>
     <string name="include_app">VPN으로 라우팅</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">앱이 위치를 수신할 수 있도록 시스템 설정에서 \'위치\'를 켜세요.</string>
     <string name="mock_location_step_select_app">개발자 옵션에서 \'모의 위치 앱 선택\'을 탭한 다음 URnetwork를 선택하세요.</string>
     <string name="mock_location_waiting_for_provider">제공업체 위치를 기다리는 중</string>
+    <string name="multiple_ips">여러 IP</string>
     <string name="multiplier">배수</string>
     <string name="name_label">이름</string>
     <string name="name_placeholder">당신의 이름</string>
     <string name="need_more_data_faster">더 많은 데이터를 더 빠르게 원하십니까?</string>
     <string name="net_points_earned">순 포인트 획득</string>
     <string name="net_provided">제공된 넷</string>
+    <string name="network">네트워크</string>
     <string name="network_api_api_url_help">비워 두면 네트워크 도메인에서 파생됩니다.</string>
     <string name="network_api_api_url_label">API URL(선택 사항)</string>
     <string name="network_api_apply">네트워크 API 적용</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">지급 지갑</string>
     <string name="payouts">지급</string>
     <string name="payouts_amount_threshold">지급은 매주 일요일 00:00 UTC에 이루어지며, 최소 USDC 기준을 충족해야 합니다.</string>
+    <string name="peer_count_one">피어 1개</string>
+    <string name="peer_count_other">피어 %d개</string>
     <string name="pending_data_key">대기 중</string>
     <string name="pending_mb_provided">보류 중: %1$s MB 제공됨</string>
     <string name="pending_payout">보류 중인 지급</string>
+    <string name="pin_app">하나의 제공업체에 고정</string>
+    <string name="pin_app_description">이 앱의 모든 연결을 하나의 제공업체로 유지하여 API와 이미지가 같은 IP 주소를 사용하도록 합니다. VPN을 통해 콘텐츠가 로드되지 않는 앱에 사용하세요</string>
+    <string name="pinned">고정됨</string>
     <string name="plan">플랜</string>
     <string name="please_try_again">다시 시도해 주세요.</string>
     <string name="please_wait">잠시 후 다시 시도해 주세요.</string>
     <string name="points_breakdown">포인트 내역</string>
+    <string name="post_quantum_encryption">포스트 양자 암호화</string>
+    <string name="post_quantum_encryption_fallback_note">폴백 사용 중 (임시)</string>
+    <string name="post_quantum_identity">포스트 양자 신원</string>
+    <string name="post_quantum_identity_explanation">신원 키는 이 기기에 로컬로 저장됩니다. 어떤 피어의 키가 로컬에 저장된 키와 다르게 표시되면 네트워크 운영자를 신뢰할 수 없다는 뜻입니다.</string>
     <string name="private_network">프라이빗 네트워크</string>
     <string name="processing_payment">결제 처리 중</string>
     <string name="profile">프로필</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d분</string>
     <string name="provider_connected_duration_seconds">%1$d초</string>
     <string name="provider_contracts">제공자 계약</string>
+    <string name="provider_identities">제공업체 신원</string>
     <string name="provider_location_unknown">위치 알 수 없음</string>
     <string name="provider_locations_empty">연결된 제공업체가 없습니다</string>
     <string name="provider_locations_title">제공업체 위치</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">전 세계의\n콘텐츠 보기</string>
     <string name="see_world_content_description">URnetwork로 전 세계의 콘텐츠 보기</string>
     <string name="seeker_token_verified">Seeker 토큰이 인증되었습니다!</string>
+    <string name="select_location_provider_content_description">지구본: 제공업체 위치 선택</string>
     <string name="send">보내기</string>
     <string name="send_feedback">직접 피드백을 보내주시거나, 직접 지원을 위해 저희 %1$s에 참여하세요.</string>
     <string name="send_product_updates">제품 업데이트 소식 받기</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">탭하여 연결</string>
     <string name="tap_to_refetch">위치를 가져오려면 탭하세요.</string>
     <string name="this_region">이 지역</string>
+    <string name="tile_status_connected">연결됨</string>
+    <string name="tile_status_disconnected">연결 끊김</string>
     <string name="title_login">로그인</string>
     <string name="top_matches">최고 일치 항목</string>
     <string name="total_account_points">총 계정 포인트</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">Seeker 선주문 토큰 확인</string>
     <string name="verify_send_error">오류</string>
     <string name="version_info">버전 및 빌드 정보</string>
+    <string name="via_exit">%1$s 경유</string>
     <string name="wallet">지갑</string>
     <string name="wallet_address">지갑 주소</string>
     <string name="wallet_address_label">지갑 주소</string>
@@ -490,6 +509,12 @@
     </plurals>
     <plurals name="host_count">
         <item quantity="other">호스트 %1$d개</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="other">IP %1$d개</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="other">다른 기기 %1$d대가 온라인 상태입니다</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="other">신규 %1$d개</item>

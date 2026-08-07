@@ -20,11 +20,13 @@
     <string name="api_error_contact">Als het probleem blijft bestaan, neem dan contact met ons op via %1$s of sluit je aan bij onze %2$s voor directe ondersteuning.</string>
     <string name="app_excluded_toast">%1$s omzeilt de VPN</string>
     <string name="app_included_toast">%1$s gaat via de VPN</string>
+    <string name="app_pinned_toast">%1$s gebruikt één provider</string>
     <string name="app_split_active_exclude">Uitsluiten actief — uitgesloten apps omzeilen de VPN</string>
     <string name="app_split_active_include">Insluiten actief — alleen inbegrepen apps gebruiken de VPN</string>
     <string name="app_split_active_none">Geen app-split — alle apps gebruiken de VPN</string>
     <string name="app_split_precedence_note">Inbegrepen apps hebben voorrang: zodra er één app is inbegrepen, gebruiken alleen inbegrepen apps de VPN en hebben uitsluitingen geen effect.</string>
     <string name="app_split_rules">App-splitsregels</string>
+    <string name="app_split_starter">0 gesplitste apps</string>
     <string name="apply_bonus">Bonus toepassen</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Weet je zeker dat je je account wilt verwijderen?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Log in met google</string>
     <string name="guest">Gast</string>
     <string name="how_are_we_doing">Hoe gaat het met ons?</string>
+    <string name="identity_key_hash_copied">Hash van identiteitssleutel gekopieerd</string>
     <string name="ignore_battery_optimizations">Batterijoptimalisaties negeren</string>
     <string name="in_guest_mode">Je bent in de gastmodus</string>
     <string name="include_app">Via VPN routeren</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">Zet “Locatie” aan in de systeeminstellingen zodat apps de locatie kunnen ontvangen.</string>
     <string name="mock_location_step_select_app">Tik in de opties voor ontwikkelaars op “App voor neplocaties selecteren” en kies URnetwork.</string>
     <string name="mock_location_waiting_for_provider">Wachten op een providerlocatie</string>
+    <string name="multiple_ips">Meerdere IP-adressen</string>
     <string name="multiplier">Vermenigvuldiger</string>
     <string name="name_label">Naam</string>
     <string name="name_placeholder">Jouw naam</string>
     <string name="need_more_data_faster">Meer data, sneller nodig?</string>
     <string name="net_points_earned">Totale punten verdiend</string>
     <string name="net_provided">Geleverd netwerk</string>
+    <string name="network">Netwerk</string>
     <string name="network_api_api_url_help">Laat leeg om af te leiden van het netwerkdomein.</string>
     <string name="network_api_api_url_label">API-URL (optioneel)</string>
     <string name="network_api_apply">Netwerk-API toepassen</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">Uitbetalingswallets</string>
     <string name="payouts">Uitbetalingen</string>
     <string name="payouts_amount_threshold">Uitbetalingen vinden elke zondag om 00:00 UTC plaats en vereisen het behalen van een minimale USDC-drempel.</string>
+    <string name="peer_count_one">1 peer</string>
+    <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">In behandeling</string>
     <string name="pending_mb_provided">In behandeling: %1$s MB geleverd</string>
     <string name="pending_payout">Uitbetaling in behandeling</string>
+    <string name="pin_app">Vastzetten op één provider</string>
+    <string name="pin_app_description">Houdt alle verbindingen van deze app bij één provider, zodat de API en de afbeeldingen hetzelfde IP-adres delen. Gebruik dit voor apps waarvan de inhoud niet laadt via de VPN</string>
+    <string name="pinned">Vastgezet</string>
     <string name="plan">Plan</string>
     <string name="please_try_again">Probeer het alstublieft opnieuw.</string>
     <string name="please_wait">Wacht alstublieft een paar minuten en probeer het opnieuw.</string>
     <string name="points_breakdown">Puntenoverzicht</string>
+    <string name="post_quantum_encryption">Post-quantumversleuteling</string>
+    <string name="post_quantum_encryption_fallback_note">Fallback ingeschakeld (tijdelijk)</string>
+    <string name="post_quantum_identity">Post-quantumidentiteit</string>
+    <string name="post_quantum_identity_explanation">Je identiteitssleutel wordt lokaal op dit apparaat opgeslagen. Als de sleutel van een peer afwijkt van de lokaal opgeslagen sleutel, betekent dit dat de netwerkbeheerder niet te vertrouwen is.</string>
     <string name="private_network">Privénetwerk</string>
     <string name="processing_payment">Betaling wordt verwerkt</string>
     <string name="profile">Profiel</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
     <string name="provider_contracts">Providercontracten</string>
+    <string name="provider_identities">Provideridentiteiten</string>
     <string name="provider_location_unknown">Locatie onbekend</string>
     <string name="provider_locations_empty">Geen providers verbonden</string>
     <string name="provider_locations_title">Providerlocaties</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">Bekijk alle\ninhoud van de wereld</string>
     <string name="see_world_content_description">Bekijk alle inhoud van de wereld met URnetwork</string>
     <string name="seeker_token_verified">Seeker Token geverifieerd!</string>
+    <string name="select_location_provider_content_description">Wereldbol: providerlocatie selecteren</string>
     <string name="send">Verstuur</string>
     <string name="send_feedback">Stuur je feedback rechtstreeks naar ons of sluit je aan bij onze %1$s voor directe hulp.</string>
     <string name="send_product_updates">Stuur mij productupdates</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">Tik om te verbinden</string>
     <string name="tap_to_refetch">Tik om te proberen de locatie op te halen.</string>
     <string name="this_region">deze regio</string>
+    <string name="tile_status_connected">Verbonden</string>
+    <string name="tile_status_disconnected">Niet verbonden</string>
     <string name="title_login">Login</string>
     <string name="top_matches">Beste matches</string>
     <string name="total_account_points">Totaal punten saldo</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">Verifieer je Seeker Pre-Order Token</string>
     <string name="verify_send_error">Failed</string>
     <string name="version_info">Versie en build informatie</string>
+    <string name="via_exit">via %1$s</string>
     <string name="wallet">Wallet</string>
     <string name="wallet_address">Walletadres</string>
     <string name="wallet_address_label">Wallet adres</string>
@@ -495,6 +514,14 @@
     <plurals name="host_count">
         <item quantity="one">%1$d host</item>
         <item quantity="other">%1$d hosts</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="one">%1$d IP</item>
+        <item quantity="other">%1$d IP\'s</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="one">Je hebt nog %1$d ander apparaat online</item>
+        <item quantity="other">Je hebt nog %1$d andere apparaten online</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="one">%1$d nieuw</item>

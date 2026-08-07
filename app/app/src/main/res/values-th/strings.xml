@@ -20,11 +20,13 @@
     <string name="api_error_contact">หากปัญหายังคงอยู่ กรุณาติดต่อเราที่ %1$s หรือเข้าร่วม %2$s ของเราเพื่อรับการสนับสนุนโดยตรง</string>
     <string name="app_excluded_toast">%1$s จะไม่ใช้ VPN</string>
     <string name="app_included_toast">%1$s จะใช้งานผ่าน VPN</string>
+    <string name="app_pinned_toast">%1$s จะใช้ผู้ให้บริการรายเดียว</string>
     <string name="app_split_active_exclude">โหมดยกเว้นทำงานอยู่ — แอปที่ยกเว้นจะไม่ใช้ VPN</string>
     <string name="app_split_active_include">โหมดรวมไว้ทำงานอยู่ — เฉพาะแอปที่รวมไว้เท่านั้นที่ใช้ VPN</string>
     <string name="app_split_active_none">ไม่มีการแยกแอป — ทุกแอปใช้ VPN</string>
     <string name="app_split_precedence_note">แอปที่รวมไว้จะมาก่อนเสมอ: หากมีแอปใดถูกรวมไว้ จะมีเฉพาะแอปที่รวมไว้เท่านั้นที่ใช้ VPN และการยกเว้นจะไม่มีผล</string>
     <string name="app_split_rules">กฎแยกเส้นทางแอป</string>
+    <string name="app_split_starter">แอปที่แยกเส้นทาง 0 แอป</string>
     <string name="apply_bonus">รับโบนัส</string>
     <string name="apps">แอป</string>
     <string name="are_you_sure_delete_account">คุณยืนยันที่จะลบบัญชีของคุณหรือไม่?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">เข้าสู่ระบบด้วยบัญชี Google</string>
     <string name="guest">ผู้เยี่ยมชม</string>
     <string name="how_are_we_doing">ใช้งานเป็นยังไงบ้าง?</string>
+    <string name="identity_key_hash_copied">คัดลอกแฮชของคีย์ระบุตัวตนแล้ว</string>
     <string name="ignore_battery_optimizations">ไม่สนใจการเพิ่มประสิทธิภาพแบตเตอรี่</string>
     <string name="in_guest_mode">คุณกำลังใช้งานโหมดผู้เยี่ยมชม</string>
     <string name="include_app">ส่งผ่าน VPN</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">เปิด “ตำแหน่ง” ในการตั้งค่าระบบเพื่อให้แอปรับตำแหน่งได้</string>
     <string name="mock_location_step_select_app">ในตัวเลือกสำหรับนักพัฒนาแอป ให้แตะ “เลือกแอปจำลองตำแหน่ง” แล้วเลือก URnetwork</string>
     <string name="mock_location_waiting_for_provider">กำลังรอตำแหน่งผู้ให้บริการ</string>
+    <string name="multiple_ips">หลาย IP</string>
     <string name="multiplier">ตัวคูณ</string>
     <string name="name_label">ชื่อ</string>
     <string name="name_placeholder">ชื่อของคุณ</string>
     <string name="need_more_data_faster">ต้องการดาต้าที่เยอะขึ้น และเร็วขึ้นไหม?</string>
     <string name="net_points_earned">คะแนนที่ได้รับ</string>
     <string name="net_provided">แบนด์วิธที่ให้บริการแล้ว</string>
+    <string name="network">เครือข่าย</string>
     <string name="network_api_api_url_help">เว้นว่างไว้เพื่อให้ได้มาจากโดเมนเครือข่าย</string>
     <string name="network_api_api_url_label">URL ของ API (ไม่บังคับ)</string>
     <string name="network_api_apply">ใช้ API เครือข่าย</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">กระเป๋ารับยอดจ่าย</string>
     <string name="payouts">การจ่าย</string>
     <string name="payouts_amount_threshold">การจ่ายเงินจะเกิดขึ้นทุกวันอาทิตย์ เวลา 00:00 UTC และต้องถึงขั้นต่ำขั้นต่ำของ USDC</string>
+    <string name="peer_count_one">1 เพียร์</string>
+    <string name="peer_count_other">%d เพียร์</string>
     <string name="pending_data_key">รอดำเนินการ</string>
     <string name="pending_mb_provided">รอดำเนินการ: ให้บริการ %1$s MB</string>
     <string name="pending_payout">ยอดที่รอจ่าย</string>
+    <string name="pin_app">ปักหมุดกับผู้ให้บริการรายเดียว</string>
+    <string name="pin_app_description">เก็บการเชื่อมต่อทั้งหมดของแอปนี้ไว้กับผู้ให้บริการรายเดียว เพื่อให้ API และรูปภาพใช้ที่อยู่ IP เดียวกัน ใช้กับแอปที่เนื้อหาโหลดไม่ขึ้นเมื่อผ่าน VPN</string>
+    <string name="pinned">ปักหมุดแล้ว</string>
     <string name="plan">แพ็กเกจ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="please_wait">โปรดรอสักครู่ แล้วลองใหม่อีกครั้ง</string>
     <string name="points_breakdown">รายละเอียดคะแนน</string>
+    <string name="post_quantum_encryption">การเข้ารหัสแบบโพสต์ควอนตัม</string>
+    <string name="post_quantum_encryption_fallback_note">เปิดใช้โหมดสำรอง (ชั่วคราว)</string>
+    <string name="post_quantum_identity">ข้อมูลระบุตัวตนแบบโพสต์ควอนตัม</string>
+    <string name="post_quantum_identity_explanation">คีย์ระบุตัวตนของคุณถูกเก็บไว้ในเครื่องนี้ หากคีย์ของเพียร์ใดแตกต่างจากคีย์ที่เก็บไว้ในเครื่อง แสดงว่าผู้ดำเนินการเครือข่ายไม่น่าเชื่อถือ</string>
     <string name="private_network">เครือข่ายส่วนตัว</string>
     <string name="processing_payment">กำลังดำเนินการชำระเงิน</string>
     <string name="profile">โปรไฟล์</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d นาที</string>
     <string name="provider_connected_duration_seconds">%1$d วิ</string>
     <string name="provider_contracts">สัญญาผู้ให้บริการ</string>
+    <string name="provider_identities">ข้อมูลระบุตัวตนของผู้ให้บริการ</string>
     <string name="provider_location_unknown">ไม่ทราบตำแหน่ง</string>
     <string name="provider_locations_empty">ไม่มีผู้ให้บริการที่เชื่อมต่ออยู่</string>
     <string name="provider_locations_title">ตำแหน่งผู้ให้บริการ</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">เข้าถึงทุกคอนเทนต์\nจากทั่วทุกมุมโลก</string>
     <string name="see_world_content_description">เข้าถึงทุกคอนเทนต์จากทั่วโลกด้วย URnetwork</string>
     <string name="seeker_token_verified">ยืนยัน Seeker Token สำเร็จ</string>
+    <string name="select_location_provider_content_description">ลูกโลก: เลือกตำแหน่งผู้ให้บริการ</string>
     <string name="send">ส่ง</string>
     <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม %1$s เพื่อรับการช่วยเหลือของเราโดยตรง</string>
     <string name="send_product_updates">ส่งข้อมูลการอัพเดตผลิตภัณฑ์มาที่ฉัน</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">แตะเพื่อเชื่อมต่อ</string>
     <string name="tap_to_refetch">แตะเพื่อลองใหม่อีกครั้ง</string>
     <string name="this_region">ภูมิภาคนี้</string>
+    <string name="tile_status_connected">เชื่อมต่อแล้ว</string>
+    <string name="tile_status_disconnected">ตัดการเชื่อมต่อแล้ว</string>
     <string name="title_login">เข้าสู่ระบบ</string>
     <string name="top_matches">คำค้นที่ใกล้เคียง</string>
     <string name="total_account_points">ยอดคะแนนบัญชี</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">ยืนยัน Seeker Pre-Order Token</string>
     <string name="verify_send_error">ข้อผิดพลาด</string>
     <string name="version_info">เวอร์ชั่นและข้อมูล build</string>
+    <string name="via_exit">ผ่าน %1$s</string>
     <string name="wallet">กระเป๋า</string>
     <string name="wallet_address">ที่อยู่กระเป๋าเงิน</string>
     <string name="wallet_address_label">ที่อยู่กระเป๋าเงิน</string>
@@ -490,6 +509,12 @@
     </plurals>
     <plurals name="host_count">
         <item quantity="other">โฮสต์ %1$d รายการ</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="other">%1$d IP</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="other">คุณมีอุปกรณ์อื่นออนไลน์อยู่ %1$d เครื่อง</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="other">ใหม่ %1$d รายการ</item>

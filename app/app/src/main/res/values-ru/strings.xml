@@ -20,11 +20,13 @@
     <string name="api_error_contact">Если проблема сохраняется, свяжитесь с нами по адресу %1$s или присоединяйтесь к нашему %2$s для получения прямой поддержки.</string>
     <string name="app_excluded_toast">%1$s будет работать в обход VPN</string>
     <string name="app_included_toast">%1$s будет работать через VPN</string>
+    <string name="app_pinned_toast">%1$s будет использовать одного провайдера</string>
     <string name="app_split_active_exclude">Режим исключения — исключённые приложения обходят VPN</string>
     <string name="app_split_active_include">Режим включения — VPN используют только включённые приложения</string>
     <string name="app_split_active_none">Без разделения — VPN используют все приложения</string>
     <string name="app_split_precedence_note">Включённые приложения имеют приоритет: если включено хотя бы одно приложение, VPN используют только включённые, а исключения не действуют.</string>
     <string name="app_split_rules">Правила разделения приложений</string>
+    <string name="app_split_starter">0 приложений в разделении</string>
     <string name="apply_bonus">Применить бонус</string>
     <string name="apps">Приложения</string>
     <string name="are_you_sure_delete_account">Вы уверены, что хотите удалить свой аккаунт?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Войти через Google</string>
     <string name="guest">Гость</string>
     <string name="how_are_we_doing">Как наши успехи?</string>
+    <string name="identity_key_hash_copied">Хеш ключа идентификации скопирован</string>
     <string name="ignore_battery_optimizations">Игнорировать оптимизацию батареи</string>
     <string name="in_guest_mode">Вы в гостевом режиме</string>
     <string name="include_app">Направить через VPN</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">Включите «Местоположение» в настройках системы, чтобы приложения могли получать местоположение.</string>
     <string name="mock_location_step_select_app">В параметрах разработчика нажмите «Выбрать приложение для фиктивных местоположений» и выберите URnetwork.</string>
     <string name="mock_location_waiting_for_provider">Ожидание локации провайдера</string>
+    <string name="multiple_ips">Несколько IP</string>
     <string name="multiplier">Множитель</string>
     <string name="name_label">Имя</string>
     <string name="name_placeholder">Ваше имя</string>
     <string name="need_more_data_faster">Нужно больше данных и выше скорость?</string>
     <string name="net_points_earned">заработано очков (нетто)</string>
     <string name="net_provided">Предоставлено (нетто)</string>
+    <string name="network">Сеть</string>
     <string name="network_api_api_url_help">Оставьте пустым, чтобы вывести из домена сети.</string>
     <string name="network_api_api_url_label">URL API (необязательно)</string>
     <string name="network_api_apply">Применить API сети</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">Кошельки для выплат</string>
     <string name="payouts">Выплаты</string>
     <string name="payouts_amount_threshold">Выплаты происходят каждое воскресенье в 00:00 UTC и требуют достижения минимального порога USDC.</string>
+    <string name="peer_count_one">1 узел</string>
+    <string name="peer_count_other">%d узлов</string>
     <string name="pending_data_key">В ожидании</string>
     <string name="pending_mb_provided">В ожидании: предоставлено %1$s МБ</string>
     <string name="pending_payout">Ожидаемая выплата</string>
+    <string name="pin_app">Закрепить за одним провайдером</string>
+    <string name="pin_app_description">Удерживает все соединения этого приложения на одном провайдере, чтобы его API и изображения использовали один IP-адрес. Подходит для приложений, содержимое которых не загружается через VPN</string>
+    <string name="pinned">Закреплено</string>
     <string name="plan">Тариф</string>
     <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
     <string name="points_breakdown">Разбивка очков</string>
+    <string name="post_quantum_encryption">Постквантовое шифрование</string>
+    <string name="post_quantum_encryption_fallback_note">Резервный режим включён (временно)</string>
+    <string name="post_quantum_identity">Постквантовая идентификация</string>
+    <string name="post_quantum_identity_explanation">Ваш ключ идентификации хранится локально на этом устройстве. Если ключ какого-либо узла отличается от сохранённого локально, это значит, что оператору сети нельзя доверять.</string>
     <string name="private_network">Частная сеть</string>
     <string name="processing_payment">Обработка платежа</string>
     <string name="profile">Профиль</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d мин</string>
     <string name="provider_connected_duration_seconds">%1$d с</string>
     <string name="provider_contracts">Контракты провайдера</string>
+    <string name="provider_identities">Идентификаторы провайдеров</string>
     <string name="provider_location_unknown">Локация неизвестна</string>
     <string name="provider_locations_empty">Нет подключенных провайдеров</string>
     <string name="provider_locations_title">Локации провайдеров</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">Смотрите контент\nсо всего мира</string>
     <string name="see_world_content_description">Смотрите контент со всего мира с URnetwork</string>
     <string name="seeker_token_verified">Токен Seeker проверен!</string>
+    <string name="select_location_provider_content_description">Глобус: выбрать локацию провайдера</string>
     <string name="send">Отправить</string>
     <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему %1$s для прямой поддержки.</string>
     <string name="send_product_updates">Присылайте мне обновления продукта</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">Нажмите для подключения</string>
     <string name="tap_to_refetch">Нажмите, чтобы повторить попытку получения локации.</string>
     <string name="this_region">этом регионе</string>
+    <string name="tile_status_connected">Подключено</string>
+    <string name="tile_status_disconnected">Отключено</string>
     <string name="title_login">Вход</string>
     <string name="top_matches">Лучшие совпадения</string>
     <string name="total_account_points">Всего очков аккаунта</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">Проверить токен Seeker Pre-Order</string>
     <string name="verify_send_error">Ошибка</string>
     <string name="version_info">Информация о версии и сборке</string>
+    <string name="via_exit">через %1$s</string>
     <string name="wallet">Кошелек</string>
     <string name="wallet_address">Адрес кошелька</string>
     <string name="wallet_address_label">Адрес кошелька</string>
@@ -505,6 +524,18 @@
         <item quantity="few">%1$d хоста</item>
         <item quantity="many">%1$d хостов</item>
         <item quantity="other">%1$d хоста</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="one">%1$d IP-адрес</item>
+        <item quantity="few">%1$d IP-адреса</item>
+        <item quantity="many">%1$d IP-адресов</item>
+        <item quantity="other">%1$d IP-адресов</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="one">У вас %1$d другое устройство онлайн</item>
+        <item quantity="few">У вас %1$d других устройства онлайн</item>
+        <item quantity="many">У вас %1$d других устройств онлайн</item>
+        <item quantity="other">У вас %1$d других устройств онлайн</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="one">%1$d новый</item>

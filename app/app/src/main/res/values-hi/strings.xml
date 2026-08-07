@@ -20,11 +20,13 @@
     <string name="api_error_contact">यदि समस्या बनी रहती है, तो %1$s पर हमसे संपर्क करें या सीधे समर्थन के लिए हमारे %2$s से जुड़ें।</string>
     <string name="app_excluded_toast">%1$s VPN को बायपास करेगा</string>
     <string name="app_included_toast">%1$s VPN से रूट होगा</string>
+    <string name="app_pinned_toast">%1$s एक ही प्रदाता का उपयोग करेगा</string>
     <string name="app_split_active_exclude">एक्सक्लूड चालू — बाहर रखे गए ऐप्स VPN को बायपास करते हैं</string>
     <string name="app_split_active_include">इनक्लूड चालू — केवल शामिल ऐप्स ही VPN का उपयोग करते हैं</string>
     <string name="app_split_active_none">कोई ऐप स्प्लिट नहीं — सभी ऐप्स VPN का उपयोग करते हैं</string>
     <string name="app_split_precedence_note">शामिल ऐप्स को प्राथमिकता मिलती है: यदि कोई भी ऐप शामिल है, तो केवल शामिल ऐप्स ही VPN का उपयोग करते हैं और बाहर रखने का कोई असर नहीं होता।</string>
     <string name="app_split_rules">ऐप स्प्लिट नियम</string>
+    <string name="app_split_starter">0 स्प्लिट ऐप्स</string>
     <string name="apply_bonus">बोनस लागू करें</string>
     <string name="apps">ऐप्स</string>
     <string name="are_you_sure_delete_account">क्या आप वाकई अपना अकाउंट डिलीट करना चाहते हैं?</string>
@@ -183,6 +185,7 @@
     <string name="google_auth_btn_text">Google से लॉग इन करें</string>
     <string name="guest">अतिथि</string>
     <string name="how_are_we_doing">हम कैसा कर रहे हैं?</string>
+    <string name="identity_key_hash_copied">पहचान कुंजी का हैश कॉपी किया गया</string>
     <string name="ignore_battery_optimizations">बैटरी ऑप्टिमाइज़ेशन को अनदेखा करें</string>
     <string name="in_guest_mode">आप गेस्ट मोड में हैं</string>
     <string name="include_app">VPN से रूट करें</string>
@@ -241,12 +244,14 @@
     <string name="mock_location_step_location_services">सिस्टम सेटिंग में “जगह की जानकारी” चालू करें ताकि ऐप्लिकेशन को स्थान मिल सके।</string>
     <string name="mock_location_step_select_app">डेवलपर विकल्प में, “मॉक लोकेशन ऐप चुनें” पर टैप करें और URnetwork चुनें।</string>
     <string name="mock_location_waiting_for_provider">प्रदाता के स्थान की प्रतीक्षा हो रही है</string>
+    <string name="multiple_ips">एकाधिक IP</string>
     <string name="multiplier">गुणक</string>
     <string name="name_label">नाम</string>
     <string name="name_placeholder">आपका नाम</string>
     <string name="need_more_data_faster">क्या आपको अधिक डेटा, तेज़ी से चाहिए?</string>
     <string name="net_points_earned">अर्जित शुद्ध अंक</string>
     <string name="net_provided">प्रदान किया गया नेट</string>
+    <string name="network">नेटवर्क</string>
     <string name="network_api_api_url_help">नेटवर्क डोमेन से प्राप्त करने के लिए खाली छोड़ें।</string>
     <string name="network_api_api_url_label">API URL (वैकल्पिक)</string>
     <string name="network_api_apply">नेटवर्क API लागू करें</string>
@@ -306,13 +311,22 @@
     <string name="payout_wallets">पेआउट वॉलेट</string>
     <string name="payouts">भुगतान</string>
     <string name="payouts_amount_threshold">भुगतान हर रविवार 00:00 UTC पर होते हैं, और न्यूनतम USDC सीमा पूरी करनी होती है।</string>
+    <string name="peer_count_one">1 पीयर</string>
+    <string name="peer_count_other">%d पीयर</string>
     <string name="pending_data_key">लंबित</string>
     <string name="pending_mb_provided">लंबित: %1$s एमबी प्रदान किए गए</string>
     <string name="pending_payout">लंबित भुगतान</string>
+    <string name="pin_app">एक प्रदाता पर पिन करें</string>
+    <string name="pin_app_description">इस ऐप के सभी कनेक्शन एक ही प्रदाता पर रखता है, ताकि इसका API और इमेज एक ही IP पता साझा करें। उन ऐप्स के लिए उपयोग करें जिनकी सामग्री VPN के ज़रिए लोड नहीं होती</string>
+    <string name="pinned">पिन किया गया</string>
     <string name="plan">योजना</string>
     <string name="please_try_again">कृपया पुनः प्रयास करें।</string>
     <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>
     <string name="points_breakdown">अंक विवरण</string>
+    <string name="post_quantum_encryption">पोस्ट-क्वांटम एन्क्रिप्शन</string>
+    <string name="post_quantum_encryption_fallback_note">फ़ॉलबैक चालू (अस्थायी)</string>
+    <string name="post_quantum_identity">पोस्ट-क्वांटम पहचान</string>
+    <string name="post_quantum_identity_explanation">आपकी पहचान कुंजी इस डिवाइस पर स्थानीय रूप से संग्रहीत होती है। अगर किसी पीयर की कुंजी स्थानीय रूप से संग्रहीत कुंजी से अलग दिखती है, तो इसका मतलब है कि नेटवर्क ऑपरेटर पर भरोसा नहीं किया जा सकता।</string>
     <string name="private_network">निजी नेटवर्क</string>
     <string name="processing_payment">भुगतान संसाधित हो रहा है</string>
     <string name="profile">प्रोफ़ाइल</string>
@@ -322,6 +336,7 @@
     <string name="provider_connected_duration_minutes">%1$d मि.</string>
     <string name="provider_connected_duration_seconds">%1$d से.</string>
     <string name="provider_contracts">प्रदाता कॉन्ट्रैक्ट</string>
+    <string name="provider_identities">प्रदाताओं की पहचान</string>
     <string name="provider_location_unknown">स्थान अज्ञात</string>
     <string name="provider_locations_empty">कोई प्रदाता कनेक्ट नहीं है</string>
     <string name="provider_locations_title">प्रदाताओं के स्थान</string>
@@ -382,6 +397,7 @@
     <string name="see_world_content">दुनिया की सभी\nसामग्री देखें</string>
     <string name="see_world_content_description">URnetwork के साथ दुनिया की सभी सामग्री देखें</string>
     <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
+    <string name="select_location_provider_content_description">ग्लोब: प्रदाता का स्थान चुनें</string>
     <string name="send">भेजें</string>
     <string name="send_feedback">हमें सीधे अपनी प्रतिक्रिया भेजें या सीधे समर्थन के लिए हमारे %1$s से जुड़ें।</string>
     <string name="send_product_updates">मुझे उत्पाद अपडेट भेजें</string>
@@ -424,6 +440,8 @@
     <string name="tap_to_connect">कनेक्ट करने के लिए टैप करें</string>
     <string name="tap_to_refetch">स्थान लाने के लिए टैप करें.</string>
     <string name="this_region">इस क्षेत्र</string>
+    <string name="tile_status_connected">कनेक्टेड</string>
+    <string name="tile_status_disconnected">डिस्कनेक्टेड</string>
     <string name="title_login">लॉग इन करें</string>
     <string name="top_matches">सबसे अच्छे मिलान</string>
     <string name="total_account_points">कुल खाता अंक</string>
@@ -464,6 +482,7 @@
     <string name="verify_seeker_token_btn">सीकर प्री-ऑर्डर टोकन सत्यापित करें</string>
     <string name="verify_send_error">त्रुटि</string>
     <string name="version_info">संस्करण और बिल्ड जानकारी</string>
+    <string name="via_exit">%1$s के ज़रिए</string>
     <string name="wallet">वॉलेट</string>
     <string name="wallet_address">वॉलेट पता</string>
     <string name="wallet_address_label">वॉलेट पता</string>
@@ -495,6 +514,14 @@
     <plurals name="host_count">
         <item quantity="one">%1$d होस्ट</item>
         <item quantity="other">%1$d होस्ट</item>
+    </plurals>
+    <plurals name="ip_count">
+        <item quantity="one">%1$d IP</item>
+        <item quantity="other">%1$d IP</item>
+    </plurals>
+    <plurals name="network_peer_count">
+        <item quantity="one">आपका %1$d अन्य डिवाइस ऑनलाइन है</item>
+        <item quantity="other">आपके %1$d अन्य डिवाइस ऑनलाइन हैं</item>
     </plurals>
     <plurals name="new_items_count">
         <item quantity="one">%1$d नया</item>
