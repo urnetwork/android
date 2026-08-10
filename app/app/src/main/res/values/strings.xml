@@ -48,6 +48,9 @@
     <string name="average_reliability">Average reliability</string>
     <string name="balance">Balance</string>
     <string name="balance_code">Balance code</string>
+    <string name="balance_code_already_redeemed_message">This balance code has already been redeemed. If you redeemed it earlier, the data is already on your balance.</string>
+    <string name="balance_code_invalid_message">That balance code isn\'t valid. Check the code and try again.</string>
+    <string name="balance_code_transport_error">We couldn\'t reach the server — check your connection. If you were charged, the code may already be applied; check your balance before trying again.</string>
     <string name="balance_code_where_to_buy">Don\'t have a code? Data codes can be purchased at ur.io and emailed to you.</string>
     <string name="balance_codes_link">Balance codes</string>
     <string name="balance_codes_title">Balance Codes</string>
@@ -436,7 +439,11 @@
     <string name="password_support_txt">Password must be at least 12 characters</string>
     <string name="pay_with_solana_wallet">Pay with Solana Wallet</string>
     <string name="pay_with_stripe">Join with Stripe</string>
+    <string name="payment_confirmation_delayed">Confirmation is taking longer than expected. Your plan will update automatically once it\'s confirmed — there\'s no need to buy again.</string>
+    <string name="payment_confirmation_processing">We\'re confirming your payment now. Your plan will update automatically — you don\'t need to do anything.</string>
+    <string name="payment_not_completed">Your payment could not be completed.</string>
     <string name="payment_problem">Payment problem</string>
+    <string name="payment_received_title">Payment received</string>
     <string name="payout_wallets">Payout Wallets</string>
     <string name="payouts">Payouts</string>
     <string name="payouts_amount_threshold">Payouts occur every Sunday at 00:00 UTC, and require meeting a minimum USDC threshold.</string>
@@ -471,6 +478,7 @@
     <string name="provider_locations_title">Provider Locations</string>
     <string name="provider_statistics">Provider statistics</string>
     <string name="providing_disabled">Providing is disabled</string>
+    <string name="purchase_could_not_be_verified">This purchase could not be verified with Google Play, so it can\'t be applied to your account. If you were charged and your plan doesn\'t update, please contact support.</string>
     <string name="ready_to_connect">Ready to connect</string>
     <string name="receive">Receive</string>
     <string name="receive_notifications">Receive connection notifications</string>
@@ -558,6 +566,7 @@
     <string name="step_one">Step 1</string>
     <string name="step_two">Step 2</string>
     <string name="strong_anonymization">Strong Anonymization</string>
+    <string name="subscription_purchased_under_different_account">Your subscription was purchased under a different account. Log in to that account to use it.</string>
     <string name="suggested_remote_dns_servers">Suggested remote DNS servers</string>
     <string name="suggested_remote_dns_servers_description">Suggestions for the connected country are marked with its color. Turning one on adds it to the remote DNS servers.</string>
     <string name="support_us">Support us in building a new kind of network that gives instead of takes.</string>

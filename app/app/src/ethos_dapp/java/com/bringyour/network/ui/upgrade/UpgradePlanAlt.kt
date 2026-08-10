@@ -33,8 +33,10 @@ import com.bringyour.network.ui.upgrade.AltSubscriptionOptions
 import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.R
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.utils.SOLANA_PLAN_YEARLY
 import com.bringyour.network.utils.buildSolanaPaymentUrl
 import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
@@ -47,7 +49,8 @@ fun UpgradePlanAlt(
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
-        onSuccess: () -> Unit,
+        plan: String,
+        onSuccess: (amountUsd: Double) -> Unit,
         onError: () -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
@@ -63,15 +66,17 @@ fun UpgradePlanAlt(
 //        }
 //    }
 
-    val promptWalletTransaction: (reference: String) -> Unit = { reference ->
-
-        val url = buildSolanaPaymentUrl(reference)
+    val promptWalletTransaction: (reference: String, amountUsd: Double) -> Unit = { reference, amountUsd ->
 
         var uriOpened = false
 
         try {
+            val url = buildSolanaPaymentUrl(reference, amountUsd, SOLANA_PLAN_YEARLY)
             uriHandler.openUri(url)
             uriOpened = true
+        } catch (e: IllegalArgumentException) {
+            // the sdk refused to build the url -- a bad amount, reference or address
+            Toast.makeText(context, "Could not start the payment. Please try again.", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
         }
@@ -89,9 +94,10 @@ fun UpgradePlanAlt(
 
         createSolanaPaymentIntent(
             reference,
-            {
-                // on success
-                promptWalletTransaction(reference)
+            SOLANA_PLAN_YEARLY,
+            { amountUsd ->
+                // on success -- amountUsd is what the SERVER quoted
+                promptWalletTransaction(reference, amountUsd)
             },
             {
                 // on error
@@ -132,6 +138,12 @@ fun UpgradePlanAlt(
                 upgradeInProgress = planViewModel.inProgress,
                 formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice,
                 onStripePaymentSuccess = onStripePaymentSuccess,
+                onStripePaymentFailed = { detail ->
+                    planViewModel.setChangePlanError(
+                        listOfNotNull(context.getString(R.string.payment_not_completed), detail)
+                            .joinToString(" ")
+                    )
+                },
                 isCheckingSolanaTransaction = isCheckingSolanaTransaction
 //                onStripePaymentSuccess = {
 //                    pollSubscriptionBalance()
@@ -150,6 +162,7 @@ private fun UpgradePlanContent(
     upgradeSolana: () -> Unit,
     formattedSubscriptionPrice: String,
     onStripePaymentSuccess: () -> Unit,
+    onStripePaymentFailed: (String?) -> Unit,
     isCheckingSolanaTransaction: Boolean
 ) {
 
@@ -177,6 +190,7 @@ private fun UpgradePlanContent(
                     isPromptingSolanaPayment = it
                 },
                 onStripePaymentSuccess = onStripePaymentSuccess,
+                onStripePaymentFailed = onStripePaymentFailed,
                 isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
 

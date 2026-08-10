@@ -12,6 +12,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Why a redeem failed. These MUST stay distinguishable: a transport failure can
+ * arrive after the server already committed the redeem, so reporting it as "bad
+ * code" tells the user their (consumed) code is invalid. The server's `result.error`
+ * payload, by contrast, is an authoritative rejection.
+ */
+sealed class RedeemBalanceCodeFailure {
+    /** No server answer (network failure, device/api not up). The redeem may have committed. */
+    object Transport : RedeemBalanceCodeFailure()
+
+    /** Server answered: this code was already redeemed. */
+    object AlreadyRedeemed : RedeemBalanceCodeFailure()
+
+    /** Server answered: unknown/invalid code. */
+    object Invalid : RedeemBalanceCodeFailure()
+}
+
 @HiltViewModel
 class RedeemTransferBalanceCodeViewModel @Inject constructor(
     deviceManager: DeviceManager
@@ -33,7 +50,7 @@ class RedeemTransferBalanceCodeViewModel @Inject constructor(
 
     val redeem: (
             onSuccess: () -> Unit,
-            onError: () -> Unit
+            onError: (RedeemBalanceCodeFailure) -> Unit
             ) -> Unit = { onSuccess, onError ->
 
         if (!_isLoading.value && _codeIsValid.value) {
@@ -48,14 +65,28 @@ class RedeemTransferBalanceCodeViewModel @Inject constructor(
 
                     viewModelScope.launch {
                         if (error != null) {
+                            // no server answer -- the redeem may have committed
+                            // server-side. Never report this as a bad code.
                             _isLoading.value = false
-                            onError()
+                            onError(RedeemBalanceCodeFailure.Transport)
                             return@launch
                         }
 
-                        if (result.error != null) {
+                        result.error?.let { resultError ->
+                            // authoritative server rejection. The server today says
+                            // "Unknown balance code." for both unknown and
+                            // already-redeemed; classify by message so an explicit
+                            // already-redeemed answer surfaces as such
                             _isLoading.value = false
-                            onError()
+                            val failure = if (
+                                resultError.message?.contains("already", ignoreCase = true) == true ||
+                                resultError.message?.contains("redeemed", ignoreCase = true) == true
+                            ) {
+                                RedeemBalanceCodeFailure.AlreadyRedeemed
+                            } else {
+                                RedeemBalanceCodeFailure.Invalid
+                            }
+                            onError(failure)
                             return@launch
                         }
 
@@ -67,7 +98,7 @@ class RedeemTransferBalanceCodeViewModel @Inject constructor(
                 }
             } else {
                 _isLoading.value = false
-                onError()
+                onError(RedeemBalanceCodeFailure.Transport)
             }
 
         }

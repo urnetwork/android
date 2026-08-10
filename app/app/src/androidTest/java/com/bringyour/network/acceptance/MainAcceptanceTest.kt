@@ -1,0 +1,418 @@
+package com.bringyour.network.acceptance
+
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.os.Build
+import android.util.Base64
+import android.util.Log
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
+import com.bringyour.network.BuildConfig
+import com.bringyour.network.LoginActivity
+import com.bringyour.network.MainApplication
+import java.io.File
+import java.io.FileOutputStream
+import java.util.regex.Pattern
+import org.json.JSONObject
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class MainAcceptanceTest {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val context = instrumentation.targetContext
+    private val device = UiDevice.getInstance(instrumentation)
+    private val acceptanceDir = File(context.filesDir, "acceptance")
+    private val fixtureFile = File(acceptanceDir, "guest-secret-key")
+    private val credentialsFile = File(acceptanceDir, "credentials")
+    private val resultFile = File(acceptanceDir, "result")
+    private val screenshotsDir = File(acceptanceDir, "screenshots")
+
+    private fun log(message: String) {
+        Log.i(TAG, message)
+        println("$TAG: $message")
+    }
+
+    private fun waitFor(
+        description: String,
+        timeoutMillis: Long = UI_TIMEOUT_MILLIS,
+        condition: () -> Boolean,
+    ) {
+        try {
+            compose.waitUntil(timeoutMillis) { condition() }
+        } catch (error: Throwable) {
+            throw AssertionError("Timed out waiting for $description after ${timeoutMillis / 1_000}s", error)
+        }
+    }
+
+    private fun nodes(matcher: SemanticsMatcher): Int = runCatching {
+        compose.onAllNodes(matcher, useUnmergedTree = true)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .size
+    }.getOrDefault(0)
+
+    private fun tagExists(tag: String): Boolean = runCatching {
+        compose.onAllNodesWithTag(tag, useUnmergedTree = true)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .isNotEmpty()
+    }.getOrDefault(false)
+
+    private fun contentDescriptionExists(description: String): Boolean = runCatching {
+        compose.onAllNodesWithContentDescription(description, useUnmergedTree = true)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .isNotEmpty()
+    }.getOrDefault(false)
+
+    private fun waitForTag(tag: String, timeoutMillis: Long = UI_TIMEOUT_MILLIS) {
+        waitFor("UI tag $tag", timeoutMillis) { tagExists(tag) }
+    }
+
+    private fun clickTag(tag: String, timeoutMillis: Long = UI_TIMEOUT_MILLIS) {
+        waitForTag(tag, timeoutMillis)
+
+        val taggedClickable = hasTestTag(tag) and hasClickAction()
+        val clickableParent = hasClickAction() and hasAnyDescendant(hasTestTag(tag))
+        val matcher = when {
+            nodes(taggedClickable) > 0 -> taggedClickable
+            nodes(clickableParent) > 0 -> clickableParent
+            else -> hasTestTag(tag)
+        }
+        val node = compose.onAllNodes(matcher, useUnmergedTree = true)[0]
+        runCatching { node.performScrollTo() }
+        node.assertExists().performClick()
+    }
+
+    private fun replaceTagText(tag: String, value: String) {
+        waitForTag(tag)
+        compose.onNodeWithTag(tag, useUnmergedTree = true)
+            .assertExists()
+            .performTextReplacement(value)
+    }
+
+    private fun launchLoggedOutApp() {
+        instrumentation.runOnMainSync {
+            (context.applicationContext as MainApplication).logout()
+            context.startActivity(
+                Intent(context, LoginActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+            )
+        }
+        waitForTag("acceptance.password.user")
+    }
+
+    private fun dismissPostLoginOverlays() {
+        waitForTag("acceptance.nav.connect", AUTH_TIMEOUT_MILLIS)
+        repeat(4) {
+            val description = when {
+                contentDescriptionExists("close") -> "close"
+                contentDescriptionExists("Close Overlay") -> "Close Overlay"
+                else -> return
+            }
+            val matcher = hasContentDescription(description) and hasClickAction()
+            compose.onAllNodes(matcher, useUnmergedTree = true)[0].performClick()
+            compose.waitForIdle()
+        }
+    }
+
+    private fun waitForMain() {
+        waitForTag("acceptance.nav.connect", AUTH_TIMEOUT_MILLIS)
+        dismissPostLoginOverlays()
+        clickTag("acceptance.nav.connect")
+        waitForTag("acceptance.connect", AUTH_TIMEOUT_MILLIS)
+    }
+
+    private fun createInstantAccount(): String {
+        log("create instant account through local UI")
+        clickTag("acceptance.login.instant")
+        clickTag("acceptance.instant.terms")
+        clickTag("acceptance.instant.create")
+        waitForTag("acceptance.instant.copy", AUTH_TIMEOUT_MILLIS)
+
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val previousClipboard = clipboard.primaryClip
+        clickTag("acceptance.instant.copy")
+
+        val copiedValue = try {
+            clipboard.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString()
+        } finally {
+            if (previousClipboard == null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    clipboard.clearPrimaryClip()
+                }
+            } else {
+                clipboard.setPrimaryClip(previousClipboard)
+            }
+        }
+        val secretKey = copiedValue
+            ?.trim()?.lowercase()?.replace(Regex("\\s+"), " ")
+            ?: throw AssertionError("instant-account UI did not copy a secret key")
+        assertEquals("instant-account secret key word count", 24, secretKey.split(" ").size)
+        writeFixture(secretKey)
+
+        clickTag("acceptance.instant.continue")
+        waitForMain()
+        return secretKey
+    }
+
+    private fun loginWithSecretKey(secretKey: String) {
+        log("sign in with saved secret key through local UI")
+        clickTag("acceptance.login.secret")
+        replaceTagText("acceptance.secret.input", secretKey)
+        clickTag("acceptance.secret.submit")
+        waitForMain()
+    }
+
+    private fun loginWithPassword(user: String, password: String) {
+        log("sign in with acceptance account through local UI")
+        replaceTagText("acceptance.password.user", user)
+        clickTag("acceptance.password.next")
+        waitForTag("acceptance.password.input", AUTH_TIMEOUT_MILLIS)
+        replaceTagText("acceptance.password.input", password)
+        clickTag("acceptance.password.submit")
+        waitForMain()
+        retainActiveClient()
+    }
+
+    private fun retainActiveClient() {
+        val application = context.applicationContext as MainApplication
+        val clientJwt = application.asyncLocalState?.localState?.byClientJwt.orEmpty()
+        val parts = clientJwt.split(".")
+        check(parts.size == 3) { "password login returned an invalid client JWT" }
+        val payload = String(
+            Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING),
+            Charsets.UTF_8,
+        )
+        val clientId = JSONObject(payload).getString("client_id")
+        check(clientId.isNotBlank()) { "password login returned no client ID" }
+
+        acceptanceDir.mkdirs()
+        val retained = File(acceptanceDir, "active-client-ids")
+        val clientIds = if (retained.isFile) retained.readLines().toMutableSet() else mutableSetOf()
+        if (clientIds.add(clientId)) {
+            val temporary = File(acceptanceDir, "active-client-ids.tmp")
+            temporary.writeText(clientIds.sorted().joinToString(separator = "\n", postfix = "\n"))
+            check(temporary.renameTo(retained)) { "could not retain the active client ID" }
+            retained.setReadable(false, false)
+            retained.setWritable(false, false)
+            retained.setReadable(true, true)
+            retained.setWritable(true, true)
+        }
+    }
+
+    private fun logoutThroughUi() {
+        log("log out through local UI")
+        clickTag("acceptance.nav.account")
+        clickTag("acceptance.account.avatar")
+        clickTag("acceptance.account.logout")
+        waitForTag("acceptance.password.user", AUTH_TIMEOUT_MILLIS)
+        val application = context.applicationContext as MainApplication
+        assertTrue("logout retained the SDK network session", application.api?.byJwt.isNullOrEmpty())
+    }
+
+    private fun currentNetworkId(): String {
+        val application = context.applicationContext as MainApplication
+        val networkId = runCatching {
+            application.asyncLocalState?.localState?.parseByJwt()?.networkId?.toString()
+        }.getOrNull().orEmpty()
+        assertTrue("authenticated SDK state has no network ID", networkId.isNotBlank())
+        return networkId
+    }
+
+    private fun handleVpnConsentIfPresent() {
+        val button = device.wait(
+            Until.findObject(By.text(Pattern.compile("(?i)^(allow|ok)$"))),
+            8_000,
+        ) ?: device.findObject(By.res("android:id/button1"))
+        button?.click()
+    }
+
+    private fun publicIp(): String {
+        device.executeShellCommand(
+            "am start -W -n com.bringyour.network.test/com.bringyour.network.acceptance.EgressProbeActivity"
+        )
+        val result = device.wait(
+            Until.findObject(By.textStartsWith("ACCEPTANCE_")),
+            EGRESS_TIMEOUT_MILLIS,
+        ) ?: throw AssertionError("egress probe did not return within ${EGRESS_TIMEOUT_MILLIS / 1_000}s")
+
+        val value = result.text
+        device.pressBack()
+        waitForTag("acceptance.connect.status")
+        if (value.startsWith("ACCEPTANCE_ERROR=")) {
+            throw AssertionError("egress probe failed: ${value.removePrefix("ACCEPTANCE_ERROR=")}")
+        }
+        assertTrue("invalid egress probe response: $value", value.startsWith("ACCEPTANCE_IP="))
+        return value.removePrefix("ACCEPTANCE_IP=").trim()
+    }
+
+    private fun connectAndVerifyEgress(iteration: Int) {
+        val before = publicIp()
+        log("physical egress before connect: $before")
+
+        clickTag("acceptance.connect")
+        handleVpnConsentIfPresent()
+        waitFor("connected status", CONNECT_TIMEOUT_MILLIS) {
+            contentDescriptionExists("Connected")
+        }
+        capture("${iteration}-connected")
+
+        val after = publicIp()
+        log("network egress after connect: $after")
+        assertNotEquals("public IP did not change after connect", before, after)
+
+        clickTag("acceptance.disconnect")
+        waitForTag("acceptance.connect", CONNECT_TIMEOUT_MILLIS)
+        waitFor("disconnected status", CONNECT_TIMEOUT_MILLIS) {
+            contentDescriptionExists("Disconnected")
+        }
+        capture("${iteration}-disconnected")
+    }
+
+    private fun readCredentials(): Pair<String, String> {
+        val lines = credentialsFile.readLines()
+        check(lines.size == 2 && lines.all { it.isNotBlank() }) {
+            "acceptance credentials were not installed at ${credentialsFile.absolutePath}"
+        }
+        return lines[0] to lines[1]
+    }
+
+    private fun readFixture(): String? {
+        if (!fixtureFile.isFile) return null
+        val secretKey = fixtureFile.readText().trim().lowercase().replace(Regex("\\s+"), " ")
+        check(secretKey.split(" ").size == 24) { "invalid saved instant-account secret key" }
+        return secretKey
+    }
+
+    private fun writeFixture(secretKey: String) {
+        acceptanceDir.mkdirs()
+        val temporary = File(acceptanceDir, "guest-secret-key.tmp")
+        temporary.writeText("$secretKey\n")
+        check(temporary.renameTo(fixtureFile)) { "could not persist instant-account fixture" }
+        fixtureFile.setReadable(false, false)
+        fixtureFile.setWritable(false, false)
+        fixtureFile.setReadable(true, true)
+        fixtureFile.setWritable(true, true)
+    }
+
+    private fun capture(name: String) {
+        screenshotsDir.mkdirs()
+        val bitmap = instrumentation.uiAutomation.takeScreenshot() ?: return
+        try {
+            FileOutputStream(File(screenshotsDir, "$name.png")).use {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    @Test(timeout = 3_600_000)
+    fun mainEnvironmentAcceptance() {
+        val arguments = InstrumentationRegistry.getArguments()
+        val expectedBuildId = arguments.getString("acceptanceBuildId").orEmpty()
+        assertTrue("acceptanceBuildId argument is required", expectedBuildId.isNotBlank())
+        assertEquals(
+            "installed app is not the APK built for this acceptance run",
+            expectedBuildId,
+            BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID,
+        )
+        assertEquals("acceptance APK must target the main environment", "main", BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
+        assertEquals("acceptance APK must target the official network", "ur.network", BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME)
+
+        val repetitions = arguments.getString("repeat")?.toIntOrNull() ?: 1
+        assertTrue("repeat must be positive", repetitions > 0)
+        val (user, password) = readCredentials()
+        acceptanceDir.mkdirs()
+        resultFile.delete()
+        screenshotsDir.deleteRecursively()
+        launchLoggedOutApp()
+
+        var secretKey = readFixture()
+        repeat(repetitions) { zeroBasedIteration ->
+            val iteration = zeroBasedIteration + 1
+            log("BEGIN repetition $iteration/$repetitions; flavor=${BuildConfig.FLAVOR}; build=$expectedBuildId")
+            try {
+                if (secretKey == null) {
+                    secretKey = createInstantAccount()
+                } else {
+                    loginWithSecretKey(checkNotNull(secretKey))
+                }
+                val guestNetworkId = currentNetworkId()
+                capture("${iteration}-instant-account")
+                logoutThroughUi()
+
+                loginWithSecretKey(checkNotNull(secretKey))
+                assertEquals(
+                    "secret-key login recovered a different network",
+                    guestNetworkId,
+                    currentNetworkId(),
+                )
+                capture("${iteration}-secret-key-login")
+                logoutThroughUi()
+
+                loginWithPassword(user, password)
+                connectAndVerifyEgress(iteration)
+                logoutThroughUi()
+                log("PASS repetition $iteration/$repetitions")
+            } catch (error: Throwable) {
+                capture("${iteration}-failure")
+                throw error
+            } finally {
+                // A failed assertion must not leave a production connection or
+                // authenticated device behind.  This recovery path does not
+                // replace the UI logout assertion above.
+                if (!tagExists("acceptance.password.user")) {
+                    runCatching {
+                        if (tagExists("acceptance.disconnect")) clickTag("acceptance.disconnect", 5_000)
+                    }
+                    instrumentation.runOnMainSync {
+                        (context.applicationContext as MainApplication).logout()
+                    }
+                }
+            }
+
+            if (iteration < repetitions) {
+                launchLoggedOutApp()
+            }
+        }
+
+        resultFile.writeText("$expectedBuildId\n$repetitions\n${BuildConfig.FLAVOR}\n")
+        resultFile.setReadable(false, false)
+        resultFile.setWritable(false, false)
+        resultFile.setReadable(true, true)
+        resultFile.setWritable(true, true)
+    }
+
+    private companion object {
+        const val TAG = "URAcceptance"
+        const val UI_TIMEOUT_MILLIS = 30_000L
+        const val AUTH_TIMEOUT_MILLIS = 90_000L
+        const val CONNECT_TIMEOUT_MILLIS = 120_000L
+        const val EGRESS_TIMEOUT_MILLIS = 30_000L
+    }
+}

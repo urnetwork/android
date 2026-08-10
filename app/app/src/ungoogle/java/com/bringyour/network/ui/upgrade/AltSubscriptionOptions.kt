@@ -38,6 +38,10 @@ import com.bringyour.network.ui.theme.Yellow
 fun AltSubscriptionOptions(
     upgradeStripeMonthly: () -> Unit,
     upgradeStripeYearly: () -> Unit,
+    // false until networkId is known. The payment links attach
+    // `client_reference_id=networkId`; tapping before it resolves used to silently
+    // do nothing -- keep the button disabled instead
+    stripeEnabled: Boolean,
     upgradeSolana: () -> Unit,
     isPromptingSolanaPayment: Boolean,
     setIsPromptingSolanaPayment: (Boolean) -> Unit,
@@ -111,6 +115,7 @@ fun AltSubscriptionOptions(
                         upgradeStripeMonthly()
                     }
                 },
+                enabled = stripeEnabled,
             ) { buttonTextStyle ->
                 Text(
                     stringResource(id = R.string.pay_with_stripe),

@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -185,7 +186,10 @@ fun ConnectActions(
                 } else {
 
                     if (connectStatus == ConnectStatus.DISCONNECTED) {
-                        URButton(onClick = connect) { buttonTextStyle ->
+                        URButton(
+                            onClick = connect,
+                            modifier = Modifier.testTag("acceptance.connect")
+                        ) { buttonTextStyle ->
                             Text(
                                 stringResource(id = R.string.connect),
                                 style = buttonTextStyle,
@@ -197,7 +201,8 @@ fun ConnectActions(
                     if (connectStatus != ConnectStatus.DISCONNECTED && !displayReconnectTunnel) {
                         URButton(
                             onClick = disconnect,
-                            style = ButtonStyle.OUTLINE
+                            style = ButtonStyle.OUTLINE,
+                            modifier = Modifier.testTag("acceptance.disconnect")
                         ) { buttonTextStyle ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),

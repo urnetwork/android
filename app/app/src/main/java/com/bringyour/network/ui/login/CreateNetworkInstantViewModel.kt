@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -48,6 +49,10 @@ class CreateNetworkInstantViewModel @Inject constructor(
         _error.value = null
 
         val args = NetworkCreateArgs()
+        // Main still validates this field. Newer servers generate their own
+        // instant-account name and safely ignore this compatibility fallback.
+        args.networkName = "guest-${UUID.randomUUID()}"
+        args.guestMode = true
         args.terms = termsAgreed
         // no userAuth, userName, password or walletAuth -- the server reads that
         // as the seedphrase path and returns a generated phrase with the network

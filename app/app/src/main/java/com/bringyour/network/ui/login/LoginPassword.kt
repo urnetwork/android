@@ -41,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -264,6 +265,7 @@ fun LoginPasswordForm(
                 imeAction = ImeAction.Go
             ),
             isPassword = true,
+            modifier = Modifier.testTag("acceptance.password.input"),
             label = stringResource(id = R.string.password_label),
             enabled = !inProgress,
             onGo = {
@@ -279,7 +281,8 @@ fun LoginPasswordForm(
                 login()
             },
             enabled = !inProgress && password.text.isNotEmpty(),
-            isProcessing = inProgress
+            isProcessing = inProgress,
+            modifier = Modifier.testTag("acceptance.password.submit")
         ) { buttonTextStyle ->
             Row(
                 verticalAlignment = Alignment.CenterVertically

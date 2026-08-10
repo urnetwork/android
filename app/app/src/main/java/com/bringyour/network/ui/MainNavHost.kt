@@ -51,11 +51,15 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -162,6 +166,7 @@ fun MainNavHost(
     val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
     val displayIntroFunnel by mainNavViewModel.displayIntroFunnel.collectAsState()
     val allowPromptIntroFunnel by mainNavViewModel.allowDisplayIntroFunnel.collectAsState()
+    val hasActiveSubscription by subscriptionBalanceViewModel.hasActiveSubscription.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -322,6 +327,84 @@ fun MainNavHost(
     }
 
     /**
+     * The post-payment confirmation poll exhausted its 2-minute budget without the
+     * server confirming the subscription. This used to end in a log line
+     * ("polling timed out") -- the honest terminal state is: payment received,
+     * confirmation still in flight, the plan updates by itself, do NOT buy again.
+     */
+    var showConfirmationDelayedDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        subscriptionBalanceViewModel.confirmationTimedOutSequence.collect { sequence ->
+            if (!subscriptionBalanceViewModel.consumeConfirmationTimedOutSequence(sequence)) {
+                return@collect
+            }
+
+            showConfirmationDelayedDialog = true
+        }
+    }
+
+    /**
+     * The purchase is persisted client-side but the server never gave a terminal
+     * answer to the report within the bounded in-session retries (Play flavor). Same
+     * honest terminal state as the poll timeout: payment received, confirmation in
+     * flight, do NOT buy again -- the daily reconcile worker carries the report.
+     */
+    LaunchedEffect(Unit) {
+        planViewModel.purchaseReportDeferredSequence.collect { sequence ->
+            if (!planViewModel.consumePurchaseReportDeferredSequence(sequence)) {
+                return@collect
+            }
+
+            showConfirmationDelayedDialog = true
+        }
+    }
+
+    if (showConfirmationDelayedDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmationDelayedDialog = false },
+            title = { Text(stringResource(id = R.string.payment_received_title)) },
+            text = { Text(stringResource(id = R.string.payment_confirmation_delayed)) },
+            confirmButton = {
+                TextButton(onClick = { showConfirmationDelayedDialog = false }) {
+                    Text(stringResource(id = R.string.close))
+                }
+            }
+        )
+    }
+
+    /**
+     * The server verified the Play purchase but it belongs to a DIFFERENT network
+     * than the one logged in. The purchase is real (it stays acknowledged so Play
+     * does not auto-refund it) and the linked network is the one credited -- so no
+     * success overlay here, just the honest way out: use the account it was
+     * purchased under.
+     */
+    var showPurchaseWrongNetworkDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        planViewModel.purchaseWrongNetworkSequence.collect { sequence ->
+            if (!planViewModel.consumePurchaseWrongNetworkSequence(sequence)) {
+                return@collect
+            }
+
+            showPurchaseWrongNetworkDialog = true
+        }
+    }
+
+    if (showPurchaseWrongNetworkDialog) {
+        AlertDialog(
+            onDismissRequest = { showPurchaseWrongNetworkDialog = false },
+            text = { Text(stringResource(id = R.string.subscription_purchased_under_different_account)) },
+            confirmButton = {
+                TextButton(onClick = { showPurchaseWrongNetworkDialog = false }) {
+                    Text(stringResource(id = R.string.close))
+                }
+            }
+        )
+    }
+
+    /**
      * A purchase Play accepted but has NOT completed (awaiting approval, or an
      * out-of-band payment). There is nothing to poll for -- the PURCHASED state does
      * not arrive now -- so just tell the user, and do NOT close the screen or claim an
@@ -466,7 +549,11 @@ fun MainNavHost(
                                         if (screen.route == Route.Leaderboard) {
                                             Icon(imageVector = Icons.Filled.StackedLineChart, contentDescription = stringResource(id = R.string.leaderboard))
                                         } else {
-                                            Icon(painterResource(id = iconRes), contentDescription = screen.description)
+                                            Icon(
+                                                painter = painterResource(id = iconRes),
+                                                contentDescription = screen.description,
+                                                modifier = Modifier.testTag("acceptance.nav.${screen.description.lowercase()}")
+                                            )
                                         }
 
                                     },
@@ -607,6 +694,7 @@ fun MainNavHost(
     FullScreenOverlay(
         overlayViewModel,
         referralCode = referralCode,
+        planUpgradeConfirmed = hasActiveSubscription,
     )
 
 }

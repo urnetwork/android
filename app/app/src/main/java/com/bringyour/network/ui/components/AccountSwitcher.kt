@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -130,6 +131,7 @@ fun AccountSwitcher(
                     }
                 )
                 .clip(CircleShape)
+                .testTag("acceptance.account.avatar")
                 .clickable {
                     isOverlayVisible = true
                            },
@@ -263,6 +265,7 @@ fun AuthenticatedPopup(
         PopupActionRow(
             iconResourceId = R.drawable.sign_out,
             text = "Log out",
+            modifier = Modifier.testTag("acceptance.account.logout"),
             onClick = {
                 application?.logout()
 
@@ -292,7 +295,8 @@ fun PopupActionRow(
     iconResourceId: Int,
     text: String,
     isSelected: Boolean = false,
-    focusRequester: FocusRequester? = null
+    focusRequester: FocusRequester? = null,
+    modifier: Modifier = Modifier,
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
@@ -305,7 +309,7 @@ fun PopupActionRow(
         }, label = ""
     )
 
-    val modifier = if (focusRequester != null) {
+    val focusModifier = if (focusRequester != null) {
         Modifier.focusRequester(focusRequester)
     } else {
         Modifier
@@ -313,6 +317,7 @@ fun PopupActionRow(
 
     Row(
         modifier = modifier
+            .then(focusModifier)
             .fillMaxWidth()
             .background(bgColor.value)
             .clickable { onClick() }

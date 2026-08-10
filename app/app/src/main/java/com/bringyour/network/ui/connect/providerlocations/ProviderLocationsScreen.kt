@@ -38,10 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -52,8 +55,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.Identicon
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.indexedLazyListKey
+import com.bringyour.network.ui.shared.viewmodels.PostQuantumIdentityViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
@@ -73,10 +78,21 @@ fun ProviderLocationsScreen(
     getLocationColor: (String) -> Color,
     mockLocationSection: @Composable (() -> Unit)? = null,
     viewModel: ProviderLocationsViewModel = hiltViewModel(),
+    postQuantumIdentityViewModel: PostQuantumIdentityViewModel = hiltViewModel(),
 ) {
     val rows by viewModel.providerLocations.collectAsState()
     val selectedClientId by viewModel.selectedClientId.collectAsState()
     val listState = rememberLazyListState()
+
+    // providers with an identity-verified e2e session, keyed by the same
+    // egress client id the rows carry — membership is the "end-to-end
+    // encrypted" signal, and the value is the peer's identity identicon
+    // rendered at badge size (see ProviderIdentityRowUi.identiconBadge)
+    val pqIdenticonByClientId = remember(postQuantumIdentityViewModel.providerIdentities) {
+        postQuantumIdentityViewModel.providerIdentities.associate {
+            it.clientId to it.identiconBadge
+        }
+    }
 
     // the connected durations tick locally against the absolute connected-since
     // stamps, so a running clock costs one recomposition a second instead of an
@@ -169,6 +185,7 @@ fun ProviderLocationsScreen(
                             nowMillis = nowMillis,
                             getLocationColor = getLocationColor,
                             onSelect = { viewModel.select(row.clientId) },
+                            pqIdenticon = pqIdenticonByClientId[row.clientId],
                         )
                     }
                     HorizontalDivider()
@@ -189,6 +206,10 @@ private fun ProviderLocationRowItem(
     nowMillis: Long,
     getLocationColor: (String) -> Color,
     onSelect: () -> Unit,
+    // the provider's post-quantum identity identicon at badge size, non-null
+    // only when the provider has an identity-verified end-to-end encrypted
+    // session; rendered as a small badge to the right of the client id
+    pqIdenticon: ImageBitmap? = null,
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -215,18 +236,38 @@ private fun ProviderLocationRowItem(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start,
         ) {
-            // the client id, tap to copy
-            Text(
-                row.clientId,
-                style = TextStyle(fontSize = 11.sp, fontFamily = FontFamily.Monospace),
-                color = if (selected) Color.White else TextFaint,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.clickable {
-                    clipboardManager.setText(AnnotatedString(row.clientId))
-                    Toast.makeText(context, R.string.client_id_copied, Toast.LENGTH_SHORT).show()
-                },
-            )
+            // the client id, tap to copy, with the provider's post-quantum
+            // identity identicon as a trailing badge when an end-to-end
+            // encrypted session is verified. The badge is skipped entirely
+            // (not an empty placeholder) when there is no verified session —
+            // absence is the "not e2e" state.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    row.clientId,
+                    style = TextStyle(fontSize = 11.sp, fontFamily = FontFamily.Monospace),
+                    color = if (selected) Color.White else TextFaint,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    // fill = false: a short id keeps the badge snug against the
+                    // text; a long id ellipsizes instead of pushing it away
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .clickable {
+                            clipboardManager.setText(AnnotatedString(row.clientId))
+                            Toast.makeText(context, R.string.client_id_copied, Toast.LENGTH_SHORT)
+                                .show()
+                        },
+                )
+                pqIdenticon?.let { image ->
+                    Spacer(modifier = Modifier.width(6.dp))
+                    val pqDescription = stringResource(R.string.post_quantum_encryption)
+                    Identicon(
+                        image = image,
+                        size = PostQuantumIdentityViewModel.BADGE_IDENTICON_SIZE.dp,
+                        modifier = Modifier.semantics { contentDescription = pqDescription },
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(2.dp))
 

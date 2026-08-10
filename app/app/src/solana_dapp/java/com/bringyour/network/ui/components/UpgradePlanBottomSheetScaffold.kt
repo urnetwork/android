@@ -43,6 +43,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.ui.theme.ppNeueBitBold
+import com.bringyour.network.utils.SOLANA_PLAN_YEARLY
 import com.bringyour.network.utils.buildSolanaPaymentUrl
 import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
@@ -60,7 +61,8 @@ fun UpgradePlanBottomSheet(
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
-        onSuccess: () -> Unit,
+        plan: String,
+        onSuccess: (amountUsd: Double) -> Unit,
         onError: () -> Unit
     ) -> Unit
 ) {
@@ -89,15 +91,17 @@ fun UpgradePlanBottomSheet(
         }
     }
 
-    val promptWalletTransaction: (reference: String) -> Unit = { reference ->
-
-        val url = buildSolanaPaymentUrl(reference)
+    val promptWalletTransaction: (reference: String, amountUsd: Double) -> Unit = { reference, amountUsd ->
 
         var uriOpened = false
 
         try {
+            val url = buildSolanaPaymentUrl(reference, amountUsd, SOLANA_PLAN_YEARLY)
             uriHandler.openUri(url)
             uriOpened = true
+        } catch (e: IllegalArgumentException) {
+            // the sdk refused to build the url -- a bad amount, reference or address
+            Toast.makeText(context, "Could not start the payment. Please try again.", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
         }
@@ -115,9 +119,10 @@ fun UpgradePlanBottomSheet(
 
         createSolanaPaymentIntent(
             reference,
-            {
-                // on success
-                promptWalletTransaction(reference)
+            SOLANA_PLAN_YEARLY,
+            { amountUsd ->
+                // on success -- amountUsd is what the SERVER quoted
+                promptWalletTransaction(reference, amountUsd)
             },
             {
                 // on error

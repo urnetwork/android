@@ -25,14 +25,28 @@ class SolanaPaymentViewModel @Inject constructor(
         _pendingSolanaSubscriptionReference.value = it
     }
 
+    /**
+     * Register the intent the customer is about to pay against, and hand back the price
+     * the SERVER quoted.
+     *
+     * `plan` is required. The server derives the price from pro.yml keyed by plan and
+     * answers "Unknown plan." for an empty one -- this used to send only the reference,
+     * so every Solana upgrade failed here before the wallet ever opened.
+     *
+     * `onSuccess` receives the quoted amount in USD. Build the payment url from THAT and
+     * never from a constant: the webhook checks the arriving payment against this same
+     * number, so a client-side price is how a customer pays and gets nothing.
+     */
     val createSolanaPaymentIntent: (
         reference: String,
-        onSuccess: () -> Unit,
+        plan: String,
+        onSuccess: (amountUsd: Double) -> Unit,
         onError: () -> Unit
-            ) -> Unit = { reference, onSuccess, onError ->
+            ) -> Unit = { reference, plan, onSuccess, onError ->
 
                 val args = SolanaPaymentIntentArgs()
                 args.reference = reference
+                args.plan = plan
 
                 val api = deviceManager.device?.api
                 if (api != null) {
@@ -50,7 +64,15 @@ class SolanaPaymentViewModel @Inject constructor(
                                 return@launch
                             }
 
-                            onSuccess()
+                            // A missing or zero quote is never sellable. The webhook's
+                            // check is `amount >= quoted - tolerance`, so at zero it is
+                            // satisfied by any payment at all, including none.
+                            if (result.amountUsd <= 0.0) {
+                                onError()
+                                return@launch
+                            }
+
+                            onSuccess(result.amountUsd)
 
                         }
 

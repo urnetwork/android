@@ -45,6 +45,7 @@ fun URButton(
     enabled: Boolean = true,
     borderColor: Color? = null,
     isProcessing: Boolean = false,
+    modifier: Modifier = Modifier,
     content: @Composable (TextStyle) -> Unit,
 ) {
 
@@ -85,7 +86,7 @@ fun URButton(
     return Button(
         onClick = onClick,
         colors = buttonColors,
-        modifier = baseModifier.then(
+        modifier = modifier.then(baseModifier).then(
             Modifier.defaultMinSize(minHeight = 48.dp)
         ),
         enabled = enabled && !isProcessing,

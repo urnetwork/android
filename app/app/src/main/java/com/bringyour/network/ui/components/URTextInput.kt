@@ -62,6 +62,7 @@ fun URTextInput(
     isValid: Boolean = true,
     supportingText: String? = null,
     enabled: Boolean = true,
+    modifier: Modifier = Modifier,
     maxLines: Int = 1
 ) {
 
@@ -92,7 +93,7 @@ fun URTextInput(
                         onValueChange = onValueChange,
                         cursorBrush = SolidColor(Blue500),
                         textStyle = TextStyle(color = Color.LightGray),
-                        modifier = Modifier
+                        modifier = modifier
                             .fillMaxWidth()
                             .background(Color.Transparent)
                             .onFocusChanged { isFocused = it.isFocused },

@@ -157,6 +157,14 @@ android {
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
+        // A per-run marker lets the acceptance test prove that the APK it is
+        // driving came from this invocation, rather than a stale install.
+        def acceptanceBuildId = (project.findProperty('urnetworkAcceptanceBuildId') ?: '').toString()
+        if (!(acceptanceBuildId ==~ /[A-Za-z0-9._-]*/)) {
+            throw new GradleException('urnetworkAcceptanceBuildId contains unsupported characters')
+        }
+        buildConfigField "String", "URNETWORK_ACCEPTANCE_BUILD_ID", "\"${acceptanceBuildId}\""
+
         // see https://developer.android.com/build/shrink-code
         ndk {
             debugSymbolLevel 'SYMBOL_TABLE'
@@ -437,6 +445,15 @@ android {
         environment 'ANDROID_NDK_HOME', android.ndkDirectory
     }
 
+    // Acceptance setup installs the pinned gomobile/checksec tools first. Keep
+    // the app build itself non-mutating and use its private Go caches.
+    tasks.register('buildSdkAcceptance', Exec) {
+        workingDir "${bringyourHomeDir}/sdk/build"
+        commandLine 'make', 'build_android'
+        environment 'WARP_VERSION', "${appVersion()}+${appVersionCode()}"
+        environment 'ANDROID_NDK_HOME', android.ndkDirectory
+    }
+
     tasks.register('goclientBuild') {
         dependsOn buildSdk
     }
@@ -513,6 +530,9 @@ dependencies {
 
     // UI Tests
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.11.2'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test:rules:1.7.0'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
     debugImplementation 'androidx.compose.ui:ui-test-manifest:1.11.2'
 
     // Android Studio Preview support

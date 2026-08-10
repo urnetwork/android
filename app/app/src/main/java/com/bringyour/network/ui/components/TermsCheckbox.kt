@@ -36,7 +36,8 @@ fun TermsCheckbox(
     checked: Boolean,
     onCheckChanged: (Boolean) -> Unit,
     focusRequester: FocusRequester? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
@@ -80,7 +81,7 @@ fun TermsCheckbox(
         .size(16.dp)
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Checkbox(
             modifier = checkboxModifier.then(

@@ -23,7 +23,10 @@ enum class OverlayMode {
 @Composable
 fun FullScreenOverlay(
     overlayViewModel: OverlayViewModel,
-    referralCode: String?
+    referralCode: String?,
+    // server-confirmed subscription (`currentSubscription != null`). Gates the
+    // Upgrade overlay's copy: processing-shaped until the server confirms.
+    planUpgradeConfirmed: Boolean = false,
 ) {
 
     val enterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
@@ -93,6 +96,7 @@ fun FullScreenOverlay(
     ) {
 
         PlanUpgradedOverlay(
+            confirmed = planUpgradeConfirmed,
             onDismiss = {
                 overlayViewModel.launch(null)
             }

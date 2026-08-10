@@ -50,6 +50,19 @@ class PlanViewModel @Inject constructor(
     val purchasePendingSequence: StateFlow<Long> = _purchasePendingSequence.asStateFlow()
     private var consumedPurchasePendingSequence = 0L
 
+    /**
+     * Play purchase-report outcomes (wrong network / report deferred). Only the Play
+     * flavor reports store purchases to the server, so these are never emitted here
+     * -- the sequences stay 0 and the shared MainNavHost collectors never fire.
+     */
+    private val _purchaseWrongNetworkSequence = MutableStateFlow(0L)
+    val purchaseWrongNetworkSequence: StateFlow<Long> = _purchaseWrongNetworkSequence.asStateFlow()
+    private var consumedPurchaseWrongNetworkSequence = 0L
+
+    private val _purchaseReportDeferredSequence = MutableStateFlow(0L)
+    val purchaseReportDeferredSequence: StateFlow<Long> = _purchaseReportDeferredSequence.asStateFlow()
+    private var consumedPurchaseReportDeferredSequence = 0L
+
     val triggerUpgradeSuccess: () -> Unit = {
         _upgradeSuccessSequence.update { it + 1L }
         viewModelScope.launch {
@@ -70,6 +83,22 @@ class PlanViewModel @Inject constructor(
             return false
         }
         consumedPurchasePendingSequence = sequence
+        return true
+    }
+
+    fun consumePurchaseWrongNetworkSequence(sequence: Long): Boolean {
+        if (sequence == 0L || sequence <= consumedPurchaseWrongNetworkSequence) {
+            return false
+        }
+        consumedPurchaseWrongNetworkSequence = sequence
+        return true
+    }
+
+    fun consumePurchaseReportDeferredSequence(sequence: Long): Boolean {
+        if (sequence == 0L || sequence <= consumedPurchaseReportDeferredSequence) {
+            return false
+        }
+        consumedPurchaseReportDeferredSequence = sequence
         return true
     }
 
@@ -110,12 +139,23 @@ class PlanViewModel @Inject constructor(
     var inProgress by mutableStateOf(false)
         private set
 
-    init {
+    /**
+     * The Stripe payment-link buttons attach `client_reference_id=networkId` -- a
+     * payment made without it can never be credited. This used to be derived once at
+     * init, so a slow jwt parse OR an account switch left the buttons silently
+     * no-opping (or worse, crediting the previous account). Re-derived every time the
+     * upgrade UI is shown; the buttons stay disabled until it resolves.
+     */
+    fun refreshNetworkId() {
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState
 
         localState?.parseByJwt { jwt, success ->
             networkId = if (success) jwt?.networkId?.toString() else null
         }
+    }
+
+    init {
+        refreshNetworkId()
     }
 }

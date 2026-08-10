@@ -36,7 +36,15 @@ fun RedeemTransferBalanceCodeSheet(
 ) {
 
     val context = LocalContext.current
-    val errorMsg = stringResource(id = R.string.error_redeeming_transfer_balance_code)
+
+    /**
+     * One message per failure class. The transport message must never claim the code
+     * is bad -- a network failure can arrive after the server committed the redeem,
+     * and telling the user a consumed code is "invalid" sends them into a re-buy.
+     */
+    val transportErrorMsg = stringResource(id = R.string.balance_code_transport_error)
+    val invalidCodeMsg = stringResource(id = R.string.balance_code_invalid_message)
+    val alreadyRedeemedMsg = stringResource(id = R.string.balance_code_already_redeemed_message)
     val codeIsValid by viewModel.codeIsValid.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -82,8 +90,13 @@ fun RedeemTransferBalanceCodeSheet(
                             setIsPresenting(false)
                             onSuccess()
                         },
-                        {
-                            Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                        { failure ->
+                            val msg = when (failure) {
+                                is RedeemBalanceCodeFailure.Transport -> transportErrorMsg
+                                is RedeemBalanceCodeFailure.AlreadyRedeemed -> alreadyRedeemedMsg
+                                is RedeemBalanceCodeFailure.Invalid -> invalidCodeMsg
+                            }
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                         }
                     )
                           },

@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -109,7 +110,9 @@ fun LoginSeedphrase(
                         seedphrase = it
                         error = null
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("acceptance.secret.input"),
                     maxLines = 6,
                     // password keyboard type keeps IMEs from autocorrecting
                     // BIP39 words or learning the phrase into their dictionary
@@ -157,7 +160,8 @@ fun LoginSeedphrase(
                         )
                     },
                     enabled = seedphrase.isNotBlank() && !isFinishing,
-                    isProcessing = loginViewModel.seedphraseAuthInProgress || isFinishing
+                    isProcessing = loginViewModel.seedphraseAuthInProgress || isFinishing,
+                    modifier = Modifier.testTag("acceptance.secret.submit")
                 ) { buttonTextStyle ->
                     Text("Sign In", style = buttonTextStyle)
                 }

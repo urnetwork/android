@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.isActive
@@ -101,6 +102,38 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _errorFetchingSubscriptionBalance = MutableStateFlow(false)
     val errorFetchingSubscriptionBalance: StateFlow<Boolean> = _errorFetchingSubscriptionBalance
 
+    /**
+     * True exactly when the SERVER reports an active subscription
+     * (`currentSubscription != null`). This -- not payment evidence, not the jwt's
+     * baked-in `pro` claim -- is what the post-purchase overlay is allowed to
+     * celebrate. Until it flips true the overlay stays processing-shaped.
+     */
+    private val _hasActiveSubscription = MutableStateFlow(false)
+    val hasActiveSubscription: StateFlow<Boolean> = _hasActiveSubscription.asStateFlow()
+
+    /**
+     * The confirmation poll ran out its budget (2 minutes) without the server
+     * confirming. This used to die as a single log line ("polling timed out") while
+     * the user sat on a "You're premium." overlay backed by nothing. Consumed-sequence
+     * pattern, same as PlanViewModel's error/pending sequences: the collector in
+     * MainNavHost shows a dialog saying the payment was received and the plan will
+     * update by itself.
+     *
+     * Only bumped for polls started with payment evidence (pollSubscriptionBalance),
+     * never for the speculative solana check, where "payment received" would be a lie.
+     */
+    private val _confirmationTimedOutSequence = MutableStateFlow(0L)
+    val confirmationTimedOutSequence: StateFlow<Long> = _confirmationTimedOutSequence.asStateFlow()
+    private var consumedConfirmationTimedOutSequence = 0L
+
+    fun consumeConfirmationTimedOutSequence(sequence: Long): Boolean {
+        if (sequence == 0L || sequence <= consumedConfirmationTimedOutSequence) {
+            return false
+        }
+        consumedConfirmationTimedOutSequence = sequence
+        return true
+    }
+
     val setErrorReachingSubscriptionBalance: (Boolean) -> Unit = {
         _errorFetchingSubscriptionBalance.value = it
     }
@@ -166,6 +199,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                              * CTA hidden until the app was relaunched.
                              */
                             val serverIsPro = result.currentSubscription != null
+                            _hasActiveSubscription.value = serverIsPro
                             val jwtIsPro = jwtManager.jwtFlow.value?.pro == true
 
                             if (serverIsPro && !jwtIsPro) {
@@ -250,6 +284,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                 // Observe a webhook that landed while backgrounded before
                 // ending the bounded confirmation session.
                 fetchSubscriptionBalance()
+                emitConfirmationTimedOutIfUnconfirmed()
                 stopPolling()
                 return
             }
@@ -275,8 +310,24 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
             if (isPolling) {
                 Log.i(TAG, "polling timed out")
+                emitConfirmationTimedOutIfUnconfirmed()
                 stopPolling()
             }
+        }
+    }
+
+    /**
+     * The poll gave up. If it was backed by payment evidence and the server still has
+     * not confirmed, that MUST reach the user as more than a log line. (The last
+     * fetch may still be in flight -- the dialog copy tolerates the race: "your plan
+     * will update automatically".)
+     */
+    private fun emitConfirmationTimedOutIfUnconfirmed() {
+        if (isPollingSubscriptionBalance &&
+            !_hasActiveSubscription.value &&
+            !isSupporterWithBalance()
+        ) {
+            _confirmationTimedOutSequence.update { it + 1L }
         }
     }
 

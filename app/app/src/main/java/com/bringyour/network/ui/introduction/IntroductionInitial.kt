@@ -53,7 +53,8 @@ fun IntroductionInitial(
     planViewModel: PlanViewModel,
     createSolanaPaymentIntent: (
         reference: String,
-        onSuccess: () -> Unit,
+        plan: String,
+        onSuccess: (amountUsd: Double) -> Unit,
         onError: () -> Unit
     ) -> Unit,
     setPendingSolanaSubscriptionReference: (String) -> Unit,

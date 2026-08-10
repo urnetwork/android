@@ -49,7 +49,8 @@ fun UpgradeScreen(
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
-        onSuccess: () -> Unit,
+        plan: String,
+        onSuccess: (amountUsd: Double) -> Unit,
         onError: () -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,

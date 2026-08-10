@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -181,7 +182,9 @@ fun SeedphraseDisplayScreen(
                                     SeedWordChip(
                                         number = wordIndex + 1,
                                         word = word,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .testTag("acceptance.instant.word.$wordIndex")
                                     )
                                 }
                                 // odd word count on the last row: keep the grid's 2 columns aligned
@@ -206,7 +209,8 @@ fun SeedphraseDisplayScreen(
                         }
                         clipboard.setPrimaryClip(clip)
                         Toast.makeText(context, "Seedphrase copied to clipboard", Toast.LENGTH_SHORT).show()
-                    }
+                    },
+                    modifier = Modifier.testTag("acceptance.instant.copy")
                 ) { buttonTextStyle ->
                     Text("Copy to Clipboard", style = buttonTextStyle)
                 }
@@ -214,7 +218,8 @@ fun SeedphraseDisplayScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 URButton(
-                    onClick = onConfirmed
+                    onClick = onConfirmed,
+                    modifier = Modifier.testTag("acceptance.instant.continue")
                 ) { buttonTextStyle ->
                     Text("I've Saved My Seedphrase", style = buttonTextStyle)
                 }

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.upgrade
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,6 +39,9 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
 @Composable
 fun AltSubscriptionOptions(
     onStripePaymentSuccess: () -> Unit,
+    // the payment sheet's error detail, for the shared payment-problem dialog. This
+    // used to be `{}` -- a declined card looked exactly like nothing happening.
+    onStripePaymentFailed: (String?) -> Unit,
     upgradeSolana: () -> Unit,
     isPromptingSolanaPayment: Boolean,
     setIsPromptingSolanaPayment: (Boolean) -> Unit,
@@ -50,7 +54,7 @@ fun AltSubscriptionOptions(
         onPaymentSheetResult(
             result,
             onStripePaymentSuccess = onStripePaymentSuccess,
-            onStripePaymentFailed = {}
+            onStripePaymentFailed = onStripePaymentFailed
         )
     } }.build()
 
@@ -292,15 +296,15 @@ private fun presentPaymentSheet(
 private fun onPaymentSheetResult(
     paymentSheetResult: PaymentSheetResult,
     onStripePaymentSuccess: () -> Unit,
-    onStripePaymentFailed: () -> Unit
+    onStripePaymentFailed: (String?) -> Unit
 ) {
     when(paymentSheetResult) {
         is PaymentSheetResult.Canceled -> {
             // do nothing
         }
         is PaymentSheetResult.Failed -> {
-            print("Error: ${paymentSheetResult.error}")
-            onStripePaymentFailed()
+            Log.e("AltSubscriptionOptions", "payment sheet failed", paymentSheetResult.error)
+            onStripePaymentFailed(paymentSheetResult.error.localizedMessage)
         }
         is PaymentSheetResult.Completed -> {
             onStripePaymentSuccess()

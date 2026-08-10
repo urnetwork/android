@@ -33,7 +33,8 @@ fun SubscriptionOptions(
      */
     createSolanaPaymentIntent: (
         reference: String,
-        onSuccess: () -> Unit,
+        plan: String,
+        onSuccess: (amountUsd: Double) -> Unit,
         onError: () -> Unit
     ) -> Unit,
     onSolanaUriOpened: (String) -> Unit,

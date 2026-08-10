@@ -59,6 +59,9 @@ class ProviderIdentityRowUi(
     val identicon: ImageBitmap?,
     // panel-deck size raster
     val identiconSmall: ImageBitmap?,
+    // badge-size raster, rendered next to the client id in provider
+    // locations to mark a provider with a verified e2e session
+    val identiconBadge: ImageBitmap? = null,
 ) {
     // the identicons derive from the public key, which the hash captures, and
     // are cached per (key hash, size) -- so value equality is the ids and the hash
@@ -86,6 +89,10 @@ class PostQuantumIdentityViewModel @Inject constructor(
     companion object {
         // identicon display dp sizes; rasters render at 2x (the canonical
         // convention shared with every platform)
+        // the provider-locations trailing badge next to the 11.sp client id:
+        // large enough to read as the peer's identicon, small enough to sit
+        // inline with a single text line
+        const val BADGE_IDENTICON_SIZE = 16
         const val DECK_IDENTICON_SIZE = 28
         const val ROW_IDENTICON_SIZE = 40
         // the panel's own-identity identicon: 2x a list row
@@ -222,6 +229,7 @@ class PostQuantumIdentityViewModel @Inject constructor(
                         publicKey = identityKey,
                         identicon = identicon(identityKey, keyHash, ROW_IDENTICON_SIZE),
                         identiconSmall = identicon(identityKey, keyHash, DECK_IDENTICON_SIZE),
+                        identiconBadge = identicon(identityKey, keyHash, BADGE_IDENTICON_SIZE),
                     )
                 )
             }

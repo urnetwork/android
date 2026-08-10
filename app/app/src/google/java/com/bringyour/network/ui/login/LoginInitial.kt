@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -494,7 +495,8 @@ fun LoginInitialActions(
                     }
                 },
                 label = stringResource(id = R.string.user_auth_label),
-                enabled = !isLoginInProgress
+                enabled = !isLoginInProgress,
+                modifier = Modifier.testTag("acceptance.password.user")
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -504,7 +506,8 @@ fun LoginInitialActions(
                     onLogin()
                 },
                 enabled = !isLoginInProgress && isValidUserAuth,
-                isProcessing = userAuthInProgress
+                isProcessing = userAuthInProgress,
+                modifier = Modifier.testTag("acceptance.password.next")
             ) { buttonTextStyle ->
                 Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
             }
@@ -661,7 +664,8 @@ fun LoginInitialActions(
                 onClick = {
                     onSeedphraseLogin()
                 },
-                enabled = !isLoginInProgress
+                enabled = !isLoginInProgress,
+                modifier = Modifier.testTag("acceptance.login.secret")
             ) { buttonTextStyle ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -689,7 +693,8 @@ fun LoginInitialActions(
                 onClick = {
                     onInstantAccountCreate()
                 },
-                enabled = !isLoginInProgress
+                enabled = !isLoginInProgress,
+                modifier = Modifier.testTag("acceptance.login.instant")
             ) { buttonTextStyle ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically

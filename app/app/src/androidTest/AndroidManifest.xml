@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <!--
+          The product excludes its own UID from the VPN.  Run the acceptance
+          egress request in the test APK's UID so it follows the same path as
+          other apps on the device.
+        -->
+        <activity
+            android:name="com.bringyour.network.acceptance.EgressProbeActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+    </application>
+</manifest>

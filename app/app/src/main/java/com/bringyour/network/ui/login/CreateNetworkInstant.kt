@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -101,7 +102,8 @@ fun CreateNetworkInstant(
                 TermsCheckbox(
                     checked = termsAgreed,
                     onCheckChanged = { termsAgreed = it },
-                    enabled = !inProgress
+                    enabled = !inProgress,
+                    modifier = Modifier.testTag("acceptance.instant.terms")
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -111,7 +113,8 @@ fun CreateNetworkInstant(
                         createNetworkInstantViewModel.createNetwork(termsAgreed, appLogin)
                     },
                     enabled = termsAgreed && !inProgress,
-                    isProcessing = inProgress
+                    isProcessing = inProgress,
+                    modifier = Modifier.testTag("acceptance.instant.create")
                 ) { buttonTextStyle ->
                     Text("Create Account", style = buttonTextStyle)
                 }

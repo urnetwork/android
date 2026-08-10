@@ -36,6 +36,7 @@ import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.utils.SOLANA_PLAN_YEARLY
 import com.bringyour.network.utils.buildSolanaPaymentUrl
 import com.bringyour.network.utils.createPaymentReference
 import com.bringyour.network.utils.isTablet
@@ -50,7 +51,8 @@ fun UpgradePlanAlt(
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
-        onSuccess: () -> Unit,
+        plan: String,
+        onSuccess: (amountUsd: Double) -> Unit,
         onError: () -> Unit
     ) -> Unit,
 //    pollSubscriptionBalance: () -> Unit,
@@ -62,22 +64,31 @@ fun UpgradePlanAlt(
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
 
+    // networkId was init-only: stale after an account switch, null after a slow jwt
+    // parse. Re-derive it whenever this screen appears; the Stripe buttons stay
+    // disabled until it resolves.
+    LaunchedEffect(Unit) {
+        planViewModel.refreshNetworkId()
+    }
+
 //    LaunchedEffect(Unit) {
 //        planViewModel.onUpgradeSuccess.collect {
 ////            overlayViewModel.launch(OverlayMode.Upgrade)
 //        }
 //    }
 
-    val promptWalletTransaction: (reference: String) -> Unit = { reference ->
-
-        val url = buildSolanaPaymentUrl(reference)
+    val promptWalletTransaction: (reference: String, amountUsd: Double) -> Unit = { reference, amountUsd ->
 
         var uriOpened = false
 
         try {
+            val url = buildSolanaPaymentUrl(reference, amountUsd, SOLANA_PLAN_YEARLY)
             Log.i("promptWalletTransaction", "url is: $url")
             uriHandler.openUri(url)
             uriOpened = true
+        } catch (e: IllegalArgumentException) {
+            // the sdk refused to build the url -- a bad amount, reference or address
+            Toast.makeText(context, "Could not start the payment. Please try again.", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
         }
@@ -96,9 +107,10 @@ fun UpgradePlanAlt(
 
         createSolanaPaymentIntent(
             reference,
-            {
-                // on success
-                promptWalletTransaction(reference)
+            SOLANA_PLAN_YEARLY,
+            { amountUsd ->
+                // on success -- amountUsd is what the SERVER quoted
+                promptWalletTransaction(reference, amountUsd)
             },
             {
                 // on error
@@ -197,6 +209,7 @@ private fun UpgradePlanContent(
                         uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${networkId}")
                     }
                 },
+                stripeEnabled = networkId != null,
                 isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
             Spacer(modifier = Modifier.height(16.dp))
