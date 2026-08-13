@@ -94,6 +94,27 @@ fun ProviderLocationsScreen(
         }
     }
 
+    // Keep the selection on screen. It moves without the list being touched —
+    // a wheel step on the globe, the default landing on the longest connected
+    // provider, a removal handing it to the nearest — and a selection the user
+    // cannot see is not a selection. Rows scrolled out of view are the only
+    // ones worth moving for.
+    LaunchedEffect(selectedClientId, rows) {
+        val index = rows.indexOfFirst { it.clientId == selectedClientId }
+        if (index < 0) {
+            return@LaunchedEffect
+        }
+        val layout = listState.layoutInfo
+        val visible = layout.visibleItemsInfo.any {
+            it.index == index &&
+                layout.viewportStartOffset <= it.offset &&
+                it.offset + it.size <= layout.viewportEndOffset
+        }
+        if (!visible) {
+            listState.animateScrollToItem(index)
+        }
+    }
+
     // the connected durations tick locally against the absolute connected-since
     // stamps, so a running clock costs one recomposition a second instead of an
     // sdk event per provider
@@ -149,6 +170,7 @@ fun ProviderLocationsScreen(
                 rows = rows,
                 selectedClientId = selectedClientId,
                 onSelect = { viewModel.select(it) },
+                onStep = { viewModel.step(it) },
                 getLocationColor = getLocationColor,
             )
 

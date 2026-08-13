@@ -161,6 +161,10 @@ internal object GlobeGeometry {
      * The leftover travel is what makes it hysteretic: after a step the user
      * must drag another full threshold to step again, so a finger resting near
      * the boundary cannot flicker between two providers.
+     *
+     * Only the travel-to-steps conversion lives here: the wheel itself — the
+     * centroid-relative provider order and the clamping at its ends — is the
+     * sdk's ProviderLocationsViewController, shared by every platform.
      */
     fun wheelStep(travel: Float, threshold: Float): WheelStep {
         if (threshold <= 0f) {
@@ -169,20 +173,6 @@ internal object GlobeGeometry {
         // truncates toward zero, so a fast drag can cross several steps at once
         val steps = (-travel / threshold).toInt()
         return WheelStep(steps, travel + steps * threshold)
-    }
-
-    /**
-     * Advances an index by [steps], wrapping at both ends. Wrapping is the
-     * right model here because the wheel is ordered by longitude, which is
-     * cyclic: stepping east past the last provider lands on the westernmost,
-     * which is also the shortest way round the globe.
-     */
-    fun wrapIndex(index: Int, steps: Int, count: Int): Int {
-        if (count <= 0) {
-            return -1
-        }
-        val next = (index + steps) % count
-        return if (next < 0) next + count else next
     }
 
     /**

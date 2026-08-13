@@ -268,22 +268,9 @@ class GlobeGeometryTest {
         assertEquals(0, GlobeGeometry.wheelStep(-1000f, 0f).steps)
     }
 
-    // longitude is cyclic, so the wheel wraps at both ends — stepping east past
-    // the last provider lands on the westernmost, the shortest way round
-    @Test
-    fun theWheelWrapsAtBothEnds() {
-        assertEquals(0, GlobeGeometry.wrapIndex(2, 1, 3))
-        assertEquals(2, GlobeGeometry.wrapIndex(0, -1, 3))
-        assertEquals(1, GlobeGeometry.wrapIndex(0, 1, 3))
-        // a multi-step drag wraps more than once
-        assertEquals(1, GlobeGeometry.wrapIndex(0, 7, 3))
-        assertEquals(2, GlobeGeometry.wrapIndex(0, -7, 3))
-    }
-
-    @Test
-    fun wrapIndexReportsNoIndexForAnEmptyWheel() {
-        assertEquals(-1, GlobeGeometry.wrapIndex(0, 1, 0))
-    }
+    // The wheel order and the step clamping are the sdk's
+    // ProviderLocationsViewController (provider_locations_view_controller.go,
+    // tested there); this module only converts drag travel to step counts.
 
     // fit center: the globe scales to the smaller canvas dimension and centers
     // in both, so a wide (non-square) box neither crops nor offsets it

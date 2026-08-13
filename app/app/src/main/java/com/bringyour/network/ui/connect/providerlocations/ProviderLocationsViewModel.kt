@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.sdk.DeviceLocal
-import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.ProviderLocationsViewController
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,8 +14,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * One connected provider, as rendered by the globe and the list. The sdk
- * returns these sorted oldest-connected first.
+ * One connected provider, as rendered by the globe and the list. The rows
+ * arrive in the sdk view controller's display order — west to east about the
+ * providers' centroid, then the ones with no coordinates — so the list reads
+ * left to right in the order the globe's wheel steps through.
  */
 data class ProviderLocationRow(
     val clientId: String,
@@ -45,6 +47,12 @@ class ProviderLocationsViewModel @Inject constructor(
     val selectedClientId: StateFlow<String?> = _selectedClientId.asStateFlow()
 
     private var sub: Sub? = null
+    private var selectedSub: Sub? = null
+    // the scroll/selection logic lives in the sdk's shared
+    // ProviderLocationsViewController; the vc must be closed on the device
+    // that opened it, so the owner is tracked across device changes
+    private var vc: ProviderLocationsViewController? = null
+    private var vcDevice: DeviceLocal? = null
     private var removeDeviceChangeListener: (() -> Unit)? = null
 
     init {
@@ -56,19 +64,39 @@ class ProviderLocationsViewModel @Inject constructor(
 
     private fun attach(device: DeviceLocal?) {
         sub?.close()
+        selectedSub?.close()
+        detachViewController()
+        vcDevice = device
+        vc = device?.openProviderLocationsViewController()
         sub = device?.addConnectedProviderLocationChangeListener {
             viewModelScope.launch { refresh() }
         }
-        viewModelScope.launch { refresh() }
+        selectedSub = vc?.addSelectedProviderLocationChangeListener {
+            viewModelScope.launch { refreshSelection() }
+        }
+        viewModelScope.launch {
+            refresh()
+            refreshSelection()
+        }
+    }
+
+    private fun detachViewController() {
+        val openVc = vc ?: return
+        vc = null
+        vcDevice?.closeProviderLocationsViewController(openVc)
+        vcDevice = null
     }
 
     /**
-     * Re-reads the current connected providers. The sdk re-emits fresh proxies
+     * Re-reads the current connected providers, from the view controller
+     * rather than the device: same window, in the shared display order, and
+     * read from the controller so the rows and the selection always come from
+     * one snapshot. The sdk re-emits fresh proxies
      * on every event, so the rows are compared by value and only assigned when
      * something actually changed (the same discipline the connect grid uses).
      */
     fun refresh() {
-        val locations = deviceManager.device?.connectedProviderLocations
+        val locations = vc?.providerLocations
         val rows = mutableListOf<ProviderLocationRow>()
         if (locations != null) {
             for (i in 0 until locations.len()) {
@@ -108,15 +136,27 @@ class ProviderLocationsViewModel @Inject constructor(
         if (rows != _providerLocations.value) {
             _providerLocations.value = rows
         }
-        // drop a selection whose provider left the window
-        val selected = _selectedClientId.value
-        if (selected != null && rows.none { it.clientId == selected }) {
-            _selectedClientId.value = null
-        }
+    }
+
+    // The vc keeps the selection pointed at a connected provider — the longest
+    // connected one by default, the nearest one when the selected provider
+    // leaves — so this only mirrors its state ("" = no providers at all).
+    private fun refreshSelection() {
+        _selectedClientId.value = vc?.selectedClientId?.takeIf { it.isNotEmpty() }
     }
 
     fun select(clientId: String?) {
-        _selectedClientId.value = clientId
+        vc?.setSelectedClientId(clientId ?: "")
+    }
+
+    /**
+     * Moves the globe's wheel selection by [steps] providers, positive east.
+     * The order (west to east relative to the providers' centroid) and the
+     * clamping at the wheel's ends live in the sdk view controller, shared by
+     * every platform.
+     */
+    fun step(steps: Int) {
+        vc?.stepSelection(steps)
     }
 
     /**
@@ -124,27 +164,22 @@ class ProviderLocationsViewModel @Inject constructor(
      * for the rest of this connection. The row disappears when the sdk reports
      * the window change; the local list is trimmed first so the swipe does not
      * appear to snap back while that round trip happens.
+     *
+     * The vc moves the selection to the nearest provider when the removed one
+     * was selected, so there is nothing to clear here.
      */
     fun removeProvider(clientId: String) {
         _providerLocations.value = _providerLocations.value.filter { it.clientId != clientId }
-        if (_selectedClientId.value == clientId) {
-            _selectedClientId.value = null
-        }
-        val id = runCatching { Sdk.parseId(clientId) }.getOrNull() ?: return
-        deviceManager.device?.removeConnectedProvider(id)
+        vc?.removeProvider(clientId)
     }
-
-    /**
-     * The oldest connected provider that has coordinates — the mock-location
-     * target. The list is already sorted oldest first.
-     */
-    fun oldestPlottable(): ProviderLocationRow? =
-        _providerLocations.value.firstOrNull { it.plottable }
 
     override fun onCleared() {
         super.onCleared()
         sub?.close()
         sub = null
+        selectedSub?.close()
+        selectedSub = null
+        detachViewController()
         removeDeviceChangeListener?.invoke()
         removeDeviceChangeListener = null
     }

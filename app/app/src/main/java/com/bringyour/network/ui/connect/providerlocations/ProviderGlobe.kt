@@ -1,8 +1,8 @@
 package com.bringyour.network.ui.connect.providerlocations
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.EaseInOutCubic
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -46,15 +46,30 @@ private const val SELECTED_RING_STROKE = 1.5f
 private const val SELECTED_RING_RADIUS =
     DOT_RADIUS + SELECTED_RING_GAP + SELECTED_RING_STROKE / 2f
 private const val UNKNOWN_COUNTRY_COLOR = 0xFF0099FF.toInt()
+// The selected provider's dot is its own country color darkened toward black.
+// Same factor on every platform (see PROVIDERLOCATIONS.md), so the selection
+// reads the same everywhere.
+private const val SELECTED_DOT_DARKEN = 0.55f
 // The sphere is sized to fit its box with room for a selected dot's ring at
 // the limb, so the globe never paints outside the component. (The web zooms
 // past its frame and crops; here the globe sits fully inside instead.)
 private const val GLOBE_SCALE =
     GlobeGeometry.CENTER - DOT_RADIUS - SELECTED_RING_GAP - SELECTED_RING_STROKE
-// Recentering is now a primary interaction (every wheel step recenters), not
+// Recentering is a primary interaction (every selection change recenters), not
 // the web's occasional pointer-leave animation, so it is snappier than the
-// web's 1000ms — a slow ease makes rapid stepping feel like it lags the finger.
-private const val RECENTER_MILLIS = 450
+// web's 1000ms — a slow curve makes stepping feel like it lags the finger.
+//
+// It is a spring rather than a timing curve because those recenters overlap: a
+// second one lands while the first is still running, and `Animatable.animateTo`
+// carries the current velocity into a spring, where a tween restarts from a
+// standstill and reads as a stutter on every step. StiffnessLow (200) is a
+// natural frequency of ~14 rad/s — the same ~450ms settle the tween had, and
+// the same spring as apple's `response: 0.45` — and NoBouncy is critically
+// damped, so the globe settles onto the provider instead of swinging past it.
+private val RECENTER_SPRING = spring<Float>(
+    dampingRatio = Spring.DampingRatioNoBouncy,
+    stiffness = Spring.StiffnessLow,
+)
 private const val TAP_SLOP = 28f
 // how far the finger travels to advance one provider, as a fraction of the
 // globe's width
@@ -66,15 +81,33 @@ private const val GLOBE_ASPECT = 1f / GLOBE_HEIGHT_FRACTION
 private const val WORLD_TOPOLOGY_ASSET = "world-110m.json"
 
 /**
+ * The rotation the globe is animating toward, identified by the provider it
+ * belongs to. Comparing the coordinates as well as the id is what makes a
+ * provider whose position changes under the selection recenter the globe.
+ */
+private data class GlobeCenterTarget(
+    val clientId: String,
+    val lat: Double,
+    val lon: Double,
+)
+
+/**
  * The provider globe: a dark sphere with white land, a graticule, and one dot
  * per plottable provider colored by its country. The selected provider gets a
- * ring, and selecting spins the globe to center that provider.
+ * ring, and the globe is always centered on it — however the selection moved,
+ * whether the user tapped a dot or a row, stepped the wheel, or the provider it
+ * was resting on left the window.
+ *
+ * [onStep] reports wheel steps (positive east) once a horizontal drag crosses
+ * the hysteresis threshold; the wheel itself — the centroid-relative order and
+ * the clamping at its ends — lives in the sdk's ProviderLocationsViewController.
  */
 @Composable
 fun ProviderGlobe(
     rows: List<ProviderLocationRow>,
     selectedClientId: String?,
     onSelect: (String) -> Unit,
+    onStep: (Int) -> Unit,
     getLocationColor: (String) -> Color,
     modifier: Modifier = Modifier,
 ) {
@@ -102,26 +135,37 @@ fun ProviderGlobe(
 
     val plottable = remember(rows) { rows.filter { it.plottable } }
 
-    // The wheel order is by longitude (west to east), independent of the
-    // list's duration order: swiping traverses the globe left to right.
-    val wheel = remember(plottable) { plottable.sortedBy { it.lon } }
     // read inside the gesture handler without restarting it — re-keying
-    // pointerInput on the selection would cancel the drag on every step
-    val currentWheel by rememberUpdatedState(wheel)
-    val currentSelectedClientId by rememberUpdatedState(selectedClientId)
-    val currentOnSelect by rememberUpdatedState(onSelect)
+    // pointerInput on each step would cancel the in-flight drag
+    val currentOnStep by rememberUpdatedState(onStep)
 
-    // Spin to the selected provider. Keyed on the selection alone: the provider
-    // list churns as the window turns over, and recentering on every such
-    // update would yank the globe out from under a user who is dragging it.
-    // The globe is centered once on the first provider that appears.
+    // Where the globe belongs: the selected provider's position on the sphere,
+    // or null when there is nothing to center on (no providers yet, or a
+    // selected provider with no coordinates and so no dot to center under).
+    // Until the globe has been placed once the first plottable provider stands
+    // in for an unplottable selection, so opening the sheet lands on a provider
+    // rather than on the empty Atlantic at (0, 0); after that the globe follows
+    // the selection only, because chasing the first row as the window turns
+    // over would yank the globe around for no reason the user can see.
     var centeredOnce by remember { mutableStateOf(false) }
-    LaunchedEffect(selectedClientId, plottable.isNotEmpty()) {
-        val target = plottable.firstOrNull { it.clientId == selectedClientId }
+    val centerTarget = run {
+        val row = plottable.firstOrNull { it.clientId == selectedClientId }
             ?: plottable.firstOrNull().takeIf { !centeredOnce }
-        val lat = target?.lat
-        val lon = target?.lon
-        if (lat != null && lon != null) {
+        val lat = row?.lat
+        val lon = row?.lon
+        if (row != null && lat != null && lon != null) {
+            GlobeCenterTarget(row.clientId, lat, lon)
+        } else {
+            null
+        }
+    }
+    // Keyed on the whole target, not just the selected id: a provider whose
+    // coordinates arrive after its row did must still pull the globe over.
+    // Restarting this effect cancels the in-flight animateTo, which leaves the
+    // Animatable at its current value AND velocity — which is exactly what the
+    // spring below then continues from.
+    LaunchedEffect(centerTarget) {
+        if (centerTarget != null) {
             centeredOnce = true
             // fold any accumulated drag into the animated value so the
             // interpolation starts where the user left the globe
@@ -129,14 +173,16 @@ fun ProviderGlobe(
             rotationPhi.snapTo((rotationPhi.value + dragPhi).coerceIn(-90f, 90f))
             dragLambda = 0f
             dragPhi = 0f
-            val to = GlobeGeometry.rotationCentering(lon.toFloat(), lat.toFloat())
+            val to = GlobeGeometry.rotationCentering(
+                centerTarget.lon.toFloat(),
+                centerTarget.lat.toFloat(),
+            )
             val from = rotationLambda.value to rotationPhi.value
             // resolve the target to its nearest equivalent angle so the globe
             // spins the short way around
             val shortest = GlobeGeometry.lerpRotation(from, to, 1f)
-            val spec = tween<Float>(durationMillis = RECENTER_MILLIS, easing = EaseInOutCubic)
-            launch { rotationLambda.animateTo(shortest.first, spec) }
-            launch { rotationPhi.animateTo(shortest.second, spec) }
+            launch { rotationLambda.animateTo(shortest.first, RECENTER_SPRING) }
+            launch { rotationPhi.animateTo(shortest.second, RECENTER_SPRING) }
         }
     }
     Canvas(
@@ -151,8 +197,8 @@ fun ProviderGlobe(
             // scroll wheel locked to the provider order — free rotation would
             // fight the centering animation. With none, there is nothing to
             // traverse, so the globe rotates freely.
-            .pointerInput(wheel.isEmpty()) {
-                if (currentWheel.isEmpty()) {
+            .pointerInput(plottable.isEmpty()) {
+                if (plottable.isEmpty()) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
                         val unit = GlobeGeometry.unitFor(
@@ -179,18 +225,7 @@ fun ProviderGlobe(
                         )
                         if (step.steps != 0) {
                             travel = step.remainingTravel
-                            val order = currentWheel
-                            val current = order.indexOfFirst {
-                                it.clientId == currentSelectedClientId
-                            }
-                            val next = if (current < 0) {
-                                // nothing selected yet: the first step lands on
-                                // the westernmost provider
-                                0
-                            } else {
-                                GlobeGeometry.wrapIndex(current, step.steps, order.size)
-                            }
-                            order.getOrNull(next)?.let { currentOnSelect(it.clientId) }
+                            currentOnStep(step.steps)
                         }
                     }
                 }
@@ -283,7 +318,11 @@ fun ProviderGlobe(
             drawPolyline(line, lambda, phi, currentScale, unit)
         }
 
-        // provider dots, largest last so nothing is fully hidden
+        // Provider dots. The selected one is held back and drawn last so it is
+        // never covered by a dot that happens to sit on top of it — providers
+        // in one city land on the same pixel.
+        var selectedCenter: Offset? = null
+        var selectedColor: Color? = null
         plottable.forEach { row ->
             val point = GlobeGeometry.project(
                 row.lon!!.toFloat(),
@@ -294,15 +333,25 @@ fun ProviderGlobe(
             ) ?: return@forEach
             val color = providerColor(row, getLocationColor)
             val center = canvas(point)
-            drawCircle(color = color, radius = DOT_RADIUS * unit, center = center)
             if (row.clientId == selectedClientId) {
-                drawCircle(
-                    color = color,
-                    radius = SELECTED_RING_RADIUS * unit,
-                    center = center,
-                    style = Stroke(width = SELECTED_RING_STROKE * unit),
-                )
+                selectedCenter = center
+                selectedColor = color
+            } else {
+                drawCircle(color = color, radius = DOT_RADIUS * unit, center = center)
             }
+        }
+        val center = selectedCenter
+        val color = selectedColor
+        if (center != null && color != null) {
+            // a darker core inside its own full-strength ring: the selection
+            // reads at a glance without changing which country color it is
+            drawCircle(color = color.darkenForSelection(), radius = DOT_RADIUS * unit, center = center)
+            drawCircle(
+                color = color,
+                radius = SELECTED_RING_RADIUS * unit,
+                center = center,
+                style = Stroke(width = SELECTED_RING_STROKE * unit),
+            )
         }
     }
 }
@@ -347,6 +396,14 @@ private fun DrawScope.drawPolyline(
  * list uses). Providers whose country is unknown fall back to the web globe's
  * neutral blue.
  */
+/** The same color, darkened toward black for the selected provider's dot. */
+private fun Color.darkenForSelection(): Color = Color(
+    red = red * SELECTED_DOT_DARKEN,
+    green = green * SELECTED_DOT_DARKEN,
+    blue = blue * SELECTED_DOT_DARKEN,
+    alpha = alpha,
+)
+
 fun providerColor(row: ProviderLocationRow, getLocationColor: (String) -> Color): Color {
     if (row.countryCode.isEmpty()) {
         return Color(UNKNOWN_COUNTRY_COLOR)

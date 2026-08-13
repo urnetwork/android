@@ -54,8 +54,11 @@ class MockLocationViewModel @Inject constructor(
         val locations = device?.connectedProviderLocations
         var target: MockLocationTarget? = null
         if (locations != null) {
-            // the sdk sorts oldest connected first; take the first one that
-            // actually has coordinates
+            // Read from the DEVICE, not the provider-locations view controller:
+            // the device getter is the raw window, still sorted oldest
+            // connected first, while the controller reorders it west to east
+            // for the list and the globe. Take the first one that actually has
+            // coordinates.
             for (i in 0 until locations.len()) {
                 val location = locations.get(i)
                 val lat: Double
