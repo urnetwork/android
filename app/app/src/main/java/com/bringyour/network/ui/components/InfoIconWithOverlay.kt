@@ -48,6 +48,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
 fun InfoIconWithOverlay(
+    contentDescription: String = "Info",
     content: @Composable () -> Unit
 ) {
 
@@ -62,7 +63,7 @@ fun InfoIconWithOverlay(
         ) {
             Icon(
                 painter = painterResource(R.drawable.icon_info),
-                contentDescription = "Info",
+                contentDescription = contentDescription,
                 tint = TextMuted,
             )
 

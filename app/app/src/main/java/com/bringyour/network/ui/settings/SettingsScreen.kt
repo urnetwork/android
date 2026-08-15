@@ -1018,11 +1018,36 @@ private fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    stringResource(id = R.string.kill_switch),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(id = R.string.kill_switch),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    InfoIconWithOverlay(
+                        contentDescription = stringResource(
+                            id = R.string.show_kill_switch_exception
+                        )
+                    ) {
+                        Column {
+                            Text(
+                                stringResource(id = R.string.kill_switch_exception),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                stringResource(id = R.string.kill_switch_smtp_exception),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BlueLight
+                            )
+                        }
+                    }
+                }
 
                 URSwitch(
                     checked = !routeLocal,
