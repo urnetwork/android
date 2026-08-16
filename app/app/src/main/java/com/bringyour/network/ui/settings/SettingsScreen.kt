@@ -1041,7 +1041,7 @@ private fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                stringResource(id = R.string.kill_switch_smtp_exception),
+                                stringResource(id = R.string.kill_switch_exception_detail),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = BlueLight
                             )

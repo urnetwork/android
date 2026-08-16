@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
 import com.bringyour.network.location.MockLocationController
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
+import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.LocalState
 import com.bringyour.sdk.LoginViewController
 import com.bringyour.sdk.NetworkSpace
@@ -155,6 +156,9 @@ class MainApplication : Application() {
     private var vpnServiceUpdatePosted: Boolean = false
     private var vpnServiceUpdateGeneration: Long = 0
     private var activeVpnForeground: Boolean? = null
+    @Volatile
+    private var systemAlwaysOnVpn: Boolean = false
+    private var alwaysOnConnectRequestedDevice: DeviceLocal? = null
 
     var vpnRequestStartListener: (() -> Unit)? = null
 
@@ -803,6 +807,7 @@ class MainApplication : Application() {
 
         updateTunnelStarted()
         updateContractStatus()
+        service?.get()?.onDeviceAvailable()
         updateVpnService()
 
         return true
@@ -850,6 +855,10 @@ class MainApplication : Application() {
     private fun reconcileVpnService() {
         val device = device ?: return
 
+        if (systemAlwaysOnVpn) {
+            ensureAlwaysOnConnected()
+        }
+
         // the vpn service is the packet router: it must run whenever the device
         // is connected, providing (any mode — including Network, which relays
         // for same-network peers), or routing remotely
@@ -858,7 +867,7 @@ class MainApplication : Application() {
         val connectEnabled = device.connectEnabled
         val routeLocal = device.routeLocal
 
-        if (provideEnabled || connectEnabled || !routeLocal) {
+        if (systemAlwaysOnVpn || vpnServiceRequired(provideEnabled, connectEnabled, routeLocal)) {
             startVpnService()
             // if provide paused, keep the vpn on but do not keep the locks
             if (provideEnabled && !providePaused) {
@@ -923,6 +932,7 @@ class MainApplication : Application() {
         // already rebuilds the TUN descriptor on material window/DNS/split
         // changes, so stop/start here only creates a traffic pause.
         if ((serviceActive || vpnStartPending) && activeVpnForeground == foreground) {
+            service?.get()?.onDeviceAvailable()
             return
         }
 
@@ -931,7 +941,7 @@ class MainApplication : Application() {
         // descriptor and pause traffic.
         if (serviceActive && !vpnStartPending) {
             service?.get()?.let { activeService ->
-                if (activeService.setForegroundEnabled(foreground)) {
+                if (activeService.setForegroundEnabled(foreground || systemAlwaysOnVpn)) {
                     activeVpnForeground = foreground
                     return
                 }
@@ -982,6 +992,7 @@ class MainApplication : Application() {
                             if (this@MainApplication.serviceActive) {
                                 val vpnIntent = Intent(this, MainService::class.java)
                                 vpnIntent.putExtra("source", "app")
+                                vpnIntent.putExtra("command_version", VPN_SERVICE_COMMAND_VERSION)
                                 vpnIntent.putExtra("stop", false)
                                 vpnIntent.putExtra("start", true)
                                 vpnIntent.putExtra("foreground", foreground)
@@ -1038,10 +1049,92 @@ class MainApplication : Application() {
         }
     }
 
+    /**
+     * Commit the service instance Android actually delivered. This is also the
+     * cold-process redelivery adoption path: in-memory optimistic state is gone,
+     * but the restored SDK device has already proven the VPN is still desired.
+     */
+    fun vpnServiceDidStart(
+        startedService: MainService,
+        foreground: Boolean,
+        systemAlwaysOn: Boolean,
+    ) {
+        service = WeakReference(startedService)
+        serviceActive = true
+        systemAlwaysOnVpn = systemAlwaysOnVpn || systemAlwaysOn
+        vpnStartPending = false
+        activeVpnForeground = foreground
+        vpnRequestStart = false
+        ensureAlwaysOnConnected()
+    }
+
+    fun isSystemAlwaysOnVpnActive(): Boolean = systemAlwaysOnVpn
+
+    /**
+     * System Always-on owns the disconnect policy. Keep the user's selected
+     * location when there is one, otherwise reconnect to the best provider.
+     * A bounded-delay retry covers a transient SDK restore/network race while
+     * avoiding multiple simultaneous controllers for the same device.
+     */
+    private fun ensureAlwaysOnConnected() {
+        if (!systemAlwaysOnVpn) {
+            alwaysOnConnectRequestedDevice = null
+            return
+        }
+        val current = device ?: return
+        if (current.connectEnabled) {
+            alwaysOnConnectRequestedDevice = null
+            return
+        }
+        if (alwaysOnConnectRequestedDevice === current) return
+        alwaysOnConnectRequestedDevice = current
+        val vc = current.openConnectViewController() ?: run {
+            alwaysOnConnectRequestedDevice = null
+            return
+        }
+        try {
+            current.connectLocation?.let(vc::connect) ?: vc.connectBestAvailable()
+        } catch (e: Exception) {
+            Log.i(TAG, "Always-on reconnect request failed: ${e.message}")
+            alwaysOnConnectRequestedDevice = null
+        } finally {
+            runCatching { current.closeViewController(vc) }
+                .onFailure { Log.i(TAG, "Always-on controller close failed: ${it.message}") }
+        }
+        Handler(mainLooper).postDelayed({
+            if (systemAlwaysOnVpn && device === current && !current.connectEnabled) {
+                alwaysOnConnectRequestedDevice = null
+                ensureAlwaysOnConnected()
+            }
+        }, 30_000L)
+    }
+
+    fun restoredVpnServiceRequired(): Boolean {
+        val current = device ?: return false
+        return vpnServiceRequired(
+            provideEnabled = current.provideEnabled,
+            connectEnabled = current.connectEnabled,
+            routeLocal = current.routeLocal,
+        )
+    }
+
+    fun restoredVpnForegroundDesired(): Boolean {
+        val current = device ?: return false
+        return deviceManager.allowForeground && current.provideEnabled
+    }
+
     private fun stopVpnService() {
         vpnRequestStart = false
         vpnStartPending = false
         activeVpnForeground = null
+
+        if (serviceActive && systemAlwaysOnVpn) {
+            val activeService = service?.get()
+            if (activeService != null && activeService.retainAlwaysOnWithoutDevice()) {
+                serviceActive = true
+                return
+            }
+        }
 
         // note
         // - using startService with stop intent to stop the service is broken
@@ -1073,6 +1166,8 @@ class MainApplication : Application() {
         }
         service = null
         serviceActive = false
+        systemAlwaysOnVpn = false
+        alwaysOnConnectRequestedDevice = null
         vpnStartPending = false
         activeVpnForeground = null
     }
@@ -1080,6 +1175,7 @@ class MainApplication : Application() {
     fun forceStopVpnService() {
         val vpnIntent = Intent(this, MainService::class.java)
         vpnIntent.putExtra("source", "app")
+        vpnIntent.putExtra("command_version", VPN_SERVICE_COMMAND_VERSION)
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
         vpnIntent.putExtra("foreground", false)

@@ -335,7 +335,7 @@
     <string name="join_urnetwork">Join URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Kill switch exception</string>
-    <string name="kill_switch_smtp_exception">While the VPN is connected, outbound SMTP on TCP port 25 bypasses the VPN and uses your local network, even when the kill switch is on. This may expose your local public IP to the mail server. SMTP on ports 465 and 587 stays in the VPN and must establish TLS.</string>
+    <string name="kill_switch_exception_detail">While the VPN is connected, IPv6 is not routed through URnetwork and may use your local network, even when the kill switch is on. Outbound SMTP on TCP port 25 also bypasses the VPN. These exceptions may expose your local public IP to those destinations. SMTP on ports 465 and 587 stays in the VPN and must establish TLS.</string>
     <string name="launch">Launch</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>

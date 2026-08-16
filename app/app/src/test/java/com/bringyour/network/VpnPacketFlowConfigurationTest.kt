@@ -20,7 +20,6 @@ class VpnPacketFlowConfigurationTest {
             includedAppIds = includedAppIds,
             excludedAppIds = excludedAppIds,
             dnsIpv4s = dnsIpv4s,
-            dnsIpv6s = emptyList(),
             clientIpv4 = clientIpv4,
         )
     }
@@ -99,5 +98,32 @@ class VpnPacketFlowConfigurationTest {
         )
 
         assertEquals(listOf("9.9.9.9"), servers)
+    }
+
+    @Test
+    fun tunnelAddressAcceptsOnlyIpv4() {
+        assertEquals("169.254.2.1", vpnTunnelIpv4Address(" 169.254.2.1 "))
+        assertEquals(null, vpnTunnelIpv4Address("fd00::1"))
+        assertEquals(null, vpnTunnelIpv4Address("example.com"))
+        assertEquals(null, vpnTunnelIpv4Address("192.0.2.999"))
+    }
+
+    @Test
+    fun tunnelDnsNeverAdvertisesIpv6() {
+        val servers = vpnDnsServersForClient(
+            clientIpv4 = "169.254.2.1",
+            deviceDnsIpv4s = listOf("fd00::53", "9.9.9.9"),
+            fallbackDnsIpv4s = listOf("65.49.70.65"),
+        )
+
+        assertEquals(listOf("9.9.9.9"), servers)
+    }
+
+    @Test
+    fun unsupportedIpv6IsBlockedWithoutBeingAdvertisedOnTheTunnel() {
+        assertEquals(
+            VpnIpv6Policy.BLOCK_UNSUPPORTED,
+            configuration().ipv6Policy,
+        )
     }
 }
