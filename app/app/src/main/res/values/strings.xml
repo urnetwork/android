@@ -334,8 +334,6 @@
     <string name="join_the_movement">Join the movement</string>
     <string name="join_urnetwork">Join URnetwork</string>
     <string name="kill_switch">Kill switch</string>
-    <string name="kill_switch_exception">Kill switch exception</string>
-    <string name="kill_switch_exception_detail">While the VPN is connected, IPv6 is not routed through URnetwork and may use your local network, even when the kill switch is on. Outbound SMTP on TCP port 25 also bypasses the VPN. These exceptions may expose your local public IP to those destinations. SMTP on ports 465 and 587 stays in the VPN and must establish TLS.</string>
     <string name="launch">Launch</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
@@ -548,7 +546,6 @@
     <string name="share_logs">Share logs</string>
     <string name="share_with_others">You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.</string>
     <string name="show_icon_when_connected">Show UR icon when connected</string>
-    <string name="show_kill_switch_exception">Show kill switch exception</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Please make sure you have sufficient USDC funds in your wallet. In some instances, payment prompts fail if there are insufficient funds in the wallet.</string>
     <string name="solana_sign_in">Sign in with Solana</string>
