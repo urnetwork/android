@@ -341,7 +341,9 @@ import kotlin.concurrent.thread
 
         val builder = Builder()
         builder.setSession("URnetwork")
-        builder.setMtu(1440)
+        // Matches connect's provider packetizer and keeps one encrypted tunnel
+        // packet within H3's single-DATAGRAM payload ceiling.
+        builder.setMtu(Sdk.getDefaultTunnelMtu())
         builder.setBlocking(false)
         builder.setUnderlyingNetworks(null)
         val tunnelIncludedAppIds = configuration.includedAppIds
@@ -563,7 +565,7 @@ import kotlin.concurrent.thread
         }
         val builder = Builder()
             .setSession("URnetwork — sign in required")
-            .setMtu(1440)
+            .setMtu(Sdk.getDefaultTunnelMtu())
             .setBlocking(false)
             .setUnderlyingNetworks(null)
             .addDisallowedApplication(packageName)

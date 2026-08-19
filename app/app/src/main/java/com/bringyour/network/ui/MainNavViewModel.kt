@@ -108,6 +108,7 @@ sealed class Route {
     @Serializable object SplitRules : Route()
     @Serializable object AppSplitRules : Route()
     @Serializable object DnsSettings : Route()
+    @Serializable data class TransportSettings(val provider: Boolean) : Route()
 
     @Serializable object ProviderLocations : Route()
 

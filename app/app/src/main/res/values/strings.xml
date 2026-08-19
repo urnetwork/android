@@ -289,6 +289,8 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="edit_referral_code">Edit referral code</string>
     <string name="edit_split_rule">Edit split rule</string>
+    <string name="enabled_under_auto">Enabled under Auto</string>
+    <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
     <string name="enter">Enter</string>
     <string name="enter_balance_code">Enter balance code</string>
@@ -479,6 +481,7 @@
     <string name="provider_locations_empty">No providers connected</string>
     <string name="provider_locations_title">Provider Locations</string>
     <string name="provider_statistics">Provider statistics</string>
+    <string name="provider_transports">Provider transports</string>
     <string name="providing_disabled">Providing is disabled</string>
     <string name="purchase_could_not_be_verified">This purchase could not be verified with Google Play, so it can\'t be applied to your account. If you were charged and your plan doesn\'t update, please contact support.</string>
     <string name="ready_to_connect">Ready to connect</string>
@@ -525,6 +528,7 @@
     <string name="reset_link_sent_to">Reset link sent to</string>
     <string name="reset_password_email_sent">Reset password email sent to %1$s</string>
     <string name="resolvers">Resolvers</string>
+    <string name="restore_default_transports">Restore default transports</string>
     <string name="restore_most_secure_settings">Restore to most secure settings</string>
     <string name="retry">Retry</string>
     <string name="review_our_app">Would you like to review our app?</string>
@@ -594,6 +598,17 @@
     <string name="transfer_funds">Transfer Funds</string>
     <string name="transfer_submitted">Transfer Submitted</string>
     <string name="transfer_submitted_details">Your transfer has been initiated and will complete once the transaction is processed on chain.</string>
+    <string name="transport">Transport</string>
+    <string name="transport_auto_description">Recommended. Uses the enabled transports below.</string>
+    <string name="transport_client_footer">The transport this device uses to reach providers. Auto tries the enabled transports in preference order and keeps every healthy transport of the same tier connected in parallel.</string>
+    <string name="transport_dns_description">Disguised as DNS traffic. For networks that filter direct connections.</string>
+    <string name="transport_dnspump_description">Disguised as DNS traffic with a constant reply pump. Lowest bandwidth, highest availability.</string>
+    <string name="transport_h1_description">Direct over TLS. Works on most networks.</string>
+    <string name="transport_h3_description">Direct over QUIC. Fastest where it is not filtered.</string>
+    <string name="transport_provider_footer">The transport this device uses while providing for others. Auto tries the enabled transports in preference order and keeps every healthy transport of the same tier connected in parallel.</string>
+    <string name="transport_queued">queued</string>
+    <string name="transport_unused">unused</string>
+    <string name="transports">Transports</string>
     <string name="trusted_by_private_networks">Trusted by over %1$s private networks</string>
     <string name="try_again">Try again</string>
     <string name="try_guest_mode">Try Guest Mode</string>

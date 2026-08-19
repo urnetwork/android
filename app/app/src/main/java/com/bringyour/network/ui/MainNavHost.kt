@@ -128,6 +128,8 @@ import com.bringyour.network.ui.connect.providerlocations.MockLocationGuideScree
 import com.bringyour.network.ui.connect.providerlocations.MockLocationSection
 import com.bringyour.network.ui.connect.providerlocations.ProviderLocationsScreen
 import com.bringyour.network.ui.stats.DnsSettingsScreen
+import com.bringyour.network.ui.stats.TransportSettingsKind
+import com.bringyour.network.ui.stats.TransportSettingsScreen
 import com.bringyour.network.ui.stats.SplitRulesScreen
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.upgrade.UpgradeScreen
@@ -922,6 +924,19 @@ fun MainNavContent(
             ) {
                 DnsSettingsScreen(
                     navController = navController,
+                )
+            }
+
+            composable<Route.TransportSettings>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) { backStackEntry ->
+                val route: Route.TransportSettings = backStackEntry.toRoute()
+                TransportSettingsScreen(
+                    navController = navController,
+                    kind = if (route.provider) TransportSettingsKind.PROVIDER else TransportSettingsKind.CLIENT,
                 )
             }
 

@@ -79,6 +79,21 @@ fun ProviderStatsSection(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            /**
+             * The relayed traffic of the window by the transport this
+             * device used to carry it, under the provider plot. Tap to
+             * open the provider transport settings. The child tap wins over
+             * the section's tap.
+             */
+            TransportDistributionBar(
+                distribution = throughputViewModel.providerTransportDistribution,
+                onClick = {
+                    navController.navigate(Route.TransportSettings(provider = true))
+                }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             TransferChart(
                 points = throughputViewModel.providerPoints,
                 route = ThroughputRoute.BLOCK,

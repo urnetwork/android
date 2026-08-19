@@ -90,6 +90,20 @@ fun ConnectStatsSections(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        /**
+         * The remote traffic of the window by transport, full width under
+         * the remote plot. Tap to open the transport settings. The child tap
+         * wins over the card's tap.
+         */
+        TransportDistributionBar(
+            distribution = throughputViewModel.clientTransportDistribution,
+            onClick = {
+                navController.navigate(Route.TransportSettings(provider = false))
+            }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         TransferChart(
             points = throughputViewModel.clientPoints,
             route = ThroughputRoute.BLOCK,

@@ -15,6 +15,7 @@ import com.bringyour.sdk.ContractViewController
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sub
 import com.bringyour.sdk.ThroughputPointList
+import com.bringyour.sdk.TransportDistribution
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -59,6 +60,125 @@ enum class ThroughputRoute {
 }
 
 /**
+ * One transport's slice of the window's remote traffic, ready to render as a
+ * segment of the transport bar plus its legend entry. A mirror of the sdk's
+ * `TransportShare`: every render value (share, cumulative boundary, whole
+ * percent, used, enabled) is computed by the sdk view controller so the math
+ * is shared and tested once for every platform.
+ */
+data class TransportShareUi(
+    val transportType: TransportTypeUi,
+    val egressBytes: Long = 0,
+    val ingressBytes: Long = 0,
+    val egressPackets: Long = 0,
+    val ingressPackets: Long = 0,
+    /**
+     * fraction of the window's remote bytes, 0..1; 0 while idle
+     */
+    val share: Double = 0.0,
+    /**
+     * the right edge of the segment as a fraction of the bar width: the
+     * cumulative share through this transport in stable order. Rendering every
+     * segment from its neighbours' boundaries tiles exactly 100% of the bar
+     */
+    val boundary: Double = 0.0,
+    /**
+     * whole percent for the legend; the used percents sum to exactly 100.
+     * A sliver can round to 0 while still used
+     */
+    val percent: Int = 0,
+    /**
+     * carried traffic in the window: draws a segment and a legend entry
+     */
+    val used: Boolean = false,
+    /**
+     * enabled by the transport settings; unused footer entry when idle
+     */
+    val enabled: Boolean = false,
+) {
+    val byteCount: Long
+        get() = egressBytes + ingressBytes
+}
+
+/**
+ * The window's remote traffic partitioned by the transport that carried it,
+ * in the sdk's stable order with every transport present. Follows the same
+ * window as the throughput points, so it drains to inactive as traffic ages
+ * out. A mirror of the sdk's `TransportDistribution`.
+ */
+data class TransportDistributionUi(
+    /**
+     * stable order: h3, h1, dns, dnspump, p2p, unknown
+     */
+    val shares: List<TransportShareUi>,
+    val byteCount: Long,
+    /**
+     * whether any transport carried traffic in the window
+     */
+    val active: Boolean,
+) {
+    /**
+     * the segment boundaries in stable order, the vector the bar animates
+     */
+    val boundaries: List<Float>
+        get() = shares.map { it.boundary.toFloat() }
+
+    /**
+     * the transports with traffic in the window, stable order
+     */
+    val used: List<TransportShareUi>
+        get() = shares.filter { it.used }
+
+    /**
+     * the enabled transports without traffic in the window, stable order
+     */
+    val unused: List<TransportShareUi>
+        get() = shares.filter { it.enabled && !it.used }
+
+    companion object {
+        val Empty = TransportDistributionUi(shares = listOf(), byteCount = 0, active = false)
+
+        /**
+         * maps the sdk distribution, dropping transport types this app does
+         * not know (a newer sdk vocabulary)
+         */
+        fun fromSdk(distribution: TransportDistribution?): TransportDistributionUi {
+            if (distribution == null) {
+                return Empty
+            }
+            val shares = mutableListOf<TransportShareUi>()
+            val list = distribution.shares
+            if (list != null) {
+                val n = list.len()
+                for (i in 0 until n) {
+                    val share = list.get(i) ?: continue
+                    val transportType = TransportTypeUi.fromRawValue(share.transportType) ?: continue
+                    shares.add(
+                        TransportShareUi(
+                            transportType = transportType,
+                            egressBytes = share.egressByteCount,
+                            ingressBytes = share.ingressByteCount,
+                            egressPackets = share.egressPacketCount,
+                            ingressPackets = share.ingressPacketCount,
+                            share = share.share,
+                            boundary = share.boundary,
+                            percent = share.percent.toInt(),
+                            used = share.used,
+                            enabled = share.enabled,
+                        )
+                    )
+                }
+            }
+            return TransportDistributionUi(
+                shares = shares,
+                byteCount = distribution.byteCount,
+                active = distribution.active,
+            )
+        }
+    }
+}
+
+/**
  * Wraps the sdk contract view controller and publishes the live
  * client and provider throughput series
  */
@@ -82,6 +202,16 @@ class ThroughputViewModel @Inject constructor(
         private set
 
     var providerPoints by mutableStateOf<List<ThroughputPointUi>>(listOf())
+        private set
+
+    /**
+     * the remote traffic of the window partitioned by transport, ready to
+     * render (see `TransportDistributionUi`)
+     */
+    var clientTransportDistribution by mutableStateOf(TransportDistributionUi.Empty)
+        private set
+
+    var providerTransportDistribution by mutableStateOf(TransportDistributionUi.Empty)
         private set
 
     /**
@@ -121,6 +251,8 @@ class ThroughputViewModel @Inject constructor(
     private fun setupDevice(device: DeviceLocal?) {
         clientPoints = listOf()
         providerPoints = listOf()
+        clientTransportDistribution = TransportDistributionUi.Empty
+        providerTransportDistribution = TransportDistributionUi.Empty
         hasProviderStats = false
         controllerOwner.setDevice(device)
     }
@@ -133,6 +265,20 @@ class ThroughputViewModel @Inject constructor(
         subs.add(vc.addThroughputListener {
             viewModelScope.launch {
                 update()
+            }
+        })
+        // the distribution's enabled flags follow the device transport settings
+        // (the view controller caches them from these same listeners). Re-read
+        // the distributions on a policy change so the unused footer is right
+        // while the window is idle and no throughput tick is due.
+        subs.add(device.addTransportSettingsChangeListener {
+            viewModelScope.launch {
+                updateTransportDistributions()
+            }
+        })
+        subs.add(device.addProviderTransportSettingsChangeListener {
+            viewModelScope.launch {
+                updateTransportDistributions()
             }
         })
         vc.start()
@@ -155,7 +301,26 @@ class ThroughputViewModel @Inject constructor(
         val vc = contractVc ?: return
         clientPoints = mapPoints(vc.throughputPoints)
         providerPoints = mapPoints(vc.providerThroughputPoints)
+        updateTransportDistributions()
         hasProviderStats = vc.providerPacketStats != null
+    }
+
+    /**
+     * Publishes the window transport distributions from the same view
+     * controller snapshot as the points. The distribution is inactive while
+     * the window is idle; only a real change is published so an idle tick
+     * doesn't retrigger the bar.
+     */
+    private fun updateTransportDistributions() {
+        val vc = contractVc ?: return
+        val clientDistribution = TransportDistributionUi.fromSdk(vc.transportDistribution)
+        if (clientDistribution != clientTransportDistribution) {
+            clientTransportDistribution = clientDistribution
+        }
+        val providerDistribution = TransportDistributionUi.fromSdk(vc.providerTransportDistribution)
+        if (providerDistribution != providerTransportDistribution) {
+            providerTransportDistribution = providerDistribution
+        }
     }
 
     private fun mapPoints(list: ThroughputPointList?): List<ThroughputPointUi> {
