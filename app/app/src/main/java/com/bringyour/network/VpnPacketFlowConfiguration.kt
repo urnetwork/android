@@ -10,6 +10,13 @@ package com.bringyour.network
 internal data class VpnPacketFlowConfiguration(
     val offline: Boolean,
     val connected: Boolean,
+    // killSwitch = !device.routeLocal ("Allow local traffic when disconnected").
+    // When on, the tunnel must capture/block even without an exit: that is the
+    // feature, not a bug. connectRequested = device.connectEnabled: when the
+    // user wants their own traffic tunneled, never escape on a transient
+    // provider dip (intent does not flap; liveness does).
+    val killSwitch: Boolean,
+    val connectRequested: Boolean,
     val includedAppIds: Set<String>,
     val excludedAppIds: Set<String>,
     val dnsIpv4s: List<String>,
@@ -25,6 +32,42 @@ internal data class VpnPacketFlowConfiguration(
  */
 internal enum class VpnIpv6Policy {
     BLOCK_UNSUPPORTED,
+}
+
+/**
+ * Which routing policy to apply when building the VPN packet flow.
+ *
+ * ESCAPE keeps the tunnel technically up (so provide stays armed) but lets no
+ * real app see it: used when the device is offline OR when there is no live
+ * provider exit yet (connected == false). Failing closed on !connected stops
+ * other apps being captured into a tunnel that has no working egress, which
+ * blackholes their DNS and connectivity.
+ */
+internal enum class VpnPacketFlowMode {
+    ESCAPE,
+    PER_APP_ALLOWLIST,
+    DENYLIST,
+}
+
+/**
+ * Decides the routing mode from the tunnel config. Pure, so it is
+ * unit-testable without an Android runtime.
+ */
+internal fun vpnPacketFlowMode(
+    offline: Boolean,
+    connected: Boolean,
+    killSwitch: Boolean,
+    connectRequested: Boolean,
+    includedAppIds: Set<String>,
+): VpnPacketFlowMode = when {
+    offline -> VpnPacketFlowMode.ESCAPE
+    // Escape only when the tunnel is up PURELY for provide (no kill switch,
+    // no connect intent, no live exit). In every other not-connected case the
+    // user asked for capture (kill switch) or for their traffic to be held
+    // (connect): those must not escape, or they leak to the ISP in the clear.
+    !connected && !killSwitch && !connectRequested -> VpnPacketFlowMode.ESCAPE
+    includedAppIds.isNotEmpty() -> VpnPacketFlowMode.PER_APP_ALLOWLIST
+    else -> VpnPacketFlowMode.DENYLIST
 }
 
 internal fun vpnPacketFlowNeedsRebuild(
