@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants.AF_INET
+import android.system.OsConstants.AF_INET6
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bringyour.network.utils.sdkStringListToList
@@ -30,6 +31,13 @@ import kotlin.concurrent.thread
     companion object {
         const val NOTIFICATION_ID = 101
         const val NOTIFICATION_CHANNEL_ID = "URnetwork"
+        /**
+         * IPv4 used to establish the tunnel when the SDK has not handed back a
+         * tunnel address, so a tunnel is always built (fail-closed). TEST-NET-1
+         * (192.0.2.0/24) is reserved documentation space. With capture routes it
+         * is a blocking blackhole; with no routes (escape) it routes nothing.
+         */
+        const val ESCAPE_FALLBACK_ADDRESS = "192.0.2.1"
 
         fun defaultExcludedPackageNames(): List<String> {
             // TODO grass, spectrum, session, discord
@@ -85,6 +93,10 @@ import kotlin.concurrent.thread
 
     private var deviceOfflineSub: Sub? = null
     private var windowStatusChangeSub: Sub? = null
+    /** Rebuilds the TUN when the kill switch (routeLocal) toggles. */
+    private var routeLocalSub: Sub? = null
+    /** Rebuilds the TUN when a connect request starts or stops. */
+    private var connectChangeSub: Sub? = null
     private var blockActionOverridesSub: Sub? = null
     private var dnsResolverSettingsSub: Sub? = null
     private var connected: Boolean = false
@@ -250,6 +262,19 @@ import kotlin.concurrent.thread
                 if (boundDevice === currentDevice) reconcilePfd()
             }
         }
+        // killSwitch (routeLocal) and connectRequested (connectEnabled) are
+        // material inputs to vpnPacketFlowMode: toggling either must rebuild
+        // the TUN so the routing mode changes, not just the service start.
+        routeLocalSub = currentDevice.addRouteLocalChangeListener {
+            Handler(mainLooper).post {
+                if (boundDevice === currentDevice) reconcilePfd()
+            }
+        }
+        connectChangeSub = currentDevice.addConnectChangeListener {
+            Handler(mainLooper).post {
+                if (boundDevice === currentDevice) reconcilePfd()
+            }
+        }
         reconcilePfd()
     }
 
@@ -267,13 +292,19 @@ import kotlin.concurrent.thread
         val app = application as MainApplication
         val (includedAppIds, excludedAppIds) = tunnelAppSplit()
         val clientIpv4 = vpnTunnelIpv4Address(app.device?.tunnelLocalAddress())
+        // The tunnel binds this address (falling back to ESCAPE_FALLBACK_ADDRESS)
+        // in updatePfd, so the DNS self-collision filter must use the same bound
+        // address: a DNS entry equal to the bound address is locally terminated.
+        val boundIpv4 = clientIpv4 ?: ESCAPE_FALLBACK_ADDRESS
         val deviceDnsIpv4s = tunnelDnsServers()
         return VpnPacketFlowConfiguration(
             offline = offline,
             connected = connected,
+            killSwitch = app.device?.routeLocal == false,
+            connectRequested = app.device?.connectEnabled == true,
             includedAppIds = includedAppIds.toSet(),
             excludedAppIds = excludedAppIds.toSet(),
-            dnsIpv4s = vpnDnsServersForClient(clientIpv4, deviceDnsIpv4s, dnsIpv4s),
+            dnsIpv4s = vpnDnsServersForClient(boundIpv4, deviceDnsIpv4s, dnsIpv4s),
             clientIpv4 = clientIpv4,
         )
     }
@@ -317,59 +348,101 @@ import kotlin.concurrent.thread
         val tunnelExcludedAppIds = configuration.excludedAppIds
         val tunnelDnsIpv4s = configuration.dnsIpv4s
 
-        if (configuration.offline) {
-//            Log.i(TAG, "[io]OFFLINE")
-            // when offline, only allow traffic from a fake package name
-            // in this way, the vpn service remains active but no apps detect it as an interface
-            builder.addAllowedApplication("${packageName}.offline")
-        } else if (tunnelIncludedAppIds.isNotEmpty()) {
-            // per-app inclusions take precedence: allowlist mode, only the
-            // included apps use the tunnel. tunnelAppSplit sanitizes the VPN
-            // owner before this mode decision, so a stale self-only rule
-            // cannot create an empty Android UID set.
-            for (includedPackageName in tunnelIncludedAppIds) {
-                try {
-                    builder.addAllowedApplication(includedPackageName)
-                } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
+        // Routing mode is a pure decision so the fail-closed/escape path is
+        // unit-testable without an Android runtime. Named args avoid a silent
+        // positional swap of the two booleans. ESCAPE (offline, or up purely
+        // for provide with no live exit) keeps the tunnel established but adds
+        // no routes and no DNS, so Android points nothing at it: every app
+        // (including the tunnel owner) keeps its native network and DNS, and
+        // there is no dependence on an installed allow-listed package.
+        val mode = vpnPacketFlowMode(
+            offline = configuration.offline,
+            connected = configuration.connected,
+            killSwitch = configuration.killSwitch,
+            connectRequested = configuration.connectRequested,
+            includedAppIds = tunnelIncludedAppIds,
+        )
+        when (mode) {
+            VpnPacketFlowMode.ESCAPE -> {
+                // no app rules; the escape build below adds routes/DNS only for
+                // non-escape modes, so nothing is captured
+            }
+            VpnPacketFlowMode.PER_APP_ALLOWLIST -> {
+                    // per-app inclusions take precedence: allowlist mode, only
+                    // the included apps use the tunnel. tunnelAppSplit
+                    // sanitizes the VPN owner before this mode decision, so a
+                    // stale self-only rule cannot create an empty Android UID
+                    // set.
+                    for (includedPackageName in tunnelIncludedAppIds) {
+                        try {
+                            builder.addAllowedApplication(includedPackageName)
+                        } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
+                        }
+                    }
+                }
+                VpnPacketFlowMode.DENYLIST -> {
+                    // denylist mode: everything not the tunnel owner uses the
+                    // tunnel, except the default excluded apps and per-app
+                    // exclusions
+                    builder.addDisallowedApplication(packageName)
+                    for (excludedPackageName in defaultExcludedPackageNames() + tunnelExcludedAppIds) {
+                        try {
+                            builder.addDisallowedApplication(excludedPackageName)
+                        } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
+                        }
+                    }
                 }
             }
-        } else {
-            // denylist mode: everything uses the tunnel except this app,
-            // the default excluded apps, and the per-app exclusions
-            builder.addDisallowedApplication(packageName)
-            for (excludedPackageName in defaultExcludedPackageNames() + tunnelExcludedAppIds) {
-                try {
-                    builder.addDisallowedApplication(excludedPackageName)
-                } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
-                }
-            }
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)
         }
 
         when (configuration.ipv6Policy) {
             VpnIpv6Policy.BLOCK_UNSUPPORTED -> {
-                // Deliberately omit IPv6 address/route/DNS and allowFamily.
-                // Android blocks the unconfigured family while this IPv4-only
-                // VPN is active, matching the remote provider capability.
+                // For CAPTURE modes (allowlist/denylist): omit IPv6 entirely.
+                // Remote providers are IPv4-only, so the tunnel cannot forward
+                // IPv6; blocking the unconfigured family is correct there.
+                // The ESCAPE path below separately calls allowFamily(AF_INET6)
+                // so the phone's other apps keep their own IPv6 connectivity.
             }
         }
 
         val clientIpv4 = configuration.clientIpv4
-        if (clientIpv4 != null) {
+        val isEscape = mode == VpnPacketFlowMode.ESCAPE
+        // Always establish a tunnel, even when the SDK has not handed back a
+        // tunnel address. Without an address builder.establish() throws and
+        // the catch retains the previous interface, or with no prior interface
+        // leaves no TUN at all. For a kill-switch or connected state that
+        // fails OPEN (traffic to the ISP in the clear). Use a fixed
+        // documentation address (same class the always-on guard uses) as a
+        // fail-closed fallback: with capture routes it is a blocking blackhole;
+        // with no routes (escape) it routes nothing.
+        val tunnelAddress = clientIpv4 ?: ESCAPE_FALLBACK_ADDRESS
+        val ipv6Report = if (isEscape) "on" else "off"
+        if (isEscape) {
+            // Escaping: allow BOTH families. With no app rules every app is in
+            // scope, so without allowFamily(AF_INET6) the unconfigured IPv6
+            // family would be BLOCKED for every app (the exact bug this fix
+            // removes, on the v6 half). Address only, no routes, no DNS:
+            // Android routes nothing into it and every app keeps its native
+            // network and DNS.
             builder.allowFamily(AF_INET)
-            builder.addAddress(
-                clientIpv4,
-                clientIpv4PrefixLength
-            )
-            // DNS from the SDK device (see `tunnelDnsServers`). It must be a
-            // distinct address routed through the TUN: Android locally
-            // terminates packets addressed to clientIpv4 before PacketFlow can
-            // hand them to UpgradeMux.
-            for (dnsIpv4 in tunnelDnsIpv4s) {
-                builder.addDnsServer(dnsIpv4)
-            }
+            builder.allowFamily(AF_INET6)
+        } else {
+            builder.allowFamily(AF_INET)
+        }
+        builder.addAddress(
+            tunnelAddress,
+            clientIpv4PrefixLength
+        )
+            if (!isEscape) {
+                // DNS from the SDK device (see `tunnelDnsServers`). It must
+                // be a distinct address routed through the TUN: Android
+                // locally terminates packets addressed to clientIpv4 before
+                // PacketFlow can hand them to UpgradeMux.
+                for (dnsIpv4 in tunnelDnsIpv4s) {
+                    builder.addDnsServer(dnsIpv4)
+                }
             if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                 builder.addRoute("0.0.0.0", 0)
                 builder.excludeRoute(IpPrefix(InetAddress.getByName("10.0.0.0"), 8))
@@ -421,7 +494,7 @@ import kotlin.concurrent.thread
                 builder.addRoute("8.0.0.0", 7)
                 builder.addRoute("11.0.0.0", 8)
             }
-        }
+            }
         app.device?.let { device ->
             val pfd = try {
                 builder.establish()
@@ -453,7 +526,7 @@ import kotlin.concurrent.thread
                     "[service]tunnel applied offline=${configuration.offline} connected=${configuration.connected} " +
                         "included=${configuration.includedAppIds.size} excluded=${configuration.excludedAppIds.size} " +
                         "dns=${configuration.dnsIpv4s} address=${configuration.clientIpv4} " +
-                        "tunnelIpv6=off underlyingIpv6=blocked",
+                        "tunnelIpv6=${ipv6Report}",
                 )
                 if (app.service?.get() == this@MainService) {
                     device.tunnelStarted = true
@@ -544,6 +617,10 @@ import kotlin.concurrent.thread
         blockActionOverridesSub = null
         dnsResolverSettingsSub?.close()
         dnsResolverSettingsSub = null
+        routeLocalSub?.close()
+        routeLocalSub = null
+        connectChangeSub?.close()
+        connectChangeSub = null
         boundDevice = null
         if (closePacketFlow) {
             packetFlow?.close()
