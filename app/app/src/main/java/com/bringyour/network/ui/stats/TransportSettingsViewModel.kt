@@ -19,7 +19,7 @@ import com.bringyour.network.ui.theme.Blue600
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
-import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.Yellow400
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.sdk.DeviceLocal
@@ -27,6 +27,7 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.StringList
 import com.bringyour.sdk.Sub
 import com.bringyour.sdk.TransportSettings
+import com.bringyour.sdk.TransportStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -73,8 +74,11 @@ enum class TransportTypeUi(
     /** tunneled over dns with a constant-rate reply pump -- "whodis pump" */
     DNS_PUMP(Sdk.TransportTypeDnsPump, "whodis pump", null, R.string.transport_dnspump_description, Yellow400),
     P2P(Sdk.TransportTypeP2p, "P2P", null, null, Blue600),
-    /** admitted but not yet attributed to a physical carrier (queued) */
-    UNKNOWN(Sdk.TransportTypeUnknown, null, R.string.transport_queued, null, TextMuted);
+    /**
+     * admitted but not yet attributed to a physical carrier (queued); a dark
+     * neutral -- muted gray read too close to the pale H1 blue in the bar
+     */
+    UNKNOWN(Sdk.TransportTypeUnknown, null, R.string.transport_queued, null, TextFaint);
 
     /**
      * The display name. The dns carriers carry their product names, which are
@@ -110,9 +114,8 @@ enum class TransportTypeUi(
 
         /**
          * The carriers a transport mode can select, in the sdk's default
-         * preference order (h3 and h1 tie as the direct tier, then dns, then
-         * dns pump). This is the order every transport list in the app shows
-         * them in.
+         * preference order (h1, h3, dns, then dns pump). This is the order
+         * every transport list in the app shows them in.
          */
         val selectable: List<TransportTypeUi>
             get() = fromSdk(Sdk.selectableTransportModes())
@@ -202,6 +205,27 @@ class TransportSettingsUi(
     }
 }
 
+/** Runtime Auto capability reported by the process that owns the transport budget. */
+data class TransportRuntimeStatusUi(
+    val autoDegraded: Boolean,
+    val autoEligibleTransports: Set<TransportTypeUi>,
+    val autoConstraint: String,
+) {
+    fun isAutoEligible(transport: TransportTypeUi): Boolean {
+        return autoEligibleTransports.contains(transport)
+    }
+
+    companion object {
+        fun fromSdk(status: TransportStatus): TransportRuntimeStatusUi {
+            return TransportRuntimeStatusUi(
+                autoDegraded = status.autoDegraded,
+                autoEligibleTransports = TransportTypeUi.fromSdk(status.autoEligibleModes).toSet(),
+                autoConstraint = status.autoConstraint,
+            )
+        }
+    }
+}
+
 /**
  * Which device policy a transport settings surface edits: the client policy
  * (the carrier this device uses to reach providers) or the provider policy
@@ -261,6 +285,23 @@ class TransportSettingsViewModel @Inject constructor(
     var providerSettings by mutableStateOf<TransportSettingsUi?>(null)
         private set
 
+    var clientStatus by mutableStateOf<TransportRuntimeStatusUi?>(null)
+        private set
+
+    var providerStatus by mutableStateOf<TransportRuntimeStatusUi?>(null)
+        private set
+
+    // the applied policy each status was computed for. The device fires the
+    // paired settings event before its status event (and refresh() reads
+    // settings first), so the published settings at status arrival are the
+    // paired snapshot. The editor renders status decorations only while its
+    // draft equals this policy.
+    var clientStatusPolicy by mutableStateOf<TransportSettingsUi?>(null)
+        private set
+
+    var providerStatusPolicy by mutableStateOf<TransportSettingsUi?>(null)
+        private set
+
     init {
         processLifecycle.addObserver(this)
         subscriptionOwner.setForeground(
@@ -270,6 +311,10 @@ class TransportSettingsViewModel @Inject constructor(
             viewModelScope.launch {
                 clientSettings = null
                 providerSettings = null
+                clientStatus = null
+                providerStatus = null
+                clientStatusPolicy = null
+                providerStatusPolicy = null
                 subscriptionOwner.setDevice(device)
             }
         }
@@ -290,6 +335,20 @@ class TransportSettingsViewModel @Inject constructor(
         }
     }
 
+    fun status(kind: TransportSettingsKind): TransportRuntimeStatusUi? {
+        return when (kind) {
+            TransportSettingsKind.CLIENT -> clientStatus
+            TransportSettingsKind.PROVIDER -> providerStatus
+        }
+    }
+
+    fun statusPolicy(kind: TransportSettingsKind): TransportSettingsUi? {
+        return when (kind) {
+            TransportSettingsKind.CLIENT -> clientStatusPolicy
+            TransportSettingsKind.PROVIDER -> providerStatusPolicy
+        }
+    }
+
     private fun openDeviceSubscription(device: DeviceLocal) {
         subscribedDevice = device
         subs.add(device.addTransportSettingsChangeListener { sdkSettings ->
@@ -303,6 +362,20 @@ class TransportSettingsViewModel @Inject constructor(
             viewModelScope.launch {
                 if (subscribedDevice === device) {
                     publish(sdkSettings, TransportSettingsKind.PROVIDER)
+                }
+            }
+        })
+        subs.add(device.addTransportStatusChangeListener { sdkStatus ->
+            viewModelScope.launch {
+                if (subscribedDevice === device) {
+                    publish(sdkStatus, TransportSettingsKind.CLIENT)
+                }
+            }
+        })
+        subs.add(device.addProviderTransportStatusChangeListener { sdkStatus ->
+            viewModelScope.launch {
+                if (subscribedDevice === device) {
+                    publish(sdkStatus, TransportSettingsKind.PROVIDER)
                 }
             }
         })
@@ -323,6 +396,8 @@ class TransportSettingsViewModel @Inject constructor(
     private fun refresh(device: DeviceLocal) {
         publish(device.transportSettings, TransportSettingsKind.CLIENT)
         publish(device.providerTransportSettings, TransportSettingsKind.PROVIDER)
+        publish(device.transportStatus, TransportSettingsKind.CLIENT)
+        publish(device.providerTransportStatus, TransportSettingsKind.PROVIDER)
     }
 
     /**
@@ -343,6 +418,33 @@ class TransportSettingsViewModel @Inject constructor(
             TransportSettingsKind.PROVIDER -> {
                 if (settings != providerSettings) {
                     providerSettings = settings
+                }
+            }
+        }
+    }
+
+    private fun publish(sdkStatus: TransportStatus?, kind: TransportSettingsKind) {
+        if (sdkStatus == null) {
+            return
+        }
+        val status = TransportRuntimeStatusUi.fromSdk(sdkStatus)
+        // pair the status with the settings current at its arrival, also when
+        // the status value itself is unchanged (the policy it decorates moved)
+        when (kind) {
+            TransportSettingsKind.CLIENT -> {
+                if (status != clientStatus) {
+                    clientStatus = status
+                }
+                if (clientStatusPolicy != clientSettings) {
+                    clientStatusPolicy = clientSettings
+                }
+            }
+            TransportSettingsKind.PROVIDER -> {
+                if (status != providerStatus) {
+                    providerStatus = status
+                }
+                if (providerStatusPolicy != providerSettings) {
+                    providerStatusPolicy = providerSettings
                 }
             }
         }

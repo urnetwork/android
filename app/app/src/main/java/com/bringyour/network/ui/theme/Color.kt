@@ -68,7 +68,7 @@ val RedDark = Red900
 val Red = Red400
 val Yellow = Yellow200
 val Green = Green300
-val Amber = Color(0xFFF5C242)  // idle/none status (0 network peers)
+val Amber = Color(0xFFF5C242)  // idle/none status (0 network peers); runtime constraint warnings
 
 val MainBorderBase = Color(0x1FFFFFFF)
 

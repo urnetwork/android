@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URSwitch
+import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
@@ -86,6 +88,7 @@ fun TransportSettingsScreen(
     val defaultSettings = remember(kind) { kind.defaultSettings() }
 
     val currentSettings = transportSettingsViewModel.settings(kind)
+    val runtimeStatus = transportSettingsViewModel.status(kind)
     LaunchedEffect(currentSettings) {
         if (!edited) {
             val start = currentSettings ?: defaultSettings
@@ -100,6 +103,19 @@ fun TransportSettingsScreen(
         !transportSettingsEqual(currentDraft.sdk, currentOriginal.sdk)
     val isDefault = currentDraft != null &&
         transportSettingsEqual(currentDraft.sdk, defaultSettings.sdk)
+
+    // the runtime-status decorations for the current draft. Every display
+    // rule (Auto-only, the draft-equals-applied gate, enabled-and-ineligible
+    // rows, memory vs generic copy) is the pure predicate's.
+    val statusPresentation = if (currentDraft != null) {
+        TransportStatusPresentation.compute(
+            draft = currentDraft,
+            statusPolicy = transportSettingsViewModel.statusPolicy(kind),
+            status = runtimeStatus,
+        )
+    } else {
+        TransportStatusPresentation.hidden()
+    }
 
     // takes a fresh render snapshot after an edit of the sdk draft
     val refreshDraft = {
@@ -197,6 +213,35 @@ fun TransportSettingsScreen(
                  * Carriers enabled under auto, in the sdk preference order
                  */
                 if (currentDraft.isAuto) {
+                    if (statusPresentation.showBanner) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MainTintedBackgroundBase, RoundedCornerShape(12.dp))
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            Icon(
+                                Icons.Filled.Warning,
+                                contentDescription = null,
+                                tint = Amber,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                stringResource(
+                                    id = if (statusPresentation.memoryConstraint) {
+                                        R.string.transport_auto_degraded_memory
+                                    } else {
+                                        R.string.transport_auto_degraded
+                                    }
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White,
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                     SettingsGroup(title = stringResource(id = R.string.enabled_under_auto)) {
                         selectable.forEachIndexed { index, transport ->
                             if (0 < index) {
@@ -206,6 +251,7 @@ fun TransportSettingsScreen(
                             AutoToggleRow(
                                 transport = transport,
                                 checked = enabled,
+                                constrained = statusPresentation.constrainedTransports.contains(transport),
                                 // the last enabled carrier can't be turned off (the
                                 // sdk refuses the edit: an empty auto policy would
                                 // resolve to the full default), so show it disabled
@@ -329,6 +375,7 @@ private fun ModeRow(
 private fun AutoToggleRow(
     transport: TransportTypeUi,
     checked: Boolean,
+    constrained: Boolean,
     enabled: Boolean,
     toggle: () -> Unit,
 ) {
@@ -341,6 +388,17 @@ private fun AutoToggleRow(
             TransportLabel(transport, showsDetail = false)
         }
         Spacer(modifier = Modifier.width(12.dp))
+        if (constrained) {
+            // a runtime warning, not an editing restriction: the toggle stays
+            // editable
+            Icon(
+                Icons.Filled.Warning,
+                contentDescription = stringResource(id = R.string.transport_unavailable_system_constraints),
+                tint = Amber,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
         URSwitch(
             checked = checked,
             enabled = enabled,

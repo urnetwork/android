@@ -215,6 +215,9 @@ private fun LegendRow(shares: List<TransportShareUi>) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
+        // items in a line share one bottom edge, so the names sit on one
+        // common text baseline (every label is the same 11sp style)
+        itemVerticalAlignment = Alignment.Bottom,
     ) {
         for (share in shares) {
             AnimatedVisibility(
@@ -290,6 +293,8 @@ private fun UnusedRow(shares: List<TransportShareUi>) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
+        // the "unused" label and the names bottom-align on one common baseline
+        itemVerticalAlignment = Alignment.Bottom,
     ) {
         Text(
             stringResource(id = R.string.transport_unused),

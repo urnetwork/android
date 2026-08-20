@@ -290,7 +290,7 @@
     <string name="edit_referral_code">Edit referral code</string>
     <string name="edit_split_rule">Edit split rule</string>
     <string name="enabled_under_auto">Enabled under Auto</string>
-    <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
+    <string name="enabled_under_auto_footer">Listed in preference order: H1 first, then H3, whodis, and whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
     <string name="enter">Enter</string>
     <string name="enter_balance_code">Enter balance code</string>
@@ -599,6 +599,8 @@
     <string name="transfer_submitted">Transfer Submitted</string>
     <string name="transfer_submitted_details">Your transfer has been initiated and will complete once the transaction is processed on chain.</string>
     <string name="transport">Transport</string>
+    <string name="transport_auto_degraded">Auto is degraded because system constraints prevent some enabled transports from running.</string>
+    <string name="transport_auto_degraded_memory">Auto is degraded because system memory limits prevent some enabled transports from running.</string>
     <string name="transport_auto_description">Recommended. Uses the enabled transports below.</string>
     <string name="transport_client_footer">The transport this device uses to reach providers. Auto tries the enabled transports in preference order and keeps every healthy transport of the same tier connected in parallel.</string>
     <string name="transport_dns_description">Disguised as DNS traffic. For networks that filter direct connections.</string>
@@ -607,6 +609,7 @@
     <string name="transport_h3_description">Direct over QUIC. Fastest where it is not filtered.</string>
     <string name="transport_provider_footer">The transport this device uses while providing for others. Auto tries the enabled transports in preference order and keeps every healthy transport of the same tier connected in parallel.</string>
     <string name="transport_queued">queued</string>
+    <string name="transport_unavailable_system_constraints">Unavailable due to system constraints</string>
     <string name="transport_unused">unused</string>
     <string name="transports">Transports</string>
     <string name="trusted_by_private_networks">Trusted by over %1$s private networks</string>
