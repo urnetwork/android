@@ -290,7 +290,7 @@
     <string name="edit_referral_code">Edit referral code</string>
     <string name="edit_split_rule">Edit split rule</string>
     <string name="enabled_under_auto">Enabled under Auto</string>
-    <string name="enabled_under_auto_footer">Listed in preference order: H1 first, then H3, whodis, and whodis pump. The order is fixed. At least one transport stays enabled.</string>
+    <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
     <string name="enter">Enter</string>
     <string name="enter_balance_code">Enter balance code</string>
