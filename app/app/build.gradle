@@ -165,6 +165,14 @@ android {
         }
         buildConfigField "String", "URNETWORK_ACCEPTANCE_BUILD_ID", "\"${acceptanceBuildId}\""
 
+        // Optional diagnostic-only Go heap sampling density. Ordinary builds
+        // keep zero here and therefore retain Go's production default.
+        def memoryProfileRateBytes = (project.findProperty('urnetworkMemoryProfileRateBytes') ?: '0').toString()
+        if (!(memoryProfileRateBytes ==~ /[0-9]+/)) {
+            throw new GradleException('urnetworkMemoryProfileRateBytes must be a non-negative integer')
+        }
+        buildConfigField "long", "URNETWORK_MEMORY_PROFILE_RATE_BYTES", "${memoryProfileRateBytes}L"
+
         // see https://developer.android.com/build/shrink-code
         ndk {
             debugSymbolLevel 'SYMBOL_TABLE'

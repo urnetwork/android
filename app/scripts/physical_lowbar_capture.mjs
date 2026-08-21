@@ -8,7 +8,7 @@
 // and monotonically increasing interface counters as NDJSON.
 
 import { spawnSync } from "node:child_process";
-import { appendFileSync, chmodSync, writeFileSync } from "node:fs";
+import { appendFileSync, chmodSync, existsSync, writeFileSync } from "node:fs";
 import process from "node:process";
 import { setTimeout as sleep } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
@@ -41,9 +41,12 @@ export function parseArgs(argv) {
     intervalMs: 1_000,
     samples: 1,
     durationSeconds: undefined,
+    stopFile: undefined,
     output: undefined,
     requireCellular: false,
+    requireWifi: false,
     requireVpn: false,
+    requireNoVpn: false,
     requireUnmeteredVpn: false,
     requireIpv4OnlyVpn: false,
     requireUnplugged: false,
@@ -92,11 +95,20 @@ export function parseArgs(argv) {
       case "--output":
         options.output = next();
         break;
+      case "--stop-file":
+        options.stopFile = next();
+        break;
       case "--require-cellular":
         options.requireCellular = true;
         break;
+      case "--require-wifi":
+        options.requireWifi = true;
+        break;
       case "--require-vpn":
         options.requireVpn = true;
+        break;
+      case "--require-no-vpn":
+        options.requireNoVpn = true;
         break;
       case "--require-unmetered-vpn":
         options.requireVpn = true;
@@ -130,6 +142,12 @@ export function parseArgs(argv) {
   if (samplesExplicit && durationExplicit) {
     throw new Error("use either --samples or --duration-seconds, not both");
   }
+  if (options.requireCellular && options.requireWifi) {
+    throw new Error("use either --require-cellular or --require-wifi, not both");
+  }
+  if (options.requireVpn && options.requireNoVpn) {
+    throw new Error("use either --require-vpn or --require-no-vpn, not both");
+  }
   if (!options.packageName || !options.label) {
     throw new Error("package and label must not be empty");
   }
@@ -153,8 +171,11 @@ export function usage() {
     "  --samples COUNT             exact sample count (default 1)",
     "  --duration-seconds SECONDS  sample at t=0 through this duration",
     "  --output FILE               also write the NDJSON stream to FILE",
+    "  --stop-file FILE            finish cleanly once this host file exists",
     "  --require-cellular          invalidate samples without cellular underlay",
+    "  --require-wifi              invalidate samples without Wi-Fi underlay",
     "  --require-vpn               invalidate samples without an active VPN",
+    "  --require-no-vpn            invalidate samples with an active VPN",
     "  --require-unmetered-vpn     require VPN and Android NOT_METERED",
     "  --require-ipv4-only-vpn     require VPN to advertise IPv4 but not IPv6",
     "  --max-signal-level 0..4     invalidate samples above this Android level",
@@ -342,7 +363,23 @@ export function parseConnectivity(text) {
     .filter((line) => line.includes("NetworkAgentInfo{network{"))
     .map((line) => parseNetworkLine(line, activeNetworkId))
     .filter(Boolean);
-  const activeNetwork = networks.find((network) => network.active) ?? null;
+  const systemDefaultNetwork = networks.find((network) => network.active) ?? null;
+  const connectedVpnNetworks = networks.filter(
+    (network) => network.connected && network.transports.includes("VPN"),
+  );
+  // `dumpsys connectivity` reports the shell UID's global default network.
+  // On current physical Android releases that remains Wi-Fi/cellular while a
+  // per-app VpnService is connected and routing Chrome. When exactly one VPN
+  // is present, it is the unambiguous measured network even if the shell's
+  // `Active default network` marker points at its physical underlay.
+  const measuredNetwork = systemDefaultNetwork?.transports.includes("VPN")
+    ? systemDefaultNetwork
+    : connectedVpnNetworks.length === 1
+      ? connectedVpnNetworks[0]
+      : systemDefaultNetwork;
+  const activeNetwork = measuredNetwork === null
+    ? null
+    : { ...measuredNetwork, active: true };
   let underlayNetworks = [];
   if (activeNetwork) {
     if (!activeNetwork.transports.includes("VPN")) {
@@ -479,9 +516,15 @@ export function evaluateEligibility(sample, requirements) {
   if (requirements.requireCellular && !underlayTransports.has("CELLULAR")) {
     reasons.push("cellular-underlay-required");
   }
+  if (requirements.requireWifi && !underlayTransports.has("WIFI")) {
+    reasons.push("wifi-underlay-required");
+  }
   const vpnActive = active?.transports?.includes("VPN") ?? false;
   if (requirements.requireVpn && !vpnActive) {
     reasons.push("active-vpn-required");
+  }
+  if (requirements.requireNoVpn && vpnActive) {
+    reasons.push("active-vpn-forbidden");
   }
   if (requirements.requireUnmeteredVpn && vpnActive && active.metered !== false) {
     reasons.push("vpn-is-metered-or-unknown");
@@ -725,7 +768,9 @@ export async function runCapture(options) {
     package: packageInfo,
     requirements: {
       requireCellular: options.requireCellular,
+      requireWifi: options.requireWifi,
       requireVpn: options.requireVpn,
+      requireNoVpn: options.requireNoVpn,
       requireUnmeteredVpn: options.requireUnmeteredVpn,
       requireIpv4OnlyVpn: options.requireIpv4OnlyVpn,
       requireUnplugged: options.requireUnplugged,
@@ -738,6 +783,7 @@ export async function runCapture(options) {
   const samples = [];
   const monotonicStart = performance.now();
   for (let index = 0; index < options.samples; index += 1) {
+    if (index > 0 && options.stopFile && existsSync(options.stopFile)) break;
     const target = monotonicStart + index * options.intervalMs;
     const waitMs = target - performance.now();
     if (waitMs > 0) await sleep(waitMs);

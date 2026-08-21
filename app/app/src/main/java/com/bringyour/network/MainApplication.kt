@@ -38,6 +38,10 @@ import kotlin.math.min
 class MainApplication : Application() {
     private companion object {
         const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
+        // Match the iOS packet-tunnel process budget so Android physical runs
+        // expose the same SDK pressure/failure boundary. DeviceManager already
+        // passes the matching iOS per-device target (20 MiB).
+        const val SDK_PROCESS_MEMORY_LIMIT_MIB = 32L
     }
 
     // The initial device name defaults to the human model name — e.g.
@@ -208,13 +212,20 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        if (0 < BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES) {
+            // Diagnostic profile builds opt in explicitly. Set this before
+            // any SDK setup because Go profile weights assume one process-wide
+            // rate; ordinary acceptance and production builds leave it alone.
+            Sdk.setMemoryProfileRate(BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES)
+        }
+
         val path: String = applicationContext.filesDir.absolutePath
         Sdk.setLogDir(path)
 
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
         val maxMemoryMib = activityManager?.memoryClass?.toLong() ?: 32
-        // target 3/4 of the max memory for the sdk
-        val sdkMemoryMib = min((3 * maxMemoryMib) / 4, 64)
+        // Target 3/4 of the app heap, capped to the iOS packet-tunnel budget.
+        val sdkMemoryMib = min((3 * maxMemoryMib) / 4, SDK_PROCESS_MEMORY_LIMIT_MIB)
         Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
 
         // Nothing removes location test providers when a process dies — not a

@@ -29,6 +29,7 @@ test("parseArgs resolves strict physical low-bar requirements", () => {
     "--serial", "device",
     "--duration-seconds", "2",
     "--interval-ms", "500",
+    "--stop-file", "/tmp/physical-lowbar.stop",
     "--require-cellular",
     "--require-unmetered-vpn",
     "--require-ipv4-only-vpn",
@@ -36,11 +37,21 @@ test("parseArgs resolves strict physical low-bar requirements", () => {
     "--max-signal-level", "1",
   ]);
   assert.equal(options.samples, 5);
+  assert.equal(options.stopFile, "/tmp/physical-lowbar.stop");
   assert.equal(options.requireVpn, true);
+  assert.equal(options.requireWifi, false);
   assert.equal(options.requireUnmeteredVpn, true);
   assert.equal(options.maxSignalLevel, 1);
   assert.throws(
     () => parseArgs(["--samples", "2", "--duration-seconds", "5"]),
+    /either/,
+  );
+  assert.throws(
+    () => parseArgs(["--require-cellular", "--require-wifi"]),
+    /either/,
+  );
+  assert.throws(
+    () => parseArgs(["--require-vpn", "--require-no-vpn"]),
     /either/,
   );
 });
@@ -86,6 +97,19 @@ test("connectivity parser emits a sanitized VPN and cellular underlay", () => {
   assert.equal(network.underlayNetworks[0].interfaceName, "rmnet_data0");
   assert.equal(network.underlayNetworks[0].metered, true);
   assert.equal(JSON.stringify(network).includes("private-apn"), false);
+  assert.equal(JSON.stringify(network).includes("192.0.0.2"), false);
+});
+
+test("connectivity parser selects one app VPN when the shell default is physical", () => {
+  const text = `Active default network: 100
+  NetworkAgentInfo{network{200} ni{VPN CONNECTED} lp{{InterfaceName: tun0 LinkAddresses: [ 10.0.0.2/32 ] MTU: 1100}} nc{[ Transports: VPN Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_METERED&VALIDATED&NOT_BANDWIDTH_CONSTRAINED UnderlyingNetworks: [100]]}}
+  NetworkAgentInfo{network{100} ni{WIFI CONNECTED extra: private-ssid} lp{{InterfaceName: wlan0 LinkAddresses: [ 192.0.0.2/24,2001:db8::2/64 ] MTU: 1500}} nc{[ Transports: WIFI Capabilities: INTERNET&VALIDATED&NOT_VPN&NOT_METERED&NOT_ROAMING&NOT_BANDWIDTH_CONSTRAINED UnderlyingNetworks: Null]}}`;
+  const network = parseConnectivity(text);
+  assert.deepEqual(network.activeNetwork.transports, ["VPN"]);
+  assert.equal(network.activeNetwork.active, true);
+  assert.deepEqual(network.activeNetwork.addressFamilies, ["ipv4"]);
+  assert.deepEqual(network.underlayNetworks[0].transports, ["WIFI"]);
+  assert.equal(JSON.stringify(network).includes("private-ssid"), false);
   assert.equal(JSON.stringify(network).includes("192.0.0.2"), false);
 });
 
@@ -202,6 +226,40 @@ test("eligibility rejects strong, metered, dual-stack, powered samples", () => {
       "signal-level-above-limit",
       "external-power-connected",
     ],
+  });
+});
+
+test("eligibility enforces a Wi-Fi underlay independently of VPN state", () => {
+  const sample = {
+    network: {
+      activeNetwork: { transports: ["VPN"], addressFamilies: ["ipv4"] },
+      underlayNetworks: [{ transports: ["CELLULAR"] }],
+    },
+    telemetryErrors: [],
+  };
+  assert.deepEqual(evaluateEligibility(sample, {
+    requireWifi: true,
+    requireVpn: true,
+  }), {
+    eligible: false,
+    reasons: ["wifi-underlay-required"],
+  });
+});
+
+test("eligibility rejects an active VPN for a Direct control", () => {
+  const sample = {
+    network: {
+      activeNetwork: { transports: ["VPN"], addressFamilies: ["ipv4"] },
+      underlayNetworks: [{ transports: ["WIFI"] }],
+    },
+    telemetryErrors: [],
+  };
+  assert.deepEqual(evaluateEligibility(sample, {
+    requireWifi: true,
+    requireNoVpn: true,
+  }), {
+    eligible: false,
+    reasons: ["active-vpn-forbidden"],
   });
 });
 
