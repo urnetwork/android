@@ -69,7 +69,9 @@ jobs:
   sdk-aar:
     name: SDK (gomobile .aar)
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # Bounded well under GitHub's 6h default so a stalled network fetch fails in
+    # minutes rather than burning the afternoon. Observed: ~3.5 min.
+    timeout-minutes: 45
     env:
       # setup-go pins 1.26.5 below, but a `go` directive anywhere in the graph
       # could still make the toolchain silently self-upgrade to 1.27 and
@@ -186,7 +188,8 @@ jobs:
     name: Unit tests + app build
     needs: sdk-aar
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Same reasoning as sdk-aar. Observed: ~7 min.
+    timeout-minutes: 40
     env:
       # app/app/build.gradle reads the .aar from
       # "${bringyourHomeDir}/sdk/build/android", where bringyourHomeDir is
