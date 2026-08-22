@@ -1,0 +1,300 @@
+# Build and test the Android app on every push and pull request.
+#
+# THIS WORKFLOW DOES NOT RELEASE ANYTHING. No release keystore, no vault, no
+# store upload -- a gate, not a pipeline. See "what this deliberately skips"
+# at the bottom of this comment.
+#
+# Two jobs, because they fail for completely different reasons:
+#
+#   sdk-aar  The Go half. This repo has NO source of its own for the SDK; its
+#            only dependency on it is
+#              implementation fileTree(dir: "${bringyourHomeDir}/sdk/build/android",
+#                                      include: ['*.aar', '*.jar'])
+#            (app/app/build.gradle), and nothing is published to download. So
+#            gomobile has to run here or NOTHING in the app compiles -- over a
+#            hundred files import com.bringyour.sdk, including the sources the
+#            unit tests pull in. This is the same build/all/android/setup.sh
+#            does locally, and the same shape urnetwork/linux's build-sdk job
+#            uses for the cgo variant.
+#
+#   gradle   The Kotlin half -- the JVM unit tests, the debug APK, and a
+#            compile check of each shipping flavor's release variant.
+#
+# What this deliberately skips, and why:
+#   - assemble*Release / bundle*Release. Every release signingConfig resolves
+#     ${WARP_HOME}/release/android/signing/app.jks, which is not in this repo
+#     and is a real secret. The release variants get compile*ReleaseKotlin
+#     instead, which never schedules a packaging or validateSigning task.
+#   - The instrumented suite (app/app/src/androidTest, driven by test-main.sh).
+#     It needs an emulator AND a live account fixture from
+#     vault/main/test-acceptance.yml.
+#   - The localizations sync (build.sh's `npm run gen:android`). The generated
+#     res/values*/strings.xml are committed, so CI does not need the sibling
+#     store -- it just will not catch key drift, which the release pipeline
+#     regenerates and would.
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# This workflow is expensive (the gomobile bind dominates), so a busy branch
+# keeps one run at a time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # app/app/build.gradle pins `ndkVersion '29.0.14206865'`, and
+  # build/all/android/setup.sh installs exactly this one. The runner image does
+  # not carry it, and both jobs need it: the SDK build finds llvm-objcopy under
+  # it, and AGP strips the .aar's native libraries with it.
+  UR_ANDROID_NDK: "29.0.14206865"
+  # compileSdk/targetSdk are 36 (app/app/build.gradle).
+  UR_ANDROID_PLATFORM: "36"
+  UR_ANDROID_BUILD_TOOLS: "36.0.0"
+  # versionName/versionCode are read from app/local.properties, which is
+  # git-ignored. Absent, the build shells out to warpctl and dies at
+  # CONFIGURATION time. These values only name the archive; nothing ships.
+  UR_CI_VERSION: "0.0.0-ci"
+  UR_CI_VERSION_CODE: "1"
+
+jobs:
+  sdk-aar:
+    name: SDK (gomobile .aar)
+    runs-on: ubuntu-latest
+    # Bounded well under GitHub's 6h default so a stalled network fetch fails in
+    # minutes rather than burning the afternoon. Observed: ~3.5 min.
+    timeout-minutes: 45
+    env:
+      # setup-go pins 1.26.5 below, but a `go` directive anywhere in the graph
+      # could still make the toolchain silently self-upgrade to 1.27 and
+      # re-break the bind. `local` turns that into a loud, obvious failure.
+      GOTOOLCHAIN: local
+    steps:
+      # This repository is ~700 MB, most of it design art under res/ that the
+      # gradle build never reads. checkout's DEFAULT fetch-depth of 1 is what
+      # keeps that off the runner -- do not set fetch-depth: 0 in either job.
+      - name: Check out the Android app
+        uses: actions/checkout@v4
+        with:
+          path: android
+
+      - name: Check out the SDK
+        uses: actions/checkout@v4
+        with:
+          repository: urnetwork/sdk
+          ref: main
+          path: sdk
+
+      # sdk/build/go.mod resolves these with `replace ... => ../../<name>` (and
+      # sdk/go.mod with `replace ... => ../<name>`), so they must sit as
+      # siblings of the sdk checkout. The directory names must match the
+      # replace targets exactly -- `connect`, not whatever a fork is named.
+      # glog's default branch is master, so it is cloned without --branch.
+      - name: Check out the sibling modules
+        run: |
+          git clone --depth 1 --branch main https://github.com/urnetwork/connect.git connect
+          git clone --depth 1 https://github.com/urnetwork/glog.git glog
+          git clone --depth 1 https://github.com/urnetwork/goidenticons.git goidenticons
+
+      # The sdk references RenderPngV2. goidenticons publishes it today, and an
+      # unconditional shim is a REDECLARATION that fails the build. Write it
+      # only when the symbol is genuinely absent, so this works against either
+      # version of the dependency. Same guard as urnetwork/windows.
+      - name: Shim goidenticons RenderPngV2 if unpublished
+        run: |
+          if grep -qR '^func RenderPngV2(' goidenticons/; then
+            echo "goidenticons publishes RenderPngV2 -- no shim needed"
+          else
+            echo "goidenticons lacks RenderPngV2 -- shimming to RenderPng"
+            echo 'package goidenticons' > goidenticons/render_v2_ci_shim.go
+            echo 'func RenderPngV2(data []byte, size int) ([]byte, error) { return RenderPng(data, size) }' >> goidenticons/render_v2_ci_shim.go
+          fi
+
+      # NOT `go-version: stable`, which the sdk/connect workflows use. Stable is
+      # 1.27 now, and sdk/build/Makefile says so itself in the build_android
+      # recipe: "gomobile/gobind must be built with go <= 1.26 -- the go 1.27
+      # runtime fatals when this GODEBUG is set", GODEBUG=gotypesalias=0 being
+      # exactly what that recipe exports. sdk/build/go.mod pins 1.26.5.
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: sdk/build/go.mod
+          cache-dependency-path: sdk/build/go.sum
+
+      # gomobile bind generates and compiles the Java half of the binding, and
+      # the build_android recipe then repacks the .aar with `jar cvf`. Both
+      # need a JDK. Pin the same one the gradle job uses rather than inheriting
+      # whatever the runner image defaults to.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # The recipe locates llvm-objcopy under ANDROID_NDK_HOME and `test -n`s
+      # it, so it fails immediately without the NDK. Licenses are accepted
+      # first, the same way build/all/android/setup.sh does it -- the runner
+      # image ships them pre-accepted, but matching the repo removes a flake.
+      - name: Install the pinned Android NDK
+        run: |
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | timeout 300 "$sdkmanager" --licenses >/dev/null || true
+          "$sdkmanager" --install "ndk;$UR_ANDROID_NDK"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$UR_ANDROID_NDK" >> "$GITHUB_ENV"
+
+      # init_tools, NOT init. `make init` ends with `go clean -cache && go clean
+      # -modcache`, which throws away everything setup-go just restored, and it
+      # `go get`s x/mobile/bind (already pinned as an indirect require in
+      # build/go.mod at the same GOMOBILE_VERSION). init_tools installs the
+      # pinned gomobile/gobind/checksec and stops -- checksec is not optional,
+      # build_android runs it over every .so. This is the split the Makefile
+      # documents and the split :app:buildSdkAcceptance relies on.
+      - name: Install the pinned gomobile toolchain
+        working-directory: sdk/build
+        run: make init_tools
+
+      - name: Build the Android SDK .aar
+        working-directory: sdk/build
+        env:
+          WARP_VERSION: ${{ env.UR_CI_VERSION }}
+        run: make build_android
+
+      # build_android already gates on gobind's "// skipped" output, so a
+      # binding that silently stopped exporting a type fails inside make.
+      # Assert the artifacts anyway -- they are the contract with the next job.
+      - name: Assert the .aar actually built
+        run: |
+          for f in sdk/build/android/URnetworkSdk.aar sdk/build/android/URnetworkSdk-sources.jar; do
+            [ -s "$f" ] || { echo "::error::$f is missing or empty"; exit 1; }
+          done
+          ls -la sdk/build/android
+
+      - name: Upload the .aar
+        uses: actions/upload-artifact@v4
+        with:
+          name: urnetwork-sdk-android
+          path: sdk/build/android
+          if-no-files-found: error
+
+  gradle:
+    name: Unit tests + app build
+    needs: sdk-aar
+    runs-on: ubuntu-latest
+    # Same reasoning as sdk-aar. Observed: ~7 min.
+    timeout-minutes: 40
+    env:
+      # app/app/build.gradle reads the .aar from
+      # "${bringyourHomeDir}/sdk/build/android", where bringyourHomeDir is
+      # $BRINGYOUR_HOME or, unset, rootDir/../.. . Setting it explicitly is what
+      # test-main.sh does too, and it keeps the contract from depending on how
+      # deep the checkout happens to sit.
+      BRINGYOUR_HOME: ${{ github.workspace }}
+    steps:
+      - name: Check out the Android app
+        uses: actions/checkout@v4
+        with:
+          path: android
+
+      - name: Download the SDK .aar
+        uses: actions/download-artifact@v4
+        with:
+          name: urnetwork-sdk-android
+          path: sdk/build/android
+
+      # The project sets a Java 21 toolchain and JvmTarget.JVM_21, and
+      # build/all/run.sh refuses to build unless `java -version` is 21.0.x.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The .aar carries native libraries, so packaging the debug APK runs
+      # AGP's strip step, which resolves the NDK named by `ndkVersion`. Install
+      # it (and the pinned platform/build-tools) explicitly rather than letting
+      # AGP silently download whatever it decides it wants mid-build.
+      - name: Install the pinned Android SDK components
+        run: |
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | timeout 300 "$sdkmanager" --licenses >/dev/null || true
+          "$sdkmanager" --install \
+            "ndk;$UR_ANDROID_NDK" \
+            "platforms;android-$UR_ANDROID_PLATFORM" \
+            "build-tools;$UR_ANDROID_BUILD_TOOLS"
+
+      # local.properties is git-ignored, and versionName/versionCode are read
+      # from it AT CONFIGURATION TIME. Without it the build shells out to
+      # warp/warpctl/build/<os>/<arch>/warpctl, which does not exist here, and
+      # every task fails before it starts -- with an opaque IOException, not a
+      # message naming the cause. BUNDLER_RPC_URL and WALLETCONNECT_PROJECT_ID
+      # are deliberately left out: build.gradle defaults both to "" with a
+      # warning, and neither is needed to compile or to run the unit tests.
+      - name: Write the CI local.properties
+        run: |
+          printf 'warp.version=%s\nwarp.version_code=%s\n' \
+            "$UR_CI_VERSION" "$UR_CI_VERSION_CODE" > android/app/local.properties
+          cat android/app/local.properties
+
+      # The debug build type signs with signingConfigs.debug, whose storeFile is
+      # the standard ~/.android/debug.keystore with the published
+      # android/androiddebugkey constants. AGP normally creates it on demand;
+      # doing it here makes the debug APK's one signing input explicit and
+      # independent of that behaviour. It is not a secret and nothing signed
+      # with it ships.
+      - name: Generate the Android debug keystore
+        run: |
+          mkdir -p "$HOME/.android"
+          if [ ! -f "$HOME/.android/debug.keystore" ]; then
+            keytool -genkeypair -v \
+              -keystore "$HOME/.android/debug.keystore" \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      # testGithubDebugUnitTest is the real JVM suite -- 19 test classes under
+      # app/app/src/test/java/com/bringyour/network, on junit 4.13.2, that the
+      # release pipeline never runs (build/all/run.sh only assembles and
+      # bundles). Reaching them also drags in aapt2 resource processing,
+      # manifest merging and kapt/Hilt, so those break here too.
+      #
+      # assembleGithubDebug is the only step that proves the app still
+      # packages. `splits { abi }` with universalApk means it produces three
+      # APKs, and it is the slowest step here -- it is the first thing to drop
+      # if this job needs to get cheaper.
+      #
+      # The other three flavors get compile*ReleaseKotlin rather than an
+      # assemble, for the signing reason at the top of this file. It is not a
+      # token check: each flavor adds its own java srcDir (src/ungoogle,
+      # src/google, src/solana_dapp, src/ethos_dapp), so this is the only thing
+      # that compiles those sources at all. build.sh uses the same
+      # compileGithubReleaseKotlin idiom for the flavor it cannot assemble.
+      - name: Build and test
+        working-directory: android/app
+        run: |
+          ./gradlew --no-daemon \
+            :app:testGithubDebugUnitTest \
+            :app:assembleGithubDebug \
+            :app:compileGithubReleaseKotlin \
+            :app:compilePlayReleaseKotlin \
+            :app:compileSolana_dappReleaseKotlin \
+            :app:compileEthos_dappReleaseKotlin
+
+      - name: Upload the unit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: android/app/app/build/reports/tests
+          if-no-files-found: warn
