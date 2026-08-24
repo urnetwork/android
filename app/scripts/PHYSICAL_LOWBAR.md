@@ -94,14 +94,15 @@ before/after values, aggregate mobile packet-pressure drops, primitive
 client/flow topology, platform transport-budget use, Android PSS, Java/native
 heaps, threads, descriptors, route state, and aggregate carrier counters. The
 steady streamline signal is `goRuntimeBytes`:
-five quiet connected minutes should have p50 and p95 at or below 20 MiB. Keep
+five quiet connected minutes after burst ownership drains should have p50 and
+p95 at or below 24 MiB. Keep
 the active peak and time-to-recover separate, and investigate every sample over
 the 28-MiB active diagnostic threshold. Neither threshold is Android whole-app
 PSS or an iOS Network Extension `phys_footprint` ceiling.
 
 Ordinary Android and Apple SDK libraries start the Go runtime with
-`memprofilerate=0`. Android and iOS also use the same `GOGC=10` pacing for the
-20-MiB campaign; a looser Android heap float is not a valid surrogate for the
+`memprofilerate=0`. Android and iOS also use the same `GOGC=25` pacing for the
+24-MiB campaign; a looser Android heap float is not a valid surrogate for the
 iOS Network Extension. A private diagnostic build can opt in before native
 runtime initialization with `-PurnetworkMemoryProfileRateBytes=65536`; the
 Gradle value is passed to both the AAR linker and the diagnostic app API.
@@ -115,10 +116,15 @@ mobile reclaimer waits for payload quiet and bounded outstanding ownership,
 then performs at most one pass per cooldown; use its deferred, below-target,
 cooldown, and before/after counters to distinguish policy from a leak.
 `packetPressureDropCount` is a cumulative overload counter, not a pool leak:
-the <=20-MiB mobile profile samples packet-root ownership every fourth ingress
+the <=24-MiB mobile profile samples packet-root ownership every fourth ingress
 call below pressure, rejects a complete native ingress batch at 512 or more
 roots, and samples every call until ownership drains. Rejected batch ownership
 is returned immediately; TCP retransmission/backpressure provides recovery.
+The accepted performance profile keeps the H3-safe 16-message sequence and
+16-packet/24-KiB group ceilings, fixes Auto quality/speed windows at 4/1, and
+retains a 512-KiB packet warm set after reclaim. Do not raise the aggregate
+gate or double the per-flow/group ceilings without repeating the explicit-H3
+28-MiB failure test; both experiments breached it on the physical surrogate.
 Server/default devices do not instantiate this gate. The same mobile profile
 retires inactive TCP flow state after three minutes so a closed browser burst
 does not preserve the desktop ten-minute graph throughout the five-minute

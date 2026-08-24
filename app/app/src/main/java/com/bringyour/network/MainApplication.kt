@@ -40,7 +40,7 @@ class MainApplication : Application() {
         const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
         // Match the iOS packet-tunnel process budget so Android physical runs
         // expose the same SDK pressure/failure boundary. DeviceManager already
-        // passes the matching iOS per-device target (20 MiB).
+        // passes the matching iOS per-device steady target (24 MiB).
         const val SDK_PROCESS_MEMORY_LIMIT_MIB = 32L
     }
 

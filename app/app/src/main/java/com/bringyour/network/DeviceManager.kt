@@ -22,7 +22,7 @@ class DeviceManager @Inject constructor(
         // provider share backing the client pair while providing is off. The
         // process-level Sdk.setMemoryLimit (MainApplication) sizes the
         // shared message pools and go soft limit separately.
-        const val DEVICE_MEMORY_TARGET_BYTE_COUNT = 20L * 1024 * 1024
+        const val DEVICE_MEMORY_TARGET_BYTE_COUNT = 24L * 1024 * 1024
     }
 
     private val deviceLock = Any()
