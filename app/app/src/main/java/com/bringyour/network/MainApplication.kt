@@ -213,9 +213,9 @@ class MainApplication : Application() {
         super.onCreate()
 
         if (0 < BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES) {
-            // Diagnostic profile builds opt in explicitly. Set this before
-            // any SDK setup because Go profile weights assume one process-wide
-            // rate; ordinary acceptance and production builds leave it alone.
+            // Diagnostic profile AARs are linked with this same startup rate;
+            // repeat it here before the workload to make the app/build contract
+            // explicit. Production AARs start at zero before libgojni loads.
             Sdk.setMemoryProfileRate(BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES)
         }
 

@@ -36,6 +36,15 @@ def warpHomeDir = System.getenv('WARP_HOME') ?:
 def bringyourHomeDir = System.getenv('BRINGYOUR_HOME') ?:
         file("${rootDir.absolutePath}/../..").absolutePath
 
+// This value configures both the native Go runtime at link time and the
+// diagnostic app API. Production uses zero; private heap-profile artifacts
+// must opt in before libgojni initializes or startup profiling buckets remain.
+def urnetworkMemoryProfileRateBytes =
+        (project.findProperty('urnetworkMemoryProfileRateBytes') ?: '0').toString()
+if (!(urnetworkMemoryProfileRateBytes ==~ /[0-9]+/)) {
+    throw new GradleException('urnetworkMemoryProfileRateBytes must be a non-negative integer')
+}
+
 ext.signingSecret = { key ->
     def signingPropertiesFile = file("${warpHomeDir}/release/android/signing/app.properties")
     if (signingPropertiesFile.exists()) {
@@ -165,13 +174,9 @@ android {
         }
         buildConfigField "String", "URNETWORK_ACCEPTANCE_BUILD_ID", "\"${acceptanceBuildId}\""
 
-        // Optional diagnostic-only Go heap sampling density. Ordinary builds
-        // keep zero here and therefore retain Go's production default.
-        def memoryProfileRateBytes = (project.findProperty('urnetworkMemoryProfileRateBytes') ?: '0').toString()
-        if (!(memoryProfileRateBytes ==~ /[0-9]+/)) {
-            throw new GradleException('urnetworkMemoryProfileRateBytes must be a non-negative integer')
-        }
-        buildConfigField "long", "URNETWORK_MEMORY_PROFILE_RATE_BYTES", "${memoryProfileRateBytes}L"
+        // Optional diagnostic-only Go heap sampling density. Ordinary release
+        // AARs start with profiling disabled at native-runtime initialization.
+        buildConfigField "long", "URNETWORK_MEMORY_PROFILE_RATE_BYTES", "${urnetworkMemoryProfileRateBytes}L"
 
         // see https://developer.android.com/build/shrink-code
         ndk {
@@ -451,6 +456,7 @@ android {
         commandLine 'make', 'init', 'build_android'
         environment 'WARP_VERSION', "${appVersion()}+${appVersionCode()}"
         environment 'ANDROID_NDK_HOME', android.ndkDirectory
+        environment 'MOBILE_MEMORY_PROFILE_RATE', urnetworkMemoryProfileRateBytes
     }
 
     // Acceptance setup installs the pinned gomobile/checksec tools first. Keep
@@ -460,6 +466,7 @@ android {
         commandLine 'make', 'build_android'
         environment 'WARP_VERSION', "${appVersion()}+${appVersionCode()}"
         environment 'ANDROID_NDK_HOME', android.ndkDirectory
+        environment 'MOBILE_MEMORY_PROFILE_RATE', urnetworkMemoryProfileRateBytes
     }
 
     tasks.register('goclientBuild') {

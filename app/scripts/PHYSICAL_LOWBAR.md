@@ -73,9 +73,12 @@ and replace that browser process during startup.
 For memory work, build the app and Android-test APK with a unique
 `-PurnetworkAcceptanceBuildId=LABEL` and run
 `PhysicalLowbarSessionTest` with the same `acceptanceBuildId` instrumentation
-argument. The test keeps one authenticated process alive, samples every second,
-and accepts private `ID|VERB|ARG` commands through its app-data acceptance
-directory. Useful verbs are `phase`, `connect` (`h1`, `h3`, or `auto`),
+argument. The test keeps one authenticated process alive and drains the SDK's
+fixed primitive ring every five seconds. The Go sampler records every 15
+seconds without constructing gomobile exit/status/list graphs; the faster host
+drain only publishes newly available records. The test accepts private
+`ID|VERB|ARG` commands through its app-data acceptance directory. Useful verbs
+are `phase`, `connect` (`h1`, `h3`, or `auto`),
 `provide`, `peer-connect`, `disconnect`, `stop-provide`, `snapshot`,
 `heap-profile`, `trim-memory`, and `finish`. `finish` is required: it joins the
 sampler, writes `physical-summary.json`, disconnects both roles, and logs out.
@@ -86,17 +89,40 @@ command line or checked-in artifact. Release that client with
 
 `physical-memory.ndjson` separates Go live/allocated/in-use/idle/released heap,
 runtime overhead, object/allocation/free counts, GC/forced-GC/pause counters,
-pool in-flight/retained/capacity bytes, automatic idle-trim counters, Android
-PSS, Java/native heaps, threads, descriptors, route state, and aggregate
-carrier counters. The 28-MiB streamline signal is `goRuntimeBytes`, not Android
-whole-app PSS. A diagnostic build can set
-`-PurnetworkMemoryProfileRateBytes=65536`; ordinary builds must omit it and keep
-Go's production 524,288-byte rate. `heap-profile` forces a GC and writes a
-private pprof file, so record that forced collection and do not compare its
-post-profile sample as an unperturbed recovery point. Interpret
+pool in-flight/retained/capacity bytes, automatic reclaim decisions and
+before/after values, aggregate mobile packet-pressure drops, primitive
+client/flow topology, platform transport-budget use, Android PSS, Java/native
+heaps, threads, descriptors, route state, and aggregate carrier counters. The
+steady streamline signal is `goRuntimeBytes`:
+five quiet connected minutes should have p50 and p95 at or below 20 MiB. Keep
+the active peak and time-to-recover separate, and investigate every sample over
+the 28-MiB active diagnostic threshold. Neither threshold is Android whole-app
+PSS or an iOS Network Extension `phys_footprint` ceiling.
+
+Ordinary Android and Apple SDK libraries start the Go runtime with
+`memprofilerate=0`. Android and iOS also use the same `GOGC=10` pacing for the
+20-MiB campaign; a looser Android heap float is not a valid surrogate for the
+iOS Network Extension. A private diagnostic build can opt in before native
+runtime initialization with `-PurnetworkMemoryProfileRateBytes=65536`; the
+Gradle value is passed to both the AAR linker and the diagnostic app API.
+`heap-profile` forces a GC and writes a private pprof file, so it is useful only
+in an opted-in diagnostic artifact. Record that forced collection and do not
+compare its post-profile sample as an unperturbed recovery point. Interpret
 `poolOutstanding` as live/in-flight ownership and `poolRetainedBytes` as
 returned free-list ownership: pooling can reduce allocation/GC churn while
-still retaining a burst high-water until the quiet-period rebuild runs.
+still retaining a burst high-water until the quiet-period rebuild runs. The
+mobile reclaimer waits for payload quiet and bounded outstanding ownership,
+then performs at most one pass per cooldown; use its deferred, below-target,
+cooldown, and before/after counters to distinguish policy from a leak.
+`packetPressureDropCount` is a cumulative overload counter, not a pool leak:
+the <=20-MiB mobile profile samples packet-root ownership every fourth ingress
+call below pressure, rejects a complete native ingress batch at 512 or more
+roots, and samples every call until ownership drains. Rejected batch ownership
+is returned immediately; TCP retransmission/backpressure provides recovery.
+Server/default devices do not instantiate this gate. The same mobile profile
+retires inactive TCP flow state after three minutes so a closed browser burst
+does not preserve the desktop ten-minute graph throughout the five-minute
+steady window.
 
 Parser and eligibility tests are dependency-free:
 

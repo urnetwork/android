@@ -264,6 +264,15 @@ class PhysicalLowbarSessionTest {
             .put("largeObjectPoolRetainedBytes", sdk.largeObjectPoolRetainedByteCount)
             .put("idleMemoryTrimCount", sdk.idleMemoryTrimCount)
             .put("lastIdleMemoryTrimDroppedBytes", sdk.lastIdleMemoryTrimDroppedByteCount)
+            .put("idleMemoryTrimDeferredCount", sdk.idleMemoryTrimDeferredCount)
+            .put("idleMemoryTrimBelowTargetCount", sdk.idleMemoryTrimBelowTargetCount)
+            .put("idleMemoryTrimCooldownCount", sdk.idleMemoryTrimCooldownCount)
+            .put("lastIdleMemoryTrimBeforeBytes", sdk.lastIdleMemoryTrimBeforeByteCount)
+            .put("lastIdleMemoryTrimAfterBytes", sdk.lastIdleMemoryTrimAfterByteCount)
+            .put("platformTransportBudgetBytes", sdk.platformTransportBudgetTotalByteCount)
+            .put("platformTransportBudgetUsedBytes", sdk.platformTransportBudgetUsedByteCount)
+            .put("platformTransportBudgetUsedCount", sdk.platformTransportBudgetUsedCount)
+            .put("platformTransportBudgetPendingH1Count", sdk.platformTransportBudgetPendingH1Count)
             .put("androidPssKib", Debug.getPss())
             .put("nativeHeapAllocatedBytes", Debug.getNativeHeapAllocatedSize())
             .put("javaHeapUsedBytes", javaRuntime.totalMemory() - javaRuntime.freeMemory())
@@ -307,6 +316,57 @@ class PhysicalLowbarSessionTest {
         return result
     }
 
+    private fun primitiveSample(
+        sample: JSONObject,
+        startUnixMs: Long,
+        schema: Int,
+        dropped: Long,
+    ): JSONObject = JSONObject()
+        .put("type", "sample")
+        .put("samplerSchema", schema)
+        .put("samplerDropped", dropped)
+        .put("elapsedMs", maxOf(0L, sample.optLong("unix_millis") - startUnixMs))
+        .put("timeUnixMs", sample.optLong("unix_millis"))
+        .put("phase", phase)
+        .put("goHeapLiveBytes", sample.optLong("go_live_bytes"))
+        .put("goHeapGoalBytes", sample.optLong("go_goal_bytes"))
+        .put("goRuntimeBytes", sample.optLong("go_total_bytes"))
+        .put("goMemoryLimitBytes", sample.optLong("go_limit_bytes"))
+        .put("goTotalAllocatedBytes", sample.optLong("total_allocated_bytes"))
+        .put("goProfilingBucketBytes", sample.optLong("profiling_bucket_bytes"))
+        .put("goMemoryProfileRateBytes", sample.optLong("memory_profile_rate_bytes"))
+        .put("goGcCycles", sample.optLong("gc_cycles"))
+        .put("goForcedGcCycles", sample.optLong("forced_gc"))
+        .put("goroutines", sample.optLong("goroutines"))
+        .put("poolOutstanding", sample.optLong("pool_outstanding"))
+        .put("poolRetainedBytes", sample.optLong("pool_retained_bytes"))
+        .put("poolCapacityBytes", sample.optLong("pool_capacity_bytes"))
+        .put("packetPressureDropCount", sample.optLong("packet_pressure_drops"))
+        .put("trackedMemoryBytes", sample.optLong("device_tracked_bytes"))
+        .put("qualityClientCount", sample.optLong("quality_clients"))
+        .put("speedClientCount", sample.optLong("speed_clients"))
+        .put("flowCount", sample.optLong("flows"))
+        .put("platformTransportBudgetUsedBytes", sample.optLong("transport_budget_used_bytes"))
+        .put("platformTransportBudgetUsedCount", sample.optLong("transport_budget_used_count"))
+        .put("platformTransportBudgetPendingH1Count", sample.optLong("transport_budget_pending_h1"))
+        .put("idleMemoryTrimCount", sample.optLong("idle_reclaims"))
+        .put("idleMemoryTrimDeferredCount", sample.optLong("idle_reclaim_deferred"))
+        .put("idleMemoryTrimBelowTargetCount", sample.optLong("idle_reclaim_below_target"))
+        .put("idleMemoryTrimCooldownCount", sample.optLong("idle_reclaim_cooldown"))
+        .put("lastIdleMemoryTrimBeforeBytes", sample.optLong("last_idle_reclaim_before_bytes"))
+        .put("lastIdleMemoryTrimAfterBytes", sample.optLong("last_idle_reclaim_after_bytes"))
+        .put("physicalFootprintBytes", sample.optLong("physical_bytes"))
+        .put("physicalFootprintPeakBytes", sample.optLong("physical_peak_bytes"))
+        .put("physicalPressureSignalCount", sample.optLong("physical_pressure_signals"))
+        // These Android host gauges are sampled only when a new bounded Go
+        // sample is drained (normally every 15 seconds), so the measurement
+        // no longer constructs SDK status/exits/list graphs once per second.
+        .put("androidPssKib", Debug.getPss())
+        .put("nativeHeapAllocatedBytes", Debug.getNativeHeapAllocatedSize())
+        .put("javaHeapUsedBytes", Runtime.getRuntime().let { it.totalMemory() - it.freeMemory() })
+        .put("threadCount", File("/proc/self/task").list()?.size ?: -1)
+        .put("fdCount", File("/proc/self/fd").list()?.size ?: -1)
+
     private class SampleSummary {
         val count = AtomicLong()
         val thresholdBreaches = AtomicLong()
@@ -315,6 +375,7 @@ class PhysicalLowbarSessionTest {
         val peakAndroidPssKib = AtomicLong()
         val peakGoroutines = AtomicLong()
         val peakPoolOutstanding = AtomicLong()
+        val packetPressureDropCount = AtomicLong()
 
         fun observe(sample: JSONObject) {
             count.incrementAndGet()
@@ -323,6 +384,7 @@ class PhysicalLowbarSessionTest {
             updateMax(peakAndroidPssKib, sample.optLong("androidPssKib"))
             updateMax(peakGoroutines, sample.optLong("goroutines"))
             updateMax(peakPoolOutstanding, sample.optLong("poolOutstanding"))
+            updateMax(packetPressureDropCount, sample.optLong("packetPressureDropCount"))
             if (sample.optLong("goRuntimeBytes") > GO_RUNTIME_SPIKE_BYTES) {
                 thresholdBreaches.incrementAndGet()
             }
@@ -337,6 +399,7 @@ class PhysicalLowbarSessionTest {
             .put("peakAndroidPssKib", peakAndroidPssKib.get())
             .put("peakGoroutines", peakGoroutines.get())
             .put("peakPoolOutstanding", peakPoolOutstanding.get())
+            .put("packetPressureDropCount", packetPressureDropCount.get())
 
         private fun updateMax(target: AtomicLong, value: Long) {
             var current = target.get()
@@ -349,24 +412,46 @@ class PhysicalLowbarSessionTest {
     private fun startSampler(
         application: MainApplication,
         startElapsedMs: Long,
+        startUnixMs: Long,
         stopped: AtomicBoolean,
         summary: SampleSummary,
     ) = thread(name = "physical-lowbar-memory", isDaemon = true) {
         FileOutputStream(samplesFile, false).bufferedWriter().use { writer ->
             var nextSample = SystemClock.elapsedRealtime()
             while (!stopped.get()) {
-                val record = runCatching { snapshot(application, startElapsedMs) }
-                    .getOrElse { error ->
+                val records = runCatching {
+                    val device = checkNotNull(application.device)
+                    val batch = JSONObject(device.takeMemorySamplesJson())
+                    val schema = batch.optInt("schema")
+                    val dropped = batch.optLong("dropped")
+                    val samples = batch.getJSONArray("samples")
+                    buildList {
+                        for (i in 0 until samples.length()) {
+                            add(
+                                primitiveSample(
+                                    samples.getJSONObject(i),
+                                    startUnixMs,
+                                    schema,
+                                    if (i == 0) dropped else 0,
+                                ),
+                            )
+                        }
+                    }
+                }.getOrElse { error ->
+                    listOf(
                         JSONObject()
                             .put("type", "sample-error")
                             .put("elapsedMs", SystemClock.elapsedRealtime() - startElapsedMs)
                             .put("timeUnixMs", System.currentTimeMillis())
                             .put("phase", phase)
-                            .put("errorType", error.javaClass.simpleName)
-                    }
-                if (record.optString("type") == "sample") summary.observe(record)
-                writer.append(record.toString()).append('\n')
-                writer.flush()
+                            .put("errorType", error.javaClass.simpleName),
+                    )
+                }
+                for (record in records) {
+                    if (record.optString("type") == "sample") summary.observe(record)
+                    writer.append(record.toString()).append('\n')
+                }
+                if (records.isNotEmpty()) writer.flush()
                 nextSample += SAMPLE_INTERVAL_MILLIS
                 val sleepMillis = nextSample - SystemClock.elapsedRealtime()
                 if (sleepMillis > 0) SystemClock.sleep(sleepMillis)
@@ -595,6 +680,7 @@ class PhysicalLowbarSessionTest {
         val stopped = AtomicBoolean(false)
         val summary = SampleSummary()
         val startElapsedMs = SystemClock.elapsedRealtime()
+        val startUnixMs = System.currentTimeMillis()
         var connectVc: ConnectViewController? = null
         var peerVc: PeerViewController? = null
         var sampler: Thread? = null
@@ -605,7 +691,7 @@ class PhysicalLowbarSessionTest {
             val device = checkNotNull(application.device)
             connectVc = device.openConnectViewController().also { it.start() }
             peerVc = device.openPeerViewController().also { it.start() }
-            sampler = startSampler(application, startElapsedMs, stopped, summary)
+            sampler = startSampler(application, startElapsedMs, startUnixMs, stopped, summary)
             phase = "ready"
             status("0", "ready", application, startElapsedMs)
 
@@ -669,7 +755,7 @@ class PhysicalLowbarSessionTest {
         const val CONNECT_TIMEOUT_MILLIS = 120_000L
         const val PEER_TIMEOUT_MILLIS = 180_000L
         const val COMMAND_POLL_MILLIS = 250L
-        const val SAMPLE_INTERVAL_MILLIS = 1_000L
+        const val SAMPLE_INTERVAL_MILLIS = 5_000L
         const val MAX_SESSION_MILLIS = 10_200_000L
         const val GO_RUNTIME_SPIKE_BYTES = 28L * 1024 * 1024
     }
