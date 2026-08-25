@@ -93,9 +93,16 @@ seconds without constructing gomobile exit/status/list graphs; the faster host
 drain only publishes newly available records. The test accepts private
 `ID|VERB|ARG` commands through its app-data acceptance directory. Useful verbs
 are `phase`, `connect` (`h1`, `h3`, or `auto`),
-`provide`, `peer-connect`, `disconnect`, `stop-provide`, `snapshot`,
+`provide`, `peer-connect` (same-network P2P) and `peer-platform-connect`
+(fixed provider over the selected platform carrier), both with optional `h1`,
+`h3`, or `auto`, `disconnect`, `stop-provide`, `snapshot`,
 `heap-profile`, `trim-memory`, and `finish`. `finish` is required: it joins the
 sampler, writes `physical-summary.json`, disconnects both roles, and logs out.
+For a controlled provider, install its exact client ID through standard input
+as the private `files/acceptance/physical-expected-peer-id` file before issuing
+either peer-connect command. The harness then waits for that peer instead of
+silently choosing a stale cached provider. Never print or retain that ID in
+benchmark output, and remove the pin with the other private acceptance files.
 Install the two-line user/password file through `run-as` standard input with a
 private umask; never put credentials or the retained acceptance client ID in a
 command line or checked-in artifact. Release that client with
@@ -107,11 +114,14 @@ pool in-flight/retained/capacity bytes, automatic reclaim decisions and
 before/after values, aggregate mobile packet-pressure drops, primitive
 client/flow topology, platform transport-budget use, Android PSS, Java/native
 heaps, threads, descriptors, route state, and aggregate carrier counters.
-Sampler schema 10 also publishes resend, Pack-handoff, receive-reorder
+Sampler schema 11 also publishes resend, Pack-handoff, receive-reorder
 used/capacity bytes, and H1 iterative-depth diagnostics: saturation count,
 granted steps, deepened-flow count, maximum earned count, and maximum earned
-logical bytes. The Pack/receive values are device-wide shared budgets, not one
-selected flow's queue. The
+logical bytes. It additionally separates H1 platform receive-route drops from
+bounded reliable-carrier backpressure; the former creates a Transfer sequence
+hole, while the latter retains the same fixed channel capacity and lets TCP
+slow the sender. The Pack/receive values are device-wide shared budgets, not
+one selected flow's queue. The
 steady streamline signal is `goRuntimeBytes`:
 five quiet connected minutes after burst ownership drains should have p50 and
 p95 at or below 24 MiB. Keep
@@ -145,8 +155,9 @@ aggregate ceiling; H3, Auto, provider-on, data, and connection-state packets
 retain the 1-MiB base ceiling. Rejected ownership is returned immediately; TCP
 retransmission/backpressure provides recovery. The accepted performance profile
 keeps send, Transfer-ACK, forward, contract, H3, and control sequences at 16,
-gives only H1 receive a fixed 64-message / 128-KiB handoff with a 10-ms Pack wait and
-1-ms ACK wait on the reliable carrier, retains 16-packet/24-KiB logical groups,
+gives only H1 receive a fixed 64-message / 128-KiB handoff with lossless Pack
+backpressure to cancellation and a 1-ms ACK wait on the reliable carrier,
+retains 16-packet/24-KiB logical groups,
 fixes Auto quality/speed windows at 4/1, and keeps a 256-KiB packet warm set
 split between the small and full-MTU classes after reclaim. The mobile receive
 reorder budget is 1.68 MiB while providing at the 24-MiB target (with a
@@ -163,9 +174,10 @@ A later iterative diagnostic grew only repeatedly saturated H1 flows from
 22.45-MiB peak and 20.91-MiB recovery p95, but Cloudflare measured only
 1.18 Mbit/s and fast.com about 0.20 Mbit/s against an 87.4-Mbit/s Direct
 median. The production mobile policy therefore clears the adaptive settings;
-schema-10 telemetry and the generic Connect mechanism remain for controlled-
-provider experiments. Server/default devices do not instantiate this gate or
-pay the retained-root scan. The same mobile profile
+schema-11 telemetry and the generic Connect mechanism remain for controlled-
+provider experiments. The same schema records the retained diagnostic;
+server/default devices do not instantiate this gate or pay the retained-root
+scan. The same mobile profile
 retires inactive TCP flow state after three minutes so a closed browser burst
 does not preserve the desktop ten-minute graph throughout the five-minute
 steady window.
@@ -213,6 +225,22 @@ valid speed experiment must pin explicit H1 on both a controlled mobile client
 and provider, enable the same eight negotiated lanes plus provider grouping and
 direct ACK application, and retain the <=24-MiB active-memory gate. Default
 Auto remains unchanged until that provider-side carrier-transition A/B passes.
+
+The pinned-provider A/B then found the limiting hop. With fixed depth, a full
+32-message platform receive route discarded 530 already-read H1 messages and
+filled 1.993/2.000 MiB of receive reorder behind the synthetic holes; fast.com
+displayed 6.1 Mbit/s. Carrier-only backpressure made that counter zero but
+moved 24 drops to the finite Pack wait and displayed 3.5 Mbit/s. The accepted
+pipeline keeps both capacities unchanged and waits only for H1 capacity or
+cancellation. Three canonical repeats displayed 38, 41, and 52 Mbit/s; carrier
+and Pack drop deltas were zero, all 762 Pack waits succeeded, and both shared
+queues drained. Seven Wikipedia pages measured 439.2-ms median load and
+181.5-ms median document TTFB. Runtime peaked at 17.60 MiB, then a 345-second
+quiet window measured 17.57/17.61-MiB p50/p95 with zero sample above 24 MiB.
+Treat `platformH1ReceiveBackpressureCount` as proof the fixed bound engaged;
+accept only when the corresponding drop delta is zero, Pack waits equal
+successes, and final reorder use is zero. This is Android allocation-surrogate
+evidence, not an iOS `phys_footprint` result.
 
 Parser and eligibility tests are dependency-free:
 

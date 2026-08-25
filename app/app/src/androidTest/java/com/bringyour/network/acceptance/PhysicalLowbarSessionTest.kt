@@ -57,6 +57,7 @@ class PhysicalLowbarSessionTest {
     private val samplesFile = File(acceptanceDir, "physical-memory.ndjson")
     private val summaryFile = File(acceptanceDir, "physical-summary.json")
     private val activeClientFile = File(acceptanceDir, "physical-active-client-id")
+    private val expectedPeerFile = File(acceptanceDir, "physical-expected-peer-id")
 
     @Volatile
     private var phase = "startup"
@@ -393,6 +394,22 @@ class PhysicalLowbarSessionTest {
         .put("ackTailProbeWriteCount", sample.optLong("ack_tail_probe_writes"))
         .put("cumulativeProbeWriteCount", sample.optLong("cumulative_probe_writes"))
         .put("recoveryWriteErrorCount", sample.optLong("recovery_write_errors"))
+        .put(
+            "platformH1ReceiveQueueDropCount",
+            sample.optLong("platform_h1_receive_queue_drops"),
+        )
+        .put(
+            "platformH1ReceiveQueueDropBytes",
+            sample.optLong("platform_h1_receive_queue_drop_bytes"),
+        )
+        .put(
+            "platformH1ReceiveBackpressureCount",
+            sample.optLong("platform_h1_receive_backpressure"),
+        )
+        .put(
+            "platformH1ReceiveBackpressureBytes",
+            sample.optLong("platform_h1_receive_backpressure_bytes"),
+        )
         .put("platformTransportBudgetUsedBytes", sample.optLong("transport_budget_used_bytes"))
         .put("platformTransportBudgetUsedCount", sample.optLong("transport_budget_used_count"))
         .put("platformTransportBudgetPendingH1Count", sample.optLong("transport_budget_pending_h1"))
@@ -432,6 +449,8 @@ class PhysicalLowbarSessionTest {
         val receiveQueueCapacityBytes = AtomicLong()
         val packetPressureDropCount = AtomicLong()
         val ackRoutePriorityWriteCount = AtomicLong()
+        val platformH1ReceiveQueueDropCount = AtomicLong()
+        val platformH1ReceiveBackpressureCount = AtomicLong()
 
         fun observe(sample: JSONObject) {
             count.incrementAndGet()
@@ -462,6 +481,14 @@ class PhysicalLowbarSessionTest {
                 ackRoutePriorityWriteCount,
                 sample.optLong("ackRoutePriorityWriteCount"),
             )
+            updateMax(
+                platformH1ReceiveQueueDropCount,
+                sample.optLong("platformH1ReceiveQueueDropCount"),
+            )
+            updateMax(
+                platformH1ReceiveBackpressureCount,
+                sample.optLong("platformH1ReceiveBackpressureCount"),
+            )
             if (sample.optLong("goRuntimeBytes") > GO_RUNTIME_SPIKE_BYTES) {
                 thresholdBreaches.incrementAndGet()
             }
@@ -486,6 +513,11 @@ class PhysicalLowbarSessionTest {
             .put("receiveQueueCapacityBytes", receiveQueueCapacityBytes.get())
             .put("packetPressureDropCount", packetPressureDropCount.get())
             .put("ackRoutePriorityWriteCount", ackRoutePriorityWriteCount.get())
+            .put("platformH1ReceiveQueueDropCount", platformH1ReceiveQueueDropCount.get())
+            .put(
+                "platformH1ReceiveBackpressureCount",
+                platformH1ReceiveBackpressureCount.get(),
+            )
 
         private fun updateMax(target: AtomicLong, value: Long) {
             var current = target.get()
@@ -623,17 +655,31 @@ class PhysicalLowbarSessionTest {
         }
     }
 
-    private fun peerLocation(peerVc: PeerViewController): ConnectLocation? {
+    private fun peerLocation(
+        peerVc: PeerViewController,
+        networkPeer: Boolean,
+    ): ConnectLocation? {
+        val expectedPeerId = expectedPeerFile
+            .takeIf(File::isFile)
+            ?.readText()
+            ?.trim()
+            ?.also {
+                check(it.matches(Regex("[A-Za-z0-9._-]+"))) {
+                    "physical expected peer ID is invalid"
+                }
+            }
+            ?.takeIf(String::isNotEmpty)
         val peers = peerVc.peers ?: return null
         for (i in 0 until peers.len()) {
             val peer = peers.get(i) ?: continue
             if (!peer.provideEnabled || peer.clientId == null) continue
+            if (expectedPeerId != null && peer.clientId.idStr != expectedPeerId) continue
             val locationId = ConnectLocationId()
             locationId.clientId = peer.clientId
             return ConnectLocation().apply {
                 connectLocationId = locationId
-                name = "same-network-peer"
-                networkPeer = true
+                name = if (networkPeer) "same-network-peer" else "fixed-platform-peer"
+                this.networkPeer = networkPeer
             }
         }
         return null
@@ -644,13 +690,16 @@ class PhysicalLowbarSessionTest {
         device: DeviceLocal,
         connectVc: ConnectViewController,
         peerVc: PeerViewController,
+        mode: String,
+        networkPeer: Boolean,
     ) {
         stopClient(connectVc, device)
         stopProvider(application, device)
+        if (mode.isNotEmpty()) configureClientMode(device, mode)
         waitFor("connectable same-network peer", PEER_TIMEOUT_MILLIS) {
-            peerLocation(peerVc) != null
+            peerLocation(peerVc, networkPeer) != null
         }
-        connectVc.connect(checkNotNull(peerLocation(peerVc)))
+        connectVc.connect(checkNotNull(peerLocation(peerVc, networkPeer)))
         handleVpnConsentIfPresent()
         waitFor("same-network peer VPN connection", CONNECT_TIMEOUT_MILLIS) {
             connectVc.connected && device.connectEnabled && device.tunnelStarted
@@ -683,7 +732,22 @@ class PhysicalLowbarSessionTest {
             "disconnect" -> stopClient(connectVc, device)
             "provide" -> startProvider(application, device, connectVc)
             "stop-provide" -> stopProvider(application, device)
-            "peer-connect" -> connectPeer(application, device, connectVc, peerVc)
+            "peer-connect" -> connectPeer(
+                application,
+                device,
+                connectVc,
+                peerVc,
+                argument,
+                true,
+            )
+            "peer-platform-connect" -> connectPeer(
+                application,
+                device,
+                connectVc,
+                peerVc,
+                argument,
+                false,
+            )
             "free-memory" -> {
                 val before = Sdk.getMemoryStats().totalRuntimeByteCount
                 Sdk.freeMemory()
