@@ -92,7 +92,10 @@ runtime overhead, object/allocation/free counts, GC/forced-GC/pause counters,
 pool in-flight/retained/capacity bytes, automatic reclaim decisions and
 before/after values, aggregate mobile packet-pressure drops, primitive
 client/flow topology, platform transport-budget use, Android PSS, Java/native
-heaps, threads, descriptors, route state, and aggregate carrier counters. The
+heaps, threads, descriptors, route state, and aggregate carrier counters.
+Sampler schema 9 also publishes resend, Pack-handoff, and receive-reorder
+used/capacity bytes. The Pack/receive values are device-wide shared budgets,
+not one selected flow's queue. The
 steady streamline signal is `goRuntimeBytes`:
 five quiet connected minutes after burst ownership drains should have p50 and
 p95 at or below 24 MiB. Keep
@@ -116,19 +119,65 @@ mobile reclaimer waits for payload quiet and bounded outstanding ownership,
 then performs at most one pass per cooldown; use its deferred, below-target,
 cooldown, and before/after counters to distinguish policy from a leak.
 `packetPressureDropCount` is a cumulative overload counter, not a pool leak:
-the <=24-MiB mobile profile samples packet-root ownership every fourth ingress
-call below pressure, rejects a complete native ingress batch at 512 or more
-roots, and samples every call until ownership drains. Rejected batch ownership
-is returned immediately; TCP retransmission/backpressure provides recovery.
-The accepted performance profile keeps the H3-safe 16-message sequence and
-16-packet/24-KiB group ceilings, fixes Auto quality/speed windows at 4/1, and
-retains a 512-KiB packet warm set after reclaim. Do not raise the aggregate
-gate or double the per-flow/group ceilings without repeating the explicit-H3
-28-MiB failure test; both experiments breached it on the physical surrogate.
-Server/default devices do not instantiate this gate. The same mobile profile
+the <=24-MiB mobile profile samples exact packet-root bytes every fourth ingress
+call below pressure, admits the largest ordered prefix that fits below 1 MiB,
+and samples every call until ownership drains. The message pool gives <=256-byte
+ACK/control traffic its own class, so an ordinary TCP ACK is charged 256 bytes
+rather than one 2-KiB full-MTU root. Explicit H1 with provider work disabled may
+rescue exact ACK-only TCP packets from the rejected suffix up to the 2-MiB
+aggregate ceiling; H3, Auto, provider-on, data, and connection-state packets
+retain the 1-MiB base ceiling. Rejected ownership is returned immediately; TCP
+retransmission/backpressure provides recovery. The accepted performance profile
+keeps send, Transfer-ACK, forward, contract, H3, and control sequences at 16,
+gives only H1 receive a 64-message / 128-KiB handoff with a 10-ms Pack wait and
+1-ms ACK wait on the reliable carrier, retains 16-packet/24-KiB logical groups,
+fixes Auto quality/speed windows at 4/1, and keeps a 256-KiB packet warm set
+split between the small and full-MTU classes after reclaim. The mobile receive
+reorder budget is 1.68 MiB while providing at the 24-MiB target (with a
+1.5-MiB floor) and 2 MiB when provider work is off.
+Its shared charge is retained allocation, including pooled outer/message roots
+and a rounded decoded-owner envelope; the independent per-flow limit remains
+logical payload bytes. A newly empty flow retains one progress item, but cannot
+admit a second until aggregate budget returns; the mobile flow cap bounds that
+deliberate liveness overdraft. Do not raise the base byte gate or the H1 receive window
+to 128 without repeating the explicit-H3 and sustained-H1 memory gates; earlier
+count-based experiments reached 28.41--29.95 MiB and about 25.05 MiB
+respectively on the physical surrogate. Server/default devices do not
+instantiate this gate or pay the retained-root scan. The same mobile profile
 retires inactive TCP flow state after three minutes so a closed browser burst
 does not preserve the desktop ten-minute graph throughout the five-minute
 steady window.
+
+The 32-message H1 ready-drain is not an additional
+buffer: it still stops ordinary data at 12 KiB, uses the existing 16-KiB
+WebSocket wrapper, and never waits for a batch to fill. The 2026-08-24 physical
+pass improved the ten-run Cloudflare median from 1.695 to 2.02 Mbit/s, but a
+45-second real fast.com burst moved 28.74 MiB H1 ingress and left 6.48 MiB in
+returned packet pools. Go runtime briefly reached 29.48 MiB for three sampler
+records before one quiet rebuild reduced it to 19.85 MiB. That run fails the
+active/post-burst 28-MiB gate even though it recovered; retain the speed and
+memory evidence together.
+
+The accepted 2026-08-25 allocation-accurate pass reduced the same failure mode
+without shrinking the useful per-flow receive window. All ten full 1-MiB
+Cloudflare responses completed at 2.04--6.00 Mbit/s (2.78 median), and fast.com
+moved at least 20.53 MiB ingress in the inner counter bracket. Go runtime
+peaked at 21.77 MiB, packet roots at 1.78 MiB, and exact receive use at
+2.00/2.00 MiB; none of 61 samples exceeded 24 or 28 MiB. During five quiet
+connected minutes, runtime p50/p95/range/last were
+19.91/20.16/19.85--20.20/19.91 MiB, queued receive bytes were zero, the packet
+warm set was 256 KiB, and neither forced GC nor idle trim ran. Nine of 11
+bounded Pack waits succeeded; the two misses returned 2,880 bytes and every
+payload still completed. Pre/hot/post-recovery Wikipedia median load was
+455.1/627.4/613.6 ms. Preserve one hot reused-H2 5.3-second resource outlier in
+the record; it had no concurrent tunnel handoff/pressure drop or timeout resend,
+and the seven post-recovery pages had no multi-second resource tail.
+
+This validates the Android Go-allocation surrogate, not iOS extension
+`phys_footprint` or jetsam behavior. The adjacent Direct upper-pair median was
+41.53 Mbit/s while the unchanged public H1 provider remained much slower;
+provider grouping/direct-ACK deployment to a controlled exit is required
+before claiming restoration of 40+ Mbit/s.
 
 Parser and eligibility tests are dependency-free:
 
