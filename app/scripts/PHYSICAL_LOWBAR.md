@@ -93,9 +93,11 @@ pool in-flight/retained/capacity bytes, automatic reclaim decisions and
 before/after values, aggregate mobile packet-pressure drops, primitive
 client/flow topology, platform transport-budget use, Android PSS, Java/native
 heaps, threads, descriptors, route state, and aggregate carrier counters.
-Sampler schema 9 also publishes resend, Pack-handoff, and receive-reorder
-used/capacity bytes. The Pack/receive values are device-wide shared budgets,
-not one selected flow's queue. The
+Sampler schema 10 also publishes resend, Pack-handoff, receive-reorder
+used/capacity bytes, and H1 iterative-depth diagnostics: saturation count,
+granted steps, deepened-flow count, maximum earned count, and maximum earned
+logical bytes. The Pack/receive values are device-wide shared budgets, not one
+selected flow's queue. The
 steady streamline signal is `goRuntimeBytes`:
 five quiet connected minutes after burst ownership drains should have p50 and
 p95 at or below 24 MiB. Keep
@@ -129,7 +131,7 @@ aggregate ceiling; H3, Auto, provider-on, data, and connection-state packets
 retain the 1-MiB base ceiling. Rejected ownership is returned immediately; TCP
 retransmission/backpressure provides recovery. The accepted performance profile
 keeps send, Transfer-ACK, forward, contract, H3, and control sequences at 16,
-gives only H1 receive a 64-message / 128-KiB handoff with a 10-ms Pack wait and
+gives only H1 receive a fixed 64-message / 128-KiB handoff with a 10-ms Pack wait and
 1-ms ACK wait on the reliable carrier, retains 16-packet/24-KiB logical groups,
 fixes Auto quality/speed windows at 4/1, and keeps a 256-KiB packet warm set
 split between the small and full-MTU classes after reclaim. The mobile receive
@@ -139,11 +141,17 @@ Its shared charge is retained allocation, including pooled outer/message roots
 and a rounded decoded-owner envelope; the independent per-flow limit remains
 logical payload bytes. A newly empty flow retains one progress item, but cannot
 admit a second until aggregate budget returns; the mobile flow cap bounds that
-deliberate liveness overdraft. Do not raise the base byte gate or the H1 receive window
-to 128 without repeating the explicit-H3 and sustained-H1 memory gates; earlier
-count-based experiments reached 28.41--29.95 MiB and about 25.05 MiB
-respectively on the physical surrogate. Server/default devices do not
-instantiate this gate or pay the retained-root scan. The same mobile profile
+deliberate liveness overdraft. Do not raise the base byte gate or statically
+raise the H1 receive window to 128; earlier count-based experiments reached
+28.41--29.95 MiB and about 25.05 MiB respectively on the physical surrogate.
+A later iterative diagnostic grew only repeatedly saturated H1 flows from
+64/128 KiB to 128/256 KiB. Its full-depth arm remained memory-safe at a
+22.45-MiB peak and 20.91-MiB recovery p95, but Cloudflare measured only
+1.18 Mbit/s and fast.com about 0.20 Mbit/s against an 87.4-Mbit/s Direct
+median. The production mobile policy therefore clears the adaptive settings;
+schema-10 telemetry and the generic Connect mechanism remain for controlled-
+provider experiments. Server/default devices do not instantiate this gate or
+pay the retained-root scan. The same mobile profile
 retires inactive TCP flow state after three minutes so a closed browser burst
 does not preserve the desktop ten-minute graph throughout the five-minute
 steady window.
