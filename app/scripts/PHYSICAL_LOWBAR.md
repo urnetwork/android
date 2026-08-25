@@ -46,6 +46,20 @@ node app/scripts/chrome_page_benchmark.mjs \
   https://www.wikipedia.org/
 ```
 
+Use the dedicated harness for a canonical real fast.com run:
+
+```sh
+node app/scripts/chrome_fast_benchmark.mjs \
+  --port 9222 \
+  --timeout-ms 90000
+```
+
+Its displayed value is Fast.com's aggregate result. The emitted page request
+and encoded-byte fields are diagnostic only because Chrome may move the bulk
+downloads to worker or child targets. Bracket the run with the SDK's H1 ingress
+counter when exact tunnel bytes are required. The harness never emits request
+URLs, response headers, or Fast.com's ephemeral signed download tokens.
+
 Each telemetry sample includes `eligibility.eligible` and exact invalidation
 reasons. The final summary reports valid sample count, signal range, peak app
 memory and thermal status, battery endpoints, and interface-counter deltas.
@@ -186,6 +200,19 @@ This validates the Android Go-allocation surrogate, not iOS extension
 41.53 Mbit/s while the unchanged public H1 provider remained much slower;
 provider grouping/direct-ACK deployment to a controlled exit is required
 before claiming restoration of 40+ Mbit/s.
+
+A later same-session directionality A/B explains why client-only tuning cannot
+make that claim. Eight bounded H1 flow lanes produced a 348.8-ms Wikipedia load
+median and 152 timeout resends, versus 1,157.8 ms and 1,053 resends after a
+lane-zero rebuild. Runtime peaks remained 20.60 and 19.43 MiB respectively,
+with no >28-MiB samples. Fast.com still displayed only 3.6--10 Mbit/s in the
+lane-eight arm and 4.4 Mbit/s in lane zero while adjacent Direct displayed
+410 Mbit/s and 1.1 Gbit/s. The public provider put all return data on lane zero:
+client lanes isolated requests and inner TCP ACKs, not the download. The next
+valid speed experiment must pin explicit H1 on both a controlled mobile client
+and provider, enable the same eight negotiated lanes plus provider grouping and
+direct ACK application, and retain the <=24-MiB active-memory gate. Default
+Auto remains unchanged until that provider-side carrier-transition A/B passes.
 
 Parser and eligibility tests are dependency-free:
 
