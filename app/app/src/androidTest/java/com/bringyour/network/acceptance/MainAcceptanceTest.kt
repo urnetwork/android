@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -29,6 +30,8 @@ import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -49,6 +52,7 @@ class MainAcceptanceTest {
     private val acceptanceDir = File(context.filesDir, "acceptance")
     private val fixtureFile = File(acceptanceDir, "guest-secret-key")
     private val credentialsFile = File(acceptanceDir, "credentials")
+    private val testsFile = File(acceptanceDir, "tests.json")
     private val resultFile = File(acceptanceDir, "result")
     private val screenshotsDir = File(acceptanceDir, "screenshots")
 
@@ -91,6 +95,24 @@ class MainAcceptanceTest {
         waitFor("UI tag $tag", timeoutMillis) { tagExists(tag) }
     }
 
+    private fun waitForEitherTag(first: String, second: String, timeoutMillis: Long = AUTH_TIMEOUT_MILLIS): String {
+        var result = ""
+        waitFor("UI tag $first or $second", timeoutMillis) {
+            when {
+                tagExists(first) -> {
+                    result = first
+                    true
+                }
+                tagExists(second) -> {
+                    result = second
+                    true
+                }
+                else -> false
+            }
+        }
+        return result
+    }
+
     private fun clickTag(tag: String, timeoutMillis: Long = UI_TIMEOUT_MILLIS) {
         waitForTag(tag, timeoutMillis)
 
@@ -111,6 +133,15 @@ class MainAcceptanceTest {
         compose.onNodeWithTag(tag, useUnmergedTree = true)
             .assertExists()
             .performTextReplacement(value)
+    }
+
+    private fun waitForEnabledTag(tag: String, timeoutMillis: Long = AUTH_TIMEOUT_MILLIS) {
+        waitFor("enabled UI tag $tag", timeoutMillis) {
+            runCatching {
+                compose.onNodeWithTag(tag, useUnmergedTree = true).assertExists().assertIsEnabled()
+                true
+            }.getOrDefault(false)
+        }
     }
 
     private fun launchLoggedOutApp() {
@@ -187,15 +218,136 @@ class MainAcceptanceTest {
         waitForMain()
     }
 
-    private fun loginWithPassword(user: String, password: String) {
-        log("sign in with acceptance account through local UI")
-        replaceTagText("acceptance.password.user", user)
-        clickTag("acceptance.password.next")
+    private fun completePasswordPrompt(
+        password: String,
+        verificationCode: String? = null,
+        retainClient: Boolean = true,
+    ) {
         waitForTag("acceptance.password.input", AUTH_TIMEOUT_MILLIS)
         replaceTagText("acceptance.password.input", password)
         clickTag("acceptance.password.submit")
+        if (verificationCode != null) {
+            val destination = waitForEitherTag("acceptance.nav.connect", "acceptance.verify.code")
+            if (destination == "acceptance.verify.code") {
+                replaceTagText("acceptance.verify.code", verificationCode)
+            }
+        }
         waitForMain()
-        retainActiveClient()
+        if (retainClient) retainActiveClient()
+    }
+
+    private fun loginWithPassword(
+        user: String,
+        password: String,
+        verificationCode: String? = null,
+        retainClient: Boolean = true,
+    ) {
+        log("sign in with acceptance account through local UI")
+        replaceTagText("acceptance.password.user", user)
+        clickTag("acceptance.password.next")
+        completePasswordPrompt(password, verificationCode, retainClient)
+    }
+
+    private data class SignupInputs(
+        val networkPrefix: String,
+        val password: String,
+        val emailDomain: String,
+        val emailPrefix: String,
+        val phoneNumber: String,
+    )
+
+    private fun readSignupInputs(): SignupInputs {
+        check(testsFile.isFile) { "resolved tests fixture was not installed" }
+        val root = JSONObject(testsFile.readText())
+        check(root.getJSONObject("lifecycle").getBoolean("allow_account_create_delete")) {
+            "acceptance account create/delete is not authorized"
+        }
+        val signup = root.getJSONObject("signup")
+        val email = signup.getJSONObject("email")
+        val phone = signup.getJSONObject("phone")
+        return SignupInputs(
+            networkPrefix = signup.getString("network_name_prefix"),
+            password = signup.getString("password"),
+            emailDomain = email.getString("domain"),
+            emailPrefix = email.getString("local_part_prefix"),
+            phoneNumber = phone.getString("number"),
+        )
+    }
+
+    private fun deleteCurrentNetwork() {
+        val application = context.applicationContext as MainApplication
+        val api = application.api ?: throw AssertionError("network delete has no active API")
+        val complete = CountDownLatch(1)
+        var failure: Throwable? = null
+        api.networkDelete { _, error ->
+            failure = error
+            complete.countDown()
+        }
+        check(complete.await(45, TimeUnit.SECONDS)) { "network delete timed out" }
+        failure?.let { throw AssertionError("network delete failed", it) }
+        instrumentation.runOnMainSync { application.logout() }
+    }
+
+    private fun openNewPasswordSignup(
+        userAuth: String,
+        inputs: SignupInputs,
+    ) {
+        repeat(2) { attempt ->
+            replaceTagText("acceptance.password.user", userAuth)
+            clickTag("acceptance.password.next")
+            when (waitForEitherTag("acceptance.create.network", "acceptance.password.input")) {
+                "acceptance.create.network" -> return
+                else -> {
+                    // A configured fixture can survive interruption. Its exact
+                    // identity is verified by server policy, so a code prompt
+                    // here is a product/configuration failure.
+                    completePasswordPrompt(inputs.password, null, retainClient = false)
+                    deleteCurrentNetwork()
+                    launchLoggedOutApp()
+                    check(attempt == 0) { "dedicated password fixture could not be reset" }
+                }
+            }
+        }
+    }
+
+    private fun passwordSignupLifecycle(
+        method: String,
+        userAuth: String,
+        inputs: SignupInputs,
+        iteration: Int,
+    ) {
+        log("$method signup through local UI")
+        val suffix = "${BuildConfig.FLAVOR}-${System.currentTimeMillis()}-$iteration"
+            .lowercase().replace(Regex("[^a-z0-9-]"), "-")
+        val networkName = "${inputs.networkPrefix}-$method-$suffix".take(49).trimEnd('-')
+
+        openNewPasswordSignup(userAuth, inputs)
+        replaceTagText("acceptance.create.network", networkName)
+        replaceTagText("acceptance.create.password", inputs.password)
+        clickTag("acceptance.create.terms")
+        waitForEnabledTag("acceptance.create.submit")
+        clickTag("acceptance.create.submit")
+        waitForMain()
+        val createdNetwork = currentNetworkId()
+        capture("$iteration-$method-signup")
+
+        try {
+            logoutThroughUi()
+            loginWithPassword(userAuth, inputs.password, retainClient = false)
+            assertEquals("$method login returned a different network", createdNetwork, currentNetworkId())
+            capture("$iteration-$method-login")
+            deleteCurrentNetwork()
+            launchLoggedOutApp()
+        } catch (error: Throwable) {
+            // Once a signup has returned a JWT, always try to delete it before
+            // propagating the product assertion. This keeps retries deterministic.
+            runCatching {
+                if (!(context.applicationContext as MainApplication).api?.byJwt.isNullOrEmpty()) {
+                    deleteCurrentNetwork()
+                }
+            }.onFailure { error.addSuppressed(it) }
+            throw error
+        }
     }
 
     private fun retainActiveClient() {
@@ -347,6 +499,7 @@ class MainAcceptanceTest {
         val repetitions = arguments.getString("repeat")?.toIntOrNull() ?: 1
         assertTrue("repeat must be positive", repetitions > 0)
         val (user, password) = readCredentials()
+        val signupInputs = readSignupInputs()
         acceptanceDir.mkdirs()
         resultFile.delete()
         screenshotsDir.deleteRecursively()
@@ -357,6 +510,11 @@ class MainAcceptanceTest {
             val iteration = zeroBasedIteration + 1
             log("BEGIN repetition $iteration/$repetitions; flavor=${BuildConfig.FLAVOR}; build=$expectedBuildId")
             try {
+                val email = "${signupInputs.emailPrefix}-${BuildConfig.FLAVOR}-${System.currentTimeMillis()}-$iteration@${signupInputs.emailDomain}"
+                    .lowercase().replace('_', '-')
+                passwordSignupLifecycle("email", email, signupInputs, iteration)
+                passwordSignupLifecycle("phone", signupInputs.phoneNumber, signupInputs, iteration)
+
                 if (secretKey == null) {
                     secretKey = createInstantAccount()
                 } else {

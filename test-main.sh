@@ -23,7 +23,7 @@
 #   ./test-main.sh --keep-fixture          retain the recoverable account for another app
 #
 # Environment:
-#   UR_ACCEPT_VAULT=<path>                 alternate user:/pass: vault
+#   UR_ACCEPT_VAULT=<path>                 alternate tests.yml fixture vault
 #   UR_ACCEPT_FIXTURE=<path>               persistent private secret-key fixture
 #   UR_ACCEPT_REPEAT=<n>                   repetition count
 #   UR_ACCEPT_KEEP_FIXTURE=1               retain the account after a successful run
@@ -35,13 +35,14 @@ umask 077
 
 here="$(cd "$(dirname "$0")" && pwd)"
 root="${URNETWORK_ROOT:-$(dirname "$here")}"
-vault="${UR_ACCEPT_VAULT:-$root/vault/main/test-acceptance.yml}"
+vault="${UR_ACCEPT_VAULT:-$root/vault/main/tests.yml}"
 fixture="${UR_ACCEPT_FIXTURE:-$here/tests/__acceptance__/fixtures/android-main.secret}"
 repeat_count="${UR_ACCEPT_REPEAT:-1}"
 skip_build="${SKIP_BUILD:-0}"
 headless="${HEADLESS:-0}"
 keep_emulator=0
 keep_fixture="${UR_ACCEPT_KEEP_FIXTURE:-0}"
+result_matrix="${UR_ACCEPT_RESULT_FILE:-}"
 targets="github play solana_dapp ethos_dapp fdroid"
 selected_targets=""
 
@@ -62,7 +63,7 @@ case "$repeat_count" in
   ''|*[!0-9]*) echo "--repeat must be a positive integer" >&2; exit 2 ;;
   0) echo "--repeat must be at least 1" >&2; exit 2 ;;
 esac
-acceptance_timeout_seconds=$((600 + repeat_count * 600))
+acceptance_timeout_seconds=$((900 + repeat_count * 900))
 
 if [ -n "$selected_targets" ]; then
   targets="$(printf '%s\n' "$selected_targets" | tr ',' ' ')"
@@ -75,9 +76,11 @@ die() { echo "[android acceptance] ERROR: $*" >&2; exit 1; }
 command -v timeout >/dev/null 2>&1 || die "GNU timeout is required (brew install coreutils)"
 node "$root/build/all/acceptance/preflight-main.mjs" || exit 1
 [ -f "$vault" ] || die "no acceptance vault at $vault"
-acc_user="$(awk -F': *' '$1=="user"{print $2; exit}' "$vault")"
-acc_pass="$(awk -F': *' '$1=="pass"{print $2; exit}' "$vault")"
-[ -n "$acc_user" ] && [ -n "$acc_pass" ] || die "$vault must contain user: and pass:"
+config_reader="$root/tests/read-tests-config.sh"
+[ -x "$config_reader" ] || die "test config reader is missing: $config_reader"
+UR_ACCEPT_VAULT="$vault" "$config_reader" --ready validate
+acc_user="$(UR_ACCEPT_VAULT="$vault" "$config_reader" get data_plane_account.email)"
+acc_pass="$(UR_ACCEPT_VAULT="$vault" "$config_reader" get data_plane_account.password)"
 
 sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Library/Android/sdk}}"
 adb="$sdk_root/platform-tools/adb"
@@ -202,6 +205,19 @@ cleanup() {
     echo "[android acceptance] could not remove $run_dir" >&2
     exit_status=1
   fi
+  if [ -n "$result_matrix" ]; then
+    mkdir -p "$(dirname "$result_matrix")"
+    matrix_status=PASS
+    matrix_detail="all selected Android flavors completed"
+    if [ "$exit_status" -ne 0 ]; then
+      matrix_status=FAIL
+      matrix_detail="Android acceptance runner failed; see platform artifacts"
+    fi
+    for matrix_case in email phone instant password data-plane; do
+      printf 'android\t%s\t%s\t%s\n' "$matrix_case" "$matrix_status" "$matrix_detail" >>"$result_matrix"
+    done
+    chmod 600 "$result_matrix"
+  fi
   echo
   if [ "$exit_status" -eq 0 ]; then
     echo "[android acceptance] ✓ ACCEPTANCE PASSED (artifacts: $artifacts)"
@@ -290,6 +306,9 @@ credentials="$run_dir/credentials"
 printf '%s\n%s\n' "$acc_user" "$acc_pass" >"$credentials"
 chmod 600 "$credentials"
 unset acc_pass
+tests_json="$run_dir/tests.json"
+UR_ACCEPT_VAULT="$vault" "$config_reader" write-json "$tests_json"
+chmod 600 "$tests_json"
 
 safe_target_name() { printf '%s' "$1" | tr -c 'A-Za-z0-9._-' '_'; }
 gradle_flavor() {
@@ -338,7 +357,7 @@ apk_version() {
 install_private_file() {
   local source="$1" destination="$2" staging="/data/local/tmp/urnetwork-acceptance-$RANDOM" copy_status=0
   case "$destination" in
-    credentials|guest-secret-key) ;;
+    credentials|guest-secret-key|tests.json) ;;
     *) echo "refusing unsafe acceptance destination: $destination" >&2; return 1 ;;
   esac
 
@@ -436,6 +455,7 @@ for target in $targets; do
   fi
 
   install_private_file "$credentials" credentials
+  install_private_file "$tests_json" tests.json
   [ -f "$fixture" ] && install_private_file "$fixture" guest-secret-key
   timeout 30 "$adb" -s "$serial" shell pm grant com.bringyour.network android.permission.POST_NOTIFICATIONS >/dev/null 2>&1 || true
   timeout 30 "$adb" -s "$serial" shell appops set com.bringyour.network ACTIVATE_VPN allow >/dev/null 2>&1 || true

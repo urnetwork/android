@@ -194,12 +194,25 @@ fun LoginInitial(
     val connectBittensorWallet = {
         loginViewModel.setLoginError(null)
 
-        // the signed message is returned to the LoginActivity
-        // as ur://bittensor-sign-message
-        if (launchBittensorSignMessage(context)) {
-            loginViewModel.setBittensorAuthInProgress(true)
-        } else {
-            loginViewModel.setLoginError(context.getString(R.string.login_error))
+        scope.launch {
+            val api = application?.api
+            if (api == null) {
+                loginViewModel.setLoginError(context.getString(R.string.login_error))
+                return@launch
+            }
+
+            requestBittensorChallenge(api)
+                .onSuccess { message ->
+                    if (launchBittensorSignMessage(context, message, BITTENSOR_SIGN_PURPOSE_LOGIN)) {
+                        loginViewModel.setBittensorAuthInProgress(true)
+                    } else {
+                        loginViewModel.setLoginError(context.getString(R.string.login_error))
+                    }
+                }
+                .onFailure { error ->
+                    Log.i("LoginInitial", "Error fetching Bittensor challenge: $error")
+                    loginViewModel.setLoginError(context.getString(R.string.login_error))
+                }
         }
     }
 

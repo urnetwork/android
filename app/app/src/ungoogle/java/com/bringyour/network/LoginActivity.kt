@@ -18,9 +18,12 @@ import androidx.lifecycle.lifecycleScope
 import com.bringyour.sdk.AuthNetworkClientArgs
 import com.bringyour.sdk.WalletAuthArgs
 import com.bringyour.network.ui.LoginNavHost
-import com.bringyour.network.ui.login.BITTENSOR_SIGN_MESSAGE
+import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CREATE
+import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_LOGIN
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.login.LoginViewModel
+import com.bringyour.network.ui.login.launchBittensorSignMessage
+import com.bringyour.network.ui.login.requestBittensorChallenge
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.sdk.AuthCodeLoginArgs
 import com.bringyour.sdk.AuthLoginArgs
@@ -259,7 +262,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     // handles the redirect back from the ur.io wallet-connect bittensor sign message flow
-    // ur://bittensor-sign-message?address=<ss58>&signature=<0xhex>
+    // ur://bittensor-sign-message?address=<ss58>&signature=<0xhex>&message=...&purpose=...
     // or ur://bittensor-sign-message?errorCode=-1&errorMessage=...
     private fun bittensorSignMessageLogin(uri: Uri) {
         val app = app ?: return
@@ -268,8 +271,13 @@ class LoginActivity : AppCompatActivity() {
         val errorMessage = uri.getQueryParameter("errorMessage")
         val address = uri.getQueryParameter("address")
         val signature = uri.getQueryParameter("signature")
+        val message = uri.getQueryParameter("message")
+        val purpose = uri.getQueryParameter("purpose")
 
-        if (errorCode != null || address.isNullOrEmpty() || signature.isNullOrEmpty()) {
+        if (errorCode != null || address.isNullOrEmpty() || signature.isNullOrEmpty() ||
+            message.isNullOrEmpty() ||
+            (purpose != BITTENSOR_SIGN_PURPOSE_LOGIN && purpose != BITTENSOR_SIGN_PURPOSE_CREATE)
+        ) {
             Log.i(TAG, "bittensorSignMessageLogin: error: code=$errorCode message=$errorMessage")
             loginViewModel.setLoginError(errorMessage ?: getString(R.string.login_error))
             return
@@ -282,8 +290,21 @@ class LoginActivity : AppCompatActivity() {
 
         walletAuth.blockchain = "TAO"
         walletAuth.publicKey = address
-        walletAuth.message = BITTENSOR_SIGN_MESSAGE
+        walletAuth.message = message
         walletAuth.signature = signature
+
+        if (purpose == BITTENSOR_SIGN_PURPOSE_CREATE) {
+            loginViewModel.setLoginError(null)
+            walletCreateNetworkParams = LoginCreateNetworkParams.LoginCreateWalletParams(
+                blockchain = "TAO",
+                publicKey = address,
+                signedMessage = message,
+                signature = signature,
+                referralCode = referralCode
+            )
+            isLoadingAuthCode = false
+            return
+        }
 
         args.walletAuth = walletAuth
 
@@ -310,17 +331,31 @@ class LoginActivity : AppCompatActivity() {
                         },
                     )
                 } else if (result.walletAuth != null) {
-                    // the wallet is not linked to a network yet
-                    // route into the create network flow
                     loginViewModel.setLoginError(null)
-                    walletCreateNetworkParams = LoginCreateNetworkParams.LoginCreateWalletParams(
-                        blockchain = "TAO",
-                        publicKey = result.walletAuth.publicKey,
-                        signedMessage = result.walletAuth.message,
-                        signature = result.walletAuth.signature,
-                        referralCode = referralCode
-                    )
-                    isLoadingAuthCode = false
+                    val api = app.api
+                    if (api == null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(getString(R.string.login_error))
+                        return@launch
+                    }
+
+                    requestBittensorChallenge(api, address)
+                        .onSuccess { createMessage ->
+                            isLoadingAuthCode = false
+                            if (!launchBittensorSignMessage(
+                                    this@LoginActivity,
+                                    createMessage,
+                                    BITTENSOR_SIGN_PURPOSE_CREATE
+                                )
+                            ) {
+                                loginViewModel.setLoginError(getString(R.string.login_error))
+                            }
+                        }
+                        .onFailure { challengeError ->
+                            isLoadingAuthCode = false
+                            Log.i(TAG, "unable to fetch create-network wallet challenge: $challengeError")
+                            loginViewModel.setLoginError(getString(R.string.login_error))
+                        }
                 } else {
                     isLoadingAuthCode = false
                     loginViewModel.setLoginError(getString(R.string.login_error))

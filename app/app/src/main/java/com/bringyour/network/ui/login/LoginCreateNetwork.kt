@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -609,7 +610,8 @@ private fun NetworkCreateForm(
                 isValidating = isValidatingNetworkName,
                 isValid = !networkNameErrorExists,
                 supportingText = networkNameSupportingText,
-                enabled = !isInProgress
+                enabled = !isInProgress,
+                modifier = Modifier.testTag("acceptance.create.network")
             )
 
             if (params is LoginCreateNetworkParams.LoginCreateUserAuthParams) {
@@ -627,7 +629,8 @@ private fun NetworkCreateForm(
                     ),
                     isPassword = true,
                     supportingText = stringResource(id = R.string.password_support_txt),
-                    enabled = !isInProgress
+                    enabled = !isInProgress,
+                    modifier = Modifier.testTag("acceptance.create.password")
                 )
             }
 
@@ -642,7 +645,8 @@ private fun NetworkCreateForm(
                         setTermsAgreed(checked)
                         clearCreateNetworkError()
                     },
-                    enabled = !isInProgress
+                    enabled = !isInProgress,
+                    checkboxModifier = Modifier.testTag("acceptance.create.terms")
                 )
 
             }
@@ -683,7 +687,8 @@ private fun NetworkCreateForm(
                     onCreateNetwork()
                 },
                 enabled = isBtnEnabled && !isInProgress,
-                isProcessing = isInProgress
+                isProcessing = isInProgress,
+                modifier = Modifier.testTag("acceptance.create.submit")
             ) { buttonTextStyle ->
                 Text(stringResource(id = R.string.continue_txt), style = buttonTextStyle)
                 Spacer(modifier = Modifier.width(4.dp))

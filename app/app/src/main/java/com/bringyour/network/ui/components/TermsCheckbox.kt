@@ -38,6 +38,7 @@ fun TermsCheckbox(
     focusRequester: FocusRequester? = null,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    checkboxModifier: Modifier = Modifier,
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
@@ -69,7 +70,7 @@ fun TermsCheckbox(
 
     } }
 
-    val checkboxModifier = if (focusRequester != null)
+    val baseCheckboxModifier = if (focusRequester != null)
         Modifier
         .size(16.dp)
         .onFocusChanged {
@@ -84,7 +85,7 @@ fun TermsCheckbox(
         modifier = modifier.fillMaxWidth(),
     ) {
         Checkbox(
-            modifier = checkboxModifier.then(
+            modifier = baseCheckboxModifier.then(checkboxModifier).then(
                 if (isFocused) {
                     Modifier.background(TextMuted.copy(alpha = 0.3f), CircleShape) // Focused border color
                 } else {

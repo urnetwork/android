@@ -44,7 +44,8 @@ fun URCodeInput(
     value: List<String>,
     onValueChange: (List<String>) -> Unit,
     codeLength: Int,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
 ) {
     val focusRequesters = remember { List(codeLength) { FocusRequester() } }
     var moveFocus by remember { mutableStateOf(false) }
@@ -130,6 +131,7 @@ fun URCodeInput(
                     enabled = enabled,
                     modifier = Modifier
                         .fillMaxSize()
+                        .then(if (i == 0) modifier else Modifier)
                         .focusRequester(focusRequesters[i])
                         .onFocusChanged { focusState ->
                             if (shouldHandleFocusChange && focusState.isFocused) {

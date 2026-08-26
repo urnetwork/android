@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -275,7 +276,8 @@ fun LoginVerify(
                                 verifyError = null
                             },
                             codeLength = codeLength,
-                            enabled = !verifyInProgress && !resendInProgress
+                            enabled = !verifyInProgress && !resendInProgress,
+                            modifier = Modifier.testTag("acceptance.verify.code")
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
