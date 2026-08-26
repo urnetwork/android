@@ -389,6 +389,7 @@ class PhysicalLowbarSessionTest {
         .put("initialFrameCount", sample.optLong("initial_frames"))
         .put("initialMessageBytes", sample.optLong("initial_message_bytes"))
         .put("timeoutResendWriteCount", sample.optLong("timeout_resend_writes"))
+        .put("ackPendingResendPreemptCount", sample.optLong("ack_pending_resend_preempts"))
         .put("carrierChangeWriteCount", sample.optLong("carrier_change_writes"))
         .put("selectiveGapWriteCount", sample.optLong("selective_gap_writes"))
         .put("ackTailProbeWriteCount", sample.optLong("ack_tail_probe_writes"))
@@ -410,6 +411,39 @@ class PhysicalLowbarSessionTest {
             "platformH1ReceiveBackpressureBytes",
             sample.optLong("platform_h1_receive_backpressure_bytes"),
         )
+        .put("providerPackHandoffDropCount", sample.optLong("provider_pack_handoff_drops"))
+        .put("providerPackHandoffDropBytes", sample.optLong("provider_pack_handoff_drop_bytes"))
+        .put("providerPackHandoffWaitCount", sample.optLong("provider_pack_handoff_waits"))
+        .put(
+            "providerPackHandoffWaitSuccessCount",
+            sample.optLong("provider_pack_handoff_wait_successes"),
+        )
+        .put("providerPackHandoffMaxCount", sample.optLong("provider_pack_handoff_max_count"))
+        .put("providerPackHandoffMaxBytes", sample.optLong("provider_pack_handoff_max_bytes"))
+        .put("providerAckRouteWriteCount", sample.optLong("provider_ack_route_writes"))
+        .put(
+            "providerAckRouteWriteBlockedCount",
+            sample.optLong("provider_ack_route_write_blocks"),
+        )
+        .put("providerAckRouteWriteErrorCount", sample.optLong("provider_ack_route_write_errors"))
+        .put("providerAckRouteWriteWaitNanos", sample.optLong("provider_ack_route_write_wait_nanos"))
+        .put(
+            "providerAckRouteWriteMaxWaitNanos",
+            sample.optLong("provider_ack_route_write_max_wait_nanos"),
+        )
+        .put("providerInitialWriteCount", sample.optLong("provider_initial_writes"))
+        .put("providerInitialFrameCount", sample.optLong("provider_initial_frames"))
+        .put("providerInitialMessageBytes", sample.optLong("provider_initial_message_bytes"))
+        .put("providerTimeoutResendWriteCount", sample.optLong("provider_timeout_resend_writes"))
+        .put(
+            "providerAckPendingResendPreemptCount",
+            sample.optLong("provider_ack_pending_resend_preempts"),
+        )
+        .put("providerCarrierChangeWriteCount", sample.optLong("provider_carrier_change_writes"))
+        .put("providerSelectiveGapWriteCount", sample.optLong("provider_selective_gap_writes"))
+        .put("providerAckTailProbeWriteCount", sample.optLong("provider_ack_tail_probe_writes"))
+        .put("providerCumulativeProbeWriteCount", sample.optLong("provider_cumulative_probe_writes"))
+        .put("providerRecoveryWriteErrorCount", sample.optLong("provider_recovery_write_errors"))
         .put("platformTransportBudgetUsedBytes", sample.optLong("transport_budget_used_bytes"))
         .put("platformTransportBudgetUsedCount", sample.optLong("transport_budget_used_count"))
         .put("platformTransportBudgetPendingH1Count", sample.optLong("transport_budget_pending_h1"))

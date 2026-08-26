@@ -114,14 +114,18 @@ pool in-flight/retained/capacity bytes, automatic reclaim decisions and
 before/after values, aggregate mobile packet-pressure drops, primitive
 client/flow topology, platform transport-budget use, Android PSS, Java/native
 heaps, threads, descriptors, route state, and aggregate carrier counters.
-Sampler schema 11 also publishes resend, Pack-handoff, receive-reorder
+Sampler schema 12 also publishes resend, Pack-handoff, receive-reorder
 used/capacity bytes, and H1 iterative-depth diagnostics: saturation count,
 granted steps, deepened-flow count, maximum earned count, and maximum earned
 logical bytes. It additionally separates H1 platform receive-route drops from
 bounded reliable-carrier backpressure; the former creates a Transfer sequence
 hole, while the latter retains the same fixed channel capacity and lets TCP
-slow the sender. The Pack/receive values are device-wide shared budgets, not
-one selected flow's queue. The
+slow the sender. Schema 12 also separates client and provider Pack handoff,
+ACK-route wait/error, initial-write, timeout-recovery, and exact
+ACK-pending-resend-preemption counters. This is required when the opposite
+phone drives traffic through the device: client topology counters alone do not
+describe provider memory or recovery churn. The Pack/receive values are
+device-wide shared budgets, not one selected flow's queue. The
 steady streamline signal is `goRuntimeBytes`:
 five quiet connected minutes after burst ownership drains should have p50 and
 p95 at or below 24 MiB. Keep
@@ -174,7 +178,7 @@ A later iterative diagnostic grew only repeatedly saturated H1 flows from
 22.45-MiB peak and 20.91-MiB recovery p95, but Cloudflare measured only
 1.18 Mbit/s and fast.com about 0.20 Mbit/s against an 87.4-Mbit/s Direct
 median. The production mobile policy therefore clears the adaptive settings;
-schema-11 telemetry and the generic Connect mechanism remain for controlled-
+schema-12 telemetry and the generic Connect mechanism remain for controlled-
 provider experiments. The same schema records the retained diagnostic;
 server/default devices do not instantiate this gate or pay the retained-root
 scan. The same mobile profile
@@ -241,6 +245,23 @@ Treat `platformH1ReceiveBackpressureCount` as proof the fixed bound engaged;
 accept only when the corresponding drop delta is zero, Pack waits equal
 successes, and final reorder use is zero. This is Android allocation-surrogate
 evidence, not an iOS `phys_footprint` result.
+
+The 2026-08-26 two-device schema-12 pass adds a provider-memory warning to
+that acceptance result. Each attached phone provided once while the other
+alternated Wi-Fi H1, same-LAN P2P, and cellular. Every client phase stayed
+below 24 MiB: 17.19--18.57 MiB on the Galaxy and 22.78--23.04 MiB on the
+Pixel. Provider work did not: the Pixel peaked at 26.12 MiB and the Galaxy at
+30.43 MiB, including ten Galaxy samples above 28 MiB. At that maximum the
+Galaxy had only about 0.21 MiB in returned packet-pool storage, at most
+1.78 MiB of packet ownership, 13.99 MiB of live heap, and 748 goroutines.
+A fresh host provider profile reproduced the shape after 192 short UDP flows:
+30.7 MiB runtime, 13.6 MiB live heap, and 621 goroutines, of which 384 were
+per-flow UDP reader/send loops. Treat a provider spike with high goroutine
+count and low returned-pool bytes as flow scheduling/stack retention, not as a
+reason to shrink the useful H1 window or run a forced GC. The next experiment
+must measure a bounded shared provider UDP poller; until it passes, provider
+mode fails the <=24-MiB active gate even when client mode passes. Exact device
+measurements and the WireGuard/gVisor comparison are in `connect/MEMSTEADY.md`.
 
 Parser and eligibility tests are dependency-free:
 
