@@ -304,14 +304,41 @@ class PhysicalLowbarSessionTest {
             val exits = device.exits
             var liveExitCount = 0
             var p2pOnlyExitCount = 0
+            var providerDiagnosticsAvailableExitCount = 0
+            var providerBuildPublishedExitCount = 0
+            var providerSecurityPolicyPublishedExitCount = 0
+            var providerBlockIngressPacketCount = 0L
+            var providerBlockEgressPacketCount = 0L
             for (i in 0 until exits.len()) {
                 val exit = exits.get(i) ?: continue
                 if (!exit.done) liveExitCount += 1
                 if (!exit.done && exit.p2pOnly) p2pOnlyExitCount += 1
+                if (!exit.done && exit.providerDiagnosticsAvailable) {
+                    providerDiagnosticsAvailableExitCount += 1
+                    if (exit.providerBuildVersion.isNotEmpty()) {
+                        providerBuildPublishedExitCount += 1
+                    }
+                    if (exit.providerSecurityPolicyHash.isNotEmpty()) {
+                        providerSecurityPolicyPublishedExitCount += 1
+                    }
+                    providerBlockIngressPacketCount += exit.providerBlockIngressPacketCount
+                    providerBlockEgressPacketCount += exit.providerBlockEgressPacketCount
+                }
             }
             result
                 .put("liveExitCount", liveExitCount)
                 .put("p2pOnlyExitCount", p2pOnlyExitCount)
+                .put(
+                    "providerDiagnosticsAvailableExitCount",
+                    providerDiagnosticsAvailableExitCount,
+                )
+                .put("providerBuildPublishedExitCount", providerBuildPublishedExitCount)
+                .put(
+                    "providerSecurityPolicyPublishedExitCount",
+                    providerSecurityPolicyPublishedExitCount,
+                )
+                .put("remoteProviderBlockIngressPackets", providerBlockIngressPacketCount)
+                .put("remoteProviderBlockEgressPackets", providerBlockEgressPacketCount)
                 .put("transportMode", device.transportSettings?.mode)
                 .put("autoDegraded", device.transportStatus?.autoDegraded)
                 .put("autoConstraint", device.transportStatus?.autoConstraint)
