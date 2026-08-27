@@ -60,6 +60,31 @@ downloads to worker or child targets. Bracket the run with the SDK's H1 ingress
 counter when exact tunnel bytes are required. The harness never emits request
 URLs, response headers, or Fast.com's ephemeral signed download tokens.
 
+For a video failure, attach to the already-open page target and prove whether
+the media clock advances:
+
+```sh
+node app/scripts/chrome_video_probe.mjs \
+  --port 9222 \
+  --target-id TARGET_ID \
+  --timeout-ms 45000
+```
+
+Use `--reload` to instrument one cache-disabled reload, or `--navigate URL`
+to install instrumentation before a single navigation. The probe emits only
+document/video readiness, clock/buffer/error state, response hostname/status,
+protocol and Chrome connection metadata. It never emits request paths, headers,
+cookies, manifests or signed tokens. Exit code 0 means the first video advanced
+by at least one second at readiness 2 or higher; exit code 2 means it did not.
+
+Interpret `rejectedConnections` at the transport boundary. A later response
+with the same Chrome `connectionId` is another HTTP request multiplexed on the
+same established H2/TLS connection and cannot cause MultiClient to choose a new
+provider. Only `retryOnNewConnection=true` proves that the browser created a
+fresh transport placement opportunity. An encrypted HTTP 403 is ordinary
+returned network traffic to Connect and must not be classified as a packet
+blackhole.
+
 Each telemetry sample includes `eligibility.eligible` and exact invalidation
 reasons. The final summary reports valid sample count, signal range, peak app
 memory and thermal status, battery endpoints, and interface-counter deltas.
@@ -262,6 +287,29 @@ reason to shrink the useful H1 window or run a forced GC. The next experiment
 must measure a bounded shared provider UDP poller; until it passes, provider
 mode fails the <=24-MiB active gate even when client mode passes. Exact device
 measurements and the WireGuard/gVisor comparison are in `connect/MEMSTEADY.md`.
+
+The 2026-08-27 current-source fresh-flow pass exercised validated Wi-Fi and
+cellular on both phones, followed by exact-ID same-LAN P2P. A public Wi-Fi H1
+arm measured 61/40/110 Mbit/s on fast.com (61-Mbit/s median) and 153.1-ms
+Wikipedia document TTFB. The other public-route medians were 0.68, 6.3 and
+4.4 Mbit/s and P2P measured 3.5 Mbit/s; do not turn the one successful
+40-Mbit/s-class route into a universal provider claim. The client runtime
+peak/p95 was 22.00/21.61 MiB with no sample above 24 MiB. Provider-inclusive
+runtime peaked at 29.45 MiB with two samples above 28 MiB, and its 20-sample
+quiet p95 remained 25.20 MiB. Returned packet storage was at most 0.25 MiB and
+there were no packet-pressure or H1 receive-queue drops, again pointing to
+provider flow/goroutine topology rather than pool retention.
+
+The same pass is the interpretation reference for `chrome_video_probe.mjs`.
+Bloomberg played on one public Wi-Fi route even while five 403 Fetch responses
+used one reused H2 connection. It failed on another public route where seven
+403 Fetch responses used one H2 connection. A forced fresh Chrome transport
+did create a new placement opportunity, but its top-level document was also
+challenged and Chrome did not retry. P2P likewise received a document challenge
+while provider build/policy diagnostics were present and every provider block
+counter was zero. Thus default-off fresh affinity can improve only genuinely
+new TCP/TLS flows; it cannot reroute requests multiplexed on H2 or guarantee
+that a second provider has clean destination-specific reputation.
 
 Parser and eligibility tests are dependency-free:
 

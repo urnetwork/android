@@ -381,6 +381,18 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         toggle = developerViewModel.setAffinityStickyPastCap,
     )
     DeveloperToggle(
+        label = stringResource(id = R.string.dev_fresh_flow_affinity),
+        detail = stringResource(id = R.string.dev_fresh_flow_affinity_detail),
+        checked = reliability?.freshFlowAffinity == true,
+        toggle = developerViewModel.setFreshFlowAffinity,
+    )
+    DeveloperToggle(
+        label = stringResource(id = R.string.dev_affinity_performance),
+        detail = stringResource(id = R.string.dev_affinity_performance_detail),
+        checked = reliability?.performanceAwareAffinity == true,
+        toggle = developerViewModel.setPerformanceAwareAffinity,
+    )
+    DeveloperToggle(
         label = stringResource(id = R.string.dev_group_follow),
         detail = stringResource(id = R.string.dev_group_follow_detail),
         checked = reliability?.quarantineGroupFollow == true,

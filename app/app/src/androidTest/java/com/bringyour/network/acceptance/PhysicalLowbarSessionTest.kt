@@ -283,6 +283,7 @@ class PhysicalLowbarSessionTest {
             .put("fdCount", File("/proc/self/fd").list()?.size ?: -1)
         if (device != null) {
             val tracked = device.memoryUsed()
+            val reliability = device.reliabilityMetrics
             result
                 .put("connected", device.connectEnabled)
                 .put("tunnelStarted", device.tunnelStarted)
@@ -339,6 +340,18 @@ class PhysicalLowbarSessionTest {
                 )
                 .put("remoteProviderBlockIngressPackets", providerBlockIngressPacketCount)
                 .put("remoteProviderBlockEgressPackets", providerBlockEgressPacketCount)
+                .put(
+                    "affinityPerformanceSamples",
+                    reliability.affinityPerformanceSamples,
+                )
+                .put(
+                    "affinityPerformanceDonorBypasses",
+                    reliability.affinityPerformanceDonorBypasses,
+                )
+                .put(
+                    "affinityPerformanceCandidatesFiltered",
+                    reliability.affinityPerformanceCandidatesFiltered,
+                )
                 .put("transportMode", device.transportSettings?.mode)
                 .put("autoDegraded", device.transportStatus?.autoDegraded)
                 .put("autoConstraint", device.transportStatus?.autoConstraint)

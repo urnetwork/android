@@ -152,6 +152,19 @@ class DeveloperViewModel @Inject constructor(
         update { s -> s.affinityStickyPastCap = sticky }
     }
 
+    /** Restores legacy hard IP/domain inheritance for controlled A/B runs. */
+    val setFreshFlowAffinity: (Boolean) -> Unit = { enabled ->
+        update { s -> s.freshFlowAffinity = enabled }
+    }
+
+    /**
+     * Weights a fresh TLS provider race using peak acknowledged-byte progress
+     * relative to each provider's advertised bandwidth prior.
+     */
+    val setPerformanceAwareAffinity: (Boolean) -> Unit = { enabled ->
+        update { s -> s.performanceAwareAffinity = enabled }
+    }
+
     /**
      * Lets a quarantined exit keep inheriting new flows from sites already on
      * it (through the early part of the bench, when the verdict is least
