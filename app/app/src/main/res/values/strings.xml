@@ -133,11 +133,7 @@
     <string name="delete">Delete</string>
     <string name="delete_account">Delete Account</string>
     <string name="dev_affinity_sticky">Sticky site affinity</string>
-    <string name="dev_affinity_sticky_detail">When hard fresh-flow affinity is enabled, allow a site\'s own growth to stay on its exit past the normal flow cap. Off restores the strict cap</string>
-    <string name="dev_fresh_flow_affinity">Hard fresh-flow affinity</string>
-    <string name="dev_fresh_flow_affinity_detail">Assign each new connection to the exit its IP or domain already uses. Off is the default: every ordinary fresh connection reaches the provider race. Existing connections and explicit pins always stay fixed</string>
-    <string name="dev_affinity_performance">Performance-aware affinity</string>
-    <string name="dev_affinity_performance_detail">Weight new TLS races by each provider\'s peak acknowledged-byte rate relative to its advertised bandwidth. With hard affinity enabled, low measured donors yield to the race. Existing connections and explicit pins stay fixed</string>
+    <string name="dev_affinity_sticky_detail">A site\'s new connections stay on the exit its earlier ones already use, even past the flow cap, so a busy site keeps one egress IP. The cap still limits which exits collect new sites. Off restores the strict cap</string>
     <string name="dev_behaviour">Behaviour</string>
     <string name="dev_blackhole_receive">Keep quiet providers longer</string>
     <string name="dev_blackhole_receive_detail">How long a provider still acknowledging traffic may return nothing before it is dropped. Off keeps them until they stop acknowledging</string>
