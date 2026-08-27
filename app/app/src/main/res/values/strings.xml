@@ -132,6 +132,8 @@
     <string name="default_wallet">Default</string>
     <string name="delete">Delete</string>
     <string name="delete_account">Delete Account</string>
+    <string name="dev_affinity_performance">Performance-aware affinity</string>
+    <string name="dev_affinity_performance_detail">Weight new TLS races by each provider\'s peak acknowledged-byte rate relative to its advertised bandwidth. With hard affinity enabled, low measured donors yield to the race. Existing connections and explicit pins stay fixed</string>
     <string name="dev_affinity_sticky">Sticky site affinity</string>
     <string name="dev_affinity_sticky_detail">A site\'s new connections stay on the exit its earlier ones already use, even past the flow cap, so a busy site keeps one egress IP. The cap still limits which exits collect new sites. Off restores the strict cap</string>
     <string name="dev_behaviour">Behaviour</string>
@@ -172,6 +174,8 @@
     <string name="dev_flows_reraced_detail">How many of those failures were quietly moved instead of hanging</string>
     <string name="dev_formation_poll">Fast first-exit poll</string>
     <string name="dev_formation_poll_detail">How often a connecting flow re-checks an empty window, so the first request leaves right after the first exit lands. Off waits the 2s retry pace</string>
+    <string name="dev_fresh_flow_affinity">Hard fresh-flow affinity</string>
+    <string name="dev_fresh_flow_affinity_detail">Assign each new connection to the exit its IP or domain already uses. Off is the default: every ordinary fresh connection reaches the provider race. Existing connections and explicit pins always stay fixed</string>
     <string name="dev_group_follow">Follow benched exits</string>
     <string name="dev_group_follow_detail">A quarantined exit keeps its own sites\' new connections through the early bench, when the verdict is least proven, so a bench does not split the site\'s egress IP. New sites still avoid it. Off scatters them</string>
     <string name="dev_group_follow_window">Follow window</string>
