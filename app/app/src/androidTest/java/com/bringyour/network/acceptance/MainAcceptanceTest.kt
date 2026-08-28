@@ -157,7 +157,6 @@ class MainAcceptanceTest {
     }
 
     private fun dismissPostLoginOverlays() {
-        waitForTag("acceptance.nav.connect", AUTH_TIMEOUT_MILLIS)
         repeat(4) {
             val description = when {
                 contentDescriptionExists("close") -> "close"
@@ -171,8 +170,16 @@ class MainAcceptanceTest {
     }
 
     private fun waitForMain() {
-        waitForTag("acceptance.nav.connect", AUTH_TIMEOUT_MILLIS)
+        // A fresh account replaces the navigation scaffold with the intro
+        // funnel. Waiting for navigation before closing that funnel deadlocks
+        // the acceptance driver even though authentication succeeded.
+        waitFor("main navigation or a dismissable post-login surface", AUTH_TIMEOUT_MILLIS) {
+            tagExists("acceptance.nav.connect") ||
+                contentDescriptionExists("close") ||
+                contentDescriptionExists("Close Overlay")
+        }
         dismissPostLoginOverlays()
+        waitForTag("acceptance.nav.connect", AUTH_TIMEOUT_MILLIS)
         clickTag("acceptance.nav.connect")
         waitForTag("acceptance.connect", AUTH_TIMEOUT_MILLIS)
     }
