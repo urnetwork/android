@@ -35,6 +35,7 @@ umask 077
 
 here="$(cd "$(dirname "$0")" && pwd)"
 root="${URNETWORK_ROOT:-$(dirname "$here")}"
+source "$here/test-main-lib.sh"
 vault="${UR_ACCEPT_VAULT:-$root/vault/main/tests.yml}"
 fixture="${UR_ACCEPT_FIXTURE:-$here/tests/__acceptance__/fixtures/android-main.secret}"
 repeat_count="${UR_ACCEPT_REPEAT:-1}"
@@ -74,6 +75,8 @@ done
 
 die() { echo "[android acceptance] ERROR: $*" >&2; exit 1; }
 command -v timeout >/dev/null 2>&1 || die "GNU timeout is required (brew install coreutils)"
+timeout_bin="$(command -v timeout)"
+timeout() { run_android_acceptance_timeout "$timeout_bin" "$@"; }
 node "$root/build/all/acceptance/preflight-main.mjs" || exit 1
 [ -f "$vault" ] || die "no acceptance vault at $vault"
 config_reader="$root/tests/read-tests-config.sh"
@@ -119,22 +122,7 @@ pull_fixture() {
 }
 
 pull_active_clients() {
-  local destination="$1" temporary="$run_dir/active-client-ids" client_id index=0
-  if ! timeout 30 "$adb" -s "$serial" exec-out run-as com.bringyour.network cat files/acceptance/active-client-ids >"$temporary" 2>/dev/null; then
-    rm -f "$temporary"
-    return 0
-  fi
-  mkdir -p "$destination"
-  while read -r client_id; do
-    [ -n "$client_id" ] || continue
-    case "$client_id" in
-      *[!A-Za-z0-9._-]*) echo "invalid retained client ID from Android" >&2; return 1 ;;
-    esac
-    index=$((index + 1))
-    printf '%s\n' "$client_id" >"$destination/active-client-id-$index"
-    chmod 600 "$destination/active-client-id-$index"
-  done < <(sort -u "$temporary")
-  rm -f "$temporary"
+  pull_android_acceptance_active_clients "$adb" "$serial" "$run_dir" "$1"
 }
 
 release_active_clients() {
@@ -163,12 +151,15 @@ cleanup() {
   if [ -n "$serial" ]; then
     for package_name in com.bringyour.network com.bringyour.network.test; do
       timeout 30 "$adb" -s "$serial" uninstall "$package_name" >/dev/null 2>&1 || true
-      package_path=""
-      if ! package_path="$(timeout 15 "$adb" -s "$serial" shell pm path "$package_name" 2>/dev/null)"; then
+      if android_acceptance_package_absent "$adb" "$serial" "$package_name"; then
+        :
+      else
+        package_status=$?
+        if [ "$package_status" -eq 1 ]; then
+          echo "[android acceptance] could not uninstall $package_name" >&2
+        else
         echo "[android acceptance] could not verify removal of $package_name" >&2
-        exit_status=1
-      elif printf '%s\n' "$package_path" | grep -q '^package:'; then
-        echo "[android acceptance] could not uninstall $package_name" >&2
+        fi
         exit_status=1
       fi
     done
@@ -201,7 +192,7 @@ cleanup() {
   elif [ -n "$emulator_pid" ] && ! kill -0 "$emulator_pid" 2>/dev/null; then
     wait "$emulator_pid" 2>/dev/null || true
   fi
-  if ! rm -rf "$run_dir"; then
+  if ! remove_android_acceptance_run_dir "$run_dir"; then
     echo "[android acceptance] could not remove $run_dir" >&2
     exit_status=1
   fi

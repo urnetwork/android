@@ -30,12 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
 import com.bringyour.network.ui.IntroRoute
+import com.bringyour.network.ui.POST_LOGIN_INTRO_CLOSE_TAG
 import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
@@ -72,7 +74,8 @@ fun IntroductionInitial(
                 title = {},
                 actions = {
                     IconButton(
-                        onClick = dismiss
+                        onClick = dismiss,
+                        modifier = Modifier.testTag(POST_LOGIN_INTRO_CLOSE_TAG),
                     ) {
                         Icon(Icons.Filled.Close, contentDescription = "close")
                     }

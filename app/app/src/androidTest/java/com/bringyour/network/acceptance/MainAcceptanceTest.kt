@@ -28,6 +28,11 @@ import androidx.test.uiautomator.Until
 import com.bringyour.network.BuildConfig
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.ui.POST_LOGIN_INTRO_CLOSE_TAG
+import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
+import com.bringyour.network.ui.PostLoginUiAction
+import com.bringyour.network.ui.nextPostLoginUiAction
+import com.bringyour.network.ui.performTransientUiActionIfPresent
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.CountDownLatch
@@ -113,16 +118,20 @@ class MainAcceptanceTest {
         return result
     }
 
+    private fun clickableMatcher(target: SemanticsMatcher): SemanticsMatcher {
+        val direct = target and hasClickAction()
+        val clickableParent = hasClickAction() and hasAnyDescendant(target)
+        return when {
+            nodes(direct) > 0 -> direct
+            nodes(clickableParent) > 0 -> clickableParent
+            else -> target
+        }
+    }
+
     private fun clickTag(tag: String, timeoutMillis: Long = UI_TIMEOUT_MILLIS) {
         waitForTag(tag, timeoutMillis)
 
-        val taggedClickable = hasTestTag(tag) and hasClickAction()
-        val clickableParent = hasClickAction() and hasAnyDescendant(hasTestTag(tag))
-        val matcher = when {
-            nodes(taggedClickable) > 0 -> taggedClickable
-            nodes(clickableParent) > 0 -> clickableParent
-            else -> hasTestTag(tag)
-        }
+        val matcher = clickableMatcher(hasTestTag(tag))
         val node = compose.onAllNodes(matcher, useUnmergedTree = true)[0]
         runCatching { node.performScrollTo() }
         node.assertExists().performClick()
@@ -156,30 +165,58 @@ class MainAcceptanceTest {
         waitForTag("acceptance.password.user")
     }
 
-    private fun dismissPostLoginOverlays() {
-        repeat(4) {
-            val description = when {
-                contentDescriptionExists("close") -> "close"
-                contentDescriptionExists("Close Overlay") -> "Close Overlay"
-                else -> return
-            }
-            val matcher = hasContentDescription(description) and hasClickAction()
-            compose.onAllNodes(matcher, useUnmergedTree = true)[0].performClick()
-            compose.waitForIdle()
+    private fun postLoginUiAction(): PostLoginUiAction? = nextPostLoginUiAction(
+        welcomeEnterPresent = tagExists(POST_LOGIN_WELCOME_ENTER_TAG),
+        introClosePresent = tagExists(POST_LOGIN_INTRO_CLOSE_TAG),
+        closePresent = contentDescriptionExists("close"),
+        closeOverlayPresent = contentDescriptionExists("Close Overlay"),
+    )
+
+    private fun dismissPostLoginUiAction(action: PostLoginUiAction) {
+        val target = when (action) {
+            PostLoginUiAction.WelcomeEnter -> hasTestTag(POST_LOGIN_WELCOME_ENTER_TAG)
+            PostLoginUiAction.IntroClose -> hasTestTag(POST_LOGIN_INTRO_CLOSE_TAG)
+            PostLoginUiAction.Close -> hasContentDescription("close")
+            PostLoginUiAction.CloseOverlay -> hasContentDescription("Close Overlay")
         }
+        val matcher = clickableMatcher(target)
+        performTransientUiActionIfPresent(
+            isPresent = { nodes(matcher) > 0 },
+            action = {
+                compose.onAllNodes(matcher, useUnmergedTree = true)[0].performClick()
+            },
+        )
     }
 
     private fun waitForMain() {
-        // A fresh account replaces the navigation scaffold with the intro
-        // funnel. Waiting for navigation before closing that funnel deadlocks
-        // the acceptance driver even though authentication succeeded.
-        waitFor("main navigation or a dismissable post-login surface", AUTH_TIMEOUT_MILLIS) {
-            tagExists("acceptance.nav.connect") ||
-                contentDescriptionExists("close") ||
-                contentDescriptionExists("Close Overlay")
+        // Post-login surfaces are asynchronous and can appear in sequence. A
+        // one-shot scan can observe the gap between them and then wait forever
+        // for navigation hidden below the next surface. Keep advancing until
+        // navigation is present with no dismissable surface above it.
+        val deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(AUTH_TIMEOUT_MILLIS)
+        while (true) {
+            val action = postLoginUiAction()
+            if (action == null && tagExists("acceptance.nav.connect")) break
+            if (System.nanoTime() >= deadlineNanos) {
+                throw AssertionError(
+                    "Timed out advancing through post-login UI after ${AUTH_TIMEOUT_MILLIS / 1_000}s"
+                )
+            }
+
+            if (action != null) dismissPostLoginUiAction(action)
+            compose.waitForIdle()
+
+            val remainingMillis = TimeUnit.NANOSECONDS
+                .toMillis(deadlineNanos - System.nanoTime())
+                .coerceIn(1, 1_000)
+            runCatching {
+                compose.waitUntil(remainingMillis) {
+                    val currentAction = postLoginUiAction()
+                    (currentAction == null && tagExists("acceptance.nav.connect")) ||
+                        currentAction != action
+                }
+            }
         }
-        dismissPostLoginOverlays()
-        waitForTag("acceptance.nav.connect", AUTH_TIMEOUT_MILLIS)
         clickTag("acceptance.nav.connect")
         waitForTag("acceptance.connect", AUTH_TIMEOUT_MILLIS)
     }

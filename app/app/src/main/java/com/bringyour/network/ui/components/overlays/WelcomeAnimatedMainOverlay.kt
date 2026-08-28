@@ -42,7 +42,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Yellow
 
@@ -155,6 +157,7 @@ fun WelcomeAnimatedMainOverlay(
                             },
                             style = ButtonStyle.OUTLINE,
                             borderColor = Black,
+                            modifier = Modifier.testTag(POST_LOGIN_WELCOME_ENTER_TAG),
                         ) { buttonTextStyle ->
                             Row(
                                 modifier = Modifier
@@ -190,4 +193,3 @@ private fun WelcomeAnimatedOverlayPreview() {
         )
     }
 }
-
