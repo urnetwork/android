@@ -38,6 +38,8 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.theme.Black
 
+internal const val ACCEPTANCE_INSTANT_ERROR_TAG = "acceptance.instant.error"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNetworkInstant(
@@ -119,11 +121,20 @@ fun CreateNetworkInstant(
                     Text("Create Account", style = buttonTextStyle)
                 }
 
-                if (error != null) {
+                error?.let { refusal ->
                     Spacer(modifier = Modifier.height(8.dp))
-                    URInlineErrorText(error)
+                    CreateNetworkInstantError(refusal)
                 }
             }
         }
     }
+}
+
+/** Exposes a server refusal at a stable acceptance-test boundary. */
+@Composable
+internal fun CreateNetworkInstantError(error: String) {
+    URInlineErrorText(
+        error,
+        Modifier.testTag(ACCEPTANCE_INSTANT_ERROR_TAG),
+    )
 }

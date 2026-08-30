@@ -161,6 +161,44 @@ class PhysicalLowbarSessionTest {
         button?.click()
     }
 
+    private fun peerEgressProbe(): String {
+        uiDevice.executeShellCommand(
+            "am start -W -n com.bringyour.network.test/com.bringyour.network.acceptance.EgressProbeActivity",
+        )
+        val result = uiDevice.wait(
+            Until.findObject(By.text(EgressProbeResult.terminalText)),
+            EGRESS_TIMEOUT_MILLIS,
+        ) ?: throw AssertionError(
+            "peer egress probe did not return within ${EGRESS_TIMEOUT_MILLIS / 1_000}s",
+        )
+        val value = result.text
+        uiDevice.pressBack()
+        if (value.startsWith("ACCEPTANCE_ERROR=")) {
+            throw AssertionError("peer egress probe failed: ${value.removePrefix("ACCEPTANCE_ERROR=")}")
+        }
+        check(value.startsWith("ACCEPTANCE_IP=")) { "invalid peer egress response" }
+        return value.removePrefix("ACCEPTANCE_IP=").trim().also {
+            check(it.matches(Regex("[0-9a-fA-F:.]+"))) { "invalid peer egress address" }
+        }
+    }
+
+    private fun peerEgressProbeWithTrafficProof(device: DeviceLocal): String {
+        val before = device.packetStats
+        val beforeEgressPackets = before?.remoteEgressPacketCount ?: 0
+        val beforeEgressBytes = before?.remoteEgressByteCount ?: 0
+        val beforeIngressPackets = before?.remoteIngressPacketCount ?: 0
+        val beforeIngressBytes = before?.remoteIngressByteCount ?: 0
+        val address = peerEgressProbe()
+        waitFor("bidirectional peer traffic counters", EGRESS_TIMEOUT_MILLIS) {
+            val after = device.packetStats ?: return@waitFor false
+            after.remoteEgressPacketCount > beforeEgressPackets &&
+                after.remoteEgressByteCount > beforeEgressBytes &&
+                after.remoteIngressPacketCount > beforeIngressPackets &&
+                after.remoteIngressByteCount > beforeIngressBytes
+        }
+        return address
+    }
+
     private fun writePrivate(destination: File, text: String) {
         destination.parentFile?.mkdirs()
         val temporary = File(destination.parentFile, "${destination.name}.tmp")
@@ -718,7 +756,7 @@ class PhysicalLowbarSessionTest {
         connectVc: ConnectViewController,
     ) {
         stopClient(connectVc, device)
-        application.deviceManager.provideNetworkMode = ProvideNetworkMode.WIFI
+        application.deviceManager.provideNetworkMode = ProvideNetworkMode.ALL
         application.deviceManager.provideControlMode = ProvideControlMode.NETWORK
         device.providePaused = false
         handleVpnConsentIfPresent()
@@ -822,6 +860,27 @@ class PhysicalLowbarSessionTest {
                 argument,
                 false,
             )
+            "probe" -> {
+                val address = peerEgressProbeWithTrafficProof(device)
+                status(
+                    id,
+                    "complete",
+                    application,
+                    startElapsedMs,
+                    JSONObject().put("address", address),
+                )
+                return false
+            }
+            "provider-proof" -> waitFor(
+                "bidirectional provider traffic counters",
+                EGRESS_TIMEOUT_MILLIS,
+            ) {
+                val stats = device.providerPacketStats ?: return@waitFor false
+                stats.remoteEgressPacketCount > 0 &&
+                    stats.remoteEgressByteCount > 0 &&
+                    stats.remoteIngressPacketCount > 0 &&
+                    stats.remoteIngressByteCount > 0
+            }
             "free-memory" -> {
                 val before = Sdk.getMemoryStats().totalRuntimeByteCount
                 Sdk.freeMemory()
@@ -978,6 +1037,7 @@ class PhysicalLowbarSessionTest {
         const val AUTH_TIMEOUT_MILLIS = 90_000L
         const val CONNECT_TIMEOUT_MILLIS = 120_000L
         const val PEER_TIMEOUT_MILLIS = 180_000L
+        const val EGRESS_TIMEOUT_MILLIS = 45_000L
         const val COMMAND_POLL_MILLIS = 250L
         const val SAMPLE_INTERVAL_MILLIS = 5_000L
         const val MAX_SESSION_MILLIS = 10_200_000L

@@ -105,8 +105,16 @@ chmod 700 "$run_dir"
 serial=""
 emulator_pid=""
 started_emulator=0
+peer_serial=""
+peer_emulator_pid=""
+provider_session_pid=""
+client_session_pid=""
+p2p_app_apk=""
+p2p_test_apk=""
+p2p_build_id=""
 fdroid_tree=""
 private_staging=""
+private_staging_serial=""
 
 pull_fixture() {
   local temporary="$run_dir/guest-secret-key"
@@ -139,14 +147,31 @@ release_active_clients() {
 
 cleanup() {
   exit_status=$?
-  if [ -n "$serial" ] && [ -n "$private_staging" ]; then
-    timeout 15 "$adb" -s "$serial" shell rm -f "$private_staging" >/dev/null 2>&1 || true
+  for session_pid in "$provider_session_pid" "$client_session_pid"; do
+    [ -n "$session_pid" ] || continue
+    if kill -0 "$session_pid" 2>/dev/null; then
+      kill -TERM "$session_pid" 2>/dev/null || true
+    fi
+    wait "$session_pid" 2>/dev/null || true
+  done
+  if [ -n "$private_staging_serial" ] && [ -n "$private_staging" ]; then
+    timeout 15 "$adb" -s "$private_staging_serial" shell rm -f "$private_staging" >/dev/null 2>&1 || true
   fi
   if [ -n "$serial" ] && [ ! -f "$fixture" ]; then
     pull_fixture || true
   fi
   if [ -n "$serial" ]; then
     pull_active_clients "$artifacts/cleanup-clients" || exit_status=1
+    pull_android_acceptance_private_client_id \
+      "$adb" "$serial" com.bringyour.network \
+      files/acceptance/physical-active-client-id \
+      "$artifacts/cleanup-clients/physical-active-client-id-primary" || exit_status=1
+  fi
+  if [ -n "$peer_serial" ]; then
+    pull_android_acceptance_private_client_id \
+      "$adb" "$peer_serial" com.bringyour.network \
+      files/acceptance/physical-active-client-id \
+      "$artifacts/cleanup-clients/peer-physical-active-client-id" || exit_status=1
   fi
   if [ -n "$serial" ]; then
     for package_name in com.bringyour.network com.bringyour.network.test; do
@@ -167,6 +192,33 @@ cleanup() {
   if ! release_active_clients "$artifacts/cleanup-clients"; then
     echo "[android acceptance] could not release every retained network client" >&2
     exit_status=1
+  fi
+  for physical_active in \
+    "$artifacts/cleanup-clients/physical-active-client-id-primary" \
+    "$artifacts/cleanup-clients/peer-physical-active-client-id"; do
+    [ -s "$physical_active" ] || continue
+    if ! UR_ACCEPT_CREDENTIALS_FILE="$credentials" timeout 90 \
+      node "$root/build/all/acceptance/client-cleanup.mjs" "$physical_active"; then
+      echo "[android acceptance] could not release a physical-session client" >&2
+      exit_status=1
+    fi
+  done
+  if [ -n "$peer_serial" ]; then
+    for package_name in com.bringyour.network com.bringyour.network.test; do
+      timeout 30 "$adb" -s "$peer_serial" uninstall "$package_name" >/dev/null 2>&1 || true
+    done
+    timeout 15 "$adb" -s "$peer_serial" emu kill >/dev/null 2>&1 || true
+  fi
+  if [ -n "$peer_emulator_pid" ]; then
+    for _ in $(seq 1 150); do
+      kill -0 "$peer_emulator_pid" 2>/dev/null || break
+      sleep 0.2
+    done
+    if kill -0 "$peer_emulator_pid" 2>/dev/null; then
+      kill -KILL "$peer_emulator_pid" 2>/dev/null || true
+      exit_status=1
+    fi
+    wait "$peer_emulator_pid" 2>/dev/null || true
   fi
   if [ "$started_emulator" -eq 1 ] && [ "$keep_emulator" -ne 1 ] && [ -n "$emulator_pid" ]; then
     if [ -n "$serial" ]; then
@@ -204,7 +256,7 @@ cleanup() {
       matrix_status=FAIL
       matrix_detail="Android acceptance runner failed; see platform artifacts"
     fi
-    for matrix_case in email phone instant password data-plane; do
+    for matrix_case in email phone instant password data-plane peer-to-peer; do
       printf 'android\t%s\t%s\t%s\n' "$matrix_case" "$matrix_status" "$matrix_detail" >>"$result_matrix"
     done
     chmod 600 "$result_matrix"
@@ -258,9 +310,10 @@ find_avd_serial() {
 
 serial="$(find_avd_serial || true)"
 if [ -z "$serial" ]; then
-  emulator_args=(-avd "$avd_name" -no-snapshot -no-boot-anim -netdelay none -netspeed full)
+  emulator_args=(-avd "$avd_name" -read-only -no-snapshot -no-boot-anim -netdelay none -netspeed full)
   [ "$headless" -eq 1 ] && emulator_args+=(-no-window)
-  "$emulator" "${emulator_args[@]}" >"$artifacts/emulator.log" 2>&1 &
+  run_android_acceptance_shared_avd_emulator \
+    "$emulator" "$artifacts/emulator.log" "${emulator_args[@]}" &
   emulator_pid=$!
   started_emulator=1
   for _ in $(seq 1 60); do
@@ -345,31 +398,42 @@ apk_version() {
   timeout 60 "$aapt" dump badging "$apk" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p" | sed -n '1p'
 }
 
-install_private_file() {
-  local source="$1" destination="$2" staging="/data/local/tmp/urnetwork-acceptance-$RANDOM" copy_status=0
+find_apk_analyzer() {
+  find "$sdk_root/cmdline-tools" -type f -path '*/bin/apkanalyzer' 2>/dev/null | sort | tail -1
+}
+
+install_private_file_on() {
+  local target_serial="$1" source="$2" destination="$3" staging="/data/local/tmp/urnetwork-acceptance-$RANDOM" copy_status=0
   case "$destination" in
-    credentials|guest-secret-key|tests.json) ;;
+    credentials|guest-secret-key|tests.json|physical-command|physical-expected-peer-id) ;;
     *) echo "refusing unsafe acceptance destination: $destination" >&2; return 1 ;;
   esac
 
   # adb push cannot write directly into the app sandbox. Always remove the
   # temporary copy, including when run-as or chmod fails partway through.
   private_staging="$staging"
-  if ! timeout 60 "$adb" -s "$serial" push "$source" "$staging" >/dev/null; then
-    timeout 15 "$adb" -s "$serial" shell rm -f "$staging" >/dev/null 2>&1 || true
+  private_staging_serial="$target_serial"
+  if ! timeout 60 "$adb" -s "$target_serial" push "$source" "$staging" >/dev/null; then
+    timeout 15 "$adb" -s "$target_serial" shell rm -f "$staging" >/dev/null 2>&1 || true
     private_staging=""
+    private_staging_serial=""
     return 1
   fi
-  timeout 30 "$adb" -s "$serial" shell run-as com.bringyour.network mkdir -p files/acceptance || copy_status=$?
+  timeout 30 "$adb" -s "$target_serial" shell run-as com.bringyour.network mkdir -p files/acceptance || copy_status=$?
   if [ "$copy_status" -eq 0 ]; then
-    timeout 30 "$adb" -s "$serial" shell run-as com.bringyour.network cp "$staging" "files/acceptance/$destination" || copy_status=$?
+    timeout 30 "$adb" -s "$target_serial" shell run-as com.bringyour.network cp "$staging" "files/acceptance/$destination" || copy_status=$?
   fi
   if [ "$copy_status" -eq 0 ]; then
-    timeout 30 "$adb" -s "$serial" shell run-as com.bringyour.network chmod 600 "files/acceptance/$destination" || copy_status=$?
+    timeout 30 "$adb" -s "$target_serial" shell run-as com.bringyour.network chmod 600 "files/acceptance/$destination" || copy_status=$?
   fi
-  timeout 15 "$adb" -s "$serial" shell rm -f "$staging" >/dev/null 2>&1 || true
+  timeout 15 "$adb" -s "$target_serial" shell rm -f "$staging" >/dev/null 2>&1 || true
   private_staging=""
+  private_staging_serial=""
   return "$copy_status"
+}
+
+install_private_file() {
+  install_private_file_on "$serial" "$1" "$2"
 }
 
 collect_target_artifacts() {
@@ -381,6 +445,181 @@ collect_target_artifacts() {
     tar -C files/acceptance -cf - screenshots 2>/dev/null | tar -xf - -C "$out/ui" 2>/dev/null || true
   pull_fixture || true
   pull_active_clients "$out"
+}
+
+wait_android_ready() {
+  local target_serial="$1" network_ready=0
+  timeout 180 "$adb" -s "$target_serial" wait-for-device
+  for _ in $(seq 1 180); do
+    if [ "$(timeout 10 "$adb" -s "$target_serial" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; then
+      break
+    fi
+    sleep 2
+  done
+  [ "$(timeout 10 "$adb" -s "$target_serial" shell getprop sys.boot_completed | tr -d '\r')" = 1 ] || return 1
+  [ "$(timeout 10 "$adb" -s "$target_serial" shell getprop ro.product.cpu.abi | tr -d '\r')" = arm64-v8a ] || return 1
+  for _ in $(seq 1 24); do
+    if timeout 10 "$adb" -s "$target_serial" shell ping -c 1 -W 3 api.bringyour.com >/dev/null 2>&1; then
+      network_ready=1
+      break
+    fi
+    sleep 5
+  done
+  [ "$network_ready" -eq 1 ]
+}
+
+boot_peer_emulator() {
+  local devices port=""
+  devices="$(timeout 15 "$adb" devices)"
+  for candidate_port in $(seq 5556 2 5584); do
+    if ! printf '%s\n' "$devices" | grep -q "^emulator-${candidate_port}[[:space:]]"; then
+      port="$candidate_port"
+      break
+    fi
+  done
+  [ -n "$port" ] || die "no free Android emulator console port for peer-to-peer acceptance"
+  peer_serial="emulator-$port"
+  peer_args=(-avd "$avd_name" -read-only -port "$port" -no-snapshot -no-boot-anim -netdelay none -netspeed full)
+  [ "$headless" -eq 1 ] && peer_args+=(-no-window)
+  run_android_acceptance_shared_avd_emulator \
+    "$emulator" "$artifacts/peer-to-peer/emulator-provider.log" "${peer_args[@]}" &
+  peer_emulator_pid=$!
+  if ! wait_android_ready "$peer_serial"; then
+    die "peer Android emulator did not become network-ready"
+  fi
+}
+
+wait_physical_status() {
+  local target_serial="$1" command_id="$2" state="$3" proof="$4" timeout_seconds="$5" status
+  for _ in $(seq 1 "$timeout_seconds"); do
+    status="$(timeout 15 "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
+      cat files/acceptance/physical-status 2>/dev/null | tr -d '\r' || true)"
+    if printf '%s' "$status" | node "$here/scripts/p2p-status.mjs" "$command_id" "$state" "$proof"; then
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
+send_physical_command() {
+  local target_serial="$1" record="$2" command_file="$run_dir/physical-command"
+  printf '%s\n' "$record" >"$command_file"
+  chmod 600 "$command_file"
+  install_private_file_on "$target_serial" "$command_file" physical-command
+}
+
+pull_physical_client() {
+  local target_serial="$1" destination="$2"
+  pull_android_acceptance_private_client_id \
+    "$adb" "$target_serial" com.bringyour.network \
+    files/acceptance/physical-active-client-id "$destination" || return 1
+  [ -s "$destination" ]
+}
+
+stop_peer_emulator() {
+  [ -n "$peer_serial" ] || return 0
+  for package_name in com.bringyour.network com.bringyour.network.test; do
+    timeout 30 "$adb" -s "$peer_serial" uninstall "$package_name" >/dev/null 2>&1 || true
+  done
+  timeout 15 "$adb" -s "$peer_serial" emu kill >/dev/null 2>&1 || true
+  if [ -n "$peer_emulator_pid" ]; then
+    for _ in $(seq 1 150); do
+      kill -0 "$peer_emulator_pid" 2>/dev/null || break
+      sleep 0.2
+    done
+    if kill -0 "$peer_emulator_pid" 2>/dev/null; then
+      kill -KILL "$peer_emulator_pid" 2>/dev/null || true
+      return 1
+    fi
+    wait "$peer_emulator_pid" 2>/dev/null || true
+  fi
+  peer_serial=""
+  peer_emulator_pid=""
+}
+
+run_android_peer_to_peer() {
+  local out="$artifacts/peer-to-peer" provider_id_file="$run_dir/provider-client-id" session_status=0
+  mkdir -p "$out"
+  [ -f "$p2p_app_apk" ] && [ -f "$p2p_test_apk" ] && [ -n "$p2p_build_id" ] || \
+    die "no locally built Android target is available for peer-to-peer acceptance"
+  boot_peer_emulator
+
+  for target_serial in "$serial" "$peer_serial"; do
+    timeout 30 "$adb" -s "$target_serial" uninstall com.bringyour.network >/dev/null 2>&1 || true
+    timeout 30 "$adb" -s "$target_serial" uninstall com.bringyour.network.test >/dev/null 2>&1 || true
+    timeout 180 "$adb" -s "$target_serial" install -r -t "$p2p_app_apk" >/dev/null
+    timeout 180 "$adb" -s "$target_serial" install -r -t "$p2p_test_apk" >/dev/null
+    install_private_file_on "$target_serial" "$credentials" credentials
+    timeout 30 "$adb" -s "$target_serial" shell pm grant com.bringyour.network android.permission.POST_NOTIFICATIONS >/dev/null 2>&1 || true
+    timeout 30 "$adb" -s "$target_serial" shell appops set com.bringyour.network ACTIVATE_VPN allow >/dev/null 2>&1 || true
+  done
+
+  "$adb" -s "$peer_serial" shell am instrument -w -r \
+    -e class com.bringyour.network.acceptance.PhysicalLowbarSessionTest \
+    -e acceptanceBuildId "$p2p_build_id" \
+    com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner \
+    >"$out/provider-instrumentation.log" 2>&1 &
+  provider_session_pid=$!
+  if ! wait_physical_status "$peer_serial" 0 ready none 180; then
+    die "Android peer provider session did not become ready"
+  fi
+
+  "$adb" -s "$serial" shell am instrument -w -r \
+    -e class com.bringyour.network.acceptance.PhysicalLowbarSessionTest \
+    -e acceptanceBuildId "$p2p_build_id" \
+    com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner \
+    >"$out/client-instrumentation.log" 2>&1 &
+  client_session_pid=$!
+  if ! wait_physical_status "$serial" 0 ready none 180; then
+    die "Android peer client session did not become ready"
+  fi
+
+  pull_physical_client "$peer_serial" "$provider_id_file" || die "Android peer provider returned no client ID"
+  install_private_file_on "$serial" "$provider_id_file" physical-expected-peer-id
+
+  send_physical_command "$peer_serial" 'provider-start|provide|'
+  wait_physical_status "$peer_serial" provider-start complete none 180 || \
+    die "Android peer provider did not enter Network provide mode"
+
+  for iteration in $(seq 1 "$repeat_count"); do
+    send_physical_command "$serial" "client-connect-${iteration}|peer-connect|h1"
+    wait_physical_status "$serial" "client-connect-${iteration}" complete none 240 || \
+      die "Android client did not connect to the exact peer provider"
+    send_physical_command "$serial" "client-probe-${iteration}|probe|"
+    wait_physical_status "$serial" "client-probe-${iteration}" complete client 90 || \
+      die "Android client produced no bidirectional peer traffic proof"
+  done
+
+  send_physical_command "$peer_serial" 'provider-proof|provider-proof|'
+  wait_physical_status "$peer_serial" provider-proof complete provider 90 || \
+    die "Android provider produced no bidirectional peer traffic proof"
+  send_physical_command "$serial" 'client-finish|finish|'
+  wait_physical_status "$serial" client-finish complete none 120 || session_status=1
+  send_physical_command "$peer_serial" 'provider-finish|finish|'
+  wait_physical_status "$peer_serial" provider-finish complete none 120 || session_status=1
+
+  if wait "$client_session_pid"; then :; else session_status=1; fi
+  client_session_pid=""
+  if wait "$provider_session_pid"; then :; else session_status=1; fi
+  provider_session_pid=""
+  if grep -Eq 'FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed|shortMsg=' \
+      "$out/client-instrumentation.log" "$out/provider-instrumentation.log"; then
+    session_status=1
+  fi
+
+  pull_physical_client "$serial" "$out/active-client-id-1" || session_status=1
+  pull_physical_client "$peer_serial" "$out/active-client-id-2" || session_status=1
+  if release_active_clients "$out"; then
+    timeout 30 "$adb" -s "$serial" shell run-as com.bringyour.network \
+      rm -f files/acceptance/physical-active-client-id >/dev/null 2>&1 || true
+    timeout 30 "$adb" -s "$peer_serial" shell run-as com.bringyour.network \
+      rm -f files/acceptance/physical-active-client-id >/dev/null 2>&1 || true
+  else
+    session_status=1
+  fi
+  if ! stop_peer_emulator; then session_status=1; fi
+  [ "$session_status" -eq 0 ]
 }
 
 overall=0
@@ -426,6 +665,17 @@ for target in $targets; do
     echo "missing cached target and test APKs for $target" >&2
     overall=1
     continue
+  fi
+  analyzer="$(find_apk_analyzer)"
+  if [ ! -x "$analyzer" ] || ! verify_android_acceptance_egress_probe "$analyzer" "$test_apk"; then
+    echo "test APK cannot run its second-UID egress probe for $target" >&2
+    overall=1
+    continue
+  fi
+  if [ -z "$p2p_app_apk" ]; then
+    p2p_app_apk="$target_apk"
+    p2p_test_apk="$test_apk"
+    p2p_build_id="$build_id"
   fi
 
   timeout 30 "$adb" -s "$serial" uninstall com.bringyour.network >/dev/null 2>&1 || true
@@ -502,6 +752,17 @@ for target in $targets; do
     break
   fi
 done
+
+if [ "$overall" -eq 0 ]; then
+  echo
+  echo "[android acceptance] ════════ peer-to-peer ════════"
+  if run_android_peer_to_peer; then
+    echo "[android acceptance] peer-to-peer accepted"
+  else
+    echo "[android acceptance] peer-to-peer rejected" >&2
+    overall=1
+  fi
+fi
 
 timeout 30 "$adb" -s "$serial" uninstall com.bringyour.network >/dev/null 2>&1 || true
 timeout 30 "$adb" -s "$serial" uninstall com.bringyour.network.test >/dev/null 2>&1 || true

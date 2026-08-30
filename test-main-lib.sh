@@ -11,6 +11,44 @@ run_android_acceptance_timeout() {
   "$timeout_bin" --foreground "$@"
 }
 
+# Every emulator that opens the same acceptance AVD must use read-only mode.
+# Android's emulator rejects a read-only peer when the first instance holds the
+# AVD writable, which otherwise prevents the peer-to-peer phase from starting.
+run_android_acceptance_shared_avd_emulator() {
+  local emulator="$1" log_file="$2" argument
+  local read_only=0
+  shift 2
+
+  for argument in "$@"; do
+    [ "$argument" = -read-only ] && read_only=1
+  done
+  if [ "$read_only" -ne 1 ]; then
+    echo "refusing to start a shared acceptance AVD without -read-only" >&2
+    return 2
+  fi
+  exec "$emulator" "$@" >"$log_file" 2>&1
+}
+
+# Verifies that the second-UID egress activity can run as the test APK's
+# standalone application. Instrumentation dependencies that are also present
+# in the target APK are not copied into the test APK, so a Kotlin reference in
+# this activity compiles successfully but fails at runtime before the probe can
+# make its first request.
+verify_android_acceptance_egress_probe() {
+  local analyzer="$1" test_apk="$2" bytecode
+
+  if ! bytecode="$(timeout 60 "$analyzer" dex code \
+    --class com.bringyour.network.acceptance.EgressProbeActivity "$test_apk")"; then
+    echo "could not inspect the standalone Android egress probe" >&2
+    return 1
+  fi
+  if printf '%s\n' "$bytecode" | grep -q 'Lkotlin/'; then
+    echo "standalone Android egress probe depends on the unavailable Kotlin runtime" >&2
+    return 1
+  fi
+  return 0
+}
+
 # Removes only the private run directory created by test-main.sh. Go module
 # downloads are intentionally read-only, so ask Go to clean its cache first
 # and make the remaining private tree writable before the final removal.
@@ -59,6 +97,52 @@ android_acceptance_private_file_status() {
     return 1
   fi
   return 2
+}
+
+# Pulls one private client ID without accepting adb/run-as diagnostics as data.
+# Missing packages and files are ordinary cleanup states; an unreachable device
+# or malformed existing file remains an error.
+pull_android_acceptance_private_client_id() {
+  local adb="$1" serial="$2" package_name="$3" relative_path="$4" destination="$5"
+  local file_status temporary client_id line_count
+
+  rm -f "$destination"
+  if android_acceptance_private_file_status \
+    "$adb" "$serial" "$package_name" "$relative_path"; then
+    file_status=0
+  else
+    file_status=$?
+  fi
+  case "$file_status" in
+    0) ;;
+    1) return 0 ;;
+    *) return 1 ;;
+  esac
+
+  mkdir -p "$(dirname "$destination")"
+  temporary="$(mktemp "${destination}.tmp.XXXXXX")"
+  if ! timeout 30 "$adb" -s "$serial" exec-out run-as "$package_name" \
+    cat "$relative_path" >"$temporary" 2>/dev/null; then
+    rm -f "$temporary"
+    return 1
+  fi
+  line_count="$(awk 'END { print NR }' "$temporary")"
+  IFS= read -r client_id <"$temporary" || true
+  client_id="${client_id%$'\r'}"
+  case "$line_count:$client_id" in
+    1:|1:*[!A-Za-z0-9._-]*)
+      rm -f "$temporary"
+      return 1
+      ;;
+    1:*) ;;
+    *)
+      rm -f "$temporary"
+      return 1
+      ;;
+  esac
+  printf '%s\n' "$client_id" >"$temporary"
+  chmod 600 "$temporary"
+  mv "$temporary" "$destination"
 }
 
 # Pulls retained client IDs only when their private file exists. Some adb

@@ -8,7 +8,6 @@ import android.os.Build
 import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -20,6 +19,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -33,6 +34,7 @@ import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.PostLoginUiAction
 import com.bringyour.network.ui.nextPostLoginUiAction
 import com.bringyour.network.ui.performTransientUiActionIfPresent
+import com.bringyour.network.ui.login.ACCEPTANCE_INSTANT_ERROR_TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.CountDownLatch
@@ -118,6 +120,14 @@ class MainAcceptanceTest {
         return result
     }
 
+    private fun taggedText(tag: String): String {
+        val text = compose.onNodeWithTag(tag, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .config
+            .getOrNull(SemanticsProperties.Text)
+        return text?.joinToString(separator = "") { it.text }.orEmpty()
+    }
+
     private fun clickableMatcher(target: SemanticsMatcher): SemanticsMatcher {
         val direct = target and hasClickAction()
         val clickableParent = hasClickAction() and hasAnyDescendant(target)
@@ -142,15 +152,6 @@ class MainAcceptanceTest {
         compose.onNodeWithTag(tag, useUnmergedTree = true)
             .assertExists()
             .performTextReplacement(value)
-    }
-
-    private fun waitForEnabledTag(tag: String, timeoutMillis: Long = AUTH_TIMEOUT_MILLIS) {
-        waitFor("enabled UI tag $tag", timeoutMillis) {
-            runCatching {
-                compose.onNodeWithTag(tag, useUnmergedTree = true).assertExists().assertIsEnabled()
-                true
-            }.getOrDefault(false)
-        }
     }
 
     private fun launchLoggedOutApp() {
@@ -225,8 +226,11 @@ class MainAcceptanceTest {
         log("create instant account through local UI")
         clickTag("acceptance.login.instant")
         clickTag("acceptance.instant.terms")
+        compose.waitForEnabledTag("acceptance.instant.create", AUTH_TIMEOUT_MILLIS)
         clickTag("acceptance.instant.create")
-        waitForTag("acceptance.instant.copy", AUTH_TIMEOUT_MILLIS)
+        if (waitForEitherTag("acceptance.instant.copy", ACCEPTANCE_INSTANT_ERROR_TAG) == ACCEPTANCE_INSTANT_ERROR_TAG) {
+            throw AssertionError("instant signup failed: ${taggedText(ACCEPTANCE_INSTANT_ERROR_TAG)}")
+        }
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val previousClipboard = clipboard.primaryClip
@@ -258,6 +262,7 @@ class MainAcceptanceTest {
         log("sign in with saved secret key through local UI")
         clickTag("acceptance.login.secret")
         replaceTagText("acceptance.secret.input", secretKey)
+        compose.waitForEnabledTag("acceptance.secret.submit", AUTH_TIMEOUT_MILLIS)
         clickTag("acceptance.secret.submit")
         waitForMain()
     }
@@ -369,7 +374,7 @@ class MainAcceptanceTest {
         replaceTagText("acceptance.create.network", networkName)
         replaceTagText("acceptance.create.password", inputs.password)
         clickTag("acceptance.create.terms")
-        waitForEnabledTag("acceptance.create.submit")
+        compose.waitForEnabledTag("acceptance.create.submit", AUTH_TIMEOUT_MILLIS)
         clickTag("acceptance.create.submit")
         waitForMain()
         val createdNetwork = currentNetworkId()
@@ -452,7 +457,7 @@ class MainAcceptanceTest {
             "am start -W -n com.bringyour.network.test/com.bringyour.network.acceptance.EgressProbeActivity"
         )
         val result = device.wait(
-            Until.findObject(By.textStartsWith("ACCEPTANCE_")),
+            Until.findObject(By.text(EgressProbeResult.terminalText)),
             EGRESS_TIMEOUT_MILLIS,
         ) ?: throw AssertionError("egress probe did not return within ${EGRESS_TIMEOUT_MILLIS / 1_000}s")
 
