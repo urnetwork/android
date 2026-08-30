@@ -112,6 +112,7 @@
     <string name="contract_stack_max">max %1$s</string>
     <string name="contracts_appear_connected">Contracts appear here while connected.</string>
     <string name="contracts_appear_providing">Contracts appear here while providing.</string>
+    <string name="copied">Copied!</string>
     <string name="copy">Copy</string>
     <string name="copy_auth_code">Copy Auth Code</string>
     <string name="countries">Countries</string>
@@ -502,14 +503,16 @@
     <string name="refer_friends_detail">More connections help our community stay anonymous (and help you earn!)</string>
     <string name="refer_friends_header">Refer friends</string>
     <string name="refer_friends_increase_free_data">Refer some friends and watch your free data go up.</string>
-    <string name="refer_friends_perks">You get +%1$s GiB/month for life</string>
-    <string name="refer_friends_they_get_data">Your friend gets +%1$s GiB/month for life</string>
+    <string name="refer_friends_perks">You get +%1$s GiB/day for life</string>
+    <string name="refer_friends_they_get_data">Your friend gets +%1$s GiB/day for life</string>
     <string name="referral">Referral</string>
-    <string name="referral_bonus">+%1$d GiB/Month</string>
+    <string name="referral_bonus">+%1$d GiB/Day</string>
     <string name="referral_bonus_applied">Referral bonus applied</string>
     <string name="referral_code">Referral code</string>
     <string name="referral_code_capped">This code has been used up</string>
     <string name="referral_network">Referral network</string>
+    <string name="referral_royal_welcome">A royal welcome!</string>
+    <string name="referral_royal_welcome_detail">Referral confirmed — you and your friend each get +%1$d GiB/day of free data, for life.</string>
     <string name="referral_royalty">You\'re referral royalty!</string>
     <string name="referral_share_message">Join me on URnetwork! Get the app and enter referral code %1$s when you sign up.</string>
     <string name="regions">Regions</string>
@@ -697,6 +700,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d provider</item>
         <item quantity="other">%1$d providers</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">A friend just joined URnetwork with your code. You\'re both earning +%2$d GiB a day of free data — for life.</item>
+        <item quantity="other">%1$d friends just joined URnetwork with your code. Each one earns you +%2$d GiB a day of free data — for life.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">A friend has joined — you\'re earning +%2$d GiB/day, for life.</item>
+        <item quantity="other">%1$d friends have joined — you\'re earning +%2$d GiB/day, for life.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">A friend joined with your code! +%2$d GiB/day, for life.</item>
+        <item quantity="other">%1$d friends joined with your code! +%2$d GiB/day each, for life.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d split rule</item>

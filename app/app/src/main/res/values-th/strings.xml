@@ -107,6 +107,7 @@
     <string name="contract_stack_max">สูงสุด %1$s</string>
     <string name="contracts_appear_connected">สัญญาจะแสดงที่นี่ขณะเชื่อมต่อ</string>
     <string name="contracts_appear_providing">สัญญาจะแสดงที่นี่ขณะให้บริการ</string>
+    <string name="copied">คัดลอกแล้ว!</string>
     <string name="copy">คัดลอก</string>
     <string name="copy_auth_code">คัดลอกรหัสยืนยัน</string>
     <string name="countries">ประเทศ</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">การเชื่อมต่อที่เยอะขึ้น จะช่วยขับเคลื่อนชุมชนของพวกเราให้มีความเป็นส่วนตัวมากขึ้น (และยังทำให้คุณมีรายได้ด้วย!)</string>
     <string name="refer_friends_header">แนะนำเพื่อน</string>
     <string name="refer_friends_increase_free_data">แนะนำเพื่อนสักสองสามคนแล้วดูว่าข้อมูลฟรีของคุณเพิ่มขึ้นอย่างไร</string>
-    <string name="refer_friends_perks">คุณได้รับ +%1$s GiB/เดือนตลอดชีวิต</string>
-    <string name="refer_friends_they_get_data">เพื่อนของคุณได้รับ +%1$s GiB/เดือนตลอดชีวิต</string>
+    <string name="refer_friends_perks">คุณได้รับ +%1$s GiB/วันตลอดชีวิต</string>
+    <string name="refer_friends_they_get_data">เพื่อนของคุณได้รับ +%1$s GiB/วันตลอดชีวิต</string>
     <string name="referral">การแนะนำเชิญชวน</string>
-    <string name="referral_bonus">+%1$d GiB/เดือน</string>
+    <string name="referral_bonus">+%1$d GiB/วัน</string>
     <string name="referral_bonus_applied">โบนัสจากการแนะนำใช้งานเรียบร้อย</string>
     <string name="referral_code">รหัสการแนะนำ</string>
     <string name="referral_code_capped">โค้ดนี้ถูกใช้หมดแล้ว</string>
     <string name="referral_network">แนะนำเครือข่าย</string>
+    <string name="referral_royal_welcome">การต้อนรับระดับราชวงศ์!</string>
+    <string name="referral_royal_welcome_detail">ยืนยันการแนะนำแล้ว — คุณและเพื่อนจะได้รับข้อมูลฟรีคนละ +%1$d GiB/วัน ตลอดชีวิต</string>
     <string name="referral_royalty">คุณคือสุดยอดนักแนะนำ!</string>
     <string name="referral_share_message">มาร่วม URnetwork กับฉันสิ! ดาวน์โหลดแอปแล้วกรอกรหัสแนะนำ %1$s ตอนสมัคร</string>
     <string name="regions">ภูมิภาค</string>
@@ -524,6 +527,15 @@
     </plurals>
     <plurals name="provider_count">
         <item quantity="other">%1$d ผู้ให้บริการ</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="other">เพื่อน %1$d คนเพิ่งเข้าร่วม URnetwork ด้วยโค้ดของคุณ แต่ละคนทำให้คุณได้รับข้อมูลฟรี +%2$d GiB ต่อวัน — ตลอดชีวิต</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="other">เพื่อน %1$d คนเข้าร่วมแล้ว — คุณได้รับ +%2$d GiB/วัน ตลอดชีวิต</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="other">เพื่อน %1$d คนเข้าร่วมด้วยโค้ดของคุณ! +%2$d GiB/วันต่อคน ตลอดชีวิต</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">กฎแยกเส้นทาง %1$d ข้อ</item>

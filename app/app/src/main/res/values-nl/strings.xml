@@ -107,6 +107,7 @@
     <string name="contract_stack_max">max %1$s</string>
     <string name="contracts_appear_connected">Contracten verschijnen hier terwijl je verbonden bent.</string>
     <string name="contracts_appear_providing">Contracten verschijnen hier tijdens het leveren.</string>
+    <string name="copied">Gekopieerd!</string>
     <string name="copy">Kopiëren</string>
     <string name="copy_auth_code">Auth-code kopiëren</string>
     <string name="countries">Landen</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Meer verbindingen helpen onze community anoniem te blijven (en helpen je verdienen!)</string>
     <string name="refer_friends_header">Vrienden doorverwijzen</string>
     <string name="refer_friends_increase_free_data">Verwijs wat vrienden door en zie je gratis data stijgen.</string>
-    <string name="refer_friends_perks">Jij krijgt +%1$s GiB/maand voor altijd</string>
-    <string name="refer_friends_they_get_data">Je vriend krijgt +%1$s GiB/maand voor altijd</string>
+    <string name="refer_friends_perks">Jij krijgt +%1$s GiB/dag voor altijd</string>
+    <string name="refer_friends_they_get_data">Je vriend krijgt +%1$s GiB/dag voor altijd</string>
     <string name="referral">Doorverwijzing</string>
-    <string name="referral_bonus">+%1$d GiB/maand</string>
+    <string name="referral_bonus">+%1$d GiB/dag</string>
     <string name="referral_bonus_applied">Referentiecode toegepast</string>
     <string name="referral_code">Referentiecode</string>
     <string name="referral_code_capped">Deze code is al gebruikt</string>
     <string name="referral_network">Referentienetwerk</string>
+    <string name="referral_royal_welcome">Een koninklijk welkom!</string>
+    <string name="referral_royal_welcome_detail">Verwijzing bevestigd — jij en je vriend krijgen elk +%1$d GiB/dag aan gratis data, levenslang.</string>
     <string name="referral_royalty">Jij bent een verwijzingskampioen!</string>
     <string name="referral_share_message">Doe met me mee op URnetwork! Download de app en voer bij het aanmelden referentiecode %1$s in.</string>
     <string name="regions">Regio\'s</string>
@@ -534,6 +537,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d aanbieder</item>
         <item quantity="other">%1$d aanbieders</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Er is zojuist een vriend via jouw code lid geworden van URnetwork. Jullie verdienen allebei +%2$d GiB gratis data per dag — levenslang.</item>
+        <item quantity="other">Er zijn zojuist %1$d vrienden via jouw code lid geworden van URnetwork. Elk levert je +%2$d GiB gratis data per dag op — levenslang.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Er is een vriend lid geworden — je verdient +%2$d GiB/dag, levenslang.</item>
+        <item quantity="other">Er zijn %1$d vrienden lid geworden — je verdient +%2$d GiB/dag, levenslang.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Een vriend is met jouw code lid geworden! +%2$d GiB/dag, levenslang.</item>
+        <item quantity="other">%1$d vrienden zijn met jouw code lid geworden! Elk +%2$d GiB/dag, levenslang.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d splitsregel</item>

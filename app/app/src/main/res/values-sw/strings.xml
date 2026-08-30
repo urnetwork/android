@@ -107,6 +107,7 @@
     <string name="contract_stack_max">kiwango cha juu %1$s</string>
     <string name="contracts_appear_connected">Mikataba huonekana hapa ukiwa umeunganishwa.</string>
     <string name="contracts_appear_providing">Mikataba huonekana hapa unapotoa huduma.</string>
+    <string name="copied">Imenakiliwa!</string>
     <string name="copy">Nakala</string>
     <string name="copy_auth_code">Nakili nambari ya uthibitishaji</string>
     <string name="countries">Nchi</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Miunganisho zaidi husaidia jumuiya yetu kubaki bila majina (na kukusaidia kupata!)</string>
     <string name="refer_friends_header">Rejelea marafiki</string>
     <string name="refer_friends_increase_free_data">Rejelea marafiki na uone data yako ya bure ikiongezeka.</string>
-    <string name="refer_friends_perks">Unapata +%1$s GiB/mwezi maisha yote</string>
-    <string name="refer_friends_they_get_data">Rafiki yako anapata +%1$s GiB/mwezi maisha yote</string>
+    <string name="refer_friends_perks">Unapata +%1$s GiB/siku maisha yote</string>
+    <string name="refer_friends_they_get_data">Rafiki yako anapata +%1$s GiB/siku maisha yote</string>
     <string name="referral">Rufaa</string>
-    <string name="referral_bonus">+%1$d GiB/mwezi</string>
+    <string name="referral_bonus">+%1$d GiB/siku</string>
     <string name="referral_bonus_applied">Bonasi ya rufaa imetumika</string>
     <string name="referral_code">Msimbo wa rufaa</string>
     <string name="referral_code_capped">Msimbo huu umetumika tayari</string>
     <string name="referral_network">Mtandao wa rufaa</string>
+    <string name="referral_royal_welcome">Karibu ya kifalme!</string>
+    <string name="referral_royal_welcome_detail">Rufaa imethibitishwa — wewe na rafiki yako mtapata kila mmoja +%1$d GiB kwa siku za data bila malipo, maisha yote.</string>
     <string name="referral_royalty">Wewe ni bingwa wa rufaa!</string>
     <string name="referral_share_message">Jiunge nami kwenye URnetwork! Pata programu na uweke msimbo wa rufaa %1$s unapojisajili.</string>
     <string name="regions">Mikoa</string>
@@ -534,6 +537,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d mtoa huduma</item>
         <item quantity="other">%1$d watoa huduma</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Rafiki amejiunga sasa hivi na URnetwork kwa msimbo wako. Nyote wawili mnapata +%2$d GiB za data bila malipo kwa siku — maisha yote.</item>
+        <item quantity="other">Marafiki %1$d wamejiunga sasa hivi na URnetwork kwa msimbo wako. Kila mmoja anakuletea +%2$d GiB za data bila malipo kwa siku — maisha yote.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Rafiki amejiunga — unapata +%2$d GiB kwa siku, maisha yote.</item>
+        <item quantity="other">Marafiki %1$d wamejiunga — unapata +%2$d GiB kwa siku, maisha yote.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Rafiki amejiunga kwa msimbo wako! +%2$d GiB kwa siku, maisha yote.</item>
+        <item quantity="other">Marafiki %1$d wamejiunga kwa msimbo wako! +%2$d GiB kwa siku kwa kila mmoja, maisha yote.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d sheria ya mgawanyo</item>

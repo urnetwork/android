@@ -107,6 +107,7 @@
     <string name="contract_stack_max">макс %1$s</string>
     <string name="contracts_appear_connected">Контракты появятся здесь при подключении.</string>
     <string name="contracts_appear_providing">Контракты появятся здесь во время предоставления.</string>
+    <string name="copied">Скопировано!</string>
     <string name="copy">Копировать</string>
     <string name="copy_auth_code">Скопировать код аутентификации</string>
     <string name="countries">Страны</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Больше подключений помогают нашему сообществу оставаться анонимным (и помогают вам зарабатывать!)</string>
     <string name="refer_friends_header">Пригласить друзей</string>
     <string name="refer_friends_increase_free_data">Пригласите друзей и наблюдайте, как увеличивается ваш бесплатный трафик.</string>
-    <string name="refer_friends_perks">Вы получаете +%1$s GiB/месяц навсегда</string>
-    <string name="refer_friends_they_get_data">Ваш друг получает +%1$s GiB/месяц навсегда</string>
+    <string name="refer_friends_perks">Вы получаете +%1$s GiB/день навсегда</string>
+    <string name="refer_friends_they_get_data">Ваш друг получает +%1$s GiB/день навсегда</string>
     <string name="referral">Реферал</string>
-    <string name="referral_bonus">+%1$d GiB/месяц</string>
+    <string name="referral_bonus">+%1$d GiB/день</string>
     <string name="referral_bonus_applied">Реферальный бонус применен</string>
     <string name="referral_code">Реферальный код</string>
     <string name="referral_code_capped">Этот код уже был использован</string>
     <string name="referral_network">Реферальная сеть</string>
+    <string name="referral_royal_welcome">Королевский приём!</string>
+    <string name="referral_royal_welcome_detail">Реферал подтверждён — вы и ваш друг получаете по +%1$d GiB бесплатных данных в день, навсегда.</string>
     <string name="referral_royalty">Вы — звезда рефералов!</string>
     <string name="referral_share_message">Присоединяйтесь ко мне в URnetwork! Установите приложение и введите реферальный код %1$s при регистрации.</string>
     <string name="regions">Регионы</string>
@@ -554,6 +557,24 @@
         <item quantity="few">%1$d провайдера</item>
         <item quantity="many">%1$d провайдеров</item>
         <item quantity="other">%1$d провайдеров</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Друг только что присоединился к URnetwork по вашему коду. Вы оба получаете +%2$d GiB бесплатных данных в день — навсегда.</item>
+        <item quantity="few">%1$d друга только что присоединились к URnetwork по вашему коду. Каждый приносит вам +%2$d GiB бесплатных данных в день — навсегда.</item>
+        <item quantity="many">%1$d друзей только что присоединились к URnetwork по вашему коду. Каждый приносит вам +%2$d GiB бесплатных данных в день — навсегда.</item>
+        <item quantity="other">%1$d друзей только что присоединились к URnetwork по вашему коду. Каждый приносит вам +%2$d GiB бесплатных данных в день — навсегда.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Присоединился друг — вы получаете +%2$d GiB в день, навсегда.</item>
+        <item quantity="few">Присоединились %1$d друга — вы получаете +%2$d GiB в день, навсегда.</item>
+        <item quantity="many">Присоединились %1$d друзей — вы получаете +%2$d GiB в день, навсегда.</item>
+        <item quantity="other">Присоединились %1$d друзей — вы получаете +%2$d GiB в день, навсегда.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Друг присоединился по вашему коду! +%2$d GiB в день, навсегда.</item>
+        <item quantity="few">%1$d друга присоединились по вашему коду! По +%2$d GiB в день за каждого, навсегда.</item>
+        <item quantity="many">%1$d друзей присоединились по вашему коду! По +%2$d GiB в день за каждого, навсегда.</item>
+        <item quantity="other">%1$d друзей присоединились по вашему коду! По +%2$d GiB в день за каждого, навсегда.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d правило разделения</item>

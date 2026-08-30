@@ -107,6 +107,7 @@
     <string name="contract_stack_max">máx %1$s</string>
     <string name="contracts_appear_connected">Os contratos aparecem aqui enquanto estiver ligado.</string>
     <string name="contracts_appear_providing">Os contratos aparecem aqui enquanto estiver a fornecer.</string>
+    <string name="copied">Copiado!</string>
     <string name="copy">Copie</string>
     <string name="copy_auth_code">Copiar código de autenticação</string>
     <string name="countries">Países</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Mais conexões ajudam nossa comunidade a permanecer anônima (e ajudam você a ganhar!)</string>
     <string name="refer_friends_header">Indicar amigos</string>
     <string name="refer_friends_increase_free_data">Recomende alguns amigos e veja os seus dados gratuitos aumentarem.</string>
-    <string name="refer_friends_perks">Recebe +%1$s GiB/mês para sempre</string>
-    <string name="refer_friends_they_get_data">O seu amigo recebe +%1$s GiB/mês para sempre</string>
+    <string name="refer_friends_perks">Recebe +%1$s GiB/dia para sempre</string>
+    <string name="refer_friends_they_get_data">O seu amigo recebe +%1$s GiB/dia para sempre</string>
     <string name="referral">Referência</string>
-    <string name="referral_bonus">+%1$d GiB/mês</string>
+    <string name="referral_bonus">+%1$d GiB/dia</string>
     <string name="referral_bonus_applied">Bónus de referência aplicado</string>
     <string name="referral_code">Código de referência</string>
     <string name="referral_code_capped">Este código já foi utilizado</string>
     <string name="referral_network">Rede de referências</string>
+    <string name="referral_royal_welcome">Boas-vindas reais!</string>
+    <string name="referral_royal_welcome_detail">Referência confirmada — você e o seu amigo recebem, cada um, +%1$d GiB/dia de dados grátis, para toda a vida.</string>
     <string name="referral_royalty">É uma estrela das referências!</string>
     <string name="referral_share_message">Junte-se a mim na URnetwork! Instale a aplicação e introduza o código de referência %1$s ao registar-se.</string>
     <string name="regions">Regiões</string>
@@ -534,6 +537,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d fornecedor</item>
         <item quantity="other">%1$d fornecedores</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Um amigo acabou de aderir à URnetwork com o seu código. Ambos ganham +%2$d GiB de dados grátis por dia — para toda a vida.</item>
+        <item quantity="other">%1$d amigos acabaram de aderir à URnetwork com o seu código. Cada um rende-lhe +%2$d GiB de dados grátis por dia — para toda a vida.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Um amigo aderiu — está a ganhar +%2$d GiB/dia, para toda a vida.</item>
+        <item quantity="other">%1$d amigos aderiram — está a ganhar +%2$d GiB/dia, para toda a vida.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Um amigo aderiu com o seu código! +%2$d GiB/dia, para toda a vida.</item>
+        <item quantity="other">%1$d amigos aderiram com o seu código! +%2$d GiB/dia por cada um, para toda a vida.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d regra de divisão</item>

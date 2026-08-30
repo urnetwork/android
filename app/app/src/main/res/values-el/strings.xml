@@ -107,6 +107,7 @@
     <string name="contract_stack_max">μέγ. %1$s</string>
     <string name="contracts_appear_connected">Τα συμβόλαια εμφανίζονται εδώ όταν είστε συνδεδεμένοι.</string>
     <string name="contracts_appear_providing">Τα συμβόλαια εμφανίζονται εδώ όταν παρέχετε.</string>
+    <string name="copied">Αντιγράφηκε!</string>
     <string name="copy">Αντιγραφή</string>
     <string name="copy_auth_code">Αντιγραφή κωδικού ταυτοποίησης</string>
     <string name="countries">Χώρες</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Περισσότερες συνδέσεις βοηθούν την κοινότητά μας να παραμένει ανώνυμη (και σας βοηθούν να κερδίσετε χρήματα!)</string>
     <string name="refer_friends_header">Προσκαλέστε φίλους</string>
     <string name="refer_friends_increase_free_data">Προτείνετε μερικούς φίλους και δείτε τα δωρεάν δεδομένα σας να αυξάνονται.</string>
-    <string name="refer_friends_perks">Παίρνεις +%1$s GiB/μήνα για πάντα</string>
-    <string name="refer_friends_they_get_data">Ο φίλος σου παίρνει +%1$s GiB/μήνα για πάντα</string>
+    <string name="refer_friends_perks">Παίρνεις +%1$s GiB/ημέρα για πάντα</string>
+    <string name="refer_friends_they_get_data">Ο φίλος σου παίρνει +%1$s GiB/ημέρα για πάντα</string>
     <string name="referral">Παραπομπή</string>
-    <string name="referral_bonus">+%1$d GiB/μήνα</string>
+    <string name="referral_bonus">+%1$d GiB/ημέρα</string>
     <string name="referral_bonus_applied">Εφαρμόστηκε μπόνους παραπομπής</string>
     <string name="referral_code">Κωδικός παραπομπής</string>
     <string name="referral_code_capped">Αυτός ο κωδικός έχει εξαντληθεί</string>
     <string name="referral_network">Δίκτυο παραπομπών</string>
+    <string name="referral_royal_welcome">Βασιλικό καλωσόρισμα!</string>
+    <string name="referral_royal_welcome_detail">Η παραπομπή επιβεβαιώθηκε — εσύ και ο φίλος σου παίρνετε από +%1$d GiB/ημέρα δωρεάν δεδομένα, για πάντα.</string>
     <string name="referral_royalty">Είστε αστέρι στις παραπομπές!</string>
     <string name="referral_share_message">Έλα μαζί μου στο URnetwork! Κατέβασε την εφαρμογή και βάλε τον κωδικό παραπομπής %1$s στην εγγραφή σου.</string>
     <string name="regions">Περιοχές</string>
@@ -534,6 +537,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d πάροχος</item>
         <item quantity="other">%1$d πάροχοι</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Ένας φίλος μόλις μπήκε στο URnetwork με τον κωδικό σου. Κερδίζετε και οι δύο +%2$d GiB δωρεάν δεδομένα την ημέρα — για πάντα.</item>
+        <item quantity="other">%1$d φίλοι μόλις μπήκαν στο URnetwork με τον κωδικό σου. Ο καθένας σού αποφέρει +%2$d GiB δωρεάν δεδομένα την ημέρα — για πάντα.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Ένας φίλος μπήκε — κερδίζεις +%2$d GiB/ημέρα, για πάντα.</item>
+        <item quantity="other">%1$d φίλοι μπήκαν — κερδίζεις +%2$d GiB/ημέρα, για πάντα.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Ένας φίλος μπήκε με τον κωδικό σου! +%2$d GiB/ημέρα, για πάντα.</item>
+        <item quantity="other">%1$d φίλοι μπήκαν με τον κωδικό σου! +%2$d GiB/ημέρα ο καθένας, για πάντα.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d κανόνας διαχωρισμού</item>

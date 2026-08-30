@@ -107,6 +107,7 @@
     <string name="contract_stack_max">最大 %1$s</string>
     <string name="contracts_appear_connected">接続中に契約がここに表示されます。</string>
     <string name="contracts_appear_providing">提供中に契約がここに表示されます。</string>
+    <string name="copied">コピーしました！</string>
     <string name="copy">コピー</string>
     <string name="copy_auth_code">認証コードをコピー</string>
     <string name="countries">国</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">より多くの接続はコミュニティの匿名性を保つのに役立ちます（そしてあなたの収益にも！）</string>
     <string name="refer_friends_header">友達を紹介する</string>
     <string name="refer_friends_increase_free_data">友達を紹介して、無料データが増えるのを見ましょう。</string>
-    <string name="refer_friends_perks">あなたは一生 +%1$s GiB/月 を獲得できます</string>
-    <string name="refer_friends_they_get_data">あなたの友達も一生 +%1$s GiB/月 を獲得できます</string>
+    <string name="refer_friends_perks">あなたは一生 +%1$s GiB/日 を獲得できます</string>
+    <string name="refer_friends_they_get_data">あなたの友達も一生 +%1$s GiB/日 を獲得できます</string>
     <string name="referral">紹介</string>
-    <string name="referral_bonus">+%1$d GiB/月</string>
+    <string name="referral_bonus">+%1$d GiB/日</string>
     <string name="referral_bonus_applied">紹介ボーナス適用済み</string>
     <string name="referral_code">紹介コード</string>
     <string name="referral_code_capped">このコードはすでに使われています</string>
     <string name="referral_network">紹介ネットワーク</string>
+    <string name="referral_royal_welcome">王室級の歓迎です！</string>
+    <string name="referral_royal_welcome_detail">紹介が確定しました。あなたと友達それぞれに毎日+%1$d GiBの無料データを一生プレゼント。</string>
     <string name="referral_royalty">紹介の達人ですね！</string>
     <string name="referral_share_message">一緒にURnetworkを使いましょう！アプリをインストールして、登録時に紹介コード %1$s を入力してください。</string>
     <string name="regions">地域</string>
@@ -524,6 +527,15 @@
     </plurals>
     <plurals name="provider_count">
         <item quantity="other">%1$d プロバイダー</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="other">友達%1$d人があなたのコードでURnetworkに参加しました。1人につき毎日+%2$d GiBの無料データを一生獲得できます。</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="other">友達%1$d人が参加済み。毎日+%2$d GiBを一生獲得中。</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="other">友達%1$d人があなたのコードで参加！1人につき毎日+%2$d GiB、一生もらえます。</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">%1$d件の分割ルール</item>

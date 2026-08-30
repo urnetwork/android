@@ -18,6 +18,8 @@ enum class OverlayMode {
     // a purchase Play accepted but has not completed -- awaiting approval or an
     // out-of-band payment. Distinct from Upgrade, which means it actually went through.
     PurchasePending,
+    // one-time crowning celebration when the network's first referral lands
+    ReferralCelebration,
 }
 
 @Composable
@@ -27,6 +29,10 @@ fun FullScreenOverlay(
     // server-confirmed subscription (`currentSubscription != null`). Gates the
     // Upgrade overlay's copy: processing-shaped until the server confirms.
     planUpgradeConfirmed: Boolean = false,
+    totalReferralCount: Long = 0L,
+    // how many referrals the ReferralCelebration overlay is celebrating
+    referralCelebrationJoined: Long = 1L,
+    onReferralCelebrationDismissed: () -> Unit = {},
 ) {
 
     val enterTransition = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
@@ -44,11 +50,28 @@ fun FullScreenOverlay(
         if (referralCode != null) {
             ReferOverlay(
                 referralCode = referralCode,
+                totalReferrals = totalReferralCount,
                 onDismiss = {
                     overlayViewModel.launch(null)
                 }
             )
         }
+    }
+
+    // First-referral crowning celebration
+    AnimatedVisibility(
+        visible = overlayMode == OverlayMode.ReferralCelebration,
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+        ReferralCelebrationOverlay(
+            joinedCount = referralCelebrationJoined,
+            referralCode = referralCode,
+            onDismiss = {
+                onReferralCelebrationDismissed()
+                overlayViewModel.launch(null)
+            }
+        )
     }
 
     // Purchase awaiting approval overlay

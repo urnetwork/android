@@ -107,6 +107,7 @@
     <string name="contract_stack_max">최대 %1$s</string>
     <string name="contracts_appear_connected">연결 중에 계약이 여기에 표시됩니다.</string>
     <string name="contracts_appear_providing">제공 중에 계약이 여기에 표시됩니다.</string>
+    <string name="copied">복사되었습니다!</string>
     <string name="copy">복사</string>
     <string name="copy_auth_code">인증 코드 복사</string>
     <string name="countries">국가</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">더 많은 연결은 우리 커뮤니티가 익명성을 유지하는 데 도움이 됩니다 (그리고 당신의 수익에도 도움이 됩니다!)</string>
     <string name="refer_friends_header">친구 추천하기</string>
     <string name="refer_friends_increase_free_data">친구를 추천하고 무료 데이터가 늘어나는 것을 확인하세요.</string>
-    <string name="refer_friends_perks">평생 +%1$s GiB/월을 받습니다</string>
-    <string name="refer_friends_they_get_data">친구도 평생 +%1$s GiB/월을 받습니다</string>
+    <string name="refer_friends_perks">평생 +%1$s GiB/일을 받습니다</string>
+    <string name="refer_friends_they_get_data">친구도 평생 +%1$s GiB/일을 받습니다</string>
     <string name="referral">추천</string>
-    <string name="referral_bonus">+%1$d GiB/월</string>
+    <string name="referral_bonus">+%1$d GiB/일</string>
     <string name="referral_bonus_applied">추천 보너스 적용됨</string>
     <string name="referral_code">추천 코드</string>
     <string name="referral_code_capped">이 코드는 이미 모두 사용되었습니다</string>
     <string name="referral_network">추천 네트워크</string>
+    <string name="referral_royal_welcome">왕실급 환영입니다!</string>
+    <string name="referral_royal_welcome_detail">추천이 확인되었습니다. 나와 친구 모두 평생 매일 +%1$d GiB의 무료 데이터를 받습니다.</string>
     <string name="referral_royalty">추천왕이시네요!</string>
     <string name="referral_share_message">URnetwork에서 함께해요! 앱을 설치하고 가입할 때 추천 코드 %1$s을(를) 입력하세요.</string>
     <string name="regions">지역</string>
@@ -524,6 +527,15 @@
     </plurals>
     <plurals name="provider_count">
         <item quantity="other">%1$d개 제공자</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="other">친구 %1$d명이 내 코드로 URnetwork에 가입했습니다. 한 명당 평생 매일 +%2$d GiB의 무료 데이터를 받습니다.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="other">친구 %1$d명이 가입했습니다. 평생 +%2$d GiB/일을 받는 중.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="other">친구 %1$d명이 내 코드로 가입했습니다! 한 명당 평생 +%2$d GiB/일.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">분할 규칙 %1$d개</item>

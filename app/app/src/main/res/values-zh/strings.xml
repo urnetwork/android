@@ -107,6 +107,7 @@
     <string name="contract_stack_max">最大 %1$s</string>
     <string name="contracts_appear_connected">连接后，合约会显示在这里。</string>
     <string name="contracts_appear_providing">提供数据时，合约会显示在这里。</string>
+    <string name="copied">已复制！</string>
     <string name="copy">复制</string>
     <string name="copy_auth_code">复制验证码</string>
     <string name="countries">国家</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">更多连接可以帮助我们的社区保持匿名（并帮助您赚钱！）</string>
     <string name="refer_friends_header">推荐朋友</string>
     <string name="refer_friends_increase_free_data">推荐一些朋友，看看你的免费流量如何增加。</string>
-    <string name="refer_friends_perks">你获得 +%1$s GiB/月，终身享有</string>
-    <string name="refer_friends_they_get_data">你的朋友获得 +%1$s GiB/月，终身享有</string>
+    <string name="refer_friends_perks">你获得 +%1$s GiB/天，终身享有</string>
+    <string name="refer_friends_they_get_data">你的朋友获得 +%1$s GiB/天，终身享有</string>
     <string name="referral">推荐</string>
-    <string name="referral_bonus">+%1$d GiB/月</string>
+    <string name="referral_bonus">+%1$d GiB/天</string>
     <string name="referral_bonus_applied">已应用推荐奖励</string>
     <string name="referral_code">推荐码</string>
     <string name="referral_code_capped">此代码已被用完</string>
     <string name="referral_network">推荐网络</string>
+    <string name="referral_royal_welcome">王者般的欢迎！</string>
+    <string name="referral_royal_welcome_detail">推荐已确认——你和好友每人每天获得 +%1$d GiB 免费流量，终身有效。</string>
     <string name="referral_royalty">你是推荐王者！</string>
     <string name="referral_share_message">快来 URnetwork 和我一起！下载应用，注册时输入推荐码 %1$s。</string>
     <string name="regions">地区</string>
@@ -524,6 +527,15 @@
     </plurals>
     <plurals name="provider_count">
         <item quantity="other">%1$d 个提供商</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="other">%1$d 位好友刚刚通过你的推荐码加入 URnetwork。每位好友都让你终身每天多获得 +%2$d GiB 免费流量。</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="other">已有 %1$d 位好友加入——你正终身每天多获得 +%2$d GiB。</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="other">%1$d 位好友通过你的推荐码加入了！每位 +%2$d GiB/天，终身有效。</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">%1$d 条分流规则</item>

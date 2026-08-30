@@ -107,6 +107,7 @@
     <string name="contract_stack_max">अधिकतम %1$s</string>
     <string name="contracts_appear_connected">कनेक्ट होने पर कॉन्ट्रैक्ट यहाँ दिखाई देंगे।</string>
     <string name="contracts_appear_providing">प्रदान करते समय कॉन्ट्रैक्ट यहाँ दिखाई देंगे।</string>
+    <string name="copied">कॉपी हो गया!</string>
     <string name="copy">कॉपी करें</string>
     <string name="copy_auth_code">ऑथ कोड कॉपी करें</string>
     <string name="countries">देश</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">अधिक कनेक्शन हमारे समुदाय को गुमनाम रहने में मदद करते हैं (और आपको पैसे कमाने में मदद करते हैं!)</string>
     <string name="refer_friends_header">दोस्तों को रेफ़र करें</string>
     <string name="refer_friends_increase_free_data">कुछ दोस्तों को रेफ़र करें और अपनी मुफ्त डेटा को बढ़ते हुए देखें।</string>
-    <string name="refer_friends_perks">आपको जीवनभर +%1$s GiB/महीना मिलेगा</string>
-    <string name="refer_friends_they_get_data">आपके दोस्त को जीवनभर +%1$s GiB/महीना मिलेगा</string>
+    <string name="refer_friends_perks">आपको जीवनभर +%1$s GiB/दिन मिलेगा</string>
+    <string name="refer_friends_they_get_data">आपके दोस्त को जीवनभर +%1$s GiB/दिन मिलेगा</string>
     <string name="referral">रेफ़रल</string>
-    <string name="referral_bonus">+%1$d GiB/महीना</string>
+    <string name="referral_bonus">+%1$d GiB/दिन</string>
     <string name="referral_bonus_applied">रेफरल बोनस लागू किया गया</string>
     <string name="referral_code">रेफरल कोड</string>
     <string name="referral_code_capped">यह कोड पहले ही उपयोग हो चुका है</string>
     <string name="referral_network">रेफ़रल नेटवर्क</string>
+    <string name="referral_royal_welcome">शाही स्वागत है!</string>
+    <string name="referral_royal_welcome_detail">रेफ़रल की पुष्टि हो गई — आपको और आपके दोस्त, दोनों को जीवनभर +%1$d GiB/दिन मुफ़्त डेटा मिलेगा।</string>
     <string name="referral_royalty">आप तो रेफ़रल के सुपरस्टार हैं!</string>
     <string name="referral_share_message">URnetwork पर मेरे साथ जुड़ें! ऐप डाउनलोड करें और साइन अप करते समय रेफ़रल कोड %1$s डालें।</string>
     <string name="regions">क्षेत्र</string>
@@ -534,6 +537,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d प्रदाता</item>
         <item quantity="other">%1$d प्रदाता</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">आपके कोड से एक दोस्त अभी URnetwork से जुड़ा। आप दोनों को जीवनभर हर दिन +%2$d GiB मुफ़्त डेटा मिलेगा।</item>
+        <item quantity="other">आपके कोड से %1$d दोस्त अभी URnetwork से जुड़े। हर दोस्त से आपको जीवनभर हर दिन +%2$d GiB मुफ़्त डेटा मिलेगा।</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">एक दोस्त जुड़ चुका है — आप जीवनभर +%2$d GiB/दिन कमा रहे हैं।</item>
+        <item quantity="other">%1$d दोस्त जुड़ चुके हैं — आप जीवनभर +%2$d GiB/दिन कमा रहे हैं।</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">आपके कोड से एक दोस्त जुड़ा! जीवनभर +%2$d GiB/दिन।</item>
+        <item quantity="other">आपके कोड से %1$d दोस्त जुड़े! हर एक से जीवनभर +%2$d GiB/दिन।</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d स्प्लिट नियम</item>

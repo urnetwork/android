@@ -107,6 +107,7 @@
     <string name="contract_stack_max">max %1$s</string>
     <string name="contracts_appear_connected">Kontrakty se zde zobrazí po připojení.</string>
     <string name="contracts_appear_providing">Kontrakty se zde zobrazí během poskytování.</string>
+    <string name="copied">Zkopírováno!</string>
     <string name="copy">Kopírovat</string>
     <string name="copy_auth_code">Kopírovat ověřovací kód</string>
     <string name="countries">Země</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Více připojení pomáhá naší komunitě zůstat anonymní (a pomáhá vám vydělávat!)</string>
     <string name="refer_friends_header">Doporučte přátele</string>
     <string name="refer_friends_increase_free_data">Doporučte pár přátel a sledujte, jak vaše bezplatná data rostou.</string>
-    <string name="refer_friends_perks">Získáte +%1$s GiB/měsíc na celý život</string>
-    <string name="refer_friends_they_get_data">Váš přítel získá +%1$s GiB/měsíc na celý život</string>
+    <string name="refer_friends_perks">Získáte +%1$s GiB/den na celý život</string>
+    <string name="refer_friends_they_get_data">Váš přítel získá +%1$s GiB/den na celý život</string>
     <string name="referral">Doporučení</string>
-    <string name="referral_bonus">+%1$d GiB/měsíc</string>
+    <string name="referral_bonus">+%1$d GiB/den</string>
     <string name="referral_bonus_applied">Uplatnění bonusu za doporučení</string>
     <string name="referral_code">Doporující kód</string>
     <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
     <string name="referral_network">Síť doporučení</string>
+    <string name="referral_royal_welcome">Královské přivítání!</string>
+    <string name="referral_royal_welcome_detail">Doporučení potvrzeno — vy i váš přítel získáte každý +%1$d GiB/den dat zdarma, na celý život.</string>
     <string name="referral_royalty">Doporučujete po královsku!</string>
     <string name="referral_share_message">Přidejte se ke mně na URnetwork! Stáhněte si aplikaci a při registraci zadejte doporučující kód %1$s.</string>
     <string name="regions">Regiony</string>
@@ -554,6 +557,24 @@
         <item quantity="few">%1$d poskytovatelé</item>
         <item quantity="many">%1$d poskytovatele</item>
         <item quantity="other">%1$d poskytovatelů</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Právě se přes váš kód připojil k URnetwork přítel. Oba získáváte +%2$d GiB dat zdarma denně — na celý život.</item>
+        <item quantity="few">Právě se přes váš kód připojili k URnetwork %1$d přátelé. Každý z nich vám vynáší +%2$d GiB dat zdarma denně — na celý život.</item>
+        <item quantity="many">Právě se přes váš kód připojilo k URnetwork %1$d přátel. Každý z nich vám vynáší +%2$d GiB dat zdarma denně — na celý život.</item>
+        <item quantity="other">Právě se přes váš kód připojilo k URnetwork %1$d přátel. Každý z nich vám vynáší +%2$d GiB dat zdarma denně — na celý život.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Připojil se přítel — získáváte +%2$d GiB/den, na celý život.</item>
+        <item quantity="few">Připojili se %1$d přátelé — získáváte +%2$d GiB/den, na celý život.</item>
+        <item quantity="many">Připojilo se %1$d přátel — získáváte +%2$d GiB/den, na celý život.</item>
+        <item quantity="other">Připojilo se %1$d přátel — získáváte +%2$d GiB/den, na celý život.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Přes váš kód se připojil přítel! +%2$d GiB/den, na celý život.</item>
+        <item quantity="few">Přes váš kód se připojili %1$d přátelé! +%2$d GiB/den za každého, na celý život.</item>
+        <item quantity="many">Přes váš kód se připojilo %1$d přátel! +%2$d GiB/den za každého, na celý život.</item>
+        <item quantity="other">Přes váš kód se připojilo %1$d přátel! +%2$d GiB/den za každého, na celý život.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d pravidlo rozdělení</item>

@@ -107,6 +107,7 @@
     <string name="contract_stack_max">max %1$s</string>
     <string name="contracts_appear_connected">Les contrats apparaissent ici lorsque vous êtes connecté.</string>
     <string name="contracts_appear_providing">Les contrats apparaissent ici lorsque vous fournissez.</string>
+    <string name="copied">Copié !</string>
     <string name="copy">Copie</string>
     <string name="copy_auth_code">Copier le code d’authentification</string>
     <string name="countries">Pays</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Plus de connexions aident notre communauté à rester anonyme (et vous aident à gagner de l\'argent !)</string>
     <string name="refer_friends_header">Parrainer des amis</string>
     <string name="refer_friends_increase_free_data">Parrainez des amis et voyez vos données gratuites augmenter.</string>
-    <string name="refer_friends_perks">Vous recevez +%1$s GiB/mois à vie</string>
-    <string name="refer_friends_they_get_data">Votre ami reçoit +%1$s GiB/mois à vie</string>
+    <string name="refer_friends_perks">Vous recevez +%1$s GiB/jour à vie</string>
+    <string name="refer_friends_they_get_data">Votre ami reçoit +%1$s GiB/jour à vie</string>
     <string name="referral">Parrainage</string>
-    <string name="referral_bonus">+%1$d GiB/mois</string>
+    <string name="referral_bonus">+%1$d GiB/jour</string>
     <string name="referral_bonus_applied">Bonus de parrainage appliqué</string>
     <string name="referral_code">Code de parrainage</string>
     <string name="referral_code_capped">Ce code a déjà été utilisé</string>
     <string name="referral_network">Réseau de parrainage</string>
+    <string name="referral_royal_welcome">Un accueil royal !</string>
+    <string name="referral_royal_welcome_detail">Parrainage confirmé — vous et votre ami recevez chacun +%1$d GiB/jour de données gratuites, à vie.</string>
     <string name="referral_royalty">Vous êtes une star du parrainage !</string>
     <string name="referral_share_message">Rejoins-moi sur URnetwork ! Télécharge l\'application et entre le code de parrainage %1$s lors de ton inscription.</string>
     <string name="regions">Régions</string>
@@ -534,6 +537,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d fournisseur</item>
         <item quantity="other">%1$d fournisseurs</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Un ami vient de rejoindre URnetwork avec votre code. Vous gagnez tous les deux +%2$d GiB de données gratuites par jour — à vie.</item>
+        <item quantity="other">%1$d amis viennent de rejoindre URnetwork avec votre code. Chacun vous rapporte +%2$d GiB de données gratuites par jour — à vie.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Un ami a rejoint — vous gagnez +%2$d GiB/jour, à vie.</item>
+        <item quantity="other">%1$d amis ont rejoint — vous gagnez +%2$d GiB/jour, à vie.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Un ami a rejoint avec votre code ! +%2$d GiB/jour, à vie.</item>
+        <item quantity="other">%1$d amis ont rejoint avec votre code ! +%2$d GiB/jour chacun, à vie.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d règle de séparation</item>

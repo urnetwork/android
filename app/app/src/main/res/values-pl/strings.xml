@@ -107,6 +107,7 @@
     <string name="contract_stack_max">maks %1$s</string>
     <string name="contracts_appear_connected">Kontrakty pojawią się tutaj po połączeniu.</string>
     <string name="contracts_appear_providing">Kontrakty pojawią się tutaj podczas udostępniania.</string>
+    <string name="copied">Skopiowano!</string>
     <string name="copy">Kopiuj</string>
     <string name="copy_auth_code">Skopiuj kod uwierzytelniający</string>
     <string name="countries">Kraje</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Więcej połączeń pomaga naszej społeczności zachować anonimowość (i pomaga ci zarabiać!)</string>
     <string name="refer_friends_header">Poleć znajomych</string>
     <string name="refer_friends_increase_free_data">Poleć kilku znajomych i zobacz, jak rosną Twoje darmowe dane.</string>
-    <string name="refer_friends_perks">Otrzymujesz +%1$s GiB/miesiąc na całe życie</string>
-    <string name="refer_friends_they_get_data">Twój znajomy otrzymuje +%1$s GiB/miesiąc na całe życie</string>
+    <string name="refer_friends_perks">Otrzymujesz +%1$s GiB/dzień na całe życie</string>
+    <string name="refer_friends_they_get_data">Twój znajomy otrzymuje +%1$s GiB/dzień na całe życie</string>
     <string name="referral">Polecenie</string>
-    <string name="referral_bonus">+%1$d GiB/miesiąc</string>
+    <string name="referral_bonus">+%1$d GiB/dzień</string>
     <string name="referral_bonus_applied">Zastosowano bonus polecający</string>
     <string name="referral_code">Kod polecający</string>
     <string name="referral_code_capped">Ten kod został już wykorzystany</string>
     <string name="referral_network">Sieć poleceń</string>
+    <string name="referral_royal_welcome">Królewskie powitanie!</string>
+    <string name="referral_royal_welcome_detail">Polecenie potwierdzone — ty i twój znajomy otrzymujecie po +%1$d GiB dziennie darmowych danych, na całe życie.</string>
     <string name="referral_royalty">Polecasz po królewsku!</string>
     <string name="referral_share_message">Dołącz do mnie w URnetwork! Pobierz aplikację i wpisz kod polecający %1$s przy rejestracji.</string>
     <string name="regions">Regiony</string>
@@ -554,6 +557,24 @@
         <item quantity="few">%1$d dostawców</item>
         <item quantity="many">%1$d dostawców</item>
         <item quantity="other">%1$d dostawców</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Znajomy właśnie dołączył do URnetwork z twoim kodem. Oboje zyskujecie +%2$d GiB darmowych danych dziennie — na całe życie.</item>
+        <item quantity="few">%1$d znajomych właśnie dołączyło do URnetwork z twoim kodem. Każdy przynosi ci +%2$d GiB darmowych danych dziennie — na całe życie.</item>
+        <item quantity="many">%1$d znajomych właśnie dołączyło do URnetwork z twoim kodem. Każdy przynosi ci +%2$d GiB darmowych danych dziennie — na całe życie.</item>
+        <item quantity="other">%1$d znajomych właśnie dołączyło do URnetwork z twoim kodem. Każdy przynosi ci +%2$d GiB darmowych danych dziennie — na całe życie.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Dołączył znajomy — zarabiasz +%2$d GiB/dzień, na całe życie.</item>
+        <item quantity="few">Dołączyło %1$d znajomych — zarabiasz +%2$d GiB/dzień, na całe życie.</item>
+        <item quantity="many">Dołączyło %1$d znajomych — zarabiasz +%2$d GiB/dzień, na całe życie.</item>
+        <item quantity="other">Dołączyło %1$d znajomych — zarabiasz +%2$d GiB/dzień, na całe życie.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Znajomy dołączył z twoim kodem! +%2$d GiB/dzień, na całe życie.</item>
+        <item quantity="few">%1$d znajomych dołączyło z twoim kodem! Po +%2$d GiB/dzień za każdego, na całe życie.</item>
+        <item quantity="many">%1$d znajomych dołączyło z twoim kodem! Po +%2$d GiB/dzień za każdego, na całe życie.</item>
+        <item quantity="other">%1$d znajomych dołączyło z twoim kodem! Po +%2$d GiB/dzień za każdego, na całe życie.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d reguła podziału</item>

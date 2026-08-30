@@ -107,6 +107,7 @@
     <string name="contract_stack_max">max %1$s</string>
     <string name="contracts_appear_connected">Verträge erscheinen hier, während du verbunden bist.</string>
     <string name="contracts_appear_providing">Verträge erscheinen hier, während die Bereitstellung läuft.</string>
+    <string name="copied">Kopiert!</string>
     <string name="copy">Kopiere</string>
     <string name="copy_auth_code">Authentifizierungscode kopieren</string>
     <string name="countries">Länder</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">Mehr Verbindungen helfen unserer Community, anonym zu bleiben (und helfen dir, Geld zu verdienen!)</string>
     <string name="refer_friends_header">Freunde werben</string>
     <string name="refer_friends_increase_free_data">Empfehle ein paar Freunde und sieh zu, wie dein kostenloses Datenvolumen steigt.</string>
-    <string name="refer_friends_perks">Du erhältst +%1$s GiB/Monat – ein Leben lang</string>
-    <string name="refer_friends_they_get_data">Dein Freund erhält +%1$s GiB/Monat – ein Leben lang</string>
+    <string name="refer_friends_perks">Du erhältst +%1$s GiB/Tag – ein Leben lang</string>
+    <string name="refer_friends_they_get_data">Dein Freund erhält +%1$s GiB/Tag – ein Leben lang</string>
     <string name="referral">Empfehlung</string>
-    <string name="referral_bonus">+%1$d GiB/Monat</string>
+    <string name="referral_bonus">+%1$d GiB/Tag</string>
     <string name="referral_bonus_applied">Empfehlungsbonus angewendet</string>
     <string name="referral_code">Empfehlungscode</string>
     <string name="referral_code_capped">Dieser Code wurde bereits verwendet</string>
     <string name="referral_network">Empfehlungsnetzwerk</string>
+    <string name="referral_royal_welcome">Ein königlicher Empfang!</string>
+    <string name="referral_royal_welcome_detail">Empfehlung bestätigt – du und dein Freund erhaltet je +%1$d GiB/Tag an kostenlosen Daten, ein Leben lang.</string>
     <string name="referral_royalty">Du bist ein Empfehlungs-Star!</string>
     <string name="referral_share_message">Komm zu mir auf URnetwork! Hol dir die App und gib bei der Anmeldung den Empfehlungscode %1$s ein.</string>
     <string name="regions">Regionen</string>
@@ -534,6 +537,18 @@
     <plurals name="provider_count">
         <item quantity="one">%1$d Anbieter</item>
         <item quantity="other">%1$d Anbieter</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="one">Ein Freund ist gerade mit deinem Code URnetwork beigetreten. Ihr beide erhaltet +%2$d GiB kostenlose Daten pro Tag – ein Leben lang.</item>
+        <item quantity="other">%1$d Freunde sind gerade mit deinem Code URnetwork beigetreten. Jeder bringt dir +%2$d GiB kostenlose Daten pro Tag – ein Leben lang.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="one">Ein Freund ist beigetreten – du erhältst +%2$d GiB/Tag, ein Leben lang.</item>
+        <item quantity="other">%1$d Freunde sind beigetreten – du erhältst +%2$d GiB/Tag, ein Leben lang.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="one">Ein Freund ist mit deinem Code beigetreten! +%2$d GiB/Tag, ein Leben lang.</item>
+        <item quantity="other">%1$d Freunde sind mit deinem Code beigetreten! Je +%2$d GiB/Tag, ein Leben lang.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d Split-Regel</item>

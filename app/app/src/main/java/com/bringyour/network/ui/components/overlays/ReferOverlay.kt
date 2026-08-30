@@ -4,9 +4,9 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,120 +36,159 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import com.bringyour.network.R
-import com.bringyour.network.ui.components.ShareButton
-import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.BlueMedium
-import com.bringyour.network.ui.theme.Green300
+import com.bringyour.network.ui.components.referral.GoldAura
+import com.bringyour.network.ui.components.referral.GoldOverlayScaffold
+import com.bringyour.network.ui.components.referral.GoldShareButton
+import com.bringyour.network.ui.components.referral.REFERRAL_BONUS_GIB_PER_DAY
+import com.bringyour.network.ui.components.referral.REFERRAL_MAX_REFERRALS
+import com.bringyour.network.ui.components.referral.ReferralFrog
+import com.bringyour.network.ui.components.referral.ReferralGoldCodePill
+import com.bringyour.network.ui.theme.ReferralGoldLight
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
 
+/**
+ * The refer-friends overlay in the referral king-frog gold theme, matching
+ * the ur.io referral panel. Once the network has referrals the panel is
+ * "crowned": royal heading, crown line and a faster gold pulse.
+ */
 @Composable
 fun ReferOverlay(
     onDismiss: () -> Unit,
-    referralCode: String?
+    referralCode: String?,
+    totalReferrals: Long = 0L,
 ) {
 
-    val clipboardManager = LocalClipboardManager.current
+    val crowned = 0L < totalReferrals
 
-    OverlayBackground(
-        onDismiss = onDismiss,
-        bgImageResourceId = R.drawable.overlay_refer_bg
+    GoldOverlayScaffold(
+        onDismiss = onDismiss
     ) {
-
-        OverlayContent(
-            backgroundColor = Green300,
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                stringResource(id = R.string.refer_friends_header),
-                style = MaterialTheme.typography.headlineLarge,
-                color = Black
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                stringResource(id = R.string.refer_friends_detail),
-                style = MaterialTheme.typography.bodyLarge,
-                color = Black
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-
-            if (referralCode != null) {
-
-                /**
-                 * referrals no longer use deep links; friends enter the code
-                 * when they sign up
-                 */
-                Text(
-                    stringResource(id = R.string.refer_friends_code_hint),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Black
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(size = 24.dp)
-                        )
-                        .padding(16.dp)
-
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 48.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(
+                    modifier = Modifier.widthIn(max = 512.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+
+                    // the crowned state pulses faster, like the site's royal aura
+                    GoldAura(
+                        modifier = Modifier.size(200.dp),
+                        pulseMillis = if (crowned) 3400 else 5000
                     ) {
+                        ReferralFrog(size = 120.dp)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        if (crowned) {
+                            stringResource(id = R.string.referral_royalty)
+                        } else {
+                            stringResource(id = R.string.refer_friends_header)
+                        },
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = ReferralGoldLight,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        stringResource(id = R.string.refer_friends_detail),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+
+                    if (crowned) {
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("👑")
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(
+                                pluralStringResource(
+                                    id = R.plurals.referral_crowned_congrats,
+                                    count = totalReferrals.toInt(),
+                                    totalReferrals.toInt(),
+                                    minOf(totalReferrals, REFERRAL_MAX_REFERRALS.toLong()).toInt() * REFERRAL_BONUS_GIB_PER_DAY
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = ReferralGoldLight
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    if (referralCode != null) {
+
+                        /**
+                         * referrals no longer use deep links; friends enter the code
+                         * when they sign up
+                         */
                         Text(
-                            referralCode,
-                            style = MaterialTheme.typography.headlineSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 8.dp)
+                            stringResource(id = R.string.refer_friends_code_hint),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted,
+                            textAlign = TextAlign.Center
                         )
 
-                        Text(
-                            stringResource(id = R.string.copy),
-                            modifier = Modifier.clickable {
-                                clipboardManager.setText(AnnotatedString(referralCode))
-                            },
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = BlueMedium
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        ReferralGoldCodePill(
+                            code = referralCode,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        GoldShareButton(
+                            shareMessage = stringResource(
+                                id = R.string.referral_share_message,
+                                referralCode
                             ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp),
+                            color = ReferralGoldLight,
+                            trackColor = TextMuted,
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                ShareButton(stringResource(id = R.string.referral_share_message, referralCode))
-            } else {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .width(24.dp)
-                        .height(24.dp),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = TextMuted,
-                )
             }
-
         }
     }
 }
@@ -298,6 +340,18 @@ private fun ReferOverlayPreview() {
         ReferOverlay(
             onDismiss = {},
             referralCode = "asdlfkjsldkfjsdf"
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ReferOverlayCrownedPreview() {
+    URNetworkTheme {
+        ReferOverlay(
+            onDismiss = {},
+            referralCode = "asdlfkjsldkfjsdf",
+            totalReferrals = 4
         )
     }
 }

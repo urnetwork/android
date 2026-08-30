@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,17 +25,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -71,6 +67,8 @@ import com.bringyour.network.ui.components.TermsCheckbox
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.components.referral.ReferralAppliedChip
+import com.bringyour.network.ui.components.referral.ReferralBonusSheet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.TextUnit
@@ -81,7 +79,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import android.net.Uri
-import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.sdk.Api
@@ -364,8 +361,6 @@ fun LoginCreateNetwork(
     val invalidNetworkNameLength = stringResource(id = R.string.network_name_length_error)
     val networkNameAvailable = stringResource(id = R.string.available)
 
-    val sheetState = rememberModalBottomSheetState()
-
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
 
     LaunchedEffect(networkNameErrorExists, networkNameIsValid, networkName.text) {
@@ -459,63 +454,24 @@ fun LoginCreateNetwork(
                 )
             }
 
-            if (presentBonusSheet) {
-                /**
-                 * Referral sheet
-                 */
-                ModalBottomSheet(
-                    modifier = Modifier.wrapContentHeight(),
-                    sheetState = sheetState,
-                    onDismissRequest = { setPresentBonusSheet(false) },
-                    dragHandle = {}
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .padding(bottom = 32.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                stringResource(id = R.string.add_referral_extra_rewards),
-                                modifier = Modifier.padding(vertical = 16.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        URTextInput(
-                            label = stringResource(id = R.string.referral_code),
-                            value = referralCode,
-                            onValueChange = setReferralCode,
-                            supportingText = if (referralCodeInputSupportingTextRes != null) stringResource(id = referralCodeInputSupportingTextRes) else "",
-                            isValidating = isValidatingReferralCode,
-                            isValid = (!referralValidationComplete || (isValidReferralCode && !isReferralCodeCapped)),
-                            enabled = !isValidatingReferralCode
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        URButton(
-                            onClick = {
-                                validateReferralCode(application?.api) { valid ->
-                                    if (valid) {
-                                        setPresentBonusSheet(false)
-                                    }
-                                }
-                            },
-                            enabled = !isValidatingReferralCode && referralCode.text.isNotEmpty(),
-                            isProcessing = isValidatingReferralCode
-                        ) { buttonTextStyle ->
-                            Text(
-                                stringResource(id = R.string.apply_bonus),
-                                style = buttonTextStyle
-                            )
-                        }
-                    }
-                }
-            }
+            /**
+             * Referral sheet: accepting a code flips the sheet into the gold
+             * royal-welcome moment before it dismisses itself
+             */
+            ReferralBonusSheet(
+                presented = presentBonusSheet,
+                onDismiss = { setPresentBonusSheet(false) },
+                referralCode = referralCode,
+                setReferralCode = setReferralCode,
+                isValidating = isValidatingReferralCode,
+                isValid = isValidReferralCode,
+                isCapped = isReferralCodeCapped,
+                validationComplete = referralValidationComplete,
+                supportingTextRes = referralCodeInputSupportingTextRes,
+                validate = { onComplete ->
+                    validateReferralCode(application?.api, onComplete)
+                },
+            )
         }
     }
 
@@ -660,20 +616,7 @@ private fun NetworkCreateForm(
             ) {
 
                 if (isValidReferralCode && !isReferralCodeCapped) {
-                    Icon(
-                        Icons.Default.CheckCircle,
-                        contentDescription = "Valid referral code",
-                        tint = Green,
-                        // modifier = Modifier.size(24.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Text(stringResource(id = R.string.referral_bonus_applied),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted
-                    )
-
+                    ReferralAppliedChip()
                 } else {
                     Text("")
                 }

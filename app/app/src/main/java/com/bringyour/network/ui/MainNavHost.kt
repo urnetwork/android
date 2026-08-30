@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -78,12 +79,15 @@ import com.bringyour.network.ui.settings.DeveloperScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
+import com.bringyour.network.ui.components.referral.REFERRAL_BONUS_GIB_PER_DAY
+import com.bringyour.network.ui.components.referral.ReferralRoyalToast
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.feedback.FeedbackScreen
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.ReferralCelebration
 import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
@@ -164,6 +168,7 @@ fun MainNavHost(
     val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
     val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
     val referralCode by referralCodeViewModel.referralCode.collectAsState()
+    val pendingReferralCelebration by referralCodeViewModel.pendingCelebration.collectAsState()
     val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
     val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
     val displayIntroFunnel by mainNavViewModel.displayIntroFunnel.collectAsState()
@@ -697,7 +702,54 @@ fun MainNavHost(
         overlayViewModel,
         referralCode = referralCode,
         planUpgradeConfirmed = hasActiveSubscription,
+        totalReferralCount = totalReferralCount,
+        referralCelebrationJoined = pendingReferralCelebration?.joined ?: 1L,
+        onReferralCelebrationDismissed = {
+            referralCodeViewModel.clearCelebration()
+        },
     )
+
+    /**
+     * Referral celebrations: the first referral gets the full-screen crowning
+     * overlay; later ones get a passing gold toast. Detected by the referral
+     * poll against the per-network celebrated baseline.
+     */
+    LaunchedEffect(pendingReferralCelebration) {
+        val celebration = pendingReferralCelebration ?: return@LaunchedEffect
+        if (celebration.isFirst) {
+            overlayViewModel.launch(OverlayMode.ReferralCelebration)
+        } else {
+            // let the toast play, then clear it
+            delay(5000)
+            referralCodeViewModel.clearCelebration()
+        }
+    }
+
+    // keep the last toast content mounted so the exit animation has text
+    var lastToastCelebration by remember {
+        mutableStateOf<ReferralCelebration?>(null)
+    }
+    pendingReferralCelebration?.let { celebration ->
+        if (!celebration.isFirst) {
+            lastToastCelebration = celebration
+        }
+    }
+
+    lastToastCelebration?.let { celebration ->
+        ReferralRoyalToast(
+            visible = pendingReferralCelebration != null && pendingReferralCelebration?.isFirst == false,
+            text = pluralStringResource(
+                id = R.plurals.referral_toast_joined,
+                count = celebration.joined.toInt(),
+                celebration.joined.toInt(),
+                REFERRAL_BONUS_GIB_PER_DAY
+            ),
+            onClick = {
+                referralCodeViewModel.clearCelebration()
+                overlayViewModel.launch(OverlayMode.Refer)
+            },
+        )
+    }
 
 }
 

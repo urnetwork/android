@@ -107,6 +107,7 @@
     <string name="contract_stack_max">الحد الأقصى %1$s</string>
     <string name="contracts_appear_connected">تظهر العقود هنا أثناء الاتصال.</string>
     <string name="contracts_appear_providing">تظهر العقود هنا أثناء التوفير.</string>
+    <string name="copied">تم النسخ!</string>
     <string name="copy">انسخ</string>
     <string name="copy_auth_code">نسخ رمز المصادقة</string>
     <string name="countries">الدول</string>
@@ -356,14 +357,16 @@
     <string name="refer_friends_detail">المزيد من الاتصالات يساعد مجتمعنا على البقاء مجهول الهوية (ويساعدك على كسب المال!)</string>
     <string name="refer_friends_header">إحالة الأصدقاء</string>
     <string name="refer_friends_increase_free_data">قم بإحالة بعض الأصدقاء وشاهد بياناتك المجانية تزداد.</string>
-    <string name="refer_friends_perks">تحصل على +%1$s GiB/شهر مدى الحياة</string>
-    <string name="refer_friends_they_get_data">يحصل صديقك على +%1$s GiB/شهر مدى الحياة</string>
+    <string name="refer_friends_perks">تحصل على +%1$s GiB/يوم مدى الحياة</string>
+    <string name="refer_friends_they_get_data">يحصل صديقك على +%1$s GiB/يوم مدى الحياة</string>
     <string name="referral">إحالة</string>
-    <string name="referral_bonus">+%1$d GiB/شهر</string>
+    <string name="referral_bonus">+%1$d GiB/يوم</string>
     <string name="referral_bonus_applied">تم تطبيق مكافأة الإحالة</string>
     <string name="referral_code">رمز الإحالة</string>
     <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
     <string name="referral_network">شبكة الإحالة</string>
+    <string name="referral_royal_welcome">ترحيب ملكي!</string>
+    <string name="referral_royal_welcome_detail">تم تأكيد الإحالة — تحصل أنت وصديقك على +%1$d GiB يوميًا من البيانات المجانية، مدى الحياة.</string>
     <string name="referral_royalty">أنت نجم الإحالات!</string>
     <string name="referral_share_message">انضم إليّ على URnetwork! حمّل التطبيق وأدخل رمز الإحالة %1$s عند التسجيل.</string>
     <string name="regions">المناطق</string>
@@ -574,6 +577,30 @@
         <item quantity="few">%1$d مزودين</item>
         <item quantity="many">%1$d مزودًا</item>
         <item quantity="other">%1$d مزود</item>
+    </plurals>
+    <plurals name="referral_celebration_detail">
+        <item quantity="zero">انضم %1$d من الأصدقاء للتو إلى URnetwork برمزك. كل واحد يمنحك +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>
+        <item quantity="one">انضم صديق للتو إلى URnetwork برمزك. كلاكما يكسب +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>
+        <item quantity="two">انضم صديقان للتو إلى URnetwork برمزك. كل واحد يمنحك +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>
+        <item quantity="few">انضم %1$d من الأصدقاء للتو إلى URnetwork برمزك. كل واحد يمنحك +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>
+        <item quantity="many">انضم %1$d من الأصدقاء للتو إلى URnetwork برمزك. كل واحد يمنحك +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>
+        <item quantity="other">انضم %1$d من الأصدقاء للتو إلى URnetwork برمزك. كل واحد يمنحك +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>
+    </plurals>
+    <plurals name="referral_crowned_congrats">
+        <item quantity="zero">انضم %1$d من الأصدقاء — تكسب +%2$d GiB يوميًا، مدى الحياة.</item>
+        <item quantity="one">انضم صديق واحد — تكسب +%2$d GiB يوميًا، مدى الحياة.</item>
+        <item quantity="two">انضم صديقان — تكسب +%2$d GiB يوميًا، مدى الحياة.</item>
+        <item quantity="few">انضم %1$d من الأصدقاء — تكسب +%2$d GiB يوميًا، مدى الحياة.</item>
+        <item quantity="many">انضم %1$d من الأصدقاء — تكسب +%2$d GiB يوميًا، مدى الحياة.</item>
+        <item quantity="other">انضم %1$d من الأصدقاء — تكسب +%2$d GiB يوميًا، مدى الحياة.</item>
+    </plurals>
+    <plurals name="referral_toast_joined">
+        <item quantity="zero">انضم %1$d من الأصدقاء برمزك! +%2$d GiB يوميًا لكل منهم، مدى الحياة.</item>
+        <item quantity="one">انضم صديق برمزك! +%2$d GiB يوميًا، مدى الحياة.</item>
+        <item quantity="two">انضم صديقان برمزك! +%2$d GiB يوميًا لكل منهما، مدى الحياة.</item>
+        <item quantity="few">انضم %1$d من الأصدقاء برمزك! +%2$d GiB يوميًا لكل منهم، مدى الحياة.</item>
+        <item quantity="many">انضم %1$d من الأصدقاء برمزك! +%2$d GiB يوميًا لكل منهم، مدى الحياة.</item>
+        <item quantity="other">انضم %1$d من الأصدقاء برمزك! +%2$d GiB يوميًا لكل منهم، مدى الحياة.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="zero">%1$d قاعدة تقسيم</item>
