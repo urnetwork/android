@@ -145,18 +145,18 @@ android {
         }
     }
 
-    namespace 'com.bringyour.network'
+    namespace = 'com.bringyour.network'
     compileSdk = 36
 //    buildToolsVersion '35.0.1'
-    ndkVersion '29.0.14206865'
+    ndkVersion = '29.0.14206865'
 
     defaultConfig {
         applicationId "com.bringyour.network"
         // testing 7 has been particularly challenging because of device availability
         // 7.1 (25) works but 7.0 (24) has issues
         // moving the min to 8 (26) for now
-        minSdk 26
-        targetSdk 36
+        minSdk = 26
+        targetSdk = 36
         versionCode appVersionCode()
         versionName appVersion()
 
@@ -180,7 +180,7 @@ android {
 
         // see https://developer.android.com/build/shrink-code
         ndk {
-            debugSymbolLevel 'SYMBOL_TABLE'
+            debugSymbolLevel = 'SYMBOL_TABLE'
         }
 
         // Load local.properties
@@ -248,7 +248,7 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            signingConfig = signingConfigs.debug
         }
 
         release {
@@ -263,7 +263,7 @@ android {
     // BuildConfig.FLAVOR
     productFlavors {
         github {
-            isDefault true
+            isDefault = true
             dimension = 'version'
             applicationId 'com.bringyour.network'
 //            versionNameSuffix '-github'
@@ -285,7 +285,7 @@ android {
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'false'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
 
-            signingConfig signingConfigs.github
+            signingConfig = signingConfigs.github
 
             // remove x86/amd64 builds from the github build since these are only needed for chromeos
             // https://developer.android.com/ndk/guides/abis
@@ -324,7 +324,7 @@ android {
                 abiFilters = ['x86_64', 'armeabi-v7a', 'arm64-v8a']
             }
 
-            signingConfig signingConfigs.play
+            signingConfig = signingConfigs.play
         }
         solana_dapp {
             dimension = 'version'
@@ -343,7 +343,7 @@ android {
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
 
-            signingConfig signingConfigs.solana_dapp
+            signingConfig = signingConfigs.solana_dapp
 
             // solana dapp devices are exclusively arm64-v8a
             ndk {
@@ -377,7 +377,7 @@ android {
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
 
-            signingConfig signingConfigs.ethos_dapp
+            signingConfig = signingConfigs.ethos_dapp
 
             // ethos dapp devices are exclusively arm64-v8a
             ndk {
@@ -394,7 +394,7 @@ android {
                 includeInBundle = false
             }
 
-            minSdk 27
+            minSdk = 27
         }
     }
 
@@ -424,10 +424,10 @@ android {
     // build 1. APKs per architecture and 2. a fat APK with all architectures
     splits {
         abi {
-            enable true
+            enable = true
             reset()
             include 'x86_64', 'armeabi-v7a', 'arm64-v8a'
-            universalApk true
+            universalApk = true
         }
     }
 
@@ -442,9 +442,9 @@ android {
     }
     // see https://developer.android.com/reference/tools/gradle-api/7.4/com/android/build/api/dsl/BuildFeatures
     buildFeatures {
-        viewBinding true
-        buildConfig true
-        compose true
+        viewBinding = true
+        buildConfig = true
+        compose = true
     }
 
     composeOptions {
