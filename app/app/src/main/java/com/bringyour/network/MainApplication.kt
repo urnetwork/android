@@ -29,6 +29,7 @@ import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.HiltAndroidApp
+import java.io.File
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlin.math.min
@@ -219,16 +220,49 @@ class MainApplication : Application() {
             Sdk.setMemoryProfileRate(BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES)
         }
 
-        val path: String = applicationContext.filesDir.absolutePath
-        // gomobile binds the Go error return as a checked java exception, which
-        // kotlin does not enforce -- so unguarded, a log dir that cannot be
-        // written (storage full, quota, EIO) propagates straight out of
-        // onCreate as an unhandled crash on every launch. Logging must never be
-        // what breaks a launch: glog keeps whatever destination it already had.
-        try {
-            Sdk.setLogDir(path)
+        // One subdirectory per writing process, under a shared root. Android is
+        // single-process (no android:process in the manifest), so there is only
+        // ever "app" here -- but the sdk prunes per directory (it keeps the 4
+        // newest files in whichever one glog is pointed at), so the per-process
+        // layout is what stops two writers from deleting each other's history,
+        // and it keeps this call identical to the one iOS makes.
+        val logRoot = logRootDir(applicationContext.filesDir)
+        val processLogDir = File(logRoot, APP_LOG_PROCESS_NAME)
+
+        // Pre-upgrade builds wrote glog files straight into filesDir. Nothing
+        // ever prunes or reads that directory again once the root moves, so
+        // the old files are both dead storage and unreachable evidence. Run the
+        // migration BEFORE pointing glog at the new directory: the sdk's
+        // retention pass then treats the migrated files as part of the app's
+        // own history and keeps only the newest four of the merged set.
+        val migratedLogCount = try {
+            migrateLegacyLogFiles(applicationContext.filesDir, processLogDir)
         } catch (e: Exception) {
-            Log.i(TAG, "could not set the log dir to $path: ${e.message}")
+            Log.e(TAG, "could not migrate pre-upgrade log files: ${e.message}", e)
+            0
+        }
+        if (0 < migratedLogCount) {
+            Log.i(TAG, "migrated $migratedLogCount pre-upgrade log files into $processLogDir")
+        }
+
+        // gomobile binds Go's `error` return as a checked java exception, and
+        // kotlin does not enforce checked exceptions -- so an unguarded call
+        // compiles and then propagates out of Application.onCreate as an
+        // unhandled crash on EVERY launch. The sdk's own contract is the
+        // opposite ("logging must never be what breaks a launch"), but the
+        // fallback meant to make the error unreachable cannot do that here: it
+        // targets os.TempDir(), which on android resolves to /data/local/tmp
+        // (Go's own android case in os.tempDir, since app processes have no
+        // TMPDIR set) -- shell-owned and not writable by an app uid. So if
+        // <filesDir>/logs cannot be created (storage full, quota, EIO) the
+        // fallback fails too and the error really is returned.
+        // Catching it turns an unbootable app back into a logging problem:
+        // glog keeps whatever destination it already had, and Sdk.getLogDir()
+        // keeps naming that destination for the feedback screen's log buttons.
+        try {
+            Sdk.setLogDirForProcess(logRoot.absolutePath, APP_LOG_PROCESS_NAME)
+        } catch (e: Exception) {
+            Log.e(TAG, "could not point logging at $logRoot: ${e.message}", e)
         }
 
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
