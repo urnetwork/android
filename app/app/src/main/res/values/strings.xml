@@ -150,6 +150,7 @@
     <string name="dev_busy_probes">Busy probes</string>
     <string name="dev_busy_probes_detail">Liveness pings fired at stalled exits; acquitted ones answered and were kept, the removals the probe prevented</string>
     <string name="dev_busy_probes_value">%1$d sent / %2$d acquitted</string>
+    <string name="dev_choose_logs">Choose logs…</string>
     <string name="dev_cluster_affinity">Group IPs by site</string>
     <string name="dev_cluster_affinity_detail">Keeps a site on one exit when its hostname is not visible</string>
     <string name="dev_comparative_connect">Cut dead connects early</string>
@@ -166,6 +167,14 @@
     <string name="dev_exit_dial_failures">%1$d failed dials</string>
     <string name="dev_exit_flows">%1$d flows</string>
     <string name="dev_exits">Exits</string>
+    <string name="dev_export_all_logs">Export all logs (raw)</string>
+    <string name="dev_export_failed">Export failed: %1$s</string>
+    <string name="dev_export_not_included">Not included: %1$s</string>
+    <string name="dev_export_redacted_logs">Export redacted logs</string>
+    <string name="dev_export_selected">Export selected</string>
+    <string name="dev_export_share">Share diagnostic bundle</string>
+    <string name="dev_export_unavailable">Not available: %1$s</string>
+    <string name="dev_exporting">Exporting…</string>
     <string name="dev_flows_opened">Flows opened</string>
     <string name="dev_flows_opened_detail">Total since reset, so runs of different lengths compare</string>
     <string name="dev_flows_rebound">QUIC flows rebound</string>
@@ -229,6 +238,7 @@
     <string name="dev_scheduler_pauses">Suspends caught</string>
     <string name="dev_scheduler_pauses_detail">Host suspends the detector caught, each one a batch of verdicts held instead of executed on a just-resumed phone</string>
     <string name="dev_section_detection">Detection</string>
+    <string name="dev_section_diagnostics">Diagnostics</string>
     <string name="dev_section_observability">Observability</string>
     <string name="dev_section_placement">Placement</string>
     <string name="dev_section_probing">Probing</string>
@@ -676,6 +686,10 @@
     <plurals name="contract_count">
         <item quantity="one">%1$d contract</item>
         <item quantity="other">%1$d contracts</item>
+    </plurals>
+    <plurals name="dev_export_summary">
+        <item quantity="one">Exported %1$d log file (%2$s)</item>
+        <item quantity="other">Exported %1$d log files (%2$s)</item>
     </plurals>
     <plurals name="host_count">
         <item quantity="one">%1$d host</item>

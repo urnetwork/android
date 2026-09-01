@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.settings
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,11 +26,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
@@ -40,8 +48,10 @@ import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.network.utils.formatByteCountCompact
 import com.bringyour.sdk.Exit
 import kotlinx.coroutines.delay
+import java.io.File
 import java.util.Locale
 
 /**
@@ -115,6 +125,191 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         style = MaterialTheme.typography.bodySmall,
         color = TextMuted,
     )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // A diagnostics export is most needed exactly when the connection is
+    // broken or the user is signed out -- i.e. exactly when `connected`
+    // (reliability != null, which requires a live device) is false. This
+    // section therefore renders ABOVE the !connected guard below rather than
+    // being gated on the healthy connection it exists to help diagnose the
+    // absence of. The export tolerates a null device on its own
+    // (deviceManager.device?.let { ... }), which is what makes that safe.
+    URTextInputLabel(text = stringResource(id = R.string.dev_section_diagnostics))
+
+    val context = LocalContext.current
+    val shareBundle: (File) -> Unit = { file ->
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/zip"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(
+            Intent.createChooser(intent, context.getString(R.string.dev_export_share)),
+        )
+    }
+
+    // cacheDir/share is already declared to the FileProvider as "share"
+    // (res/xml/file_paths.xml), so a bundle written there is shareable with no
+    // manifest change. remember{} because a composable body runs on every
+    // recomposition -- and this one recomposes on each reliability/metrics
+    // poll -- while the directory is created by the exporter itself, on
+    // Dispatchers.IO: File.mkdirs() stats the path before it can return, which
+    // is a disk hit the ui thread should never take.
+    val shareDir = remember(context) { File(context.cacheDir, "share") }
+
+    // The bundle comes back as state rather than through a completion lambda:
+    // a lambda declared here captures this composition's Activity, so an
+    // export outliving a rotation would call startActivity on a destroyed one,
+    // and the viewmodel would hold it alive for the whole export.
+    val pendingShare = developerViewModel.pendingShare
+    LaunchedEffect(pendingShare) {
+        pendingShare?.let { file ->
+            shareBundle(file)
+            developerViewModel.consumePendingShare()
+        }
+    }
+
+    // The total size before exporting, and any unavailable source with its
+    // reason, are both shown BEFORE the user commits to a bundle of up to
+    // 4x16MB per process -- not afterwards in the summary. The read is
+    // directory i/o plus a stat per file across the gomobile bridge, so it
+    // happens once on entry, off the main thread.
+    LaunchedEffect(Unit) {
+        developerViewModel.refreshDiagnostics()
+    }
+
+    val exporting = developerViewModel.exporting
+
+    Text(
+        inventoryLabel(developerViewModel.inventory.size, developerViewModel.inventoryByteCount),
+        style = MaterialTheme.typography.bodySmall,
+        color = TextMuted,
+    )
+
+    developerViewModel.unavailableSources.forEach { unavailable ->
+        Text(
+            stringResource(id = R.string.dev_export_unavailable, unavailable),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+        )
+    }
+
+    DeveloperAction(
+        label = stringResource(id = R.string.dev_export_all_logs),
+        enabled = !exporting,
+    ) {
+        developerViewModel.exportDiagnostics(
+            shareDir,
+            redact = false,
+            selected = emptyList(),
+            nowMillis = System.currentTimeMillis(),
+        )
+    }
+
+    DeveloperAction(
+        label = stringResource(id = R.string.dev_export_redacted_logs),
+        enabled = !exporting,
+    ) {
+        developerViewModel.exportDiagnostics(
+            shareDir,
+            redact = true,
+            selected = emptyList(),
+            nowMillis = System.currentTimeMillis(),
+        )
+    }
+
+    var showPicker by remember { mutableStateOf(false) }
+
+    DeveloperAction(
+        label = stringResource(id = R.string.dev_choose_logs),
+        enabled = !exporting && !developerViewModel.refreshingDiagnostics,
+    ) {
+        developerViewModel.refreshDiagnostics()
+        showPicker = !showPicker
+    }
+
+    if (showPicker) {
+        developerViewModel.inventory.forEach { info ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { developerViewModel.toggleLogSelection(info.name) }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    logFileRowLabel(info.source, info.severity, info.byteCount, info.modifiedMillis),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (developerViewModel.selectedLogNames.contains(info.name)) {
+                        BlueMedium
+                    } else {
+                        TextMuted
+                    },
+                )
+            }
+        }
+
+        Text(
+            selectionLabel(
+                developerViewModel.selectedLogNames.size,
+                developerViewModel.selectedByteCount,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+        )
+
+        // Disabled -- and a no-op even if it were somehow tapped -- with
+        // nothing checked, or while an export is already running: an empty
+        // selection means "no filter" to the sdk, which would otherwise export
+        // every log file unredacted, the opposite of what this row's label
+        // promises.
+        DeveloperAction(
+            label = stringResource(id = R.string.dev_export_selected),
+            enabled = !exporting && canExportSelection(developerViewModel.selectedLogNames),
+        ) {
+            developerViewModel.exportSelectedDiagnostics(shareDir, System.currentTimeMillis())
+        }
+    }
+
+    if (exporting) {
+        Text(
+            stringResource(id = R.string.dev_exporting),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+        )
+    }
+
+    developerViewModel.lastExport?.let { lastExport ->
+        // Resolved here rather than in the viewmodel because this is where a
+        // <plurals> can be read: "Exported 1 log files" is a count formatted
+        // into a fixed English phrase, and a selective export of one file is
+        // the common case that produces it.
+        val failure = lastExport.failure
+        Text(
+            if (failure != null) {
+                stringResource(id = R.string.dev_export_failed, failure)
+            } else {
+                pluralStringResource(
+                    id = R.plurals.dev_export_summary,
+                    count = lastExport.fileCount,
+                    lastExport.fileCount,
+                    formatByteCountCompact(lastExport.byteCount),
+                )
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+        )
+
+        lastExport.missingSources.forEach { missing ->
+            Text(
+                stringResource(id = R.string.dev_export_not_included, missing),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+            )
+        }
+    }
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -795,15 +990,20 @@ private fun DeveloperToggle(
 @Composable
 private fun DeveloperAction(
     label: String,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     Text(
         label,
         style = MaterialTheme.typography.bodyMedium,
-        color = BlueMedium,
+        // a disabled action has to LOOK disabled: an active-looking control
+        // that silently does nothing reads as a broken app, and here the
+        // "nothing" is deliberate (an empty selection, or an export already
+        // running)
+        color = if (enabled) BlueMedium else TextMuted,
         modifier = Modifier
             .padding(vertical = 8.dp)
-            .clickable(onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick),
     )
 }
 
