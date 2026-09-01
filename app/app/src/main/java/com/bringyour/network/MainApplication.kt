@@ -220,7 +220,16 @@ class MainApplication : Application() {
         }
 
         val path: String = applicationContext.filesDir.absolutePath
-        Sdk.setLogDir(path)
+        // gomobile binds the Go error return as a checked java exception, which
+        // kotlin does not enforce -- so unguarded, a log dir that cannot be
+        // written (storage full, quota, EIO) propagates straight out of
+        // onCreate as an unhandled crash on every launch. Logging must never be
+        // what breaks a launch: glog keeps whatever destination it already had.
+        try {
+            Sdk.setLogDir(path)
+        } catch (e: Exception) {
+            Log.i(TAG, "could not set the log dir to $path: ${e.message}")
+        }
 
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
         val maxMemoryMib = activityManager?.memoryClass?.toLong() ?: 32
