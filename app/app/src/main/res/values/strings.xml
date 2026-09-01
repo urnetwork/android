@@ -194,6 +194,17 @@
     <string name="dev_heartbeat_detail">How often one line summarizing live state is written to the log for later forensics. Off silences it; shorter spots a transition, longer keeps more buffer</string>
     <string name="dev_load_corroboration">Load corroboration</string>
     <string name="dev_load_corroboration_detail">Extra silent destinations required per this many flows before a busy exit can be benched on soft evidence: a 24-flow exit at 8 needs 3 silent sites, not 2. Off keeps the flat minimum</string>
+    <string name="dev_log_verbosity">Log detail</string>
+    <string name="dev_log_verbosity_default">Default</string>
+    <string name="dev_log_verbosity_default_detail">Connection errors and contract pings</string>
+    <string name="dev_log_verbosity_trace">Trace</string>
+    <string name="dev_log_verbosity_trace_detail">Transport and window internals. Very large logs</string>
+    <string name="dev_log_verbosity_unavailable">Unavailable</string>
+    <string name="dev_log_verbosity_unavailable_detail">There is no device to read the log level from yet. Sign in first</string>
+    <string name="dev_log_verbosity_verbose">Verbose</string>
+    <string name="dev_log_verbosity_verbose_detail">Contract accounting and per-packet block decisions. Includes destination IP addresses</string>
+    <string name="dev_log_verbosity_warning">At Verbose and above the logs contain the destination IP addresses and ports of the traffic you send. Use “Export redacted logs” to share them; the raw bundle should not leave this device.</string>
+    <string name="dev_log_verbosity_warning_title">Logs are recording your real traffic</string>
     <string name="dev_max_flows_per_exit">Max connections per exit</string>
     <string name="dev_max_flows_per_exit_detail">Losing an exit kills every connection on it. Lower spreads the damage; a site may then use more than one exit IP</string>
     <string name="dev_measure_none">No provider failures yet. Stall an exit below to cause one.</string>
