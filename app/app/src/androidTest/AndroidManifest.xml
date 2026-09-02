@@ -11,6 +11,7 @@
         <activity
             android:name="com.bringyour.network.acceptance.EgressProbeActivity"
             android:exported="true"
+            android:process=":egress_probe"
             android:theme="@android:style/Theme.Material.Light.NoActionBar" />
     </application>
 </manifest>

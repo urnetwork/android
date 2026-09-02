@@ -80,23 +80,20 @@ class MainAcceptanceTest {
         }
     }
 
-    private fun nodes(matcher: SemanticsMatcher): Int = runCatching {
+    private fun nodes(matcher: SemanticsMatcher): Int =
         compose.onAllNodes(matcher, useUnmergedTree = true)
             .fetchSemanticsNodes(atLeastOneRootRequired = false)
             .size
-    }.getOrDefault(0)
 
-    private fun tagExists(tag: String): Boolean = runCatching {
+    private fun tagExists(tag: String): Boolean =
         compose.onAllNodesWithTag(tag, useUnmergedTree = true)
             .fetchSemanticsNodes(atLeastOneRootRequired = false)
             .isNotEmpty()
-    }.getOrDefault(false)
 
-    private fun contentDescriptionExists(description: String): Boolean = runCatching {
+    private fun contentDescriptionExists(description: String): Boolean =
         compose.onAllNodesWithContentDescription(description, useUnmergedTree = true)
             .fetchSemanticsNodes(atLeastOneRootRequired = false)
             .isNotEmpty()
-    }.getOrDefault(false)
 
     private fun waitForTag(tag: String, timeoutMillis: Long = UI_TIMEOUT_MILLIS) {
         waitFor("UI tag $tag", timeoutMillis) { tagExists(tag) }
@@ -450,22 +447,9 @@ class MainAcceptanceTest {
     }
 
     private fun publicIp(): String {
-        device.executeShellCommand(
-            "am start -W -n com.bringyour.network.test/com.bringyour.network.acceptance.EgressProbeActivity"
-        )
-        val result = device.wait(
-            Until.findObject(By.text(EgressProbeResult.terminalText)),
-            EGRESS_TIMEOUT_MILLIS,
-        ) ?: throw AssertionError("egress probe did not return within ${EGRESS_TIMEOUT_MILLIS / 1_000}s")
-
-        val value = result.text
-        device.pressBack()
+        val value = EgressProbeRequest.queryPublicIp(instrumentation, EGRESS_TIMEOUT_MILLIS)
         waitForTag("acceptance.connect.status")
-        if (value.startsWith("ACCEPTANCE_ERROR=")) {
-            throw AssertionError("egress probe failed: ${value.removePrefix("ACCEPTANCE_ERROR=")}")
-        }
-        assertTrue("invalid egress probe response: $value", value.startsWith("ACCEPTANCE_IP="))
-        return value.removePrefix("ACCEPTANCE_IP=").trim()
+        return value
     }
 
     private fun connectAndVerifyEgress(iteration: Int) {

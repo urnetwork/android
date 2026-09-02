@@ -84,6 +84,78 @@ android_acceptance_adb_device_ready() {
   [ "$(printf '%s' "$state" | tr -d '\r\n')" = device ]
 }
 
+# Compose cannot become idle while an app-owned infinite animation advances on
+# every frame. Acceptance uses Android's reduced-motion contract so those
+# animations stay static, then restores all host settings exactly for a reused
+# emulator. An absent setting is represented by Android as "null" and must be
+# deleted rather than restored as that literal string.
+android_acceptance_disable_animations() {
+  local adb="$1" serial="$2" state_file="$3"
+  local temporary="${state_file}.tmp.$$" key value
+
+  : >"$temporary" || return 1
+  chmod 600 "$temporary" || { rm -f "$temporary"; return 1; }
+  for key in \
+    window_animation_scale \
+    transition_animation_scale \
+    animator_duration_scale; do
+    if ! value="$(timeout 15 "$adb" -s "$serial" shell settings get global "$key")"; then
+      rm -f "$temporary"
+      return 1
+    fi
+    value="$(printf '%s' "$value" | tr -d '\r\n')"
+    if ! [[ "$value" =~ ^(null|[0-9]+([.][0-9]+)?|[.][0-9]+)$ ]]; then
+      echo "invalid Android animation scale for $key" >&2
+      rm -f "$temporary"
+      return 1
+    fi
+    printf '%s=%s\n' "$key" "$value" >>"$temporary" || {
+      rm -f "$temporary"
+      return 1
+    }
+  done
+  mv "$temporary" "$state_file" || { rm -f "$temporary"; return 1; }
+
+  for key in \
+    window_animation_scale \
+    transition_animation_scale \
+    animator_duration_scale; do
+    timeout 15 "$adb" -s "$serial" shell settings put global "$key" 0 || return 1
+  done
+}
+
+android_acceptance_restore_animations() {
+  local adb="$1" serial="$2" state_file="$3"
+  local key value seen_window=0 seen_transition=0 seen_animator=0
+
+  [ -f "$state_file" ] || return 0
+  while IFS='=' read -r key value; do
+    case "$key" in
+      window_animation_scale)
+        [ "$seen_window" -eq 0 ] || return 1
+        seen_window=1
+        ;;
+      transition_animation_scale)
+        [ "$seen_transition" -eq 0 ] || return 1
+        seen_transition=1
+        ;;
+      animator_duration_scale)
+        [ "$seen_animator" -eq 0 ] || return 1
+        seen_animator=1
+        ;;
+      *) return 1 ;;
+    esac
+    if [ "$value" = null ]; then
+      timeout 15 "$adb" -s "$serial" shell settings delete global "$key" >/dev/null || return 1
+    elif [[ "$value" =~ ^([0-9]+([.][0-9]+)?|[.][0-9]+)$ ]]; then
+      timeout 15 "$adb" -s "$serial" shell settings put global "$key" "$value" || return 1
+    else
+      return 1
+    fi
+  done <"$state_file"
+  [ "$seen_window" -eq 1 ] && [ "$seen_transition" -eq 1 ] && [ "$seen_animator" -eq 1 ]
+}
+
 # Returns 0 when the app-private file exists, 1 when the device is reachable
 # and the file does not exist, and 2 when its state cannot be verified.
 android_acceptance_private_file_status() {

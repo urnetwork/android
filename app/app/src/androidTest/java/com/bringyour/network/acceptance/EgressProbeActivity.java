@@ -3,6 +3,7 @@ package com.bringyour.network.acceptance;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.view.Gravity;
 import android.widget.TextView;
 
@@ -22,6 +23,15 @@ import android.widget.TextView;
  * process, it cannot borrow the target APK's Kotlin runtime.
  */
 public final class EgressProbeActivity extends Activity {
+    public static final String EXTRA_RESULT_RECEIVER = "com.bringyour.network.acceptance.RESULT_RECEIVER";
+    public static final String EXTRA_REQUEST_NONCE = "com.bringyour.network.acceptance.REQUEST_NONCE";
+    public static final String EXTRA_FINISH_AFTER_RESULT = "com.bringyour.network.acceptance.FINISH_AFTER_RESULT";
+    public static final String EXTRA_FIXED_RESULT = "com.bringyour.network.acceptance.FIXED_RESULT";
+    public static final String RESULT_MESSAGE = "message";
+    public static final String RESULT_NONCE = "nonce";
+
+    private Thread probe;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,13 +44,19 @@ public final class EgressProbeActivity extends Activity {
         result.setText("ACCEPTANCE_IP_PENDING");
         setContentView(result);
 
-        Thread probe = new Thread(new Runnable() {
+        String fixedResult = getIntent().getStringExtra(EXTRA_FIXED_RESULT);
+        if (fixedResult != null) {
+            publish(result, fixedResult);
+            return;
+        }
+
+        probe = new Thread(new Runnable() {
             @Override
             public void run() {
                 String message;
                 try {
                     message = "ACCEPTANCE_IP=" + EgressProbeClient.queryPublicIp();
-                } catch (Throwable error) {
+                } catch (Exception error) {
                     String detail = error.getMessage();
                     if (detail == null) {
                         detail = "unknown";
@@ -50,17 +66,46 @@ public final class EgressProbeActivity extends Activity {
                         + ":"
                         + detail;
                 }
-
-                final String finalMessage = message;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        result.setText(finalMessage);
-                    }
-                });
+                publish(result, message);
             }
         }, "acceptance-egress-probe");
         probe.setDaemon(true);
         probe.start();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void publish(TextView result, String message) {
+        ResultReceiver receiver = getIntent().getParcelableExtra(EXTRA_RESULT_RECEIVER);
+        String nonce = getIntent().getStringExtra(EXTRA_REQUEST_NONCE);
+        boolean finishAfterResult = getIntent().getBooleanExtra(EXTRA_FINISH_AFTER_RESULT, false);
+
+        // Deliver the acceptance result independently of Activity rendering. A
+        // system UI ANR or overlay must not hide a completed network probe from
+        // the instrumentation process.
+        if (receiver != null) {
+            Bundle data = new Bundle();
+            data.putString(RESULT_MESSAGE, message);
+            data.putString(RESULT_NONCE, nonce);
+            receiver.send(Activity.RESULT_OK, data);
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                result.setText(message);
+                if (finishAfterResult) {
+                    finish();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        Thread activeProbe = probe;
+        if (activeProbe != null) {
+            activeProbe.interrupt();
+        }
+        super.onDestroy();
     }
 }

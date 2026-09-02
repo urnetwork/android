@@ -102,6 +102,7 @@ artifacts="$here/tests/__acceptance__/$timestamp"
 mkdir -p "$artifacts" "$(dirname "$fixture")"
 run_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-acceptance.XXXXXX")"
 chmod 700 "$run_dir"
+animation_scales="$run_dir/animation-scales"
 serial=""
 emulator_pid=""
 started_emulator=0
@@ -156,6 +157,17 @@ cleanup() {
   done
   if [ -n "$private_staging_serial" ] && [ -n "$private_staging" ]; then
     timeout 15 "$adb" -s "$private_staging_serial" shell rm -f "$private_staging" >/dev/null 2>&1 || true
+  fi
+  if [ -n "$serial" ] && [ -f "$animation_scales" ]; then
+    if android_acceptance_adb_device_ready "$adb" "$serial"; then
+      if ! android_acceptance_restore_animations "$adb" "$serial" "$animation_scales"; then
+        echo "[android acceptance] could not restore Android animation scales" >&2
+        exit_status=1
+      fi
+    else
+      echo "[android acceptance] could not restore Android animation scales on an unreachable emulator" >&2
+      exit_status=1
+    fi
   fi
   if [ -n "$serial" ] && [ ! -f "$fixture" ]; then
     pull_fixture || true
@@ -345,6 +357,8 @@ for _ in $(seq 1 24); do
   sleep 5
 done
 [ "$network_ready" -eq 1 ] || die "emulator has no DNS/network route to api.bringyour.com"
+android_acceptance_disable_animations "$adb" "$serial" "$animation_scales" || \
+  die "could not disable Android animations for deterministic Compose input"
 
 credentials="$run_dir/credentials"
 printf '%s\n%s\n' "$acc_user" "$acc_pass" >"$credentials"
@@ -704,7 +718,7 @@ for target in $targets; do
 
   set +e
   timeout "$acceptance_timeout_seconds" "$adb" -s "$serial" shell am instrument -w -r \
-    -e class com.bringyour.network.acceptance.MainAcceptanceTest \
+    -e class com.bringyour.network.acceptance.EgressProbeRequestTest,com.bringyour.network.acceptance.MainAcceptanceTest \
     -e acceptanceBuildId "$build_id" \
     -e repeat "$repeat_count" \
     com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner \

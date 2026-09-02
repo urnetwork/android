@@ -162,22 +162,7 @@ class PhysicalLowbarSessionTest {
     }
 
     private fun peerEgressProbe(): String {
-        uiDevice.executeShellCommand(
-            "am start -W -n com.bringyour.network.test/com.bringyour.network.acceptance.EgressProbeActivity",
-        )
-        val result = uiDevice.wait(
-            Until.findObject(By.text(EgressProbeResult.terminalText)),
-            EGRESS_TIMEOUT_MILLIS,
-        ) ?: throw AssertionError(
-            "peer egress probe did not return within ${EGRESS_TIMEOUT_MILLIS / 1_000}s",
-        )
-        val value = result.text
-        uiDevice.pressBack()
-        if (value.startsWith("ACCEPTANCE_ERROR=")) {
-            throw AssertionError("peer egress probe failed: ${value.removePrefix("ACCEPTANCE_ERROR=")}")
-        }
-        check(value.startsWith("ACCEPTANCE_IP=")) { "invalid peer egress response" }
-        return value.removePrefix("ACCEPTANCE_IP=").trim().also {
+        return EgressProbeRequest.queryPublicIp(instrumentation, EGRESS_TIMEOUT_MILLIS).also {
             check(it.matches(Regex("[0-9a-fA-F:.]+"))) { "invalid peer egress address" }
         }
     }

@@ -2,6 +2,7 @@ package com.bringyour.network.ui
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.fail
 import org.junit.Test
 
 class TransientUiActionTest {
@@ -61,5 +62,18 @@ class TransientUiActionTest {
         assertFalse(performed)
         assertFalse(present)
         assertEquals(1, actionCount)
+    }
+
+    @Test
+    fun assertionWhileSurfaceRemainsPresentIsNotSuppressed() {
+        try {
+            performTransientUiActionIfPresent(
+                isPresent = { true },
+                action = { throw AssertionError("compose never became idle") },
+            )
+            fail("a persistent driver failure was reported as a disappearing surface")
+        } catch (error: AssertionError) {
+            assertEquals("compose never became idle", error.message)
+        }
     }
 }

@@ -37,6 +37,47 @@ timeout() {
   "$@"
 }
 
+animation_calls="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-animation-calls.test.XXXXXX")"
+animation_state="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-animation-state.test.XXXXXX")"
+fake_animation_adb() {
+  [ "$1" = -s ] && [ "$2" = emulator-5554 ] && [ "$3 $4" = "shell settings" ] || \
+    fail "unexpected animation adb invocation: $*"
+  printf '%s%s%s%s\n' \
+    "${5:-}" "${6:+ ${6}}" "${7:+ ${7}}" "${8:+ ${8}}" >>"$animation_calls"
+  if [ "${5:-} ${6:-}" = "get global" ]; then
+    case "${7:-}" in
+      window_animation_scale) printf '1.0\n' ;;
+      transition_animation_scale) printf '0.5\n' ;;
+      animator_duration_scale) printf 'null\n' ;;
+      *) return 91 ;;
+    esac
+  fi
+}
+
+android_acceptance_disable_animations \
+  fake_animation_adb emulator-5554 "$animation_state" || \
+  fail "could not disable Android animations"
+[ "$(cat "$animation_state")" = "window_animation_scale=1.0
+transition_animation_scale=0.5
+animator_duration_scale=null" ] || \
+  fail "animation scale state was not captured exactly"
+for key in window_animation_scale transition_animation_scale animator_duration_scale; do
+  grep -Fxq "put global $key 0" "$animation_calls" || \
+    fail "$key was not disabled"
+done
+
+: >"$animation_calls"
+android_acceptance_restore_animations \
+  fake_animation_adb emulator-5554 "$animation_state" || \
+  fail "could not restore Android animations"
+grep -Fxq 'put global window_animation_scale 1.0' "$animation_calls" || \
+  fail "window animation scale was not restored"
+grep -Fxq 'put global transition_animation_scale 0.5' "$animation_calls" || \
+  fail "transition animation scale was not restored"
+grep -Fxq 'delete global animator_duration_scale' "$animation_calls" || \
+  fail "an originally absent animator duration scale was not deleted"
+rm -f "$animation_calls" "$animation_state"
+
 fake_apkanalyzer() {
   [ "$1 $2 $3 $4" = "dex code --class com.bringyour.network.acceptance.EgressProbeActivity" ] || \
     fail "unexpected APK analyzer invocation"
