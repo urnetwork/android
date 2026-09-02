@@ -411,7 +411,6 @@
     <string name="share">Compartilhar</string>
     <string name="share_logs">Compartilhar logs</string>
     <string name="share_with_others">Você compartilha com outras pessoas, nós compartilhamos com você. Ganhe uma parte da receita quando fornecer dados para outras pessoas na rede.</string>
-    <string name="show_icon_when_connected">Mostrar o ícone UR quando conectado</string>
     <string name="sign_in_dgen1">Entrar com dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Certifique-se de que há fundos USDC suficientes em sua carteira. Em alguns casos, solicitações de pagamento falham se não houver fundos suficientes na carteira.</string>
     <string name="solana_sign_in">Entrar com Solana</string>

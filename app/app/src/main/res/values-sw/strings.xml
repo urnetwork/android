@@ -411,7 +411,6 @@
     <string name="share">Shiriki</string>
     <string name="share_logs">Shiriki logi</string>
     <string name="share_with_others">Unashiriki na wengine, tunashiriki nawe. Pata sehemu ya mapato unapompa data wengine kwenye mtandao.</string>
-    <string name="show_icon_when_connected">Onyesha ikoni ya UR wakati umeunganishwa</string>
     <string name="sign_in_dgen1">Ingia kwa dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Tafadhali hakikisha una fedha za kutosha za USDC kwenye pochi yako. Katika baadhi ya matukio, maombi ya malipo hushindwa ikiwa hakuna fedha za kutosha kwenye pochi.</string>
     <string name="solana_sign_in">Ingia na Solana</string>

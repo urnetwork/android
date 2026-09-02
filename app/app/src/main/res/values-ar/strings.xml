@@ -411,7 +411,6 @@
     <string name="share">شارك</string>
     <string name="share_logs">مشاركة السجلات</string>
     <string name="share_with_others">أنت تشارك مع الآخرين، ونحن نشارك معك. اكسب حصة من الإيرادات عندما تقدم بيانات للآخرين على الشبكة.</string>
-    <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">يرجى التأكد من أن لديك رصيد كافٍ من USDC في محفظتك. في بعض الحالات، قد تفشل مطالبات الدفع إذا لم تكن هناك أموال كافية في المحفظة.</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>

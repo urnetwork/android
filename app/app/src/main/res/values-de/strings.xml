@@ -411,7 +411,6 @@
     <string name="share">Teile</string>
     <string name="share_logs">Protokolle teilen</string>
     <string name="share_with_others">Du teilst mit anderen, wir teilen mit dir. Verdiene einen Teil der Einnahmen, wenn du Daten an andere im Netzwerk weitergibst.</string>
-    <string name="show_icon_when_connected">UR-Symbol bei Verbindung anzeigen</string>
     <string name="sign_in_dgen1">Mit dGEN1 anmelden</string>
     <string name="solana_payment_insufficient_funds_warning">Bitte stelle sicher, dass du genügend USDC-Guthaben in deiner Wallet hast. In manchen Fällen schlagen Zahlungsaufforderungen fehl, wenn nicht genügend Guthaben vorhanden ist.</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>

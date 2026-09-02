@@ -1,10 +1,9 @@
 package com.bringyour.network
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Application
-import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
@@ -13,12 +12,16 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.VpnService
-import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
 import android.os.PowerManager
+import android.os.SystemClock
+import android.os.ext.SdkExtensions
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.WorkManager
 import com.bringyour.network.location.MockLocationController
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
@@ -43,6 +46,14 @@ class MainApplication : Application() {
         // expose the same SDK pressure/failure boundary. DeviceManager already
         // passes the matching iOS per-device steady target (24 MiB).
         const val SDK_PROCESS_MEMORY_LIMIT_MIB = 32L
+        // Stable platform capability id since API 30. The framework exposes it
+        // to system code only, but public hasCapability(Int) reports it to VPN
+        // apps as part of ordinary NetworkCapabilities callbacks.
+        const val NET_CAPABILITY_PARTIAL_CONNECTIVITY_COMPAT = 24
+        // Public in API 36 and Android 14 extension 16. Use the stable id so an
+        // extension-capable API 34/35 device can report it without linking an
+        // API-36-only field on older releases.
+        const val NET_CAPABILITY_NOT_BANDWIDTH_CONSTRAINED_COMPAT = 37
     }
 
     // The initial device name defaults to the human model name — e.g.
@@ -133,12 +144,17 @@ class MainApplication : Application() {
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
     var defaultNetworkCallback: ConnectivityManager.NetworkCallback? = null
     var powerSaveReceiver: BroadcastReceiver? = null
+    var networkPolicyReceiver: BroadcastReceiver? = null
     var thermalStatusListener: PowerManager.OnThermalStatusChangedListener? = null
 
     // main-looper confined; latest thermal status composed into
     // setPerformanceDegraded alongside battery saver (see
     // updatePerformanceDegraded / addThermalStatusListener)
     private var thermalDegraded = false
+    private var dataSaverDegraded = false
+    private var defaultNetworkDegraded = false
+    private var performanceDegradedDevice: DeviceLocal? = null
+    private var performanceDegradedApplied: Boolean? = null
 
     var loginVc: LoginViewController? = null
 
@@ -156,11 +172,14 @@ class MainApplication : Application() {
 
     @Volatile
     private var vpnStartPending: Boolean = false
+    private var vpnStartAttemptGeneration: Long = 0
+    private var vpnStartAdoptionWatchdog: Runnable? = null
+    private var vpnStartRetryRunnable: Runnable? = null
+    private var vpnStartFailureCount: Int = 0
     // SDK state changes arrive in bursts for one logical connect transition.
     // Coalesce them on the main looper and make the service start idempotent.
     private var vpnServiceUpdatePosted: Boolean = false
     private var vpnServiceUpdateGeneration: Long = 0
-    private var activeVpnForeground: Boolean? = null
     @Volatile
     private var systemAlwaysOnVpn: Boolean = false
     private var alwaysOnConnectRequestedDevice: DeviceLocal? = null
@@ -171,8 +190,20 @@ class MainApplication : Application() {
 //    private var provideEnabled: Boolean = false
 //    private var connectEnabled: Boolean = false
 
-    private var wakeLock: PowerManager.WakeLock? = null
-    private var wifiLock: WifiManager.WifiLock? = null
+    private val mainHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(mainLooper) }
+    private val tunnelRecoveryPolicy = TunnelRecoveryPolicy()
+    private var pendingTransportRecovery: Runnable? = null
+    private var pendingWakeStart: Runnable? = null
+    private var pendingWakeHealthAudit: Runnable? = null
+    private var physicalNetworkAvailable = false
+    private var sleepStartedAtMillis: Long? = null
+    private var tunnelLifecycleReceiver: BroadcastReceiver? = null
+    private var processLifecycleObserver: DefaultLifecycleObserver? = null
+    private var userUnlockReceiver: BroadcastReceiver? = null
+    private val directBootState by lazy(LazyThreadSafetyMode.NONE) { DirectBootState(this) }
+    @Volatile
+    private var applicationStateInitialized = false
+    private var applicationStateInitializing = false
 
     val device get() = deviceManager.device
 //    val vcManager get() = deviceManager.vcManager
@@ -206,12 +237,150 @@ class MainApplication : Application() {
     override fun onLowMemory() {
         super.onLowMemory()
 
-        Sdk.freeMemory()
+        // A cold VPN-service process deliberately has not loaded gomobile yet;
+        // a memory callback must not defeat the early-promotion startup path.
+        if (applicationStateInitialized) Sdk.freeMemory()
     }
 
 
     override fun onCreate() {
         super.onCreate()
+
+        if (!isCredentialStorageUnlocked()) {
+            enterDirectBootMode("application-create")
+            return
+        }
+        if (processStartedForVpnService()) {
+            // A cold process must reach MainService.onCreate/startForeground
+            // before gomobile loading, storage migration, device restore, or
+            // callback registration can consume Android's FGS deadline.
+            // MainService initializes the same state immediately after it has
+            // promoted, before command admission or TUN construction.
+            Log.i(TAG, "Deferring cold application initialization until VPN foreground promotion")
+            return
+        }
+        ensureApplicationStateInitialized()
+    }
+
+    /**
+     * Keep pre-unlock work deliberately tiny. The SDK store under [filesDir]
+     * is credential encrypted and must not be opened until ACTION_USER_UNLOCKED.
+     */
+    private fun enterDirectBootMode(source: String?) {
+        directBootState.markCredentialRestorePending()
+        addUserUnlockReceiver()
+        Log.i(TAG, "Direct Boot active; deferring credential state source=$source")
+    }
+
+    fun handleLockedBootCompleted(source: String?) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { handleLockedBootCompleted(source) }
+            return
+        }
+        if (isCredentialStorageUnlocked()) {
+            restoreVpnServiceFromSystemEvent(source)
+            return
+        }
+        enterDirectBootMode(source)
+        // A configured Always-on VPN is started by Android itself. Starting an
+        // app-owned FGS here would both duplicate that authority and risk an
+        // ineligible systemExempted promotion when Always-on is not selected.
+    }
+
+    private fun addUserUnlockReceiver() {
+        if (userUnlockReceiver != null || isCredentialStorageUnlocked()) return
+        userUnlockReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == Intent.ACTION_USER_UNLOCKED) {
+                    // Return from the broadcast before credential-state restore;
+                    // the existing main-looper initialization can be substantial
+                    // and must not consume the receiver execution deadline.
+                    mainHandler.post {
+                        completeDirectBootRestore(Intent.ACTION_USER_UNLOCKED)
+                    }
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            this,
+            userUnlockReceiver,
+            IntentFilter(Intent.ACTION_USER_UNLOCKED),
+            ContextCompat.RECEIVER_EXPORTED,
+        )
+    }
+
+    private fun removeUserUnlockReceiver() {
+        userUnlockReceiver?.let {
+            try {
+                unregisterReceiver(it)
+            } catch (_: IllegalArgumentException) {
+            }
+        }
+        userUnlockReceiver = null
+    }
+
+    private fun completeDirectBootRestore(source: String?) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { completeDirectBootRestore(source) }
+            return
+        }
+        if (!isCredentialStorageUnlocked()) return
+        removeUserUnlockReceiver()
+        ensureApplicationStateInitialized()
+        directBootState.markCredentialRestoreComplete()
+        restoreVpnServiceFromSystemEvent(source)
+        service?.get()?.onDeviceAvailable()
+        Log.i(TAG, "Direct Boot credential restore complete source=$source")
+    }
+
+    private fun processStartedForVpnService(): Boolean {
+        val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val startIntentClassName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            runCatching {
+                activityManager.getHistoricalProcessStartReasons(1)
+                    .firstOrNull()
+                    ?.intent
+                    ?.component
+                    ?.className
+            }.getOrNull()
+        } else {
+            null
+        }
+        @Suppress("DEPRECATION")
+        val runningServiceClassNames = runCatching {
+            activityManager.getRunningServices(32)
+                .mapTo(linkedSetOf()) { it.service.className }
+        }.getOrDefault(emptySet())
+        return vpnServiceOwnsColdProcessStart(
+            startIntentClassName = startIntentClassName,
+            runningServiceClassNames = runningServiceClassNames,
+            vpnServiceClassName = VPN_SERVICE_CLASS_NAME,
+        )
+    }
+
+    /** Main-looper initialization deferred only for a cold VPN-service start. */
+    fun ensureApplicationStateInitialized() {
+        if (applicationStateInitialized || applicationStateInitializing) return
+        check(isCredentialStorageUnlocked()) {
+            "Credential encrypted application state is unavailable during Direct Boot"
+        }
+        check(android.os.Looper.myLooper() == mainLooper) {
+            "Application state must be initialized on the main looper"
+        }
+        applicationStateInitializing = true
+        try {
+            initializeApplicationState()
+            applicationStateInitialized = true
+            if (directBootState.credentialRestorePending) {
+                directBootState.markCredentialRestoreComplete()
+            }
+        } finally {
+            applicationStateInitializing = false
+        }
+    }
+
+    private fun initializeApplicationState() {
+        addTunnelLifecycleObservers()
 
         if (0 < BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES) {
             // Diagnostic profile AARs are linked with this same startup rate;
@@ -327,6 +496,193 @@ class MainApplication : Application() {
         }
     }
 
+    /**
+     * Android has no VpnService sleep/wake callback. Combine the physical
+     * screen/idle signals with process foreground as a fallback: SCREEN_ON can
+     * be deferred for cached processes on recent Android releases, while the
+     * process lifecycle only describes activities. Neither signal is complete
+     * alone; all are coalesced by [TunnelRecoveryPolicy].
+     */
+    private fun addTunnelLifecycleObservers() {
+        if (tunnelLifecycleReceiver != null) return
+
+        val powerManager = getSystemService(PowerManager::class.java)
+        if (!powerManager.isInteractive) {
+            sleepStartedAtMillis = SystemClock.elapsedRealtime()
+        }
+        tunnelLifecycleReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    Intent.ACTION_SCREEN_OFF -> recordTunnelSleep("screen-off")
+                    Intent.ACTION_SCREEN_ON -> requestWakeHealthAudit("screen-on")
+                    Intent.ACTION_USER_PRESENT -> requestWakeHealthAudit("user-present")
+                    PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED -> {
+                        if (powerManager.isInteractive && !powerManager.isDeviceIdleMode) {
+                            requestWakeHealthAudit("device-idle-exit")
+                        }
+                    }
+                    PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED -> {
+                        if (
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                            powerManager.isInteractive &&
+                            !powerManager.isDeviceLightIdleMode
+                        ) {
+                            requestWakeHealthAudit("light-idle-exit")
+                        }
+                    }
+                }
+            }
+        }
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+            addAction(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                addAction(PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED)
+            }
+        }
+        ContextCompat.registerReceiver(
+            this,
+            tunnelLifecycleReceiver,
+            filter,
+            // These are protected system broadcasts. Android recommends an
+            // exported context receiver for system-originated actions; using
+            // NOT_EXPORTED can exclude privileged framework senders on OEMs.
+            ContextCompat.RECEIVER_EXPORTED,
+        )
+
+        processLifecycleObserver = object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                requestWakeHealthAudit("process-foreground")
+            }
+        }.also { ProcessLifecycleOwner.get().lifecycle.addObserver(it) }
+    }
+
+    private fun recordTunnelSleep(reason: String) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { recordTunnelSleep(reason) }
+            return
+        }
+        sleepStartedAtMillis = SystemClock.elapsedRealtime()
+        pendingWakeStart?.let(mainHandler::removeCallbacks)
+        pendingWakeStart = null
+        pendingWakeHealthAudit?.let(mainHandler::removeCallbacks)
+        pendingWakeHealthAudit = null
+        tunnelRecoveryPolicy.cancelWakeAudits()
+        Log.i(TAG, "[tunnel-lifecycle] sleep reason=$reason")
+    }
+
+    private fun requestWakeHealthAudit(reason: String) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { requestWakeHealthAudit(reason) }
+            return
+        }
+        val scheduled = tunnelRecoveryPolicy.requestWakeAudit(reason)
+        pendingWakeStart?.let(mainHandler::removeCallbacks)
+        val runnable = Runnable {
+            pendingWakeStart = null
+            val audit = tunnelRecoveryPolicy.beginWakeAudit(
+                scheduled.generation,
+                SystemClock.elapsedRealtime(),
+            ) ?: return@Runnable
+            val wakeDevice = device ?: return@Runnable
+            val sleptMillis = sleepStartedAtMillis?.let {
+                (audit.startedAtMillis - it).coerceAtLeast(0L)
+            }
+            sleepStartedAtMillis = null
+
+            // First repair the Android-side service/TUN state, then ask the SDK
+            // to actively qualify every existing exit during the grace period.
+            updateVpnService()
+            service?.get()?.requestTunnelReconcile("wake:${audit.reasons.joinToString(",")}")
+            val probePasses = if (wakeDevice.connectEnabled) {
+                runCatching { wakeDevice.probeAllExits() }
+                    .onFailure { Log.i(TAG, "[tunnel-lifecycle] wake probe failed: ${it.message}") }
+                    .getOrDefault(0)
+            } else {
+                0
+            }
+            Log.i(
+                TAG,
+                "[tunnel-lifecycle] wake reasons=${audit.reasons} sleptMillis=$sleptMillis " +
+                    "probePasses=$probePasses",
+            )
+
+            pendingWakeHealthAudit?.let(mainHandler::removeCallbacks)
+            val healthRunnable = Runnable {
+                pendingWakeHealthAudit = null
+                if (device !== wakeDevice) return@Runnable
+                val providerCount = (wakeDevice.windowStatus?.providerStateAdded ?: 0L)
+                    .coerceAtMost(Int.MAX_VALUE.toLong())
+                    .toInt()
+                val decision = tunnelRecoveryPolicy.evaluateWakeAudit(
+                    audit,
+                    WakeHealthFacts(
+                        connectRequested = wakeDevice.connectEnabled,
+                        physicalNetworkAvailable = physicalNetworkAvailable && !wakeDevice.offline,
+                        providerCount = providerCount,
+                    ),
+                )
+                Log.i(
+                    TAG,
+                    "[tunnel-lifecycle] wake health decision=$decision providers=$providerCount " +
+                        "networkAvailable=$physicalNetworkAvailable",
+                )
+                if (decision == WakeHealthDecision.RECOVER_TRANSPORTS) {
+                    requestTransportRecovery("wake-unhealthy", physicalPathChange = false)
+                }
+            }
+            pendingWakeHealthAudit = healthRunnable
+            mainHandler.postDelayed(healthRunnable, audit.delayMillis)
+        }
+        pendingWakeStart = runnable
+        mainHandler.postDelayed(runnable, scheduled.delayMillis)
+    }
+
+    private fun requestTransportRecovery(reason: String, physicalPathChange: Boolean = true) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { requestTransportRecovery(reason, physicalPathChange) }
+            return
+        }
+        val recoveryDevice = device ?: return
+        val scheduled = tunnelRecoveryPolicy.requestTransportRecovery(
+            nowMillis = SystemClock.elapsedRealtime(),
+            reason = reason,
+            physicalPathChange = physicalPathChange,
+        )
+        pendingTransportRecovery?.let(mainHandler::removeCallbacks)
+        val runnable = Runnable {
+            pendingTransportRecovery = null
+            if (device !== recoveryDevice) return@Runnable
+            val recovery = tunnelRecoveryPolicy.consumeTransportRecovery(
+                scheduled.generation,
+                SystemClock.elapsedRealtime(),
+            ) ?: return@Runnable
+            Log.i(
+                TAG,
+                "[tunnel-lifecycle] transport recovery reasons=${recovery.reasons} " +
+                    "physical=${recovery.physicalPathChange}",
+            )
+            runCatching { recoveryDevice.networkChanged() }
+                .onFailure { Log.e(TAG, "transport recovery failed: ${it.message}", it) }
+            service?.get()?.requestTunnelReconcile("transport-recovery")
+        }
+        pendingTransportRecovery = runnable
+        mainHandler.postDelayed(runnable, scheduled.delayMillis)
+    }
+
+    private fun resetTunnelRecoveryState() {
+        pendingTransportRecovery?.let(mainHandler::removeCallbacks)
+        pendingWakeStart?.let(mainHandler::removeCallbacks)
+        pendingWakeHealthAudit?.let(mainHandler::removeCallbacks)
+        pendingTransportRecovery = null
+        pendingWakeStart = null
+        pendingWakeHealthAudit = null
+        physicalNetworkAvailable = false
+        tunnelRecoveryPolicy.reset()
+    }
+
     // Retained while installed jobs from older versions can still instantiate
     // BackgroundUpdateWorker before the cancellation above is committed.
     fun backgroundUpdate() {
@@ -374,6 +730,46 @@ class MainApplication : Application() {
     }
 
 
+    private fun physicalNetworkCapabilitiesSnapshot(
+        capabilities: NetworkCapabilities,
+    ): PhysicalNetworkCapabilitiesSnapshot {
+        val transports = linkedSetOf<Int>()
+        listOf(
+            NetworkCapabilities.TRANSPORT_CELLULAR,
+            NetworkCapabilities.TRANSPORT_WIFI,
+            NetworkCapabilities.TRANSPORT_BLUETOOTH,
+            NetworkCapabilities.TRANSPORT_ETHERNET,
+            NetworkCapabilities.TRANSPORT_WIFI_AWARE,
+        ).filterTo(transports, capabilities::hasTransport)
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 &&
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_LOWPAN)
+        ) {
+            transports.add(NetworkCapabilities.TRANSPORT_LOWPAN)
+        }
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_USB)
+        ) {
+            transports.add(NetworkCapabilities.TRANSPORT_USB)
+        }
+        return PhysicalNetworkCapabilitiesSnapshot(
+            validated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED),
+            notSuspended =
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+                    capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED),
+            captivePortal = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL),
+            partialConnectivity = hasPartialConnectivity(capabilities),
+            transports = transports,
+        )
+    }
+
+    @SuppressLint("WrongConstant")
+    private fun hasPartialConnectivity(capabilities: NetworkCapabilities): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            capabilities.hasCapability(NET_CAPABILITY_PARTIAL_CONNECTIVITY_COMPAT)
+    }
+
     private fun addOfflineCallback() {
         removeOfflineCallback()
 
@@ -386,12 +782,13 @@ class MainApplication : Application() {
                 }
                 val change = availableNetworks.onAvailable(network)
                 Log.i(TAG, "network available device = $network count=${availableNetworks.size}")
+                physicalNetworkAvailable = change.available
                 callbackDevice?.offline = false
-                if (change.topologyChanged) {
+                if (change.recoveryRequired) {
                     // Existing sockets may be bound to the previous physical path:
                     // re-dial platform transports and re-warm tunnel DoH now instead
                     // of waiting for ping timeouts.
-                    callbackDevice?.networkChanged()
+                    requestTransportRecovery("physical-network-available")
                 }
             }
 
@@ -407,11 +804,48 @@ class MainApplication : Application() {
                     linkProperties.routes.map { it.toString() }.sorted().joinToString(","),
                     linkProperties.dnsServers.map { it.toString() }.sorted().joinToString(","),
                     linkProperties.domains.orEmpty(),
-                    linkProperties.mtu.toString(),
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        linkProperties.mtu.toString()
+                    } else {
+                        "0"
+                    },
                 ).joinToString("|")
                 if (availableNetworks.onLinkPropertiesChanged(network, fingerprint)) {
                     Log.i(TAG, "network link changed device = $network")
-                    callbackDevice?.networkChanged()
+                    requestTransportRecovery("link-properties-changed")
+                }
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                if (offlineCallback !== this || device !== callbackDevice) return
+                val change = availableNetworks.onCapabilitiesChanged(
+                    network,
+                    physicalNetworkCapabilitiesSnapshot(networkCapabilities),
+                )
+                if (!change.changed) return
+                Log.i(
+                    TAG,
+                    "network capabilities changed device=$network transports=${change.transportChanged} " +
+                        "recovered=${change.recovered} degraded=${change.degraded}",
+                )
+                if (change.transportChanged) {
+                    requestTransportRecovery("network-transport-changed")
+                }
+                if (change.recovered) {
+                    requestWakeHealthAudit("network-capability-restored")
+                }
+            }
+
+            override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                if (offlineCallback !== this || device !== callbackDevice) return
+                val change = availableNetworks.onBlockedStatusChanged(network, blocked)
+                if (!change.changed) return
+                Log.i(TAG, "network blocked changed device=$network blocked=$blocked")
+                if (change.recovered) {
+                    requestWakeHealthAudit("network-unblocked")
                 }
             }
 
@@ -424,19 +858,19 @@ class MainApplication : Application() {
                     return
                 }
                 Log.i(TAG, "network lost device = $network count=${availableNetworks.size}")
+                physicalNetworkAvailable = change.available
                 callbackDevice?.offline = !change.available
-                if (change.available) {
+                if (change.recoveryRequired) {
                     // Another physical path remains. It may now become the route
                     // for transport sockets even though the device stayed online.
-                    callbackDevice?.networkChanged()
+                    requestTransportRecovery("physical-network-lost")
                 }
             }
         }
 
-        // Android 15+ adds NOT_METERED to a new NetworkRequest by default. Build
-        // from an empty capability set so cellular and future constrained
-        // physical paths are not silently excluded. Explicit NOT_VPN prevents
-        // the tunnel from satisfying its own underlying-network observer.
+        // Build from the least restrictive capability set supported by this OS
+        // so cellular and future constrained physical paths remain eligible.
+        // Explicit NOT_VPN prevents the tunnel satisfying its own observer.
         val networkRequest = physicalInternetNetworkRequestBuilder().build()
 
         val connectivityManager =
@@ -458,6 +892,7 @@ class MainApplication : Application() {
             }
         }
         offlineCallback = null
+        physicalNetworkAvailable = false
     }
 
     /**
@@ -471,36 +906,93 @@ class MainApplication : Application() {
      * updatePfd's app rules for every mode), so the per-app default here is
      * always a physical network, never the tunnel itself.
      */
+    @SuppressLint("WrongConstant")
+    private fun defaultNetworkPressure(
+        capabilities: NetworkCapabilities,
+    ): DefaultNetworkPressure {
+        val notCongested =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED)
+        val uExtensionVersion = if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+            Build.VERSION.SDK_INT < BANDWIDTH_CONSTRAINT_CAPABILITY_API
+        ) {
+            runCatching {
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+            }.getOrDefault(0)
+        } else {
+            0
+        }
+        val bandwidthCapabilitySupported = supportsBandwidthConstraintCapability(
+            sdkInt = Build.VERSION.SDK_INT,
+            uExtensionVersion = uExtensionVersion,
+        )
+        val notBandwidthConstrained =
+            !bandwidthCapabilitySupported ||
+                capabilities.hasCapability(NET_CAPABILITY_NOT_BANDWIDTH_CONSTRAINED_COMPAT)
+        return DefaultNetworkPressure(
+            notCongested = notCongested,
+            notBandwidthConstrained = notBandwidthConstrained,
+        )
+    }
+
+    private fun setDefaultNetworkDegraded(degraded: Boolean) {
+        if (defaultNetworkDegraded == degraded) return
+        defaultNetworkDegraded = degraded
+        Log.i(TAG, "default network pressure degraded=$degraded")
+        updatePerformanceDegraded()
+    }
+
     private fun addDefaultNetworkCallback() {
         removeDefaultNetworkCallback()
 
         val callbackDevice = device
+        val tracker = DefaultNetworkTracker<Network>()
+        val pressureTracker = DefaultNetworkPressureTracker<Network>()
         defaultNetworkCallback = object : ConnectivityManager.NetworkCallback() {
-            // main-looper confined (registered with a main handler)
-            var lastDefaultNetwork: Network? = null
-
             override fun onAvailable(network: Network) {
                 if (defaultNetworkCallback !== this || device !== callbackDevice) {
                     return
                 }
-                val previous = lastDefaultNetwork
-                lastDefaultNetwork = network
-                if (previous != null && previous != network) {
-                    Log.i(TAG, "network default changed $previous -> $network")
-                    callbackDevice?.networkChanged()
+                if (pressureTracker.onAvailable(network)) {
+                    setDefaultNetworkDegraded(pressureTracker.degraded)
                 }
+                if (tracker.onAvailable(network)) {
+                    Log.i(TAG, "network default changed to $network")
+                    requestTransportRecovery("default-network-changed")
+                }
+                updateDataSaverDegraded()
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                if (defaultNetworkCallback !== this || device !== callbackDevice) return
+                if (
+                    pressureTracker.onCapabilitiesChanged(
+                        network,
+                        defaultNetworkPressure(networkCapabilities),
+                    )
+                ) {
+                    setDefaultNetworkDegraded(pressureTracker.degraded)
+                }
+                // Meteredness can change with capabilities without a Data Saver
+                // preference broadcast (for example Wi-Fi policy changes).
+                updateDataSaverDegraded()
             }
 
             override fun onLost(network: Network) {
                 if (defaultNetworkCallback !== this || device !== callbackDevice) {
                     return
                 }
-                // No default remains. A replacement arrives as onAvailable; a
-                // true loss is also a membership loss, so the offline state and
-                // the reconnect kick stay owned by the membership callback.
-                if (lastDefaultNetwork == network) {
-                    lastDefaultNetwork = null
+                // A loss->replacement with the same Network identity is still
+                // a dead-path crossing and is detected by the tracker.
+                tracker.onLost(network)
+                if (pressureTracker.onLost(network)) {
+                    setDefaultNetworkDegraded(pressureTracker.degraded)
                 }
+                updateDataSaverDegraded()
             }
         }
 
@@ -522,16 +1014,102 @@ class MainApplication : Application() {
             }
         }
         defaultNetworkCallback = null
+        setDefaultNetworkDegraded(false)
     }
 
     private fun updatePerformanceDegraded() {
-        // battery saver throttles cpu/network and severe thermal throttling
-        // slows the whole host: the device answers control pings slowly, so
-        // ease the sdk's liveness probe timings — slow must not be misread as
-        // a dead peer. Mirrors the apple extension's composition (low power
-        // mode / thermal state).
+        // Battery saver, thermal throttling, Data Saver, congestion and an OS
+        // bandwidth constraint all make control traffic legitimately slower.
+        // Ease SDK liveness and idle keepalive timing instead of forcing a
+        // reconnect: slow must not be misread as a dead peer. This mirrors the
+        // Apple extension's low-power / thermal / constrained-path composition.
+        val currentDevice = device
+        if (currentDevice == null) {
+            performanceDegradedDevice = null
+            performanceDegradedApplied = null
+            return
+        }
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-        device?.setPerformanceDegraded(powerManager.isPowerSaveMode || thermalDegraded)
+        val degraded = hostPerformanceDegraded(
+            HostPerformanceFacts(
+                powerSave = powerManager.isPowerSaveMode,
+                thermalDegraded = thermalDegraded,
+                dataSaverDegraded = dataSaverDegraded,
+                defaultNetworkDegraded = defaultNetworkDegraded,
+            ),
+        )
+        if (
+            performanceDegradedDevice === currentDevice &&
+            performanceDegradedApplied == degraded
+        ) {
+            return
+        }
+        performanceDegradedDevice = currentDevice
+        performanceDegradedApplied = degraded
+        currentDevice.setPerformanceDegraded(degraded)
+        Log.i(
+            TAG,
+            "performance degraded=$degraded powerSave=${powerManager.isPowerSaveMode} " +
+                "thermal=$thermalDegraded dataSaver=$dataSaverDegraded " +
+                "networkPressure=$defaultNetworkDegraded",
+        )
+    }
+
+    private fun updateDataSaverDegraded() {
+        val connectivityManager = getSystemService(ConnectivityManager::class.java)
+        val next = runCatching {
+            val restriction = when (connectivityManager.restrictBackgroundStatus) {
+                ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED ->
+                    BackgroundDataRestriction.ENABLED
+                ConnectivityManager.RESTRICT_BACKGROUND_STATUS_WHITELISTED ->
+                    BackgroundDataRestriction.ALLOWLISTED
+                else -> BackgroundDataRestriction.DISABLED
+            }
+            dataSaverDegradesPerformance(
+                activeNetworkMetered = connectivityManager.isActiveNetworkMetered,
+                restriction = restriction,
+            )
+        }.onFailure {
+            Log.i(TAG, "unable to read Data Saver policy: ${it.message}")
+        }.getOrNull() ?: return
+        if (dataSaverDegraded == next) return
+        dataSaverDegraded = next
+        Log.i(TAG, "Data Saver network pressure degraded=$next")
+        updatePerformanceDegraded()
+    }
+
+    private fun addNetworkPolicyReceiver() {
+        removeNetworkPolicyReceiver()
+        networkPolicyReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED) {
+                    updateDataSaverDegraded()
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            this,
+            networkPolicyReceiver,
+            IntentFilter(ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED),
+            // The platform only delivers this action to dynamically registered
+            // receivers. It is a protected system policy signal.
+            ContextCompat.RECEIVER_EXPORTED,
+        )
+        updateDataSaverDegraded()
+    }
+
+    fun removeNetworkPolicyReceiver() {
+        networkPolicyReceiver?.let {
+            try {
+                unregisterReceiver(it)
+            } catch (_: IllegalArgumentException) {
+            }
+        }
+        networkPolicyReceiver = null
+        if (dataSaverDegraded) {
+            dataSaverDegraded = false
+            updatePerformanceDegraded()
+        }
     }
 
     private fun addPowerSaveReceiver() {
@@ -544,9 +1122,14 @@ class MainApplication : Application() {
                 }
             }
         }
-        registerReceiver(
+        ContextCompat.registerReceiver(
+            this,
             powerSaveReceiver,
-            IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+            IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED),
+            // This is a protected system broadcast. Exported context
+            // receivers reliably accept privileged framework senders across
+            // OEM builds while still rejecting non-system spoofing.
+            ContextCompat.RECEIVER_EXPORTED,
         )
         updatePerformanceDegraded()
     }
@@ -717,17 +1300,14 @@ class MainApplication : Application() {
         // down the device; it must not restart the service after logout.
         vpnServiceUpdateGeneration += 1
         vpnServiceUpdatePosted = false
+        resetTunnelRecoveryState()
         stopVpnService()
-
-        if (wakeLock?.isHeld == true) wakeLock?.release()
-        wakeLock = null
-        if (wifiLock?.isHeld == true) wifiLock?.release()
-        wifiLock = null
 
         removeNetworkCallback()
         removeOfflineCallback()
         removeDefaultNetworkCallback()
         removePowerSaveReceiver()
+        removeNetworkPolicyReceiver()
         removeThermalStatusListener()
 
 //        router?.close()
@@ -782,6 +1362,10 @@ class MainApplication : Application() {
         )) {
             return false
         }
+
+        // A callback queued for a former DeviceLocal must never reset the new
+        // device's transports or judge its initial provider window unhealthy.
+        resetTunnelRecoveryState()
 
 //        router = Router(device!!) {
 //            runBlocking(Dispatchers.Main.immediate) {
@@ -857,6 +1441,7 @@ class MainApplication : Application() {
         addDefaultNetworkCallback()
         addNetworkCallback()
         addPowerSaveReceiver()
+        addNetworkPolicyReceiver()
         addThermalStatusListener()
 
         updateTunnelStarted()
@@ -917,189 +1502,191 @@ class MainApplication : Application() {
         // is connected, providing (any mode — including Network, which relays
         // for same-network peers), or routing remotely
         val provideEnabled = device.provideEnabled
-        val providePaused = device.providePaused
         val connectEnabled = device.connectEnabled
         val routeLocal = device.routeLocal
 
         if (systemAlwaysOnVpn || vpnServiceRequired(provideEnabled, connectEnabled, routeLocal)) {
             startVpnService()
-            // if provide paused, keep the vpn on but do not keep the locks
-            if (provideEnabled && !providePaused) {
-                if (wakeLock == null) {
-                    wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).run {
-                        newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "urnetwork::provide").apply {
-                            acquire()
-                        }
-                    }
-
-                }
-                if (wifiLock == null) {
-
-                    wifiLock = (getSystemService(WIFI_SERVICE) as WifiManager).run {
-                        val wifiLockMode: Int
-                        if (Build.VERSION_CODES.UPSIDE_DOWN_CAKE <= Build.VERSION.SDK_INT) {
-                            wifiLockMode = WifiManager.WIFI_MODE_FULL_LOW_LATENCY
-                        } else {
-                            wifiLockMode = WifiManager.WIFI_MODE_FULL_HIGH_PERF
-                        }
-
-                        createWifiLock(wifiLockMode, "urnetwork::provide").apply {
-                            acquire()
-                        }
-                    }
-                }
-                // make sure the wake lock and wifi lock are on
-            } else {
-                // turn off any wake lock or wifi lock
-
-                if (wakeLock?.isHeld == true) wakeLock?.release()
-                wakeLock = null
-                if (wifiLock?.isHeld == true) wifiLock?.release()
-                wifiLock = null
-            }
         } else {
             stopVpnService()
-            // turn off any wake lock or wifi lock
-
-            if (wakeLock?.isHeld == true) wakeLock?.release()
-            wakeLock = null
-            if (wifiLock?.isHeld == true) wifiLock?.release()
-            wifiLock = null
         }
     }
 
         // FIXME tunnel request status
 
     fun startVpnService() {
-        val device = device ?: return
-
-        val allowForeground = deviceManager.allowForeground
-
-        // note starting in Android 15, boot completed receivers cannot start foreground services
-        // the app will not allow foreground until the activity is explicitly opened
-        // see https://developer.android.com/about/versions/15/behavior-changes-15#fgs-boot-completed
-        startVpnServiceWithForeground(allowForeground && device.provideEnabled)
-    }
-
-    private fun startVpnServiceWithForeground(foreground: Boolean) {
-        // Listener echoes for the same logical state are no-ops. MainService
-        // already rebuilds the TUN descriptor on material window/DNS/split
-        // changes, so stop/start here only creates a traffic pause.
-        if ((serviceActive || vpnStartPending) && activeVpnForeground == foreground) {
-            service?.get()?.onDeviceAvailable()
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { startVpnService() }
             return
         }
+        if (device == null) return
 
-        // Foreground policy does not change the TUN. Promote/demote the live
-        // service in place so a provide<->connect handoff does not close the
-        // descriptor and pause traffic.
-        if (serviceActive && !vpnStartPending) {
-            service?.get()?.let { activeService ->
-                if (activeService.setForegroundEnabled(foreground || systemAlwaysOnVpn)) {
-                    activeVpnForeground = foreground
-                    return
-                }
-            }
-        }
-
-        // If the service has not reached onStartCommand yet, or Android
-        // rejected the in-place policy change, replace that incomplete start.
-        if (serviceActive || vpnStartPending) {
-            stopVpnService()
-        }
-
-        if (!serviceActive && !vpnStartPending) {
-            try {
-                if (VpnService.prepare(this) != null) {
-                    // prepare returns an intent when the user must grant additional permissions
-                    // the ui will check `vpnRequestStart` and start again when the permissions have been set up
-                    vpnRequestStart = true
-                    vpnRequestStartListener?.let { it() }
-                } else {
-                    // important: start the vpn service in the application context
-
-                    fun hasForegroundPermissions(): Boolean {
-                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                            val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                                this,
-                                android.Manifest.permission.POST_NOTIFICATIONS
-                            ) == PackageManager.PERMISSION_GRANTED
-                            return hasForegroundPermissions
-                        } else {
-                            return true
-                        }
-                    }
-
-                    if (foreground && !hasForegroundPermissions()) {
-                        vpnRequestStart = true
-                        vpnRequestStartListener?.let { it() }
-                    } else {
-                        serviceActive = true
-                        activeVpnForeground = foreground
-                        vpnRequestStart = false
-                        vpnStartPending = true
-
-                        // *important* calling startService for a VpnService in OnCreate will *not* correctly set up the routes
-                        // we need to delay this after onCreate for the routes to set up correctly (wtf)
-                        Handler(mainLooper).post {
-                            vpnStartPending = false
-                            if (this@MainApplication.serviceActive) {
-                                val vpnIntent = Intent(this, MainService::class.java)
-                                vpnIntent.putExtra("source", "app")
-                                vpnIntent.putExtra("command_version", VPN_SERVICE_COMMAND_VERSION)
-                                vpnIntent.putExtra("stop", false)
-                                vpnIntent.putExtra("start", true)
-                                vpnIntent.putExtra("foreground", foreground)
-//                                vpnIntent.putExtra("offline", offline && !vpnInterfaceWhileOffline)
-
-                                try {
-                                    if (foreground) {
-                                        // use a foreground service to allow notifications
-                                        if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                                            try {
-                                                startForegroundService(vpnIntent)
-                                            } catch (e: ForegroundServiceStartNotAllowedException) {
-                                                startService(vpnIntent)
-                                            }
-                                        } else if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
-                                            try {
-                                                ContextCompat.startForegroundService(
-                                                    this,
-                                                    vpnIntent
-                                                )
-                                            } catch (e: ForegroundServiceStartNotAllowedException) {
-                                                startService(vpnIntent)
-                                            }
-                                        } else {
-                                            ContextCompat.startForegroundService(this, vpnIntent)
-                                        }
-                                    } else {
-                                        startService(vpnIntent)
-                                    }
-                                } catch (e: Exception) {
-                                    Log.i(
-                                        TAG,
-                                        "Error trying to start the vpn service: ${e.message}"
-                                    )
-                                    serviceActive = false
-                                    activeVpnForeground = null
-                                    vpnRequestStart = true
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.i(
-                    TAG,
-                    "Error trying to communicate with the vpn service to start: ${e.message}"
+        try {
+            val alreadyStartingOrRunning = serviceActive || vpnStartPending
+            when (
+                decideVpnServiceLaunch(
+                    serviceActive = serviceActive,
+                    startPending = vpnStartPending,
+                    vpnPermissionRequired =
+                        !alreadyStartingOrRunning && VpnService.prepare(this) != null,
                 )
-                vpnStartPending = false
-                activeVpnForeground = null
-                vpnRequestStart = true
-                // do not request start here
-                // that could lead to a loop
+            ) {
+                VpnServiceLaunchDecision.ALREADY_RUNNING -> {
+                    cancelVpnStartRetry(resetFailureCount = service?.get() != null)
+                    service?.get()?.onDeviceAvailable()
+                }
+                VpnServiceLaunchDecision.REQUEST_VPN_PERMISSION -> {
+                    cancelVpnStartRetry(resetFailureCount = false)
+                    vpnRequestStart = true
+                    vpnRequestStartListener?.invoke()
+                }
+                VpnServiceLaunchDecision.START_FOREGROUND -> {
+                    // Every live VPN is an FGS on API 26+. POST_NOTIFICATIONS
+                    // controls drawer visibility only and must never gate this.
+                    cancelVpnStartRetry(resetFailureCount = false)
+                    serviceActive = true
+                    vpnRequestStart = false
+                    vpnStartPending = true
+                    val vpnIntent = Intent(this, MainService::class.java).apply {
+                        putExtra("source", "app")
+                        putExtra("command_version", VPN_SERVICE_COMMAND_VERSION)
+                        putExtra("stop", false)
+                        putExtra("start", true)
+                        // Retained for redelivery compatibility with older APKs.
+                        putExtra("foreground", true)
+                    }
+                    try {
+                        // Start inside the Activity/BroadcastReceiver eligibility
+                        // window. Posting this call can lose Android's temporary
+                        // background-start exemption before the service request.
+                        ContextCompat.startForegroundService(this, vpnIntent)
+                        scheduleVpnStartAdoptionWatchdog()
+                    } catch (e: Exception) {
+                        // A background-start restriction must not fall back to
+                        // startService: that creates the exact five-second
+                        // foreground-promotion crash this path prevents.
+                        Log.e(TAG, "Unable to start VPN foreground service: ${e.message}", e)
+                        vpnServiceDidNotStart(null)
+                    }
+                }
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to prepare VPN service start: ${e.message}", e)
+            vpnStartPending = false
+            vpnRequestStart = true
+            scheduleVpnStartRetry()
+        }
+    }
+
+    private fun scheduleVpnStartAdoptionWatchdog() {
+        vpnStartAdoptionWatchdog?.let(mainHandler::removeCallbacks)
+        val generation = ++vpnStartAttemptGeneration
+        lateinit var watchdog: Runnable
+        watchdog = Runnable {
+            if (vpnStartAdoptionWatchdog !== watchdog) return@Runnable
+            vpnStartAdoptionWatchdog = null
+            if (
+                !vpnServiceStartAttemptTimedOut(
+                    expectedGeneration = generation,
+                    currentGeneration = vpnStartAttemptGeneration,
+                    serviceActive = serviceActive,
+                    serviceAdopted = service?.get() != null,
+                )
+            ) {
+                return@Runnable
+            }
+            Log.e(TAG, "VPN foreground service start was not delivered within the adoption timeout")
+            vpnServiceDidNotStart(null)
+        }
+        vpnStartAdoptionWatchdog = watchdog
+        mainHandler.postDelayed(watchdog, VPN_SERVICE_START_ADOPTION_TIMEOUT_MILLIS)
+    }
+
+    private fun cancelVpnStartAdoptionWatchdog() {
+        vpnStartAdoptionWatchdog?.let(mainHandler::removeCallbacks)
+        vpnStartAdoptionWatchdog = null
+        vpnStartAttemptGeneration += 1
+    }
+
+    /**
+     * Recover a dropped/rejected foreground-service launch while the app still
+     * has a started Activity. If the app is backgrounded, retain
+     * [vpnRequestStart] and let MainActivity.onStart use the next real
+     * user-visible eligibility window instead of repeatedly violating Android's
+     * background-start restriction.
+     */
+    private fun scheduleVpnStartRetry() {
+        vpnStartRetryRunnable?.let(mainHandler::removeCallbacks)
+        val delayMillis = vpnServiceStartRetryDelayMillis(vpnStartFailureCount)
+        if (vpnStartFailureCount < Int.MAX_VALUE) vpnStartFailureCount += 1
+        lateinit var retry: Runnable
+        retry = Runnable {
+            if (vpnStartRetryRunnable !== retry) return@Runnable
+            vpnStartRetryRunnable = null
+            val retryListener = vpnRequestStartListener
+            if (
+                !vpnServiceStartRetryEligible(
+                    retryRequested = vpnRequestStart,
+                    vpnRequired = systemAlwaysOnVpn || restoredVpnServiceRequired(),
+                    serviceActive = serviceActive,
+                    startPending = vpnStartPending,
+                    foregroundActivityAvailable = retryListener != null,
+                )
+            ) {
+                return@Runnable
+            }
+            Log.i(
+                TAG,
+                "Retrying VPN foreground service after failure delayMillis=$delayMillis " +
+                    "failureCount=$vpnStartFailureCount",
+            )
+            runCatching { retryListener?.invoke() }
+                .onFailure {
+                    Log.e(TAG, "Unable to request VPN foreground retry: ${it.message}", it)
+                    scheduleVpnStartRetry()
+                }
+        }
+        vpnStartRetryRunnable = retry
+        mainHandler.postDelayed(retry, delayMillis)
+    }
+
+    private fun cancelVpnStartRetry(resetFailureCount: Boolean = true) {
+        vpnStartRetryRunnable?.let(mainHandler::removeCallbacks)
+        vpnStartRetryRunnable = null
+        if (resetFailureCount) vpnStartFailureCount = 0
+    }
+
+    /** Called from the earliest service callback, before command admission. */
+    fun vpnServiceDidEnterForeground() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { vpnServiceDidEnterForeground() }
+            return
+        }
+        cancelVpnStartAdoptionWatchdog()
+        cancelVpnStartRetry(resetFailureCount = false)
+        vpnStartPending = false
+    }
+
+    /**
+     * Release an app-owned optimistic start after promotion/admission failure.
+     * Do not disturb a different service instance that won a start race.
+     */
+    fun vpnServiceDidNotStart(failedService: MainService?, retryRequested: Boolean = true) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { vpnServiceDidNotStart(failedService, retryRequested) }
+            return
+        }
+        val adoptedService = service?.get()
+        if (adoptedService != null && adoptedService !== failedService) return
+        if (adoptedService === failedService) service = null
+        cancelVpnStartAdoptionWatchdog()
+        serviceActive = false
+        vpnStartPending = false
+        vpnRequestStart = retryRequested
+        if (retryRequested) {
+            scheduleVpnStartRetry()
+        } else {
+            cancelVpnStartRetry()
         }
     }
 
@@ -1110,19 +1697,68 @@ class MainApplication : Application() {
      */
     fun vpnServiceDidStart(
         startedService: MainService,
-        foreground: Boolean,
         systemAlwaysOn: Boolean,
     ) {
+        cancelVpnStartAdoptionWatchdog()
+        cancelVpnStartRetry()
         service = WeakReference(startedService)
         serviceActive = true
         systemAlwaysOnVpn = systemAlwaysOnVpn || systemAlwaysOn
         vpnStartPending = false
-        activeVpnForeground = foreground
         vpnRequestStart = false
         ensureAlwaysOnConnected()
     }
 
+    /**
+     * Adopt Android's pre-unlock Always-on service without consulting the SDK
+     * device or credential encrypted desired state.
+     */
+    fun vpnServiceDidStartDirectBoot(startedService: MainService) {
+        cancelVpnStartAdoptionWatchdog()
+        cancelVpnStartRetry()
+        service = WeakReference(startedService)
+        serviceActive = true
+        systemAlwaysOnVpn = true
+        vpnStartPending = false
+        vpnRequestStart = false
+        directBootState.markCredentialRestorePending()
+    }
+
     fun isSystemAlwaysOnVpnActive(): Boolean = systemAlwaysOnVpn
+
+    /**
+     * Disconnect through the SDK controller so a notification action follows
+     * the same state transition as the connect screen and Quick Settings tile.
+     * System Always-on owns its own reconnect policy, so it must not be
+     * presented as a disconnectable state.
+     */
+    fun disconnectVpnConnection(source: String) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { disconnectVpnConnection(source) }
+            return
+        }
+        if (systemAlwaysOnVpn) {
+            Log.i(TAG, "Ignoring VPN disconnect from $source while system Always-on is active")
+            return
+        }
+        val current = device ?: return
+        if (!current.connectEnabled) return
+
+        val vc = current.openConnectViewController() ?: run {
+            Log.i(TAG, "Unable to open connect controller for VPN disconnect from $source")
+            return
+        }
+        try {
+            Log.i(TAG, "Disconnecting VPN connection from $source")
+            vc.disconnect()
+        } catch (e: Exception) {
+            Log.e(TAG, "VPN disconnect from $source failed: ${e.message}", e)
+        } finally {
+            runCatching { current.closeViewController(vc) }
+                .onFailure { Log.i(TAG, "Connect controller close failed: ${it.message}") }
+        }
+        updateVpnService()
+    }
 
     /**
      * System Always-on owns the disconnect policy. Keep the user's selected
@@ -1172,15 +1808,30 @@ class MainApplication : Application() {
         )
     }
 
-    fun restoredVpnForegroundDesired(): Boolean {
-        val current = device ?: return false
-        return deviceManager.allowForeground && current.provideEnabled
+    fun restoreVpnServiceFromSystemEvent(source: String?) {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { restoreVpnServiceFromSystemEvent(source) }
+            return
+        }
+        if (!isCredentialStorageUnlocked()) {
+            enterDirectBootMode(source)
+            return
+        }
+        ensureApplicationStateInitialized()
+        directBootState.markCredentialRestoreComplete()
+        if (restoredVpnServiceRequired()) {
+            Log.i(TAG, "restoring VPN service after system event=$source")
+            startVpnService()
+        } else {
+            updateVpnService()
+        }
     }
 
     private fun stopVpnService() {
+        cancelVpnStartAdoptionWatchdog()
+        cancelVpnStartRetry()
         vpnRequestStart = false
         vpnStartPending = false
-        activeVpnForeground = null
 
         if (serviceActive && systemAlwaysOnVpn) {
             val activeService = service?.get()
@@ -1218,12 +1869,24 @@ class MainApplication : Application() {
         if (service?.get() != stoppedService) {
             return
         }
+        // Capture durable app intent before clearing the adopted instance. An
+        // OEM can destroy an adopted service before a PacketFlow ever flips
+        // tunnelStarted, so relying only on that SDK listener leaves no event
+        // to recover the foreground service while the activity stays open.
+        val restartRequired = restoredVpnServiceRequired()
         service = null
+        cancelVpnStartAdoptionWatchdog()
         serviceActive = false
         systemAlwaysOnVpn = false
         alwaysOnConnectRequestedDevice = null
         vpnStartPending = false
-        activeVpnForeground = null
+        vpnRequestStart = restartRequired
+        if (restartRequired) {
+            Log.i(TAG, "VPN service stopped while still required; scheduling foreground retry")
+            scheduleVpnStartRetry()
+        } else {
+            cancelVpnStartRetry()
+        }
     }
 
     fun forceStopVpnService() {
@@ -1232,7 +1895,6 @@ class MainApplication : Application() {
         vpnIntent.putExtra("command_version", VPN_SERVICE_COMMAND_VERSION)
         vpnIntent.putExtra("stop", true)
         vpnIntent.putExtra("start", false)
-        vpnIntent.putExtra("foreground", false)
         stopService(vpnIntent)
 
         stopVpnService()

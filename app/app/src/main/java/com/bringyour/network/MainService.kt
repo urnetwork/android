@@ -1,20 +1,24 @@
     package com.bringyour.network
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.IpPrefix
 import android.net.ConnectivityManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants.AF_INET
 import android.system.OsConstants.AF_INET6
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.IoLoop
@@ -30,7 +34,11 @@ import kotlin.concurrent.thread
     class MainService : VpnService() {
     companion object {
         const val NOTIFICATION_ID = 101
-        const val NOTIFICATION_CHANNEL_ID = "URnetwork"
+        const val NOTIFICATION_CHANNEL_ID = "urnetwork"
+        // The pre-unlock guard is a blackhole and never hands packets to the
+        // SDK, so it must not load gomobile merely to ask for the normal data
+        // tunnel MTU. 1280 is conservative and valid for this IPv4 interface.
+        const val ALWAYS_ON_GUARD_MTU = 1280
         /**
          * IPv4 used to establish the tunnel when the SDK has not handed back a
          * tunnel address, so a tunnel is always built (fail-closed). TEST-NET-1
@@ -90,6 +98,9 @@ import kotlin.concurrent.thread
     private var alwaysOnGuardPfd: ParcelFileDescriptor? = null
     private var boundDevice: DeviceLocal? = null
     private var foregroundStarted: Boolean = false
+    private var foregroundPromotionSucceeded: Boolean = false
+    private var stopping: Boolean = false
+    private val mainHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(mainLooper) }
 
     private var deviceOfflineSub: Sub? = null
     private var windowStatusChangeSub: Sub? = null
@@ -97,9 +108,12 @@ import kotlin.concurrent.thread
     private var routeLocalSub: Sub? = null
     /** Rebuilds the TUN when a connect request starts or stops. */
     private var connectChangeSub: Sub? = null
+    /** Refreshes the notification when the selected exit changes. */
+    private var connectLocationSub: Sub? = null
     private var blockActionOverridesSub: Sub? = null
     private var dnsResolverSettingsSub: Sub? = null
     private var connected: Boolean = false
+    private var providerCount: Long = 0
 
     // Committed only after Builder.establish() succeeds. A failed seamless
     // handover must remain visibly unapplied so the next listener/recovery
@@ -116,11 +130,44 @@ import kotlin.concurrent.thread
 
     private val closeMonitorGeneration = java.util.concurrent.atomic.AtomicLong(0)
 
+    private enum class TunnelRetryKind {
+        CONFIGURATION,
+        ALWAYS_ON_GUARD,
+    }
+
+    private var tunnelRetryKind: TunnelRetryKind? = null
+    private var tunnelRetryConfiguration: VpnPacketFlowConfiguration? = null
+    private var tunnelRetryRunnable: Runnable? = null
+    private var tunnelRetryFailureCount = 0
+
         private var offline: Boolean = false
 
 
+    override fun onCreate() {
+        super.onCreate()
+        // startForegroundService() gives the service only a few seconds to
+        // promote. Do it at the first service lifecycle callback, before SDK
+        // admission, device attachment, TUN construction, or OEM scheduling
+        // can consume that deadline.
+        foregroundPromotionSucceeded = try {
+            promoteToForeground("Starting…")
+            (application as MainApplication).vpnServiceDidEnterForeground()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "[service] foreground promotion failed: ${e.message}", e)
+            (application as MainApplication).vpnServiceDidNotStart(this)
+            stopSelf()
+            false
+        }
+    }
+
     override fun onStartCommand(intent : Intent?, flags: Int, startId : Int): Int {
         val app = application as MainApplication
+
+        if (!foregroundPromotionSucceeded) {
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
 
         val stop = intent?.getBooleanExtra("stop", false) ?: false
         val start = intent?.getBooleanExtra("start", true) ?: false
@@ -132,6 +179,43 @@ import kotlin.concurrent.thread
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && runCatching { isAlwaysOn }.getOrDefault(false)
         val systemStart = vpnServiceSystemStart(source, frameworkAlwaysOn)
         val commandVersion = intent?.getIntExtra("command_version", 0) ?: 0
+        val commandCompatible = vpnServiceCommandCompatible(source, commandVersion)
+        when (
+            decideDirectBootServiceStart(
+                credentialStorageUnlocked = isCredentialStorageUnlocked(),
+                stopRequested = stop,
+                startRequested = start,
+                systemStart = systemStart,
+                commandCompatible = commandCompatible,
+            )
+        ) {
+            DirectBootServiceDecision.STOP -> {
+                Log.i(
+                    TAG,
+                    "[service] reject pre-unlock start stop=$stop start=$start " +
+                        "systemStart=$systemStart commandCompatible=$commandCompatible",
+                )
+                app.vpnServiceDidNotStart(this, retryRequested = false)
+                stop()
+                return START_NOT_STICKY
+            }
+            DirectBootServiceDecision.HOLD_ALWAYS_ON_GUARD -> {
+                return holdDirectBootAlwaysOnGuard(app)
+            }
+            DirectBootServiceDecision.USE_CREDENTIAL_STATE -> Unit
+        }
+        try {
+            // On a cold system-owned VPN launch, MainApplication deliberately
+            // defers gomobile/device restoration until this service has met the
+            // foreground deadline. Every later service path sees an already
+            // initialized application and this is a cheap no-op.
+            app.ensureApplicationStateInitialized()
+        } catch (e: Exception) {
+            Log.e(TAG, "[service] application initialization failed after promotion: ${e.message}", e)
+            app.vpnServiceDidNotStart(this)
+            stop()
+            return START_NOT_STICKY
+        }
         // Read restored SDK state once. A listener can change the device state
         // while Android is delivering this command; the admission decision and
         // its diagnostic must describe the same snapshot.
@@ -144,7 +228,7 @@ import kotlin.concurrent.thread
                 deviceRequiresVpn = deviceRequiresVpn,
                 redelivered = redelivered,
                 systemStart = systemStart,
-                commandCompatible = vpnServiceCommandCompatible(source, commandVersion),
+                commandCompatible = commandCompatible,
             ),
         )
 
@@ -155,17 +239,14 @@ import kotlin.concurrent.thread
                     "systemStart=$systemStart appActive=${app.serviceActive} " +
                     "deviceRequiresVpn=$deviceRequiresVpn",
             )
+            if (app.service?.get() !== this) {
+                app.vpnServiceDidNotStart(this, retryRequested = false)
+            }
             stop()
             // A stop/stale intent must not itself be retained for another
             // redelivery. START_REDELIVER_INTENT is only for a service we
             // actually accepted and intend Android to restore.
             return START_NOT_STICKY
-        }
-
-        val foreground = if (intent?.hasExtra("foreground") == true) {
-            intent.getBooleanExtra("foreground", false)
-        } else {
-            app.restoredVpnForegroundDesired()
         }
 
         if (app.service?.get() != this) {
@@ -174,16 +255,16 @@ import kotlin.concurrent.thread
                     currentService?.stop()
                 }
             }
-            app.vpnServiceDidStart(this, foreground, systemStart)
+            app.vpnServiceDidStart(this, systemStart)
 
 //            val offline = intent.getBooleanExtra("offline", false)
 
-            if (foreground || app.isSystemAlwaysOnVpnActive()) {
-                startForegroundNotification("On")
-                // update the notification `NOTIFICATION_ID` and it will update the displayed notification
-                // see https://stackoverflow.com/questions/5528288/how-do-i-update-the-notification-text-for-a-foreground-service-in-android
-            } else {
-                stopForegroundNotification()
+            try {
+                updateForegroundNotification()
+            } catch (e: Exception) {
+                // Promotion already succeeded in onCreate. A later cosmetic
+                // notification update must not tear down a working VPN.
+                Log.e(TAG, "[service] foreground notification update failed: ${e.message}", e)
             }
 
             attachToCurrentDevice()
@@ -195,8 +276,9 @@ import kotlin.concurrent.thread
             // Duplicate delivery (including a redelivery racing the app's own
             // reconcile): adopt the exact instance and update notification
             // policy in place without rebuilding the TUN.
-            app.vpnServiceDidStart(this, foreground, systemStart)
-            setForegroundEnabled(foreground || app.isSystemAlwaysOnVpnActive())
+            app.vpnServiceDidStart(this, systemStart)
+            runCatching { updateForegroundNotification() }
+                .onFailure { Log.e(TAG, "[service] foreground notification update failed", it) }
             onDeviceAvailable()
             if (app.device == null && systemStart) {
                 establishAlwaysOnGuard()
@@ -207,19 +289,39 @@ import kotlin.concurrent.thread
         return START_REDELIVER_INTENT
     }
 
+    /**
+     * Adopt only Android's system-owned Always-on start before first unlock.
+     * No SDK object, credential encrypted file, or account preference is read.
+     */
+    private fun holdDirectBootAlwaysOnGuard(app: MainApplication): Int {
+        val newlyAdopted = app.service?.get() !== this
+        if (newlyAdopted) {
+            app.service?.get()?.let { currentService ->
+                if (currentService !== this) currentService.stop()
+            }
+        }
+        app.vpnServiceDidStartDirectBoot(this)
+        runCatching { updateForegroundNotification() }
+            .onFailure { Log.e(TAG, "[service] Direct Boot notification update failed", it) }
+        establishAlwaysOnGuard()
+        if (newlyAdopted) startCloseMonitor()
+        Log.i(TAG, "[service] holding fail-closed Always-on guard until user unlock")
+        return START_REDELIVER_INTENT
+    }
+
     private fun attachToCurrentDevice() {
         val app = application as MainApplication
         val currentDevice = app.device ?: return
         if (boundDevice === currentDevice) {
+            updateForegroundNotification()
             reconcilePfd()
             return
         }
 
         detachDeviceBindings(closePacketFlow = false)
         boundDevice = currentDevice
-        connected = currentDevice.windowStatus?.let {
-            0 < it.providerStateAdded
-        } ?: false
+        providerCount = currentDevice.windowStatus?.providerStateAdded ?: 0L
+        connected = 0 < providerCount
 
         fun currentOffline(): Boolean =
             currentDevice.offline && !currentDevice.vpnInterfaceWhileOffline
@@ -237,7 +339,9 @@ import kotlin.concurrent.thread
         }
 
         fun updateWindowStatus(windowStatus: WindowStatus) {
-            connected = 0 < windowStatus.providerStateAdded
+            providerCount = windowStatus.providerStateAdded
+            connected = 0 < providerCount
+            updateForegroundNotification()
             reconcilePfd()
         }
         windowStatusChangeSub = currentDevice.addWindowStatusChangeListener { windowStatus ->
@@ -272,9 +376,17 @@ import kotlin.concurrent.thread
         }
         connectChangeSub = currentDevice.addConnectChangeListener {
             Handler(mainLooper).post {
-                if (boundDevice === currentDevice) reconcilePfd()
+                if (boundDevice !== currentDevice) return@post
+                updateForegroundNotification()
+                reconcilePfd()
             }
         }
+        connectLocationSub = currentDevice.addConnectLocationChangeListener {
+            Handler(mainLooper).post {
+                if (boundDevice === currentDevice) updateForegroundNotification()
+            }
+        }
+        updateForegroundNotification()
         reconcilePfd()
     }
 
@@ -286,6 +398,18 @@ import kotlin.concurrent.thread
         val app = application as MainApplication
         if (app.service?.get() !== this) return
         attachToCurrentDevice()
+    }
+
+    fun requestTunnelReconcile(reason: String) {
+        if (Looper.myLooper() != mainLooper) {
+            mainHandler.post { requestTunnelReconcile(reason) }
+            return
+        }
+        val app = application as MainApplication
+        if (stopping || app.service?.get() !== this) return
+        Log.i(TAG, "[service] reconcile requested reason=$reason")
+        attachToCurrentDevice()
+        reconcilePfd()
     }
 
     private fun desiredTunnelConfiguration(): VpnPacketFlowConfiguration {
@@ -311,29 +435,118 @@ import kotlin.concurrent.thread
 
     private fun reconcilePfd() {
         val app = application as MainApplication
-        if (vpnAlwaysOnGuardRequired(
+        val guardRequired = vpnAlwaysOnGuardRequired(
                 systemAlwaysOn = app.isSystemAlwaysOnVpnActive(),
                 deviceAvailable = boundDevice != null,
                 providerConnected = connected,
             )
-        ) {
-            establishAlwaysOnGuard()
+        if (guardRequired) {
+            if (tunnelRetryKind == TunnelRetryKind.CONFIGURATION) cancelTunnelRetry()
+            if (
+                alwaysOnGuardPfd == null &&
+                !(tunnelRetryKind == TunnelRetryKind.ALWAYS_ON_GUARD && tunnelRetryRunnable != null)
+            ) {
+                establishAlwaysOnGuard()
+            }
             return
         }
+        if (tunnelRetryKind == TunnelRetryKind.ALWAYS_ON_GUARD) cancelTunnelRetry()
         if (boundDevice == null) {
             Log.i(TAG, "[service]device unavailable outside Always-on; stopping")
             stop()
             return
         }
         val desired = desiredTunnelConfiguration()
+        if (
+            tunnelRetryKind == TunnelRetryKind.CONFIGURATION &&
+            tunnelRetryConfiguration != desired
+        ) {
+            cancelTunnelRetry()
+        }
         if (vpnPacketFlowNeedsRebuild(
                 packetFlow?.isActive() ?: false,
                 appliedTunnelConfiguration,
                 desired,
             )
         ) {
-            updatePfd(desired)
+            if (tunnelRetryRunnable == null) {
+                updatePfd(desired)
+            }
+        } else if (tunnelRetryKind == TunnelRetryKind.CONFIGURATION) {
+            cancelTunnelRetry()
         }
+    }
+
+    private fun scheduleTunnelRetry(
+        kind: TunnelRetryKind,
+        configuration: VpnPacketFlowConfiguration? = null,
+        reason: String,
+    ) {
+        if (stopping) return
+        val sameTarget =
+            tunnelRetryKind == kind && tunnelRetryConfiguration == configuration
+        if (!sameTarget) {
+            cancelTunnelRetry()
+            tunnelRetryKind = kind
+            tunnelRetryConfiguration = configuration
+        }
+        if (tunnelRetryRunnable != null) return
+
+        val delayMillis = tunnelRetryDelayMillis(tunnelRetryFailureCount)
+        if (tunnelRetryFailureCount < Int.MAX_VALUE) tunnelRetryFailureCount += 1
+        val retryDevice = boundDevice
+        lateinit var runnable: Runnable
+        runnable = Runnable {
+            if (tunnelRetryRunnable !== runnable) return@Runnable
+            tunnelRetryRunnable = null
+            val app = application as MainApplication
+            if (stopping || app.service?.get() !== this) return@Runnable
+            when (kind) {
+                TunnelRetryKind.ALWAYS_ON_GUARD -> {
+                    if (
+                        vpnAlwaysOnGuardRequired(
+                            systemAlwaysOn = app.isSystemAlwaysOnVpnActive(),
+                            deviceAvailable = boundDevice != null,
+                            providerConnected = connected,
+                        )
+                    ) {
+                        establishAlwaysOnGuard()
+                    } else {
+                        cancelTunnelRetry()
+                        reconcilePfd()
+                    }
+                }
+                TunnelRetryKind.CONFIGURATION -> {
+                    if (boundDevice !== retryDevice || configuration == null) {
+                        cancelTunnelRetry()
+                        reconcilePfd()
+                        return@Runnable
+                    }
+                    val desired = desiredTunnelConfiguration()
+                    if (desired != configuration) {
+                        cancelTunnelRetry()
+                        reconcilePfd()
+                    } else {
+                        updatePfd(configuration)
+                    }
+                }
+            }
+        }
+        tunnelRetryRunnable = runnable
+        Log.i(
+            TAG,
+            "[service] scheduling TUN retry kind=$kind failure=$tunnelRetryFailureCount " +
+                "delayMillis=$delayMillis reason=$reason",
+        )
+        mainHandler.postDelayed(runnable, delayMillis)
+    }
+
+    private fun cancelTunnelRetry(resetFailureCount: Boolean = true) {
+        tunnelRetryRunnable?.let(mainHandler::removeCallbacks)
+        tunnelRetryRunnable = null
+        tunnelRetryKind = null
+        tunnelRetryConfiguration = null
+        if (resetFailureCount) tunnelRetryFailureCount = 0
     }
 
     private fun updatePfd(configuration: VpnPacketFlowConfiguration) {
@@ -502,22 +715,44 @@ import kotlin.concurrent.thread
                 builder.establish()
             } catch (e: Exception) {
                 Log.i(TAG, "[service]WARNING tunnel handover failed; retaining the existing interface: ${e.message}")
+                scheduleTunnelRetry(
+                    TunnelRetryKind.CONFIGURATION,
+                    configuration,
+                    "builder-establish-exception",
+                )
                 return
             }
-            pfd?.let {
+            pfd?.let { descriptor ->
                 // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
                 val replacedPacketFlow = packetFlow
-                packetFlow = PacketFlow(device, it) {
-                    Handler(mainLooper).post {
-                        if (packetFlow == it) {
-                            packetFlow = null
-                            if (app.service?.get() == this@MainService) {
-                                device.tunnelStarted = false
-                                reconcilePfd()
+                val replacementPacketFlow = try {
+                    PacketFlow(device, descriptor) { endedPacketFlow ->
+                        mainHandler.post {
+                            if (packetFlow === endedPacketFlow) {
+                                packetFlow = null
+                                if (app.service?.get() == this@MainService) {
+                                    device.tunnelStarted = false
+                                    scheduleTunnelRetry(
+                                        TunnelRetryKind.CONFIGURATION,
+                                        desiredTunnelConfiguration(),
+                                        "packet-flow-ended",
+                                    )
+                                }
                             }
                         }
                     }
+                } catch (e: Exception) {
+                    runCatching { descriptor.close() }
+                    Log.e(TAG, "[service] PacketFlow creation failed: ${e.message}", e)
+                    scheduleTunnelRetry(
+                        TunnelRetryKind.CONFIGURATION,
+                        configuration,
+                        "packet-flow-create-exception",
+                    )
+                    return
                 }
+                packetFlow = replacementPacketFlow
+                cancelTunnelRetry()
                 appliedTunnelConfiguration = configuration
                 val replacedGuard = alwaysOnGuardPfd
                 alwaysOnGuardPfd = null
@@ -537,7 +772,11 @@ import kotlin.concurrent.thread
                 }
             } ?: run {
                 Log.i(TAG, "[service]WARNING tunnel was not started. Another existing tunnel may be blocking the start.")
-                stop()
+                scheduleTunnelRetry(
+                    TunnelRetryKind.CONFIGURATION,
+                    configuration,
+                    "builder-establish-null",
+                )
             }
         } ?: run {
             if (app.isSystemAlwaysOnVpnActive()) {
@@ -558,6 +797,7 @@ import kotlin.concurrent.thread
      */
     private fun establishAlwaysOnGuard(): Boolean {
         if (alwaysOnGuardPfd != null) {
+            if (tunnelRetryKind == TunnelRetryKind.ALWAYS_ON_GUARD) cancelTunnelRetry()
             packetFlow?.close()
             packetFlow = null
             appliedTunnelConfiguration = null
@@ -565,7 +805,7 @@ import kotlin.concurrent.thread
         }
         val builder = Builder()
             .setSession("URnetwork — sign in required")
-            .setMtu(Sdk.getDefaultTunnelMtu())
+            .setMtu(ALWAYS_ON_GUARD_MTU)
             .setBlocking(false)
             .setUnderlyingNetworks(null)
             .addDisallowedApplication(packageName)
@@ -580,8 +820,15 @@ import kotlin.concurrent.thread
         } catch (e: Exception) {
             Log.i(TAG, "[service]could not establish Always-on authentication guard: ${e.message}")
             null
-        } ?: return false
+        } ?: run {
+            scheduleTunnelRetry(
+                TunnelRetryKind.ALWAYS_ON_GUARD,
+                reason = "always-on-guard-establish-failed",
+            )
+            return false
+        }
 
+        cancelTunnelRetry()
         val previous = alwaysOnGuardPfd
         val replacedPacketFlow = packetFlow
         alwaysOnGuardPfd = established
@@ -607,7 +854,6 @@ import kotlin.concurrent.thread
     }
 
     private fun detachDeviceBindings(closePacketFlow: Boolean) {
-        val app = application as MainApplication
         unregisterPackageChangeReceiver()
         boundDevice?.setFlowOwnerLookup(null)
         appliedPinnedAppIds = null
@@ -623,7 +869,15 @@ import kotlin.concurrent.thread
         routeLocalSub = null
         connectChangeSub?.close()
         connectChangeSub = null
+        connectLocationSub?.close()
+        connectLocationSub = null
         boundDevice = null
+        providerCount = 0
+        connected = false
+        updateForegroundNotification()
+        if (tunnelRetryKind == TunnelRetryKind.CONFIGURATION) {
+            cancelTunnelRetry()
+        }
         if (closePacketFlow) {
             packetFlow?.close()
             packetFlow = null
@@ -826,15 +1080,18 @@ import kotlin.concurrent.thread
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-
         stop()
+        super.onDestroy()
     }
 
     override fun onRevoke() {
-        super.onRevoke()
-
-        stop()
+        // The framework does not guarantee this callback on our main-looper
+        // state owner. Serialize teardown with listener and TUN callbacks.
+        if (Looper.myLooper() == mainLooper) {
+            stop()
+        } else {
+            mainHandler.post { stop() }
+        }
     }
 
 //    override fun onLowMemory() {
@@ -844,8 +1101,16 @@ import kotlin.concurrent.thread
 //    }
 
     fun stop() {
+        if (Looper.myLooper() != mainLooper) {
+            mainHandler.post { stop() }
+            return
+        }
+        if (stopping) return
+        stopping = true
         val app = application as MainApplication
 
+        cancelTunnelRetry()
+        closeMonitorGeneration.incrementAndGet()
         detachDeviceBindings(closePacketFlow = true)
         alwaysOnGuardPfd?.close()
         alwaysOnGuardPfd = null
@@ -860,55 +1125,143 @@ import kotlin.concurrent.thread
     }
 
 
-    private fun startForegroundNotification(message: String) {
+    private fun promoteToForeground(message: String) {
         val notificationManager = getSystemService(
                 NOTIFICATION_SERVICE
                 ) as NotificationManager
         notificationManager.createNotificationChannel(
             NotificationChannel(
-                NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_ID,
-                NotificationManager.IMPORTANCE_HIGH
-            )
+                NOTIFICATION_CHANNEL_ID,
+                getString(R.string.app_name),
+                NotificationManager.IMPORTANCE_LOW,
+            ).apply {
+                setShowBadge(false)
+            }
         )
 
-        val pendingIntent: PendingIntent =
-            Intent(this, MainActivity::class.java).let { notificationIntent ->
-                PendingIntent.getActivity(this, 0, notificationIntent,
-                    PendingIntent.FLAG_IMMUTABLE)
-            }
+        val notification = buildForegroundNotification(message)
 
-        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setOngoing(true)
-//                .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
-            .setSmallIcon(R.drawable.ic_status)
-            .setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
-            .setContentText(message)
-            .setContentTitle(getString(R.string.app_name))
-                .setContentIntent(pendingIntent)
-//                .setTicker(message)
-            .build()
-
-        startForeground(NOTIFICATION_ID, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ServiceCompat.startForeground(
+                this,
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED,
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
         foregroundStarted = true
     }
 
-    /**
-     * Foreground notification policy is orthogonal to the TUN descriptor.
-     * Updating it in place avoids a service/TUN restart when Auto providing
-     * hands off to a client connection (or back again).
-     */
-    fun setForegroundEnabled(enabled: Boolean): Boolean {
-        return try {
-            if (enabled) {
-                startForegroundNotification("On")
-            } else {
-                stopForegroundNotification()
-            }
-            true
-        } catch (e: Exception) {
-            Log.i(TAG, "Unable to update VPN foreground state in place: ${e.message}")
-            false
+    /** Update the existing FGS notification without re-running promotion. */
+    @SuppressLint("NotificationPermission")
+    private fun updateForegroundNotification() {
+        if (!foregroundStarted || stopping) return
+        runCatching {
+            val notificationManager = getSystemService(
+                NOTIFICATION_SERVICE,
+            ) as NotificationManager
+            notificationManager.notify(NOTIFICATION_ID, buildForegroundNotification())
+        }.onFailure {
+            // Notification content is cosmetic after the earliest promotion;
+            // never sacrifice a working VPN because an OEM rejected an update.
+            Log.e(TAG, "[service] foreground notification update failed: ${it.message}", it)
         }
+    }
+
+    private fun buildForegroundNotification(messageOverride: String? = null): Notification {
+        val contentPendingIntent: PendingIntent =
+            Intent(this, MainActivity::class.java).let { notificationIntent ->
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    notificationIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                )
+            }
+
+        val presentation = if (messageOverride == null) {
+            val currentDevice = boundDevice
+            val location = currentDevice?.connectLocation
+            vpnNotificationPresentation(
+                connectRequested = currentDevice?.connectEnabled == true,
+                systemAlwaysOn = (application as MainApplication).isSystemAlwaysOnVpnActive(),
+                providerCount = providerCount,
+                locationName = location?.name,
+                city = location?.city,
+                region = location?.region,
+                country = location?.country,
+                bestAvailableLabel = getString(R.string.best_available_provider),
+            )
+        } else {
+            null
+        }
+
+        val contentTitle: String
+        val contentText: String
+        if (messageOverride != null) {
+            contentTitle = getString(R.string.app_name)
+            contentText = messageOverride
+        } else {
+            when (presentation!!.status) {
+                VpnNotificationStatus.CONNECTED -> {
+                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
+                    contentText = resources.getQuantityString(
+                        R.plurals.connected_provider_count,
+                        presentation.providerCount,
+                        presentation.providerCount,
+                    )
+                }
+                VpnNotificationStatus.CONNECTING -> {
+                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
+                    val providers = resources.getQuantityString(
+                        R.plurals.provider_count,
+                        presentation.providerCount,
+                        presentation.providerCount,
+                    )
+                    contentText = "${getString(R.string.connecting_status_indicator)} • $providers"
+                }
+                VpnNotificationStatus.ACTIVE -> {
+                    contentTitle = getString(R.string.app_name)
+                    contentText = getString(R.string.on)
+                }
+            }
+        }
+
+        val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setSmallIcon(R.drawable.ic_status)
+            .setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
+            .setContentText(contentText)
+            .setContentTitle(contentTitle)
+            .setContentIntent(contentPendingIntent)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+
+        if (messageOverride == null && presentation?.showDisconnect == true) {
+            val disconnectIntent = Intent(
+                this,
+                NotificationDisconnectReceiver::class.java,
+            ).setAction(NotificationDisconnectReceiver.ACTION_DISCONNECT)
+            val disconnectPendingIntent = PendingIntent.getBroadcast(
+                this,
+                1,
+                disconnectIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            builder.addAction(
+                R.drawable.ic_close,
+                getString(R.string.disconnect),
+                disconnectPendingIntent,
+            )
+        }
+
+        return builder.build()
     }
 
 

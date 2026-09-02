@@ -411,7 +411,6 @@
     <string name="share">分享</string>
     <string name="share_logs">分享日志</string>
     <string name="share_with_others">您与他人分享，我们与您分享。当您向网络中的其他人提供数据时，即可获得收入分成。</string>
-    <string name="show_icon_when_connected">连接时显示 UR 图标</string>
     <string name="sign_in_dgen1">使用 dGEN1 登录</string>
     <string name="solana_payment_insufficient_funds_warning">请确保您的钱包中有足够的 USDC 资金。在某些情况下，如果钱包资金不足，付款提示可能会失败。</string>
     <string name="solana_sign_in">使用 Solana 登录</string>

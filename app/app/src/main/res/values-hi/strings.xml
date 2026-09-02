@@ -411,7 +411,6 @@
     <string name="share">शेयर करें</string>
     <string name="share_logs">लॉग साझा करें</string>
     <string name="share_with_others">आप दूसरों के साथ साझा करते हैं, हम आपके साथ साझा करते हैं। जब आप नेटवर्क में दूसरों को डेटा प्रदान करते हैं तो राजस्व का एक हिस्सा अर्जित करें।</string>
-    <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
     <string name="solana_payment_insufficient_funds_warning">कृपया सुनिश्चित करें कि आपके वॉलेट में पर्याप्त USDC फंड्स हैं। कुछ मामलों में, यदि वॉलेट में पर्याप्त फंड्स नहीं हैं तो भुगतान अनुरोध विफल हो सकता है।</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>

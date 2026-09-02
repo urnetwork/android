@@ -4,14 +4,21 @@ import android.annotation.TargetApi
 import android.net.NetworkCapabilities
 import android.os.Build
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
-@TargetApi(28)
 class PhysicalInternetNetworkRequestTest {
     private fun assumeRequestInspectionSupported() {
         assumeTrue(Build.VERSION.SDK_INT >= 28)
+    }
+
+    @Test
+    fun physicalInternetRequestBuildsAcrossTheSupportedApiRange() {
+        // In particular, API 26-29 must not invoke Builder.clearCapabilities(),
+        // which does not exist until API 30.
+        assertNotNull(physicalInternetNetworkRequestBuilder().build())
     }
 
     @Test
@@ -23,8 +30,9 @@ class PhysicalInternetNetworkRequestTest {
     }
 
     @Test
+    @TargetApi(36)
     fun physicalInternetRequestAllowsBandwidthConstrainedNetworks() {
-        assumeRequestInspectionSupported()
+        assumeTrue(Build.VERSION.SDK_INT >= 36)
         val request = physicalInternetNetworkRequestBuilder().build()
 
         assertFalse(

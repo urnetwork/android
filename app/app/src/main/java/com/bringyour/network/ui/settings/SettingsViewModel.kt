@@ -103,9 +103,6 @@ class SettingsViewModel @Inject constructor(
     var provideControlMode by mutableStateOf(ProvideControlMode.NEVER)
         private set
 
-    var allowForeground by mutableStateOf(false)
-        private set
-
     val setAllowProductUpdates: (Boolean) -> Unit = { allow ->
         allowProductUpdates = allow
     }
@@ -275,12 +272,6 @@ class SettingsViewModel @Inject constructor(
     val setProvideControlMode: (ProvideControlMode) -> Unit = { mode ->
         deviceManager.provideControlMode = mode
         this.provideControlMode = mode
-    }
-
-    val toggleAllowForeground: () -> Unit = {
-        val currentAllowForeground = allowForeground
-        deviceManager.allowForeground = !currentAllowForeground
-        allowForeground = !currentAllowForeground
     }
 
     val deleteAccount: (
@@ -588,8 +579,6 @@ class SettingsViewModel @Inject constructor(
 
     init {
         provideControlMode = deviceManager.provideControlMode
-
-        allowForeground = deviceManager.allowForeground
 
         _allowProvideOnCell.value = deviceManager.provideNetworkMode == ProvideNetworkMode.ALL
 

@@ -411,7 +411,6 @@
     <string name="share">Поделиться</string>
     <string name="share_logs">Поделиться логами</string>
     <string name="share_with_others">Вы делитесь с другими, мы делимся с вами. Получайте долю дохода, предоставляя данные другим участникам сети.</string>
-    <string name="show_icon_when_connected">Показывать значок UR при подключении</string>
     <string name="sign_in_dgen1">Войти с помощью dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Пожалуйста, убедитесь, что у вас достаточно средств USDC в вашем кошельке. В некоторых случаях запросы на оплату не проходят, если в кошельке недостаточно средств.</string>
     <string name="solana_sign_in">Войти через Solana</string>

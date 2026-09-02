@@ -411,7 +411,6 @@
     <string name="share">共有</string>
     <string name="share_logs">ログを共有</string>
     <string name="share_with_others">あなたが他の人と共有すれば、私たちもあなたと共有します。ネットワーク内の他の人にデータを提供すると、収益の一部を獲得できます。</string>
-    <string name="show_icon_when_connected">接続時にURアイコンを表示</string>
     <string name="sign_in_dgen1">dGEN1でサインイン</string>
     <string name="solana_payment_insufficient_funds_warning">ウォレットに十分なUSDC資金があることを確認してください。場合によっては、ウォレットの資金が不足していると支払いが失敗することがあります。</string>
     <string name="solana_sign_in">Solanaでサインイン</string>

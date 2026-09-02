@@ -411,7 +411,6 @@
     <string name="share">공유</string>
     <string name="share_logs">로그 공유</string>
     <string name="share_with_others">당신이 다른 사람과 공유하면, 우리도 당신과 공유합니다. 네트워크의 다른 사람들에게 데이터를 제공하면 수익의 일부를 얻을 수 있습니다.</string>
-    <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
     <string name="sign_in_dgen1">dGEN1로 로그인</string>
     <string name="solana_payment_insufficient_funds_warning">지갑에 충분한 USDC 자금이 있는지 확인하세요. 경우에 따라 지갑에 자금이 부족하면 결제 요청이 실패할 수 있습니다.</string>
     <string name="solana_sign_in">Solana로 로그인</string>

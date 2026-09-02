@@ -411,7 +411,6 @@
     <string name="share">Sdílet</string>
     <string name="share_logs">Sdílet protokoly</string>
     <string name="share_with_others">Sdílíte s ostatními, my sdílíme s vámi. Získejte podíl na výnosech, když poskytujete data ostatním v síti.</string>
-    <string name="show_icon_when_connected">Zobrazit ikonu UR po připojení</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Ujistěte se, že máte v peněžence dostatek prostředků USDC. V některých případech se platba nezdaří, pokud v peněžence není dostatek prostředků.</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>

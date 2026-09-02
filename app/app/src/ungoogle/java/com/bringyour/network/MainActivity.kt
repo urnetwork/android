@@ -41,7 +41,6 @@ class MainActivity: AppCompatActivity() {
 
     @Inject lateinit var jwtManager: JwtManager
 
-    var requestPermissionLauncherAndStart : ActivityResultLauncher<String>? = null
     var requestPermissionLauncher : ActivityResultLauncher<String>? = null
 
     var vpnLauncher : ActivityResultLauncher<Intent>? = null
@@ -72,28 +71,9 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun requestPermissionsThenStartVpnServiceWithRestart() {
-        val app = application as MainApplication
-        if (app.deviceManager.allowForeground) {
-            if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
-                if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                    val hasForegroundPermissions = ContextCompat.checkSelfPermission(
-                        this,
-                        android.Manifest.permission.POST_NOTIFICATIONS
-                    ) == PackageManager.PERMISSION_GRANTED
-                    if (hasForegroundPermissions) {
-                        prepareVpnService()
-                    } else {
-                        requestPermissionLauncherAndStart?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                    }
-                } else {
-                    prepareVpnService()
-                }
-            } else {
-                prepareVpnService()
-            }
-        } else {
-            prepareVpnService()
-        }
+        // Notification permission controls drawer visibility only. It is not a
+        // prerequisite for starting the mandatory VPN foreground service.
+        prepareVpnService()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,22 +83,7 @@ class MainActivity: AppCompatActivity() {
         // immutable shadow
         val app = application as MainApplication
 
-        // allow foreground to be started when the activity is active
-        // FIXME does foreground actually help with provider availability?
-        // app.allowForeground = false
-
         val bundleStore = app.device?.networkSpace?.store?.let { BundleStore.fromString(value = it) }
-
-        // used when connecting
-        requestPermissionLauncherAndStart =
-            registerForActivityResult(
-                ActivityResultContracts.RequestPermission()
-            ) { isGranted ->
-                // the vpn service can start with degraded options if not granted
-                prepareVpnService()
-                settingsViewModel.onPermissionResult(isGranted, this)
-                settingsViewModel.resetPermissionRequest()
-            }
 
         // used in settings
         requestPermissionLauncher = registerForActivityResult(
@@ -228,15 +193,6 @@ class MainActivity: AppCompatActivity() {
         val app = application as MainApplication
 
         app.vpnRequestStartListener = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // immutable shadow
-        // val app = application as MainApplication
-
-        // app.allowForeground = false
     }
 
     private fun requestNotificationPermissionIfNeeded(shouldRequest: Boolean) {

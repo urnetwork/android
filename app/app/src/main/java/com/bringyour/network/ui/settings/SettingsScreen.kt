@@ -286,8 +286,6 @@ fun SettingsScreen(
         isDeletingAccount = settingsViewModel.isDeletingAccount.collectAsState().value,
         routeLocal = settingsViewModel.routeLocal.collectAsState().value,
         toggleRouteLocal = settingsViewModel.toggleRouteLocal,
-        allowForeground = settingsViewModel.allowForeground,
-        toggleAllowForeground = settingsViewModel.toggleAllowForeground,
         snackbarHostState = snackbarHostState,
         signAndVerifySeekerHolder = signAndVerifySeekerHolder,
         isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
@@ -539,8 +537,6 @@ private fun SettingsScreen(
     isDeletingAccount: Boolean,
     routeLocal: Boolean,
     toggleRouteLocal: () -> Unit,
-    allowForeground: Boolean,
-    toggleAllowForeground: () -> Unit,
     snackbarHostState: SnackbarHostState,
     signAndVerifySeekerHolder: () -> Unit,
     isSeekerHolder: Boolean,
@@ -867,30 +863,6 @@ private fun SettingsScreen(
              * General
              */
             URTextInputLabel(stringResource(id = R.string.general))
-
-            /**
-             * Show icon when connected
-             */
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(id = R.string.show_icon_when_connected),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
-
-                URSwitch(
-                    checked = allowForeground,
-                    toggle = {
-                        toggleAllowForeground()
-                        application?.updateVpnService()
-                    },
-                )
-            }
 
             if (supportsBatteryOptimizationExemption()) {
                 /**
@@ -1606,8 +1578,6 @@ private fun SettingsScreenPreview() {
             isDeletingAccount = false,
             routeLocal = false,
             toggleRouteLocal = {},
-            allowForeground = false,
-            toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,
@@ -1688,8 +1658,6 @@ private fun SettingsScreenSupporterPreview() {
             isDeletingAccount = false,
             routeLocal = false,
             toggleRouteLocal = {},
-            allowForeground = false,
-            toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,
@@ -1738,8 +1706,6 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             isDeletingAccount = false,
             routeLocal = false,
             toggleRouteLocal = {},
-            allowForeground = false,
-            toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = true,
@@ -1788,8 +1754,6 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             isDeletingAccount = false,
             routeLocal = false,
             toggleRouteLocal = {},
-            allowForeground = false,
-            toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,
@@ -1838,8 +1802,6 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             isDeletingAccount = false,
             routeLocal = false,
             toggleRouteLocal = {},
-            allowForeground = false,
-            toggleAllowForeground = {},
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,

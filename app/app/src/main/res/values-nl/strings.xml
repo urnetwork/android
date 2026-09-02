@@ -411,7 +411,6 @@
     <string name="share">Delen</string>
     <string name="share_logs">Logs delen</string>
     <string name="share_with_others">Jij deelt met anderen, wij delen met jou. Verdien een deel van de opbrengsten wanneer je gegevens deelt met anderen in het netwerk.</string>
-    <string name="show_icon_when_connected">Toon UR-pictogram bij verbinding</string>
     <string name="sign_in_dgen1">Inloggen met dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Zorg ervoor dat je voldoende USDC in je wallet hebt. In sommige gevallen mislukt de betalingsprompt als er onvoldoende saldo is.</string>
     <string name="solana_sign_in">Inloggen met Solana</string>

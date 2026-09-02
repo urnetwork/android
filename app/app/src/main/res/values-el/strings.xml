@@ -411,7 +411,6 @@
     <string name="share">Κοινή χρήση</string>
     <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
     <string name="share_with_others">Μοιράζεστε με άλλους, μοιραζόμαστε μαζί σας. Κερδίστε ένα μερίδιο εσόδων όταν παρέχετε δεδομένα σε άλλους στο δίκτυο.</string>
-    <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
     <string name="sign_in_dgen1">Σύνδεση με dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Βεβαιωθείτε ότι έχετε επαρκή κεφάλαια USDC στο πορτοφόλι σας. Σε ορισμένες περιπτώσεις, οι ειδοποιήσεις πληρωμής αποτυγχάνουν αν δεν υπάρχουν αρκετά χρήματα στο πορτοφόλι.</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>

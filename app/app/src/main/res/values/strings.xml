@@ -579,7 +579,6 @@
     <string name="share">Share</string>
     <string name="share_logs">Share logs</string>
     <string name="share_with_others">You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.</string>
-    <string name="show_icon_when_connected">Show UR icon when connected</string>
     <string name="show_kill_switch_exception">Show kill switch exception</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Please make sure you have sufficient USDC funds in your wallet. In some instances, payment prompts fail if there are insufficient funds in the wallet.</string>

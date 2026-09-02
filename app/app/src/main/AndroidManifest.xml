@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 <!--    <uses-permission android:name="android.permission.TURN_SCREEN_ON" />-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
@@ -128,6 +127,7 @@
 
         <service
             android:name=".MainService"
+            android:directBootAware="true"
             android:permission="android.permission.BIND_VPN_SERVICE"
             android:exported="true"
             android:label="@string/app_name"
@@ -160,13 +160,19 @@
 
         <receiver
             android:name=".StartReceiver"
+            android:directBootAware="true"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.MY_PACKAGE_UNSUSPENDED" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".NotificationDisconnectReceiver"
+            android:exported="false" />
     </application>
 
     <queries>
