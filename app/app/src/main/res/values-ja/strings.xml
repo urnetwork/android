@@ -9,9 +9,7 @@
     <string name="add_referral_code">紹介コードを追加</string>
     <string name="add_referral_extra_rewards">紹介コードを追加して追加の特典を獲得</string>
     <string name="add_wallet">ウォレットを追加</string>
-    <string name="adjust_setting_always_fill_data_faster">設定を「常に」に変更すると、無料データがより早く増えます。</string>
     <string name="allow_local_connections">ローカル接続を許可</string>
-    <string name="allow_provider_cell_network_unlimited_plan">プロバイダーに携帯ネットワークデータの使用を許可することもできます。無制限プランならとても便利です。</string>
     <string name="allow_providing_cell">携帯ネットワークでの提供を許可する</string>
     <string name="allowed">許可</string>
     <string name="allowed_blocked_counts">許可 %1$d · ブロック %2$d</string>
@@ -44,6 +42,7 @@
     <string name="available">利用可能</string>
     <string name="available_data_key">利用可能</string>
     <string name="average_reliability">平均信頼性</string>
+    <string name="back">戻る</string>
     <string name="balance">残高</string>
     <string name="balance_code">残高コード</string>
     <string name="balance_code_where_to_buy">コードをお持ちでない方は、ur.ioでデータコードを購入すると、メールで届きます。</string>
@@ -57,8 +56,6 @@
     <string name="blocked">ブロック</string>
     <string name="blocked_locations">ブロックされた場所</string>
     <string name="bonus_referral_code_label">ボーナス紹介コード</string>
-    <string name="boost_bandwidth_details">ネットワークに参加し、帯域幅を提供することで報酬を得ることができます。</string>
-    <string name="boost_bandwidth_title">帯域幅を増やして、毎日もっと稼ごう</string>
     <string name="browse_locations">ロケーションを閲覧</string>
     <string name="build_right">正しい方法で\nインターネットを\n構築する</string>
     <string name="build_right_description">URnetworkで正しい方法でインターネットを構築する</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">アプリ内のこのバーは、プロバイダーからどれだけ無料データを獲得しているかを表示します。いつでも確認でき、設定を調整して獲得量を最大化できます</string>
     <string name="data_usage">データ使用量</string>
     <string name="date_payout">%1$s の支払い</string>
-    <string name="default_bandwidth_earn_more_by">デフォルトでは、%1$d GiB/月が付与されます。追加の帯域幅を獲得する方法はこちらです：</string>
     <string name="default_wallet">デフォルト</string>
     <string name="delete">削除</string>
     <string name="delete_account">アカウントを削除</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">地域の推奨設定を使用中</string>
     <string name="dns_using_secure">最も安全なデフォルト設定を使用中</string>
     <string name="dont_see_it">メールが見つかりませんか？</string>
-    <string name="earn_more_bullet_refer">友達を紹介 = +%1$s GiB/月</string>
     <string name="earn_more_bullet_stay_connected">毎日接続を維持 = 最大 %1$s GiB/日を獲得</string>
     <string name="earning_multipliers">獲得ポイントの倍率</string>
     <string name="earnings">収益</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">コミュニティに参加する：</string>
     <string name="join_solana_wallet">Solanaウォレットで参加する</string>
-    <string name="join_the_movement">ムーブメントに参加する</string>
     <string name="join_urnetwork">参加する URnetwork</string>
     <string name="kill_switch">キルスイッチ</string>
     <string name="launch">起動</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">携帯電話を確認してください</string>
     <string name="login_verify_details">本人確認のために、送信したコードを入力してください。</string>
     <string name="login_verify_header">メールが届いています</string>
-    <string name="low_user_ip_ratio">コンテンツにアクセスするための最も低いユーザー/IP比率</string>
     <string name="make_default">デフォルトに設定</string>
     <string name="manage_subscription">サブスクリプションを管理</string>
     <string name="member">メンバー</string>
@@ -299,11 +292,9 @@
     <string name="on">オン</string>
     <string name="one_gib_per_day">1 GiB/日</string>
     <string name="open_nested_link">%1$sに接続してリンク%2$sを開く</string>
-    <string name="open_source_transparent">100%オープンソースで透明性があります</string>
     <string name="or">または</string>
     <string name="participate">参加する</string>
     <string name="participate_intro">ネットワークに参加して、コミュニティ版に無料でアクセスしましょう。</string>
-    <string name="participate_intro_details">URnetworkは、世界最大で最も安全、最も分散化された\nイングレス・エグレスプロトコルを基盤としています。</string>
     <string name="password_label">パスワード</string>
     <string name="password_support_txt">パスワードは12文字以上である必要があります</string>
     <string name="pay_with_solana_wallet">Solanaウォレットで支払う</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">紹介が確定しました。あなたと友達それぞれに毎日+%1$d GiBの無料データを一生プレゼント。</string>
     <string name="referral_royalty">紹介の達人ですね！</string>
     <string name="referral_share_message">一緒にURnetworkを使いましょう！アプリをインストールして、登録時に紹介コード %1$s を入力してください。</string>
+    <string name="referrals">紹介</string>
     <string name="regions">地域</string>
     <string name="reliability">信頼性</string>
     <string name="reliability_bonus">+%1$.3f GiB/日</string>
     <string name="reliability_settings">帯域幅を提供する</string>
-    <string name="reliability_settings_details">提供は任意です。オンにすると、Wi-Fi接続時にバックグラウンドで動作しながら、アプリがあなたの接続をネットワークと共有できます。</string>
     <string name="reliability_weight">信頼性の重み</string>
     <string name="reliability_with_value">信頼性: %1$.3f</string>
     <string name="remote">リモート</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">資金を送金</string>
     <string name="transfer_submitted">送金が完了しました</string>
     <string name="transfer_submitted_details">送金が開始されました。チェーン上で取引が処理されると完了します。</string>
-    <string name="trusted_by_private_networks">%1$s以上のプライベートネットワークに信頼されています</string>
     <string name="try_again">再試行</string>
     <string name="try_guest_mode">ゲストモードを試す</string>
     <string name="unencrypted_dns">暗号化なしのDNS</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">紹介ネットワークを更新する</string>
     <string name="upgrade_now">今すぐアップグレード</string>
     <string name="upgrade_subscription">サブスクリプションをアップグレード</string>
-    <string name="urnetwork_intro_description">URnetworkは世界で最もローカルで最もプライベートなネットワークです。</string>
     <string name="use_most_stable_provider">最も安定したプロバイダーを使用します</string>
     <string name="use_recommended_settings">推奨設定を使用</string>
     <string name="used_data_key">使用済み</string>

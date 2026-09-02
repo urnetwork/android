@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.shared.viewmodels
 
+import com.bringyour.network.ui.shared.enums.PlanType
+import com.bringyour.network.ui.upgrade.FREE_TRIAL_DAYS
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -105,6 +107,23 @@ class PlanViewModel @Inject constructor(
     private val reconcileRetryBackoffMs = 1_000L
 
     var formattedMonthlySubscriptionPrice by mutableStateOf("$5.00")
+
+    /** The yearly base plan's price as Play formats it; null until an offer with a yearly period is seen. */
+    var formattedYearlySubscriptionPrice by mutableStateOf<String?>(null)
+
+    /** The plan the next purchase buys: yearly is the highlighted default, monthly the quiet alternative. */
+    var selectedPlan by mutableStateOf(PlanType.YEARLY)
+
+    /**
+     * The free trial the yearly Play offer starts with, in days, read from its
+     * free pricing phase; the app default until the offer has loaded. Only the
+     * yearly plan has a trial.
+     */
+    var freeTrialDays by mutableStateOf(FREE_TRIAL_DAYS)
+
+    val setSelectedPlan: (PlanType) -> Unit = { plan ->
+        selectedPlan = plan
+    }
 
 
     private val _billingClient = MutableStateFlow<BillingClient?>(null)
@@ -505,13 +524,31 @@ class PlanViewModel @Inject constructor(
 
             if (productDetails != null) {
 
-                formattedMonthlySubscriptionPrice = productDetails.subscriptionOfferDetails
-                        ?.firstOrNull()
-                        ?.pricingPhases
-                        ?.pricingPhaseList
-                        ?.firstOrNull()
-                        ?.formattedPrice
+                val offers = productDetails.subscriptionOfferDetails ?: emptyList()
+                val monthly = offers.firstOrNull { offerPeriodDays(it) in 28..31 }
+                    ?: offers.firstOrNull()
+                val yearly = offers.firstOrNull { 360 <= offerPeriodDays(it) }
+
+                // the price is the first paid phase: a free trial phase comes first
+                // in the list and reads "Free"
+                formattedMonthlySubscriptionPrice = monthly?.pricingPhases?.pricingPhaseList
+                    ?.firstOrNull { 0L < it.priceAmountMicros }
+                    ?.formattedPrice
                     ?: "$5.00"
+                formattedYearlySubscriptionPrice = yearly?.pricingPhases?.pricingPhaseList
+                    ?.firstOrNull { 0L < it.priceAmountMicros }
+                    ?.formattedPrice
+
+                // only the yearly offer carries the trial
+                yearly?.pricingPhases?.pricingPhaseList
+                    ?.firstOrNull { it.priceAmountMicros == 0L }
+                    ?.let { parseIsoPeriodDays(it.billingPeriod) }
+                    ?.let { freeTrialDays = it }
+
+                if (yearly == null) {
+                    // the Play product has no yearly base plan yet: only monthly can be bought
+                    selectedPlan = PlanType.MONTHLY
+                }
 
             }
 
@@ -544,4 +581,39 @@ class PlanViewModel @Inject constructor(
         }
     }
 
+}
+
+/**
+ * Days in an ISO-8601 period as Play reports billing periods ("P15D", "P2W",
+ * "P1M"); null when it cannot be read.
+ */
+internal fun parseIsoPeriodDays(period: String?): Int? {
+    val match = Regex("^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?$").find(period ?: return null) ?: return null
+    val (years, months, weeks, days) = match.destructured
+    val total = (years.toIntOrNull() ?: 0) * 365 +
+        (months.toIntOrNull() ?: 0) * 30 +
+        (weeks.toIntOrNull() ?: 0) * 7 +
+        (days.toIntOrNull() ?: 0)
+    return if (0 < total) total else null
+}
+
+/**
+ * The billing period of an offer's recurring (paid) phase, in days: the base
+ * plan's period, which tells a yearly offer from a monthly one. 0 when unknown.
+ */
+internal fun offerPeriodDays(offer: com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails): Int {
+    val paid = offer.pricingPhases.pricingPhaseList.lastOrNull { 0L < it.priceAmountMicros }
+        ?: return 0
+    return parseIsoPeriodDays(paid.billingPeriod) ?: 0
+}
+
+/** Picks the offer for a plan by its base period; the first offer when the product has no such plan. */
+internal fun offerForPlan(
+    offers: List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>,
+    plan: PlanType,
+): com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails? {
+    return when (plan) {
+        PlanType.YEARLY -> offers.firstOrNull { 360 <= offerPeriodDays(it) }
+        PlanType.MONTHLY -> offers.firstOrNull { offerPeriodDays(it) in 28..31 }
+    } ?: offers.firstOrNull()
 }

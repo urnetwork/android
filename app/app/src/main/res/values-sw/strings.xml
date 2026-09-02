@@ -9,9 +9,7 @@
     <string name="add_referral_code">Ongeza msimbo wa rufaa</string>
     <string name="add_referral_extra_rewards">Ongeza msimbo wa rufaa ili kupata zawadi za ziada</string>
     <string name="add_wallet">Ongeza pochi</string>
-    <string name="adjust_setting_always_fill_data_faster">Unaweza kuweka chaguo kuwa \"Daima\" ili kujaza data ya bure haraka zaidi.</string>
     <string name="allow_local_connections">Ruhusu miunganisho ya ndani</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Unaweza pia kuruhusu mtoa huduma kutumia data ya mtandao wa simu, ambayo inafanya kazi vizuri ikiwa una mpango usio na kikomo.</string>
     <string name="allow_providing_cell">Ruhusu utoaji kwenye mtandao wa simu</string>
     <string name="allowed">Imeruhusiwa</string>
     <string name="allowed_blocked_counts">%1$d zimeruhusiwa · %2$d zimezuiwa</string>
@@ -44,6 +42,7 @@
     <string name="available">Inapatikana</string>
     <string name="available_data_key">Inapatikana</string>
     <string name="average_reliability">Uaminifu wa wastani</string>
+    <string name="back">Rudi</string>
     <string name="balance">Mizani</string>
     <string name="balance_code">Msimbo wa salio</string>
     <string name="balance_code_where_to_buy">Huna msimbo? Misimbo ya data inaweza kununuliwa kwenye ur.io na kutumwa kwako kwa barua pepe.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Imezuiwa</string>
     <string name="blocked_locations">Maeneo yaliyofungwa</string>
     <string name="bonus_referral_code_label">Nambari ya rufaa ya ziada</string>
-    <string name="boost_bandwidth_details">Kwa kushiriki kwenye mtandao na kutoa upana wa bendi unaweza kupata zawadi.</string>
-    <string name="boost_bandwidth_title">Ongeza upana wa bendi yako - Pata zaidi kila siku</string>
     <string name="browse_locations">Vinjari maeneo</string>
     <string name="build_right">Jenga\nmtandao\nkwa njia sahihi</string>
     <string name="build_right_description">Jenga mtandao kwa njia sahihi ukitumia URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Upau huu kwenye programu unaonyesha ni kiasi gani cha data ya bure unachopata kutoka kwa mtoa huduma wako. Unaweza kukagua wakati wowote na kurekebisha mipangilio yako ili kuongeza mapato yako.</string>
     <string name="data_usage">Matumizi ya data</string>
     <string name="date_payout">Malipo ya %1$s</string>
-    <string name="default_bandwidth_earn_more_by">Kwa chaguo-msingi, unapata %1$d GiB/mwezi. Hivi ndivyo unaweza kupata upana wa ziada wa bendi:</string>
     <string name="default_wallet">Chaguo msingi</string>
     <string name="delete">Futa</string>
     <string name="delete_account">Futa akaunti</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Inatumia mipangilio ya eneo inayopendekezwa</string>
     <string name="dns_using_secure">Inatumia mipangilio chaguo-msingi salama zaidi</string>
     <string name="dont_see_it">Hauoni?</string>
-    <string name="earn_more_bullet_refer">Rejelea rafiki = +%1$s GiB/mwezi</string>
     <string name="earn_more_bullet_stay_connected">Unganishwa kila siku = Pata hadi %1$s GiB/siku</string>
     <string name="earning_multipliers">Vizidishi vya mapato</string>
     <string name="earnings">Mapato</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Jiunge na jumuiya kwenye</string>
     <string name="join_solana_wallet">Jiunge na pochi ya Solana</string>
-    <string name="join_the_movement">Jiunge na harakati</string>
     <string name="join_urnetwork">Jiunge na URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Zindua</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Angalia simu yako</string>
     <string name="login_verify_details">Tuambie wewe ni nani hasa. Weka msimbo ambao tume\nkutumia ili kuthibitisha utambulisho wako.</string>
     <string name="login_verify_header">Umepata barua</string>
-    <string name="low_user_ip_ratio">Uwiano wa chini kabisa wa mtumiaji/IP kupata maudhui</string>
     <string name="make_default">Fanya chaguo-msingi</string>
     <string name="manage_subscription">Dhibiti usajili</string>
     <string name="member">Mwanachama</string>
@@ -299,11 +292,9 @@
     <string name="on">Imewashwa</string>
     <string name="one_gib_per_day">1 GiB/siku</string>
     <string name="open_nested_link">Unganisha kwa %1$s na ufungue kiungo %2$s</string>
-    <string name="open_source_transparent">Asilimia 100 chanzo wazi na uwazi</string>
     <string name="or">au</string>
     <string name="participate">Shiriki</string>
     <string name="participate_intro">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
-    <string name="participate_intro_details">URnetwork inaendeshwa na itifaki ya kuingia na kutoka\niliyo kubwa, salama na iliyogatuliwa zaidi duniani.</string>
     <string name="password_label">Nenosiri</string>
     <string name="password_support_txt">Nenosiri lazima liwe na angalau herufi 12</string>
     <string name="pay_with_solana_wallet">Lipa kwa pochi ya Solana</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">Rufaa imethibitishwa — wewe na rafiki yako mtapata kila mmoja +%1$d GiB kwa siku za data bila malipo, maisha yote.</string>
     <string name="referral_royalty">Wewe ni bingwa wa rufaa!</string>
     <string name="referral_share_message">Jiunge nami kwenye URnetwork! Pata programu na uweke msimbo wa rufaa %1$s unapojisajili.</string>
+    <string name="referrals">Rufaa</string>
     <string name="regions">Mikoa</string>
     <string name="reliability">Uaminifu</string>
     <string name="reliability_bonus">+%1$.3f GiB/siku</string>
     <string name="reliability_settings">Changia kipimo data</string>
-    <string name="reliability_settings_details">Kutoa ni hiari. Ukiiwasha, programu inaweza kushiriki muunganisho wako na mtandao inapoendesha chinichini kwenye Wi-Fi.</string>
     <string name="reliability_weight">Uzito wa uaminifu</string>
     <string name="reliability_with_value">Uaminifu: %1$.3f</string>
     <string name="remote">Mbali</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">Hamisha Fedha</string>
     <string name="transfer_submitted">Uhamisho Umewasilishwa</string>
     <string name="transfer_submitted_details">Uhamisho wako umeanza na utakamilika mara tu muamala utakapochakatwa kwenye mnyororo.</string>
-    <string name="trusted_by_private_networks">Inatumiwa na zaidi ya %1$s mitandao ya kibinafsi</string>
     <string name="try_again">Jaribu tena</string>
     <string name="try_guest_mode">Jaribu Hali ya Mgeni</string>
     <string name="unencrypted_dns">DNS isiyosimbwa</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">Sasisha mtandao wa rufaa</string>
     <string name="upgrade_now">Boresha sasa</string>
     <string name="upgrade_subscription">Boresha Usajili</string>
-    <string name="urnetwork_intro_description">URnetwork ndiyo mtandao wa karibu zaidi na wa faragha zaidi duniani.</string>
     <string name="use_most_stable_provider">Hutumia mtoa huduma thabiti zaidi</string>
     <string name="use_recommended_settings">Tumia mipangilio inayopendekezwa</string>
     <string name="used_data_key">Imetumika</string>

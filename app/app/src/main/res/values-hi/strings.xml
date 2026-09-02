@@ -9,9 +9,7 @@
     <string name="add_referral_code">रेफरल कोड जोड़ें</string>
     <string name="add_referral_extra_rewards">अतिरिक्त पुरस्कार पाने के लिए रेफरल कोड जोड़ें</string>
     <string name="add_wallet">वॉलेट जोड़ें</string>
-    <string name="adjust_setting_always_fill_data_faster">आप सेटिंग को \"हमेशा\" पर समायोजित कर सकते हैं ताकि मुफ्त डेटा तेजी से भर सके।</string>
     <string name="allow_local_connections">स्थानीय कनेक्शन की अनुमति दें</string>
-    <string name="allow_provider_cell_network_unlimited_plan">आप प्रदाता को सेल नेटवर्क डेटा का उपयोग करने की अनुमति भी दे सकते हैं, जो अनलिमिटेड प्लान होने पर बहुत अच्छा काम करता है।</string>
     <string name="allow_providing_cell">सेलुलर नेटवर्क पर प्रदान करने की अनुमति दें</string>
     <string name="allowed">अनुमत</string>
     <string name="allowed_blocked_counts">%1$d अनुमत · %2$d अवरुद्ध</string>
@@ -44,6 +42,7 @@
     <string name="available">उपलब्ध</string>
     <string name="available_data_key">उपलब्ध</string>
     <string name="average_reliability">औसत विश्वसनीयता</string>
+    <string name="back">वापस</string>
     <string name="balance">शेष</string>
     <string name="balance_code">बैलेंस कोड</string>
     <string name="balance_code_where_to_buy">कोड नहीं है? डेटा कोड ur.io पर खरीदे जा सकते हैं और आपको ईमेल कर दिए जाते हैं।</string>
@@ -57,8 +56,6 @@
     <string name="blocked">अवरुद्ध</string>
     <string name="blocked_locations">अवरुद्ध स्थान</string>
     <string name="bonus_referral_code_label">बोनस रेफ़रल कोड</string>
-    <string name="boost_bandwidth_details">नेटवर्क में भाग लेकर और बैंडविड्थ प्रदान करके आप पुरस्कार कमा सकते हैं।</string>
-    <string name="boost_bandwidth_title">अपनी बैंडविड्थ बढ़ाएँ - हर दिन अधिक कमाएँ</string>
     <string name="browse_locations">स्थान ब्राउज़ करें</string>
     <string name="build_right">इंटरनेट को\nसही तरीके से बनाएं</string>
     <string name="build_right_description">URnetwork के साथ इंटरनेट को सही तरीके से बनाएं</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">ऐप में यह बार आपको दिखाता है कि आप अपने प्रदाता से कितने मुफ्त डेटा कमा रहे हैं। आप कभी भी जांच सकते हैं और अपनी सेटिंग्स समायोजित कर सकते हैं ताकि अपनी कमाई अधिकतम कर सकें।</string>
     <string name="data_usage">डेटा उपयोग</string>
     <string name="date_payout">%1$s भुगतान</string>
-    <string name="default_bandwidth_earn_more_by">डिफ़ॉल्ट रूप से, आपको %1$d GiB/महीना मिलता है। ऐसे आप अतिरिक्त बैंडविड्थ कमा सकते हैं:</string>
     <string name="default_wallet">डिफ़ॉल्ट</string>
     <string name="delete">डिलीट करें</string>
     <string name="delete_account">अकाउंट डिलीट करें</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">अनुशंसित क्षेत्रीय सेटिंग्स का उपयोग हो रहा है</string>
     <string name="dns_using_secure">सबसे सुरक्षित डिफ़ॉल्ट सेटिंग्स का उपयोग हो रहा है</string>
     <string name="dont_see_it">आपको यह दिखाई नहीं दे रहा है?</string>
-    <string name="earn_more_bullet_refer">मित्र को रेफ़र करें = +%1$s GiB/महीना</string>
     <string name="earn_more_bullet_stay_connected">रोज़ाना जुड़े रहें = प्रतिदिन %1$s GiB तक कमाएँ</string>
     <string name="earning_multipliers">कमाई गुणक</string>
     <string name="earnings">आय</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">समुदाय में शामिल हों</string>
     <string name="join_solana_wallet">Solana वॉलेट से जुड़ें</string>
-    <string name="join_the_movement">आंदोलन में शामिल हों</string>
     <string name="join_urnetwork">शामिल हों URnetwork</string>
     <string name="kill_switch">किल स्विच</string>
     <string name="launch">लॉन्च करें</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">अपना फ़ोन जांचें</string>
     <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
-    <string name="low_user_ip_ratio">कंटेंट एक्सेस के लिए सबसे कम यूज़र/IP अनुपात</string>
     <string name="make_default">डिफ़ॉल्ट बनाएं</string>
     <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
     <string name="member">सदस्य</string>
@@ -299,11 +292,9 @@
     <string name="on">चालू</string>
     <string name="one_gib_per_day">1 GiB/दिन</string>
     <string name="open_nested_link">%1$s से कनेक्ट करें और लिंक %2$s खोलें</string>
-    <string name="open_source_transparent">100% ओपन सोर्स और पारदर्शी</string>
     <string name="or">या</string>
     <string name="participate">भाग लें</string>
     <string name="participate_intro">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
-    <string name="participate_intro_details">URnetwork दुनिया के सबसे बड़े, सबसे सुरक्षित\nऔर सबसे विकेंद्रीकृत प्रवेश-निकास प्रोटोकॉल पर चलता है।</string>
     <string name="password_label">पासवर्ड</string>
     <string name="password_support_txt">पासवर्ड कम से कम 12 वर्णों का होना चाहिए</string>
     <string name="pay_with_solana_wallet">Solana वॉलेट से भुगतान करें</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">रेफ़रल की पुष्टि हो गई — आपको और आपके दोस्त, दोनों को जीवनभर +%1$d GiB/दिन मुफ़्त डेटा मिलेगा।</string>
     <string name="referral_royalty">आप तो रेफ़रल के सुपरस्टार हैं!</string>
     <string name="referral_share_message">URnetwork पर मेरे साथ जुड़ें! ऐप डाउनलोड करें और साइन अप करते समय रेफ़रल कोड %1$s डालें।</string>
+    <string name="referrals">रेफ़रल</string>
     <string name="regions">क्षेत्र</string>
     <string name="reliability">विश्वसनीयता</string>
     <string name="reliability_bonus">+%1$.3f GiB/दिन</string>
     <string name="reliability_settings">बैंडविड्थ का योगदान करें</string>
-    <string name="reliability_settings_details">प्रदान करना वैकल्पिक है। इसे चालू करने पर, ऐप वाई-फ़ाई पर बैकग्राउंड में चलते हुए आपके कनेक्शन को नेटवर्क के साथ साझा कर सकता है।</string>
     <string name="reliability_weight">विश्वसनीयता भार</string>
     <string name="reliability_with_value">विश्वसनीयता: %1$.3f</string>
     <string name="remote">रिमोट</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">धनराशि स्थानांतरित करें</string>
     <string name="transfer_submitted">ट्रांसफर सबमिट किया गया</string>
     <string name="transfer_submitted_details">आपका हस्तांतरण शुरू हो गया है और चेन पर लेनदेन संसाधित होने के बाद पूरा हो जाएगा।</string>
-    <string name="trusted_by_private_networks">%1$s से अधिक निजी नेटवर्क द्वारा विश्वसनीय</string>
     <string name="try_again">पुनः प्रयास करें</string>
     <string name="try_guest_mode">गेस्ट मोड आज़माएँ</string>
     <string name="unencrypted_dns">अनएन्क्रिप्टेड DNS</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
     <string name="upgrade_now">अभी अपग्रेड करें</string>
     <string name="upgrade_subscription">सदस्यता अपग्रेड करें</string>
-    <string name="urnetwork_intro_description">URnetwork ग्रह का सबसे स्थानीय और सबसे निजी नेटवर्क है।</string>
     <string name="use_most_stable_provider">सबसे स्थिर प्रदाता का उपयोग करता है</string>
     <string name="use_recommended_settings">अनुशंसित सेटिंग्स का उपयोग करें</string>
     <string name="used_data_key">उपयोग किया गया</string>

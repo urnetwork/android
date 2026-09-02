@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import com.bringyour.network.ui.theme.TextMuted
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -30,6 +32,8 @@ fun ProvideControlModePicker(
     provideIndicatorColor: Color,
     // outer ring = public provide tier (apple parity); null = no ring
     provideIndicatorRingColor: Color? = null,
+    // one short line under each option saying what it does (onboarding)
+    showDescriptions: Boolean = false,
 ) {
     Column(
         modifier = Modifier
@@ -68,6 +72,11 @@ fun ProvideControlModePicker(
         }
 
         ProvideControlMode.entries.forEach { mode ->
+            val descriptionId = if (showDescriptions) {
+                ProvideControlMode.toDescriptionResourceId(mode)
+            } else {
+                null
+            }
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -76,10 +85,23 @@ fun ProvideControlModePicker(
                     selected = (mode == provideControlMode),
                     onClick = { setProvideControlMode(mode) }
                 )
-                Text(
-                    stringResource(id = ProvideControlMode.toStringResourceId(mode)),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = if (descriptionId != null) 6.dp else 0.dp)
+                ) {
+                    Text(
+                        stringResource(id = ProvideControlMode.toStringResourceId(mode)),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    if (descriptionId != null) {
+                        Text(
+                            stringResource(id = descriptionId),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextMuted
+                        )
+                    }
+                }
             }
         }
     }

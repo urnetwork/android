@@ -3,12 +3,9 @@ package com.bringyour.network.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -22,19 +19,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
+import com.bringyour.network.ui.theme.ProGold
 import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.ui.theme.Yellow
 
+/**
+ * A selectable plan card. The recommended plan (`glow`) wears the Pro-gold
+ * dress (GoldPlanDress.kt) so it is the first thing the eye lands on.
+ */
 @Composable
 fun PlanOptionContainer(
     isSelected: Boolean,
     select: () -> Unit,
     content: @Composable () -> Unit,
-    badge: (@Composable () -> Unit)? = null
+    badge: (@Composable () -> Unit)? = null,
+    glow: Boolean = false,
 ) {
-    // use the box for the "Most popular" badge alignment
+    val shape = RoundedCornerShape(12.dp)
+    val accent = if (glow) ProGold else Pink
+    val dress = if (glow) rememberGoldDress() else null
+
+    // use the box for the badge alignment
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -42,8 +47,19 @@ fun PlanOptionContainer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(width = 2.dp, color = if (isSelected) Pink else TextMuted, shape = RoundedCornerShape(12.dp))
-                .clickable{
+                .then(
+                    if (dress != null) {
+                        Modifier.goldPlanDress(dress = dress, selected = isSelected)
+                    } else {
+                        Modifier.border(
+                            width = 2.dp,
+                            color = if (isSelected) accent else TextMuted,
+                            shape = shape
+                        )
+                    }
+                )
+                .clip(shape)
+                .clickable {
                     select()
                 }
                 .padding(24.dp),
@@ -54,8 +70,8 @@ fun PlanOptionContainer(
                 modifier = Modifier
                     .size(12.dp)
                     .clip(CircleShape)
-                    .background(if (isSelected) Pink else Color.Transparent)
-                    .border(width = 2.dp, color = if (isSelected) Pink else TextMuted, shape = RoundedCornerShape(12.dp))
+                    .background(if (isSelected) accent else Color.Transparent)
+                    .border(width = 2.dp, color = if (isSelected) accent else TextMuted, shape = RoundedCornerShape(12.dp))
             )
 
             Spacer(modifier = Modifier.width(8.dp))

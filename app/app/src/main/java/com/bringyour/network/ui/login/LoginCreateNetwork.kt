@@ -308,7 +308,7 @@ fun LoginCreateNetwork(
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     createNetworkError = null
 
-                    application.login(result.network.byJwt)
+                    application.login(result.network.byJwt, newNetwork = true)
 
                     isContentVisible = false
 

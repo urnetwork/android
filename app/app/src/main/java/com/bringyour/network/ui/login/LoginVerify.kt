@@ -155,7 +155,8 @@ fun LoginVerify(
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     verifyError = null
 
-                    application.login(result.network.byJwt)
+                    // a verified sign-up is a new network: it gets the onboarding flow
+                    application.login(result.network.byJwt, newNetwork = true)
 
                     verifyInProgress = true
 

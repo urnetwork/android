@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components
 
+import com.bringyour.network.ui.components.referral.LocalReferralTerms
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +47,9 @@ fun UsageBar(
     totalReferrals: Long,
     dailyByteCount: Long,
     // when set, the referral row is tappable and opens the referral flow
-    onReferralClick: (() -> Unit)? = null
+    onReferralClick: (() -> Unit)? = null,
+    // the referral row; off where referrals have their own screen
+    showReferrals: Boolean = true,
 ) {
     
     val totalBytes = usedBytes + pendingBytes + availableBytes
@@ -209,6 +212,10 @@ fun UsageBar(
             )
         }
 
+        if (!showReferrals) {
+            return@Column
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
         HorizontalDivider()
@@ -245,7 +252,7 @@ fun UsageBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(R.string.referral_bonus, totalReferrals * 3),
+                    stringResource(R.string.referral_bonus, LocalReferralTerms.current.earnedGibPerDay(totalReferrals)),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextMuted
                 )

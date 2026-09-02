@@ -56,7 +56,7 @@ class CreateNetworkInstantViewModel @Inject constructor(
         )
     }
 
-    fun createNetwork(termsAgreed: Boolean, appLogin: (String) -> Unit) {
+    fun createNetwork(termsAgreed: Boolean, appLogin: (byJwt: String, newNetwork: Boolean) -> Unit) {
         if (_inProgress.value || _seedphrase.value != null) {
             return
         }
@@ -104,7 +104,7 @@ class CreateNetworkInstantViewModel @Inject constructor(
                     return@launch
                 }
 
-                appLogin(byJwt)
+                appLogin(byJwt, true)
                 _seedphrase.value = createdSeedphrase
             }
         }

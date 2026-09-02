@@ -90,6 +90,7 @@ class WidgetSnapshotWriter(
     private var providers: List<WidgetProviderSnapshot> = emptyList()
     private var contracts: List<WidgetContractPeerSnapshot> = emptyList()
     private var providing = false
+    private var provideMode = ""
     private var connectEnabled = false
     private var lastWritten: WidgetTunnelSnapshot? = null
     private var contractRefreshPending = false
@@ -161,6 +162,7 @@ class WidgetSnapshotWriter(
         this.device = device
         connectEnabled = device.connectEnabled
         providing = device.provideEnabled
+        provideMode = device.provideControlMode ?: ""
         location = locationSnapshot(device.connectLocation)
         device.packetStats?.let { accumulator.recordClient(it.remoteEgressByteCount, it.remoteIngressByteCount) }
         device.providerPacketStats?.let {
@@ -194,6 +196,15 @@ class WidgetSnapshotWriter(
             handler.post {
                 if (this.device !== device || providing == provideEnabled) return@post
                 providing = provideEnabled
+                write()
+                routineReload.request(urgent = true)
+            }
+        }
+        subs += device.addProvideControlModeChangeListener { mode ->
+            handler.post {
+                val next = mode ?: ""
+                if (this.device !== device || provideMode == next) return@post
+                provideMode = next
                 write()
                 routineReload.request(urgent = true)
             }
@@ -345,6 +356,7 @@ class WidgetSnapshotWriter(
             updatedAtMillis = System.currentTimeMillis(),
             tunnelActive = tunnelActive,
             providing = providing,
+            provideMode = provideMode,
             location = location,
             providers = providers,
             throughput = accumulator.snapshot,

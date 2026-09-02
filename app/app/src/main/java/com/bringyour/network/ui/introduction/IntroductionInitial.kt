@@ -1,27 +1,20 @@
 package com.bringyour.network.ui.introduction
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,21 +23,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
 import com.bringyour.network.ui.IntroRoute
-import com.bringyour.network.ui.POST_LOGIN_INTRO_CLOSE_TAG
 import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.NeueBitLargeTextStyle
-import com.bringyour.network.ui.theme.NeueBitSmallTextStyle
 import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.upgrade.SubscriptionOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,139 +59,86 @@ fun IntroductionInitial(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {},
-                actions = {
-                    IconButton(
-                        onClick = dismiss,
-                        modifier = Modifier.testTag(POST_LOGIN_INTRO_CLOSE_TAG),
-                    ) {
-                        Icon(Icons.Filled.Close, contentDescription = "close")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Black
-                ),
-            )
+            IntroductionTopBar(step = 1, onSkip = dismiss)
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Text(
-                stringResource(id = R.string.welcome_to_urnetwork),
-                style = MaterialTheme.typography.headlineLarge
-            )
+            Column {
 
-            Spacer(modifier = Modifier.height(16.dp))
+                IntroTraveller()
 
-            Text(
-                stringResource(id = R.string.urnetwork_intro_description),
-                style = NeueBitLargeTextStyle,
-                textAlign = TextAlign.Start
-            )
+                Spacer(modifier = Modifier.height(20.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    stringResource(id = R.string.welcome_to_urnetwork),
+                    style = MaterialTheme.typography.headlineLarge
+                )
 
-            BulletPoint(stringResource(id = R.string.open_source_transparent))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    stringResource(id = R.string.intro_verifiable_encryption),
+                    style = NeueBitLargeTextStyle,
+                    textAlign = TextAlign.Start
+                )
 
-            BulletPoint(stringResource(id = R.string.low_user_ip_ratio))
+                // room for the plan box's halo and pill, and air between it and the tagline
+                Spacer(modifier = Modifier.height(52.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            BulletPoint(stringResource(id = R.string.trusted_by_private_networks, "100,000"))
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            SubscriptionOptions(
-                planViewModel = planViewModel,
-                createSolanaPaymentIntent = createSolanaPaymentIntent,
-                onSolanaUriOpened = { reference ->
-                    setPendingSolanaSubscriptionReference(reference)
-                },
-                onStripePaymentSuccess = onStripePaymentSuccess,
-                isCheckingSolanaTransaction = isCheckingSolanaTransaction
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(stringResource(id = R.string.or))
+                SubscriptionOptions(
+                    planViewModel = planViewModel,
+                    createSolanaPaymentIntent = createSolanaPaymentIntent,
+                    onSolanaUriOpened = { reference ->
+                        setPendingSolanaSubscriptionReference(reference)
+                    },
+                    onStripePaymentSuccess = onStripePaymentSuccess,
+                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             /**
-             * Community Edition link
+             * The other ways in, as quiet links at the bottom: the screen is
+             * about starting the free trial.
              */
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(width = 2.dp, color = TextMuted, shape = RoundedCornerShape(12.dp))
-                    .padding(16.dp)
-                    .clickable {
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                TextButton(
+                    onClick = {
                         navController.navigate(IntroRoute.IntroductionUsageBar)
                     },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    stringResource(id = R.string.community_edition),
-                    style = TopBarTitleTextStyle,
-                    color = TextMuted
-                )
+                    colors = ButtonDefaults.textButtonColors(contentColor = TextMuted)
+                ) {
+                    Text(
+                        stringResource(id = R.string.community_edition),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    stringResource(id = R.string.community_edition_details),
-                    style = NeueBitSmallTextStyle,
-                    color = TextMuted
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Redeem balance code
-             */
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(width = 2.dp, color = TextMuted, shape = RoundedCornerShape(12.dp))
-                    .clickable {
+                TextButton(
+                    onClick = {
                         isPresentingRedeemTransferBalanceSheet = true
-                        // navController.navigate(IntroRoute.IntroductionUsageBar)
-                    }
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    stringResource(id = R.string.redeem_balance_code),
-                    style = TopBarTitleTextStyle,
-                    color = TextMuted
-                )
-
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = TextMuted)
+                ) {
+                    Text(
+                        stringResource(id = R.string.redeem_balance_code),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-
-            Text(
-                stringResource(id = R.string.participate_intro_details),
-                modifier = Modifier.fillMaxWidth(),
-                style = TopBarTitleTextStyle,
-                textAlign = TextAlign.Center
-            )
 
             if (isPresentingRedeemTransferBalanceSheet) {
                 RedeemTransferBalanceCodeSheet(

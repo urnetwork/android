@@ -9,9 +9,7 @@
     <string name="add_referral_code">추천 코드 추가</string>
     <string name="add_referral_extra_rewards">추가 보상을 얻으려면 추천 코드를 추가하세요</string>
     <string name="add_wallet">지갑 추가</string>
-    <string name="adjust_setting_always_fill_data_faster">설정을 \'항상\'으로 조정하면 무료 데이터를 더 빨리 채울 수 있습니다.</string>
     <string name="allow_local_connections">로컬 연결 허용</string>
-    <string name="allow_provider_cell_network_unlimited_plan">제공자가 셀 네트워크 데이터를 사용하도록 허용할 수도 있습니다. 무제한 요금제를 사용한다면 아주 좋습니다.</string>
     <string name="allow_providing_cell">셀룰러 네트워크에서 제공 허용</string>
     <string name="allowed">허용</string>
     <string name="allowed_blocked_counts">허용 %1$d · 차단 %2$d</string>
@@ -44,6 +42,7 @@
     <string name="available">사용 가능</string>
     <string name="available_data_key">사용 가능</string>
     <string name="average_reliability">평균 신뢰성</string>
+    <string name="back">뒤로</string>
     <string name="balance">잔액</string>
     <string name="balance_code">잔액 코드</string>
     <string name="balance_code_where_to_buy">코드가 없으신가요? 데이터 코드는 ur.io에서 구매할 수 있으며 이메일로 전송됩니다.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">차단</string>
     <string name="blocked_locations">차단된 위치</string>
     <string name="bonus_referral_code_label">보너스 추천 코드</string>
-    <string name="boost_bandwidth_details">네트워크에 참여하고 대역폭을 제공하면 보상을 받을 수 있습니다.</string>
-    <string name="boost_bandwidth_title">대역폭을 높이고 매일 더 많이 벌기</string>
     <string name="browse_locations">위치 둘러보기</string>
     <string name="build_right">올바른 방식으로\n인터넷\n구축하기</string>
     <string name="build_right_description">URnetwork로 올바른 방식으로 인터넷 구축하기</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">앱의 이 막대는 제공자로부터 얼마나 많은 무료 데이터를 얻고 있는지 보여줍니다. 언제든지 확인하고 설정을 조정하여 수익을 극대화할 수 있습니다.</string>
     <string name="data_usage">데이터 사용량</string>
     <string name="date_payout">%1$s 지급</string>
-    <string name="default_bandwidth_earn_more_by">기본적으로 매월 %1$d GiB를 받습니다. 추가 대역폭을 얻는 방법은 다음과 같습니다:</string>
     <string name="default_wallet">기본값</string>
     <string name="delete">삭제</string>
     <string name="delete_account">계정 삭제</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">지역 권장 설정 사용 중</string>
     <string name="dns_using_secure">가장 안전한 기본 설정 사용 중</string>
     <string name="dont_see_it">메일이 보이지 않나요?</string>
-    <string name="earn_more_bullet_refer">친구 추천 = +%1$s GiB/월</string>
     <string name="earn_more_bullet_stay_connected">매일 연결 유지 = 하루 최대 %1$s GiB 적립</string>
     <string name="earning_multipliers">수익 배수</string>
     <string name="earnings">수익</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">커뮤니티에 참여하세요:</string>
     <string name="join_solana_wallet">Solana 지갑으로 가입하기</string>
-    <string name="join_the_movement">운동에 동참하세요</string>
     <string name="join_urnetwork">가입하기 URnetwork</string>
     <string name="kill_switch">킬 스위치</string>
     <string name="launch">실행</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">휴대폰을 확인하세요</string>
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
-    <string name="low_user_ip_ratio">콘텐츠 접근 시 최저 사용자/IP 비율</string>
     <string name="make_default">기본값으로 설정</string>
     <string name="manage_subscription">구독 관리</string>
     <string name="member">회원</string>
@@ -299,11 +292,9 @@
     <string name="on">켜짐</string>
     <string name="one_gib_per_day">1 GiB/일</string>
     <string name="open_nested_link">%1$s에 연결하고 링크 %2$s을(를) 엽니다</string>
-    <string name="open_source_transparent">100% 오픈 소스 및 투명성</string>
     <string name="or">또는</string>
     <string name="participate">참여하기</string>
     <string name="participate_intro">네트워크에 참여하고 커뮤니티 에디션을 무료로 이용하세요.</string>
-    <string name="participate_intro_details">URnetwork는 세계에서 가장 크고 안전하며 가장 분산화된\n인그레스·이그레스 프로토콜로 구동됩니다.</string>
     <string name="password_label">비밀번호</string>
     <string name="password_support_txt">비밀번호는 최소 12자 이상이어야 합니다</string>
     <string name="pay_with_solana_wallet">Solana 지갑으로 결제</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">추천이 확인되었습니다. 나와 친구 모두 평생 매일 +%1$d GiB의 무료 데이터를 받습니다.</string>
     <string name="referral_royalty">추천왕이시네요!</string>
     <string name="referral_share_message">URnetwork에서 함께해요! 앱을 설치하고 가입할 때 추천 코드 %1$s을(를) 입력하세요.</string>
+    <string name="referrals">추천</string>
     <string name="regions">지역</string>
     <string name="reliability">신뢰성</string>
     <string name="reliability_bonus">+%1$.3f GiB/일</string>
     <string name="reliability_settings">대역폭 기여</string>
-    <string name="reliability_settings_details">제공은 선택 사항입니다. 켜면 Wi-Fi에서 백그라운드로 실행되는 동안 앱이 연결을 네트워크와 공유할 수 있습니다.</string>
     <string name="reliability_weight">신뢰성 가중치</string>
     <string name="reliability_with_value">신뢰성: %1$.3f</string>
     <string name="remote">원격</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">자금 이체</string>
     <string name="transfer_submitted">이체 제출됨</string>
     <string name="transfer_submitted_details">이체가 시작되었으며 블록체인에서 거래가 처리되면 완료됩니다.</string>
-    <string name="trusted_by_private_networks">%1$s개 이상의 프라이빗 네트워크에서 신뢰받음</string>
     <string name="try_again">다시 시도</string>
     <string name="try_guest_mode">게스트 모드 시도하기</string>
     <string name="unencrypted_dns">암호화되지 않은 DNS</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">추천 네트워크 업데이트</string>
     <string name="upgrade_now">지금 업그레이드하세요</string>
     <string name="upgrade_subscription">구독 업그레이드</string>
-    <string name="urnetwork_intro_description">URnetwork는 지구상에서 가장 지역적이고 가장 프라이빗한 네트워크입니다.</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
     <string name="use_recommended_settings">권장 설정 사용</string>
     <string name="used_data_key">사용됨</string>

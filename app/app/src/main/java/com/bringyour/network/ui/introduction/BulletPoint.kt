@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.introduction
 
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,13 +26,15 @@ fun BulletPoint(
     text: String
 ) {
 
+    // the dot sits on the first line, and a bullet that wraps stays left-aligned
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
 
         Box(
             modifier = Modifier
+                .padding(top = 10.dp)
                 .size(8.dp)
                 .clip(CircleShape)
                 .background(Green)
@@ -39,7 +44,10 @@ fun BulletPoint(
 
         Text(
             text,
-            style = TopBarTitleTextStyle
+            style = TopBarTitleTextStyle.copy(
+                textAlign = TextAlign.Start,
+                lineHeight = 28.sp
+            )
         )
     }
 

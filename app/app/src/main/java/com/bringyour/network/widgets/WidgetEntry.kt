@@ -45,17 +45,20 @@ class WidgetEntry(
         fun sample(nowMillis: Long = System.currentTimeMillis()): WidgetEntry {
             val now = nowMillis / 1000
             val bucketSeconds = WidgetThroughputAccumulator.BUCKET_SECONDS
-            val buckets = (0 until WidgetThroughputAccumulator.BUCKET_COUNT).map { i ->
-                val start = ((now / bucketSeconds) - (WidgetThroughputAccumulator.BUCKET_COUNT - 1 - i)) * bucketSeconds
-                val phase = i / 9.0
-                val client = (6_000_000 + 5_000_000 * Math.sin(phase) + 2_000_000 * Math.sin(phase * 3.1)).toLong()
-                val provider = (1_500_000 + 1_200_000 * Math.sin(phase * 0.7 + 1)).toLong()
+            val count = WidgetThroughputAccumulator.BUCKET_COUNT
+            // real traffic: a quiet floor with a few bursts that spike and decay
+            val clientBursts = burstSeries(count, listOf(Burst(7, 5_200_000.0, 0.62), Burst(19, 2_400_000.0, 0.5), Burst(31, 8_100_000.0, 0.7), Burst(46, 3_600_000.0, 0.55), Burst(55, 1_500_000.0, 0.45)), floor = 60_000.0, seed = 17)
+            val providerBursts = burstSeries(count, listOf(Burst(11, 1_300_000.0, 0.6), Burst(38, 900_000.0, 0.55), Burst(52, 1_900_000.0, 0.65)), floor = 25_000.0, seed = 41)
+            val buckets = (0 until count).map { i ->
+                val start = ((now / bucketSeconds) - (count - 1 - i)) * bucketSeconds
+                val client = clientBursts[i]
+                val provider = providerBursts[i]
                 WidgetThroughputBucket(
                     start = start,
-                    clientEgress = (client / 4).coerceAtLeast(0),
-                    clientIngress = client.coerceAtLeast(0),
-                    providerEgress = provider.coerceAtLeast(0),
-                    providerIngress = (provider / 3).coerceAtLeast(0),
+                    clientEgress = (client * 0.18).toLong(),
+                    clientIngress = client.toLong(),
+                    providerEgress = provider.toLong(),
+                    providerIngress = (provider * 0.3).toLong(),
                 )
             }
             val providers = listOf(
@@ -91,6 +94,7 @@ class WidgetEntry(
                 ),
             )
             val tunnel = WidgetTunnelSnapshot(
+                provideMode = "auto",
                 updatedAtMillis = nowMillis,
                 tunnelActive = true,
                 providing = true,
@@ -109,4 +113,34 @@ class WidgetEntry(
             return WidgetEntry(nowMillis, tunnel, balance, isOn = true, isConfigured = true)
         }
     }
+}
+
+/** A traffic burst in the sample series: starts at a bucket, peaks, and decays by `decay` per bucket. */
+private class Burst(val at: Int, val peak: Double, val decay: Double)
+
+/**
+ * A bytes-per-bucket series shaped like real traffic: a low, jittery floor
+ * with bursts that jump up and tail off. Deterministic for a given seed so
+ * the preview never flickers.
+ */
+private fun burstSeries(count: Int, bursts: List<Burst>, floor: Double, seed: Long): DoubleArray {
+    var state = seed
+    fun noise(): Double {
+        // a small linear congruential generator: enough for jitter, no randomness API needed
+        state = (state * 6364136223846793005L + 1442695040888963407L)
+        return ((state ushr 33) % 1000) / 1000.0
+    }
+    val series = DoubleArray(count) { floor * (0.6 + 0.8 * noise()) }
+    for (burst in bursts) {
+        var level = burst.peak
+        var i = burst.at
+        while (i < count && 0.02 * burst.peak < level) {
+            series[i] += level * (0.85 + 0.3 * noise())
+            level *= burst.decay
+            i += 1
+        }
+        // a short ramp into the burst, one bucket before the peak
+        if (0 < burst.at) series[burst.at - 1] += burst.peak * 0.3 * noise()
+    }
+    return series
 }

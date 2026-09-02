@@ -283,7 +283,7 @@ fun LoginNavHost(
                         val createdSeedphrase = seedphrase
                         if (createdSeedphrase == null) {
                             CreateNetworkInstant(
-                                appLogin = { jwt -> application?.login(jwt) },
+                                appLogin = { jwt, newNetwork -> application?.login(jwt, newNetwork = newNetwork) },
                                 onBack = {
                                     navController.popBackStack()
                                 },

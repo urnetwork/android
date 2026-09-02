@@ -9,9 +9,7 @@
     <string name="add_referral_code">Přidání doporučujícího kódu</string>
     <string name="add_referral_extra_rewards">Přidáním kódu pro doporučení získáte další odměny</string>
     <string name="add_wallet">Přidat peněženku</string>
-    <string name="adjust_setting_always_fill_data_faster">Nastavením na „Vždy“ můžete rychleji získat bezplatná data.</string>
     <string name="allow_local_connections">Povolit místní připojení</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Poskytovateli můžete také povolit využívat data z mobilní sítě, což je skvělé, pokud máte neomezený tarif.</string>
     <string name="allow_providing_cell">Povolit poskytování na mobilní síti</string>
     <string name="allowed">Povoleno</string>
     <string name="allowed_blocked_counts">Povoleno: %1$d · Blokováno: %2$d</string>
@@ -44,6 +42,7 @@
     <string name="available">Dostupné</string>
     <string name="available_data_key">Dostupné</string>
     <string name="average_reliability">Průměrná spolehlivost</string>
+    <string name="back">Zpět</string>
     <string name="balance">Zůstatek</string>
     <string name="balance_code">Kód zůstatku</string>
     <string name="balance_code_where_to_buy">Nemáte kód? Datové kódy si můžete koupit na ur.io a přijdou vám e-mailem.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Blokováno</string>
     <string name="blocked_locations">Blokované lokality</string>
     <string name="bonus_referral_code_label">Bonusový doporučovací kód</string>
-    <string name="boost_bandwidth_details">Účastí v síti a poskytováním šířky pásma můžete získat odměny.</string>
-    <string name="boost_bandwidth_title">Zvyšte svou šířku pásma – vydělávejte více každý den</string>
     <string name="browse_locations">Procházet lokality</string>
     <string name="build_right">Vytváření internetu\nsprávným způsobem</string>
     <string name="build_right_description">Vytvářejte internet správným způsobem s URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Tento pruh v aplikaci ukazuje, kolik bezplatných dat získáváte od svého poskytovatele. Můžete se kdykoli podívat a upravit nastavení, abyste maximalizovali své výdělky.</string>
     <string name="data_usage">Využití dat</string>
     <string name="date_payout">Výplata ze dne %1$s</string>
-    <string name="default_bandwidth_earn_more_by">Ve výchozím nastavení získáte %1$d GiB/měsíc. Zde je návod, jak získat další šířku pásma:</string>
     <string name="default_wallet">Výchozí</string>
     <string name="delete">Odstranit</string>
     <string name="delete_account">Odstranit účet</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Používáte doporučené regionální nastavení</string>
     <string name="dns_using_secure">Používáte nejbezpečnější výchozí nastavení</string>
     <string name="dont_see_it">Nevidíš to?</string>
-    <string name="earn_more_bullet_refer">Doporučte přítele = +%1$s GiB/měsíc</string>
     <string name="earn_more_bullet_stay_connected">Zůstaňte připojeni denně = Získejte až %1$s GiB/den</string>
     <string name="earning_multipliers">Násobitele výdělku</string>
     <string name="earnings">Výdělky</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Připojte se ke komunitě na</string>
     <string name="join_solana_wallet">Připojit se pomocí peněženky Solana</string>
-    <string name="join_the_movement">Připojte se k hnutí</string>
     <string name="join_urnetwork">Připojte se k URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Spustit</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Zkontrolujte telefon</string>
     <string name="login_verify_details">"Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost."</string>
     <string name="login_verify_header">Máš poštu</string>
-    <string name="low_user_ip_ratio">Nejnižší poměr uživatelů na IP pro přístup k obsahu</string>
     <string name="make_default">Udělat výchozí</string>
     <string name="manage_subscription">Správa předplatného</string>
     <string name="member">Člen</string>
@@ -299,11 +292,9 @@
     <string name="on">Zapnuto</string>
     <string name="one_gib_per_day">1 GiB/den</string>
     <string name="open_nested_link">Připojit k %1$s a otevřít odkaz %2$s</string>
-    <string name="open_source_transparent">100% open source a transparentní</string>
     <string name="or">nebo</string>
     <string name="participate">Zapojit se</string>
     <string name="participate_intro">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
-    <string name="participate_intro_details">URnetwork stojí na největším, nejbezpečnějším a nejvíce\ndecentralizovaném protokolu na světě pro příchozí a odchozí provoz.</string>
     <string name="password_label">Heslo</string>
     <string name="password_support_txt">Heslo musí mít alespoň 12 znaků</string>
     <string name="pay_with_solana_wallet">Zaplaťte pomocí peněženky Solana</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">Doporučení potvrzeno — vy i váš přítel získáte každý +%1$d GiB/den dat zdarma, na celý život.</string>
     <string name="referral_royalty">Doporučujete po královsku!</string>
     <string name="referral_share_message">Přidejte se ke mně na URnetwork! Stáhněte si aplikaci a při registraci zadejte doporučující kód %1$s.</string>
+    <string name="referrals">Doporučení</string>
     <string name="regions">Regiony</string>
     <string name="reliability">Spolehlivost</string>
     <string name="reliability_bonus">+%1$.3f GiB/den</string>
     <string name="reliability_settings">Přispět šířkou pásma</string>
-    <string name="reliability_settings_details">Poskytování je volitelné. Když ho zapnete, může aplikace na pozadí sdílet vaše připojení se sítí, pokud jste na Wi-Fi.</string>
     <string name="reliability_weight">Váha spolehlivosti</string>
     <string name="reliability_with_value">Spolehlivost: %1$.3f</string>
     <string name="remote">Vzdáleně</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">Převod finančních prostředků</string>
     <string name="transfer_submitted">Převod podán</string>
     <string name="transfer_submitted_details">Váš převod byl zahájen a bude dokončen, jakmile bude transakce zpracována na řetězci.</string>
-    <string name="trusted_by_private_networks">Důvěřováno více než %1$s soukromými sítěmi</string>
     <string name="try_again">Zkusit znovu</string>
     <string name="try_guest_mode">Zkuste režim hosta</string>
     <string name="unencrypted_dns">Nešifrovaný DNS</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">Aktualizace referenční sítě</string>
     <string name="upgrade_now">Upgradujte nyní</string>
     <string name="upgrade_subscription">Upgradovat předplatné</string>
-    <string name="urnetwork_intro_description">URnetwork je nejlokálnější a nejvíce soukromá síť na světě.</string>
     <string name="use_most_stable_provider">Používá nejstabilnějšího poskytovatele</string>
     <string name="use_recommended_settings">Použít doporučené nastavení</string>
     <string name="used_data_key">Použité</string>

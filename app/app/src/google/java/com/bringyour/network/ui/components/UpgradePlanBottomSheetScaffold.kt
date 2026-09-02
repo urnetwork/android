@@ -181,7 +181,7 @@ private fun UpgradePlanSheetContent(
                     isProcessing = upgradeInProgress
                 ) { buttonTextStyle ->
                     Text(
-                        stringResource(id = R.string.join_the_movement),
+                        stringResource(id = R.string.start_free_trial),
                         style = buttonTextStyle
                     )
                 }

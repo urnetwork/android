@@ -703,36 +703,6 @@ fun LoginInitialActions(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Solana Sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onSolanaLogin()
-                },
-                enabled = !isLoginInProgress,
-                isProcessing = solanaAuthInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.solana_logo),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.solana_sign_in),
-                        style = buttonTextStyle
-                    )
-                }
-            }
 
             if (hasEthOsWallet) {
                 Spacer(modifier = Modifier.height(16.dp))

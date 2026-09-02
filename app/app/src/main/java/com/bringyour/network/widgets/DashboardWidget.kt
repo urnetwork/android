@@ -1,5 +1,6 @@
 package com.bringyour.network.widgets
 
+import com.bringyour.network.ui.shared.models.ProvideControlMode
 import android.content.Context
 import android.content.ComponentName
 import android.text.format.DateUtils
@@ -271,30 +272,53 @@ private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean
     val peak = ThroughputChartRenderer.peak(points)
     val widthPx = ((size.width.value - 28f) * density).roundToInt()
     val heightPx = ((height.value - 16f) * density).roundToInt()
+    // the provider chart carries the provide mode in its title, and while
+    // providing is off it says so instead of drawing a flat line
+    val modeLabel = if (provider) {
+        ProvideControlMode.fromString(entry.tunnel.provideMode)?.let { context.getString(ProvideControlMode.toStringResourceId(it)) }
+    } else {
+        null
+    }
+    val heading = if (modeLabel != null) context.getString(R.string.widget_provider_mode_title, modeLabel) else title
+    val providerOff = provider && !entry.tunnel.providing
     Column(modifier = GlanceModifier.fillMaxWidth().height(height)) {
         Row(modifier = GlanceModifier.fillMaxWidth()) {
-            Text(title, style = WidgetTheme.caption)
+            Text(heading, style = WidgetTheme.caption, maxLines = 1)
             Spacer(GlanceModifier.defaultWeight())
-            Text(
-                if (provider && !entry.tunnel.providing && peak == 0L) context.getString(R.string.widget_not_providing)
-                else context.getString(R.string.widget_peak_rate, formatByteRate(peak / maxOf(1L, throughput.bucketSeconds))),
-                style = WidgetTheme.label,
-                maxLines = 1,
-            )
+            if (!providerOff) {
+                Text(
+                    context.getString(R.string.widget_peak_rate, formatByteRate(peak / maxOf(1L, throughput.bucketSeconds))),
+                    style = WidgetTheme.label,
+                    maxLines = 1,
+                )
+            }
         }
         Spacer(GlanceModifier.height(2.dp))
-        Image(
-            provider = ImageProvider(
-                ThroughputChartRenderer.render(
-                    widthPx, heightPx, points, throughput.bucketSeconds, entry.nowMillis,
-                    if (provider) WidgetTheme.providerSeriesArgb else WidgetTheme.clientSeriesArgb,
-                    density,
+        if (providerOff) {
+            Box(
+                modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    context.getString(R.string.widget_provider_stats_when_enabled),
+                    style = WidgetTheme.faint,
+                    maxLines = 2,
                 )
-            ),
-            contentDescription = null,
-            modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-            contentScale = ContentScale.FillBounds,
-        )
+            }
+        } else {
+            Image(
+                provider = ImageProvider(
+                    ThroughputChartRenderer.render(
+                        widthPx, heightPx, points, throughput.bucketSeconds, entry.nowMillis,
+                        if (provider) WidgetTheme.providerSeriesArgb else WidgetTheme.clientSeriesArgb,
+                        density,
+                    )
+                ),
+                contentDescription = null,
+                modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                contentScale = ContentScale.FillBounds,
+            )
+        }
     }
 }
 

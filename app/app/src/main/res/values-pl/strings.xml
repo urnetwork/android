@@ -9,9 +9,7 @@
     <string name="add_referral_code">Dodaj kod polecający</string>
     <string name="add_referral_extra_rewards">Dodaj kod polecający, aby zdobyć dodatkowe nagrody</string>
     <string name="add_wallet">Dodaj portfel</string>
-    <string name="adjust_setting_always_fill_data_faster">Możesz ustawić opcję na „Zawsze”, aby szybciej zapełnić darmowe dane.</string>
     <string name="allow_local_connections">Zezwalaj na lokalne połączenia</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Możesz także pozwolić dostawcy na korzystanie z danych sieci komórkowej, co świetnie działa, jeśli masz nielimitowany plan.</string>
     <string name="allow_providing_cell">Zezwól na udostępnianie w sieci komórkowej</string>
     <string name="allowed">Dozwolone</string>
     <string name="allowed_blocked_counts">Dozwolone: %1$d · Zablokowane: %2$d</string>
@@ -44,6 +42,7 @@
     <string name="available">Dostępne</string>
     <string name="available_data_key">Dostępne</string>
     <string name="average_reliability">Średnia niezawodność</string>
+    <string name="back">Wstecz</string>
     <string name="balance">Saldo</string>
     <string name="balance_code">Kod salda</string>
     <string name="balance_code_where_to_buy">Nie masz kodu? Kody danych można kupić na ur.io i otrzymać e-mailem.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Zablokowane</string>
     <string name="blocked_locations">Zablokowane lokalizacje</string>
     <string name="bonus_referral_code_label">Bonusowy kod polecający</string>
-    <string name="boost_bandwidth_details">Uczestnicząc w sieci i udostępniając przepustowość, możesz zdobywać nagrody.</string>
-    <string name="boost_bandwidth_title">Zwiększ przepustowość – zarabiaj więcej każdego dnia</string>
     <string name="browse_locations">Przeglądaj lokalizacje</string>
     <string name="build_right">Buduj\ninternet we\nwłaściwy sposób</string>
     <string name="build_right_description">Buduj internet we właściwy sposób z URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Ten pasek w aplikacji pokazuje, ile darmowych danych otrzymujesz od swojego dostawcy. Możesz sprawdzać to w dowolnym momencie i dostosować ustawienia, aby zmaksymalizować swoje zarobki.</string>
     <string name="data_usage">Zużycie danych</string>
     <string name="date_payout">Wypłata %1$s</string>
-    <string name="default_bandwidth_earn_more_by">Domyślnie otrzymujesz %1$d GiB/miesiąc. Oto jak możesz zdobyć dodatkową przepustowość:</string>
     <string name="default_wallet">Domyślny</string>
     <string name="delete">Usuń</string>
     <string name="delete_account">Usuń konto</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Używasz zalecanych ustawień regionalnych</string>
     <string name="dns_using_secure">Używasz najbezpieczniejszych ustawień domyślnych</string>
     <string name="dont_see_it">Nie widzisz go?</string>
-    <string name="earn_more_bullet_refer">Poleć znajomego = +%1$s GiB/miesiąc</string>
     <string name="earn_more_bullet_stay_connected">Pozostań połączony codziennie = Zarabiaj do %1$s GiB/dzień</string>
     <string name="earning_multipliers">Mnożniki zarobków</string>
     <string name="earnings">Zarobki</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Dołącz do społeczności na</string>
     <string name="join_solana_wallet">Dołącz za pomocą portfela Solana</string>
-    <string name="join_the_movement">Dołącz do ruchu</string>
     <string name="join_urnetwork">Dołącz do URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Uruchom</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Sprawdź swój telefon</string>
     <string name="login_verify_details">Powiedz nam, kim naprawdę jesteś. Wprowadź kod,\nktóry wysłaliśmy, aby zweryfikować twoją tożsamość.</string>
     <string name="login_verify_header">Masz wiadomość</string>
-    <string name="low_user_ip_ratio">Najniższy stosunek użytkowników do IP przy dostępie do treści</string>
     <string name="make_default">Ustaw jako domyślny</string>
     <string name="manage_subscription">Zarządzaj subskrypcją</string>
     <string name="member">Członek</string>
@@ -299,11 +292,9 @@
     <string name="on">Włączone</string>
     <string name="one_gib_per_day">1 GiB/dzień</string>
     <string name="open_nested_link">Połącz z %1$s i otwórz link %2$s</string>
-    <string name="open_source_transparent">W 100% otwarty kod źródłowy i przejrzystość</string>
     <string name="or">lub</string>
     <string name="participate">Dołącz</string>
     <string name="participate_intro">Dołącz do sieci i uzyskaj bezpłatny dostęp do wersji społecznościowej.</string>
-    <string name="participate_intro_details">URnetwork opiera się na największym, najbezpieczniejszym i najbardziej\nzdecentralizowanym na świecie protokole wejścia i wyjścia.</string>
     <string name="password_label">Hasło</string>
     <string name="password_support_txt">Hasło musi mieć co najmniej 12 znaków</string>
     <string name="pay_with_solana_wallet">Zapłać portfelem Solana</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">Polecenie potwierdzone — ty i twój znajomy otrzymujecie po +%1$d GiB dziennie darmowych danych, na całe życie.</string>
     <string name="referral_royalty">Polecasz po królewsku!</string>
     <string name="referral_share_message">Dołącz do mnie w URnetwork! Pobierz aplikację i wpisz kod polecający %1$s przy rejestracji.</string>
+    <string name="referrals">Polecenia</string>
     <string name="regions">Regiony</string>
     <string name="reliability">Niezawodność</string>
     <string name="reliability_bonus">+%1$.3f GiB/dzień</string>
     <string name="reliability_settings">Udostępnij przepustowość</string>
-    <string name="reliability_settings_details">Udostępnianie jest opcjonalne. Po włączeniu aplikacja może dzielić się Twoim połączeniem z siecią, działając w tle na Wi-Fi.</string>
     <string name="reliability_weight">Waga niezawodności</string>
     <string name="reliability_with_value">Niezawodność: %1$.3f</string>
     <string name="remote">Zdalnie</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">Przenieś środki</string>
     <string name="transfer_submitted">Transfer przesłany</string>
     <string name="transfer_submitted_details">Twój transfer został zainicjowany i zostanie zakończony po przetworzeniu transakcji w łańcuchu.</string>
-    <string name="trusted_by_private_networks">Zaufany przez ponad %1$s prywatnych sieci</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="try_guest_mode">Wypróbuj tryb gościa</string>
     <string name="unencrypted_dns">Niezaszyfrowany DNS</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">Zaktualizuj sieć poleceń</string>
     <string name="upgrade_now">Uaktualnij teraz</string>
     <string name="upgrade_subscription">Ulepsz subskrypcję</string>
-    <string name="urnetwork_intro_description">URnetwork to najbardziej lokalna i najbardziej prywatna sieć na świecie.</string>
     <string name="use_most_stable_provider">Używa najstabilniejszego dostawcy</string>
     <string name="use_recommended_settings">Użyj zalecanych ustawień</string>
     <string name="used_data_key">Wykorzystane</string>

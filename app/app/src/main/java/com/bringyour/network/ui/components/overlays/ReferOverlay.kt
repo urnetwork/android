@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components.overlays
 
+import com.bringyour.network.ui.components.referral.LocalReferralTerms
 import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -48,8 +49,6 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.referral.GoldAura
 import com.bringyour.network.ui.components.referral.GoldOverlayScaffold
 import com.bringyour.network.ui.components.referral.GoldShareButton
-import com.bringyour.network.ui.components.referral.REFERRAL_BONUS_GIB_PER_DAY
-import com.bringyour.network.ui.components.referral.REFERRAL_MAX_REFERRALS
 import com.bringyour.network.ui.components.referral.ReferralFrog
 import com.bringyour.network.ui.components.referral.ReferralGoldCodePill
 import com.bringyour.network.ui.theme.ReferralGoldLight
@@ -139,7 +138,7 @@ fun ReferOverlay(
                                     id = R.plurals.referral_crowned_congrats,
                                     count = totalReferrals.toInt(),
                                     totalReferrals.toInt(),
-                                    minOf(totalReferrals, REFERRAL_MAX_REFERRALS.toLong()).toInt() * REFERRAL_BONUS_GIB_PER_DAY
+                                    LocalReferralTerms.current.earnedGibPerDay(totalReferrals)
                                 ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = ReferralGoldLight

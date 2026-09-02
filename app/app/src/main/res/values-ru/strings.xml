@@ -9,9 +9,7 @@
     <string name="add_referral_code">Добавить реферальный код</string>
     <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные награды</string>
     <string name="add_wallet">Добавить кошелек</string>
-    <string name="adjust_setting_always_fill_data_faster">Вы можете изменить настройку на «Всегда», чтобы быстрее получать бесплатные данные.</string>
     <string name="allow_local_connections">Разрешить локальные подключения</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Вы также можете разрешить провайдеру использовать данные сотовой сети, что отлично работает, если у вас безлимитный тариф.</string>
     <string name="allow_providing_cell">Разрешить предоставление в сотовой сети</string>
     <string name="allowed">Разрешено</string>
     <string name="allowed_blocked_counts">%1$d разрешено · %2$d заблокировано</string>
@@ -44,6 +42,7 @@
     <string name="available">Доступно</string>
     <string name="available_data_key">Доступно</string>
     <string name="average_reliability">Средняя надёжность</string>
+    <string name="back">Назад</string>
     <string name="balance">Баланс</string>
     <string name="balance_code">Код баланса</string>
     <string name="balance_code_where_to_buy">Нет кода? Коды данных можно купить на ur.io — их пришлют вам на почту.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Заблокировано</string>
     <string name="blocked_locations">Заблокированные локации</string>
     <string name="bonus_referral_code_label">Бонусный реферальный код</string>
-    <string name="boost_bandwidth_details">Участвуя в сети и предоставляя пропускную способность, вы можете получать награды.</string>
-    <string name="boost_bandwidth_title">Увеличьте пропускную способность — зарабатывайте больше каждый день</string>
     <string name="browse_locations">Просмотр локаций</string>
     <string name="build_right">Стройте\nинтернет\nправильно</string>
     <string name="build_right_description">Стройте интернет правильно вместе с URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Эта шкала в приложении показывает, сколько бесплатных данных вы получаете от своего провайдера. Вы можете проверить это в любое время и настроить параметры для максимизации заработка.</string>
     <string name="data_usage">Использование данных</string>
     <string name="date_payout">Выплата за %1$s</string>
-    <string name="default_bandwidth_earn_more_by">По умолчанию вы получаете %1$d GiB/месяц. Вот как можно заработать дополнительную пропускную способность:</string>
     <string name="default_wallet">По умолчанию</string>
     <string name="delete">Удалить</string>
     <string name="delete_account">Удалить аккаунт</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Используются рекомендованные региональные настройки</string>
     <string name="dns_using_secure">Используются самые безопасные настройки по умолчанию</string>
     <string name="dont_see_it">Не видите письмо?</string>
-    <string name="earn_more_bullet_refer">Пригласите друга = +%1$s GiB/месяц</string>
     <string name="earn_more_bullet_stay_connected">Оставайтесь на связи ежедневно = Зарабатывайте до %1$s GiB/день</string>
     <string name="earning_multipliers">Множители заработка</string>
     <string name="earnings">Заработок</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Присоединяйтесь к сообществу в</string>
     <string name="join_solana_wallet">Присоединиться через кошелек Solana</string>
-    <string name="join_the_movement">Присоединяйтесь к движению</string>
     <string name="join_urnetwork">Присоединяйтесь к URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Запустить</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Проверьте свой телефон</string>
     <string name="login_verify_details">Подтвердите, что это вы. Введите код,\nкоторый мы отправили, для проверки вашей личности.</string>
     <string name="login_verify_header">Вам письмо</string>
-    <string name="low_user_ip_ratio">Самое низкое соотношение пользователей к IP для доступа к контенту</string>
     <string name="make_default">Сделать по умолчанию</string>
     <string name="manage_subscription">Управление подпиской</string>
     <string name="member">Участник</string>
@@ -299,11 +292,9 @@
     <string name="on">Вкл.</string>
     <string name="one_gib_per_day">1 GiB/день</string>
     <string name="open_nested_link">Подключиться к %1$s и открыть ссылку %2$s</string>
-    <string name="open_source_transparent">100% с открытым исходным кодом и прозрачностью</string>
     <string name="or">или</string>
     <string name="participate">Участвовать</string>
     <string name="participate_intro">Участвуйте в сети и получите бесплатный доступ к версии для сообщества.</string>
-    <string name="participate_intro_details">В основе URnetwork — самый крупный, безопасный\nи децентрализованный в мире протокол входа и выхода трафика.</string>
     <string name="password_label">Пароль</string>
     <string name="password_support_txt">Пароль должен содержать не менее 12 символов</string>
     <string name="pay_with_solana_wallet">Оплатить через кошелек Solana</string>
@@ -366,15 +357,18 @@
     <string name="referral_code">Реферальный код</string>
     <string name="referral_code_capped">Этот код уже был использован</string>
     <string name="referral_network">Реферальная сеть</string>
+    <string name="referral_panel_detail">Каждый подтверждённый реферал даёт каждому из вас по %1$d ГиБ в день бесплатно, навсегда.</string>
+    <string name="referral_panel_heading">Пригласите друга и вы оба получите бесплатный трафик</string>
+    <string name="referral_panel_none">Пока нет друзей — поделитесь кодом, и появится корона. 👑</string>
     <string name="referral_royal_welcome">Королевский приём!</string>
     <string name="referral_royal_welcome_detail">Реферал подтверждён — вы и ваш друг получаете по +%1$d GiB бесплатных данных в день, навсегда.</string>
     <string name="referral_royalty">Вы — звезда рефералов!</string>
     <string name="referral_share_message">Присоединяйтесь ко мне в URnetwork! Установите приложение и введите реферальный код %1$s при регистрации.</string>
+    <string name="referrals">Рефералы</string>
     <string name="regions">Регионы</string>
     <string name="reliability">Надежность</string>
     <string name="reliability_bonus">+%1$.3f GiB/день</string>
     <string name="reliability_settings">Поделиться пропускной способностью</string>
-    <string name="reliability_settings_details">Предоставление необязательно. Если включить его, приложение сможет делиться вашим подключением с сетью, работая в фоновом режиме по Wi-Fi.</string>
     <string name="reliability_weight">надёжности</string>
     <string name="reliability_with_value">Надёжность: %1$.3f</string>
     <string name="remote">Удалённо</string>
@@ -459,7 +453,6 @@
     <string name="transfer_funds">Перевести средства</string>
     <string name="transfer_submitted">Перевод отправлен</string>
     <string name="transfer_submitted_details">Ваш перевод инициирован и будет завершен после обработки транзакции в сети.</string>
-    <string name="trusted_by_private_networks">Доверяют более чем %1$s частных сетей</string>
     <string name="try_again">Попробовать снова</string>
     <string name="try_guest_mode">Попробуйте гостевой режим</string>
     <string name="unencrypted_dns">Незашифрованный DNS</string>
@@ -476,7 +469,6 @@
     <string name="update_referral_network">Обновить реферальную сеть</string>
     <string name="upgrade_now">Улучшить сейчас</string>
     <string name="upgrade_subscription">Улучшить подписку</string>
-    <string name="urnetwork_intro_description">URnetwork — самая локальная и самая приватная сеть на планете.</string>
     <string name="use_most_stable_provider">Используется самый стабильный провайдер</string>
     <string name="use_recommended_settings">Использовать рекомендованные настройки</string>
     <string name="used_data_key">Использовано</string>
@@ -501,6 +493,7 @@
     <string name="window_type_speed">Стриминг</string>
     <string name="with_urnetwork">с URnetwork</string>
     <string name="yes">Да</string>
+    <string name="your_referral_code">Ваш реферальный код</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d приложение исключено</item>
         <item quantity="few">%1$d приложения исключены</item>

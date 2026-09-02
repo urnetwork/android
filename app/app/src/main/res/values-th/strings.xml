@@ -9,9 +9,7 @@
     <string name="add_referral_code">เพิ่มรหัสแนะนำ</string>
     <string name="add_referral_extra_rewards">เพิ่มรหัสการแนะนำเพื่อรับรางวัลเสริม</string>
     <string name="add_wallet">เพิ่มกระเป๋า</string>
-    <string name="adjust_setting_always_fill_data_faster">คุณสามารถปรับการตั้งค่าเป็น \"เสมอ\" เพื่อเติมข้อมูลฟรีได้เร็วขึ้น</string>
     <string name="allow_local_connections">เปิดให้เชื่อมต่อจากอุปกรณ์ในเครือข่ายเดียวกัน</string>
-    <string name="allow_provider_cell_network_unlimited_plan">คุณยังสามารถอนุญาตให้ผู้ให้บริการใช้ข้อมูลเครือข่ายมือถือ ซึ่งเหมาะมากหากคุณมีแพ็กเกจแบบไม่จำกัด</string>
     <string name="allow_providing_cell">อนุญาตให้ให้บริการบนเครือข่ายมือถือ</string>
     <string name="allowed">อนุญาต</string>
     <string name="allowed_blocked_counts">อนุญาต %1$d · บล็อก %2$d</string>
@@ -44,6 +42,7 @@
     <string name="available">พร้อมใช้งาน</string>
     <string name="available_data_key">พร้อมใช้งาน</string>
     <string name="average_reliability">ความน่าเชื่อถือเฉลี่ย</string>
+    <string name="back">ย้อนกลับ</string>
     <string name="balance">ยอดคงเหลือ</string>
     <string name="balance_code">รหัสยอดเงิน</string>
     <string name="balance_code_where_to_buy">ยังไม่มีโค้ด? ซื้อรหัสข้อมูลได้ที่ ur.io แล้วระบบจะส่งให้ทางอีเมล</string>
@@ -57,8 +56,6 @@
     <string name="blocked">ถูกบล็อก</string>
     <string name="blocked_locations">ตำแหน่งที่ถูกบล็อก</string>
     <string name="bonus_referral_code_label">รหัสแนะนำโบนัส</string>
-    <string name="boost_bandwidth_details">โดยการเข้าร่วมเครือข่ายและให้แบนด์วิดท์ คุณสามารถรับรางวัลได้</string>
-    <string name="boost_bandwidth_title">เพิ่มแบนด์วิดท์ของคุณ - รับรายได้มากขึ้นทุกวัน</string>
     <string name="browse_locations">สำรวจพื้นที่ต่างๆ</string>
     <string name="build_right">ร่วมสร้าง\nอินเทอร์เน็ต\nในแบบที่ควรจะเป็น</string>
     <string name="build_right_description">สร้างโครงข่ายที่ถูกที่ถูกทางด้วย URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">แถบนี้ในแอปจะแสดงให้คุณเห็นว่าคุณได้รับข้อมูลฟรีจากผู้ให้บริการมากแค่ไหน คุณสามารถตรวจสอบได้ทุกเมื่อและปรับการตั้งค่าเพื่อเพิ่มรายได้สูงสุด</string>
     <string name="data_usage">การใช้ข้อมูล</string>
     <string name="date_payout">ยอดจ่าย %1$s</string>
-    <string name="default_bandwidth_earn_more_by">โดยค่าเริ่มต้น คุณจะได้รับ %1$d GiB/เดือน นี่คือวิธีที่คุณสามารถรับแบนด์วิดท์เพิ่มเติม:</string>
     <string name="default_wallet">ค่าเริ่มต้น</string>
     <string name="delete">ลบ</string>
     <string name="delete_account">ลบบัญชี</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">กำลังใช้การตั้งค่าที่แนะนำสำหรับภูมิภาค</string>
     <string name="dns_using_secure">กำลังใช้การตั้งค่าเริ่มต้นที่ปลอดภัยที่สุด</string>
     <string name="dont_see_it">ไม่เห็นใช่ไหม?</string>
-    <string name="earn_more_bullet_refer">แนะนำเพื่อน = +%1$s GiB/เดือน</string>
     <string name="earn_more_bullet_stay_connected">เชื่อมต่อทุกวัน = รับสูงสุด %1$s GiB/วัน</string>
     <string name="earning_multipliers">ตัวคูณรายได้</string>
     <string name="earnings">การสร้างรายได้</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">เข้าร่วมชุมชนได้บน</string>
     <string name="join_solana_wallet">เข้าร่วมด้วยกระเป๋าเงิน Solana</string>
-    <string name="join_the_movement">ร่วมเป็นส่วนหนึ่งกับเราสิ</string>
     <string name="join_urnetwork">เข้าร่วมกับ URnetwork</string>
     <string name="kill_switch">สวิตช์หยุดการเชื่อมต่อ</string>
     <string name="launch">เปิดใช้งาน</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">ตรวจสอบมือถือของคุณ</string>
     <string name="login_verify_details">บอกเราหน่อยสิว่านี้คือคุณจริงๆ กรอกโค้ดทางเรา\nส่งให้เพื่อยืนยันตัวตน</string>
     <string name="login_verify_header">คุณได้รับอีเมลใหม่</string>
-    <string name="low_user_ip_ratio">อัตราส่วนผู้ใช้/IP ต่ำที่สุดสำหรับการเข้าถึงเนื้อหา</string>
     <string name="make_default">ตั้งเป็นกระเป๋ารับยอด</string>
     <string name="manage_subscription">จัดการระบบรายเดือน</string>
     <string name="member">รูปแบบสมาชิก</string>
@@ -299,11 +292,9 @@
     <string name="on">เปิด</string>
     <string name="one_gib_per_day">1 GiB/วัน</string>
     <string name="open_nested_link">เชื่อมต่อ %1$s และเปิดลิงก์ %2$s</string>
-    <string name="open_source_transparent">โอเพ่นซอร์สและโปร่งใส 100%</string>
     <string name="or">หรือ</string>
     <string name="participate">เข้าร่วม</string>
     <string name="participate_intro">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
-    <string name="participate_intro_details">URnetwork ขับเคลื่อนด้วยโปรโตคอลทางเข้าออกที่ใหญ่ที่สุด\nปลอดภัยที่สุด และกระจายศูนย์มากที่สุดในโลก</string>
     <string name="password_label">รหัสผ่าน</string>
     <string name="password_support_txt">รหัสผ่านต้องมีความยาวอย่างน้อย 12 ตัวอักษร</string>
     <string name="pay_with_solana_wallet">ชำระเงินด้วยกระเป๋าเงิน Solana</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">ยืนยันการแนะนำแล้ว — คุณและเพื่อนจะได้รับข้อมูลฟรีคนละ +%1$d GiB/วัน ตลอดชีวิต</string>
     <string name="referral_royalty">คุณคือสุดยอดนักแนะนำ!</string>
     <string name="referral_share_message">มาร่วม URnetwork กับฉันสิ! ดาวน์โหลดแอปแล้วกรอกรหัสแนะนำ %1$s ตอนสมัคร</string>
+    <string name="referrals">การแนะนำ</string>
     <string name="regions">ภูมิภาค</string>
     <string name="reliability">ความน่าเชื่อถือ</string>
     <string name="reliability_bonus">+%1$.3f GiB/วัน</string>
     <string name="reliability_settings">ร่วมแบ่งปันแบนด์วิดท์</string>
-    <string name="reliability_settings_details">การให้บริการเป็นทางเลือก เมื่อคุณเปิดใช้งาน แอปจะแบ่งปันการเชื่อมต่อของคุณกับเครือข่ายได้ขณะทำงานเบื้องหลังบน Wi-Fi</string>
     <string name="reliability_weight">น้ำหนักความน่าเชื่อถือ</string>
     <string name="reliability_with_value">ความน่าเชื่อถือ: %1$.3f</string>
     <string name="remote">ระยะไกล</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">โอนยอด</string>
     <string name="transfer_submitted">ได้ส่งข้อมูลการโอนแล้ว</string>
     <string name="transfer_submitted_details">การโอนของคุณได้เริ่มแล้ว และจะได้รับยอดเมื่อรายการประมวลผลเสร็จสิ้นบนเครือข่าย</string>
-    <string name="trusted_by_private_networks">ได้รับความไว้วางใจจากเครือข่ายส่วนตัวมากกว่า %1$s เครือข่าย</string>
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="try_guest_mode">ลองใช้ในโหมดผู้เยี่ยมชม</string>
     <string name="unencrypted_dns">DNS ที่ไม่เข้ารหัส</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">อัพเดตรหัสการแนะนำเครือข่าย</string>
     <string name="upgrade_now">อัพเกรดเดี๋ยวนี้</string>
     <string name="upgrade_subscription">อัพเกรดเป็นสมัครรายเดือน</string>
-    <string name="urnetwork_intro_description">URnetwork เป็นเครือข่ายที่มีความเป็นท้องถิ่นและเป็นส่วนตัวมากที่สุดในโลก</string>
     <string name="use_most_stable_provider">ใช้ผู้ให้บริการที่เสถียรที่สุด</string>
     <string name="use_recommended_settings">ใช้การตั้งค่าที่แนะนำ</string>
     <string name="used_data_key">ใช้แล้ว</string>

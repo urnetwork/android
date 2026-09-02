@@ -9,9 +9,7 @@
     <string name="add_referral_code">إضافة رمز الإحالة</string>
     <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
     <string name="add_wallet">إضافة محفظة</string>
-    <string name="adjust_setting_always_fill_data_faster">ضبط الإعداد على \"دائمًا\" لزيادة البيانات المجانية بشكل أسرع.</string>
     <string name="allow_local_connections">السماح بالاتصالات المحلية</string>
-    <string name="allow_provider_cell_network_unlimited_plan">يمكنك أيضًا السماح للمزود باستخدام بيانات شبكة الجوال، وهذا يعمل بشكل رائع إذا كان لديك خطة غير محدودة.</string>
     <string name="allow_providing_cell">السماح بالتوفير على شبكة الجوال</string>
     <string name="allowed">مسموح</string>
     <string name="allowed_blocked_counts">%1$d مسموح · %2$d محظور</string>
@@ -44,6 +42,7 @@
     <string name="available">متاح</string>
     <string name="available_data_key">متاح</string>
     <string name="average_reliability">متوسط الموثوقية</string>
+    <string name="back">رجوع</string>
     <string name="balance">الرصيد</string>
     <string name="balance_code">رمز الرصيد</string>
     <string name="balance_code_where_to_buy">ليس لديك رمز؟ يمكن شراء رموز البيانات من ur.io وإرسالها إلى بريدك الإلكتروني.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">محظور</string>
     <string name="blocked_locations">المواقع المحجوبة</string>
     <string name="bonus_referral_code_label">رمز إحالة إضافي</string>
-    <string name="boost_bandwidth_details">من خلال المشاركة في الشبكة وتوفير عرض النطاق الترددي، يمكنك كسب المكافآت.</string>
-    <string name="boost_bandwidth_title">عزز عرض النطاق الترددي لديك - اربح المزيد كل يوم</string>
     <string name="browse_locations">تصفح المواقع</string>
     <string name="build_right">ابنِ\nالإنترنت\nبالطريقة الصحيحة</string>
     <string name="build_right_description">ابنِ الإنترنت بالطريقة الصحيحة مع URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">يوضح لك هذا الشريط في التطبيق مقدار البيانات المجانية التي تكسبها من مزود الخدمة الخاص بك. يمكنك التحقق في أي وقت وضبط إعداداتك لزيادة أرباحك إلى الحد الأقصى.</string>
     <string name="data_usage">استخدام البيانات</string>
     <string name="date_payout">دفعة %1$s</string>
-    <string name="default_bandwidth_earn_more_by">بشكل افتراضي، تحصل على %1$d GiB/شهر. إليك كيفية كسب عرض نطاق إضافي:</string>
     <string name="default_wallet">الافتراضي</string>
     <string name="delete">حذف</string>
     <string name="delete_account">حذف الحساب</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">استخدام الإعدادات الإقليمية الموصى بها</string>
     <string name="dns_using_secure">استخدام الإعدادات الافتراضية الأكثر أمانًا</string>
     <string name="dont_see_it">ألا تراه؟</string>
-    <string name="earn_more_bullet_refer">إحالة صديق = +%1$s GiB/شهر</string>
     <string name="earn_more_bullet_stay_connected">البقاء متصلاً يوميًا = اربح حتى %1$s GiB/يوم</string>
     <string name="earning_multipliers">مضاعفات الأرباح</string>
     <string name="earnings">الأرباح</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">انضم إلى المجتمع على</string>
     <string name="join_solana_wallet">انضم باستخدام محفظة Solana</string>
-    <string name="join_the_movement">انضم إلى الحركة</string>
     <string name="join_urnetwork">انضم إلى URnetwork</string>
     <string name="kill_switch">مفتاح القتل</string>
     <string name="launch">تشغيل</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">تحقق من هاتفك</string>
     <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="login_verify_header">لديك بريد إلكتروني</string>
-    <string name="low_user_ip_ratio">أقل نسبة مستخدم/عنوان IP للوصول إلى المحتوى</string>
     <string name="make_default">جعل الافتراضي</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="member">عضو</string>
@@ -299,11 +292,9 @@
     <string name="on">تشغيل</string>
     <string name="one_gib_per_day">1 GiB/يوم</string>
     <string name="open_nested_link">الاتصال بـ %1$s وفتح الرابط %2$s</string>
-    <string name="open_source_transparent">مفتوح المصدر وشفاف بنسبة100%</string>
     <string name="or">أو</string>
     <string name="participate">شارك</string>
     <string name="participate_intro">شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
-    <string name="participate_intro_details">تعمل URnetwork ببروتوكول الدخول والخروج الأكبر\nوالأكثر أمانًا ولامركزية في العالم.</string>
     <string name="password_label">كلمة المرور</string>
     <string name="password_support_txt">يجب أن تتكون كلمة المرور من 12 حرفًا على الأقل</string>
     <string name="pay_with_solana_wallet">ادفع باستخدام محفظة Solana</string>
@@ -366,15 +357,18 @@
     <string name="referral_code">رمز الإحالة</string>
     <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
     <string name="referral_network">شبكة الإحالة</string>
+    <string name="referral_panel_detail">كل إحالة موثّقة تمنح كلاً منكما %1$d جيبي بايت يومياً مجاناً، مدى الحياة.</string>
+    <string name="referral_panel_heading">أحِل صديقاً واحصلا كلاكما على بيانات مجانية</string>
+    <string name="referral_panel_none">لا أصدقاء بعد. شارك رمزك وسيظهر التاج. 👑</string>
     <string name="referral_royal_welcome">ترحيب ملكي!</string>
     <string name="referral_royal_welcome_detail">تم تأكيد الإحالة — تحصل أنت وصديقك على +%1$d GiB يوميًا من البيانات المجانية، مدى الحياة.</string>
     <string name="referral_royalty">أنت نجم الإحالات!</string>
     <string name="referral_share_message">انضم إليّ على URnetwork! حمّل التطبيق وأدخل رمز الإحالة %1$s عند التسجيل.</string>
+    <string name="referrals">الإحالات</string>
     <string name="regions">المناطق</string>
     <string name="reliability">الموثوقية</string>
     <string name="reliability_bonus">+%1$.3f GiB/يوم</string>
     <string name="reliability_settings">المساهمة بعرض النطاق الترددي</string>
-    <string name="reliability_settings_details">التوفير اختياري. عند تشغيله، يمكن للتطبيق مشاركة اتصالك مع الشبكة أثناء عمله في الخلفية على الواي فاي.</string>
     <string name="reliability_weight">وزن الموثوقية</string>
     <string name="reliability_with_value">الموثوقية: %1$.3f</string>
     <string name="remote">بعيد</string>
@@ -459,7 +453,6 @@
     <string name="transfer_funds">تحويل الأموال</string>
     <string name="transfer_submitted">تم تقديم التحويل</string>
     <string name="transfer_submitted_details">تمت تهيئة عملية التحويل الخاصة بك وسيتم الانتهاء منها بمجرد معالجة المعاملة على السلسلة.</string>
-    <string name="trusted_by_private_networks">موثوق به من قبل أكثر من %1$s شبكة خاصة</string>
     <string name="try_again">حاول مرة أخرى</string>
     <string name="try_guest_mode">جرب وضع الضيف</string>
     <string name="unencrypted_dns">DNS غير مشفر</string>
@@ -476,7 +469,6 @@
     <string name="update_referral_network">تحديث شبكة الإحالة</string>
     <string name="upgrade_now">قم بالترقية الآن</string>
     <string name="upgrade_subscription">ترقية الاشتراك</string>
-    <string name="urnetwork_intro_description">URnetwork هي الشبكة الأكثر محلية والأكثر خصوصية على الكوكب.</string>
     <string name="use_most_stable_provider">استخدام مزود الخدمة الأكثر استقرارًا</string>
     <string name="use_recommended_settings">استخدام الإعدادات الموصى بها</string>
     <string name="used_data_key">مستخدم</string>
@@ -501,6 +493,7 @@
     <string name="window_type_speed">البث</string>
     <string name="with_urnetwork">مع URnetwork</string>
     <string name="yes">نعم</string>
+    <string name="your_referral_code">رمز الإحالة الخاص بك</string>
     <plurals name="apps_excluded_count">
         <item quantity="zero">%1$d تطبيق مستثنى</item>
         <item quantity="one">تطبيق واحد مستثنى</item>

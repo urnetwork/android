@@ -9,9 +9,7 @@
     <string name="add_referral_code">Adicionar código de referência</string>
     <string name="add_referral_extra_rewards">Adicione um código de referência para ganhar recompensas extra</string>
     <string name="add_wallet">Adicionar carteira</string>
-    <string name="adjust_setting_always_fill_data_faster">Pode ajustar a definição para \"Sempre\" para preencher os dados gratuitos mais rapidamente.</string>
     <string name="allow_local_connections">Permitir conexões locais</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Também pode permitir que o fornecedor utilize dados da rede móvel, o que funciona muito bem se tiver um plano ilimitado.</string>
     <string name="allow_providing_cell">Permitir fornecer na rede celular</string>
     <string name="allowed">Permitidos</string>
     <string name="allowed_blocked_counts">%1$d permitidos · %2$d bloqueados</string>
@@ -44,6 +42,7 @@
     <string name="available">Disponível</string>
     <string name="available_data_key">Disponível</string>
     <string name="average_reliability">Fiabilidade média</string>
+    <string name="back">Voltar</string>
     <string name="balance">Saldo</string>
     <string name="balance_code">Código de saldo</string>
     <string name="balance_code_where_to_buy">Não tem um código? Pode comprar códigos de dados em ur.io e recebê-los por e-mail.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Bloqueados</string>
     <string name="blocked_locations">Localizações bloqueadas</string>
     <string name="bonus_referral_code_label">Código de referência bónus</string>
-    <string name="boost_bandwidth_details">Ao participar na rede e fornecer largura de banda, pode ganhar recompensas.</string>
-    <string name="boost_bandwidth_title">Aumente a sua largura de banda - Ganhe mais todos os dias</string>
     <string name="browse_locations">Explorar locais</string>
     <string name="build_right">Construir a\ninternet da\nmaneira certa</string>
     <string name="build_right_description">Construir a internet da maneira certa com a URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Esta barra na aplicação mostra-lhe quanta informação gratuita está a ganhar do seu fornecedor. Pode verificar a qualquer momento e ajustar as suas definições para maximizar os seus ganhos.</string>
     <string name="data_usage">Utilização de dados</string>
     <string name="date_payout">Pagamento de %1$s</string>
-    <string name="default_bandwidth_earn_more_by">Por defeito, recebe %1$d GiB/mês. Veja como pode ganhar largura de banda extra:</string>
     <string name="default_wallet">Padrão</string>
     <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar conta</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">A usar as definições regionais recomendadas</string>
     <string name="dns_using_secure">A usar as definições predefinidas mais seguras</string>
     <string name="dont_see_it">Não está vendo?</string>
-    <string name="earn_more_bullet_refer">Recomende um amigo = +%1$s GiB/mês</string>
     <string name="earn_more_bullet_stay_connected">Mantenha-se ligado diariamente = Ganhe até %1$s GiB/dia</string>
     <string name="earning_multipliers">Multiplicadores de ganhos</string>
     <string name="earnings">Ganhos</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Junte-se à comunidade no</string>
     <string name="join_solana_wallet">Junte-se com a carteira Solana</string>
-    <string name="join_the_movement">Junte-se ao movimento</string>
     <string name="join_urnetwork">Junte-se à URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Iniciar</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Verifique o seu telefone</string>
     <string name="login_verify_details">Diga-nos quem você realmente é. Digite o código que\nenviamos para você verificar sua identidade.</string>
     <string name="login_verify_header">Você tem um e-mail</string>
-    <string name="low_user_ip_ratio">Menor proporção de utilizadores por IP para aceder a conteúdo</string>
     <string name="make_default">Tornar padrão</string>
     <string name="manage_subscription">Gerir assinatura</string>
     <string name="member">Membro</string>
@@ -299,11 +292,9 @@
     <string name="on">Ativado</string>
     <string name="one_gib_per_day">1 GiB/dia</string>
     <string name="open_nested_link">Conectar a %1$s e abrir link %2$s</string>
-    <string name="open_source_transparent">100% open source e transparente</string>
     <string name="or">ou</string>
     <string name="participate">Participar</string>
     <string name="participate_intro">Participe na rede e tenha acesso gratuito à edição comunitária.</string>
-    <string name="participate_intro_details">A URnetwork é alimentada pelo maior, mais seguro\ne mais descentralizado protocolo de entrada e saída do mundo.</string>
     <string name="password_label">Senha</string>
     <string name="password_support_txt">A senha deve ter pelo menos 12 caracteres</string>
     <string name="pay_with_solana_wallet">Pagar com a carteira Solana</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">Referência confirmada — você e o seu amigo recebem, cada um, +%1$d GiB/dia de dados grátis, para toda a vida.</string>
     <string name="referral_royalty">É uma estrela das referências!</string>
     <string name="referral_share_message">Junte-se a mim na URnetwork! Instale a aplicação e introduza o código de referência %1$s ao registar-se.</string>
+    <string name="referrals">Referências</string>
     <string name="regions">Regiões</string>
     <string name="reliability">Fiabilidade</string>
     <string name="reliability_bonus">+%1$.3f GiB/dia</string>
     <string name="reliability_settings">Contribuir com largura de banda</string>
-    <string name="reliability_settings_details">O fornecimento é opcional. Quando o ativa, a aplicação pode partilhar a sua conexão com a rede enquanto funciona em segundo plano em Wi-Fi.</string>
     <string name="reliability_weight">Peso de fiabilidade</string>
     <string name="reliability_with_value">Fiabilidade: %1$.3f</string>
     <string name="remote">Remoto</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">Transferir fundos</string>
     <string name="transfer_submitted">Transferência enviada</string>
     <string name="transfer_submitted_details">Sua transferência foi iniciada e será concluída assim que a transação for processada na cadeia.</string>
-    <string name="trusted_by_private_networks">Confiado por mais de %1$s redes privadas</string>
     <string name="try_again">Tentar novamente</string>
     <string name="try_guest_mode">Experimentar o Modo Convidado</string>
     <string name="unencrypted_dns">DNS não encriptado</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">Atualizar rede de referências</string>
     <string name="upgrade_now">Atualize agora</string>
     <string name="upgrade_subscription">Atualizar assinatura</string>
-    <string name="urnetwork_intro_description">URnetwork é a rede mais local e mais privada do planeta.</string>
     <string name="use_most_stable_provider">Utiliza o fornecedor mais estável</string>
     <string name="use_recommended_settings">Usar definições recomendadas</string>
     <string name="used_data_key">Utilizado</string>

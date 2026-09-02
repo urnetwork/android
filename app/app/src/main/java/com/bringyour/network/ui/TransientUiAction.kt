@@ -27,7 +27,8 @@ internal fun nextPostLoginUiAction(
  * Performs an action on UI state that can disappear asynchronously. A node
  * may be removed after the presence query but before an input event resolves
  * it; that absence is reported to the caller instead of escaping as a test
- * assertion. Other exception types still identify real driver failures.
+ * assertion. An assertion while the surface is still present is a real driver
+ * failure and must remain visible to the test.
  */
 internal fun performTransientUiActionIfPresent(
     isPresent: () -> Boolean,
@@ -37,7 +38,8 @@ internal fun performTransientUiActionIfPresent(
     return try {
         action()
         true
-    } catch (_: AssertionError) {
+    } catch (error: AssertionError) {
+        if (isPresent()) throw error
         false
     }
 }

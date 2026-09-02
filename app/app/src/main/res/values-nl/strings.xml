@@ -9,9 +9,7 @@
     <string name="add_referral_code">Referentiecode toevoegen</string>
     <string name="add_referral_extra_rewards">Voeg een referentiecode toe en verdien extra beloningen</string>
     <string name="add_wallet">Voeg wallet toe</string>
-    <string name="adjust_setting_always_fill_data_faster">Je kunt de instelling op \'Altijd\' zetten om sneller gratis data te vullen.</string>
     <string name="allow_local_connections">Sta lokale verbindingen toe</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Je kunt de provider ook toestaan om mobiele data te gebruiken, wat ideaal is als je een onbeperkt abonnement hebt.</string>
     <string name="allow_providing_cell">Toestaan op mobiel netwerk</string>
     <string name="allowed">Toegestaan</string>
     <string name="allowed_blocked_counts">%1$d toegestaan · %2$d geblokkeerd</string>
@@ -44,6 +42,7 @@
     <string name="available">Beschikbaar</string>
     <string name="available_data_key">Beschikbaar</string>
     <string name="average_reliability">Gemiddelde betrouwbaarheid</string>
+    <string name="back">Terug</string>
     <string name="balance">Saldo</string>
     <string name="balance_code">Saldo-code</string>
     <string name="balance_code_where_to_buy">Nog geen code? Datacodes koop je op ur.io en krijg je per e-mail toegestuurd.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Geblokkeerd</string>
     <string name="blocked_locations">Geblokkeerde locaties</string>
     <string name="bonus_referral_code_label">Bonus-verwijzingscode</string>
-    <string name="boost_bandwidth_details">Door deel te nemen aan het netwerk en bandbreedte te leveren kun je beloningen verdienen.</string>
-    <string name="boost_bandwidth_title">Vergroot je bandbreedte - Verdien elke dag meer</string>
     <string name="browse_locations">Locaties bekijken</string>
     <string name="build_right">Bouw het\ninternet op de\njuiste manier</string>
     <string name="build_right_description">Bouw het internet op de juiste manier met URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Deze balk in de app laat zien hoeveel gratis data je van je provider verdient. Je kunt op elk moment kijken en je instellingen aanpassen om je verdiensten te maximaliseren.</string>
     <string name="data_usage">Dataverbruik</string>
     <string name="date_payout">%1$s Uitbetaling</string>
-    <string name="default_bandwidth_earn_more_by">Standaard krijg je %1$d GiB/maand. Zo kun je extra bandbreedte verdienen:</string>
     <string name="default_wallet">Standaard</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_account">Verwijder Account</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Aanbevolen regionale instellingen actief</string>
     <string name="dns_using_secure">Veiligste standaardinstellingen actief</string>
     <string name="dont_see_it">Zie je het niet?</string>
-    <string name="earn_more_bullet_refer">Vriend doorverwijzen = +%1$s GiB/maand</string>
     <string name="earn_more_bullet_stay_connected">Dagelijks verbonden blijven = Verdien tot %1$s GiB/dag</string>
     <string name="earning_multipliers">Verdienvermenigvuldigers</string>
     <string name="earnings">Opbrengsten</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Sluit je aan bij de community op</string>
     <string name="join_solana_wallet">Lid worden met Solana Wallet</string>
-    <string name="join_the_movement">Doe mee aan de beweging</string>
     <string name="join_urnetwork">Sluit je aan bij URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Starten</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Controleer je telefoon</string>
     <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
     <string name="login_verify_header">Je hebt mail</string>
-    <string name="low_user_ip_ratio">Laagste gebruiker/IP-verhouding voor toegang tot content</string>
     <string name="make_default">Als standaard instellen</string>
     <string name="manage_subscription">Abonnement beheren</string>
     <string name="member">Lid</string>
@@ -299,11 +292,9 @@
     <string name="on">Aan</string>
     <string name="one_gib_per_day">1 GiB/dag</string>
     <string name="open_nested_link">Verbind met %1$s en open link %2$s</string>
-    <string name="open_source_transparent">100% open source en transparant</string>
     <string name="or">of</string>
     <string name="participate">Deelnemen</string>
     <string name="participate_intro">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
-    <string name="participate_intro_details">URnetwork draait op het grootste, veiligste en meest\ngedecentraliseerde ingress- en egress-protocol ter wereld.</string>
     <string name="password_label">Wachtwoord</string>
     <string name="password_support_txt">Wachtwoord moet minstens 12 tekens bevatten</string>
     <string name="pay_with_solana_wallet">Betalen met Solana Wallet</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">Verwijzing bevestigd — jij en je vriend krijgen elk +%1$d GiB/dag aan gratis data, levenslang.</string>
     <string name="referral_royalty">Jij bent een verwijzingskampioen!</string>
     <string name="referral_share_message">Doe met me mee op URnetwork! Download de app en voer bij het aanmelden referentiecode %1$s in.</string>
+    <string name="referrals">Verwijzingen</string>
     <string name="regions">Regio\'s</string>
     <string name="reliability">Betrouwbaarheid</string>
     <string name="reliability_bonus">+%1$.3f GiB/dag</string>
     <string name="reliability_settings">Bandbreedte bijdragen</string>
-    <string name="reliability_settings_details">Leveren is optioneel. Als je het aanzet, kan de app je verbinding met het netwerk delen terwijl hij op de achtergrond draait op Wi-Fi.</string>
     <string name="reliability_weight">Betrouwbaarheidsgewicht</string>
     <string name="reliability_with_value">Betrouwbaarheid: %1$.3f</string>
     <string name="remote">Extern</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">Gelden overmaken</string>
     <string name="transfer_submitted">Overdracht ingediend</string>
     <string name="transfer_submitted_details">Je overdracht is gestart en wordt voltooid zodra de transactie op de blockchain is verwerkt.</string>
-    <string name="trusted_by_private_networks">Vertrouwd door meer dan %1$s privénetwerken</string>
     <string name="try_again">Opnieuw proberen</string>
     <string name="try_guest_mode">Probeer de gastmodus</string>
     <string name="unencrypted_dns">Onversleutelde DNS</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">Referentienetwerk bijwerken</string>
     <string name="upgrade_now">Upgrade nu</string>
     <string name="upgrade_subscription">Abonnement upgraden</string>
-    <string name="urnetwork_intro_description">URnetwork is het meest lokale en meest privé netwerk ter wereld.</string>
     <string name="use_most_stable_provider">Gebruikt de stabielste provider</string>
     <string name="use_recommended_settings">Aanbevolen instellingen gebruiken</string>
     <string name="used_data_key">Gebruikt</string>

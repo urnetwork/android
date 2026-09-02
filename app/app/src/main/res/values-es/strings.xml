@@ -9,9 +9,7 @@
     <string name="add_referral_code">Añadir código de referencia</string>
     <string name="add_referral_extra_rewards">Añade un código de referencia para ganar recompensas adicionales</string>
     <string name="add_wallet">Añadir una billetera</string>
-    <string name="adjust_setting_always_fill_data_faster">Puedes ajustar la configuración a \"Siempre\" para llenar los datos gratis más rápido.</string>
     <string name="allow_local_connections">Permitir conexiones locales</string>
-    <string name="allow_provider_cell_network_unlimited_plan">También puedes permitir que el proveedor use datos de red celular, lo cual funciona muy bien si tienes un plan ilimitado.</string>
     <string name="allow_providing_cell">Permitir proporcionar en la red celular</string>
     <string name="allowed">Permitidas</string>
     <string name="allowed_blocked_counts">%1$d permitidas · %2$d bloqueadas</string>
@@ -44,6 +42,7 @@
     <string name="available">Disponible</string>
     <string name="available_data_key">Disponible</string>
     <string name="average_reliability">Fiabilidad promedio</string>
+    <string name="back">Atrás</string>
     <string name="balance">Saldo</string>
     <string name="balance_code">Código de saldo</string>
     <string name="balance_code_where_to_buy">¿No tienes un código? Puedes comprar códigos de datos en ur.io y te llegarán por correo electrónico.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Bloqueadas</string>
     <string name="blocked_locations">Ubicaciones bloqueadas</string>
     <string name="bonus_referral_code_label">Código de referido extra</string>
-    <string name="boost_bandwidth_details">Al participar en la red y proporcionar ancho de banda puedes ganar recompensas.</string>
-    <string name="boost_bandwidth_title">Aumenta tu ancho de banda - Gana más cada día</string>
     <string name="browse_locations">Explorar ubicaciones</string>
     <string name="build_right">Construye\nInternet\nde la manera correcta</string>
     <string name="build_right_description">Construye Internet de la manera correcta con URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Esta barra en la app te muestra cuántos datos gratis estás ganando de tu proveedor. Puedes revisar en cualquier momento y ajustar tus configuraciones para maximizar tus ganancias.</string>
     <string name="data_usage">Uso de datos</string>
     <string name="date_payout">Pago del %1$s</string>
-    <string name="default_bandwidth_earn_more_by">Por defecto, obtienes %1$d GiB/mes. Así puedes ganar ancho de banda extra:</string>
     <string name="default_wallet">Predeterminado</string>
     <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar cuenta</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Usando los ajustes regionales recomendados</string>
     <string name="dns_using_secure">Usando los ajustes predeterminados más seguros</string>
     <string name="dont_see_it">¿No lo ves?</string>
-    <string name="earn_more_bullet_refer">Recomienda a un amigo = +%1$s GiB/mes</string>
     <string name="earn_more_bullet_stay_connected">Mantente conectado diariamente = Gana hasta %1$s GiB/día</string>
     <string name="earning_multipliers">Multiplicadores de ganancias</string>
     <string name="earnings">Ganancias</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Únete a la comunidad en</string>
     <string name="join_solana_wallet">Unirse con la billetera Solana</string>
-    <string name="join_the_movement">Únete al movimiento</string>
     <string name="join_urnetwork">Únete a URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Iniciar</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Verifica tu teléfono</string>
     <string name="login_verify_details">Dinos quién eres realmente. Introduce el código que te\nenviamos para verificar tu identidad.</string>
     <string name="login_verify_header">Tienes un correo electrónico</string>
-    <string name="low_user_ip_ratio">La menor proporción de usuarios por IP para acceder a contenido</string>
     <string name="make_default">Establecer como predeterminada</string>
     <string name="manage_subscription">Administrar suscripción</string>
     <string name="member">Miembro</string>
@@ -299,11 +292,9 @@
     <string name="on">Activado</string>
     <string name="one_gib_per_day">1 GiB/día</string>
     <string name="open_nested_link">Conectar a %1$s y abrir enlace %2$s</string>
-    <string name="open_source_transparent">100% de código abierto y transparente</string>
     <string name="or">o</string>
     <string name="participate">Participar</string>
     <string name="participate_intro">Participa en la red y obtén acceso gratuito a la edición comunitaria.</string>
-    <string name="participate_intro_details">URnetwork funciona con el protocolo de entrada y salida\nmás grande, seguro y descentralizado del mundo.</string>
     <string name="password_label">Contraseña</string>
     <string name="password_support_txt">La contraseña debe tener al menos 12 caracteres</string>
     <string name="pay_with_solana_wallet">Pagar con la billetera Solana</string>
@@ -366,15 +357,18 @@
     <string name="referral_code">Código de referencia</string>
     <string name="referral_code_capped">Este código ya ha sido utilizado</string>
     <string name="referral_network">Red de referidos</string>
+    <string name="referral_panel_detail">Cada referido verificado les da a cada uno %1$d GiB/día gratis, de por vida.</string>
+    <string name="referral_panel_heading">Refiere a un amigo y los dos consiguen datos gratis</string>
+    <string name="referral_panel_none">Aún no hay amigos. Comparte tu código y verás aparecer la corona. 👑</string>
     <string name="referral_royal_welcome">¡Una bienvenida real!</string>
     <string name="referral_royal_welcome_detail">Referido confirmado: tú y tu amigo obtienen +%1$d GiB/día de datos gratis cada uno, de por vida.</string>
     <string name="referral_royalty">¡Eres una estrella de los referidos!</string>
     <string name="referral_share_message">¡Únete a URnetwork conmigo! Descarga la app e introduce el código de referencia %1$s al registrarte.</string>
+    <string name="referrals">Referidos</string>
     <string name="regions">Regiones</string>
     <string name="reliability">Fiabilidad</string>
     <string name="reliability_bonus">+%1$.3f GiB/día</string>
     <string name="reliability_settings">Contribuir con ancho de banda</string>
-    <string name="reliability_settings_details">La provisión es opcional. Cuando la activas, la app puede compartir tu conexión con la red mientras se ejecuta en segundo plano con Wi-Fi.</string>
     <string name="reliability_weight">Peso de fiabilidad</string>
     <string name="reliability_with_value">Fiabilidad: %1$.3f</string>
     <string name="remote">Remoto</string>
@@ -459,7 +453,6 @@
     <string name="transfer_funds">Transferir fondos</string>
     <string name="transfer_submitted">Transferencia enviada</string>
     <string name="transfer_submitted_details">Tu transferencia se ha iniciado y se completará una vez que la transacción se haya procesado en la cadena.</string>
-    <string name="trusted_by_private_networks">Confiado por más de %1$s redes privadas</string>
     <string name="try_again">Reintentar</string>
     <string name="try_guest_mode">Probar el modo invitado</string>
     <string name="unencrypted_dns">DNS sin cifrar</string>
@@ -476,7 +469,6 @@
     <string name="update_referral_network">Actualizar red de referidos</string>
     <string name="upgrade_now">Actualizar ahora</string>
     <string name="upgrade_subscription">Actualizar suscripción</string>
-    <string name="urnetwork_intro_description">URnetwork es la red más local y más privada del planeta.</string>
     <string name="use_most_stable_provider">Usa el proveedor más estable</string>
     <string name="use_recommended_settings">Usar los ajustes recomendados</string>
     <string name="used_data_key">Usado</string>
@@ -501,6 +493,7 @@
     <string name="window_type_speed">Streaming</string>
     <string name="with_urnetwork">con URnetwork</string>
     <string name="yes">Sí</string>
+    <string name="your_referral_code">Tu código de referido</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d app excluida</item>
         <item quantity="other">%1$d apps excluidas</item>

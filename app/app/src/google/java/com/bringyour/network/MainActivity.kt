@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import com.bringyour.network.ui.shared.viewmodels.offerForPlan
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -368,8 +369,8 @@ class MainActivity: AppCompatActivity() {
             return
         }
 
-        // just choose the first offer
-        val offer = productDetails.subscriptionOfferDetails?.firstOrNull()
+        // the offer for the plan the user picked (yearly by default)
+        val offer = offerForPlan(productDetails.subscriptionOfferDetails ?: emptyList(), planViewModel.selectedPlan)
 
         if (offer == null) {
 

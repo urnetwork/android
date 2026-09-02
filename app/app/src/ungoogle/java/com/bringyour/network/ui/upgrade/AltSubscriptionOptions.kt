@@ -1,7 +1,8 @@
 package com.bringyour.network.ui.upgrade
 
+import com.bringyour.network.ui.components.BestValuePill
+import com.bringyour.network.ui.theme.ProGoldLight
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,6 @@ import com.bringyour.network.ui.components.PlanOptionContainer
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.OffBlack
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
@@ -63,27 +63,20 @@ fun AltSubscriptionOptions(
             content = {
                 Column() {
                     Text(
-                        "$39.99 Annual (Save 33%)",
+                        "$40/year (Save 33%)",
                         style = TopBarTitleTextStyle
+                    )
+                    Text(
+                        stringResource(id = R.string.includes_free_trial_days, FREE_TRIAL_DAYS),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ProGoldLight
                     )
                 }
             },
             badge = {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Green,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        "Most popular",
-                        color = Black,
-                        style = TopBarTitleTextStyle
-                    )
-                }
-            }
+                BestValuePill()
+            },
+            glow = true
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -96,7 +89,7 @@ fun AltSubscriptionOptions(
             content = {
                 Column() {
                     Text(
-                        "$4.99/month",
+                        "$5/month",
                         style = TopBarTitleTextStyle
                     )
                 }
@@ -118,7 +111,13 @@ fun AltSubscriptionOptions(
                 enabled = stripeEnabled,
             ) { buttonTextStyle ->
                 Text(
-                    stringResource(id = R.string.pay_with_stripe),
+                    stringResource(
+                        id = if (selectedPlan == PlanType.YEARLY) {
+                            R.string.start_free_trial
+                        } else {
+                            R.string.pay_with_stripe
+                        }
+                    ),
                     style = buttonTextStyle
                 )
             }
@@ -154,6 +153,12 @@ fun AltSubscriptionOptions(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            stringResource(id = R.string.solana_one_time_payment),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted
+        )
 
         Text(
             stringResource(id = R.string.solana_payment_insufficient_funds_warning),

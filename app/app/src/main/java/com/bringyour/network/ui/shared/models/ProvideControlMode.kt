@@ -37,5 +37,18 @@ enum class ProvideControlMode {
                 NEVER -> R.string.never
             }
         }
+
+        /**
+         * One short line explaining what a mode does, for pickers that show
+         * explanations (onboarding). Never needs none.
+         */
+        fun toDescriptionResourceId(value: ProvideControlMode): Int? {
+            return when (value) {
+                AUTO -> R.string.provide_mode_auto_description
+                ALWAYS -> R.string.provide_mode_always_description
+                NETWORK -> R.string.provide_mode_network_description
+                NEVER -> null
+            }
+        }
     }
 }

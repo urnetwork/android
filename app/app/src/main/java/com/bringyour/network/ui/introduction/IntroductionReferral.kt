@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.introduction
 
+import com.bringyour.network.ui.IntroRoute
+import com.bringyour.network.ui.components.referral.LocalReferralTerms
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,16 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,19 +32,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ChartKey
-import com.bringyour.network.ui.components.CopyReferralCode
-import com.bringyour.network.ui.components.ShareButton
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.components.URTextInputLabel
-import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.components.referral.ReferralGoldPanel
 import com.bringyour.network.ui.theme.NeueBitLargeTextStyle
 import com.bringyour.network.ui.theme.OffBlack
+import com.bringyour.network.ui.theme.ReferralGold
 import com.bringyour.network.ui.theme.TextFaint
-import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * The last onboarding page: what a referral earns, how far along the paid
+ * referrals the network is, and the refer-friends box in the referral
+ * king-frog gold theme (the ur.io referral panel).
+ */
 @Composable
 fun IntroductionReferral(
     navController: NavHostController,
@@ -58,24 +53,11 @@ fun IntroductionReferral(
     referralCode: String
 ) {
 
+    val terms = LocalReferralTerms.current
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {Text("")},
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            Icons.Filled.ChevronLeft,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Black
-                ),
-            )
+            IntroductionTopBar(step = 4, onSkip = dismiss, onBack = { navController.popBackStack() })
         }
     ) { innerPadding ->
         Column(
@@ -89,18 +71,6 @@ fun IntroductionReferral(
 
             Column {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = "URnetwork",
-                        modifier = Modifier.size(128.dp),
-
-                        )
-                }
 
                 Text(
                     stringResource(id = R.string.refer_friends_header),
@@ -117,11 +87,11 @@ fun IntroductionReferral(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                BulletPoint(stringResource(id = R.string.refer_friends_perks, "3"))
+                BulletPoint(stringResource(id = R.string.refer_friends_perks, terms.bonusGibPerDay.toString()))
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                BulletPoint(stringResource(id = R.string.refer_friends_they_get_data, "3"))
+                BulletPoint(stringResource(id = R.string.refer_friends_they_get_data, terms.referredBonusGibPerDay.toString()))
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -145,7 +115,7 @@ fun IntroductionReferral(
                         )
 
                         Text(
-                            "${totalReferrals}/20",
+                            "${totalReferrals}/${terms.maxReferrals}",
                             style = TopBarTitleTextStyle
                         )
                     }
@@ -153,59 +123,28 @@ fun IntroductionReferral(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     ReferralBar(
-                        totalReferrals = totalReferrals
+                        totalReferrals = totalReferrals,
+                        maxReferrals = terms.maxReferrals
                     )
 
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                URTextInputLabel("Your referral link")
+                ReferralGoldPanel(
+                    referralCode = referralCode,
+                    totalReferrals = totalReferrals
+                )
 
-                Column(
-                    modifier = Modifier
-                        .background(
-                            OffBlack,
-                            RoundedCornerShape(12.dp)
-                        )
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-
-                    Text(
-                        stringResource(id = R.string.refer_friends_increase_free_data),
-                        style = TopBarTitleTextStyle
-                    )
-
-//                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.friends_save_too),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TextMuted
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    URTextInputLabel(stringResource(id = R.string.bonus_referral_code_label))
-
-                    CopyReferralCode(
-                        bonusReferralCode = referralCode
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    ShareButton(text = stringResource(id = R.string.referral_share_message, referralCode))
-
-                }
+                Spacer(modifier = Modifier.height(24.dp))
 
             }
 
             URButton(onClick = {
-                dismiss()
+                navController.navigate(IntroRoute.IntroductionQuickConnect)
             }) { btnStyle ->
                 Text(
-                    stringResource(id = R.string.get_connected),
+                    stringResource(id = R.string.next),
                     style = btnStyle
                 )
             }
@@ -214,20 +153,24 @@ fun IntroductionReferral(
     }
 }
 
+/**
+ * Referrals earned out of the ones that pay, in referral gold.
+ */
 @Composable
 fun ReferralBar(
-    totalReferrals: Long
+    totalReferrals: Long,
+    maxReferrals: Int = LocalReferralTerms.current.maxReferrals,
 ) {
 
-    val maxReferrals = 20f
+    val maxReferrals = maxReferrals.toFloat()
     val cornerRadius = 6.dp
-    val usedColor = BlueMedium
+    val usedColor = ReferralGold
     val availableColor = TextFaint
 
     var displayReferralCount = totalReferrals.toFloat()
 
-    if (displayReferralCount >= 20) {
-        displayReferralCount = 20f
+    if (displayReferralCount >= maxReferrals) {
+        displayReferralCount = maxReferrals
     }
 
     val usedFraction = displayReferralCount / maxReferrals
@@ -283,7 +226,7 @@ fun ReferralBar(
 
             // used
             ChartKey(
-                label = "Referrals",
+                label = stringResource(id = R.string.referrals),
                 color = usedColor
             )
 

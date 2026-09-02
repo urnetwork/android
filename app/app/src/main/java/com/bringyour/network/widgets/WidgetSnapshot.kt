@@ -118,6 +118,8 @@ data class WidgetTunnelSnapshot(
     /** The tunnel was up when this was written. */
     val tunnelActive: Boolean,
     val providing: Boolean,
+    /** The provide control mode ("auto", "always", "network", "never"); empty when unknown. */
+    val provideMode: String = "",
     val location: WidgetLocationSnapshot? = null,
     /** Connected providers in the app's display order (west to east, unplottable last). */
     val providers: List<WidgetProviderSnapshot> = emptyList(),

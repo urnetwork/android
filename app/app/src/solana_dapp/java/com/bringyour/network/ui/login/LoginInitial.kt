@@ -574,36 +574,6 @@ fun LoginInitialActions(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Bittensor Sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onBittensorLogin()
-                },
-                enabled = !isLoginInProgress,
-                isProcessing = bittensorAuthInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.bittensor_logo),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.bittensor_sign_in),
-                        style = buttonTextStyle
-                    )
-                }
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

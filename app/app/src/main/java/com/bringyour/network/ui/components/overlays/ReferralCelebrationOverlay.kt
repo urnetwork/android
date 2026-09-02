@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components.overlays
 
+import com.bringyour.network.ui.components.referral.LocalReferralTerms
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +31,6 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.referral.GoldAura
 import com.bringyour.network.ui.components.referral.GoldOverlayScaffold
 import com.bringyour.network.ui.components.referral.GoldShareButton
-import com.bringyour.network.ui.components.referral.REFERRAL_BONUS_GIB_PER_DAY
 import com.bringyour.network.ui.components.referral.ReferralFrog
 import com.bringyour.network.ui.components.referral.ReferralGoldCodePill
 import com.bringyour.network.ui.theme.ReferralGoldLight
@@ -99,7 +99,7 @@ fun ReferralCelebrationOverlay(
                             id = R.plurals.referral_celebration_detail,
                             count = joinedCount.toInt(),
                             joinedCount.toInt(),
-                            REFERRAL_BONUS_GIB_PER_DAY
+                            LocalReferralTerms.current.bonusGibPerDay
                         ),
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White,

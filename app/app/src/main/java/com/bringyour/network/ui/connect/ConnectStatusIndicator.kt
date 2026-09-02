@@ -1,5 +1,10 @@
 package com.bringyour.network.ui.connect
 
+import com.bringyour.network.ui.theme.TextMuted
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.Icons
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -117,6 +122,17 @@ fun ConnectStatusIndicator(
 
             if (status == ConnectStatus.CONNECTING) {
                 AnimatedEllipsis()
+            }
+
+            // the caret says the provider count opens the provider details
+            if (showProviderLocations != null) {
+                Spacer(modifier = Modifier.width(2.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = TextMuted,
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }

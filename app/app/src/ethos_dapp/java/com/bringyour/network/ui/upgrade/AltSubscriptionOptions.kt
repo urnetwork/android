@@ -1,5 +1,12 @@
 package com.bringyour.network.ui.upgrade
 
+import com.bringyour.network.ui.theme.ProGoldLight
+import com.bringyour.network.ui.components.rememberGoldDress
+import com.bringyour.network.ui.components.goldPlanDress
+import com.bringyour.network.ui.components.BestValuePill
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.Box
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -119,6 +126,116 @@ fun AltSubscriptionOptions(
 
 
 
+    val dress = rememberGoldDress()
+
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .goldPlanDress(dress = dress)
+            .clip(RoundedCornerShape(12.dp))
+            .padding(16.dp)
+    ) {
+
+        Row (
+            verticalAlignment = Alignment.Bottom
+        ) {
+
+            Text(
+                "$3.33",
+                fontSize = 24.sp,
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Text(
+                "/month",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+
+        }
+
+        Text(
+            "$40 Yearly",
+            fontWeight = FontWeight.Bold,
+            color = TextMuted
+        )
+
+        Text(
+            stringResource(id = R.string.includes_free_trial_days, FREE_TRIAL_DAYS),
+            style = MaterialTheme.typography.bodyMedium,
+            color = ProGoldLight
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+
+            URButton(
+                onClick = {
+                    upgradeStripeYearly()
+                },
+                enabled = !isCreatingIntents,
+                isProcessing = isCreatingIntents
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = R.string.start_free_trial),
+                    style = buttonTextStyle
+                )
+            }
+
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+
+            URButton(
+                onClick = {
+                    setIsPromptingSolanaPayment(true)
+                    upgradeSolana()
+                },
+                enabled = !isPromptingSolanaPayment && !isCheckingSolanaTransaction,
+                isProcessing = isPromptingSolanaPayment || isCheckingSolanaTransaction
+            ) { buttonTextStyle ->
+                Text(
+                    "Join with Solana Wallet",
+                    style = buttonTextStyle
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            stringResource(id = R.string.solana_one_time_payment),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted
+        )
+
+        Text(
+            stringResource(id = R.string.solana_payment_insufficient_funds_warning),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted
+        )
+    }
+
+        BestValuePill(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(y = (-16).dp, x = (-12).dp)
+        )
+
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
     Column(
         modifier = Modifier
             .background(
@@ -178,102 +295,6 @@ fun AltSubscriptionOptions(
                 )
             }
         }
-    }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Column(
-        modifier = Modifier
-            // .padding(16.dp)
-            .background(
-                OffBlack,
-                RoundedCornerShape(12.dp)
-            )
-            .border(width = 2.dp, color = Yellow, shape = RoundedCornerShape(12.dp))
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-
-        Row (
-            verticalAlignment = Alignment.Bottom
-        ) {
-
-            Text(
-                "$3.33",
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Text(
-                "/month",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-
-        }
-
-        Text(
-            "$40 Yearly",
-            fontWeight = FontWeight.Bold,
-            color = TextMuted
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-
-            URButton(
-                onClick = {
-                    upgradeStripeYearly()
-
-//                        if (customerConfig != null && yearlyPaymentIntentClientSecret != null) {
-//                            presentPaymentSheet(
-//                                paymentSheet,
-//                                customerConfig!!,
-//                                yearlyPaymentIntentClientSecret!!
-//                            )
-//                        }
-                },
-                enabled = !isCreatingIntents,
-                isProcessing = isCreatingIntents
-            ) { buttonTextStyle ->
-                Text(
-                    stringResource(id = R.string.pay_with_stripe),
-                    style = buttonTextStyle
-                )
-            }
-
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-
-            URButton(
-                onClick = {
-                    setIsPromptingSolanaPayment(true)
-                    upgradeSolana()
-                },
-                enabled = !isPromptingSolanaPayment && !isCheckingSolanaTransaction,
-                isProcessing = isPromptingSolanaPayment || isCheckingSolanaTransaction
-            ) { buttonTextStyle ->
-                Text(
-                    "Join with Solana Wallet",
-                    style = buttonTextStyle
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            stringResource(id = R.string.solana_payment_insufficient_funds_warning),
-            style = MaterialTheme.typography.bodySmall,
-            color = TextMuted
-        )
     }
 }
 

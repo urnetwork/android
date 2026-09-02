@@ -9,9 +9,7 @@
     <string name="add_referral_code">Ajouter un code de parrainage</string>
     <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
     <string name="add_wallet">Ajouter un portefeuille</string>
-    <string name="adjust_setting_always_fill_data_faster">Vous pouvez régler le paramètre sur « Toujours » pour remplir les données gratuites plus rapidement.</string>
     <string name="allow_local_connections">Autoriser les connexions locales</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Vous pouvez également autoriser le fournisseur à utiliser les données du réseau cellulaire, ce qui fonctionne très bien si vous avez un forfait illimité.</string>
     <string name="allow_providing_cell">Autoriser la fourniture sur le réseau cellulaire</string>
     <string name="allowed">Autorisé</string>
     <string name="allowed_blocked_counts">%1$d autorisés · %2$d bloqués</string>
@@ -44,6 +42,7 @@
     <string name="available">Disponible</string>
     <string name="available_data_key">Disponible</string>
     <string name="average_reliability">Fiabilité moyenne</string>
+    <string name="back">Retour</string>
     <string name="balance">Solde</string>
     <string name="balance_code">Code de solde</string>
     <string name="balance_code_where_to_buy">Pas de code ? Les codes de données s\'achètent sur ur.io et vous sont envoyés par e-mail.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Bloqué</string>
     <string name="blocked_locations">Emplacements bloqués</string>
     <string name="bonus_referral_code_label">Code de parrainage bonus</string>
-    <string name="boost_bandwidth_details">En participant au réseau et en fournissant de la bande passante, vous pouvez gagner des récompenses.</string>
-    <string name="boost_bandwidth_title">Augmentez votre bande passante - Gagnez plus chaque jour</string>
     <string name="browse_locations">Parcourir les emplacements</string>
     <string name="build_right">Construire\nInternet de la\nbonne manière</string>
     <string name="build_right_description">Construisez Internet de la bonne manière avec URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Cette barre dans l’application vous montre combien de données gratuites vous gagnez auprès de votre fournisseur. Vous pouvez vérifier à tout moment et ajuster vos paramètres pour maximiser vos gains.</string>
     <string name="data_usage">Utilisation des données</string>
     <string name="date_payout">Paiement du %1$s</string>
-    <string name="default_bandwidth_earn_more_by">Par défaut, vous recevez %1$d GiB/mois. Voici comment gagner de la bande passante supplémentaire :</string>
     <string name="default_wallet">Par défaut</string>
     <string name="delete">Supprimer</string>
     <string name="delete_account">Supprimer le compte</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Utilisation des paramètres régionaux recommandés</string>
     <string name="dns_using_secure">Utilisation des paramètres par défaut les plus sécurisés</string>
     <string name="dont_see_it">Vous ne le voyez pas ?</string>
-    <string name="earn_more_bullet_refer">Parrainer un ami = +%1$s GiB/mois</string>
     <string name="earn_more_bullet_stay_connected">Restez connecté chaque jour = Gagnez jusqu’à %1$s GiB/jour</string>
     <string name="earning_multipliers">Multiplicateurs de gains</string>
     <string name="earnings">Gains</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Rejoindre la communauté sur</string>
     <string name="join_solana_wallet">Rejoindre avec le portefeuille Solana</string>
-    <string name="join_the_movement">Rejoignez le mouvement</string>
     <string name="join_urnetwork">Rejoindre URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Lancer</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Vérifiez votre téléphone</string>
     <string name="login_verify_details">Dites-nous qui vous êtes vraiment. Entrez le code que nous\nvous avons envoyé pour vérifier votre identité.</string>
     <string name="login_verify_header">Vous avez un courriel</string>
-    <string name="low_user_ip_ratio">Le ratio utilisateur/IP le plus bas pour accéder au contenu</string>
     <string name="make_default">Définir par défaut</string>
     <string name="manage_subscription">Gérer l\'abonnement</string>
     <string name="member">Membre</string>
@@ -299,11 +292,9 @@
     <string name="on">Activé</string>
     <string name="one_gib_per_day">1 GiB/jour</string>
     <string name="open_nested_link">Se connecter à %1$s et ouvrir le lien %2$s</string>
-    <string name="open_source_transparent">100 %% open source et transparent</string>
     <string name="or">ou</string>
     <string name="participate">Participer</string>
     <string name="participate_intro">Participez au réseau et obtenez un accès gratuit à l’édition communautaire.</string>
-    <string name="participate_intro_details">URnetwork repose sur le protocole d\'entrée et de sortie\nle plus vaste, le plus sûr et le plus décentralisé au monde.</string>
     <string name="password_label">Mot de passe</string>
     <string name="password_support_txt">Le mot de passe doit comporter au moins 12 caractères</string>
     <string name="pay_with_solana_wallet">Payer avec le portefeuille Solana</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">Parrainage confirmé — vous et votre ami recevez chacun +%1$d GiB/jour de données gratuites, à vie.</string>
     <string name="referral_royalty">Vous êtes une star du parrainage !</string>
     <string name="referral_share_message">Rejoins-moi sur URnetwork ! Télécharge l\'application et entre le code de parrainage %1$s lors de ton inscription.</string>
+    <string name="referrals">Parrainages</string>
     <string name="regions">Régions</string>
     <string name="reliability">Fiabilité</string>
     <string name="reliability_bonus">+%1$.3f GiB/jour</string>
     <string name="reliability_settings">Contribuer de la bande passante</string>
-    <string name="reliability_settings_details">La fourniture est facultative. Lorsque vous l\'activez, l\'application peut partager votre connexion avec le réseau pendant qu\'elle fonctionne en arrière-plan en Wi-Fi.</string>
     <string name="reliability_weight">Poids de fiabilité</string>
     <string name="reliability_with_value">Fiabilité : %1$.3f</string>
     <string name="remote">Distant</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">Transférer des fonds</string>
     <string name="transfer_submitted">Transfert soumis</string>
     <string name="transfer_submitted_details">Votre transfert a été initié et sera terminé une fois la transaction traitée sur la chaîne.</string>
-    <string name="trusted_by_private_networks">Fiable pour plus de %1$s réseaux privés</string>
     <string name="try_again">Réessayer</string>
     <string name="try_guest_mode">Essayer le mode invité</string>
     <string name="unencrypted_dns">DNS non chiffré</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">Mettre à jour le réseau de parrainage</string>
     <string name="upgrade_now">Mettre à niveau maintenant</string>
     <string name="upgrade_subscription">Mettre à niveau l\'abonnement</string>
-    <string name="urnetwork_intro_description">URnetwork est le réseau le plus local et le plus privé au monde.</string>
     <string name="use_most_stable_provider">Utilise le fournisseur le plus stable</string>
     <string name="use_recommended_settings">Utiliser les paramètres recommandés</string>
     <string name="used_data_key">Utilisé</string>

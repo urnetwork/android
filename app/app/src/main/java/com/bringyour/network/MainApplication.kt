@@ -1280,8 +1280,17 @@ class MainApplication : Application() {
     }
 
 
-    fun login(byJwt: String){
-        asyncLocalState?.localState?.byJwt = byJwt
+    /**
+     * Signs the network in. The post-login onboarding flow is for a network
+     * that was just created (`newNetwork`), never for an existing account
+     * signing in: the SDK reads a missing flag as "may prompt", so the flag
+     * is written explicitly on every login, before the device reads it.
+     */
+    fun login(byJwt: String, newNetwork: Boolean = false) {
+        asyncLocalState?.localState?.let { localState ->
+            localState.byJwt = byJwt
+            localState.canPromptIntroFunnel = newNetwork
+        }
         api?.byJwt = byJwt
     }
 

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.shared.viewmodels
 
+import com.bringyour.network.ui.components.referral.ReferralTerms
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -51,6 +52,13 @@ class ReferralCodeViewModel @Inject constructor(
 
     private val _totalReferralCount = MutableStateFlow<Long>(0)
     val totalReferralCount: StateFlow<Long> = _totalReferralCount.asStateFlow()
+
+    /**
+     * The referral program's cap and bonus, from the server with the code
+     * (defaults until the first fetch).
+     */
+    private val _terms = MutableStateFlow(ReferralTerms.Default)
+    val terms: StateFlow<ReferralTerms> = _terms.asStateFlow()
 
     /**
      * Referral celebrations, keyed off the count the last celebration (or the
@@ -150,6 +158,7 @@ class ReferralCodeViewModel @Inject constructor(
             viewModelScope.launch {
                 _referralCode.value = result.referralCode
                 _totalReferralCount.value = result.totalReferrals
+                _terms.value = ReferralTerms.from(result)
 
                 maybeCelebrate(result.totalReferrals)
             }

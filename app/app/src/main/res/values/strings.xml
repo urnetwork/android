@@ -9,9 +9,7 @@
     <string name="add_referral_code">Add referral code</string>
     <string name="add_referral_extra_rewards">Add referral code to earn extra rewards</string>
     <string name="add_wallet">Add wallet</string>
-    <string name="adjust_setting_always_fill_data_faster">Providing is off by default. Choose when your device provides below.</string>
     <string name="allow_local_connections">Allow local connections</string>
-    <string name="allow_provider_cell_network_unlimited_plan">You can also allow the provider to use cell network data, which works great if you have an unlimited plan.</string>
     <string name="allow_providing_cell">Allow providing on cellular network</string>
     <string name="allowed">Allowed</string>
     <string name="allowed_blocked_counts">%1$d allowed · %2$d blocked</string>
@@ -46,6 +44,7 @@
     <string name="available">Available</string>
     <string name="available_data_key">Available</string>
     <string name="average_reliability">Average reliability</string>
+    <string name="back">Back</string>
     <string name="balance">Balance</string>
     <string name="balance_code">Balance code</string>
     <string name="balance_code_already_redeemed_message">This balance code has already been redeemed. If you redeemed it earlier, the data is already on your balance.</string>
@@ -56,14 +55,13 @@
     <string name="balance_codes_title">Balance Codes</string>
     <string name="become_supporter">Get UR Pro</string>
     <string name="best_available_provider">Best available provider</string>
+    <string name="best_value">Best value</string>
     <string name="bittensor_sign_in">Sign in with Bittensor</string>
     <string name="bittensor_wallet_future_use">Bittensor wallets are stored for future use and can\'t receive payouts yet.</string>
     <string name="block_ads_and_trackers">Block ads and trackers</string>
     <string name="blocked">Blocked</string>
     <string name="blocked_locations">Blocked Locations</string>
     <string name="bonus_referral_code_label">Bonus referral code</string>
-    <string name="boost_bandwidth_details">You get free data every month, and can earn more by referring friends.</string>
-    <string name="boost_bandwidth_title">Boost your bandwidth</string>
     <string name="browse_locations">Browse Locations</string>
     <string name="build_right">Build the\ninternet the\nright way</string>
     <string name="build_right_description">Build the internet the right way with URnetwork</string>
@@ -129,7 +127,7 @@
     <string name="data_bar_explanation">This bar in the app shows you how much free data you are earning from your provider. You can check in any time and adjust your settings to maximize your earnings.</string>
     <string name="data_usage">Data usage</string>
     <string name="date_payout">%1$s Payout</string>
-    <string name="default_bandwidth_earn_more_by">By default, you get %1$d GiB/month. Here\'s how you can earn extra bandwidth:</string>
+    <string name="default_daily_data">By default, you get %1$s every day.</string>
     <string name="default_wallet">Default</string>
     <string name="delete">Delete</string>
     <string name="delete_account">Delete Account</string>
@@ -305,7 +303,6 @@
     <string name="dns_using_recommended">Using recommended regional settings</string>
     <string name="dns_using_secure">Using most secure default settings</string>
     <string name="dont_see_it">Don\'t see it?</string>
-    <string name="earn_more_bullet_refer">Refer a friend = +%1$s GiB/Month</string>
     <string name="earn_more_bullet_stay_connected">Stay connected daily = Earn up to %1$s GiB/Day</string>
     <string name="earning_multipliers">Earning multipliers</string>
     <string name="earnings">Earnings</string>
@@ -351,15 +348,22 @@
     <string name="include_app">Route through VPN</string>
     <string name="include_app_description">Only included apps use the tunnel.</string>
     <string name="included">Included</string>
+    <string name="includes_free_trial_days">Includes %1$d day free trial</string>
     <string name="insufficient_balance">Insufficient balance</string>
     <string name="insufficient_funds">Insufficient funds</string>
+    <string name="intro_quick_connect_details">Turn URnetwork on and off from Quick Settings, and keep an eye on it from your home screen.</string>
+    <string name="intro_quick_connect_title">Connect in one tap</string>
+    <string name="intro_quick_tile_added">Added to Quick Settings</string>
+    <string name="intro_quick_tile_manual">Open Quick Settings, tap the pencil, and drag URnetwork into place.</string>
+    <string name="intro_verifiable_encryption">URnetwork gives you verifiable encryption for everyday use.</string>
+    <string name="intro_widgets_manual">Long-press your home screen, choose Widgets, and pick URnetwork.</string>
+    <string name="intro_widgets_tap_to_add">Tap a widget to add it to your home screen.</string>
     <string name="invalid_referral_code">This code is not valid</string>
     <string name="ip_address">IP address</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Join the community on</string>
     <string name="join_solana_wallet">Join with Solana Wallet</string>
-    <string name="join_the_movement">Join the movement</string>
     <string name="join_urnetwork">Join URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Kill switch exception</string>
@@ -385,7 +389,6 @@
     <string name="login_verify_check_phone">Check your phone</string>
     <string name="login_verify_details">Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
     <string name="login_verify_header">You\'ve got mail</string>
-    <string name="low_user_ip_ratio">Lowest user/IP ratio to access content</string>
     <string name="make_default">Make default</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="member">Member</string>
@@ -458,13 +461,12 @@
     <string name="of_total">of %1$s</string>
     <string name="off">Off</string>
     <string name="on">On</string>
+    <string name="onboarding_step_of">Step %1$d of %2$d</string>
     <string name="one_gib_per_day">1 GiB/Day</string>
     <string name="open_nested_link">Connect to %1$s and open link %2$s</string>
-    <string name="open_source_transparent">100% open source and transparent</string>
     <string name="or">or</string>
     <string name="participate">Participate</string>
     <string name="participate_intro">Participate in the network and get free access to the community edition.</string>
-    <string name="participate_intro_details">URnetwork is powered by the world\'s largest, safest,\nand most decentralized ingress and egress protocol.</string>
     <string name="password_label">Password</string>
     <string name="password_support_txt">Password must be at least 12 characters</string>
     <string name="pay_with_solana_wallet">Pay with Solana Wallet</string>
@@ -486,6 +488,8 @@
     <string name="pin_app_description">Keeps all of this app\'s connections on a single provider, so its API and images share one IP address. Use for apps whose content fails to load through the VPN</string>
     <string name="pinned">Pinned</string>
     <string name="plan">Plan</string>
+    <string name="plan_price_per_month">%1$s/month</string>
+    <string name="plan_price_per_year">%1$s/year</string>
     <string name="please_try_again">Please try again.</string>
     <string name="please_wait">Please wait a few minutes and try again.</string>
     <string name="points_breakdown">Points breakdown</string>
@@ -497,7 +501,13 @@
     <string name="processing_payment">Processing payment</string>
     <string name="profile">Profile</string>
     <string name="promoted_locations">Promoted Locations</string>
+    <string name="provide_intro_bullet_devices">Allow your devices to share internet with each other</string>
+    <string name="provide_intro_bullet_people">Share your internet with other people ❤️</string>
+    <string name="provide_intro_lead">Your choice, completely optional:</string>
     <string name="provide_mode">Provide mode</string>
+    <string name="provide_mode_always_description">Provides to everyone whenever the app is running.</string>
+    <string name="provide_mode_auto_description">Provides to everyone while you\'re connected, otherwise only to your own devices.</string>
+    <string name="provide_mode_network_description">Provides only to your own network\'s devices.</string>
     <string name="provider_connected_duration_hours">%1$dh %2$dm</string>
     <string name="provider_connected_duration_minutes">%1$dm</string>
     <string name="provider_connected_duration_seconds">%1$ds</string>
@@ -533,15 +543,18 @@
     <string name="referral_code">Referral code</string>
     <string name="referral_code_capped">This code has been used up</string>
     <string name="referral_network">Referral network</string>
+    <string name="referral_panel_detail">Every verified referral gives each of you %1$d GiB/day for free, for life.</string>
+    <string name="referral_panel_heading">Refer a friend and you both get free data</string>
+    <string name="referral_panel_none">No friends yet. Share your code and watch the crown appear. 👑</string>
     <string name="referral_royal_welcome">A royal welcome!</string>
     <string name="referral_royal_welcome_detail">Referral confirmed — you and your friend each get +%1$d GiB/day of free data, for life.</string>
     <string name="referral_royalty">You\'re referral royalty!</string>
     <string name="referral_share_message">Join me on URnetwork! Get the app and enter referral code %1$s when you sign up.</string>
+    <string name="referrals">Referrals</string>
     <string name="regions">Regions</string>
     <string name="reliability">Reliability</string>
     <string name="reliability_bonus">+%1$.3f GiB/Day</string>
     <string name="reliability_settings">Contribute bandwidth</string>
-    <string name="reliability_settings_details">Providing is optional. When you turn it on, the app can share your connection with the network while it runs in the background on Wi-Fi.</string>
     <string name="reliability_weight">Reliability Weight</string>
     <string name="reliability_with_value">Reliability: %1$.3f</string>
     <string name="remote">Remote</string>
@@ -561,7 +574,9 @@
     <string name="restore_most_secure_settings">Restore to most secure settings</string>
     <string name="retry">Retry</string>
     <string name="review_our_app">Would you like to review our app?</string>
+    <string name="route_internet">Internet</string>
     <string name="route_local">Allow local traffic when disconnected</string>
+    <string name="route_you">You</string>
     <string name="rules">Rules</string>
     <string name="save">Save</string>
     <string name="save_logs">Save logs</string>
@@ -591,6 +606,8 @@
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
     <string name="site_app_contracts">Contracts</string>
     <string name="site_app_providers">Providers</string>
+    <string name="skip">Skip</string>
+    <string name="solana_one_time_payment">Paying with Solana is a one-time yearly payment, with no free trial.</string>
     <string name="solana_payment_insufficient_funds_warning">Please make sure you have sufficient USDC funds in your wallet. In some instances, payment prompts fail if there are insufficient funds in the wallet.</string>
     <string name="solana_sign_in">Sign in with Solana</string>
     <string name="something_went_wrong">Something went wrong.</string>
@@ -602,6 +619,7 @@
     <string name="split_rules_info_note">Exclusions apply to the whole co-associated network cluster, so related traffic is caught together.</string>
     <string name="start_earning">To start earning, connect your cryptocurrency wallet to URnetwork or set one up with Circle.</string>
     <string name="start_earning_join">To start earning, join the network</string>
+    <string name="start_free_trial">Start free trial</string>
     <string name="stay_in_touch">Stay in touch</string>
     <string name="stay_private">Stay\ncompletely\nprivate and\nanonymous</string>
     <string name="stay_private_description">Stay completely private and anonymous with URnetwork</string>
@@ -610,6 +628,7 @@
     <string name="step_one">Step 1</string>
     <string name="step_two">Step 2</string>
     <string name="strong_anonymization">Strong Anonymization</string>
+    <string name="subscribe">Subscribe</string>
     <string name="subscription_purchased_under_different_account">Your subscription was purchased under a different account. Log in to that account to use it.</string>
     <string name="suggested_remote_dns_servers">Suggested remote DNS servers</string>
     <string name="suggested_remote_dns_servers_description">Suggestions for the connected country are marked with its color. Turning one on adds it to the remote DNS servers.</string>
@@ -649,7 +668,6 @@
     <string name="transport_unavailable_system_constraints">Unavailable due to system constraints</string>
     <string name="transport_unused">unused</string>
     <string name="transports">Transports</string>
-    <string name="trusted_by_private_networks">Trusted by over %1$s private networks</string>
     <string name="try_again">Try again</string>
     <string name="try_guest_mode">Try Guest Mode</string>
     <string name="unencrypted_dns">Unencrypted DNS</string>
@@ -666,7 +684,6 @@
     <string name="update_referral_network">Update referral network</string>
     <string name="upgrade_now">Upgrade now</string>
     <string name="upgrade_subscription">Upgrade Subscription</string>
-    <string name="urnetwork_intro_description">URnetwork is the most local and most private network on the planet.</string>
     <string name="use_most_stable_provider">Use most stable provider</string>
     <string name="use_recommended_settings">Use recommended settings</string>
     <string name="used_data_key">Used</string>
@@ -702,6 +719,8 @@
     <string name="widget_open_to_set_up">Open URnetwork to set up</string>
     <string name="widget_peak_rate">%1$s peak</string>
     <string name="widget_provider">Provider</string>
+    <string name="widget_provider_mode_title">Provider · %1$s</string>
+    <string name="widget_provider_stats_when_enabled">Provider stats will appear when the provider is enabled.</string>
     <string name="widget_quick_tile_added">Quick connect tile added</string>
     <string name="widget_toggle_intent_title">Toggle URnetwork VPN</string>
     <string name="widget_updated_ago">Updated %1$s</string>
@@ -711,6 +730,9 @@
     <string name="window_type_speed">Streaming</string>
     <string name="with_urnetwork">with URnetwork</string>
     <string name="yes">Yes</string>
+    <string name="you_get_free_data_every_day">You get free data every day.</string>
+    <string name="your_bandwidth">Your bandwidth</string>
+    <string name="your_referral_code">Your referral code</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d app excluded</item>
         <item quantity="other">%1$d apps excluded</item>

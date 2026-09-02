@@ -1,5 +1,10 @@
 package com.bringyour.network.ui
 
+import com.bringyour.network.ui.introduction.LocalIntroConnector
+import com.bringyour.network.ui.introduction.IntroConnectorState
+import com.bringyour.network.ui.introduction.FloatingIntroConnector
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.bringyour.network.ui.introduction.IntroductionQuickConnect
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.AlertDialog
@@ -47,6 +52,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -79,7 +85,7 @@ import com.bringyour.network.ui.settings.DeveloperScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
-import com.bringyour.network.ui.components.referral.REFERRAL_BONUS_GIB_PER_DAY
+import com.bringyour.network.ui.components.referral.LocalReferralTerms
 import com.bringyour.network.ui.components.referral.ReferralRoyalToast
 import com.bringyour.network.ui.connect.ConnectScreen
 import com.bringyour.network.ui.connect.ConnectViewModel
@@ -144,6 +150,55 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavHost(
+    walletViewModel: WalletViewModel,
+    settingsViewModel: SettingsViewModel,
+    planViewModel: PlanViewModel,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
+    overlayViewModel: OverlayViewModel,
+    animateIn: Boolean,
+    targetLink: String?,
+    defaultLocation: String?,
+    activityResultSender: ActivityResultSender?,
+    bundleStore: BundleStore?,
+    isPro: Boolean,
+    mainNavViewModel: MainNavViewModel = hiltViewModel<MainNavViewModel>(),
+    referralCodeViewModel: ReferralCodeViewModel = hiltViewModel<ReferralCodeViewModel>(),
+    connectViewModel: ConnectViewModel = hiltViewModel<ConnectViewModel>(),
+    locationsListViewModel: LocationsListViewModel = hiltViewModel<LocationsListViewModel>(),
+    networkReliabilityViewModel: NetworkReliabilityViewModel = hiltViewModel<NetworkReliabilityViewModel>(),
+    solanaPaymentViewModel: SolanaPaymentViewModel = hiltViewModel<SolanaPaymentViewModel>(),
+) {
+
+    // the referral cap and bonus come from the server with the referral code;
+    // everything signed-in reads them from here instead of hardcoding numbers
+    val referralTerms by referralCodeViewModel.terms.collectAsState()
+
+    CompositionLocalProvider(LocalReferralTerms provides referralTerms) {
+        MainNavHostContent(
+        walletViewModel = walletViewModel,
+        settingsViewModel = settingsViewModel,
+        planViewModel = planViewModel,
+        subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+        overlayViewModel = overlayViewModel,
+        animateIn = animateIn,
+        targetLink = targetLink,
+        defaultLocation = defaultLocation,
+        activityResultSender = activityResultSender,
+        bundleStore = bundleStore,
+        isPro = isPro,
+        mainNavViewModel = mainNavViewModel,
+        referralCodeViewModel = referralCodeViewModel,
+        connectViewModel = connectViewModel,
+        locationsListViewModel = locationsListViewModel,
+        networkReliabilityViewModel = networkReliabilityViewModel,
+        solanaPaymentViewModel = solanaPaymentViewModel
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainNavHostContent(
     walletViewModel: WalletViewModel,
     settingsViewModel: SettingsViewModel,
     planViewModel: PlanViewModel,
@@ -768,7 +823,7 @@ fun MainNavHost(
                 id = R.plurals.referral_toast_joined,
                 count = celebration.joined.toInt(),
                 celebration.joined.toInt(),
-                REFERRAL_BONUS_GIB_PER_DAY
+                LocalReferralTerms.current.bonusGibPerDay
             ),
             onClick = {
                 referralCodeViewModel.clearCelebration()
@@ -799,6 +854,17 @@ fun IntroNavHost(
 
     val introNavController = rememberNavController()
     val scope = rememberCoroutineScope()
+
+    // the connector mark that flies from page 1's route line into the header
+    val introConnector = remember { IntroConnectorState() }
+    val introEntry by introNavController.currentBackStackEntryAsState()
+    LaunchedEffect(introEntry) {
+        val route = introEntry?.destination?.route ?: return@LaunchedEffect
+        introConnector.inHeader = !route.contains(IntroRoute.IntroductionInitial::class.qualifiedName.toString())
+    }
+
+    CompositionLocalProvider(LocalIntroConnector provides introConnector) {
+    Box(modifier = Modifier.fillMaxSize()) {
 
     NavHost(
         navController = introNavController,
@@ -832,6 +898,7 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionUsageBar> {
             IntroductionUsageBar(
                 navController = introNavController,
+                dismiss = dismiss,
                 usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                 pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
                 availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
@@ -844,6 +911,7 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionSettings> {
             IntroductionSettings(
                 navController = introNavController,
+                dismiss = dismiss,
                 provideControlMode = provideControlMode,
                 setProvideControlMode = setProvideControlMode,
                 provideIndicatorColor = provideIndicatorColor,
@@ -861,6 +929,18 @@ fun IntroNavHost(
             )
         }
 
+        composable<IntroRoute.IntroductionQuickConnect> {
+            IntroductionQuickConnect(
+                navController = introNavController,
+                dismiss = dismiss
+            )
+        }
+
+    }
+
+    FloatingIntroConnector(introConnector)
+
+    }
     }
 
 }

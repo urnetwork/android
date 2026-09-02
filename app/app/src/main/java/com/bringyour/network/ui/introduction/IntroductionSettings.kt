@@ -15,16 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +42,7 @@ import com.bringyour.network.utils.lighten
 @Composable
 fun IntroductionSettings(
     navController: NavController,
+    dismiss: () -> Unit,
     provideControlMode: ProvideControlMode,
     setProvideControlMode: (ProvideControlMode) -> Unit,
     provideIndicatorColor: Color,
@@ -57,22 +52,7 @@ fun IntroductionSettings(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {Text("")},
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            Icons.Filled.ChevronLeft,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Black
-                ),
-            )
+            IntroductionTopBar(step = 3, onSkip = dismiss, onBack = { navController.popBackStack() })
         }
     ) { innerPadding ->
         Column(
@@ -85,18 +65,6 @@ fun IntroductionSettings(
         ) {
             Column {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = "URnetwork",
-                        modifier = Modifier.size(128.dp),
-
-                        )
-                }
 
                 Text(
                     stringResource(id = R.string.reliability_settings),
@@ -106,19 +74,20 @@ fun IntroductionSettings(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    stringResource(id = R.string.reliability_settings_details),
+                    stringResource(id = R.string.provide_intro_lead),
                     style = NeueBitLargeTextStyle,
                     textAlign = TextAlign.Start
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                BulletPoint(stringResource(id = R.string.provide_intro_bullet_devices))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                BulletPoint(stringResource(id = R.string.provide_intro_bullet_people))
+
                 Spacer(modifier = Modifier.height(32.dp))
-
-                Text(
-                    stringResource(id = R.string.adjust_setting_always_fill_data_faster),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Box(
                     modifier = Modifier
@@ -133,19 +102,13 @@ fun IntroductionSettings(
                     ProvideControlModePicker(
                         provideControlMode,
                         setProvideControlMode,
-                        provideIndicatorColor
+                        provideIndicatorColor,
+                        showDescriptions = true
                     )
 
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
-
-                Text(
-                    stringResource(id = R.string.allow_provider_cell_network_unlimited_plan),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 Box(
                     modifier = Modifier

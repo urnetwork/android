@@ -347,7 +347,7 @@ fun RoyalWelcomeContent(
             Spacer(modifier = Modifier.padding(top = 8.dp))
 
             Text(
-                stringResource(id = R.string.referral_royal_welcome_detail, REFERRAL_BONUS_GIB_PER_DAY),
+                stringResource(id = R.string.referral_royal_welcome_detail, LocalReferralTerms.current.bonusGibPerDay),
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.White,
                 textAlign = TextAlign.Center
@@ -357,13 +357,17 @@ fun RoyalWelcomeContent(
 }
 
 /**
- * The daily GiB each side of a verified referral earns, for life
+ * Display default for the daily GiB each side of a verified referral earns
  * (pro.yml referral: bonus_per_referral / referred_bonus over a 24h period).
+ * The live value comes from the server with the referral code; read
+ * [LocalReferralTerms], not this.
  */
 const val REFERRAL_BONUS_GIB_PER_DAY = 3
 
 /**
- * The max referrals a network is paid for (pro.yml referral.max_referrals).
+ * Display default for the max referrals a network is paid for (pro.yml
+ * referral.max_referrals). The live value comes from the server; read
+ * [LocalReferralTerms], not this.
  */
 const val REFERRAL_MAX_REFERRALS = 20
 

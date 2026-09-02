@@ -9,9 +9,7 @@
     <string name="add_referral_code">Προσθήκη κωδικού παραπομπής</string>
     <string name="add_referral_extra_rewards">Προσθέστε κωδικό παραπομπής για να κερδίσετε επιπλέον ανταμοιβές</string>
     <string name="add_wallet">Προσθήκη πορτοφολιού</string>
-    <string name="adjust_setting_always_fill_data_faster">Μπορείτε να ρυθμίσετε την επιλογή σε «Πάντα» για να γεμίσετε τα δωρεάν δεδομένα πιο γρήγορα.</string>
     <string name="allow_local_connections">Να επιτρέπονται οι τοπικές συνδέσεις</string>
-    <string name="allow_provider_cell_network_unlimited_plan">Μπορείτε επίσης να επιτρέψετε στον πάροχο να χρησιμοποιεί δεδομένα κινητού δικτύου, κάτι που λειτουργεί τέλεια αν έχετε απεριόριστο πρόγραμμα.</string>
     <string name="allow_providing_cell">Να επιτρέπεται η παροχή στο κυψελοειδές δίκτυο</string>
     <string name="allowed">Επιτρεπόμενα</string>
     <string name="allowed_blocked_counts">%1$d επιτρεπόμενα · %2$d αποκλεισμένα</string>
@@ -44,6 +42,7 @@
     <string name="available">Διαθέσιμο</string>
     <string name="available_data_key">Διαθέσιμα</string>
     <string name="average_reliability">Μέση αξιοπιστία</string>
+    <string name="back">Πίσω</string>
     <string name="balance">Υπόλοιπο</string>
     <string name="balance_code">Κωδικός υπολοίπου</string>
     <string name="balance_code_where_to_buy">Δεν έχετε κωδικό; Οι κωδικοί δεδομένων αγοράζονται στο ur.io και αποστέλλονται με email.</string>
@@ -57,8 +56,6 @@
     <string name="blocked">Αποκλεισμένα</string>
     <string name="blocked_locations">Αποκλεισμένες τοποθεσίες</string>
     <string name="bonus_referral_code_label">Μπόνους κωδικός παραπομπής</string>
-    <string name="boost_bandwidth_details">Συμμετέχοντας στο δίκτυο και παρέχοντας εύρος ζώνης μπορείτε να κερδίσετε ανταμοιβές.</string>
-    <string name="boost_bandwidth_title">Ενίσχυσε το εύρος ζώνης σου - Κέρδισε περισσότερα κάθε μέρα</string>
     <string name="browse_locations">Περιήγηση σε τοποθεσίες</string>
     <string name="build_right">Δημιουργήστε\nτο Διαδίκτυο\nμε τον σωστό τρόπο</string>
     <string name="build_right_description">Δημιουργήστε το Διαδίκτυο με τον σωστό τρόπο με το URnetwork</string>
@@ -124,7 +121,6 @@
     <string name="data_bar_explanation">Αυτή η γραμμή στην εφαρμογή σας δείχνει πόσα δωρεάν δεδομένα κερδίζετε από τον πάροχό σας. Μπορείτε να ελέγχετε οποιαδήποτε στιγμή και να προσαρμόζετε τις ρυθμίσεις σας για να μεγιστοποιήσετε τα κέρδη σας.</string>
     <string name="data_usage">Χρήση δεδομένων</string>
     <string name="date_payout">Πληρωμή %1$s</string>
-    <string name="default_bandwidth_earn_more_by">Από προεπιλογή, λαμβάνετε %1$d GiB/μήνα. Δείτε πώς μπορείτε να κερδίσετε επιπλέον εύρος ζώνης:</string>
     <string name="default_wallet">Προεπιλογή</string>
     <string name="delete">Διαγραφή</string>
     <string name="delete_account">Διαγραφή λογαριασμού</string>
@@ -148,7 +144,6 @@
     <string name="dns_using_recommended">Χρήση προτεινόμενων ρυθμίσεων περιοχής</string>
     <string name="dns_using_secure">Χρήση των πιο ασφαλών προεπιλογών</string>
     <string name="dont_see_it">Δεν το βλέπεις;</string>
-    <string name="earn_more_bullet_refer">Προτείνετε έναν φίλο = +%1$s GiB/μήνα</string>
     <string name="earn_more_bullet_stay_connected">Μείνετε συνδεδεμένοι καθημερινά = Κερδίστε έως %1$s GiB/ημέρα</string>
     <string name="earning_multipliers">Πολλαπλασιαστές κερδών</string>
     <string name="earnings">Κέρδη</string>
@@ -200,7 +195,6 @@
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Γίνετε μέλος της κοινότητας στο</string>
     <string name="join_solana_wallet">Εγγραφείτε με το πορτοφόλι Solana</string>
-    <string name="join_the_movement">Γίνετε μέλος του κινήματος</string>
     <string name="join_urnetwork">Συνδεθείτε στο URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="launch">Εκκίνηση</string>
@@ -224,7 +218,6 @@
     <string name="login_verify_check_phone">Ελέγξτε το τηλέφωνό σας</string>
     <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
     <string name="login_verify_header">Έχετε ένα email</string>
-    <string name="low_user_ip_ratio">Η χαμηλότερη αναλογία χρηστών/IP για πρόσβαση σε περιεχόμενο</string>
     <string name="make_default">Ορισμός ως προεπιλογή</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="member">Μέλος</string>
@@ -299,11 +292,9 @@
     <string name="on">Ενεργό</string>
     <string name="one_gib_per_day">1 GiB/ημέρα</string>
     <string name="open_nested_link">Σύνδεση με %1$s και άνοιγμα συνδέσμου %2$s</string>
-    <string name="open_source_transparent">100% ανοιχτού κώδικα και διαφανές</string>
     <string name="or">ή</string>
     <string name="participate">Συμμετοχή</string>
     <string name="participate_intro">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
-    <string name="participate_intro_details">Το URnetwork τροφοδοτείται από το μεγαλύτερο, ασφαλέστερο\nκαι πιο αποκεντρωμένο πρωτόκολλο εισόδου και εξόδου στον κόσμο.</string>
     <string name="password_label">Κωδικός πρόσβασης</string>
     <string name="password_support_txt">Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 12 χαρακτήρες</string>
     <string name="pay_with_solana_wallet">Πληρώστε με το πορτοφόλι Solana</string>
@@ -370,11 +361,11 @@
     <string name="referral_royal_welcome_detail">Η παραπομπή επιβεβαιώθηκε — εσύ και ο φίλος σου παίρνετε από +%1$d GiB/ημέρα δωρεάν δεδομένα, για πάντα.</string>
     <string name="referral_royalty">Είστε αστέρι στις παραπομπές!</string>
     <string name="referral_share_message">Έλα μαζί μου στο URnetwork! Κατέβασε την εφαρμογή και βάλε τον κωδικό παραπομπής %1$s στην εγγραφή σου.</string>
+    <string name="referrals">Παραπομπές</string>
     <string name="regions">Περιοχές</string>
     <string name="reliability">Αξιοπιστία</string>
     <string name="reliability_bonus">+%1$.3f GiB/ημέρα</string>
     <string name="reliability_settings">Συνεισφορά εύρους ζώνης</string>
-    <string name="reliability_settings_details">Η παροχή είναι προαιρετική. Όταν την ενεργοποιήσετε, η εφαρμογή μπορεί να μοιράζεται τη σύνδεσή σας με το δίκτυο όσο εκτελείται στο παρασκήνιο σε Wi-Fi.</string>
     <string name="reliability_weight">Βάρος αξιοπιστίας</string>
     <string name="reliability_with_value">Αξιοπιστία: %1$.3f</string>
     <string name="remote">Απομακρυσμένο</string>
@@ -457,7 +448,6 @@
     <string name="transfer_funds">Μεταφορά χρημάτων</string>
     <string name="transfer_submitted">Υποβλήθηκε η μεταφορά</string>
     <string name="transfer_submitted_details">Η μεταφορά σας ξεκίνησε και θα ολοκληρωθεί μόλις η συναλλαγή υποβληθεί σε επεξεργασία στην αλυσίδα.</string>
-    <string name="trusted_by_private_networks">Εμπιστεύεται από πάνω από %1$s ιδιωτικά δίκτυα</string>
     <string name="try_again">Δοκιμάστε ξανά</string>
     <string name="try_guest_mode">Δοκιμάστε τη λειτουργία επισκέπτη</string>
     <string name="unencrypted_dns">Μη κρυπτογραφημένο DNS</string>
@@ -474,7 +464,6 @@
     <string name="update_referral_network">Ενημέρωση δικτύου παραπομπών</string>
     <string name="upgrade_now">Αναβάθμιση τώρα</string>
     <string name="upgrade_subscription">Αναβάθμιση Συνδρομής</string>
-    <string name="urnetwork_intro_description">Το URnetwork είναι το πιο τοπικό και πιο ιδιωτικό δίκτυο στον πλανήτη.</string>
     <string name="use_most_stable_provider">Χρησιμοποιεί τον πιο σταθερό πάροχο</string>
     <string name="use_recommended_settings">Χρήση προτεινόμενων ρυθμίσεων</string>
     <string name="used_data_key">Χρησιμοποιημένα</string>
