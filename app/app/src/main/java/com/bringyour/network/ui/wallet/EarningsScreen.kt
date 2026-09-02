@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
@@ -107,6 +108,11 @@ fun EarningsScreen(
 
     LaunchedEffect(Unit) {
         fetchAccountPoints()
+    }
+
+    LifecycleResumeEffect(Unit) {
+        earningsViewModel.onScreenResumed()
+        onPauseOrDispose {}
     }
 
     EarningsScreenContent(

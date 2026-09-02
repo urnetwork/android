@@ -335,6 +335,17 @@ class EarningsViewModel @Inject constructor(
         _connectState.value = WalletConnectState.Idle
     }
 
+    /**
+     * The screen came back without a signed redirect (the user closed the bridge tab):
+     * a completed signature arrives through a fresh MainActivity, so waiting is over.
+     */
+    fun onScreenResumed() {
+        val s = _connectState.value
+        if (s is WalletConnectState.AwaitingSignature || s is WalletConnectState.RequestingChallenge) {
+            _connectState.value = WalletConnectState.Idle
+        }
+    }
+
     fun continueAfterLooksNew() {
         val s = _connectState.value as? WalletConnectState.LooksNew ?: return
         viewModelScope.launch {
