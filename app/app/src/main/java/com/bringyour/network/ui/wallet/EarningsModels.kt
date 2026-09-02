@@ -360,9 +360,9 @@ class SampleProtocolSource(
     override fun explorerTxUrl(txHash: String): String = String.format(EarningsFormat.EXPLORER_TX_URL, txHash)
 
     companion object {
-        const val SAMPLE_COLDKEY = "5F3sa2TJAWMqDhXG6jhV4N8ko9SxwGy8TpaNS1repo5EYJQX"
-        const val SAMPLE_NEW_COLDKEY = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
-        const val SAMPLE_BANNED_COLDKEY = "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
+        const val SAMPLE_COLDKEY = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+        const val SAMPLE_NEW_COLDKEY = "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
+        const val SAMPLE_BANNED_COLDKEY = "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y"
         const val SAMPLE_GAS_ADDRESS = "0x4b2a9f3e1c7d8a6b5e0f2d1c3b4a59687766554433221100"
         const val SAMPLE_GAS_MIRROR = "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy"
     }

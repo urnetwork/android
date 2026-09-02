@@ -7,9 +7,11 @@ against the rebuilt wasm). Apple DONE (iOS + macOS Debug builds against the
 rebuilt xcframework; smoke binary over the connect/claim flows; installed on the
 iPhone). Windows DONE source-only (names verified against the regenerated C ABI
 headers; needs the on-VM build). Linux DONE (ninja build clean, GUI captures of
-every state). Android IN PROGRESS at the time of writing (Earnings screen, wallet
-flow and claim dialog built against the rebuilt AAR; see the android commit that
-lands with this document). This document is the design record, the SDK/server
+every state). Android DONE (all four flavors assemble against the final AAR;
+github build exercised on the emulator: no-wallet state, connected wallet card,
+Unclaimed tile, Top 200 tile, claim dialog ready → sent → claimed, needs-gas
+dialog, history rows, bridge round trip, dashboard widget tap landing on
+Connect like the tab). This document is the design record, the SDK/server
 contract as implemented, and the per-platform checklist. It supersedes the
 design review artifact "UR Protocol Earnings on Android".
 
@@ -364,14 +366,28 @@ outputs, which otherwise carry every key in the store.
 
 ## Per-platform notes
 
-**Android (reference).** `ui/earnings/*` replaces `ui/wallet/*`: Earnings
-screen, `ConnectBittensorWallet` flow over the existing bridge (purpose
-`connect`), manual entry sheet (ss58 only), `ClaimDialog`, Top 200 tile/status;
-`AccountPoints` "Payouts" row → "Providing"; the USDC superscript on the
-account screen → points; `WalletViewModel` trimmed to Bittensor; Solana Mobile
-Stack, Saga, Circle and Polygon code removed. The Solana dApp flavor keeps the
-"Verify Seeker" action (points-only) and the "Paid in USDC on Solana" note. The
-dashboard widget tap routes through the Connect tab's own handler.
+**Android (reference).** `ui/wallet/` now holds `EarningsScreen.kt`,
+`EarningsViewModel.kt`, `EarningsModels.kt` (the `EarningsProtocolSource` seam
+with `NoProtocolSource` / `SampleProtocolSource` and debug flags),
+`SdkProtocolSource.kt` (the real SDK binding: wallet cache + listener, connect,
+validate, gas key and balance, claims, claim callback, epochs, head, formatting,
+chain settings synced once before the first vault read), `ClaimDialog.kt`,
+`ConnectWalletSheet.kt`, `EpochHistory.kt`, `Top200Tile.kt`, plus
+`utils/Ss58.kt` (local syntax gate). `MainNavHost` gained `Route.Earnings` and
+`selectTopLevelRoute`, the single tab-selection function shared by the bottom
+bar and the dashboard widget, and a pending navigation after the bridge
+redirect; the four `LoginActivity` forward `purpose=connect` redirects to
+`MainActivity` with `SnWalletConnectExtras`. Deleted: WalletsScreen,
+WalletViewModel, WalletsScreenViewModel, NoPayoutsFound, WalletsPayoutsList,
+WalletProviderIconButton, ManualWalletAddressSheet, WalletChainIcon,
+SetupWallet, PayoutRow, AccountPoints, WalletCard, AddWalletPopup,
+`ui/payout/PayoutScreen.kt` and the four flavor `WalletScreen.kt`; Saga/MWA
+wallet retrieval left the `MainActivity`s. The Solana dApp flavor keeps the
+"Verify Seeker" action (points-only) and the three alt subscription screens
+show "Paid in USDC on Solana". Manual entry still signs through the bridge
+(the server rejects unsigned sets); a looks-new address asks for confirmation
+before `ConnectSnWallet`. Gas threshold constants (`MIN_GAS_TAO` 0.002,
+suggested 0.01 TAO) are guesses pending real numbers.
 
 **Apple (iOS, macOS).** `app/network/Main/Account/Earnings/` (11 files):
 `EarningsView` + `EarningsTiles`, `ConnectBittensorWalletFlow` + sheet,
