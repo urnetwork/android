@@ -226,8 +226,7 @@ class MainAcceptanceTest {
         log("create instant account through local UI")
         clickTag("acceptance.login.instant")
         clickTag("acceptance.instant.terms")
-        compose.waitForEnabledTag("acceptance.instant.create", AUTH_TIMEOUT_MILLIS)
-        clickTag("acceptance.instant.create")
+        compose.performEnabledSemanticsClick("acceptance.instant.create", AUTH_TIMEOUT_MILLIS)
         if (waitForEitherTag("acceptance.instant.copy", ACCEPTANCE_INSTANT_ERROR_TAG) == ACCEPTANCE_INSTANT_ERROR_TAG) {
             throw AssertionError("instant signup failed: ${taggedText(ACCEPTANCE_INSTANT_ERROR_TAG)}")
         }
@@ -262,8 +261,7 @@ class MainAcceptanceTest {
         log("sign in with saved secret key through local UI")
         clickTag("acceptance.login.secret")
         replaceTagText("acceptance.secret.input", secretKey)
-        compose.waitForEnabledTag("acceptance.secret.submit", AUTH_TIMEOUT_MILLIS)
-        clickTag("acceptance.secret.submit")
+        compose.performEnabledSemanticsClick("acceptance.secret.submit", AUTH_TIMEOUT_MILLIS)
         waitForMain()
     }
 
@@ -274,7 +272,7 @@ class MainAcceptanceTest {
     ) {
         waitForTag("acceptance.password.input", AUTH_TIMEOUT_MILLIS)
         replaceTagText("acceptance.password.input", password)
-        clickTag("acceptance.password.submit")
+        compose.performEnabledSemanticsClick("acceptance.password.submit", AUTH_TIMEOUT_MILLIS)
         if (verificationCode != null) {
             val destination = waitForEitherTag("acceptance.nav.connect", "acceptance.verify.code")
             if (destination == "acceptance.verify.code") {
@@ -293,7 +291,7 @@ class MainAcceptanceTest {
     ) {
         log("sign in with acceptance account through local UI")
         replaceTagText("acceptance.password.user", user)
-        clickTag("acceptance.password.next")
+        compose.performEnabledSemanticsClick("acceptance.password.next", AUTH_TIMEOUT_MILLIS)
         completePasswordPrompt(password, verificationCode, retainClient)
     }
 
@@ -343,7 +341,7 @@ class MainAcceptanceTest {
     ) {
         repeat(2) { attempt ->
             replaceTagText("acceptance.password.user", userAuth)
-            clickTag("acceptance.password.next")
+            compose.performEnabledSemanticsClick("acceptance.password.next", AUTH_TIMEOUT_MILLIS)
             when (waitForEitherTag("acceptance.create.network", "acceptance.password.input")) {
                 "acceptance.create.network" -> return
                 else -> {
@@ -374,8 +372,7 @@ class MainAcceptanceTest {
         replaceTagText("acceptance.create.network", networkName)
         replaceTagText("acceptance.create.password", inputs.password)
         clickTag("acceptance.create.terms")
-        compose.waitForEnabledTag("acceptance.create.submit", AUTH_TIMEOUT_MILLIS)
-        clickTag("acceptance.create.submit")
+        compose.performEnabledSemanticsClick("acceptance.create.submit", AUTH_TIMEOUT_MILLIS)
         waitForMain()
         val createdNetwork = currentNetworkId()
         capture("$iteration-$method-signup")
