@@ -206,6 +206,14 @@ class MainApplication : Application() {
     private var applicationStateInitializing = false
 
     val device get() = deviceManager.device
+
+    /**
+     * Publishes the Home Screen widgets' snapshot (location, providers,
+     * throughput, contracts, balance) and re-renders them; created with the
+     * application state and alive for the life of the process.
+     */
+    var widgetSnapshotWriter: com.bringyour.network.widgets.WidgetSnapshotWriter? = null
+        private set
 //    val vcManager get() = deviceManager.vcManager
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
@@ -381,6 +389,16 @@ class MainApplication : Application() {
 
     private fun initializeApplicationState() {
         addTunnelLifecycleObservers()
+
+        if (widgetSnapshotWriter == null) {
+            widgetSnapshotWriter = com.bringyour.network.widgets.WidgetSnapshotWriter(
+                this,
+                deviceManager,
+                com.bringyour.network.widgets.GlanceWidgetRefresh(this),
+            ).also { it.start() }
+        }
+        // the Quick Settings tile is active: render it once per process start
+        QuickConnectTileService.requestUpdate(this)
 
         if (0 < BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES) {
             // Diagnostic profile AARs are linked with this same startup rate;
@@ -1289,6 +1307,7 @@ class MainApplication : Application() {
 
     fun logout() {
         stop()
+        widgetSnapshotWriter?.clear()
 
         // note this clears the clientJwt also
         asyncLocalState?.localState?.logout()
@@ -1416,6 +1435,8 @@ class MainApplication : Application() {
         deviceConnectSub = device?.addConnectChangeListener {
             Handler(mainLooper).post {
                 updateVpnService()
+                // an active Quick Settings tile is only bound when the app asks
+                QuickConnectTileService.requestUpdate(this)
             }
         }
 

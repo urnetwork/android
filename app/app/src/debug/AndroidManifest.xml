@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug-only test hooks for the Home Screen widgets (merged into debug builds only). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Driven from adb: `am broadcast` to this receiver with action
+             com.bringyour.network.debug.PIN_WIDGET (string extra kind = dashboard, globe or
+             contracts) pins a widget; action com.bringyour.network.debug.SAMPLE (boolean extra
+             enabled) switches the widgets to the sample entry. See DebugWidgetReceiver. -->
+        <receiver
+            android:name=".widgets.DebugWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.bringyour.network.debug.PIN_WIDGET" />
+                <action android:name="com.bringyour.network.debug.SAMPLE" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

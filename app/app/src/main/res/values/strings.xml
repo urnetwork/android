@@ -506,6 +506,7 @@
     <string name="provider_location_unknown">Location unknown</string>
     <string name="provider_locations_empty">No providers connected</string>
     <string name="provider_locations_title">Provider Locations</string>
+    <string name="provider_locations_unavailable">Provider details are unavailable until connected</string>
     <string name="provider_statistics">Provider statistics</string>
     <string name="provider_transports">Provider transports</string>
     <string name="providing_disabled">Providing is disabled</string>
@@ -576,11 +577,20 @@
     <string name="sent">Sent!</string>
     <string name="set_up_wallet">Set up wallet</string>
     <string name="settings">Settings</string>
+    <string name="settings_add_quick_tile">Add quick connect tile</string>
+    <string name="settings_add_quick_tile_description">Connect and disconnect from the Quick Settings panel and the lock screen.</string>
+    <string name="settings_add_widgets">Add Home Screen widgets</string>
+    <string name="settings_add_widgets_description">Quick connect, transfer balance, providers on the globe and your top contracts.</string>
     <string name="share">Share</string>
     <string name="share_logs">Share logs</string>
     <string name="share_with_others">You share with others, we share with you. Earn a share of revenue when you provide data to others in the network.</string>
+    <string name="shortcut_connect_long">Connect to URnetwork</string>
+    <string name="shortcut_disconnect_long">Disconnect from URnetwork</string>
+    <string name="show_icon_when_connected">Show UR icon when connected</string>
     <string name="show_kill_switch_exception">Show kill switch exception</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
+    <string name="site_app_contracts">Contracts</string>
+    <string name="site_app_providers">Providers</string>
     <string name="solana_payment_insufficient_funds_warning">Please make sure you have sufficient USDC funds in your wallet. In some instances, payment prompts fail if there are insufficient funds in the wallet.</string>
     <string name="solana_sign_in">Sign in with Solana</string>
     <string name="something_went_wrong">Something went wrong.</string>
@@ -676,6 +686,26 @@
     <string name="wallets">Wallets</string>
     <string name="welcome_to_urnetwork">Welcome to URnetwork</string>
     <string name="when_you_refer_a_friend">When you refer a friend:</string>
+    <string name="widget_client">Client</string>
+    <string name="widget_connect_once">Connect once to see your traffic here</string>
+    <string name="widget_connect_to_see_contracts">Connect to see your contracts</string>
+    <string name="widget_contracts_description">Your top client contracts, flowing as they come and go.</string>
+    <string name="widget_control_description">Connect or disconnect the URnetwork VPN.</string>
+    <string name="widget_dashboard_description">Transfer balance, connected location and traffic, with quick connect.</string>
+    <string name="widget_globe_description">Your connected providers on the globe.</string>
+    <string name="widget_more_providers">+%1$d more</string>
+    <string name="widget_no_contracts">No contracts</string>
+    <string name="widget_no_providers">No providers</string>
+    <string name="widget_not_providing">Not providing</string>
+    <string name="widget_not_signed_in">Not signed in</string>
+    <string name="widget_open">Open</string>
+    <string name="widget_open_to_set_up">Open URnetwork to set up</string>
+    <string name="widget_peak_rate">%1$s peak</string>
+    <string name="widget_provider">Provider</string>
+    <string name="widget_quick_tile_added">Quick connect tile added</string>
+    <string name="widget_toggle_intent_title">Toggle URnetwork VPN</string>
+    <string name="widget_updated_ago">Updated %1$s</string>
+    <string name="widget_updated_just_now">Updated just now</string>
     <string name="window_type_auto">Auto</string>
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streaming</string>
@@ -744,5 +774,21 @@
     <plurals name="total_referral_count">
         <item quantity="one">Total referrals: %1$d</item>
         <item quantity="other">Total referrals: %1$d</item>
+    </plurals>
+    <plurals name="widget_contract_stack_accessibility">
+        <item quantity="one">%1$d contract, %2$s</item>
+        <item quantity="other">%1$d contracts, %2$s</item>
+    </plurals>
+    <plurals name="widget_peer_count">
+        <item quantity="one">%1$d peer</item>
+        <item quantity="other">%1$d peers</item>
+    </plurals>
+    <plurals name="widget_provider_count">
+        <item quantity="one">%1$d provider</item>
+        <item quantity="other">%1$d providers</item>
+    </plurals>
+    <plurals name="widget_provider_count_providing">
+        <item quantity="one">%1$d provider · providing</item>
+        <item quantity="other">%1$d providers · providing</item>
     </plurals>
 </resources>

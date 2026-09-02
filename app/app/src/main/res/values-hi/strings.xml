@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">स्थान अज्ञात</string>
     <string name="provider_locations_empty">कोई प्रदाता कनेक्ट नहीं है</string>
     <string name="provider_locations_title">प्रदाताओं के स्थान</string>
+    <string name="provider_locations_unavailable">कनेक्ट होने तक प्रदाता का विवरण उपलब्ध नहीं है</string>
     <string name="provider_statistics">प्रदाता आँकड़े</string>
     <string name="providing_disabled">प्रदान करना बंद है</string>
     <string name="ready_to_connect">कनेक्ट करने के लिए तैयार</string>
@@ -411,6 +412,7 @@
     <string name="share">शेयर करें</string>
     <string name="share_logs">लॉग साझा करें</string>
     <string name="share_with_others">आप दूसरों के साथ साझा करते हैं, हम आपके साथ साझा करते हैं। जब आप नेटवर्क में दूसरों को डेटा प्रदान करते हैं तो राजस्व का एक हिस्सा अर्जित करें।</string>
+    <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
     <string name="solana_payment_insufficient_funds_warning">कृपया सुनिश्चित करें कि आपके वॉलेट में पर्याप्त USDC फंड्स हैं। कुछ मामलों में, यदि वॉलेट में पर्याप्त फंड्स नहीं हैं तो भुगतान अनुरोध विफल हो सकता है।</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Contracts widget: a flowing grid of per-peer send/receive stacks; 4x2 by default,
+     the grid fills whatever size the widget is given. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="245dp"
+    android:minHeight="115dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="110dp"
+    android:maxResizeWidth="624dp"
+    android:maxResizeHeight="422dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:updatePeriodMillis="0"
+    android:previewLayout="@layout/widget_preview_contracts"
+    android:description="@string/widget_contracts_description" />

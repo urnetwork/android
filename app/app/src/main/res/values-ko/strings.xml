@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">위치 알 수 없음</string>
     <string name="provider_locations_empty">연결된 제공업체가 없습니다</string>
     <string name="provider_locations_title">제공업체 위치</string>
+    <string name="provider_locations_unavailable">연결될 때까지 제공업체 세부 정보를 사용할 수 없습니다</string>
     <string name="provider_statistics">제공자 통계</string>
     <string name="providing_disabled">제공이 비활성화되어 있습니다</string>
     <string name="ready_to_connect">연결 준비 완료</string>
@@ -411,6 +412,7 @@
     <string name="share">공유</string>
     <string name="share_logs">로그 공유</string>
     <string name="share_with_others">당신이 다른 사람과 공유하면, 우리도 당신과 공유합니다. 네트워크의 다른 사람들에게 데이터를 제공하면 수익의 일부를 얻을 수 있습니다.</string>
+    <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
     <string name="sign_in_dgen1">dGEN1로 로그인</string>
     <string name="solana_payment_insufficient_funds_warning">지갑에 충분한 USDC 자금이 있는지 확인하세요. 경우에 따라 지갑에 자금이 부족하면 결제 요청이 실패할 수 있습니다.</string>
     <string name="solana_sign_in">Solana로 로그인</string>

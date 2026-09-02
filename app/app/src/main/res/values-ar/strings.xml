@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">الموقع غير معروف</string>
     <string name="provider_locations_empty">لم يتم الاتصال بأي مزود خدمة</string>
     <string name="provider_locations_title">مواقع مزودي الخدمة</string>
+    <string name="provider_locations_unavailable">تفاصيل المزود غير متاحة حتى الاتصال</string>
     <string name="provider_statistics">إحصائيات المزود</string>
     <string name="providing_disabled">التوفير معطّل</string>
     <string name="ready_to_connect">جاهز للاتصال</string>
@@ -411,7 +412,10 @@
     <string name="share">شارك</string>
     <string name="share_logs">مشاركة السجلات</string>
     <string name="share_with_others">أنت تشارك مع الآخرين، ونحن نشارك معك. اكسب حصة من الإيرادات عندما تقدم بيانات للآخرين على الشبكة.</string>
+    <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
+    <string name="site_app_contracts">العقود</string>
+    <string name="site_app_providers">المزوّدون</string>
     <string name="solana_payment_insufficient_funds_warning">يرجى التأكد من أن لديك رصيد كافٍ من USDC في محفظتك. في بعض الحالات، قد تفشل مطالبات الدفع إذا لم تكن هناك أموال كافية في المحفظة.</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
     <string name="something_went_wrong">حدث خطأ ما.</string>

@@ -36,7 +36,8 @@ import kotlinx.coroutines.isActive
 @HiltViewModel
 class SubscriptionBalanceViewModel @Inject constructor(
     deviceManager: DeviceManager,
-    jwtManager: JwtManager
+    jwtManager: JwtManager,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
 ): ViewModel(), DefaultLifecycleObserver {
 
     private val _currentStore = MutableStateFlow<String?>(null)
@@ -220,6 +221,20 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             pendingBalanceByteCount = result.openTransferByteCount
                             _startBalanceByteCount.value = result.startBalanceByteCount
                             usedBalanceByteCount = (result.startBalanceByteCount - result.balanceByteCount - pendingBalanceByteCount).coerceAtLeast(0)
+
+                            // the Home Screen dashboard's balance bar reads this snapshot; the
+                            // widget writer refreshes it on its own slow cadence, the app on every fetch
+                            (appContext.applicationContext as? com.bringyour.network.MainApplication)
+                                ?.widgetSnapshotWriter
+                                ?.publishBalance(
+                                    com.bringyour.network.widgets.WidgetBalanceSnapshot(
+                                        updatedAtMillis = System.currentTimeMillis(),
+                                        startBalanceByteCount = result.startBalanceByteCount,
+                                        balanceByteCount = result.balanceByteCount,
+                                        openTransferByteCount = result.openTransferByteCount,
+                                        isPro = serverIsPro,
+                                    )
+                                )
                             _errorFetchingSubscriptionBalance.value = false
                             _isLoading.value = false
                         }

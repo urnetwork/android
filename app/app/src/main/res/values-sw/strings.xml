@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">Mahali hapajulikani</string>
     <string name="provider_locations_empty">Hakuna watoa huduma waliounganishwa</string>
     <string name="provider_locations_title">Maeneo ya watoa huduma</string>
+    <string name="provider_locations_unavailable">Maelezo ya mtoa huduma hayapatikani hadi utakapounganishwa</string>
     <string name="provider_statistics">Takwimu za mtoa huduma</string>
     <string name="providing_disabled">Utoaji umezimwa</string>
     <string name="ready_to_connect">Tayari kuunganisha</string>
@@ -411,6 +412,7 @@
     <string name="share">Shiriki</string>
     <string name="share_logs">Shiriki logi</string>
     <string name="share_with_others">Unashiriki na wengine, tunashiriki nawe. Pata sehemu ya mapato unapompa data wengine kwenye mtandao.</string>
+    <string name="show_icon_when_connected">Onyesha ikoni ya UR wakati umeunganishwa</string>
     <string name="sign_in_dgen1">Ingia kwa dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Tafadhali hakikisha una fedha za kutosha za USDC kwenye pochi yako. Katika baadhi ya matukio, maombi ya malipo hushindwa ikiwa hakuna fedha za kutosha kwenye pochi.</string>
     <string name="solana_sign_in">Ingia na Solana</string>

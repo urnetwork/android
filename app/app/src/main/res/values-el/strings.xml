@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">Άγνωστη τοποθεσία</string>
     <string name="provider_locations_empty">Δεν υπάρχουν συνδεδεμένοι πάροχοι</string>
     <string name="provider_locations_title">Τοποθεσίες παρόχων</string>
+    <string name="provider_locations_unavailable">Τα στοιχεία των παρόχων δεν είναι διαθέσιμα μέχρι τη σύνδεση</string>
     <string name="provider_statistics">Στατιστικά παρόχου</string>
     <string name="providing_disabled">Η παροχή είναι απενεργοποιημένη</string>
     <string name="ready_to_connect">Έτοιμο για σύνδεση</string>
@@ -411,6 +412,7 @@
     <string name="share">Κοινή χρήση</string>
     <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
     <string name="share_with_others">Μοιράζεστε με άλλους, μοιραζόμαστε μαζί σας. Κερδίστε ένα μερίδιο εσόδων όταν παρέχετε δεδομένα σε άλλους στο δίκτυο.</string>
+    <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
     <string name="sign_in_dgen1">Σύνδεση με dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Βεβαιωθείτε ότι έχετε επαρκή κεφάλαια USDC στο πορτοφόλι σας. Σε ορισμένες περιπτώσεις, οι ειδοποιήσεις πληρωμής αποτυγχάνουν αν δεν υπάρχουν αρκετά χρήματα στο πορτοφόλι.</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>

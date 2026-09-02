@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dashboard widget: balance bar, connected location, quick connect, throughput.
+     Sizes are dp ranges, not cells: 4x2 by default, resizable down to a single row
+     (the compact layout) and up to the tall layout with the two charts. Updates are
+     pushed by the app (WidgetSnapshotWriter); no periodic update. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="245dp"
+    android:minHeight="115dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="48dp"
+    android:maxResizeWidth="624dp"
+    android:maxResizeHeight="422dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:updatePeriodMillis="0"
+    android:previewLayout="@layout/widget_preview_dashboard"
+    android:description="@string/widget_dashboard_description" />

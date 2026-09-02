@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Launcher shortcuts (long-press the app icon): the Android counterpart of the
+  iOS Siri / Shortcuts intents. Both go through QuickConnectActivity, a
+  no-UI trampoline, and only open the app when it is needed.
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="quick_connect"
+        android:enabled="true"
+        android:icon="@drawable/ic_tile_quick_on"
+        android:shortcutShortLabel="@string/connect"
+        android:shortcutLongLabel="@string/shortcut_connect_long">
+        <intent
+            android:action="com.bringyour.network.action.QUICK_CONNECT"
+            android:targetPackage="com.bringyour.network"
+            android:targetClass="com.bringyour.network.QuickConnectActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="quick_disconnect"
+        android:enabled="true"
+        android:icon="@drawable/ic_tile_quick_off"
+        android:shortcutShortLabel="@string/disconnect"
+        android:shortcutLongLabel="@string/shortcut_disconnect_long">
+        <intent
+            android:action="com.bringyour.network.action.QUICK_DISCONNECT"
+            android:targetPackage="com.bringyour.network"
+            android:targetClass="com.bringyour.network.QuickConnectActivity" />
+    </shortcut>
+</shortcuts>

@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">位置未知</string>
     <string name="provider_locations_empty">未连接任何提供商</string>
     <string name="provider_locations_title">提供商位置</string>
+    <string name="provider_locations_unavailable">连接后才能查看提供商详情</string>
     <string name="provider_statistics">提供商统计</string>
     <string name="providing_disabled">提供功能已关闭</string>
     <string name="ready_to_connect">准备连接</string>
@@ -411,7 +412,10 @@
     <string name="share">分享</string>
     <string name="share_logs">分享日志</string>
     <string name="share_with_others">您与他人分享，我们与您分享。当您向网络中的其他人提供数据时，即可获得收入分成。</string>
+    <string name="show_icon_when_connected">连接时显示 UR 图标</string>
     <string name="sign_in_dgen1">使用 dGEN1 登录</string>
+    <string name="site_app_contracts">合约</string>
+    <string name="site_app_providers">提供者</string>
     <string name="solana_payment_insufficient_funds_warning">请确保您的钱包中有足够的 USDC 资金。在某些情况下，如果钱包资金不足，付款提示可能会失败。</string>
     <string name="solana_sign_in">使用 Solana 登录</string>
     <string name="something_went_wrong">出了些问题。</string>

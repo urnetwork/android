@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">Standort unbekannt</string>
     <string name="provider_locations_empty">Keine Anbieter verbunden</string>
     <string name="provider_locations_title">Anbieter-Standorte</string>
+    <string name="provider_locations_unavailable">Anbieterdetails sind bis zur Verbindung nicht verfügbar</string>
     <string name="provider_statistics">Anbieter-Statistiken</string>
     <string name="providing_disabled">Bereitstellung ist deaktiviert</string>
     <string name="ready_to_connect">Bereit zur Verbindung</string>
@@ -411,7 +412,10 @@
     <string name="share">Teile</string>
     <string name="share_logs">Protokolle teilen</string>
     <string name="share_with_others">Du teilst mit anderen, wir teilen mit dir. Verdiene einen Teil der Einnahmen, wenn du Daten an andere im Netzwerk weitergibst.</string>
+    <string name="show_icon_when_connected">UR-Symbol bei Verbindung anzeigen</string>
     <string name="sign_in_dgen1">Mit dGEN1 anmelden</string>
+    <string name="site_app_contracts">Verträge</string>
+    <string name="site_app_providers">Provider</string>
     <string name="solana_payment_insufficient_funds_warning">Bitte stelle sicher, dass du genügend USDC-Guthaben in deiner Wallet hast. In manchen Fällen schlagen Zahlungsaufforderungen fehl, wenn nicht genügend Guthaben vorhanden ist.</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>
     <string name="something_went_wrong">Etwas ist schiefgelaufen.</string>

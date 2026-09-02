@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">Neznámá poloha</string>
     <string name="provider_locations_empty">Žádní připojení poskytovatelé</string>
     <string name="provider_locations_title">Lokality poskytovatelů</string>
+    <string name="provider_locations_unavailable">Údaje o poskytovateli nejsou k dispozici, dokud se nepřipojíte</string>
     <string name="provider_statistics">Statistiky poskytovatele</string>
     <string name="providing_disabled">Poskytování je vypnuté</string>
     <string name="ready_to_connect">Připraveno k připojení</string>
@@ -411,6 +412,7 @@
     <string name="share">Sdílet</string>
     <string name="share_logs">Sdílet protokoly</string>
     <string name="share_with_others">Sdílíte s ostatními, my sdílíme s vámi. Získejte podíl na výnosech, když poskytujete data ostatním v síti.</string>
+    <string name="show_icon_when_connected">Zobrazit ikonu UR po připojení</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Ujistěte se, že máte v peněžence dostatek prostředků USDC. V některých případech se platba nezdaří, pokud v peněžence není dostatek prostředků.</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>

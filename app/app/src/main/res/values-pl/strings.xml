@@ -341,6 +341,7 @@
     <string name="provider_location_unknown">Lokalizacja nieznana</string>
     <string name="provider_locations_empty">Brak połączonych dostawców</string>
     <string name="provider_locations_title">Lokalizacje dostawców</string>
+    <string name="provider_locations_unavailable">Szczegóły dostawcy są niedostępne do czasu połączenia</string>
     <string name="provider_statistics">Statystyki dostawcy</string>
     <string name="providing_disabled">Udostępnianie jest wyłączone</string>
     <string name="ready_to_connect">Gotowy do połączenia</string>
@@ -411,6 +412,7 @@
     <string name="share">Udostępnij</string>
     <string name="share_logs">Udostępnij logi</string>
     <string name="share_with_others">Ty dzielisz się z innymi, my dzielimy się z tobą. Zarabiaj część przychodów, gdy udostępniasz dane innym w sieci.</string>
+    <string name="show_icon_when_connected">Pokaż ikonę UR po połączeniu</string>
     <string name="sign_in_dgen1">Zaloguj się za pomocą dGEN1</string>
     <string name="solana_payment_insufficient_funds_warning">Upewnij się, że masz wystarczające środki USDC w swoim portfelu. W niektórych przypadkach płatność może się nie powieść, jeśli w portfelu brakuje środków.</string>
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>
