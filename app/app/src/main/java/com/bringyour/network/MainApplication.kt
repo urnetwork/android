@@ -214,6 +214,14 @@ class MainApplication : Application() {
      */
     var widgetSnapshotWriter: com.bringyour.network.widgets.WidgetSnapshotWriter? = null
         private set
+
+    /**
+     * The screen a Home Screen widget tap asked for (see QuickConnectActivity):
+     * "connect", "provider_locations" or "contract_stats". MainNavHost observes
+     * it, navigates, and clears it -- whether the app was cold-started for the
+     * tap or was already running.
+     */
+    val widgetRoute = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
 //    val vcManager get() = deviceManager.vcManager
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState

@@ -180,7 +180,15 @@ Common: brand black background, the launcher's corner radius
 (`system_app_widget_background_radius`), 14 dp edge padding, system font
 (Glance cannot bundle the app's fonts), monospace for client ids. Every
 widget re-reads the snapshot and the live device state on each update
-(`WidgetEntry.load`).
+(`WidgetEntry.load`). A tap anywhere on a widget opens the app on its
+screen: the dashboard on the connect tab, the globe on the provider
+details, the contracts widget on the client contract details. The tap goes
+through the same no-UI trampoline (`QuickConnectActivity`, action OPEN with
+a route), which records the route on `MainApplication.widgetRoute` and opens
+the app through its normal entry; `MainNavHost` observes the route, switches
+to the connect tab and pushes the screen — whether the app was cold-started
+for the tap or was already running. With no account the tap opens sign-in.
+The quick connect button's own click wins inside the dashboard.
 
 **Dashboard** (`DashboardWidget.kt`; default 4x2, resizable 110×48 →
 624×422 dp): three responsive layouts — *compact* (one row: connector mark,

@@ -82,7 +82,7 @@ class DashboardWidget : GlanceAppWidget() {
 internal fun DashboardContent(entry: WidgetEntry) {
     val size = LocalSize.current
     val context = LocalContext.current
-    WidgetSurface {
+    WidgetSurface(entry, QuickConnectActivity.ROUTE_CONNECT) {
         when {
             size.height < DashboardWidget.SHORT.height -> {
                 Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
@@ -127,16 +127,34 @@ internal fun DashboardContent(entry: WidgetEntry) {
     }
 }
 
-/** The widget background: brand black, the launcher's corner radius, edge padding. */
+/**
+ * The widget background: brand black, the launcher's corner radius, edge
+ * padding. A tap anywhere on it opens the app on the widget's screen
+ * (`route`, through the QuickConnectActivity trampoline), or on sign-in when
+ * there is no account; the quick connect button's own click wins inside it.
+ */
 @Composable
-internal fun WidgetSurface(content: @Composable () -> Unit) {
+internal fun WidgetSurface(entry: WidgetEntry, route: String, content: @Composable () -> Unit) {
+    val context = LocalContext.current
+    val open = if (entry.isConfigured) {
+        actionStartActivity(
+            ComponentName(context, QuickConnectActivity::class.java),
+            actionParametersOf(
+                QuickConnectActivity.ACTION_PARAMETER to QuickConnectActivity.ACTION_OPEN,
+                QuickConnectActivity.ROUTE_PARAMETER to route,
+            ),
+        )
+    } else {
+        actionStartActivity(ComponentName(context, LoginActivity::class.java))
+    }
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
             .appWidgetBackground()
             .background(WidgetTheme.background)
             .cornerRadius(android.R.dimen.system_app_widget_background_radius)
-            .padding(14.dp),
+            .padding(14.dp)
+            .clickable(open),
     ) {
         content()
     }

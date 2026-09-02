@@ -87,7 +87,7 @@ internal fun ContractsContent(entry: WidgetEntry) {
     val compact = size.width < ContractsWidget.MEDIUM.width
     val peers = if (entry.showsTunnelData) entry.tunnel.contracts else emptyList()
     val style = ContractStackRenderer.Style(context.resources.displayMetrics.density, compact)
-    WidgetSurface {
+    WidgetSurface(entry, com.bringyour.network.QuickConnectActivity.ROUTE_CONTRACT_STATS) {
         Column(modifier = GlanceModifier.fillMaxSize()) {
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(context.getString(R.string.site_app_contracts), style = WidgetTheme.title)

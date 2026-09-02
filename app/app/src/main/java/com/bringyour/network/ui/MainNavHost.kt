@@ -254,6 +254,32 @@ fun MainNavHost(
     }
 
     /**
+     * A Home Screen widget tap asked for a screen (MainApplication.widgetRoute,
+     * set by QuickConnectActivity): go to the connect tab, then push the
+     * provider details or the client contract details on top. Observed as a
+     * flow so it works whether the app was cold-started for the tap or was
+     * already running behind the launcher.
+     */
+    val widgetApp = androidx.compose.ui.platform.LocalContext.current.applicationContext as? com.bringyour.network.MainApplication
+    val widgetRoute by (widgetApp?.widgetRoute ?: kotlinx.coroutines.flow.MutableStateFlow<String?>(null)).collectAsState()
+    LaunchedEffect(widgetRoute) {
+        val route = widgetRoute ?: return@LaunchedEffect
+        widgetApp?.widgetRoute?.value = null
+        navController.navigate(TopLevelScaffoldRoutes.CONNECT_CONTAINER.route) {
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+        mainNavViewModel.setCurrentTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
+        when (route) {
+            com.bringyour.network.QuickConnectActivity.ROUTE_PROVIDER_LOCATIONS ->
+                navController.navigate(Route.ProviderLocations)
+            com.bringyour.network.QuickConnectActivity.ROUTE_CONTRACT_STATS ->
+                navController.navigate(Route.ContractStats(provider = false))
+        }
+    }
+
+    /**
      * For initial intro funnel prompting
      */
     LaunchedEffect(isPro, allowPromptIntroFunnel) {

@@ -64,7 +64,7 @@ internal fun ProviderGlobeContent(entry: WidgetEntry) {
     val size = LocalSize.current
     val context = LocalContext.current
     val providers = if (entry.showsTunnelData) entry.tunnel.providers else emptyList()
-    WidgetSurface {
+    WidgetSurface(entry, com.bringyour.network.QuickConnectActivity.ROUTE_PROVIDER_LOCATIONS) {
         when {
             size.width < ProviderGlobeWidget.MEDIUM.width && size.height < ProviderGlobeWidget.LARGE.height -> {
                 Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
