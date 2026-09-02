@@ -41,6 +41,9 @@ import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.BuildConfig
+import com.bringyour.network.ui.wallet.EarningsDebugFlags
+import androidx.compose.runtime.collectAsState
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.theme.Black
@@ -150,6 +153,12 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         level = developerViewModel.logVerbosity,
         onSelect = developerViewModel.setLogVerbosity,
     )
+
+    // Debug builds only: drive the Earnings screen from in-memory protocol data so the
+    // wallet, unclaimed, claim dialog and Top 200 states can be exercised without a chain.
+    if (BuildConfig.DEBUG) {
+        EarningsSampleDataSettings()
+    }
 
     // Persistent, not a one-shot toast: it has to be on screen at the moment
     // the user reaches for "Export all logs (raw)", which can be many minutes
@@ -1217,5 +1226,55 @@ private fun DeveloperExitRow(
             DeveloperAction(label = stringResource(id = R.string.dev_stall_exit), onClick = onStall)
             DeveloperAction(label = stringResource(id = R.string.dev_migrate_exit), onClick = onMigrate)
         }
+    }
+}
+
+@Composable
+private fun EarningsSampleDataSettings() {
+    // observe the flags through their version so the switches redraw on toggle
+    val version by EarningsDebugFlags.version.collectAsState()
+
+    Spacer(modifier = Modifier.height(16.dp))
+    URTextInputLabel(text = "Earnings (debug)")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("Sample protocol data", style = MaterialTheme.typography.bodyMedium)
+        URSwitch(
+            checked = EarningsDebugFlags.useSampleData,
+            toggle = { EarningsDebugFlags.setUseSampleData(!EarningsDebugFlags.useSampleData) },
+        )
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("Sample gas key unfunded (v$version)", style = MaterialTheme.typography.bodyMedium)
+        URSwitch(
+            checked = EarningsDebugFlags.sampleGasUnfunded,
+            enabled = EarningsDebugFlags.useSampleData,
+            toggle = { EarningsDebugFlags.setSampleGasUnfunded(!EarningsDebugFlags.sampleGasUnfunded) },
+        )
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("Sample starts without a wallet", style = MaterialTheme.typography.bodyMedium)
+        URSwitch(
+            checked = EarningsDebugFlags.sampleStartDisconnected,
+            enabled = EarningsDebugFlags.useSampleData,
+            toggle = { EarningsDebugFlags.setSampleStartDisconnected(!EarningsDebugFlags.sampleStartDisconnected) },
+        )
     }
 }

@@ -16,12 +16,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.bringyour.network.ui.LoginNavHost
+import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CONNECT
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CREATE
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_LOGIN
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.launchBittensorSignMessage
 import com.bringyour.network.ui.login.requestBittensorChallenge
+import com.bringyour.network.ui.wallet.SnWalletConnectExtras
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.sdk.AuthCodeLoginArgs
 import com.bringyour.sdk.AuthLoginArgs
@@ -76,6 +78,12 @@ class LoginActivity : AppCompatActivity() {
             Log.i(TAG, "Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
                 if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
+                    if (u.getQueryParameter("purpose") == BITTENSOR_SIGN_PURPOSE_CONNECT && app.device != null) {
+                        // the earnings screen's wallet connect: the main activity owns that flow
+                        Log.i(TAG, "forwardWalletConnectToMain $u")
+                        forwardWalletConnectToMain(u)
+                        return
+                    }
                     Log.i(TAG, "bittensorSignMessageLogin $u")
                     bittensorSignMessageLogin(u)
                 } else if ((u.scheme == "https" && u.host == "ur.io" && u.path == "/c") || u.scheme == "ur") {
@@ -254,6 +262,29 @@ class LoginActivity : AppCompatActivity() {
         } else if (app.device != null) {
             setLinksAndStartMain(targetUrl, defaultLocation)
         }
+    }
+
+    // the earnings screen asked the ur.io bridge to sign a wallet-connect challenge;
+    // the main activity owns the earnings view model, so hand the signed result over
+    private fun forwardWalletConnectToMain(uri: Uri) {
+        val errorCode = uri.getQueryParameter("errorCode")
+        val errorMessage = uri.getQueryParameter("errorMessage")
+        val address = uri.getQueryParameter("address")
+        val signature = uri.getQueryParameter("signature")
+        val message = uri.getQueryParameter("message")
+
+        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+        if (errorCode == null && !address.isNullOrEmpty() && !signature.isNullOrEmpty() && !message.isNullOrEmpty()) {
+            intent.putExtra(SnWalletConnectExtras.ADDRESS, address)
+            intent.putExtra(SnWalletConnectExtras.SIGNATURE, signature)
+            intent.putExtra(SnWalletConnectExtras.MESSAGE, message)
+        } else {
+            Log.i(TAG, "wallet connect: error: code=$errorCode message=$errorMessage")
+            intent.putExtra(SnWalletConnectExtras.ERROR, errorMessage ?: getString(R.string.login_error))
+        }
+        startActivity(intent)
+        finish()
     }
 
     // handles the redirect back from the ur.io wallet-connect bittensor sign message flow

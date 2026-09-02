@@ -82,12 +82,12 @@ private fun URDialogPreview() {
                 ) {
                     Column() {
                         Text(
-                            "Connect External Wallet",
+                            "Connect Bittensor wallet",
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "USDC addresses on Solana and Polygon are currently supported.",
+                            "Paste the coldkey that should receive SN25α.",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(16.dp))

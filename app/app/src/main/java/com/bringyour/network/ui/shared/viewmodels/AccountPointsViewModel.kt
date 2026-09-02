@@ -37,9 +37,14 @@ constructor(
     private val _reliabilityPoints = MutableStateFlow<Double>(0.0)
     val reliabilityPoints: StateFlow<Double> = _reliabilityPoints.asStateFlow()
 
+    // the first fetch finished (successfully or not), so the account screen can stop its spinner
+    private val _pointsLoaded = MutableStateFlow(false)
+    val pointsLoaded: StateFlow<Boolean> = _pointsLoaded.asStateFlow()
+
     val fetchAccountPoints = {
         deviceManager.device?.api?.getAccountPoints { result, error ->
             if (error != null) {
+                _pointsLoaded.value = true
                 return@getAccountPoints
             }
 
@@ -80,6 +85,7 @@ constructor(
                 _referralPoints.value = referralPoints
                 _multiplierPoints.value = multiplierPoints
                 _reliabilityPoints.value = reliabilityPoints
+                _pointsLoaded.value = true
             }
         }
     }

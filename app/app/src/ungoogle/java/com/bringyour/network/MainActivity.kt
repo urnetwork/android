@@ -27,11 +27,9 @@ import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.ui.wallet.WalletViewModel
+import com.bringyour.network.ui.wallet.EarningsViewModel
+import com.bringyour.network.ui.wallet.SnWalletConnectExtras
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
-import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
-import com.solana.mobilewalletadapter.clientlib.TransactionResult
-import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,7 +47,7 @@ class MainActivity: AppCompatActivity() {
 
     var subscriptionUpgradeSuccess: Boolean = false
 
-    private val walletViewModel: WalletViewModel by viewModels()
+    private val earningsViewModel: EarningsViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val planViewModel: PlanViewModel by viewModels()
     private val subscriptionBalanceViewModel: SubscriptionBalanceViewModel by viewModels()
@@ -104,6 +102,19 @@ class MainActivity: AppCompatActivity() {
         val animateIn = intent.getBooleanExtra("ANIMATE_IN", false)
         val targetUrl = intent.getStringExtra("TARGET_URL")
         val defaultLocation = intent.getStringExtra("DEFAULT_LOCATION")
+
+        // the ur.io bridge signed a wallet-connect challenge for the earnings screen
+        // (forwarded by the login activity, which receives the ur:// redirect)
+        intent.getStringExtra(SnWalletConnectExtras.ADDRESS)?.let { address ->
+            val signature = intent.getStringExtra(SnWalletConnectExtras.SIGNATURE) ?: ""
+            val message = intent.getStringExtra(SnWalletConnectExtras.MESSAGE) ?: ""
+            intent.removeExtra(SnWalletConnectExtras.ADDRESS)
+            earningsViewModel.onWalletSigned(address, signature, message)
+        }
+        intent.getStringExtra(SnWalletConnectExtras.ERROR)?.let { error ->
+            intent.removeExtra(SnWalletConnectExtras.ERROR)
+            earningsViewModel.onWalletSignFailed(error)
+        }
         subscriptionUpgradeSuccess = intent.getBooleanExtra("UPGRADE_SUBSCRIPTION_SUCCESS", false)
 
 
@@ -119,7 +130,7 @@ class MainActivity: AppCompatActivity() {
 
             URNetworkTheme {
                 MainNavHost(
-                    walletViewModel = walletViewModel,
+                    earningsViewModel = earningsViewModel,
                     settingsViewModel = settingsViewModel,
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
@@ -215,23 +226,6 @@ class MainActivity: AppCompatActivity() {
             settingsViewModel.resetPermissionRequest()
         } else {
             requestPermissionLauncher?.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-
-    private suspend fun getWalletAddress(walletAdapter: MobileWalletAdapter, activitySender: ActivityResultSender): String? {
-        return when (val result = walletAdapter.connect(activitySender)) {
-            is TransactionResult.Success -> {
-                val pubKey = SolanaPublicKey(result.authResult.publicKey)
-                pubKey.base58()
-            }
-            is TransactionResult.NoWalletFound -> {
-                Log.i("SolanaViewModel", "No MWA compatible wallet app found on device.")
-                null
-            }
-            is TransactionResult.Failure -> {
-                Log.i("SolanaViewModel", "Error connecting to wallet: ${result.e}")
-                null
-            }
         }
     }
 }

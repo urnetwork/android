@@ -173,7 +173,7 @@ fun AltSubscriptionOptions(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            stringResource(id = R.string.solana_payment_insufficient_funds_warning),
+            stringResource(id = R.string.paid_in_usdc_on_solana),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted
         )

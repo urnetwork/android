@@ -19,6 +19,8 @@ import kotlin.coroutines.resume
 private const val BITTENSOR_SIGN_REDIRECT_LINK = "ur://bittensor-sign-message"
 const val BITTENSOR_SIGN_PURPOSE_LOGIN = "login"
 const val BITTENSOR_SIGN_PURPOSE_CREATE = "create"
+// attach a coldkey to the earnings screen (signed by the wallet, verified by the server)
+const val BITTENSOR_SIGN_PURPOSE_CONNECT = "connect"
 
 /**
  * Fetch a single-use, server-issued challenge. A wallet address is supplied for
@@ -58,7 +60,8 @@ suspend fun requestBittensorChallenge(api: Api, walletAddress: String? = null): 
  * Opens the ur.io wallet-connect bridge to sign a message with a Bittensor wallet.
  * The bridge redirects back to the app as
  * `ur://bittensor-sign-message?address=<ss58>&signature=<0xhex>&message=...&purpose=...`
- * (or `?errorCode=...&errorMessage=...`), which is handled by the LoginActivity.
+ * (or `?errorCode=...&errorMessage=...`), which is handled by the LoginActivity. The
+ * `connect` purpose is forwarded to the MainActivity for the earnings screen.
  */
 fun launchBittensorSignMessage(
     context: Context,
@@ -66,7 +69,11 @@ fun launchBittensorSignMessage(
     purpose: String,
 ): Boolean {
     require(message.isNotBlank()) { "A server-issued wallet challenge is required" }
-    require(purpose == BITTENSOR_SIGN_PURPOSE_LOGIN || purpose == BITTENSOR_SIGN_PURPOSE_CREATE) {
+    require(
+        purpose == BITTENSOR_SIGN_PURPOSE_LOGIN ||
+                purpose == BITTENSOR_SIGN_PURPOSE_CREATE ||
+                purpose == BITTENSOR_SIGN_PURPOSE_CONNECT
+    ) {
         "Unknown Bittensor signing purpose"
     }
 

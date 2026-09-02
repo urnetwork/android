@@ -110,7 +110,7 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
-import com.bringyour.network.ui.wallet.WalletViewModel
+import com.bringyour.network.ui.wallet.EarningsViewModel
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -139,7 +139,7 @@ fun SettingsScreen(
     settingsViewModel: SettingsViewModel,
     overlayViewModel: OverlayViewModel,
     activityResultSender: ActivityResultSender?,
-    walletViewModel: WalletViewModel,
+    earningsViewModel: EarningsViewModel,
     bonusReferralCode: String,
     isPro: Boolean,
     totalReferrals: Long = 0L
@@ -235,7 +235,7 @@ fun SettingsScreen(
                         // val message = result.successPayload?.messages?.first()?.message?.decodeToString()
                         val pk = SolanaPublicKey(result.authResult.accounts.first().publicKey)
 
-                        walletViewModel.verifySeekerHolder(
+                        earningsViewModel.verifySeekerHolder(
                             pk,
                             message,
                             signatureBase64
@@ -288,7 +288,7 @@ fun SettingsScreen(
         toggleRouteLocal = settingsViewModel.toggleRouteLocal,
         snackbarHostState = snackbarHostState,
         signAndVerifySeekerHolder = signAndVerifySeekerHolder,
-        isSeekerHolder = walletViewModel.isSeekerHolder.collectAsState().value,
+        isSeekerHolder = earningsViewModel.isSeekerHolder.collectAsState().value,
         bonusReferralCode = bonusReferralCode,
         referralNetworkName = referralNetwork?.name,
         expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet,
