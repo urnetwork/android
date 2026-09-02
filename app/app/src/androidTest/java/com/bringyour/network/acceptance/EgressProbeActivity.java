@@ -6,13 +6,6 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
-
 /**
  * A deliberately tiny, second-UID data-plane probe for the acceptance test.
  *
@@ -29,8 +22,6 @@ import java.util.regex.Pattern;
  * process, it cannot borrow the target APK's Kotlin runtime.
  */
 public final class EgressProbeActivity extends Activity {
-    private static final Pattern IP_ADDRESS = Pattern.compile("[0-9a-fA-F:.]+");
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +39,7 @@ public final class EgressProbeActivity extends Activity {
             public void run() {
                 String message;
                 try {
-                    message = "ACCEPTANCE_IP=" + queryPublicIp();
+                    message = "ACCEPTANCE_IP=" + EgressProbeClient.queryPublicIp();
                 } catch (Throwable error) {
                     String detail = error.getMessage();
                     if (detail == null) {
@@ -71,37 +62,5 @@ public final class EgressProbeActivity extends Activity {
         }, "acceptance-egress-probe");
         probe.setDaemon(true);
         probe.start();
-    }
-
-    private static String queryPublicIp() throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(
-            "https://checkip.amazonaws.com"
-        ).openConnection();
-        connection.setConnectTimeout(15_000);
-        connection.setReadTimeout(15_000);
-        connection.setInstanceFollowRedirects(false);
-        try {
-            int statusCode = connection.getResponseCode();
-            if (statusCode != HttpURLConnection.HTTP_OK) {
-                throw new IllegalStateException("HTTP " + statusCode);
-            }
-            StringBuilder response = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                connection.getInputStream(),
-                StandardCharsets.UTF_8
-            ))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-            }
-            String address = response.toString().trim();
-            if (!IP_ADDRESS.matcher(address).matches()) {
-                throw new IllegalStateException("invalid address response");
-            }
-            return address;
-        } finally {
-            connection.disconnect();
-        }
     }
 }

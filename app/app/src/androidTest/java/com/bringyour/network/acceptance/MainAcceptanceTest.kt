@@ -620,6 +620,8 @@ class MainAcceptanceTest {
         const val UI_TIMEOUT_MILLIS = 30_000L
         const val AUTH_TIMEOUT_MILLIS = 90_000L
         const val CONNECT_TIMEOUT_MILLIS = 120_000L
-        const val EGRESS_TIMEOUT_MILLIS = 30_000L
+        // Two independent endpoints are attempted sequentially so one external
+        // DNS timeout cannot decide the data-plane result.
+        const val EGRESS_TIMEOUT_MILLIS = 45_000L
     }
 }

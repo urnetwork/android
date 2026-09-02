@@ -399,6 +399,16 @@ android {
     }
 
     sourceSets {
+        androidTest {
+            java {
+                srcDirs += ['src/acceptanceShared/java']
+            }
+        }
+        test {
+            java {
+                srcDirs += ['src/acceptanceShared/java']
+            }
+        }
         github {
             java {
                 srcDirs += ['src/ungoogle/java']
