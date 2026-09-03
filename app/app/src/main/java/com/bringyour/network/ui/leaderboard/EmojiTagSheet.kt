@@ -2,6 +2,8 @@ package com.bringyour.network.ui.leaderboard
 
 import android.content.Context
 import android.content.res.Configuration
+import android.view.MotionEvent
+import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -191,13 +193,30 @@ fun EmojiTagSheet(
 
             // the keyboard: emoji only. The picker takes its colors from the
             // night resources, so it is built on a night configuration to
-            // match the sheet whatever the system theme is
+            // match the sheet whatever the system theme is.
+            //
+            // The picker scrolls its own grid (a RecyclerView). Inside the
+            // bottom sheet a vertical drag on it used to move the whole sheet:
+            // Compose's view interop lets the sheet's drag gesture take the
+            // pointer stream from the view once it passes touch slop. The
+            // guard around the picker asks Compose not to intercept while a
+            // finger is on it, so the grid scrolls itself; its nested scroll
+            // still reaches the sheet, which therefore only moves once the
+            // grid cannot scroll any further
             AndroidView(
                 factory = { context ->
-                    EmojiPickerView(nightContext(context)).apply {
-                        setOnEmojiPickedListener { item ->
-                            appendEmoji(item.emoji)
-                        }
+                    PickerTouchGuard(context).apply {
+                        addView(
+                            EmojiPickerView(nightContext(context)).apply {
+                                setOnEmojiPickedListener { item ->
+                                    appendEmoji(item.emoji)
+                                }
+                            },
+                            FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                FrameLayout.LayoutParams.MATCH_PARENT
+                            )
+                        )
                     }
                 },
                 modifier = Modifier
@@ -249,6 +268,25 @@ fun EmojiTagSheet(
 /** a random 1-3 emoji draft from the sdk; empty if the sdk has none */
 private fun suggestEmojiTag(): String {
     return Sdk.suggestEmojiTag(0L) ?: ""
+}
+
+/**
+ * Wraps the emoji picker so that, while a finger is down on it, its parents
+ * (Compose's view holder, and through it the sheet's drag gesture) do not
+ * intercept the touch stream. Every event still reaches the picker, so its
+ * grid scrolls and taps pick; the picker's nested scroll is unaffected, so
+ * the sheet is still told when the grid runs out of scroll.
+ */
+private class PickerTouchGuard(context: Context) : FrameLayout(context) {
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE ->
+                parent?.requestDisallowInterceptTouchEvent(true)
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+                parent?.requestDisallowInterceptTouchEvent(false)
+        }
+        return super.dispatchTouchEvent(ev)
+    }
 }
 
 /** the context with night mode forced on, for views that theme by uiMode */
