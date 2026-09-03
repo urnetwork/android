@@ -102,6 +102,7 @@
     <string name="country_multipliers">Mnożniki krajów</string>
     <string name="create">Utwórz</string>
     <string name="create_account">Utwórz konto</string>
+    <string name="create_instant_account">Utwórz konto błyskawiczne</string>
     <string name="create_network_error">Coś poszło nie tak. Spróbuj ponownie.</string>
     <string name="current_network_referral">Obecna sieć poleceń</string>
     <string name="current_ranking">Aktualny ranking</string>

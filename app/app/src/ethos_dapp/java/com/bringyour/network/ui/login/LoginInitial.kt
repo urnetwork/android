@@ -118,6 +118,9 @@ fun LoginInitial(
         if (loginViewModel.bittensorAuthInProgress) {
             loginViewModel.setBittensorAuthInProgress(false)
         }
+        if (loginViewModel.appleAuthInProgress) {
+            loginViewModel.setAppleAuthInProgress(false)
+        }
         onPauseOrDispose {}
     }
 
@@ -305,6 +308,17 @@ fun LoginInitial(
         }
     }
 
+    // Apple has no native Android flow: the ur.io sso bridge signs the user in
+    // in a Custom Tab and returns through ur://sso (handled by the LoginActivity)
+    val connectApple = {
+        loginViewModel.setLoginError(null)
+        if (launchSsoBridge(context, SSO_PROVIDER_APPLE)) {
+            loginViewModel.setAppleAuthInProgress(true)
+        } else {
+            loginViewModel.setLoginError(context.getString(R.string.login_error))
+        }
+    }
+
     val onSeedphraseLogin: () -> Unit = {
         navController.navigate("login_seedphrase")
     }
@@ -337,6 +351,10 @@ fun LoginInitial(
             connectBittensorWallet()
         },
         bittensorAuthInProgress = loginViewModel.bittensorAuthInProgress,
+        appleLogin = {
+            connectApple()
+        },
+        appleAuthInProgress = loginViewModel.appleAuthInProgress,
         onLogin = onLogin,
         contentVisible = contentVisible,
         setContentVisible = {
@@ -394,6 +412,8 @@ fun LoginInitial(
     ethOsAuthInProgress: Boolean,
     bittensorLogin: () -> Unit,
     bittensorAuthInProgress: Boolean,
+    appleLogin: () -> Unit = {},
+    appleAuthInProgress: Boolean = false,
     onLogin: (String) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
@@ -443,7 +463,7 @@ fun LoginInitial(
         authJwt: String?,
         userName: String
             ) -> Unit = { email, authJwt, userName ->
-        navController.navigate("create-network-jwt/${Uri.encode(email)}/${Uri.encode(authJwt)}/${Uri.encode(userName)}")
+        navController.navigate("create-network-jwt/google/${Uri.encode(email)}/${Uri.encode(authJwt)}/${Uri.encode(userName)}")
     }
 
     val googleSignInLauncher = rememberLauncherForActivityResult(
@@ -531,6 +551,8 @@ fun LoginInitial(
                         ethOsAuthInProgress = ethOsAuthInProgress,
                         onBittensorLogin = bittensorLogin,
                         bittensorAuthInProgress = bittensorAuthInProgress,
+                        onAppleLogin = appleLogin,
+                        appleAuthInProgress = appleAuthInProgress,
                         launchAuthCodeLoginSheet = {
                             setAuthCodeLoginSheetVisible(true)
                         },
@@ -578,11 +600,13 @@ fun LoginInitialActions(
     solanaAuthInProgress: Boolean,
     onBittensorLogin: () -> Unit,
     bittensorAuthInProgress: Boolean,
+    onAppleLogin: () -> Unit = {},
+    appleAuthInProgress: Boolean = false,
     launchAuthCodeLoginSheet: () -> Unit,
     onSeedphraseLogin: () -> Unit,
     onInstantAccountCreate: () -> Unit,
 ) {
-    val isLoginInProgress = userAuthInProgress || googleAuthInProgress || solanaAuthInProgress || ethOsAuthInProgress || bittensorAuthInProgress
+    val isLoginInProgress = userAuthInProgress || googleAuthInProgress || appleAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress || ethOsAuthInProgress
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -594,6 +618,41 @@ fun LoginInitialActions(
             horizontalAlignment = Alignment.Start
         ) {
 
+            // the login stack rule (LoginStack.kt): up to three full-width buttons,
+            // then icon tiles four per row with each row filled; this flavor's lists
+            LoginStack(
+                full = listOf(
+                    bittensorLoginMethod(onClick = onBittensorLogin, processing = bittensorAuthInProgress),
+                    googleLoginMethod(onClick = onGoogleLogin, processing = googleAuthInProgress),
+                    instantAccountLoginMethod(onClick = onInstantAccountCreate)
+                ),
+                tiles = listOf(
+                    secretKeyLoginMethod(onClick = onSeedphraseLogin),
+                    authCodeLoginMethod(onClick = launchAuthCodeLoginSheet, tile = true),
+                    appleLoginMethod(onClick = onAppleLogin, processing = appleAuthInProgress, tile = true),
+                    solanaLoginMethod(onClick = onSolanaLogin, processing = solanaAuthInProgress, tile = true)
+                ),
+                enabled = !isLoginInProgress
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "or",
+                    color = TextMuted
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Email / phone
+             */
             URTextInput(
                 value = userAuth,
                 onValueChange = {
@@ -626,206 +685,6 @@ fun LoginInitialActions(
             ) { buttonTextStyle ->
                 Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    "or",
-                    color = TextMuted
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Google sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onGoogleLogin()
-                },
-                enabled = !isLoginInProgress,
-                isProcessing = googleAuthInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    // todo - this looks a little blurry
-                    Image(
-                        painter = painterResource(id = R.drawable.google_login_icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.google_auth_btn_text),
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Bittensor Sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onBittensorLogin()
-                },
-                enabled = !isLoginInProgress,
-                isProcessing = bittensorAuthInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.bittensor_logo),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.bittensor_sign_in),
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-
-            if (hasEthOsWallet) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                /**
-                 * EthOS Sign In
-                 */
-                URButton(
-                    style = ButtonStyle.SECONDARY,
-                    onClick = {
-                        onEthOsLogin()
-                    },
-                     enabled = !isLoginInProgress,
-                     isProcessing = ethOsAuthInProgress
-                ) { buttonTextStyle ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Image(
-                            painter = painterResource(id = R.drawable.dgen1_logo),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Text(
-                             stringResource(id = R.string.sign_in_dgen1),
-                            style = buttonTextStyle
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Authentication code
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = launchAuthCodeLoginSheet,
-                enabled = !isLoginInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.auth_code),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.auth_code_login_button_text),
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            // }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Seedphrase Sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onSeedphraseLogin()
-                },
-                enabled = !isLoginInProgress,
-                modifier = Modifier.testTag("acceptance.login.secret")
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Key,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "Sign in with Seedphrase",
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Instant account creation
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onInstantAccountCreate()
-                },
-                enabled = !isLoginInProgress,
-                modifier = Modifier.testTag("acceptance.login.instant")
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Bolt,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "Create Instant Account",
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             if (!loginError.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))

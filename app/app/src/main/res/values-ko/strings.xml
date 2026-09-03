@@ -102,6 +102,7 @@
     <string name="country_multipliers">국가별 배수</string>
     <string name="create">생성</string>
     <string name="create_account">계정 만들기</string>
+    <string name="create_instant_account">즉시 계정 만들기</string>
     <string name="create_network_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="current_network_referral">현재 추천 네트워크</string>
     <string name="current_ranking">현재 순위</string>

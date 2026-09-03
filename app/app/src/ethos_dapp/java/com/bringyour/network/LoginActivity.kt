@@ -22,6 +22,8 @@ import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_LOGIN
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.launchBittensorSignMessage
+import com.bringyour.network.ui.login.SsoBridgeSession
+import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.requestBittensorChallenge
 import com.bringyour.network.ui.wallet.SnWalletConnectExtras
 import com.bringyour.network.ui.theme.URNetworkTheme
@@ -54,6 +56,7 @@ class LoginActivity : AppCompatActivity() {
     private var startInstantCreate by mutableStateOf(false)
     private var isLoadingAuthCode by mutableStateOf(false)
     private var walletCreateNetworkParams by mutableStateOf<LoginCreateNetworkParams.LoginCreateWalletParams?>(null)
+    private var jwtCreateNetworkParams by mutableStateOf<LoginCreateNetworkParams.LoginCreateAuthJwtParams?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -77,7 +80,10 @@ class LoginActivity : AppCompatActivity() {
         if (Intent.ACTION_VIEW == action) {
             Log.i(TAG, "Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
-                if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
+                if (u.scheme == "ur" && u.host == "sso") {
+                    Log.i(TAG, "ssoBridgeLogin $u")
+                    ssoBridgeLogin(u)
+                } else if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
                     if (u.getQueryParameter("purpose") == BITTENSOR_SIGN_PURPOSE_CONNECT && app.device != null) {
                         // the earnings screen's wallet connect: the main activity owns that flow
                         Log.i(TAG, "forwardWalletConnectToMain $u")
@@ -113,7 +119,8 @@ class LoginActivity : AppCompatActivity() {
                     isLoadingAuthCode = isLoadingAuthCode,
                     referralCode = referralCode,
                     activityResultSender = activityResultSender,
-                    walletCreateNetworkParams = walletCreateNetworkParams
+                    walletCreateNetworkParams = walletCreateNetworkParams,
+                    jwtCreateNetworkParams = jwtCreateNetworkParams
                 )
             }
         }
@@ -285,6 +292,91 @@ class LoginActivity : AppCompatActivity() {
         }
         startActivity(intent)
         finish()
+    }
+
+    // handles the redirect back from the ur.io sso bridge (Apple, or Google where
+    // there is no native flow): ur://sso?provider=apple&auth_jwt=<identity token>&state=<state>
+    // or ur://sso?provider=apple&error=<message>&state=<state>
+    private fun ssoBridgeLogin(uri: Uri) {
+        val app = app ?: return
+
+        val provider = uri.getQueryParameter("provider")
+        val authJwt = uri.getQueryParameter("auth_jwt")
+        val state = uri.getQueryParameter("state")
+        val error = uri.getQueryParameter("error")
+
+        // the attempt this round trip belongs to: a fresh state per launch, consumed
+        // here, so a stale or forged return cannot sign anyone in
+        val pending = SsoBridgeSession.take(this, state)
+        if (pending == null || provider.isNullOrEmpty() || pending.provider != provider) {
+            Log.i(TAG, "ssoBridgeLogin: no pending attempt for this state")
+            loginViewModel.setLoginError(getString(R.string.login_error))
+            return
+        }
+        if (error != null || authJwt.isNullOrEmpty()) {
+            Log.i(TAG, "ssoBridgeLogin: error: $error")
+            loginViewModel.setLoginError(error ?: getString(R.string.login_error))
+            return
+        }
+        // the token must carry the nonce this launch asked the provider for
+        val claims = ssoJwtPayload(authJwt)
+        if (claims == null || claims.optString("nonce") != pending.nonce) {
+            Log.i(TAG, "ssoBridgeLogin: nonce mismatch")
+            loginViewModel.setLoginError(getString(R.string.login_error))
+            return
+        }
+        val email = claims.optString("email").ifEmpty { "" }
+
+        isLoadingAuthCode = true
+
+        val args = AuthLoginArgs()
+        args.authJwt = authJwt
+        args.authJwtType = provider
+
+        app.api?.authLogin(args) { result, err ->
+            lifecycleScope.launch {
+                if (err != null) {
+                    isLoadingAuthCode = false
+                    loginViewModel.setLoginError(err.message)
+                } else if (result.error != null) {
+                    isLoadingAuthCode = false
+                    loginViewModel.setLoginError(result.error.message)
+                } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
+                    loginViewModel.setLoginError(null)
+
+                    app.login(result.network.byJwt)
+
+                    authClientAndFinish(
+                        callback = { finishError ->
+                            if (finishError != null) {
+                                Log.i(TAG, "authClientAndFinish error: $finishError")
+                            }
+                            isLoadingAuthCode = false
+                        },
+                    )
+                } else if (result.authAllowed != null) {
+                    val authAllowed = mutableListOf<String>()
+                    for (i in 0 until result.authAllowed.len()) {
+                        authAllowed.add(result.authAllowed.get(i))
+                    }
+                    isLoadingAuthCode = false
+                    loginViewModel.setLoginError(getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
+                } else {
+                    // a new user: continue into create network with the identity token
+                    loginViewModel.setLoginError(null)
+                    isLoadingAuthCode = false
+                    jwtCreateNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
+                        authJwt = authJwt,
+                        authJwtType = provider,
+                        userName = result.userName ?: "",
+                        userAuth = email,
+                        referralCode = referralCode
+                    )
+                }
+            }
+        } ?: run {
+            isLoadingAuthCode = false
+        }
     }
 
     // handles the redirect back from the ur.io wallet-connect bittensor sign message flow

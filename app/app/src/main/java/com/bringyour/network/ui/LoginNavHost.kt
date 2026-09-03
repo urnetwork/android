@@ -52,6 +52,7 @@ fun LoginNavHost(
     referralCode: String?,
     activityResultSender: ActivityResultSender?,
     walletCreateNetworkParams: LoginCreateNetworkParams.LoginCreateWalletParams? = null,
+    jwtCreateNetworkParams: LoginCreateNetworkParams.LoginCreateAuthJwtParams? = null,
     overlayViewModel: OverlayViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
@@ -182,12 +183,13 @@ fun LoginNavHost(
                         }
                     }
 
-                    composable("create-network-jwt/{userAuth}/{authJwt}/{userName}") { backStackEntry ->
+                    composable("create-network-jwt/{authJwtType}/{userAuth}/{authJwt}/{userName}") { backStackEntry ->
 
                         val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
                         val authJwt = backStackEntry.arguments?.getString("authJwt") ?: ""
                         val userName = backStackEntry.arguments?.getString("userName") ?: ""
-                        val authJwtType = "google"
+                        // "google" from the native button, "apple" (or "google") from the ur.io sso bridge
+                        val authJwtType = backStackEntry.arguments?.getString("authJwtType")?.ifEmpty { null } ?: "google"
 
                         val createNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
                             userAuth = userAuth,
@@ -315,6 +317,18 @@ fun LoginNavHost(
 
                 // an unlinked wallet auth was received by the activity (eg the bittensor
                 // sign message deep link) -> route into the create network flow
+                // an sso identity (apple / google through the ur.io bridge) for a user
+                // with no network yet -> route into the create network flow
+                LaunchedEffect(jwtCreateNetworkParams) {
+                    jwtCreateNetworkParams?.let { params ->
+                        val encodedType = Uri.encode(params.authJwtType)
+                        val encodedUserAuth = Uri.encode(params.userAuth.ifEmpty { "-" })
+                        val encodedAuthJwt = Uri.encode(params.authJwt)
+                        val encodedUserName = Uri.encode(params.userName.ifEmpty { "-" })
+                        navController.navigate("create-network-jwt/${encodedType}/${encodedUserAuth}/${encodedAuthJwt}/${encodedUserName}")
+                    }
+                }
+
                 LaunchedEffect(walletCreateNetworkParams) {
                     walletCreateNetworkParams?.let { params ->
 

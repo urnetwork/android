@@ -406,7 +406,6 @@ fun LoginInitialActions(
     onSeedphraseLogin: () -> Unit,
     onInstantAccountCreate: () -> Unit,
 ) {
-
     val isLoginInProgress = userAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
 
     Row(
@@ -419,6 +418,39 @@ fun LoginInitialActions(
             horizontalAlignment = Alignment.Start
         ) {
 
+            // the login stack rule (LoginStack.kt): up to three full-width buttons,
+            // then icon tiles four per row with each row filled; this flavor's lists
+            LoginStack(
+                full = listOf(
+                    instantAccountLoginMethod(onClick = onInstantAccountCreate)
+                ),
+                tiles = listOf(
+                    secretKeyLoginMethod(onClick = onSeedphraseLogin),
+                    authCodeLoginMethod(onClick = launchAuthCodeLoginSheet, tile = true),
+                    bittensorLoginMethod(onClick = onBittensorLogin, processing = bittensorAuthInProgress, tile = true),
+                    solanaLoginMethod(onClick = onSolanaLogin, processing = solanaAuthInProgress, tile = true)
+                ),
+                enabled = !isLoginInProgress
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "or",
+                    color = TextMuted
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Email / phone
+             */
             URTextInput(
                 value = userAuth,
                 onValueChange = {
@@ -452,170 +484,9 @@ fun LoginInitialActions(
                 Text(stringResource(id = R.string.get_started), style = buttonTextStyle)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    "or",
-                    color = TextMuted
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Bittensor Sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onBittensorLogin()
-                },
-                enabled = !isLoginInProgress,
-                isProcessing = bittensorAuthInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.bittensor_logo),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.bittensor_sign_in),
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Solana Sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onSolanaLogin()
-                },
-                enabled = !isLoginInProgress,
-                isProcessing = solanaAuthInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.solana_logo),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.solana_sign_in),
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Authentication code
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = launchAuthCodeLoginSheet,
-                enabled = !isLoginInProgress
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.auth_code),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        stringResource(id = R.string.auth_code_login_button_text),
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
             if (!loginError.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
                 URInlineErrorText(loginError)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Seedphrase Sign in
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onSeedphraseLogin()
-                },
-                enabled = !isLoginInProgress,
-                modifier = Modifier.testTag("acceptance.login.secret")
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Key,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "Sign in with Seedphrase",
-                        style = buttonTextStyle
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /**
-             * Instant account creation
-             */
-            URButton(
-                style = ButtonStyle.SECONDARY,
-                onClick = {
-                    onInstantAccountCreate()
-                },
-                enabled = !isLoginInProgress,
-                modifier = Modifier.testTag("acceptance.login.instant")
-            ) { buttonTextStyle ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Bolt,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "Create Instant Account",
-                        style = buttonTextStyle
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

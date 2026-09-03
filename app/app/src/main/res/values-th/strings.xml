@@ -102,6 +102,7 @@
     <string name="country_multipliers">ตัวคูณตามประเทศ</string>
     <string name="create">สร้าง</string>
     <string name="create_account">สร้างบัญชี</string>
+    <string name="create_instant_account">สร้างบัญชีทันที</string>
     <string name="create_network_error">มีบางอย่างผิดปกติ ลองใหม่อีกครั้ง</string>
     <string name="current_network_referral">รหัสการแนะนำเครือข่ายปัจจุบัน</string>
     <string name="current_ranking">อันดับปัจจุบัน</string>

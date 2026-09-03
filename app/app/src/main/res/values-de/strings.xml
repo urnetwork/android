@@ -102,6 +102,7 @@
     <string name="country_multipliers">Länder-Multiplikatoren</string>
     <string name="create">Erstellen</string>
     <string name="create_account">Konto erstellen</string>
+    <string name="create_instant_account">Sofortkonto erstellen</string>
     <string name="create_network_error">Etwas ist schiefgelaufen. Versuche es erneut.</string>
     <string name="current_network_referral">Aktuelles Empfehlungsnetzwerk</string>
     <string name="current_ranking">Aktuelles Ranking</string>

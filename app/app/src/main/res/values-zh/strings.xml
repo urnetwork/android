@@ -102,6 +102,7 @@
     <string name="country_multipliers">国家倍增器</string>
     <string name="create">创建</string>
     <string name="create_account">创建帐户</string>
+    <string name="create_instant_account">创建即时帐户</string>
     <string name="create_network_error">出了些问题。再试一次。</string>
     <string name="current_network_referral">当前推荐网络</string>
     <string name="current_ranking">当前排名</string>

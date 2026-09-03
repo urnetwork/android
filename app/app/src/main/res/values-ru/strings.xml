@@ -102,6 +102,7 @@
     <string name="country_multipliers">Множители по странам</string>
     <string name="create">Создать</string>
     <string name="create_account">Создать аккаунт</string>
+    <string name="create_instant_account">Создать мгновенный аккаунт</string>
     <string name="create_network_error">Что-то пошло не так. Попробуйте еще раз.</string>
     <string name="current_network_referral">Текущая реферальная сеть</string>
     <string name="current_ranking">Текущий рейтинг</string>

@@ -102,6 +102,7 @@
     <string name="country_multipliers">देश गुणक</string>
     <string name="create">बनाएँ</string>
     <string name="create_account">खाता बनाएँ</string>
+    <string name="create_instant_account">इंस्टेंट खाता बनाएं</string>
     <string name="create_network_error">कुछ गलत हो गया. पुनः प्रयास करें.</string>
     <string name="current_network_referral">वर्तमान रेफ़रल नेटवर्क</string>
     <string name="current_ranking">वर्तमान रैंकिंग</string>

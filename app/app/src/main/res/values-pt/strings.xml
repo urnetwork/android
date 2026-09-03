@@ -102,6 +102,7 @@
     <string name="country_multipliers">Multiplicadores por país</string>
     <string name="create">Criar</string>
     <string name="create_account">Criar conta</string>
+    <string name="create_instant_account">Criar conta instantânea</string>
     <string name="create_network_error">Algo deu errado. Tente novamente.</string>
     <string name="current_network_referral">Rede de referências atual</string>
     <string name="current_ranking">Classificação Atual</string>

@@ -102,6 +102,7 @@
     <string name="country_multipliers">国別倍率</string>
     <string name="create">作成</string>
     <string name="create_account">アカウントを作成</string>
+    <string name="create_instant_account">インスタントアカウントを作成</string>
     <string name="create_network_error">エラーが発生しました。もう一度お試しください。</string>
     <string name="current_network_referral">現在の紹介ネットワーク</string>
     <string name="current_ranking">現在のランキング</string>

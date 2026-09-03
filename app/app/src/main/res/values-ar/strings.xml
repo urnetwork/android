@@ -102,6 +102,7 @@
     <string name="country_multipliers">مضاعفات الدول</string>
     <string name="create">إنشاء</string>
     <string name="create_account">إنشاء حساب</string>
+    <string name="create_instant_account">إنشاء حساب فوري</string>
     <string name="create_network_error">حدث خطأ ما. حاول مجددا.</string>
     <string name="current_network_referral">شبكة الإحالة الحالية</string>
     <string name="current_ranking">الترتيب الحالي</string>

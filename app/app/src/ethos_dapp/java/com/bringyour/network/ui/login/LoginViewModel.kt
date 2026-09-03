@@ -47,6 +47,10 @@ class LoginViewModel @Inject constructor(
     var bittensorAuthInProgress by mutableStateOf(false)
         private set
 
+    // the ur.io sso bridge round trip for Apple is in the browser
+    var appleAuthInProgress by mutableStateOf(false)
+        private set
+
     var isValidUserAuth by mutableStateOf(false)
         private set
 
@@ -376,6 +380,10 @@ class LoginViewModel @Inject constructor(
 
     val setBittensorAuthInProgress: (Boolean) -> Unit = { inProgress ->
         bittensorAuthInProgress = inProgress
+    }
+
+    val setAppleAuthInProgress: (Boolean) -> Unit = { inProgress ->
+        appleAuthInProgress = inProgress
     }
 
     val setUserAuth: (TextFieldValue) -> Unit = { newValue ->

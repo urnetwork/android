@@ -102,6 +102,7 @@
     <string name="country_multipliers">Vizidishi vya nchi</string>
     <string name="create">Tengeneza</string>
     <string name="create_account">Unda akaunti</string>
+    <string name="create_instant_account">Fungua akaunti ya papo hapo</string>
     <string name="create_network_error">Kuna kitu kilienda vibaya. Jaribu tena.</string>
     <string name="current_network_referral">Mtandao wa rufaa wa sasa</string>
     <string name="current_ranking">Nafasi ya Sasa</string>

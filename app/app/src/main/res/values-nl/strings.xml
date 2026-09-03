@@ -102,6 +102,7 @@
     <string name="country_multipliers">Landmultipliers</string>
     <string name="create">Maken</string>
     <string name="create_account">Account creëren</string>
+    <string name="create_instant_account">Direct account aanmaken</string>
     <string name="create_network_error">Er is iets misgegaan. Probeer het opnieuw.</string>
     <string name="current_network_referral">Huidige netwerk-referentie</string>
     <string name="current_ranking">Huidige Scorebord</string>

@@ -102,6 +102,7 @@
     <string name="country_multipliers">Πολλαπλασιαστές χώρας</string>
     <string name="create">Δημιουργία</string>
     <string name="create_account">Δημιουργία λογαριασμού</string>
+    <string name="create_instant_account">Δημιουργία άμεσου λογαριασμού</string>
     <string name="create_network_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
     <string name="current_network_referral">Τρέχον δίκτυο παραπομπών</string>
     <string name="current_ranking">Τρέχουσα κατάταξη</string>
