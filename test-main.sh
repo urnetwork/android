@@ -562,9 +562,11 @@ run_android_peer_to_peer() {
   for target_serial in "$serial" "$peer_serial"; do
     timeout 30 "$adb" -s "$target_serial" uninstall com.bringyour.network >/dev/null 2>&1 || true
     timeout 30 "$adb" -s "$target_serial" uninstall com.bringyour.network.test >/dev/null 2>&1 || true
-    timeout 180 "$adb" -s "$target_serial" install -r -t "$p2p_app_apk" >/dev/null
-    timeout 180 "$adb" -s "$target_serial" install -r -t "$p2p_test_apk" >/dev/null
-    install_private_file_on "$target_serial" "$credentials" credentials
+    android_acceptance_install_apks \
+      timeout "$adb" "$target_serial" "$p2p_app_apk" "$p2p_test_apk" || \
+      die "could not install peer-to-peer APKs on $target_serial"
+    install_private_file_on "$target_serial" "$credentials" credentials || \
+      die "could not install peer-to-peer credentials on $target_serial"
     timeout 30 "$adb" -s "$target_serial" shell pm grant com.bringyour.network android.permission.POST_NOTIFICATIONS >/dev/null 2>&1 || true
     timeout 30 "$adb" -s "$target_serial" shell appops set com.bringyour.network ACTIVATE_VPN allow >/dev/null 2>&1 || true
   done
@@ -665,9 +667,14 @@ for target in $targets; do
       overall=1
       continue
     fi
-    cp "$target_apk" "$target_cache/app.apk"
-    cp "$test_apk" "$target_cache/test.apk"
+    if ! android_acceptance_cache_apks "$target_apk" "$test_apk" "$target_cache"; then
+      echo "could not cache target and test APKs for $target" >&2
+      overall=1
+      continue
+    fi
     printf '%s\n' "$build_id" >"$sidecar"
+    target_apk="$target_cache/app.apk"
+    test_apk="$target_cache/test.apk"
   else
     [ -f "$sidecar" ] || { echo "missing build-id sidecar $sidecar" >&2; overall=1; continue; }
     build_id="$(tr -d '\r\n' <"$sidecar")"

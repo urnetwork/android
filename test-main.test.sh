@@ -32,6 +32,39 @@ fi
   fail "shared AVD launcher rejected a read-only emulator"
 rm -f "$emulator_log"
 
+apk_test_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-apk-cache.test.XXXXXX")"
+mkdir -p "$apk_test_dir/build" "$apk_test_dir/cache"
+printf 'app payload\n' >"$apk_test_dir/build/app.apk"
+printf 'test payload\n' >"$apk_test_dir/build/test.apk"
+android_acceptance_cache_apks \
+  "$apk_test_dir/build/app.apk" "$apk_test_dir/build/test.apk" "$apk_test_dir/cache" || \
+  fail "could not cache an acceptance APK pair"
+rm -f "$apk_test_dir/build/app.apk" "$apk_test_dir/build/test.apk"
+[ "$(cat "$apk_test_dir/cache/app.apk")" = "app payload" ] || \
+  fail "cached app APK did not survive removal of the build output"
+[ "$(cat "$apk_test_dir/cache/test.apk")" = "test payload" ] || \
+  fail "cached test APK did not survive removal of the build output"
+
+install_calls="$apk_test_dir/install-calls"
+fake_install_timeout() {
+  shift
+  "$@"
+}
+fake_install_adb() {
+  printf '%s\n' "$*" >>"$install_calls"
+  case "$*" in
+    *app.apk) return 42 ;;
+  esac
+}
+if android_acceptance_install_apks \
+  fake_install_timeout fake_install_adb emulator-5558 \
+  "$apk_test_dir/cache/app.apk" "$apk_test_dir/cache/test.apk"; then
+  fail "peer APK installer accepted a failed app install"
+fi
+[ "$(wc -l <"$install_calls" | tr -d ' ')" = 1 ] || \
+  fail "peer APK installer continued after its first failure"
+rm -rf "$apk_test_dir"
+
 timeout() {
   shift
   "$@"
@@ -51,6 +84,10 @@ fake_animation_adb() {
       animator_duration_scale) printf 'null\n' ;;
       *) return 91 ;;
     esac
+  elif [ "${FAKE_ANIMATION_DRAIN_STDIN:-0}" -eq 1 ]; then
+    # Real adb may read its inherited stdin. This must not consume the state
+    # file that drives android_acceptance_restore_animations.
+    while IFS= read -r _; do :; done
   fi
 }
 
@@ -67,9 +104,11 @@ for key in window_animation_scale transition_animation_scale animator_duration_s
 done
 
 : >"$animation_calls"
+FAKE_ANIMATION_DRAIN_STDIN=1
 android_acceptance_restore_animations \
   fake_animation_adb emulator-5554 "$animation_state" || \
   fail "could not restore Android animations"
+unset FAKE_ANIMATION_DRAIN_STDIN
 grep -Fxq 'put global window_animation_scale 1.0' "$animation_calls" || \
   fail "window animation scale was not restored"
 grep -Fxq 'put global transition_animation_scale 0.5' "$animation_calls" || \

@@ -29,6 +29,30 @@ run_android_acceptance_shared_avd_emulator() {
   exec "$emulator" "$@" >"$log_file" 2>&1
 }
 
+# Copy one build's app/test pair into the runner-owned cache before another
+# flavor is built. Gradle may replace its output directory on the next build;
+# peer-to-peer acceptance must never retain those ephemeral paths.
+android_acceptance_cache_apks() {
+  local app_apk="$1" test_apk="$2" cache_dir="$3"
+
+  [ -f "$app_apk" ] && [ -f "$test_apk" ] || return 1
+  mkdir -p "$cache_dir" || return 1
+  cp "$app_apk" "$cache_dir/app.apk" || return 1
+  cp "$test_apk" "$cache_dir/test.apk" || return 1
+  [ -s "$cache_dir/app.apk" ] && [ -s "$cache_dir/test.apk" ]
+}
+
+# Install the app and its instrumentation package as one fail-fast operation.
+# Bash disables errexit for a function invoked as an `if` condition, so every
+# command here must propagate failure explicitly or P2P setup can continue
+# against an absent package and obscure the first useful error.
+android_acceptance_install_apks() {
+  local timeout_command="$1" adb="$2" serial="$3" app_apk="$4" test_apk="$5"
+
+  "$timeout_command" 180 "$adb" -s "$serial" install -r -t "$app_apk" >/dev/null || return 1
+  "$timeout_command" 180 "$adb" -s "$serial" install -r -t "$test_apk" >/dev/null || return 1
+}
+
 # Verifies that the second-UID egress activity can run as the test APK's
 # standalone application. Instrumentation dependencies that are also present
 # in the target APK are not copied into the test APK, so a Kotlin reference in
@@ -146,9 +170,14 @@ android_acceptance_restore_animations() {
       *) return 1 ;;
     esac
     if [ "$value" = null ]; then
-      timeout 15 "$adb" -s "$serial" shell settings delete global "$key" >/dev/null || return 1
+      # adb may consume stdin even when the remote command does not need it.
+      # Without an explicit redirect it drains the remainder of state_file,
+      # so the loop restores only its first setting and then reaches EOF.
+      timeout 15 "$adb" -s "$serial" shell settings delete global "$key" \
+        </dev/null >/dev/null || return 1
     elif [[ "$value" =~ ^([0-9]+([.][0-9]+)?|[.][0-9]+)$ ]]; then
-      timeout 15 "$adb" -s "$serial" shell settings put global "$key" "$value" || return 1
+      timeout 15 "$adb" -s "$serial" shell settings put global "$key" "$value" \
+        </dev/null || return 1
     else
       return 1
     fi
