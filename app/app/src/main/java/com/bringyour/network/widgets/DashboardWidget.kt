@@ -2,6 +2,9 @@ package com.bringyour.network.widgets
 
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.content.ComponentName
 import android.text.format.DateUtils
 import androidx.compose.runtime.Composable
@@ -46,6 +49,7 @@ import com.bringyour.network.utils.formatByteRate
 import com.bringyour.network.utils.formatPacketRate
 import com.bringyour.network.widgets.render.BalanceBarRenderer
 import com.bringyour.network.widgets.render.ThroughputChartRenderer
+import com.bringyour.network.widgets.render.WidgetColors
 import kotlin.math.roundToInt
 
 /**
@@ -169,12 +173,18 @@ private fun DashboardHeader(entry: WidgetEntry, compact: Boolean) {
         modifier = GlanceModifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // the solid connector mark: white when off, the app's connected green when up
+        // the location's country color as a filled disc, the mark the app's
+        // location list draws; the palette's unknown-country blue for a location
+        // without a country, the faint text color when there is no location at
+        // all (off, not configured) so the title keeps its place. A bitmap, so it
+        // is round on every Android version (Glance corner radii only apply on 12+).
+        val markSize = LOCATION_MARK_SIZE_DP.dp
         Image(
-            provider = ImageProvider(R.drawable.ic_tile_quick_on),
+            provider = ImageProvider(
+                locationMarkBitmap((markSize.value * context.resources.displayMetrics.density).toInt(), locationMarkColor(entry)),
+            ),
             contentDescription = null,
-            modifier = GlanceModifier.size(if (compact) 20.dp else 24.dp),
-            colorFilter = ColorFilter.tint(if (entry.isOn) WidgetTheme.connected else WidgetTheme.text),
+            modifier = GlanceModifier.size(markSize),
         )
         Spacer(GlanceModifier.width(10.dp))
         Column(modifier = GlanceModifier.defaultWeight()) {
@@ -338,6 +348,42 @@ internal fun providerChartHeading(context: Context, entry: WidgetEntry): String 
 
 /** While providing is off the provider block says so instead of drawing a flat line. */
 internal fun providerChartOff(entry: WidgetEntry): Boolean = !entry.tunnel.providing
+
+/**
+ * The color of the disc next to the location name, the same rules as the
+ * Apple widget: the location's country color (the SDK palette entry the app's
+ * location list uses for its circle); the palette's unknown-country blue when
+ * the location has no color to show (best available, no country); the faint
+ * text color when there is no location at all (tunnel off, not configured),
+ * keeping its size so the title stays aligned.
+ */
+internal fun locationMarkColor(entry: WidgetEntry): Int {
+    val location = entry.tunnel.location
+    return locationMarkArgb(entry.showsTunnelData && location != null, location?.colorHex)
+}
+
+/** The disc's footprint, shared with the app's widget preview. */
+internal const val LOCATION_MARK_SIZE_DP = 22
+
+/** No location: the faint text color (ui.theme.TextFaint). */
+internal const val LOCATION_MARK_OFF = 0xFF5A5A5A.toInt()
+
+/** A location without a country color: the palette's unknown-country blue. */
+internal const val LOCATION_MARK_UNKNOWN = 0xFF0099FF.toInt()
+
+internal fun locationMarkArgb(hasLocation: Boolean, colorHex: String?): Int {
+    if (!hasLocation) return LOCATION_MARK_OFF
+    return WidgetColors.parseHex(colorHex ?: "", LOCATION_MARK_UNKNOWN)
+}
+
+/** A filled circle of [color], [sizePx] wide, for a Glance image. */
+internal fun locationMarkBitmap(sizePx: Int, color: Int): Bitmap {
+    val size = sizePx.coerceAtLeast(2)
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color; style = Paint.Style.FILL }
+    Canvas(bitmap).drawCircle(size / 2f, size / 2f, size / 2f, paint)
+    return bitmap
+}
 
 internal fun locationTitle(context: Context, entry: WidgetEntry): String {
     if (!entry.isConfigured) return context.getString(R.string.widget_not_signed_in)

@@ -62,6 +62,8 @@ import com.bringyour.network.widgets.DashboardWidgetReceiver
 import com.bringyour.network.widgets.ProviderGlobeWidgetReceiver
 import com.bringyour.network.widgets.WidgetEntry
 import com.bringyour.network.widgets.WidgetTheme
+import com.bringyour.network.widgets.LOCATION_MARK_SIZE_DP
+import com.bringyour.network.widgets.locationMarkColor
 import com.bringyour.network.widgets.locationTitle
 import com.bringyour.network.widgets.providerChartHeading
 import com.bringyour.network.widgets.providerChartOff
@@ -303,11 +305,12 @@ private fun DashboardPreview(entry: WidgetEntry) {
     val density = LocalDensity.current.density
 
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_tile_quick_on),
-            contentDescription = null,
-            tint = Green,
-            modifier = Modifier.size(18.dp)
+        // the location's country color, as the widget draws it next to the name
+        Box(
+            modifier = Modifier
+                .size(LOCATION_MARK_SIZE_DP.dp)
+                .clip(CircleShape)
+                .background(Color(locationMarkColor(entry)))
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
