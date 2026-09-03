@@ -93,7 +93,8 @@ fun PointsLeaderboardTab(
 
     // ask for the next page when the last visible row is within reach of the
     // end. item 0 is the header, 1 the chips; rows start at item 2
-    LaunchedEffect(listState, rows.size, viewModel.isLoading, viewModel.isEndReached) {
+    val hasError = viewModel.errorMessage.isNotEmpty()
+    LaunchedEffect(listState, rows.size, viewModel.isLoading, viewModel.isEndReached, hasError) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 }
             .distinctUntilChanged()
             .collect { lastVisibleItem ->
@@ -104,6 +105,7 @@ fun PointsLeaderboardTab(
                         rowCount = rows.size,
                         isLoading = viewModel.isLoading,
                         isEndReached = viewModel.isEndReached,
+                        hasError = hasError,
                     )
                 ) {
                     viewModel.loadMore()

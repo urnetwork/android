@@ -17,15 +17,22 @@ object PointsLeaderboardPaging {
      * ROWS (header and footer items excluded); -1 when no row is visible.
      * The controller itself refuses a second in-flight page and a page past
      * the end, so this only avoids asking in the first place.
+     *
+     * A failed page never auto-retries: the screen re-evaluates this rule on
+     * every loading flip, so without the `hasError` gate a page that keeps
+     * failing near the end of the list was requested again the instant it
+     * failed, a hot retry loop against the api. The footer's Try again is the
+     * retry.
      */
     fun shouldLoadMore(
         lastVisibleRowIndex: Int,
         rowCount: Int,
         isLoading: Boolean,
         isEndReached: Boolean,
+        hasError: Boolean = false,
         threshold: Int = LOAD_MORE_THRESHOLD,
     ): Boolean {
-        if (rowCount <= 0 || isLoading || isEndReached || lastVisibleRowIndex < 0) {
+        if (rowCount <= 0 || isLoading || isEndReached || hasError || lastVisibleRowIndex < 0) {
             return false
         }
         return lastVisibleRowIndex >= rowCount - 1 - threshold

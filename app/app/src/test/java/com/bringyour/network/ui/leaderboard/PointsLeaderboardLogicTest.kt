@@ -27,6 +27,15 @@ class PointsLeaderboardLogicTest {
     }
 
     @Test
+    fun aFailedPageIsNotRetriedByScrolling() {
+        // near the end with the controller reporting an error: the footer's
+        // Try again retries, not the scroll rule (which re-runs on every
+        // loading flip and would otherwise hammer the api)
+        assertFalse(PointsLeaderboardPaging.shouldLoadMore(49, 50, isLoading = false, isEndReached = false, hasError = true))
+        assertTrue(PointsLeaderboardPaging.shouldLoadMore(49, 50, isLoading = false, isEndReached = false, hasError = false))
+    }
+
+    @Test
     fun shortListsAskForMoreAsSoonAsTheyShow() {
         // fewer rows than the threshold: the last row is always within reach
         assertTrue(PointsLeaderboardPaging.shouldLoadMore(2, 3, isLoading = false, isEndReached = false))
