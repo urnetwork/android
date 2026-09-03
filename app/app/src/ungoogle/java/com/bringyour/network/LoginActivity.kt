@@ -24,7 +24,10 @@ import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_LOGIN
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.launchBittensorSignMessage
-import com.bringyour.network.ui.login.SsoBridgeSession
+import com.bringyour.network.ui.login.AUTH_JWT_TYPE_APPLE
+import com.bringyour.network.ui.login.AppleOAuthSession
+import com.bringyour.network.ui.login.appleOAuthUserName
+import com.bringyour.network.ui.login.isAppleOAuthReturn
 import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.requestBittensorChallenge
 import com.bringyour.network.ui.wallet.SnWalletConnectExtras
@@ -80,9 +83,9 @@ class LoginActivity : AppCompatActivity() {
         if (Intent.ACTION_VIEW == action) {
             Log.i(TAG, "Login Activity hitting Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
-                if (u.scheme == "ur" && u.host == "sso") {
-                    Log.i(TAG, "ssoBridgeLogin $u")
-                    ssoBridgeLogin(u)
+                if (isAppleOAuthReturn(u)) {
+                    Log.i(TAG, "appleOAuthLogin $u")
+                    appleOAuthLogin(u)
                 } else if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
                     if (u.getQueryParameter("purpose") == BITTENSOR_SIGN_PURPOSE_CONNECT && app.device != null) {
                         // the earnings screen's wallet connect: the main activity owns that flow
@@ -299,38 +302,41 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
-    // handles the redirect back from the ur.io sso bridge (Apple, or Google where
-    // there is no native flow): ur://sso?provider=apple&auth_jwt=<identity token>&state=<state>
-    // or ur://sso?provider=apple&error=<message>&state=<state>
-    private fun ssoBridgeLogin(uri: Uri) {
+    // handles the return from Sign in with Apple (LoginUtils.kt: Apple's web
+    // flow in a Custom Tab, posted to the api's /auth/apple/callback, which
+    // redirects here): ur://oauth/apple?state=<state>&id_token=<identity token>[&code=…&user=…]
+    // or ur://oauth/apple?state=<state>&error=<message>
+    private fun appleOAuthLogin(uri: Uri) {
         val app = app ?: return
 
-        val provider = uri.getQueryParameter("provider")
-        val authJwt = uri.getQueryParameter("auth_jwt")
+        val authJwt = uri.getQueryParameter("id_token")
         val state = uri.getQueryParameter("state")
         val error = uri.getQueryParameter("error")
+        val provider = AUTH_JWT_TYPE_APPLE
 
         // the attempt this round trip belongs to: a fresh state per launch, consumed
         // here, so a stale or forged return cannot sign anyone in
-        val pending = SsoBridgeSession.take(this, state)
-        if (pending == null || provider.isNullOrEmpty() || pending.provider != provider) {
-            Log.i(TAG, "ssoBridgeLogin: no pending attempt for this state")
+        val pending = AppleOAuthSession.take(this, state)
+        if (pending == null) {
+            Log.i(TAG, "appleOAuthLogin: no pending attempt for this state")
             loginViewModel.setLoginError(getString(R.string.login_error))
             return
         }
         if (error != null || authJwt.isNullOrEmpty()) {
-            Log.i(TAG, "ssoBridgeLogin: error: $error")
+            Log.i(TAG, "appleOAuthLogin: error: $error")
             loginViewModel.setLoginError(error ?: getString(R.string.login_error))
             return
         }
-        // the token must carry the nonce this launch asked the provider for
+        // the token must carry the nonce this launch asked Apple for
         val claims = ssoJwtPayload(authJwt)
         if (claims == null || claims.optString("nonce") != pending.nonce) {
-            Log.i(TAG, "ssoBridgeLogin: nonce mismatch")
+            Log.i(TAG, "appleOAuthLogin: nonce mismatch")
             loginViewModel.setLoginError(getString(R.string.login_error))
             return
         }
         val email = claims.optString("email").ifEmpty { "" }
+        // the name Apple sends with the first authorization only
+        val appleUserName = appleOAuthUserName(uri.getQueryParameter("user"))
 
         isLoadingAuthCode = true
 
@@ -373,7 +379,7 @@ class LoginActivity : AppCompatActivity() {
                     jwtCreateNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
                         authJwt = authJwt,
                         authJwtType = provider,
-                        userName = result.userName ?: "",
+                        userName = (result.userName ?: "").ifEmpty { appleUserName },
                         userAuth = email,
                         referralCode = referralCode
                     )

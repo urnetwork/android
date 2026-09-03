@@ -233,11 +233,12 @@ fun LoginInitial(
         }
     }
 
-    // Apple has no native Android flow: the ur.io sso bridge signs the user in
-    // in a Custom Tab and returns through ur://sso (handled by the LoginActivity)
+    // Apple has no Android SDK: Apple's own web flow runs in a Custom Tab and
+    // the api's callback returns through ur://oauth/apple (handled by the LoginActivity)
     val connectApple = {
         loginViewModel.setLoginError(null)
-        if (launchSsoBridge(context, SSO_PROVIDER_APPLE)) {
+        val apiUrl = application?.networkSpaceManagerProvider?.getNetworkSpace()?.apiUrl
+        if (launchAppleOAuth(context, apiUrl)) {
             loginViewModel.setAppleAuthInProgress(true)
         } else {
             loginViewModel.setLoginError(context.getString(R.string.login_error))

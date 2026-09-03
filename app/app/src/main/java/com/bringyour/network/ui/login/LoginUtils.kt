@@ -116,41 +116,75 @@ fun launchBittensorSignMessage(
     }
 }
 
-// ── the ur.io sso bridge: Apple (and Google where there is no native flow) ──
-// The same browser round trip as the Bittensor sign-in: a Custom Tab opens
-// https://ur.io/sso, the page runs the site's own Apple / Google sign-in, and
-// redirects back to `ur://sso?provider=…&auth_jwt=…&state=…` (or `&error=…`),
-// which the LoginActivity turns into the same /auth/login call the Google
-// button makes. `state` ties the return to this launch; `nonce` must come back
-// inside the identity token, so a token minted elsewhere cannot be replayed.
-const val SSO_REDIRECT_LINK = "ur://sso"
-const val SSO_PROVIDER_APPLE = "apple"
-const val SSO_PROVIDER_GOOGLE = "google"
-private const val SSO_PREFS = "sso_bridge"
-private const val SSO_MAX_AGE_MILLIS = 10 * 60 * 1000L
+// ── Sign in with Apple: Apple's OAuth web flow in a Custom Tab ──
+// Apple has no Android SDK. The app opens Apple's authorize page in a Custom
+// Tab; Apple posts the result to the api's /auth/apple/callback, which hands it
+// straight back through `ur://oauth/apple?state=…&id_token=…` (or `&error=…`),
+// handled by the LoginActivity like any other `ur://` link, and turned into the
+// same /auth/login call the Google button makes. `state` ties the return to
+// this launch (it also carries the platform claim the callback reads to pick
+// the `ur://` scheme); `nonce` must come back inside the identity token, so a
+// token minted elsewhere cannot be replayed. The server verifies the token's
+// signature and audience (the Services ID) in /auth/login.
+const val APPLE_OAUTH_AUTHORIZE_URL = "https://appleid.apple.com/auth/authorize"
+// The Apple Services ID: the web flow's client id, the one ur.io signs in with
+const val APPLE_OAUTH_SERVICES_ID = "network.ur.service"
+const val APPLE_OAUTH_CALLBACK_PATH = "/auth/apple/callback"
+const val APPLE_OAUTH_RETURN_SCHEME = "ur"
+const val APPLE_OAUTH_RETURN_HOST = "oauth"
+const val APPLE_OAUTH_RETURN_PATH = "/apple"
+const val APPLE_OAUTH_PLATFORM = "android"
+const val AUTH_JWT_TYPE_APPLE = "apple"
+private const val APPLE_OAUTH_PREFS = "apple_oauth"
+private const val APPLE_OAUTH_MAX_AGE_MILLIS = 10 * 60 * 1000L
 
-class PendingSso(
-    val provider: String,
+class PendingAppleOAuth(
     val state: String,
     val nonce: String,
     val createdMillis: Long,
 )
 
+/** base64url without padding, the encoding of the state and of the random tokens. */
+private fun base64Url(bytes: ByteArray): String =
+    java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+
+/**
+ * The state of one attempt: base64url of `{"platform":"android","token":…}`.
+ * Opaque to Apple; the api callback reads the platform claim to pick the
+ * return scheme (`ur://` here), everything else is the random token.
+ */
+fun appleOAuthState(token: String): String =
+    base64Url("{\"platform\":\"$APPLE_OAUTH_PLATFORM\",\"token\":\"$token\"}".toByteArray(Charsets.UTF_8))
+
+/** Apple's authorize url for one attempt; `apiUrl` is the api origin the callback lives on. */
+fun appleOAuthAuthorizeUrl(apiUrl: String, state: String, nonce: String): String {
+    fun enc(value: String): String =
+        java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+    val redirectUri = apiUrl.trimEnd('/') + APPLE_OAUTH_CALLBACK_PATH
+    return APPLE_OAUTH_AUTHORIZE_URL +
+            "?client_id=${enc(APPLE_OAUTH_SERVICES_ID)}" +
+            "&redirect_uri=${enc(redirectUri)}" +
+            "&response_type=${enc("code id_token")}" +
+            "&response_mode=form_post" +
+            "&scope=${enc("name email")}" +
+            "&state=${enc(state)}" +
+            "&nonce=${enc(nonce)}"
+}
+
 /**
  * One attempt at a time, kept in preferences rather than memory: the browser
  * round trip can outlive this process, and the return must still be matched.
  */
-object SsoBridgeSession {
+object AppleOAuthSession {
     private fun token(): String {
         val bytes = ByteArray(24)
         SecureRandom().nextBytes(bytes)
-        return Base64.encodeToString(bytes, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+        return base64Url(bytes)
     }
 
-    fun begin(context: Context, provider: String): PendingSso {
-        val pending = PendingSso(provider, token(), token(), System.currentTimeMillis())
-        context.getSharedPreferences(SSO_PREFS, Context.MODE_PRIVATE).edit()
-            .putString("provider", pending.provider)
+    fun begin(context: Context): PendingAppleOAuth {
+        val pending = PendingAppleOAuth(appleOAuthState(token()), token(), System.currentTimeMillis())
+        context.getSharedPreferences(APPLE_OAUTH_PREFS, Context.MODE_PRIVATE).edit()
             .putString("state", pending.state)
             .putString("nonce", pending.nonce)
             .putLong("created", pending.createdMillis)
@@ -159,34 +193,53 @@ object SsoBridgeSession {
     }
 
     /** The pending attempt for `state`, consumed; null when it does not match or is stale. */
-    fun take(context: Context, state: String?): PendingSso? {
+    fun take(context: Context, state: String?): PendingAppleOAuth? {
         if (state.isNullOrEmpty()) return null
-        val prefs = context.getSharedPreferences(SSO_PREFS, Context.MODE_PRIVATE)
-        val pending = PendingSso(
-            prefs.getString("provider", "") ?: "",
+        val prefs = context.getSharedPreferences(APPLE_OAUTH_PREFS, Context.MODE_PRIVATE)
+        val pending = PendingAppleOAuth(
             prefs.getString("state", "") ?: "",
             prefs.getString("nonce", "") ?: "",
             prefs.getLong("created", 0L),
         )
         prefs.edit().clear().apply()
         if (pending.state.isEmpty() || pending.state != state) return null
-        if (System.currentTimeMillis() - pending.createdMillis > SSO_MAX_AGE_MILLIS) return null
+        if (System.currentTimeMillis() - pending.createdMillis > APPLE_OAUTH_MAX_AGE_MILLIS) return null
         return pending
     }
 }
 
-/** Opens the ur.io sso bridge for `provider`; false when no browser could be opened. */
-fun launchSsoBridge(context: Context, provider: String): Boolean {
-    require(provider == SSO_PROVIDER_APPLE || provider == SSO_PROVIDER_GOOGLE) { "Unknown sso provider" }
-    val pending = SsoBridgeSession.begin(context, provider)
-    val uri = Uri.parse(
-        "https://ur.io/sso" +
-                "?provider=${Uri.encode(provider)}" +
-                "&redirect_link=${Uri.encode(SSO_REDIRECT_LINK)}" +
-                "&state=${Uri.encode(pending.state)}" +
-                "&nonce=${Uri.encode(pending.nonce)}"
-    )
-    return launchInBrowser(context, uri)
+/** `ur://oauth/apple?…`: the callback's return for this app. */
+fun isAppleOAuthReturn(uri: Uri): Boolean =
+    uri.scheme == APPLE_OAUTH_RETURN_SCHEME && uri.host == APPLE_OAUTH_RETURN_HOST && uri.path == APPLE_OAUTH_RETURN_PATH
+
+/**
+ * Opens Apple's sign-in in a Custom Tab; false when the api origin is unknown
+ * or no browser could be opened.
+ */
+fun launchAppleOAuth(context: Context, apiUrl: String?): Boolean {
+    if (apiUrl.isNullOrEmpty()) {
+        Log.i("LoginUtils", "apple sign-in: no api url for the callback")
+        return false
+    }
+    val pending = AppleOAuthSession.begin(context)
+    return launchInBrowser(context, Uri.parse(appleOAuthAuthorizeUrl(apiUrl, pending.state, pending.nonce)))
+}
+
+/**
+ * The display name from the `user` JSON Apple sends with the FIRST
+ * authorization only: `{"name":{"firstName":…,"lastName":…},"email":…}`.
+ * Empty when absent or unreadable.
+ */
+fun appleOAuthUserName(user: String?): String {
+    if (user.isNullOrEmpty()) return ""
+    return try {
+        val name = JSONObject(user).optJSONObject("name") ?: return ""
+        listOf(name.optString("firstName"), name.optString("lastName"))
+            .filter { it.isNotEmpty() }
+            .joinToString(" ")
+    } catch (e: Exception) {
+        ""
+    }
 }
 
 /** The claims of an identity token (no signature check: the server verifies it). */
