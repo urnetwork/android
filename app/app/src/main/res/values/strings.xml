@@ -192,6 +192,14 @@
     <string name="dev_group_follow_window_detail">How long into a bench a site\'s new connections keep following their exit — early benches are usually false alarms; one that lasts is trending toward removal and stops collecting flows. Off scatters immediately</string>
     <string name="dev_heartbeat">State heartbeat</string>
     <string name="dev_heartbeat_detail">How often one line summarizing live state is written to the log for later forensics. Off silences it; shorter spots a transition, longer keeps more buffer</string>
+    <string name="dev_ip_family">Control connections</string>
+    <string name="dev_ip_family_auto">Automatic</string>
+    <string name="dev_ip_family_auto_demoted_detail">Automatic. %1$s.</string>
+    <string name="dev_ip_family_auto_detail">Uses whichever family connects first, and routes around one that fails after connecting.</string>
+    <string name="dev_ip_family_force4">Force IPv4</string>
+    <string name="dev_ip_family_force4_detail">Control-plane connections use IPv4 only. Turn this off on an IPv6-only network.</string>
+    <string name="dev_ip_family_force6">Force IPv6</string>
+    <string name="dev_ip_family_force6_detail">Control-plane connections use IPv6 only. Turn this off if the app cannot reach the server.</string>
     <string name="dev_load_corroboration">Load corroboration</string>
     <string name="dev_load_corroboration_detail">Extra silent destinations required per this many flows before a busy exit can be benched on soft evidence: a 24-flow exit at 8 needs 3 silent sites, not 2. Off keeps the flat minimum</string>
     <string name="dev_log_verbosity">Log detail</string>

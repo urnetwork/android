@@ -151,6 +151,16 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         onSelect = developerViewModel.setLogVerbosity,
     )
 
+    // Beside the verbosity row and, like it, ABOVE the !connected guard below.
+    // An address family that fails after connecting is what makes the api
+    // unreachable, so this row is reached while signed out or with the tunnel
+    // down -- exactly where a row gated on `connected` would not be drawn.
+    DeveloperIpFamilySetting(
+        policy = developerViewModel.ipFamilyPolicy,
+        status = developerViewModel.ipFamilyStatus,
+        onSelect = developerViewModel.setIpFamilyPolicy,
+    )
+
     // Persistent, not a one-shot toast: it has to be on screen at the moment
     // the user reaches for "Export all logs (raw)", which can be many minutes
     // after the level was raised. This pairing is the point -- raising the
@@ -953,6 +963,65 @@ private fun DeveloperVerbositySetting(
                 logVerbosityRecordsDestinations(level) -> TextDanger
                 else -> BlueMedium
             },
+        )
+    }
+}
+
+/**
+ * Which address family the control plane dials over, cycling Automatic ->
+ * Force IPv4 -> Force IPv6 on tap.
+ *
+ * Unlike [DeveloperVerbositySetting] this row is ALWAYS live. That row is
+ * inert without a device because there is no process to set a log level on;
+ * this policy is process-global sdk state that is always answerable, and the
+ * row has to work signed out and with the tunnel down -- those are the states
+ * a user is in when the api is unreachable, which is the only reason to reach
+ * for it.
+ *
+ * The value shown is the policy the sdk reports and never a demotion the sdk
+ * made on its own: a row that read "Force IPv4" because the heuristic fired
+ * could not be set back to Automatic. The demotion is named in the detail
+ * line instead, so Automatic does not look identical whether it has fired or
+ * not.
+ */
+@Composable
+private fun DeveloperIpFamilySetting(
+    policy: Long,
+    status: String,
+    onSelect: (Long) -> Unit,
+) {
+    val name = ipFamilyNameResource(policy)
+    val detail = ipFamilyDetailResource(policy, status)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onSelect(nextIpFamilyPolicy(policy)) }
+            .padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth(0.72f)) {
+            Text(
+                stringResource(id = R.string.dev_ip_family),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+            )
+            Text(
+                // the demoted variant is a %1$s format string; the quiet one
+                // ignores the argument
+                stringResource(id = detail, status),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+            )
+        }
+        Text(
+            stringResource(id = name),
+            style = MaterialTheme.typography.bodyLarge,
+            // a forced family is not an ordinary setting value: it overrides
+            // the judgement that keeps a user on a working path, and it is
+            // what will strand them on the next network that lacks it
+            color = if (clampIpFamilyPolicy(policy) == IP_FAMILY_AUTO) BlueMedium else TextDanger,
         )
     }
 }
