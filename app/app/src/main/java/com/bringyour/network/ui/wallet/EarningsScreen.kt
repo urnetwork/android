@@ -251,7 +251,6 @@ fun EarningsScreenContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                ProtocolNote()
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -417,22 +416,6 @@ private fun PointsBreakdownColumn(label: String, points: Double) {
     }
 }
 
-@Composable
-private fun ProtocolNote() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            stringResource(id = R.string.sn_protocol_note),
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextMuted
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        URLinkText(
-            text = stringResource(id = R.string.learn_at_ur_xyz),
-            url = UR_XYZ_URL,
-            fontSize = 14.sp
-        )
-    }
-}
 
 @Composable
 private fun WalletSection(
@@ -509,10 +492,11 @@ private fun WalletSection(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            stringResource(id = R.string.wallet_not_retroactive),
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextMuted
+        // the whole sentence opens the protocol site
+        URLinkText(
+            text = stringResource(id = R.string.wallet_not_retroactive),
+            url = UR_XYZ_URL,
+            fontSize = 14.sp
         )
 
         Spacer(modifier = Modifier.height(16.dp))

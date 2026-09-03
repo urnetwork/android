@@ -18,8 +18,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URLinkText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.Red
@@ -60,10 +62,11 @@ fun ConnectWalletSheet(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                stringResource(id = R.string.wallet_not_retroactive),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextMuted
+            // the whole sentence opens the protocol site
+            URLinkText(
+                text = stringResource(id = R.string.wallet_not_retroactive),
+                url = UR_XYZ_URL,
+                fontSize = 14.sp
             )
 
             Spacer(modifier = Modifier.height(16.dp))
