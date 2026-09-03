@@ -200,6 +200,7 @@
     <string name="launch">लॉन्च करें</string>
     <string name="leaderboard">लीडरबोर्ड</string>
     <string name="leaderboard_description">लीडरबोर्ड पिछले 4 भुगतानों का योग है। यह प्रत्येक भुगतान चक्र में अपडेट किया जाता है।</string>
+    <string name="learn_more">और जानें</string>
     <string name="learn_more_about_multiplier">गुणक के बारे में और जानें</string>
     <string name="learn_more_protocol_page">प्रोटोकॉल पेज पर और जानें</string>
     <string name="local">स्थानीय</string>

@@ -200,6 +200,7 @@
     <string name="launch">Spustit</string>
     <string name="leaderboard">Žebříček</string>
     <string name="leaderboard_description">Žebříček je součtem posledních 4 plateb. Je aktualizován každý platební cyklus.</string>
+    <string name="learn_more">Zjistit více</string>
     <string name="learn_more_about_multiplier">Další informace o násobiteli</string>
     <string name="learn_more_protocol_page">Další informace najdete na stránce protokolu</string>
     <string name="local">Lokálně</string>

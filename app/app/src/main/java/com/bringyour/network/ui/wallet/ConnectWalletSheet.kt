@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.components.URLinkText
+import com.bringyour.network.ui.components.URLearnMoreText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.Red
@@ -62,9 +62,10 @@ fun ConnectWalletSheet(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // the whole sentence opens the protocol site
-            URLinkText(
+            // plain text, then a "Learn more" link to the protocol site
+            URLearnMoreText(
                 text = stringResource(id = R.string.wallet_not_retroactive),
+                linkText = stringResource(id = R.string.learn_more),
                 url = UR_XYZ_URL,
                 fontSize = 14.sp
             )

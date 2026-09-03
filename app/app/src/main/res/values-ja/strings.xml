@@ -200,6 +200,7 @@
     <string name="launch">起動</string>
     <string name="leaderboard">リーダーボード</string>
     <string name="leaderboard_description">リーダーボードは過去4回の支払いの合計です。支払いサイクルごとに更新されます。</string>
+    <string name="learn_more">詳しく見る</string>
     <string name="learn_more_about_multiplier">倍率について詳しく見る</string>
     <string name="learn_more_protocol_page">プロトコルページでさらに詳しく</string>
     <string name="local">ローカル</string>

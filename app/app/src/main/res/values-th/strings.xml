@@ -200,6 +200,7 @@
     <string name="launch">เปิดใช้งาน</string>
     <string name="leaderboard">กระดานจัดอันดับ</string>
     <string name="leaderboard_description">กระดานจัดอันดับจะรวมยอดจาก 4 ยอดนำจ่ายล่าสุด และจะอัพเดตแต่ละรอบการนำจ่าย</string>
+    <string name="learn_more">เรียนรู้เพิ่มเติม</string>
     <string name="learn_more_about_multiplier">เรียนรู้เพิ่มเติมเกี่ยวกับตัวคูณ</string>
     <string name="learn_more_protocol_page">เรียนรู้เพิ่มเติมที่หน้าข้อมูลโปรโตคอล</string>
     <string name="local">ภายในเครื่อง</string>

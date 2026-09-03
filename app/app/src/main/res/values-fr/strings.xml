@@ -200,6 +200,7 @@
     <string name="launch">Lancer</string>
     <string name="leaderboard">Classement</string>
     <string name="leaderboard_description">Le classement est la somme des 4 derniers paiements. Il est mis à jour à chaque cycle de paiement.</string>
+    <string name="learn_more">En savoir plus</string>
     <string name="learn_more_about_multiplier">En savoir plus sur le multiplicateur</string>
     <string name="learn_more_protocol_page">En savoir plus sur la page du protocole</string>
     <string name="local">Local</string>

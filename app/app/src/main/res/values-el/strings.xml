@@ -200,6 +200,7 @@
     <string name="launch">Εκκίνηση</string>
     <string name="leaderboard">Πίνακας κατάταξης</string>
     <string name="leaderboard_description">Ο πίνακας κατάταξης είναι το άθροισμα των τελευταίων 4 πληρωμών. Ενημερώνεται κάθε κύκλο πληρωμής.</string>
+    <string name="learn_more">Μάθετε περισσότερα</string>
     <string name="learn_more_about_multiplier">Μάθετε περισσότερα σχετικά με τον πολλαπλασιαστή</string>
     <string name="learn_more_protocol_page">Μάθετε περισσότερα στη σελίδα του πρωτοκόλλου</string>
     <string name="local">Τοπικό</string>

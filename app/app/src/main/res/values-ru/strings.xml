@@ -200,6 +200,7 @@
     <string name="launch">Запустить</string>
     <string name="leaderboard">Таблица лидеров</string>
     <string name="leaderboard_description">Таблица лидеров представляет собой сумму последних 4 платежей. Она обновляется в каждом платежном цикле.</string>
+    <string name="learn_more">Подробнее</string>
     <string name="learn_more_about_multiplier">Узнать больше о множителе</string>
     <string name="learn_more_protocol_page">Подробнее на странице протокола</string>
     <string name="local">Локально</string>

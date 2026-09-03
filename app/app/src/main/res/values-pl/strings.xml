@@ -200,6 +200,7 @@
     <string name="launch">Uruchom</string>
     <string name="leaderboard">Tablica wyników</string>
     <string name="leaderboard_description">Tablica wyników to suma ostatnich 4 płatności. Jest aktualizowana w każdym cyklu płatności.</string>
+    <string name="learn_more">Dowiedz się więcej</string>
     <string name="learn_more_about_multiplier">Dowiedz się więcej o mnożniku</string>
     <string name="learn_more_protocol_page">Dowiedz się więcej na stronie protokołu</string>
     <string name="local">Lokalnie</string>

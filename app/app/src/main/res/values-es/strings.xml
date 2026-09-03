@@ -200,6 +200,7 @@
     <string name="launch">Iniciar</string>
     <string name="leaderboard">Tabla de clasificación</string>
     <string name="leaderboard_description">La tabla de clasificación es la suma de los últimos 4 pagos. Se actualiza en cada ciclo de pago.</string>
+    <string name="learn_more">Más información</string>
     <string name="learn_more_about_multiplier">Más información sobre el multiplicador</string>
     <string name="learn_more_protocol_page">Más información en la página del protocolo</string>
     <string name="local">Local</string>

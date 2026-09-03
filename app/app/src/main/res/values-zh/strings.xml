@@ -200,6 +200,7 @@
     <string name="launch">启动</string>
     <string name="leaderboard">排行榜</string>
     <string name="leaderboard_description">排行榜是最近 4 次付款的总和。它会在每个付款周期更新。</string>
+    <string name="learn_more">了解更多</string>
     <string name="learn_more_about_multiplier">了解更多关于倍数的信息</string>
     <string name="learn_more_protocol_page">在协议页面了解更多信息</string>
     <string name="local">本地</string>

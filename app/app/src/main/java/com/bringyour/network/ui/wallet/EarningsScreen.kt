@@ -52,7 +52,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.components.URLinkText
+import com.bringyour.network.ui.components.URLearnMoreText
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.stats.ProviderStatsSection
 import com.bringyour.network.ui.theme.Amber
@@ -492,9 +492,10 @@ private fun WalletSection(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // the whole sentence opens the protocol site
-        URLinkText(
+        // plain text, then a "Learn more" link to the protocol site
+        URLearnMoreText(
             text = stringResource(id = R.string.wallet_not_retroactive),
+            linkText = stringResource(id = R.string.learn_more),
             url = UR_XYZ_URL,
             fontSize = 14.sp
         )
