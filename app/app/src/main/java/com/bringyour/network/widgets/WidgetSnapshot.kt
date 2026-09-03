@@ -1,5 +1,9 @@
 package com.bringyour.network.widgets
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import android.content.Context
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -282,6 +286,17 @@ object WidgetSnapshotStore {
 
     private fun directory(context: Context): File = File(context.filesDir, DIRECTORY)
 
+    /**
+     * Bumps on every snapshot the widgets read (tunnel, balance, the logout
+     * clear). Account > Widgets follows it to redraw its previews the moment
+     * a pinned widget would be reloaded, from the same data.
+     */
+    private val changeCount = MutableStateFlow(0L)
+    val changes: StateFlow<Long> = changeCount.asStateFlow()
+
+    /** Whether a tunnel snapshot has been written since install or the last logout. */
+    fun hasTunnelSnapshot(context: Context): Boolean = File(directory(context), TUNNEL_FILE).exists()
+
     fun loadTunnel(context: Context): WidgetTunnelSnapshot? =
         load(context, TUNNEL_FILE) { json.decodeFromString<WidgetTunnelSnapshot>(it) }
 
@@ -298,6 +313,7 @@ object WidgetSnapshotStore {
     fun clear(context: Context) {
         File(directory(context), TUNNEL_FILE).delete()
         File(directory(context), BALANCE_FILE).delete()
+        changeCount.update { it + 1 }
     }
 
     private fun <T> load(context: Context, name: String, decode: (String) -> T): T? {
@@ -307,7 +323,7 @@ object WidgetSnapshotStore {
     }
 
     private fun save(context: Context, name: String, text: String): Boolean {
-        return runCatching {
+        val saved = runCatching {
             val dir = directory(context)
             dir.mkdirs()
             // whole-file, atomic: write next to it and rename over
@@ -315,5 +331,7 @@ object WidgetSnapshotStore {
             tmp.writeText(text)
             tmp.renameTo(File(dir, name))
         }.getOrDefault(false)
+        if (saved) changeCount.update { it + 1 }
+        return saved
     }
 }

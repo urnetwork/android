@@ -259,11 +259,27 @@ class WidgetSnapshotWriter(
         device = null
     }
 
-    // MARK: controllers, opened only for placed widgets
+    /**
+     * Account > Widgets is on screen with the live previews: while it is,
+     * every widget counts as placed, so the controllers a placed widget would
+     * need (providers, contracts) are open and every publish reaches it.
+     */
+    fun setPreviewVisible(visible: Boolean) {
+        handler.post {
+            if (previewVisible == visible) return@post
+            previewVisible = visible
+            if (device == null) return@post
+            ensureControllers()
+            write()
+        }
+    }
+    private var previewVisible = false
+
+    // MARK: controllers, opened only for placed widgets (or the live previews)
 
     private fun ensureControllers() {
         val device = this.device ?: return
-        val wantGlobe = refresh.hasWidgets(WidgetKinds.PROVIDER_GLOBE)
+        val wantGlobe = previewVisible || refresh.hasWidgets(WidgetKinds.PROVIDER_GLOBE)
         if (wantGlobe && providerVc == null) {
             providerVc = device.openProviderLocationsViewController()?.also { vc ->
                 providerSelectionSub = vc.addSelectedProviderLocationChangeListener {
@@ -275,7 +291,7 @@ class WidgetSnapshotWriter(
             closeProviderController()
         }
 
-        val wantContracts = refresh.hasWidgets(WidgetKinds.CONTRACTS)
+        val wantContracts = previewVisible || refresh.hasWidgets(WidgetKinds.CONTRACTS)
         if (wantContracts && contractsVc == null) {
             contractsVc = device.openClientContractDetailsViewController()?.also { vc ->
                 contractRowsSub = vc.addContractRowsListener {

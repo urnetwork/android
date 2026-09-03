@@ -17,6 +17,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.bringyour.network.MainApplication
+import com.bringyour.network.widgets.WidgetEntry
+import com.bringyour.network.widgets.WidgetSnapshotStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +54,40 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun WidgetsScreen(
     navController: NavController,
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    // the live entry: what the pinned widgets render right now, re-read on
+    // every snapshot publish while the screen is resumed
+    var entry by remember { mutableStateOf<WidgetEntry?>(null) }
+    var resumed by remember {
+        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> resumed = true
+                Lifecycle.Event.ON_PAUSE -> resumed = false
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    LaunchedEffect(resumed) {
+        if (!resumed) return@LaunchedEffect
+        // while we are on screen the writer treats every widget as placed, so
+        // the providers and contracts a widget would show are live here too
+        val writer = (context.applicationContext as? MainApplication)?.widgetSnapshotWriter
+        writer?.setPreviewVisible(true)
+        try {
+            WidgetSnapshotStore.changes.collect {
+                entry = withContext(Dispatchers.IO) { WidgetEntry.loadOrSample(context) }
+            }
+        } finally {
+            writer?.setPreviewVisible(false)
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -69,7 +118,7 @@ fun WidgetsScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            QuickConnectAndWidgets()
+            entry?.let { QuickConnectAndWidgets(entry = it) }
 
             Spacer(modifier = Modifier.height(24.dp))
         }

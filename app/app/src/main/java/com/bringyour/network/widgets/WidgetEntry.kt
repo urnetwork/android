@@ -41,6 +41,17 @@ class WidgetEntry(
             )
         }
 
+        /**
+         * The entry Account > Widgets renders: the real one whenever there is an
+         * account to show and a tunnel snapshot has been written since install
+         * or the last logout; otherwise the sample (a guest, or nothing published
+         * yet), so the screen never shows an empty preview.
+         */
+        fun loadOrSample(context: Context): WidgetEntry {
+            val entry = load(context)
+            return if (entry.isConfigured && WidgetSnapshotStore.hasTunnelSnapshot(context)) entry else sample(entry.nowMillis)
+        }
+
         /** What the picker preview shows: a connected tunnel with a few providers and an hour of traffic. */
         fun sample(nowMillis: Long = System.currentTimeMillis()): WidgetEntry {
             val now = nowMillis / 1000

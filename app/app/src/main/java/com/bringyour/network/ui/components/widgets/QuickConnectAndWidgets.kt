@@ -57,13 +57,17 @@ import com.bringyour.network.ui.theme.OffBlack
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
-import com.bringyour.network.utils.formatByteRate
-import com.bringyour.network.utils.formatPacketRate
 import com.bringyour.network.widgets.ContractsWidgetReceiver
 import com.bringyour.network.widgets.DashboardWidgetReceiver
 import com.bringyour.network.widgets.ProviderGlobeWidgetReceiver
 import com.bringyour.network.widgets.WidgetEntry
 import com.bringyour.network.widgets.WidgetTheme
+import com.bringyour.network.widgets.locationTitle
+import com.bringyour.network.widgets.providerChartHeading
+import com.bringyour.network.widgets.providerChartOff
+import com.bringyour.network.widgets.throughputPeakLabel
+import com.bringyour.network.widgets.throughputPoints
+import com.bringyour.network.widgets.subtitle
 import com.bringyour.network.widgets.render.BalanceBarRenderer
 import com.bringyour.network.widgets.render.ContractStackRenderer
 import com.bringyour.network.widgets.render.GlobeBitmapRenderer
@@ -74,14 +78,17 @@ import com.bringyour.network.widgets.requestPinWidget
  * The quick connect tile and the home screen widgets, with the system flow
  * that adds each one: the Quick Settings add-tile request (Android 13+) and
  * the launcher's pin dialog per widget, with the manual steps spelled out
- * where a device has no such flow. The previews are drawn from sample data
- * by the widgets' own renderers, so they look like the real thing.
+ * where a device has no such flow. The previews render the entry
+ * the host passes through the widgets' own renderers: onboarding hands in
+ * the sample (nothing real exists before sign-in), Account > Widgets the live
+ * entry the pinned widgets draw, so what it shows is what the widget shows.
  *
  * One body for two hosts: the last onboarding page and Account > Widgets
  * render exactly this, so the two can never drift apart.
  */
 @Composable
 fun QuickConnectAndWidgets(
+    entry: WidgetEntry,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -91,7 +98,6 @@ fun QuickConnectAndWidgets(
     val canPinWidgets = remember {
         AppWidgetManager.getInstance(context).isRequestPinAppWidgetSupported
     }
-    val sample = remember { WidgetEntry.sample() }
 
     val requestTile = {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -177,7 +183,7 @@ fun QuickConnectAndWidgets(
             onAdd = { requestPinWidget(context, DashboardWidgetReceiver::class.java) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            DashboardPreview(sample)
+            DashboardPreview(entry)
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -190,13 +196,13 @@ fun QuickConnectAndWidgets(
                 onAdd = { requestPinWidget(context, ProviderGlobeWidgetReceiver::class.java) },
                 modifier = Modifier.weight(1f)
             ) {
-                GlobePreview(sample)
+                GlobePreview(entry)
             }
             WidgetPreviewCard(
                 onAdd = { requestPinWidget(context, ContractsWidgetReceiver::class.java) },
                 modifier = Modifier.weight(1f)
             ) {
-                ContractsPreview(sample)
+                ContractsPreview(entry)
             }
         }
 
@@ -292,10 +298,9 @@ private fun WidgetPreviewCard(
 }
 
 @Composable
-private fun DashboardPreview(sample: WidgetEntry) {
+private fun DashboardPreview(entry: WidgetEntry) {
     val context = LocalContext.current
     val density = LocalDensity.current.density
-    val location = sample.tunnel.location
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
@@ -307,23 +312,23 @@ private fun DashboardPreview(sample: WidgetEntry) {
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                location?.name?.ifEmpty { null } ?: stringResource(id = R.string.best_available_provider),
+                locationTitle(context, entry),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                stringResource(id = R.string.app_name),
+                subtitle(context, entry),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted
             )
         }
-        // the quick connect button, pink like in the widget
+        // the quick connect button: pink while connected, like the widget's
         Icon(
             painter = painterResource(id = R.drawable.ic_tile_quick_on),
             contentDescription = null,
-            tint = Pink,
+            tint = if (entry.isOn) Pink else TextMuted,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -339,9 +344,9 @@ private fun DashboardPreview(sample: WidgetEntry) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val widthPx = (maxWidth.value * density).toInt()
         val heightPx = (10 * density).toInt()
-        val bar = remember(widthPx) {
+        val bar = remember(widthPx, entry.balance) {
             BalanceBarRenderer.render(
-                widthPx, heightPx, sample.balance,
+                widthPx, heightPx, entry.balance,
                 WidgetTheme.balanceUsedArgb, WidgetTheme.balancePendingArgb, WidgetTheme.balanceAvailableArgb,
                 density
             ).asImageBitmap()
@@ -358,50 +363,86 @@ private fun DashboardPreview(sample: WidgetEntry) {
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    val points = remember(sample) {
-        sample.tunnel.throughput.buckets.map {
-            ThroughputChartRenderer.Point(it.start, it.clientEgress, it.clientIngress, it.clientEgressPackets, it.clientIngressPackets)
-        }
-    }
-    val bucketSeconds = maxOf(1L, sample.tunnel.throughput.bucketSeconds)
-    val peakLabel = remember(points) {
-        formatByteRate(ThroughputChartRenderer.peak(points) / bucketSeconds) + " · " +
-            formatPacketRate(ThroughputChartRenderer.peakPackets(points) / bucketSeconds)
-    }
+    // the tall dashboard's two blocks: the client chart, then the provider
+    // chart titled by the provide mode (or the widget's disabled message)
+    PreviewThroughputChart(entry, provider = false)
+    Spacer(modifier = Modifier.height(8.dp))
+    PreviewThroughputChart(entry, provider = true)
+}
+
+/**
+ * One throughput block as the tall dashboard widget draws it: the heading
+ * (the provider block titled by its provide mode), both peaks, and the
+ * two-line chart, or the widget's own message while providing is off.
+ */
+@Composable
+private fun PreviewThroughputChart(entry: WidgetEntry, provider: Boolean) {
+    val context = LocalContext.current
+    val density = LocalDensity.current.density
+    val points = remember(entry, provider) { throughputPoints(entry, provider) }
+    val bucketSeconds = entry.tunnel.throughput.bucketSeconds
+    val peakLabel = remember(points, bucketSeconds) { throughputPeakLabel(points, bucketSeconds) }
+    val heading = if (provider) providerChartHeading(context, entry) else stringResource(id = R.string.widget_client)
+    val off = provider && providerChartOff(entry)
+
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(stringResource(id = R.string.widget_client), style = MaterialTheme.typography.bodySmall, color = TextMuted)
         Text(
-            stringResource(id = R.string.widget_peak_rate, peakLabel),
+            heading,
             style = MaterialTheme.typography.bodySmall,
-            color = TextMuted
+            color = TextMuted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
+        if (!off) {
+            Text(
+                stringResource(id = R.string.widget_peak_rate, peakLabel),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+        }
     }
     Spacer(modifier = Modifier.height(4.dp))
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val widthPx = (maxWidth.value * density).toInt()
-        val heightPx = (52 * density).toInt()
-        val chart = remember(widthPx) {
-            ThroughputChartRenderer.render(
-                widthPx, heightPx, points, sample.tunnel.throughput.bucketSeconds, sample.nowMillis,
-                WidgetTheme.byteSeriesArgb, WidgetTheme.packetSeriesArgb, density
-            ).asImageBitmap()
-        }
-        Image(
-            bitmap = chart,
-            contentDescription = null,
+    if (off) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
-            contentScale = ContentScale.FillBounds
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                stringResource(id = R.string.widget_provider_stats_when_enabled),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+                textAlign = TextAlign.Center
+            )
+        }
+    } else {
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val widthPx = (maxWidth.value * density).toInt()
+            val heightPx = (52 * density).toInt()
+            val chart = remember(widthPx, points, entry.nowMillis) {
+                ThroughputChartRenderer.render(
+                    widthPx, heightPx, points, bucketSeconds, entry.nowMillis,
+                    WidgetTheme.byteSeriesArgb, WidgetTheme.packetSeriesArgb, density
+                ).asImageBitmap()
+            }
+            Image(
+                bitmap = chart,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                contentScale = ContentScale.FillBounds
+            )
+        }
     }
 }
 
 @Composable
-private fun GlobePreview(sample: WidgetEntry) {
+private fun GlobePreview(entry: WidgetEntry) {
     val context = LocalContext.current
     val density = LocalDensity.current.density
-    val providers = sample.tunnel.providers
+    val providers = if (entry.showsTunnelData) entry.tunnel.providers else emptyList()
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(
@@ -410,7 +451,7 @@ private fun GlobePreview(sample: WidgetEntry) {
             color = Color.White
         )
         Text(
-            "${providers.size}",
+            if (providers.isEmpty()) stringResource(id = R.string.widget_no_providers) else "${providers.size}",
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted
         )
@@ -419,7 +460,7 @@ private fun GlobePreview(sample: WidgetEntry) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val widthPx = (maxWidth.value * density).toInt()
         val heightPx = (110 * density).toInt()
-        val globe = remember(widthPx) {
+        val globe = remember(widthPx, providers) {
             GlobeBitmapRenderer.render(context, widthPx, heightPx, providers, density).asImageBitmap()
         }
         Image(
@@ -434,9 +475,9 @@ private fun GlobePreview(sample: WidgetEntry) {
 }
 
 @Composable
-private fun ContractsPreview(sample: WidgetEntry) {
+private fun ContractsPreview(entry: WidgetEntry) {
     val density = LocalDensity.current.density
-    val peers = sample.tunnel.contracts.take(3)
+    val peers = (if (entry.showsTunnelData) entry.tunnel.contracts else emptyList()).take(3)
     val style = remember(density) { ContractStackRenderer.Style(density, compact = true) }
 
     Text(
@@ -445,6 +486,20 @@ private fun ContractsPreview(sample: WidgetEntry) {
         color = Color.White
     )
     Spacer(modifier = Modifier.height(8.dp))
+    if (peers.isEmpty()) {
+        // the widget's own words for an empty stack list
+        Text(
+            stringResource(
+                id = when {
+                    !entry.isConfigured -> R.string.widget_open_to_set_up
+                    !entry.isOn -> R.string.widget_connect_to_see_contracts
+                    else -> R.string.widget_no_contracts
+                }
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted
+        )
+    }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         peers.forEach { peer ->
             Column(
@@ -461,10 +516,10 @@ private fun ContractsPreview(sample: WidgetEntry) {
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    val send = remember(peer.id) {
+                    val send = remember(peer) {
                         ContractStackRenderer.render(peer.send, WidgetTheme.sendStackArgb, pointsRight = true, style = style).asImageBitmap()
                     }
-                    val receive = remember(peer.id) {
+                    val receive = remember(peer) {
                         ContractStackRenderer.render(peer.receive, WidgetTheme.receiveStackArgb, pointsRight = false, style = style).asImageBitmap()
                     }
                     Image(bitmap = send, contentDescription = null, filterQuality = androidx.compose.ui.graphics.FilterQuality.High)

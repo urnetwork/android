@@ -266,25 +266,14 @@ private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean
     val size = LocalSize.current
     val density = context.resources.displayMetrics.density
     val throughput = entry.tunnel.throughput
-    val points = throughput.buckets.map {
-        if (provider) ThroughputChartRenderer.Point(it.start, it.providerEgress, it.providerIngress, it.providerEgressPackets, it.providerIngressPackets)
-        else ThroughputChartRenderer.Point(it.start, it.clientEgress, it.clientIngress, it.clientEgressPackets, it.clientIngressPackets)
-    }
-    val bucketSeconds = maxOf(1L, throughput.bucketSeconds)
-    // the byte and packet peaks, in the two line colors' order, as one label
-    val peakLabel = formatByteRate(ThroughputChartRenderer.peak(points) / bucketSeconds) + " · " +
-        formatPacketRate(ThroughputChartRenderer.peakPackets(points) / bucketSeconds)
+    val points = throughputPoints(entry, provider)
+    val peakLabel = throughputPeakLabel(points, throughput.bucketSeconds)
     val widthPx = ((size.width.value - 28f) * density).roundToInt()
     val heightPx = ((height.value - 16f) * density).roundToInt()
-    // the provider chart carries the provide mode in its title, and while
+    // the provider block carries the provide mode in its title, and while
     // providing is off it says so instead of drawing a flat line
-    val modeLabel = if (provider) {
-        ProvideControlMode.fromString(entry.tunnel.provideMode)?.let { context.getString(ProvideControlMode.toStringResourceId(it)) }
-    } else {
-        null
-    }
-    val heading = if (modeLabel != null) context.getString(R.string.widget_provider_mode_title, modeLabel) else title
-    val providerOff = provider && !entry.tunnel.providing
+    val heading = if (provider) providerChartHeading(context, entry) else title
+    val providerOff = provider && providerChartOff(entry)
     Column(modifier = GlanceModifier.fillMaxWidth().height(height)) {
         Row(modifier = GlanceModifier.fillMaxWidth()) {
             Text(heading, style = WidgetTheme.caption, maxLines = 1)
@@ -326,7 +315,31 @@ private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean
     }
 }
 
-private fun locationTitle(context: Context, entry: WidgetEntry): String {
+/** The chart's points for one side: the client's remote traffic or the provider's local + blocked traffic. */
+internal fun throughputPoints(entry: WidgetEntry, provider: Boolean): List<ThroughputChartRenderer.Point> =
+    entry.tunnel.throughput.buckets.map {
+        if (provider) ThroughputChartRenderer.Point(it.start, it.providerEgress, it.providerIngress, it.providerEgressPackets, it.providerIngressPackets)
+        else ThroughputChartRenderer.Point(it.start, it.clientEgress, it.clientIngress, it.clientEgressPackets, it.clientIngressPackets)
+    }
+
+/** The byte and packet peaks, in the two line colors' order, as one label. */
+internal fun throughputPeakLabel(points: List<ThroughputChartRenderer.Point>, bucketSeconds: Long): String {
+    val seconds = maxOf(1L, bucketSeconds)
+    return formatByteRate(ThroughputChartRenderer.peak(points) / seconds) + " \u00b7 " +
+        formatPacketRate(ThroughputChartRenderer.peakPackets(points) / seconds)
+}
+
+/** The provider block's heading: "Provider \u00b7 <mode>" from the snapshot's provide mode, plain "Provider" when the mode is unknown. */
+internal fun providerChartHeading(context: Context, entry: WidgetEntry): String {
+    val modeLabel = ProvideControlMode.fromString(entry.tunnel.provideMode)
+        ?.let { context.getString(ProvideControlMode.toStringResourceId(it)) }
+    return if (modeLabel != null) context.getString(R.string.widget_provider_mode_title, modeLabel) else context.getString(R.string.widget_provider)
+}
+
+/** While providing is off the provider block says so instead of drawing a flat line. */
+internal fun providerChartOff(entry: WidgetEntry): Boolean = !entry.tunnel.providing
+
+internal fun locationTitle(context: Context, entry: WidgetEntry): String {
     if (!entry.isConfigured) return context.getString(R.string.widget_not_signed_in)
     if (!entry.isOn) return context.getString(R.string.tile_status_disconnected)
     val location = entry.tunnel.location
@@ -335,7 +348,7 @@ private fun locationTitle(context: Context, entry: WidgetEntry): String {
     return location.name.ifEmpty { context.getString(R.string.tile_status_connected) }
 }
 
-private fun subtitle(context: Context, entry: WidgetEntry): String {
+internal fun subtitle(context: Context, entry: WidgetEntry): String {
     if (entry.showsTunnelData) {
         val count = entry.tunnel.providers.size
         return if (entry.tunnel.providing) {
