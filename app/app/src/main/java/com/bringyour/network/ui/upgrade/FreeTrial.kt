@@ -8,4 +8,4 @@ package com.bringyour.network.ui.upgrade
  * introductory offer on iOS (note the App Store only offers fixed durations:
  * 3 days, 1 week, 2 weeks, 1 month and up).
  */
-const val FREE_TRIAL_DAYS = 15
+const val FREE_TRIAL_DAYS = 14

@@ -1,16 +1,9 @@
 package com.bringyour.network.ui.upgrade
 
 import com.bringyour.network.ui.theme.ProGoldLight
-import com.bringyour.network.ui.components.rememberGoldDress
-import com.bringyour.network.ui.components.goldPlanDress
 import com.bringyour.network.ui.components.BestValuePill
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.Box
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,20 +17,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.PlanOptionContainer
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.theme.OffBlack
+import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.ui.theme.Yellow
+import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
@@ -45,6 +38,9 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
 //@OptIn(ExperimentalCustomerSessionApi::class)
 @Composable
 fun AltSubscriptionOptions(
+    // the prices the picker prints, from PlanViewModel (they match the Stripe prices sold)
+    monthlyCostFormatted: String,
+    yearlyCostFormatted: String,
     onStripePaymentSuccess: () -> Unit,
     // the payment sheet's error detail, for the shared payment-problem dialog. This
     // used to be `{}` -- a declined card looked exactly like nothing happening.
@@ -126,48 +122,63 @@ fun AltSubscriptionOptions(
 
 
 
-    val dress = rememberGoldDress()
+    /**
+     * The same plan picker onboarding shows: yearly is the highlighted default
+     * in the Pro-gold dress with the Best value pill and the free trial,
+     * monthly the quiet alternative with no trial, and ONE button whose label
+     * follows the selection. This used to be two cards with a button each
+     * ("$3.33/month · $40 Yearly" and a "Pay with Stripe" monthly card), which
+     * was not the deal onboarding presents.
+     */
+    val (selectedPlan, setSelectedPlan) = remember { mutableStateOf(PlanType.YEARLY) }
 
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Column {
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .goldPlanDress(dress = dress)
-            .clip(RoundedCornerShape(12.dp))
-            .padding(16.dp)
-    ) {
-
-        Row (
-            verticalAlignment = Alignment.Bottom
-        ) {
-
-            Text(
-                "$3.33",
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Text(
-                "/month",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-
-        }
-
-        Text(
-            "$40 Yearly",
-            fontWeight = FontWeight.Bold,
-            color = TextMuted
+        /**
+         * Yearly
+         */
+        PlanOptionContainer(
+            isSelected = selectedPlan == PlanType.YEARLY,
+            select = {
+                setSelectedPlan(PlanType.YEARLY)
+            },
+            content = {
+                Column {
+                    Text(
+                        stringResource(id = R.string.plan_price_per_year, yearlyCostFormatted),
+                        style = TopBarTitleTextStyle
+                    )
+                    Text(
+                        stringResource(id = R.string.includes_free_trial_days, FREE_TRIAL_DAYS),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ProGoldLight
+                    )
+                }
+            },
+            badge = {
+                BestValuePill()
+            },
+            glow = true
         )
 
-        Text(
-            stringResource(id = R.string.includes_free_trial_days, FREE_TRIAL_DAYS),
-            style = MaterialTheme.typography.bodyMedium,
-            color = ProGoldLight
+        Spacer(modifier = Modifier.height(16.dp))
+
+        /**
+         * Monthly: no trial
+         */
+        PlanOptionContainer(
+            isSelected = selectedPlan == PlanType.MONTHLY,
+            select = {
+                setSelectedPlan(PlanType.MONTHLY)
+            },
+            content = {
+                Column {
+                    Text(
+                        stringResource(id = R.string.plan_price_per_month, monthlyCostFormatted),
+                        style = TopBarTitleTextStyle
+                    )
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -176,13 +187,23 @@ fun AltSubscriptionOptions(
 
             URButton(
                 onClick = {
-                    upgradeStripeYearly()
+                    if (selectedPlan == PlanType.YEARLY) {
+                        upgradeStripeYearly()
+                    } else {
+                        upgradeStripeMonthly()
+                    }
                 },
                 enabled = !isCreatingIntents,
                 isProcessing = isCreatingIntents
             ) { buttonTextStyle ->
                 Text(
-                    stringResource(id = R.string.start_free_trial),
+                    stringResource(
+                        id = if (selectedPlan == PlanType.YEARLY) {
+                            R.string.start_free_trial
+                        } else {
+                            R.string.subscribe
+                        }
+                    ),
                     style = buttonTextStyle
                 )
             }
@@ -191,6 +212,9 @@ fun AltSubscriptionOptions(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        /**
+         * Solana yearly: a one-time USDC payment, only for the yearly plan
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -201,14 +225,17 @@ fun AltSubscriptionOptions(
                     setIsPromptingSolanaPayment(true)
                     upgradeSolana()
                 },
-                enabled = !isPromptingSolanaPayment && !isCheckingSolanaTransaction,
+                enabled = !isPromptingSolanaPayment &&
+                        !isCheckingSolanaTransaction &&
+                        selectedPlan == PlanType.YEARLY,
                 isProcessing = isPromptingSolanaPayment || isCheckingSolanaTransaction
             ) { buttonTextStyle ->
                 Text(
-                    "Join with Solana Wallet",
+                    stringResource(id = R.string.join_solana_wallet),
                     style = buttonTextStyle
                 )
             }
+
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -224,77 +251,7 @@ fun AltSubscriptionOptions(
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted
         )
-    }
 
-        BestValuePill(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(y = (-16).dp, x = (-12).dp)
-        )
-
-    }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Column(
-        modifier = Modifier
-            .background(
-                OffBlack,
-                RoundedCornerShape(12.dp)
-            )
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-
-        Row (
-            verticalAlignment = Alignment.Bottom
-        ) {
-
-            Text(
-                "$5",
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Text(
-                "/month",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-
-        }
-
-        Text(
-            // stringResource(id = R.string.pay_with_stripe)
-            "Monthly",
-            fontWeight = FontWeight.Bold,
-            color = TextMuted
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-
-            URButton(
-                onClick = {
-                    upgradeStripeMonthly()
-//                        if (customerConfig != null && monthlyPaymentIntentClientSecret != null) {
-//                            presentPaymentSheet(
-//                                paymentSheet,
-//                                customerConfig!!,
-//                                monthlyPaymentIntentClientSecret!!
-//                            )
-//                        }
-                },
-                 enabled = !isCreatingIntents,
-                isProcessing = isCreatingIntents
-            ) { buttonTextStyle ->
-                Text(
-                    stringResource(id = R.string.pay_with_stripe),
-                    style = buttonTextStyle
-                )
-            }
-        }
     }
 }
 

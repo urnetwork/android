@@ -38,6 +38,9 @@ import com.bringyour.network.ui.theme.Yellow
 fun AltSubscriptionOptions(
     upgradeStripeMonthly: () -> Unit,
     upgradeStripeYearly: () -> Unit,
+    // the prices the picker prints, from PlanViewModel (they match the Stripe payment links)
+    monthlyCostFormatted: String,
+    yearlyCostFormatted: String,
     // false until networkId is known. The payment links attach
     // `client_reference_id=networkId`; tapping before it resolves used to silently
     // do nothing -- keep the button disabled instead
@@ -63,7 +66,7 @@ fun AltSubscriptionOptions(
             content = {
                 Column() {
                     Text(
-                        "$40/year (Save 33%)",
+                        stringResource(id = R.string.plan_price_per_year, yearlyCostFormatted),
                         style = TopBarTitleTextStyle
                     )
                     Text(
@@ -89,7 +92,7 @@ fun AltSubscriptionOptions(
             content = {
                 Column() {
                     Text(
-                        "$5/month",
+                        stringResource(id = R.string.plan_price_per_month, monthlyCostFormatted),
                         style = TopBarTitleTextStyle
                     )
                 }
@@ -115,7 +118,7 @@ fun AltSubscriptionOptions(
                         id = if (selectedPlan == PlanType.YEARLY) {
                             R.string.start_free_trial
                         } else {
-                            R.string.pay_with_stripe
+                            R.string.subscribe
                         }
                     ),
                     style = buttonTextStyle

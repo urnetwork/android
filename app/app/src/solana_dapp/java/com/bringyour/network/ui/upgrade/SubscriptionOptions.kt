@@ -78,6 +78,8 @@ fun SubscriptionOptions(
 
     SubscriptionOptions(
 //        networkId = planViewModel.networkId,
+        monthlyCostFormatted = planViewModel.formattedMonthlySubscriptionPrice,
+        yearlyCostFormatted = planViewModel.formattedYearlySubscriptionPrice,
         upgradeSolana = upgradeWithSolana,
         onStripePaymentSuccess = onStripePaymentSuccess,
         onStripePaymentFailed = { detail ->
@@ -100,6 +102,8 @@ fun SubscriptionOptions(
 @Composable
 fun SubscriptionOptions(
 //    networkId: String?,
+    monthlyCostFormatted: String,
+    yearlyCostFormatted: String,
     upgradeSolana: () -> Unit,
     onStripePaymentSuccess: () -> Unit,
     onStripePaymentFailed: (String?) -> Unit,
@@ -116,6 +120,8 @@ fun SubscriptionOptions(
     }
 
     AltSubscriptionOptions(
+        monthlyCostFormatted = monthlyCostFormatted,
+        yearlyCostFormatted = yearlyCostFormatted,
         upgradeSolana = upgradeSolana,
         isPromptingSolanaPayment = isPromptingSolanaPayment,
         setIsPromptingSolanaPayment = {

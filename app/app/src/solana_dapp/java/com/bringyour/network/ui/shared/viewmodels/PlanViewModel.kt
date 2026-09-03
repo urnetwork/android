@@ -133,6 +133,15 @@ class PlanViewModel @Inject constructor(
     // fixme: can we pull this from stripe? should we?
     val formattedSubscriptionPrice = "5.00"
 
+    /**
+     * The prices the plan picker prints, formatted the way the Play flavor
+     * formats its store prices, so every flavor's picker reads the same:
+     * yearly is the highlighted default with the free trial, monthly the
+     * quiet alternative. They must match the Stripe prices this flavor sells.
+     */
+    val formattedMonthlySubscriptionPrice = "$5.00"
+    val formattedYearlySubscriptionPrice = "$40.00"
+
     var inProgress by mutableStateOf(false)
         private set
 

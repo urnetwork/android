@@ -38,6 +38,11 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
 
 @Composable
 fun AltSubscriptionOptions(
+    // the prices the picker prints, from PlanViewModel. The Solana dApp store
+    // app sells the yearly plan only (a one-time USDC payment), so monthly is
+    // accepted for signature parity with the other flavors and not shown.
+    monthlyCostFormatted: String,
+    yearlyCostFormatted: String,
     onStripePaymentSuccess: () -> Unit,
     // the payment sheet's error detail, for the shared payment-problem dialog. This
     // used to be `{}` -- a declined card looked exactly like nothing happening.
@@ -131,7 +136,7 @@ fun AltSubscriptionOptions(
             content = {
                 Column() {
                     Text(
-                        "$40/year (Save 33%)",
+                        stringResource(id = R.string.plan_price_per_year, yearlyCostFormatted),
                         style = TopBarTitleTextStyle
                     )
                 }

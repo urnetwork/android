@@ -149,7 +149,8 @@ fun UpgradePlanAlt(
             UpgradePlanContent(
                 upgradeSolana = upgradeWithSolana,
                 upgradeInProgress = planViewModel.inProgress,
-                formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice,
+                monthlyCostFormatted = planViewModel.formattedMonthlySubscriptionPrice,
+                yearlyCostFormatted = planViewModel.formattedYearlySubscriptionPrice,
 //                onStripePaymentSuccess = {
 //                    pollSubscriptionBalance()
 //                    overlayViewModel.launch(OverlayMode.Upgrade)
@@ -168,7 +169,8 @@ fun UpgradePlanAlt(
 private fun UpgradePlanContent(
     upgradeInProgress: Boolean,
     upgradeSolana: () -> Unit,
-    formattedSubscriptionPrice: String,
+    monthlyCostFormatted: String,
+    yearlyCostFormatted: String,
     onStripePaymentSuccess: () -> Unit,
     networkId: String?,
     isCheckingSolanaTransaction: Boolean
@@ -194,6 +196,8 @@ private fun UpgradePlanContent(
         Column {
 
             AltSubscriptionOptions(
+                monthlyCostFormatted = monthlyCostFormatted,
+                yearlyCostFormatted = yearlyCostFormatted,
                 upgradeSolana = upgradeSolana,
                 isPromptingSolanaPayment = isPromptingSolanaPayment,
                 setIsPromptingSolanaPayment = {

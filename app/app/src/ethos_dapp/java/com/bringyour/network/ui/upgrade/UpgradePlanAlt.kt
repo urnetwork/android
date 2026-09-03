@@ -136,7 +136,8 @@ fun UpgradePlanAlt(
             UpgradePlanContent(
                 upgradeSolana = upgradeWithSolana,
                 upgradeInProgress = planViewModel.inProgress,
-                formattedSubscriptionPrice = planViewModel.formattedSubscriptionPrice,
+                monthlyCostFormatted = planViewModel.formattedMonthlySubscriptionPrice,
+                yearlyCostFormatted = planViewModel.formattedYearlySubscriptionPrice,
                 onStripePaymentSuccess = onStripePaymentSuccess,
                 onStripePaymentFailed = { detail ->
                     planViewModel.setChangePlanError(
@@ -160,7 +161,8 @@ fun UpgradePlanAlt(
 private fun UpgradePlanContent(
     upgradeInProgress: Boolean,
     upgradeSolana: () -> Unit,
-    formattedSubscriptionPrice: String,
+    monthlyCostFormatted: String,
+    yearlyCostFormatted: String,
     onStripePaymentSuccess: () -> Unit,
     onStripePaymentFailed: (String?) -> Unit,
     isCheckingSolanaTransaction: Boolean
@@ -184,6 +186,8 @@ private fun UpgradePlanContent(
         Column {
 
             AltSubscriptionOptions(
+                monthlyCostFormatted = monthlyCostFormatted,
+                yearlyCostFormatted = yearlyCostFormatted,
                 upgradeSolana = upgradeSolana,
                 isPromptingSolanaPayment = isPromptingSolanaPayment,
                 setIsPromptingSolanaPayment = {
