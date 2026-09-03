@@ -45,7 +45,7 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
 | Block | One **finalized** SN epoch. Only finalized epochs count; the open epoch is never counted. |
 | Blocks with points | Number of finalized epochs in which the network's points inside the epoch window are > 0. |
 | Streak | Number of consecutive finalized epochs with points, **ending at the latest finalized epoch** (current streak). If the latest finalized epoch has no points the streak is 0. `longest_streak` is also stored (cheap, same pass) and shown as a secondary stat, but the rank is on the current streak. |
-| Rank | Competition ranking per dimension (`RANK()`: 1, 2, 2, 4). Sort order within a dimension: value desc, then total points desc, then blocks desc, then network create time asc (older first) — deterministic, so pages never overlap. |
+| Rank | Competition ranking per dimension (`RANK()`: 1, 2, 2, 4) on the sort's full key tuple: a rank is shared only when all three values tie. Tie-break order per sort (user, 2026-09-03), every key desc: **points = (points, streak, blocks)**, **blocks = (blocks, streak, points)**, **streak = (streak, blocks, points)**, then network id asc — a total order, so pages never overlap. The one definition lives in the SDK (`ComparePointsLeaderboardKeys` next to the view controller, which keeps its rows in that order); the server ranks and pages with the same function. |
 
 ## Visibility and identity
 
@@ -163,7 +163,7 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
   otherwise the row reads "Anonymous" + emoji.
 - **D5 Emoji visibility**: follows D4 — shown on listed rows and in the network's own header;
   never shown for networks that did not opt in (nothing about them is shown).
-- **D6 Ties**: competition ranking (1, 2, 2, 4) — default.
+- **D6 Ties**: competition ranking (1, 2, 2, 4) on the full key tuple; tie-break order per sort = points (points, streak, blocks), blocks (blocks, streak, points), streak (streak, blocks, points), then network id — RESOLVED (user, 2026-09-03), defined once in the SDK view controller.
 - **D7 Rebuild cadence**: on epoch finalize + payout plan complete + hourly fallback; two
   snapshots retained — default.
 - **D8 Page size 50**, max 200; `me` is null when unauthenticated — default.
