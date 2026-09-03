@@ -10,22 +10,32 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * A static version of the app's TransferChart (ui/stats/TransferChart.kt)
- * for one series pair: bytes sent above the axis, bytes received below,
- * Catmull-Rom smoothed with x-clamped control points, filled to the axis.
- * The app draws one point per second over a 60 s window; the widget draws
- * one bucket per minute over the last hour.
+ * A static version of the app's TransferChart (ui/stats/TransferChart.kt):
+ * bytes (filled, green) and packets (a thin line, pink) for one side, egress
+ * above the axis and ingress below, each pair on its own scale so both read
+ * at once, Catmull-Rom smoothed with x-clamped control points. The app draws
+ * one point per second over a 60 s window; the widget draws one bucket per
+ * minute over the last hour.
  */
 object ThroughputChartRenderer {
 
-    class Point(val start: Long, val egress: Long, val ingress: Long)
+    class Point(
+        val start: Long,
+        val egress: Long,
+        val ingress: Long,
+        val egressPackets: Long = 0,
+        val ingressPackets: Long = 0,
+    )
 
     private const val WINDOW_BUCKETS = 60
-    /** Floor for the y scale so an idle chart is flat rather than noisy. */
-    private const val MINIMUM_SCALE = 64L * 1024L
+    /** Floors for the y scales so an idle chart is flat rather than noisy: the app's 1 KiB/s and 8 pkt/s, per minute bucket. */
+    private const val MINIMUM_BYTE_SCALE = 64L * 1024L
+    private const val MINIMUM_PACKET_SCALE = 8L * 60L
     private const val AXIS_COLOR = 0x1FFFFFFF
 
     fun peak(points: List<Point>): Long = points.maxOfOrNull { max(it.egress, it.ingress) } ?: 0L
+
+    fun peakPackets(points: List<Point>): Long = points.maxOfOrNull { max(it.egressPackets, it.ingressPackets) } ?: 0L
 
     fun render(
         widthPx: Int,
@@ -33,7 +43,8 @@ object ThroughputChartRenderer {
         points: List<Point>,
         bucketSeconds: Long,
         nowMillis: Long,
-        color: Int,
+        byteColor: Int,
+        packetColor: Int,
         density: Float,
     ): Bitmap {
         val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888)
@@ -42,7 +53,8 @@ object ThroughputChartRenderer {
         val height = bitmap.height.toFloat()
         val centerY = height / 2f
         val plotHalf = max(1f, centerY - 1f)
-        val scale = max(peak(points), MINIMUM_SCALE).toDouble()
+        val byteScale = max(peak(points), MINIMUM_BYTE_SCALE).toDouble()
+        val packetScale = max(peakPackets(points), MINIMUM_PACKET_SCALE).toDouble()
         val window = (bucketSeconds * WINDOW_BUCKETS).toDouble()
         val nowSeconds = nowMillis / 1000.0
         val windowStart = nowSeconds - window
@@ -50,24 +62,36 @@ object ThroughputChartRenderer {
         // one sample per bucket across the whole window, zero where nothing was
         // recorded, so the spline is evenly spaced and reaches both edges
         val byStart = points.associateBy { it.start }
-        val egress = ArrayList<PointF>()
-        val ingress = ArrayList<PointF>()
+        val egressBytes = ArrayList<PointF>()
+        val ingressBytes = ArrayList<PointF>()
+        val egressPackets = ArrayList<PointF>()
+        val ingressPackets = ArrayList<PointF>()
         fun x(time: Double): Float = (width * (1.0 - (nowSeconds - time) / window).coerceIn(0.0, 1.0)).toFloat()
-        fun offset(value: Long): Float = (plotHalf * min(1.0, value.toDouble() / scale)).toFloat()
+        fun offset(value: Long, scale: Double): Float = (plotHalf * min(1.0, value.toDouble() / scale)).toFloat()
         var bucket = (windowStart.toLong() / bucketSeconds) * bucketSeconds
         while (bucket <= nowSeconds.toLong()) {
             val point = byStart[bucket]
             // plot at the bucket's end: its traffic is known once it has elapsed
             val time = (bucket + bucketSeconds).toDouble()
-            egress.add(PointF(x(time), centerY - offset(point?.egress ?: 0L)))
-            ingress.add(PointF(x(time), centerY + offset(point?.ingress ?: 0L)))
+            val px = x(time)
+            egressBytes.add(PointF(px, centerY - offset(point?.egress ?: 0L, byteScale)))
+            ingressBytes.add(PointF(px, centerY + offset(point?.ingress ?: 0L, byteScale)))
+            egressPackets.add(PointF(px, centerY - offset(point?.egressPackets ?: 0L, packetScale)))
+            ingressPackets.add(PointF(px, centerY + offset(point?.ingressPackets ?: 0L, packetScale)))
             bucket += bucketSeconds
         }
-        egress.lastOrNull()?.let { if (it.x < width) egress.add(PointF(width, it.y)) }
-        ingress.lastOrNull()?.let { if (it.x < width) ingress.add(PointF(width, it.y)) }
+        for (series in listOf(egressBytes, ingressBytes, egressPackets, ingressPackets)) {
+            series.lastOrNull()?.let { if (it.x < width) series.add(PointF(width, it.y)) }
+        }
 
-        drawSeries(canvas, egress, RectF(0f, 0f, width, centerY), color, centerY, density)
-        drawSeries(canvas, ingress, RectF(0f, centerY, width, height), color, centerY, density)
+        val topHalf = RectF(0f, 0f, width, centerY)
+        val bottomHalf = RectF(0f, centerY, width, height)
+        // bytes first, filled to the axis; the packet line rides on top, unfilled,
+        // so both stay legible where they overlap (the app's TransferChart order)
+        drawSeries(canvas, egressBytes, topHalf, byteColor, 1.5f * density, centerY, density)
+        drawSeries(canvas, ingressBytes, bottomHalf, byteColor, 1.5f * density, centerY, density)
+        drawSeries(canvas, egressPackets, topHalf, packetColor, 1f * density, null, density)
+        drawSeries(canvas, ingressPackets, bottomHalf, packetColor, 1f * density, null, density)
 
         val axis = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = AXIS_COLOR
@@ -77,24 +101,34 @@ object ThroughputChartRenderer {
         return bitmap
     }
 
-    private fun drawSeries(canvas: Canvas, points: List<PointF>, clip: RectF, color: Int, axisY: Float, density: Float) {
+    private fun drawSeries(
+        canvas: Canvas,
+        points: List<PointF>,
+        clip: RectF,
+        color: Int,
+        strokeWidth: Float,
+        fillTo: Float?,
+        density: Float,
+    ) {
         if (points.size < 2) return
         canvas.save()
         canvas.clipRect(clip)
         val line = smoothPath(points)
-        val area = Path(line).apply {
-            lineTo(points.last().x, axisY)
-            lineTo(points.first().x, axisY)
-            close()
+        if (fillTo != null) {
+            val area = Path(line).apply {
+                lineTo(points.last().x, fillTo)
+                lineTo(points.first().x, fillTo)
+                close()
+            }
+            val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.FILL
+                this.color = WidgetColors.withAlpha(color, 0.12f)
+            }
+            canvas.drawPath(area, fill)
         }
-        val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-            this.color = WidgetColors.withAlpha(color, 0.12f)
-        }
-        canvas.drawPath(area, fill)
         val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
-            strokeWidth = 1.5f * density
+            this.strokeWidth = max(strokeWidth, 0.5f * density)
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
             this.color = WidgetColors.withAlpha(color, 0.9f)

@@ -49,16 +49,26 @@ class WidgetEntry(
             // real traffic: a quiet floor with a few bursts that spike and decay
             val clientBursts = burstSeries(count, listOf(Burst(7, 5_200_000.0, 0.62), Burst(19, 2_400_000.0, 0.5), Burst(31, 8_100_000.0, 0.7), Burst(46, 3_600_000.0, 0.55), Burst(55, 1_500_000.0, 0.45)), floor = 60_000.0, seed = 17)
             val providerBursts = burstSeries(count, listOf(Burst(11, 1_300_000.0, 0.6), Burst(38, 900_000.0, 0.55), Burst(52, 1_900_000.0, 0.65)), floor = 25_000.0, seed = 41)
+            // packets follow the bytes at real packet sizes: downloads ride in
+            // near-full packets, uploads and acks are small, and a little
+            // chatter keeps the packet line alive between bursts
+            val chatter = burstSeries(count, emptyList(), 90.0, seed = 0x5eed7L)
             val buckets = (0 until count).map { i ->
                 val start = ((now / bucketSeconds) - (count - 1 - i)) * bucketSeconds
                 val client = clientBursts[i]
                 val provider = providerBursts[i]
+                val clientEgress = client * 0.18
+                val providerIngress = provider * 0.3
                 WidgetThroughputBucket(
                     start = start,
-                    clientEgress = (client * 0.18).toLong(),
+                    clientEgress = clientEgress.toLong(),
                     clientIngress = client.toLong(),
                     providerEgress = provider.toLong(),
-                    providerIngress = (provider * 0.3).toLong(),
+                    providerIngress = providerIngress.toLong(),
+                    clientEgressPackets = (clientEgress / 180.0 + chatter[i]).toLong(),
+                    clientIngressPackets = (client / 1100.0 + chatter[i] * 0.6).toLong(),
+                    providerEgressPackets = (provider / 1000.0 + chatter[i] * 0.5).toLong(),
+                    providerIngressPackets = (providerIngress / 160.0 + chatter[i]).toLong(),
                 )
             }
             val providers = listOf(

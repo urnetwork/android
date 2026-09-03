@@ -219,18 +219,22 @@ class WidgetSnapshotWriter(
             if (stats == null) return@addPacketStatsChangeListener
             val egress = stats.remoteEgressByteCount
             val ingress = stats.remoteIngressByteCount
+            val egressPackets = stats.remoteEgressPacketCount
+            val ingressPackets = stats.remoteIngressPacketCount
             handler.post {
                 if (this.device !== device) return@post
-                accumulator.recordClient(egress, ingress)
+                accumulator.recordClient(egress, ingress, egressPackets, ingressPackets)
             }
         }
         subs += device.addProviderPacketStatsChangeListener { stats ->
             if (stats == null) return@addProviderPacketStatsChangeListener
             val egress = stats.localEgressByteCount + stats.blockEgressByteCount
             val ingress = stats.localIngressByteCount + stats.blockIngressByteCount
+            val egressPackets = stats.localEgressPacketCount + stats.blockEgressPacketCount
+            val ingressPackets = stats.localIngressPacketCount + stats.blockIngressPacketCount
             handler.post {
                 if (this.device !== device) return@post
-                accumulator.recordProvider(egress, ingress)
+                accumulator.recordProvider(egress, ingress, egressPackets, ingressPackets)
             }
         }
 

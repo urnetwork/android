@@ -58,6 +58,7 @@ import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.utils.formatByteRate
+import com.bringyour.network.utils.formatPacketRate
 import com.bringyour.network.widgets.ContractsWidgetReceiver
 import com.bringyour.network.widgets.DashboardWidgetReceiver
 import com.bringyour.network.widgets.ProviderGlobeWidgetReceiver
@@ -358,13 +359,19 @@ private fun DashboardPreview(sample: WidgetEntry) {
     Spacer(modifier = Modifier.height(10.dp))
 
     val points = remember(sample) {
-        sample.tunnel.throughput.buckets.map { ThroughputChartRenderer.Point(it.start, it.clientEgress, it.clientIngress) }
+        sample.tunnel.throughput.buckets.map {
+            ThroughputChartRenderer.Point(it.start, it.clientEgress, it.clientIngress, it.clientEgressPackets, it.clientIngressPackets)
+        }
     }
-    val peak = remember(points) { ThroughputChartRenderer.peak(points) }
+    val bucketSeconds = maxOf(1L, sample.tunnel.throughput.bucketSeconds)
+    val peakLabel = remember(points) {
+        formatByteRate(ThroughputChartRenderer.peak(points) / bucketSeconds) + " · " +
+            formatPacketRate(ThroughputChartRenderer.peakPackets(points) / bucketSeconds)
+    }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(stringResource(id = R.string.widget_client), style = MaterialTheme.typography.bodySmall, color = TextMuted)
         Text(
-            stringResource(id = R.string.widget_peak_rate, formatByteRate(peak / maxOf(1L, sample.tunnel.throughput.bucketSeconds))),
+            stringResource(id = R.string.widget_peak_rate, peakLabel),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted
         )
@@ -376,7 +383,7 @@ private fun DashboardPreview(sample: WidgetEntry) {
         val chart = remember(widthPx) {
             ThroughputChartRenderer.render(
                 widthPx, heightPx, points, sample.tunnel.throughput.bucketSeconds, sample.nowMillis,
-                WidgetTheme.clientSeriesArgb, density
+                WidgetTheme.byteSeriesArgb, WidgetTheme.packetSeriesArgb, density
             ).asImageBitmap()
         }
         Image(

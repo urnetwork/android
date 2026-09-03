@@ -43,6 +43,7 @@ import com.bringyour.network.QuickConnectActivity
 import com.bringyour.network.R
 import com.bringyour.network.utils.formatByteCountCompact
 import com.bringyour.network.utils.formatByteRate
+import com.bringyour.network.utils.formatPacketRate
 import com.bringyour.network.widgets.render.BalanceBarRenderer
 import com.bringyour.network.widgets.render.ThroughputChartRenderer
 import kotlin.math.roundToInt
@@ -266,10 +267,13 @@ private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean
     val density = context.resources.displayMetrics.density
     val throughput = entry.tunnel.throughput
     val points = throughput.buckets.map {
-        if (provider) ThroughputChartRenderer.Point(it.start, it.providerEgress, it.providerIngress)
-        else ThroughputChartRenderer.Point(it.start, it.clientEgress, it.clientIngress)
+        if (provider) ThroughputChartRenderer.Point(it.start, it.providerEgress, it.providerIngress, it.providerEgressPackets, it.providerIngressPackets)
+        else ThroughputChartRenderer.Point(it.start, it.clientEgress, it.clientIngress, it.clientEgressPackets, it.clientIngressPackets)
     }
-    val peak = ThroughputChartRenderer.peak(points)
+    val bucketSeconds = maxOf(1L, throughput.bucketSeconds)
+    // the byte and packet peaks, in the two line colors' order, as one label
+    val peakLabel = formatByteRate(ThroughputChartRenderer.peak(points) / bucketSeconds) + " · " +
+        formatPacketRate(ThroughputChartRenderer.peakPackets(points) / bucketSeconds)
     val widthPx = ((size.width.value - 28f) * density).roundToInt()
     val heightPx = ((height.value - 16f) * density).roundToInt()
     // the provider chart carries the provide mode in its title, and while
@@ -287,7 +291,7 @@ private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean
             Spacer(GlanceModifier.defaultWeight())
             if (!providerOff) {
                 Text(
-                    context.getString(R.string.widget_peak_rate, formatByteRate(peak / maxOf(1L, throughput.bucketSeconds))),
+                    context.getString(R.string.widget_peak_rate, peakLabel),
                     style = WidgetTheme.label,
                     maxLines = 1,
                 )
@@ -310,7 +314,7 @@ private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean
                 provider = ImageProvider(
                     ThroughputChartRenderer.render(
                         widthPx, heightPx, points, throughput.bucketSeconds, entry.nowMillis,
-                        if (provider) WidgetTheme.providerSeriesArgb else WidgetTheme.clientSeriesArgb,
+                        WidgetTheme.byteSeriesArgb, WidgetTheme.packetSeriesArgb,
                         density,
                     )
                 ),

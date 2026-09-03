@@ -9,7 +9,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.ui.theme.Blue200
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.OffBlack
@@ -46,8 +45,9 @@ object WidgetTheme {
     val balancePendingArgb: Int = Red.toArgb()
     val balanceAvailableArgb: Int = TextFaint.toArgb()
 
-    val clientSeriesArgb: Int = Green.toArgb()
-    val providerSeriesArgb: Int = Blue200.toArgb()
+    /** The throughput charts: bytes in green, packets in pink, for the client and the provider alike (the app's TransferChart). */
+    val byteSeriesArgb: Int = Green.toArgb()
+    val packetSeriesArgb: Int = Pink.toArgb()
     val sendStackArgb: Int = Green.toArgb()
     val receiveStackArgb: Int = Pink.toArgb()
 
