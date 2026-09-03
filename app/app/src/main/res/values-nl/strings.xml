@@ -392,6 +392,9 @@
     <string name="see_world_content">Bekijk alle\ninhoud van de wereld</string>
     <string name="see_world_content_description">Bekijk alle inhoud van de wereld met URnetwork</string>
     <string name="seedphrase">Seedphrase</string>
+    <string name="seedphrase_invalid_word_count">De seedphrase moet 12 of 24 woorden bevatten</string>
+    <string name="seedphrase_paste_hint">Plak hier je seedphrase van 12 of 24 woorden</string>
+    <string name="seedphrase_required">Voer een seedphrase in</string>
     <string name="seeker_token_verified">Seeker Token geverifieerd!</string>
     <string name="select_location_provider_content_description">Wereldbol: providerlocatie selecteren</string>
     <string name="send">Verstuur</string>

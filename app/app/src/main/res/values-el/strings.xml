@@ -392,6 +392,9 @@
     <string name="see_world_content">Δείτε όλο\nτο περιεχόμενο\nτου κόσμου</string>
     <string name="see_world_content_description">Δείτε όλο το περιεχόμενο του κόσμου με το URnetwork</string>
     <string name="seedphrase">Φράση ανάκτησης</string>
+    <string name="seedphrase_invalid_word_count">Η φράση ανάκτησης πρέπει να έχει 12 ή 24 λέξεις</string>
+    <string name="seedphrase_paste_hint">Επικολλήστε εδώ τη φράση ανάκτησης 12 ή 24 λέξεων</string>
+    <string name="seedphrase_required">Εισαγάγετε μια φράση ανάκτησης</string>
     <string name="seeker_token_verified">Το διακριτικό Seeker επαληθεύτηκε!</string>
     <string name="select_location_provider_content_description">Υδρόγειος: επιλογή τοποθεσίας παρόχου</string>
     <string name="send">Αποστολή</string>

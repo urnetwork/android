@@ -392,6 +392,9 @@
     <string name="see_world_content">दुनिया की सभी\nसामग्री देखें</string>
     <string name="see_world_content_description">URnetwork के साथ दुनिया की सभी सामग्री देखें</string>
     <string name="seedphrase">सीड फ़्रेज़</string>
+    <string name="seedphrase_invalid_word_count">सीड फ़्रेज़ में 12 या 24 शब्द होने चाहिए</string>
+    <string name="seedphrase_paste_hint">अपना 12 या 24 शब्दों का सीड फ़्रेज़ यहाँ पेस्ट करें</string>
+    <string name="seedphrase_required">कृपया सीड फ़्रेज़ दर्ज करें</string>
     <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
     <string name="select_location_provider_content_description">ग्लोब: प्रदाता का स्थान चुनें</string>
     <string name="send">भेजें</string>

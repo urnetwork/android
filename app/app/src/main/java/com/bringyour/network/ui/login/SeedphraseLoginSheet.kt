@@ -77,6 +77,9 @@ fun SeedphraseLoginSheet(
     }
 
     val processing = loginViewModel.seedphraseAuthInProgress || isFinishing
+    // resolved in composition: the validation runs inside the button's click lambda
+    val requiredText = stringResource(id = R.string.seedphrase_required)
+    val invalidWordCountText = stringResource(id = R.string.seedphrase_invalid_word_count)
 
     if (isPresenting) {
 
@@ -124,7 +127,7 @@ fun SeedphraseLoginSheet(
                     ),
                     placeholder = {
                         Text(
-                            "Paste your 12 or 24-word seedphrase here",
+                            stringResource(id = R.string.seedphrase_paste_hint),
                             color = TextMuted
                         )
                     },
@@ -137,14 +140,14 @@ fun SeedphraseLoginSheet(
                     onClick = {
                         val trimmed = seedphrase.trim()
                         if (trimmed.isEmpty()) {
-                            error = "Please enter a seedphrase"
+                            error = requiredText
                             return@URButton
                         }
                         val normalized = trimmed.lowercase()
                             .replace(Regex("\\s+"), " ")
                         val words = normalized.split(" ")
                         if (words.size != 12 && words.size != 24) {
-                            error = "Seedphrase must be 12 or 24 words"
+                            error = invalidWordCountText
                             return@URButton
                         }
                         loginViewModel.loginWithSeedphrase(

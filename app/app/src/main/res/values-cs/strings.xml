@@ -392,6 +392,9 @@
     <string name="see_world_content">Zobrazit veškerý\nkontent světa</string>
     <string name="see_world_content_description">Prohlédněte si veškerý obsah světa pomocí sítě URnetwork</string>
     <string name="seedphrase">Seed fráze</string>
+    <string name="seedphrase_invalid_word_count">Seed fráze musí mít 12 nebo 24 slov</string>
+    <string name="seedphrase_paste_hint">Sem vložte svou seed frázi o 12 nebo 24 slovech</string>
+    <string name="seedphrase_required">Zadejte prosím seed frázi</string>
     <string name="seeker_token_verified">Token Seeker ověřen!</string>
     <string name="select_location_provider_content_description">Glóbus: výběr lokality poskytovatele</string>
     <string name="send">Odeslat</string>

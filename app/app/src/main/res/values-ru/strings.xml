@@ -395,6 +395,9 @@
     <string name="see_world_content">Смотрите контент\nсо всего мира</string>
     <string name="see_world_content_description">Смотрите контент со всего мира с URnetwork</string>
     <string name="seedphrase">Сид-фраза</string>
+    <string name="seedphrase_invalid_word_count">Сид-фраза должна состоять из 12 или 24 слов</string>
+    <string name="seedphrase_paste_hint">Вставьте сюда сид-фразу из 12 или 24 слов</string>
+    <string name="seedphrase_required">Введите сид-фразу</string>
     <string name="seeker_token_verified">Токен Seeker проверен!</string>
     <string name="select_location_provider_content_description">Глобус: выбрать локацию провайдера</string>
     <string name="send">Отправить</string>

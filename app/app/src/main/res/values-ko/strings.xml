@@ -392,6 +392,9 @@
     <string name="see_world_content">전 세계의\n콘텐츠 보기</string>
     <string name="see_world_content_description">URnetwork로 전 세계의 콘텐츠 보기</string>
     <string name="seedphrase">시드 문구</string>
+    <string name="seedphrase_invalid_word_count">시드 문구는 12개 또는 24개 단어여야 합니다</string>
+    <string name="seedphrase_paste_hint">12개 또는 24개 단어의 시드 문구를 여기에 붙여넣으세요</string>
+    <string name="seedphrase_required">시드 문구를 입력하세요</string>
     <string name="seeker_token_verified">Seeker 토큰이 인증되었습니다!</string>
     <string name="select_location_provider_content_description">지구본: 제공업체 위치 선택</string>
     <string name="send">보내기</string>

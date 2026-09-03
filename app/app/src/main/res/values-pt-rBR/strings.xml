@@ -392,6 +392,9 @@
     <string name="see_world_content">Ver todo o\nconteúdo do mundo</string>
     <string name="see_world_content_description">Ver todo o conteúdo do mundo com a URnetwork</string>
     <string name="seedphrase">Frase-semente</string>
+    <string name="seedphrase_invalid_word_count">A frase-semente deve ter 12 ou 24 palavras</string>
+    <string name="seedphrase_paste_hint">Cole aqui sua frase-semente de 12 ou 24 palavras</string>
+    <string name="seedphrase_required">Digite uma frase-semente</string>
     <string name="seeker_token_verified">Token Seeker verificado!</string>
     <string name="select_location_provider_content_description">Globo: selecionar localização do provedor</string>
     <string name="send">Enviar</string>

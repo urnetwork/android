@@ -392,6 +392,9 @@
     <string name="see_world_content">Voir tout\nle contenu\ndu monde</string>
     <string name="see_world_content_description">Voyez tout le contenu du monde avec URnetwork</string>
     <string name="seedphrase">Phrase de récupération</string>
+    <string name="seedphrase_invalid_word_count">La phrase de récupération doit contenir 12 ou 24 mots</string>
+    <string name="seedphrase_paste_hint">Collez ici votre phrase de récupération de 12 ou 24 mots</string>
+    <string name="seedphrase_required">Veuillez saisir une phrase de récupération</string>
     <string name="seeker_token_verified">Jeton Seeker vérifié !</string>
     <string name="select_location_provider_content_description">Globe : sélectionner l\'emplacement du fournisseur</string>
     <string name="send">Envoie</string>

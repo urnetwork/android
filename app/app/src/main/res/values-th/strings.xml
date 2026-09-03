@@ -392,6 +392,9 @@
     <string name="see_world_content">เข้าถึงทุกคอนเทนต์\nจากทั่วทุกมุมโลก</string>
     <string name="see_world_content_description">เข้าถึงทุกคอนเทนต์จากทั่วโลกด้วย URnetwork</string>
     <string name="seedphrase">วลีกู้คืน</string>
+    <string name="seedphrase_invalid_word_count">วลีกู้คืนต้องมี 12 หรือ 24 คำ</string>
+    <string name="seedphrase_paste_hint">วางวลีกู้คืน 12 หรือ 24 คำของคุณที่นี่</string>
+    <string name="seedphrase_required">กรุณาป้อนวลีกู้คืน</string>
     <string name="seeker_token_verified">ยืนยัน Seeker Token สำเร็จ</string>
     <string name="select_location_provider_content_description">ลูกโลก: เลือกตำแหน่งผู้ให้บริการ</string>
     <string name="send">ส่ง</string>

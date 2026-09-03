@@ -616,6 +616,9 @@
     <string name="see_world_content">See all the\nworld\'s content</string>
     <string name="see_world_content_description">See all the world\'s content with URnetwork</string>
     <string name="seedphrase">Seedphrase</string>
+    <string name="seedphrase_invalid_word_count">Seedphrase must be 12 or 24 words</string>
+    <string name="seedphrase_paste_hint">Paste your 12 or 24-word seedphrase here</string>
+    <string name="seedphrase_required">Please enter a seedphrase</string>
     <string name="seeker_points_only">The Seeker multiplier applies to points only.</string>
     <string name="seeker_token_verified">Seeker Token Verified!</string>
     <string name="select_location_provider_content_description">Select location provider globe</string>

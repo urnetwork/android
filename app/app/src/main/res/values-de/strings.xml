@@ -395,6 +395,9 @@
     <string name="see_world_content">Sieh alle\nInhalte\nder Welt</string>
     <string name="see_world_content_description">Sieh alle Inhalte der Welt mit URnetwork</string>
     <string name="seedphrase">Seedphrase</string>
+    <string name="seedphrase_invalid_word_count">Die Seedphrase muss 12 oder 24 Wörter haben</string>
+    <string name="seedphrase_paste_hint">Füge hier deine Seedphrase mit 12 oder 24 Wörtern ein</string>
+    <string name="seedphrase_required">Bitte gib eine Seedphrase ein</string>
     <string name="seeker_token_verified">Seeker-Token verifiziert!</string>
     <string name="select_location_provider_content_description">Globus: Anbieter-Standort auswählen</string>
     <string name="send">Sende</string>
