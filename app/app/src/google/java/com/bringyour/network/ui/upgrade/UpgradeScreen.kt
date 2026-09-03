@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.upgrade
 
+import com.bringyour.network.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -52,7 +54,7 @@ fun UpgradeScreen(
                     }) {
                         Icon(
                             Icons.Filled.ChevronLeft,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
                 },

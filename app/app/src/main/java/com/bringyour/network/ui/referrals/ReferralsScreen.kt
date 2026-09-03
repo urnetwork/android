@@ -110,6 +110,7 @@ fun ReferralsScreen(
     )
 
     if (isPresentingUpdateReferralNetworkSheet) {
+        val referralNetworkUpdatedMessage = stringResource(id = R.string.referral_network_updated)
         UpdateReferralNetworkBottomSheet(
             sheetState = updateReferralNetworkSheetState,
             setIsPresenting = { isPresentingUpdateReferralNetworkSheet = it },
@@ -118,7 +119,7 @@ fun ReferralsScreen(
                 settingsViewModel.fetchReferralNetwork()
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Referral network updated",
+                        message = referralNetworkUpdatedMessage,
                         withDismissAction = true,
                         duration = SnackbarDuration.Short
                     )
@@ -161,7 +162,7 @@ fun ReferralsScreenContent(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

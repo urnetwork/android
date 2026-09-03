@@ -356,6 +356,7 @@
     <string name="referral_code">رمز الإحالة</string>
     <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
     <string name="referral_network">شبكة الإحالة</string>
+    <string name="referral_network_updated">تم تحديث شبكة الإحالة</string>
     <string name="referral_panel_detail">كل إحالة موثّقة تمنح كلاً منكما %1$d جيبي بايت يومياً مجاناً، مدى الحياة.</string>
     <string name="referral_panel_heading">أحِل صديقاً واحصلا كلاكما على بيانات مجانية</string>
     <string name="referral_panel_none">لا أصدقاء بعد. شارك رمزك وسيظهر التاج. 👑</string>

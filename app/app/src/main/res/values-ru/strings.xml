@@ -356,6 +356,7 @@
     <string name="referral_code">Реферальный код</string>
     <string name="referral_code_capped">Этот код уже был использован</string>
     <string name="referral_network">Реферальная сеть</string>
+    <string name="referral_network_updated">Реферальная сеть обновлена</string>
     <string name="referral_panel_detail">Каждый подтверждённый реферал даёт каждому из вас по %1$d ГиБ в день бесплатно, навсегда.</string>
     <string name="referral_panel_heading">Пригласите друга и вы оба получите бесплатный трафик</string>
     <string name="referral_panel_none">Пока нет друзей — поделитесь кодом, и появится корона. 👑</string>

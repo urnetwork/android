@@ -356,6 +356,7 @@
     <string name="referral_code">紹介コード</string>
     <string name="referral_code_capped">このコードはすでに使われています</string>
     <string name="referral_network">紹介ネットワーク</string>
+    <string name="referral_network_updated">紹介ネットワークを更新しました</string>
     <string name="referral_points">紹介ポイント</string>
     <string name="referral_royal_welcome">王室級の歓迎です！</string>
     <string name="referral_royal_welcome_detail">紹介が確定しました。あなたと友達それぞれに毎日+%1$d GiBの無料データを一生プレゼント。</string>

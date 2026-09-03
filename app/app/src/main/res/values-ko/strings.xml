@@ -356,6 +356,7 @@
     <string name="referral_code">추천 코드</string>
     <string name="referral_code_capped">이 코드는 이미 모두 사용되었습니다</string>
     <string name="referral_network">추천 네트워크</string>
+    <string name="referral_network_updated">추천 네트워크가 업데이트되었습니다</string>
     <string name="referral_points">추천 포인트</string>
     <string name="referral_royal_welcome">왕실급 환영입니다!</string>
     <string name="referral_royal_welcome_detail">추천이 확인되었습니다. 나와 친구 모두 평생 매일 +%1$d GiB의 무료 데이터를 받습니다.</string>

@@ -77,10 +77,11 @@ fun LeaderboardScreen(
     val leaderboardEntries = leaderboardViewModel.leaderboardEntries.collectAsState()
     var selectedTab by rememberSaveable { mutableIntStateOf(LEADERBOARD_TAB_DATA) }
 
+    val genericErrorMessage = stringResource(id = R.string.something_went_wrong)
     LaunchedEffect(leaderboardViewModel.displayErrorMsg) {
         if (leaderboardViewModel.displayErrorMsg) {
             snackbarHostState.showSnackbar(
-                message = "Something went wrong",
+                message = genericErrorMessage,
                 withDismissAction = true,
             )
             leaderboardViewModel.setDisplayErrorMsg(false)

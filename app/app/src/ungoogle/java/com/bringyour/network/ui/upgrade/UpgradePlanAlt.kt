@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.upgrade
 
+import com.bringyour.network.R
+import androidx.compose.ui.res.stringResource
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -131,7 +133,7 @@ fun UpgradePlanAlt(
                     }) {
                         Icon(
                             Icons.Filled.ChevronLeft,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
                 },

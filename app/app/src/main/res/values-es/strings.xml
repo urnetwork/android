@@ -356,6 +356,7 @@
     <string name="referral_code">Código de referencia</string>
     <string name="referral_code_capped">Este código ya ha sido utilizado</string>
     <string name="referral_network">Red de referidos</string>
+    <string name="referral_network_updated">Red de referidos actualizada</string>
     <string name="referral_panel_detail">Cada referido verificado les da a cada uno %1$d GiB/día gratis, de por vida.</string>
     <string name="referral_panel_heading">Refiere a un amigo y los dos consiguen datos gratis</string>
     <string name="referral_panel_none">Aún no hay amigos. Comparte tu código y verás aparecer la corona. 👑</string>

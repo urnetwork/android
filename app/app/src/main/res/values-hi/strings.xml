@@ -356,6 +356,7 @@
     <string name="referral_code">रेफरल कोड</string>
     <string name="referral_code_capped">यह कोड पहले ही उपयोग हो चुका है</string>
     <string name="referral_network">रेफ़रल नेटवर्क</string>
+    <string name="referral_network_updated">रेफ़रल नेटवर्क अपडेट किया गया</string>
     <string name="referral_points">रेफरल पॉइंट</string>
     <string name="referral_royal_welcome">शाही स्वागत है!</string>
     <string name="referral_royal_welcome_detail">रेफ़रल की पुष्टि हो गई — आपको और आपके दोस्त, दोनों को जीवनभर +%1$d GiB/दिन मुफ़्त डेटा मिलेगा।</string>

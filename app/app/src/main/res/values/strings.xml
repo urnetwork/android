@@ -582,6 +582,7 @@
     <string name="referral_code">Referral code</string>
     <string name="referral_code_capped">This code has been used up</string>
     <string name="referral_network">Referral network</string>
+    <string name="referral_network_updated">Referral network updated</string>
     <string name="referral_panel_detail">Every verified referral gives each of you %1$d GiB/day for free, for life.</string>
     <string name="referral_panel_heading">Refer a friend and you both get free data</string>
     <string name="referral_panel_none">No friends yet. Share your code and watch the crown appear. 👑</string>

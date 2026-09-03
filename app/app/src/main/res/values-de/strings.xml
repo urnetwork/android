@@ -356,6 +356,7 @@
     <string name="referral_code">Empfehlungscode</string>
     <string name="referral_code_capped">Dieser Code wurde bereits verwendet</string>
     <string name="referral_network">Empfehlungsnetzwerk</string>
+    <string name="referral_network_updated">Empfehlungsnetzwerk aktualisiert</string>
     <string name="referral_panel_detail">Jede verifizierte Empfehlung bringt Ihnen beiden je %1$d GiB/Tag kostenlos, auf Lebenszeit.</string>
     <string name="referral_panel_heading">Freunde einladen und Sie beide bekommen kostenlose Daten</string>
     <string name="referral_panel_none">Noch keine Freunde – teilen Sie Ihren Code und die Krone erscheint. 👑</string>

@@ -356,6 +356,7 @@
     <string name="referral_code">Kod polecający</string>
     <string name="referral_code_capped">Ten kod został już wykorzystany</string>
     <string name="referral_network">Sieć poleceń</string>
+    <string name="referral_network_updated">Zaktualizowano sieć poleceń</string>
     <string name="referral_points">Punkty za polecenia</string>
     <string name="referral_royal_welcome">Królewskie powitanie!</string>
     <string name="referral_royal_welcome_detail">Polecenie potwierdzone — ty i twój znajomy otrzymujecie po +%1$d GiB dziennie darmowych danych, na całe życie.</string>

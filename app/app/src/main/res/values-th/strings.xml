@@ -356,6 +356,7 @@
     <string name="referral_code">รหัสการแนะนำ</string>
     <string name="referral_code_capped">โค้ดนี้ถูกใช้หมดแล้ว</string>
     <string name="referral_network">แนะนำเครือข่าย</string>
+    <string name="referral_network_updated">อัปเดตเครือข่ายแนะนำแล้ว</string>
     <string name="referral_points">คะแนนแนะนำ</string>
     <string name="referral_royal_welcome">การต้อนรับระดับราชวงศ์!</string>
     <string name="referral_royal_welcome_detail">ยืนยันการแนะนำแล้ว — คุณและเพื่อนจะได้รับข้อมูลฟรีคนละ +%1$d GiB/วัน ตลอดชีวิต</string>

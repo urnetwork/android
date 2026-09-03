@@ -356,6 +356,7 @@
     <string name="referral_code">Código de indicação</string>
     <string name="referral_code_capped">Este código já foi utilizado</string>
     <string name="referral_network">Rede de indicações</string>
+    <string name="referral_network_updated">Rede de indicações atualizada</string>
     <string name="referral_points">Pontos de indicação</string>
     <string name="referral_royal_welcome">Boas-vindas reais!</string>
     <string name="referral_royal_welcome_detail">Indicação confirmada — você e seu amigo ganham, cada um, +%1$d GiB/dia de dados grátis, para sempre.</string>

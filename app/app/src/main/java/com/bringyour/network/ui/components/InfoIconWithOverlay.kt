@@ -143,14 +143,7 @@ private fun InfoPopupPreview() {
                     Column() {
                         Row {
                             Text(
-                                "Unlock even faster speeds and first",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = BlueLight
-                            )
-                        }
-                        Row {
-                            Text(
-                                "dibs on new features.",
+                                stringResource(id = R.string.unlock_supporter_tooltip),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = BlueLight
                             )
