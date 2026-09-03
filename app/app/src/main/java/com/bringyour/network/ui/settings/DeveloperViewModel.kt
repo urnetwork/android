@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.APP_LOG_PROCESS_NAME
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.R
 import com.bringyour.network.utils.formatByteCountCompact
 import com.bringyour.sdk.Exit
 import com.bringyour.sdk.ReliabilityMetrics
@@ -34,6 +36,7 @@ import kotlinx.coroutines.withContext
 @HiltViewModel
 class DeveloperViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
+    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider,
 ) : ViewModel() {
 
     var exits by mutableStateOf<List<Exit>>(listOf())
@@ -80,6 +83,34 @@ class DeveloperViewModel @Inject constructor(
      * exported from it would be the empty one this control exists to prevent.
      */
     var logVerbosity by mutableStateOf<Long?>(null)
+        private set
+
+    /**
+     * The control-plane address family policy this process reports, and what
+     * the sdk has learned on its own.
+     *
+     * NOT nullable, unlike [logVerbosity]. The policy is process-global sdk
+     * state that is always answerable -- there is no device to ask and
+     * therefore no "unavailable" -- and the row has to work signed out and
+     * with the tunnel down, because those are the states a user is in when
+     * the api is unreachable.
+     *
+     * Seeded from the sdk here rather than from IP_FAMILY_AUTO. [refresh] is
+     * polled, not run on open, so a constant seed would have the row claim
+     * Automatic for the first REFRESH_POLL_MILLIS of every visit -- and the
+     * row is deliberately live from the first frame, so a tap inside that
+     * window would step from a policy that is not the one in force.
+     */
+    var ipFamilyPolicy by mutableStateOf<Long>(Sdk.getControlIpFamilyPolicy())
+        private set
+
+    /**
+     * Any family this process has demoted on its own, as the sdk describes
+     * it, and empty when there is none. Reported beside the policy rather
+     * than folded into it, so Automatic never reads back as a force the user
+     * cannot then clear.
+     */
+    var ipFamilyStatus by mutableStateOf<String>(Sdk.getControlIpFamilyStatus())
         private set
 
     var inventory by mutableStateOf<List<LogRow>>(listOf())
@@ -403,6 +434,35 @@ class DeveloperViewModel @Inject constructor(
         logVerbosity = device?.getLogVerbosity()
     }
 
+    /**
+     * Applies a control-plane address family policy through the best write
+     * path available, and re-reads what the sdk then reports.
+     *
+     * THREE-way, not two. The device carries the policy furthest (on the
+     * other platform binding the same call reaches the packet tunnel
+     * extension), the network space sets this process AND records the choice
+     * for the next launch, and the process-global setter is the last resort
+     * that at least puts the choice in force for this session. Signed out
+     * there is no device and therefore -- see DeviceManager.networkSpace,
+     * which is `device?.networkSpace` -- no space through the device either,
+     * which is why the space is fetched from the provider.
+     *
+     * Read back from the sdk rather than assumed: it clamps out-of-range
+     * values without throwing, so reading back is what makes a set that did
+     * not take visible.
+     */
+    val setIpFamilyPolicy: (Long) -> Unit = { policy ->
+        val device = deviceManager.device
+        val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
+        when {
+            device != null -> device.setControlIpFamilyPolicy(policy)
+            networkSpace != null -> networkSpace.setControlIpFamilyPolicy(policy)
+            else -> Sdk.setControlIpFamilyPolicy(policy)
+        }
+        ipFamilyPolicy = Sdk.getControlIpFamilyPolicy()
+        ipFamilyStatus = Sdk.getControlIpFamilyStatus()
+    }
+
     fun toggleLogSelection(name: String) {
         selectedLogNames = if (selectedLogNames.contains(name)) {
             selectedLogNames - name
@@ -421,6 +481,13 @@ class DeveloperViewModel @Inject constructor(
         // below, so signing out clears the level to "Unavailable" instead of
         // leaving the last device's reading on screen.
         logVerbosity = device?.getLogVerbosity()
+
+        // Also above the guard, and for a stronger reason than the verbosity
+        // read: this one never needs a device at all. The policy is
+        // process-global sdk state, and the row exists for the signed-out,
+        // tunnel-down case where the api cannot be reached.
+        ipFamilyPolicy = Sdk.getControlIpFamilyPolicy()
+        ipFamilyStatus = Sdk.getControlIpFamilyStatus()
 
         if (device == null) {
             exits = listOf()
@@ -1098,6 +1165,65 @@ fun logVerbosityRecordsDestinations(level: Long?): Boolean =
     when (logVerbosityLevel(level)) {
         LogVerbosityLevel.VERBOSE, LogVerbosityLevel.TRACE -> true
         else -> false
+    }
+
+/**
+ * The control-plane address family policy, as the java `long` gobind binds the
+ * sdk's Go `int` to (`Sdk.IpFamilyPolicyAuto`, `IpFamilyPolicyForce4`,
+ * `IpFamilyPolicyForce6`).
+ *
+ * The service publishes both an A and an AAAA record for its api and its
+ * control websocket, and the AAAA is in a tunnel-brokered range some ISPs
+ * route badly: such a path completes the tcp handshake and then drops the
+ * larger tls handshake, so Happy Eyeballs picks it, declares it the winner and
+ * stalls. The sdk demotes a family that fails that way on its own; a force is
+ * the override for when it does not.
+ */
+const val IP_FAMILY_AUTO = 0L
+
+/** Control-plane dials use IPv4 only. */
+const val IP_FAMILY_FORCE_4 = 1L
+
+/** Control-plane dials use IPv6 only. */
+const val IP_FAMILY_FORCE_6 = 2L
+
+/**
+ * Anything the sdk would not recognise is Automatic, matching what the sdk
+ * itself does with an out-of-range value rather than throwing.
+ */
+fun clampIpFamilyPolicy(policy: Long): Long = when (policy) {
+    IP_FAMILY_FORCE_4 -> IP_FAMILY_FORCE_4
+    IP_FAMILY_FORCE_6 -> IP_FAMILY_FORCE_6
+    else -> IP_FAMILY_AUTO
+}
+
+/** Automatic first, so a tap always returns to the safe default. */
+fun nextIpFamilyPolicy(policy: Long): Long = when (clampIpFamilyPolicy(policy)) {
+    IP_FAMILY_AUTO -> IP_FAMILY_FORCE_4
+    IP_FAMILY_FORCE_4 -> IP_FAMILY_FORCE_6
+    else -> IP_FAMILY_AUTO
+}
+
+/** The name shown for a policy. */
+fun ipFamilyNameResource(policy: Long): Int = when (clampIpFamilyPolicy(policy)) {
+    IP_FAMILY_FORCE_4 -> R.string.dev_ip_family_force4
+    IP_FAMILY_FORCE_6 -> R.string.dev_ip_family_force6
+    else -> R.string.dev_ip_family_auto
+}
+
+/**
+ * The detail resource for a policy. `status` is the sdk's demotion
+ * description and is empty when nothing is demoted; it is reported only under
+ * Automatic, because a force does not consult the ledger and naming a demotion
+ * beside one would describe state that is not in effect.
+ */
+fun ipFamilyDetailResource(policy: Long, status: String): Int =
+    when (clampIpFamilyPolicy(policy)) {
+        IP_FAMILY_FORCE_4 -> R.string.dev_ip_family_force4_detail
+        IP_FAMILY_FORCE_6 -> R.string.dev_ip_family_force6_detail
+        else ->
+            if (status.isEmpty()) R.string.dev_ip_family_auto_detail
+            else R.string.dev_ip_family_auto_demoted_detail
     }
 
 /**
