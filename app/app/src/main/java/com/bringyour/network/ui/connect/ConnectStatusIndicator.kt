@@ -42,8 +42,9 @@ fun ConnectStatusIndicator(
     contractStatus: ContractStatus?,
     currentPlan: Plan,
     isPollingSubscriptionBalance: Boolean,
-    // when set, the connected-providers label opens the provider locations
-    // detail (only meaningful while connected)
+    // when set, the provider status label opens the provider locations detail:
+    // "Connected to N providers" and "Connecting to providers" alike (the detail
+    // shows whatever providers are known so far while connecting)
     onShowProviderLocations: (() -> Unit)? = null
 ) {
 
@@ -81,10 +82,14 @@ fun ConnectStatusIndicator(
         ConnectStatus.DISCONNECTED -> "Disconnected"
     }
 
-    // the provider count is the affordance: tapping it opens the per-provider
-    // locations detail. Any other status text is not interactive.
+    // the provider status is the affordance: tapping it opens the per-provider
+    // locations detail, while connecting as well as once connected. Any other
+    // status text is not interactive.
+    val providerStatus = status == ConnectStatus.CONNECTED ||
+            status == ConnectStatus.CONNECTING ||
+            status == ConnectStatus.DESTINATION_SET
     val showProviderLocations = onShowProviderLocations?.takeIf {
-        status == ConnectStatus.CONNECTED &&
+        providerStatus &&
                 !displayReconnectTunnel &&
                 !isPollingSubscriptionBalance &&
                 !(contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter)
