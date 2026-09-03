@@ -215,6 +215,7 @@
     <string name="login_error">出了些问题。再试一次。</string>
     <string name="login_error_auth_allowed">请使用以下任一方式登录：%1$s。</string>
     <string name="login_password_header">很高兴\n再次见到你</string>
+    <string name="login_tile_secret_key">助记词</string>
     <string name="login_verify_check_phone">检查你的手机</string>
     <string name="login_verify_details">告诉我们您是谁。输入我们\n发送给您的代码以验证您的身份。</string>
     <string name="login_verify_header">您有邮件</string>
@@ -393,6 +394,7 @@
     <string name="search_placeholder">搜索所有地点</string>
     <string name="see_world_content">查看所有\n世界内容</string>
     <string name="see_world_content_description">使用 URnetwork 查看所有世界内容</string>
+    <string name="seedphrase">助记词</string>
     <string name="seeker_token_verified">Seeker 令牌已验证</string>
     <string name="select_location_provider_content_description">地球图标：选择提供商位置</string>
     <string name="send">发送</string>
@@ -405,7 +407,9 @@
     <string name="share_logs">分享日志</string>
     <string name="show_icon_when_connected">连接时显示 UR 图标</string>
     <string name="show_on_points_leaderboard">在积分排行榜上显示</string>
+    <string name="sign_in">登录</string>
     <string name="sign_in_dgen1">使用 dGEN1 登录</string>
+    <string name="sign_in_with_seedphrase">使用助记词登录</string>
     <string name="site_app_contracts">合约</string>
     <string name="site_app_providers">提供者</string>
     <string name="solana_sign_in">使用 Solana 登录</string>

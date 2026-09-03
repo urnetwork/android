@@ -32,7 +32,6 @@ import com.bringyour.network.ui.login.LoginInitial
 import com.bringyour.network.ui.login.LoginPassword
 import com.bringyour.network.ui.login.LoginPasswordReset
 import com.bringyour.network.ui.login.LoginPasswordResetAfterSend
-import com.bringyour.network.ui.login.LoginSeedphrase
 import com.bringyour.network.ui.login.LoginVerify
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.SeedphraseDisplayScreen
@@ -232,32 +231,6 @@ fun LoginNavHost(
                         LoginPasswordResetAfterSend(
                             userAuth,
                             navController
-                        )
-                    }
-
-                    composable("login_seedphrase") {
-                        val context = LocalContext.current
-                        val application = context.applicationContext as? com.bringyour.network.MainApplication
-                        val loginActivity = context as? com.bringyour.network.LoginActivity
-
-                        LoginSeedphrase(
-                            // deliberately not handleLoginFlow: its 2.75s of delays
-                            // only exist to time the welcome overlay, which this
-                            // screen doesn't show, and they leave a window where the
-                            // session is already persisted but the login hasn't
-                            // finished -- backing out of it strands a half-logged-in app
-                            onLoginSuccess = { jwt ->
-                                application?.login(jwt)
-                                loginActivity?.authClientAndFinish { error ->
-                                    if (error != null) {
-                                        android.util.Log.e("LoginNavHost", "auth client finish err: $error")
-                                        android.widget.Toast.makeText(context, "Error logging in, please try again.", android.widget.Toast.LENGTH_LONG).show()
-                                    }
-                                }
-                            },
-                            onBack = {
-                                navController.popBackStack()
-                            }
                         )
                     }
 

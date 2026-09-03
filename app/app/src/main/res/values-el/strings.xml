@@ -215,6 +215,7 @@
     <string name="login_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
     <string name="login_error_auth_allowed">Συνδεθείτε με ένα από τα εξής: %1$s.</string>
     <string name="login_password_header">Χάρηκα που σε\nξαναβλέπω</string>
+    <string name="login_tile_secret_key">Seed</string>
     <string name="login_verify_check_phone">Ελέγξτε το τηλέφωνό σας</string>
     <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
     <string name="login_verify_header">Έχετε ένα email</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">Αναζήτηση σε όλες τις τοποθεσίες</string>
     <string name="see_world_content">Δείτε όλο\nτο περιεχόμενο\nτου κόσμου</string>
     <string name="see_world_content_description">Δείτε όλο το περιεχόμενο του κόσμου με το URnetwork</string>
+    <string name="seedphrase">Φράση ανάκτησης</string>
     <string name="seeker_token_verified">Το διακριτικό Seeker επαληθεύτηκε!</string>
     <string name="select_location_provider_content_description">Υδρόγειος: επιλογή τοποθεσίας παρόχου</string>
     <string name="send">Αποστολή</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
     <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
     <string name="show_on_points_leaderboard">Εμφάνιση στον πίνακα πόντων</string>
+    <string name="sign_in">Είσοδος</string>
     <string name="sign_in_dgen1">Σύνδεση με dGEN1</string>
+    <string name="sign_in_with_seedphrase">Σύνδεση με φράση ανάκτησης</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
     <string name="sorry_to_see_you_go">Λυπούμαστε που φεύγετε!</string>

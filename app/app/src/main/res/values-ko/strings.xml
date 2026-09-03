@@ -215,6 +215,7 @@
     <string name="login_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="login_error_auth_allowed">다음 중 하나로 로그인해 주세요: %1$s.</string>
     <string name="login_password_header">다시 만나서\n반갑습니다</string>
+    <string name="login_tile_secret_key">시드</string>
     <string name="login_verify_check_phone">휴대폰을 확인하세요</string>
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">모든 위치 검색</string>
     <string name="see_world_content">전 세계의\n콘텐츠 보기</string>
     <string name="see_world_content_description">URnetwork로 전 세계의 콘텐츠 보기</string>
+    <string name="seedphrase">시드 문구</string>
     <string name="seeker_token_verified">Seeker 토큰이 인증되었습니다!</string>
     <string name="select_location_provider_content_description">지구본: 제공업체 위치 선택</string>
     <string name="send">보내기</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">로그 공유</string>
     <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
     <string name="show_on_points_leaderboard">포인트 리더보드에 표시</string>
+    <string name="sign_in">로그인</string>
     <string name="sign_in_dgen1">dGEN1로 로그인</string>
+    <string name="sign_in_with_seedphrase">시드 문구로 로그인</string>
     <string name="solana_sign_in">Solana로 로그인</string>
     <string name="something_went_wrong">문제가 발생했습니다.</string>
     <string name="sorry_to_see_you_go">저희는 당신이 가는 것을 보게 되어 유감입니다!</string>

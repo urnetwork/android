@@ -414,7 +414,7 @@
     <string name="login_error">Something went wrong. Try again.</string>
     <string name="login_error_auth_allowed">Please login with one of: %1$s.</string>
     <string name="login_password_header">It\'s nice to\nsee you again</string>
-    <string name="login_tile_secret_key">Secret key</string>
+    <string name="login_tile_secret_key">Seed</string>
     <string name="login_verify_check_phone">Check your phone</string>
     <string name="login_verify_details">Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
     <string name="login_verify_header">You\'ve got mail</string>
@@ -615,6 +615,7 @@
     <string name="search_placeholder">Search for all locations</string>
     <string name="see_world_content">See all the\nworld\'s content</string>
     <string name="see_world_content_description">See all the world\'s content with URnetwork</string>
+    <string name="seedphrase">Seedphrase</string>
     <string name="seeker_points_only">The Seeker multiplier applies to points only.</string>
     <string name="seeker_token_verified">Seeker Token Verified!</string>
     <string name="select_location_provider_content_description">Select location provider globe</string>
@@ -636,8 +637,10 @@
     <string name="show_icon_when_connected">Show UR icon when connected</string>
     <string name="show_kill_switch_exception">Show kill switch exception</string>
     <string name="show_on_points_leaderboard">Show on the points leaderboard</string>
+    <string name="sign_in">Sign in</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
     <string name="sign_in_with_apple">Sign in with Apple</string>
+    <string name="sign_in_with_seedphrase">Sign in with Seedphrase</string>
     <string name="site_app_contracts">Contracts</string>
     <string name="site_app_providers">Providers</string>
     <string name="skip">Skip</string>

@@ -215,6 +215,7 @@
     <string name="login_error">มีบางอย่างผิดปกติ ลองใหม่อีกครั้ง</string>
     <string name="login_error_auth_allowed">โปรดเข้าสู่ระบบด้วยหนึ่งใน %1$s</string>
     <string name="login_password_header">ดีใจที่ได้พบคุณ\nอีกครั้งนะ</string>
+    <string name="login_tile_secret_key">ซีด</string>
     <string name="login_verify_check_phone">ตรวจสอบมือถือของคุณ</string>
     <string name="login_verify_details">บอกเราหน่อยสิว่านี้คือคุณจริงๆ กรอกโค้ดทางเรา\nส่งให้เพื่อยืนยันตัวตน</string>
     <string name="login_verify_header">คุณได้รับอีเมลใหม่</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">ค้นหาทุกประเทศ</string>
     <string name="see_world_content">เข้าถึงทุกคอนเทนต์\nจากทั่วทุกมุมโลก</string>
     <string name="see_world_content_description">เข้าถึงทุกคอนเทนต์จากทั่วโลกด้วย URnetwork</string>
+    <string name="seedphrase">วลีกู้คืน</string>
     <string name="seeker_token_verified">ยืนยัน Seeker Token สำเร็จ</string>
     <string name="select_location_provider_content_description">ลูกโลก: เลือกตำแหน่งผู้ให้บริการ</string>
     <string name="send">ส่ง</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">แชร์ไฟล์บันทึก</string>
     <string name="show_icon_when_connected">แสดงไอคอน UR เมื่อเชื่อมต่อ</string>
     <string name="show_on_points_leaderboard">แสดงบนกระดานคะแนน</string>
+    <string name="sign_in">ลงชื่อเข้าใช้</string>
     <string name="sign_in_dgen1">ลงชื่อเข้าใช้ด้วย dGEN1</string>
+    <string name="sign_in_with_seedphrase">ลงชื่อเข้าใช้ด้วยวลีกู้คืน</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>
     <string name="something_went_wrong">มีบางอย่างผิดปกติ</string>
     <string name="sorry_to_see_you_go">ขอบคุณที่เคยเป็นส่วนหนึ่งกับเรา เราเสียดายที่ต้องลาจากกัน</string>

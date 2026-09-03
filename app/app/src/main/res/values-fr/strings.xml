@@ -215,6 +215,7 @@
     <string name="login_error">Quelque chose s\'est mal passé. Réessayez.</string>
     <string name="login_error_auth_allowed">Veuillez vous connecter avec l\'un des éléments suivants : %1$s.</string>
     <string name="login_password_header">C\'est agréable de\nvous revoir</string>
+    <string name="login_tile_secret_key">Seed</string>
     <string name="login_verify_check_phone">Vérifiez votre téléphone</string>
     <string name="login_verify_details">Dites-nous qui vous êtes vraiment. Entrez le code que nous\nvous avons envoyé pour vérifier votre identité.</string>
     <string name="login_verify_header">Vous avez un courriel</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">Rechercher tous les emplacements</string>
     <string name="see_world_content">Voir tout\nle contenu\ndu monde</string>
     <string name="see_world_content_description">Voyez tout le contenu du monde avec URnetwork</string>
+    <string name="seedphrase">Phrase de récupération</string>
     <string name="seeker_token_verified">Jeton Seeker vérifié !</string>
     <string name="select_location_provider_content_description">Globe : sélectionner l\'emplacement du fournisseur</string>
     <string name="send">Envoie</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">Partager les journaux</string>
     <string name="show_icon_when_connected">Afficher l’icône UR lors de la connexion</string>
     <string name="show_on_points_leaderboard">Afficher dans le classement des points</string>
+    <string name="sign_in">Se connecter</string>
     <string name="sign_in_dgen1">Se connecter avec dGEN1</string>
+    <string name="sign_in_with_seedphrase">Se connecter avec la phrase de récupération</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>
     <string name="something_went_wrong">Quelque chose s\'est mal passé.</string>
     <string name="sorry_to_see_you_go">Nous sommes désolés de vous voir partir !</string>

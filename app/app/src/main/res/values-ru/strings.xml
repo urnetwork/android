@@ -215,6 +215,7 @@
     <string name="login_error">Что-то пошло не так. Попробуйте еще раз.</string>
     <string name="login_error_auth_allowed">Пожалуйста, войдите, используя один из следующих способов: %1$s.</string>
     <string name="login_password_header">Рады видеть\nвас снова</string>
+    <string name="login_tile_secret_key">Сид</string>
     <string name="login_verify_check_phone">Проверьте свой телефон</string>
     <string name="login_verify_details">Подтвердите, что это вы. Введите код,\nкоторый мы отправили, для проверки вашей личности.</string>
     <string name="login_verify_header">Вам письмо</string>
@@ -393,6 +394,7 @@
     <string name="search_placeholder">Поиск по всем локациям</string>
     <string name="see_world_content">Смотрите контент\nсо всего мира</string>
     <string name="see_world_content_description">Смотрите контент со всего мира с URnetwork</string>
+    <string name="seedphrase">Сид-фраза</string>
     <string name="seeker_token_verified">Токен Seeker проверен!</string>
     <string name="select_location_provider_content_description">Глобус: выбрать локацию провайдера</string>
     <string name="send">Отправить</string>
@@ -405,7 +407,9 @@
     <string name="share_logs">Поделиться логами</string>
     <string name="show_icon_when_connected">Показывать значок UR при подключении</string>
     <string name="show_on_points_leaderboard">Показывать в таблице лидеров по очкам</string>
+    <string name="sign_in">Войти</string>
     <string name="sign_in_dgen1">Войти с помощью dGEN1</string>
+    <string name="sign_in_with_seedphrase">Войти по сид-фразе</string>
     <string name="site_app_contracts">Контракты</string>
     <string name="site_app_providers">Провайдеры</string>
     <string name="solana_sign_in">Войти через Solana</string>

@@ -215,6 +215,7 @@
     <string name="login_error">Něco se pokazilo. Zkuste to znovu.</string>
     <string name="login_error_auth_allowed">Přihlaste se prosím pomocí jednoho z těchto údajů: %1$s.</string>
     <string name="login_password_header">Je pěkné vás vidět znova</string>
+    <string name="login_tile_secret_key">Seed</string>
     <string name="login_verify_check_phone">Zkontrolujte telefon</string>
     <string name="login_verify_details">"Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost."</string>
     <string name="login_verify_header">Máš poštu</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">Hledat všechna místa</string>
     <string name="see_world_content">Zobrazit veškerý\nkontent světa</string>
     <string name="see_world_content_description">Prohlédněte si veškerý obsah světa pomocí sítě URnetwork</string>
+    <string name="seedphrase">Seed fráze</string>
     <string name="seeker_token_verified">Token Seeker ověřen!</string>
     <string name="select_location_provider_content_description">Glóbus: výběr lokality poskytovatele</string>
     <string name="send">Odeslat</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">Sdílet protokoly</string>
     <string name="show_icon_when_connected">Zobrazit ikonu UR po připojení</string>
     <string name="show_on_points_leaderboard">Zobrazit v žebříčku bodů</string>
+    <string name="sign_in">Přihlásit se</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
+    <string name="sign_in_with_seedphrase">Přihlásit se pomocí seed fráze</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>
     <string name="something_went_wrong">Něco se pokazilo.</string>
     <string name="sorry_to_see_you_go">Je nám líto, že odcházíte!</string>

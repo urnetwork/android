@@ -215,6 +215,7 @@
     <string name="login_error">Er is iets misgegaan. Probeer het opnieuw.</string>
     <string name="login_error_auth_allowed">Log in met één van de volgende opties: %1$s.</string>
     <string name="login_password_header">Het is fijn om\nje weer te zien</string>
+    <string name="login_tile_secret_key">Seed</string>
     <string name="login_verify_check_phone">Controleer je telefoon</string>
     <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
     <string name="login_verify_header">Je hebt mail</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">Zoek naar alle locaties</string>
     <string name="see_world_content">Bekijk alle\ninhoud van de wereld</string>
     <string name="see_world_content_description">Bekijk alle inhoud van de wereld met URnetwork</string>
+    <string name="seedphrase">Seedphrase</string>
     <string name="seeker_token_verified">Seeker Token geverifieerd!</string>
     <string name="select_location_provider_content_description">Wereldbol: providerlocatie selecteren</string>
     <string name="send">Verstuur</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">Logs delen</string>
     <string name="show_icon_when_connected">Toon UR-pictogram bij verbinding</string>
     <string name="show_on_points_leaderboard">Toon op het puntenscorebord</string>
+    <string name="sign_in">Log in</string>
     <string name="sign_in_dgen1">Inloggen met dGEN1</string>
+    <string name="sign_in_with_seedphrase">Inloggen met seedphrase</string>
     <string name="solana_sign_in">Inloggen met Solana</string>
     <string name="something_went_wrong">Er is iets misgegaan.</string>
     <string name="sorry_to_see_you_go">Het spijt ons dat je weggaat!</string>

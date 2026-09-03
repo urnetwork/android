@@ -216,8 +216,10 @@ fun LoginInitial(
         }
     }
 
+    // the seed sign-in is a slide-up sheet, like the auth code sign-in
+    var seedphraseLoginSheetVisible by remember { mutableStateOf(false) }
     val onSeedphraseLogin: () -> Unit = {
-        navController.navigate("login_seedphrase")
+        seedphraseLoginSheetVisible = true
     }
 
     val onInstantAccountCreate: () -> Unit = {
@@ -252,6 +254,26 @@ fun LoginInitial(
         },
         onSeedphraseLogin = onSeedphraseLogin,
         onInstantAccountCreate = onInstantAccountCreate
+    )
+
+    SeedphraseLoginSheet(
+        isPresenting = seedphraseLoginSheetVisible,
+        setIsPresenting = { seedphraseLoginSheetVisible = it },
+        // deliberately not the welcome-overlay login flow: its delays only exist
+        // to time the overlay, which this sheet doesn't show, and they leave a
+        // window where the session is already persisted but the login hasn't
+        // finished
+        onLogin = { jwt ->
+            val application = context.applicationContext as? com.bringyour.network.MainApplication
+            val loginActivity = context as? com.bringyour.network.LoginActivity
+            application?.login(jwt)
+            loginActivity?.authClientAndFinish { error ->
+                if (error != null) {
+                    android.util.Log.e("LoginInitial", "auth client finish err: $error")
+                    android.widget.Toast.makeText(context, "Error logging in, please try again.", android.widget.Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     )
 
     if (noSolanaWalletsFound) {

@@ -215,6 +215,7 @@
     <string name="login_error">कुछ गलत हो गया. पुनः प्रयास करें.</string>
     <string name="login_error_auth_allowed">कृपया इनमें से किसी एक के साथ लॉगिन करें: %1$s.</string>
     <string name="login_password_header">आपको फिर से देखकर\nअच्छा लगा</string>
+    <string name="login_tile_secret_key">सीड</string>
     <string name="login_verify_check_phone">अपना फ़ोन जांचें</string>
     <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">सभी स्थानों पर खोजें</string>
     <string name="see_world_content">दुनिया की सभी\nसामग्री देखें</string>
     <string name="see_world_content_description">URnetwork के साथ दुनिया की सभी सामग्री देखें</string>
+    <string name="seedphrase">सीड फ़्रेज़</string>
     <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
     <string name="select_location_provider_content_description">ग्लोब: प्रदाता का स्थान चुनें</string>
     <string name="send">भेजें</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">लॉग साझा करें</string>
     <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
     <string name="show_on_points_leaderboard">पॉइंट लीडरबोर्ड पर दिखाएँ</string>
+    <string name="sign_in">साइन इन करें</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
+    <string name="sign_in_with_seedphrase">सीड फ़्रेज़ से साइन इन करें</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>
     <string name="something_went_wrong">कुछ गलत हो गया।</string>
     <string name="sorry_to_see_you_go">हमें आपको जाते हुए देखकर दुख हो रहा है!</string>

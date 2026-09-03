@@ -215,6 +215,7 @@
     <string name="login_error">エラーが発生しました。もう一度お試しください。</string>
     <string name="login_error_auth_allowed">以下のいずれかでログインしてください：%1$s</string>
     <string name="login_password_header">お帰りなさい</string>
+    <string name="login_tile_secret_key">シード</string>
     <string name="login_verify_check_phone">携帯電話を確認してください</string>
     <string name="login_verify_details">本人確認のために、送信したコードを入力してください。</string>
     <string name="login_verify_header">メールが届いています</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">全てのロケーションを検索</string>
     <string name="see_world_content">世界中のコンテンツを\n見る</string>
     <string name="see_world_content_description">URnetworkで世界中のコンテンツを見る</string>
+    <string name="seedphrase">シードフレーズ</string>
     <string name="seeker_token_verified">Seekerトークンが認証されました！</string>
     <string name="select_location_provider_content_description">地球儀: プロバイダーの場所を選択</string>
     <string name="send">送信</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">ログを共有</string>
     <string name="show_icon_when_connected">接続時にURアイコンを表示</string>
     <string name="show_on_points_leaderboard">ポイントリーダーボードに表示</string>
+    <string name="sign_in">サインイン</string>
     <string name="sign_in_dgen1">dGEN1でサインイン</string>
+    <string name="sign_in_with_seedphrase">シードフレーズでサインイン</string>
     <string name="solana_sign_in">Solanaでサインイン</string>
     <string name="something_went_wrong">エラーが発生しました。</string>
     <string name="sorry_to_see_you_go">お見送り残念です！</string>

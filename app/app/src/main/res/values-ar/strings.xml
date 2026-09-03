@@ -215,6 +215,7 @@
     <string name="login_error">حدث خطأ ما. حاول مجددا.</string>
     <string name="login_error_auth_allowed">يرجى تسجيل الدخول باستخدام أحد: %1$s.</string>
     <string name="login_password_header">من الجيد\nرؤيتك مرة أخرى</string>
+    <string name="login_tile_secret_key">بذرة</string>
     <string name="login_verify_check_phone">تحقق من هاتفك</string>
     <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="login_verify_header">لديك بريد إلكتروني</string>
@@ -393,6 +394,7 @@
     <string name="search_placeholder">البحث في جميع المواقع</string>
     <string name="see_world_content">شاهد كل\nمحتوى\nالعالم</string>
     <string name="see_world_content_description">شاهد كل محتوى العالم مع URnetwork</string>
+    <string name="seedphrase">عبارة الاسترداد</string>
     <string name="seeker_token_verified">تم التحقق من رمز Seeker!</string>
     <string name="select_location_provider_content_description">الكرة الأرضية: اختيار موقع المزود</string>
     <string name="send">أرسل</string>
@@ -405,7 +407,9 @@
     <string name="share_logs">مشاركة السجلات</string>
     <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
     <string name="show_on_points_leaderboard">العرض في لوحة صدارة النقاط</string>
+    <string name="sign_in">تسجيل الدخول</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
+    <string name="sign_in_with_seedphrase">تسجيل الدخول بعبارة الاسترداد</string>
     <string name="site_app_contracts">العقود</string>
     <string name="site_app_providers">المزوّدون</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>

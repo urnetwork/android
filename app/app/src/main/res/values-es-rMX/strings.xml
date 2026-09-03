@@ -215,6 +215,7 @@
     <string name="login_error">Algo salió mal. Inténtalo de nuevo.</string>
     <string name="login_error_auth_allowed">Inicia sesión con una de las siguientes opciones: %1$s.</string>
     <string name="login_password_header">Qué gusto\nverte de nuevo</string>
+    <string name="login_tile_secret_key">Semilla</string>
     <string name="login_verify_check_phone">Verifica tu teléfono</string>
     <string name="login_verify_details">Dinos quién eres en realidad. Introduce el código que te\nenviamos para verificar tu identidad.</string>
     <string name="login_verify_header">Tienes un correo</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">Buscar en todas las ubicaciones</string>
     <string name="see_world_content">Ver todo\nel contenido\ndel mundo</string>
     <string name="see_world_content_description">Ver todo el contenido del mundo con URnetwork</string>
+    <string name="seedphrase">Frase semilla</string>
     <string name="seeker_token_verified">¡Token Seeker verificado!</string>
     <string name="select_location_provider_content_description">Globo: seleccionar ubicación del proveedor</string>
     <string name="send">Envía</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">Compartir registros</string>
     <string name="show_icon_when_connected">Mostrar el ícono UR cuando esté conectado</string>
     <string name="show_on_points_leaderboard">Mostrar en la tabla de puntos</string>
+    <string name="sign_in">Iniciar sesión</string>
     <string name="sign_in_dgen1">Iniciar sesión con dGEN1</string>
+    <string name="sign_in_with_seedphrase">Iniciar sesión con la frase semilla</string>
     <string name="solana_sign_in">Iniciar sesión con Solana</string>
     <string name="something_went_wrong">Algo salió mal.</string>
     <string name="sorry_to_see_you_go">¡Lamentamos verte ir!</string>

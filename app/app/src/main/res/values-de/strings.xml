@@ -215,6 +215,7 @@
     <string name="login_error">Etwas ist schiefgelaufen. Versuche es erneut.</string>
     <string name="login_error_auth_allowed">Bitte melde dich mit einem der folgenden an: %1$s.</string>
     <string name="login_password_header">Schön, dich\nwiederzusehen</string>
+    <string name="login_tile_secret_key">Seed</string>
     <string name="login_verify_check_phone">Überprüfe dein Telefon</string>
     <string name="login_verify_details">Sag uns, wer du wirklich bist. Gib den Code ein, den wir dir\ngesendet haben, um deine Identität zu überprüfen.</string>
     <string name="login_verify_header">Du hast eine E-Mail</string>
@@ -393,6 +394,7 @@
     <string name="search_placeholder">Alle Standorte durchsuchen</string>
     <string name="see_world_content">Sieh alle\nInhalte\nder Welt</string>
     <string name="see_world_content_description">Sieh alle Inhalte der Welt mit URnetwork</string>
+    <string name="seedphrase">Seedphrase</string>
     <string name="seeker_token_verified">Seeker-Token verifiziert!</string>
     <string name="select_location_provider_content_description">Globus: Anbieter-Standort auswählen</string>
     <string name="send">Sende</string>
@@ -405,7 +407,9 @@
     <string name="share_logs">Protokolle teilen</string>
     <string name="show_icon_when_connected">UR-Symbol bei Verbindung anzeigen</string>
     <string name="show_on_points_leaderboard">In der Punkte-Bestenliste anzeigen</string>
+    <string name="sign_in">Anmelden</string>
     <string name="sign_in_dgen1">Mit dGEN1 anmelden</string>
+    <string name="sign_in_with_seedphrase">Mit Seedphrase anmelden</string>
     <string name="site_app_contracts">Verträge</string>
     <string name="site_app_providers">Provider</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>

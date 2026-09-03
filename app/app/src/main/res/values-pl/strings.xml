@@ -215,6 +215,7 @@
     <string name="login_error">Coś poszło nie tak. Spróbuj ponownie.</string>
     <string name="login_error_auth_allowed">Zaloguj się za pomocą jednego z: %1$s.</string>
     <string name="login_password_header">Miło Cię\nznowu widzieć</string>
+    <string name="login_tile_secret_key">Seed</string>
     <string name="login_verify_check_phone">Sprawdź swój telefon</string>
     <string name="login_verify_details">Powiedz nam, kim naprawdę jesteś. Wprowadź kod,\nktóry wysłaliśmy, aby zweryfikować twoją tożsamość.</string>
     <string name="login_verify_header">Masz wiadomość</string>
@@ -390,6 +391,7 @@
     <string name="search_placeholder">Szukaj wszystkich lokalizacji</string>
     <string name="see_world_content">Zobacz całą\ntreść świata</string>
     <string name="see_world_content_description">Zobacz całą treść świata z URnetwork</string>
+    <string name="seedphrase">Fraza seed</string>
     <string name="seeker_token_verified">Token Seeker zweryfikowany!</string>
     <string name="select_location_provider_content_description">Globus: wybierz lokalizację dostawcy</string>
     <string name="send">Wyślij</string>
@@ -402,7 +404,9 @@
     <string name="share_logs">Udostępnij logi</string>
     <string name="show_icon_when_connected">Pokaż ikonę UR po połączeniu</string>
     <string name="show_on_points_leaderboard">Pokaż w rankingu punktów</string>
+    <string name="sign_in">Zaloguj się</string>
     <string name="sign_in_dgen1">Zaloguj się za pomocą dGEN1</string>
+    <string name="sign_in_with_seedphrase">Zaloguj się frazą seed</string>
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>
     <string name="something_went_wrong">Coś poszło nie tak.</string>
     <string name="sorry_to_see_you_go">Przykro nam, że odchodzisz!</string>
