@@ -2,6 +2,8 @@ package com.bringyour.network.ui.shared.viewmodels
 
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.upgrade.FREE_TRIAL_DAYS
+import com.bringyour.network.ui.upgrade.PlanOffer
+import com.bringyour.network.ui.upgrade.PlanOffers
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -534,9 +536,12 @@ class PlanViewModel @Inject constructor(
                             offer.pricingPhases.pricingPhaseList.joinToString(",") { "${it.billingPeriod}:${it.formattedPrice}" }
                     }.ifEmpty { "none" },
                 )
-                val monthly = offers.firstOrNull { offerPeriodDays(it) in 28..31 }
+                val planOffers = offers.toPlanOffers()
+                val monthly = PlanOffers.monthly(planOffers)?.let { offers[it.index] }
                     ?: offers.firstOrNull()
-                val yearly = offers.firstOrNull { 360 <= offerPeriodDays(it) }
+                // the yearly offer with the trial when Play returns one; the plain
+                // yearly base plan otherwise (the same choice the purchase makes)
+                val yearly = PlanOffers.yearly(planOffers)?.let { offers[it.index] }
 
                 // the price is the first paid phase: a free trial phase comes first
                 // in the list and reads "Free"
@@ -548,11 +553,12 @@ class PlanViewModel @Inject constructor(
                     ?.firstOrNull { 0L < it.priceAmountMicros }
                     ?.formattedPrice
 
-                // only the yearly offer carries the trial
-                yearly?.pricingPhases?.pricingPhaseList
-                    ?.firstOrNull { it.priceAmountMicros == 0L }
-                    ?.let { parseIsoPeriodDays(it.billingPeriod) }
-                    ?.let { freeTrialDays = it }
+                // the trial the picker promises is the one Play will actually
+                // grant: the yearly offer's free phase, or none. Before the offers
+                // load the app default stands in; after, 0 means no trial line and
+                // no "Start free trial" button, so a yearly purchase without an
+                // offer is never sold as a trial
+                freeTrialDays = PlanOffers.trialDays(planOffers)
 
                 if (yearly == null) {
                     // the Play product has no yearly base plan yet: only monthly can be bought
@@ -616,13 +622,25 @@ internal fun offerPeriodDays(offer: com.android.billingclient.api.ProductDetails
     return parseIsoPeriodDays(paid.billingPeriod) ?: 0
 }
 
-/** Picks the offer for a plan by its base period; the first offer when the product has no such plan. */
+/** Days of the free phase in front of an offer's paid phases; 0 when it has none. */
+internal fun offerFreeDays(offer: com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails): Int {
+    val free = offer.pricingPhases.pricingPhaseList.firstOrNull { it.priceAmountMicros == 0L }
+        ?: return 0
+    return parseIsoPeriodDays(free.billingPeriod) ?: 0
+}
+
+/** Play's offers reduced to the picker's decision data, in Play's order. */
+internal fun List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>.toPlanOffers(): List<PlanOffer> =
+    mapIndexed { index, offer -> PlanOffer(index = index, periodDays = offerPeriodDays(offer), freeDays = offerFreeDays(offer)) }
+
+/**
+ * Picks the offer to buy for a plan (see [PlanOffers.forPlan]): for the yearly
+ * plan the offer with the free trial when Play returns one, so the purchase
+ * carries the trial the picker promised.
+ */
 internal fun offerForPlan(
     offers: List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>,
     plan: PlanType,
 ): com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails? {
-    return when (plan) {
-        PlanType.YEARLY -> offers.firstOrNull { 360 <= offerPeriodDays(it) }
-        PlanType.MONTHLY -> offers.firstOrNull { offerPeriodDays(it) in 28..31 }
-    } ?: offers.firstOrNull()
+    return PlanOffers.forPlan(offers.toPlanOffers(), plan)?.let { offers[it.index] }
 }

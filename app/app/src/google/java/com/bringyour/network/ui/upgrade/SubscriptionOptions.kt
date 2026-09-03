@@ -67,12 +67,15 @@ fun SubscriptionOptions(
     yearlyCostFormatted: String? = null,
     selectedPlan: PlanType = PlanType.YEARLY,
     setSelectedPlan: (PlanType) -> Unit = {},
-    // the yearly Play offer's free trial, in days; the app default until the offer loads
+    // the yearly Play offer's free trial, in days; the app default until the offers
+    // load, 0 once they have and none of them carries a trial
     freeTrialDays: Int = FREE_TRIAL_DAYS,
 ) {
 
     val yearlyAvailable = yearlyCostFormatted != null
     val yearlySelected = yearlyAvailable && selectedPlan == PlanType.YEARLY
+    // a trial is promised only when Play returned a yearly offer that grants one
+    val trialOffered = yearlyAvailable && 0 < freeTrialDays
 
     Column {
 
@@ -86,11 +89,13 @@ fun SubscriptionOptions(
                             stringResource(id = R.string.plan_price_per_year, yearlyCostFormatted ?: ""),
                             style = TopBarTitleTextStyle
                         )
-                        Text(
-                            stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = ProGoldLight
-                        )
+                        if (trialOffered) {
+                            Text(
+                                stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = ProGoldLight
+                            )
+                        }
                     }
                 },
                 badge = {
@@ -127,7 +132,7 @@ fun SubscriptionOptions(
                 isProcessing = upgradeInProgress
             ) { buttonTextStyle ->
                 Text(
-                    stringResource(id = if (yearlySelected) R.string.start_free_trial else R.string.subscribe),
+                    stringResource(id = if (yearlySelected && trialOffered) R.string.start_free_trial else R.string.subscribe),
                     style = buttonTextStyle
                 )
             }
