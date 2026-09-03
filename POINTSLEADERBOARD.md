@@ -182,3 +182,11 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
   1–3 distinct emoji from a curated, widely-rendered set (single-codepoint Emoji_Presentation
   characters; no flags, skin tones or ZWJ sequences). A shuffle button re-rolls the
   suggestion. The suggestion is only a draft: nothing is saved until the user taps Save.
+
+- Decision (user, 2026-09-03): keep the AndroidX `emoji2-emojipicker` as the Android keyboard
+  (search, recents, skin tones). It pulls Guava in through `kotlinx-coroutines-guava`, which
+  promotes `listenablefuture` to Guava's empty placeholder and breaks `ListenableFuture`
+  resolution for the WorkManager worker at compile time, so `com.google.guava:guava` is on the
+  compile classpath explicitly. Guava is unrelated to the leaderboard: sorting, ranking and
+  paging live only in the SDK's `PointsLeaderboardViewController`. Other platforms pick their
+  own emoji keyboard; the tag rules stay in the SDK (`ValidateEmojiTag`, `SuggestEmojiTag`).
