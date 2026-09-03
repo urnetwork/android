@@ -357,6 +357,8 @@ for _ in $(seq 1 24); do
   sleep 5
 done
 [ "$network_ready" -eq 1 ] || die "emulator has no DNS/network route to api.bringyour.com"
+android_acceptance_suppress_system_error_dialogs "$adb" "$serial" || \
+  die "could not suppress unrelated Android system error dialogs"
 android_acceptance_disable_animations "$adb" "$serial" "$animation_scales" || \
   die "could not disable Android animations for deterministic Compose input"
 
@@ -501,6 +503,8 @@ boot_peer_emulator() {
   if ! wait_android_ready "$peer_serial"; then
     die "peer Android emulator did not become network-ready"
   fi
+  android_acceptance_suppress_system_error_dialogs "$adb" "$peer_serial" || \
+    die "could not suppress peer Android system error dialogs"
 }
 
 wait_physical_status() {

@@ -225,4 +225,16 @@ FAKE_ADB_DEVICE=device
 
 remove_android_acceptance_run_dir "$adb_run_dir"
 
+system_dialog_calls="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-system-dialogs.test.XXXXXX")"
+fake_system_dialog_adb() {
+  printf '%s\n' "$*" >>"$system_dialog_calls"
+}
+android_acceptance_suppress_system_error_dialogs \
+  fake_system_dialog_adb emulator-5558 || \
+  fail "could not suppress system error dialogs"
+[ "$(cat "$system_dialog_calls")" = \
+  "-s emulator-5558 shell settings put global hide_error_dialogs 1" ] || \
+  fail "system error dialog suppression did not target the requested AVD"
+rm -f "$system_dialog_calls"
+
 echo "android/test-main.sh runner tests passed"

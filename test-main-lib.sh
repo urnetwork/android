@@ -108,6 +108,18 @@ android_acceptance_adb_device_ready() {
   [ "$(printf '%s' "$state" | tr -d '\r\n')" = device ]
 }
 
+# The acceptance AVD's launcher can ANR while multiple read-only instances
+# start under software rendering. Its system error dialog then owns the
+# foreground window and hides the app from UI Automator even though the app is
+# healthy. This is a dedicated test AVD, so suppress those unrelated dialogs
+# before any instrumentation starts.
+android_acceptance_suppress_system_error_dialogs() {
+  local adb="$1" serial="$2"
+
+  timeout 15 "$adb" -s "$serial" shell settings put global hide_error_dialogs 1 \
+    </dev/null >/dev/null
+}
+
 # Compose cannot become idle while an app-owned infinite animation advances on
 # every frame. Acceptance uses Android's reduced-motion contract so those
 # animations stay static, then restores all host settings exactly for a reused
