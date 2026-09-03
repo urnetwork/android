@@ -486,6 +486,7 @@
     <string name="via_exit">经由 %1$s</string>
     <string name="welcome_to_urnetwork">欢迎来到 URnetwork</string>
     <string name="when_you_refer_a_friend">当你推荐朋友时：</string>
+    <string name="widgets">小组件</string>
     <string name="window_type_auto">自动</string>
     <string name="window_type_quality">网页</string>
     <string name="window_type_speed">流媒体</string>

@@ -486,6 +486,7 @@
     <string name="via_exit">через %1$s</string>
     <string name="welcome_to_urnetwork">Добро пожаловать в URnetwork</string>
     <string name="when_you_refer_a_friend">Когда вы приглашаете друга:</string>
+    <string name="widgets">Виджеты</string>
     <string name="window_type_auto">Авто</string>
     <string name="window_type_quality">Веб</string>
     <string name="window_type_speed">Стриминг</string>

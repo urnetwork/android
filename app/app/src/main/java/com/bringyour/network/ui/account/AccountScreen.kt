@@ -443,6 +443,16 @@ fun AccountScreenContent(
             }
         )
         HorizontalDivider()
+        // the quick connect tile and the home screen widgets need no account,
+        // so the row is open to guests too
+        URNavListItem(
+            iconResourceId = R.drawable.nav_list_item_widgets,
+            text = stringResource(id = R.string.widgets),
+            onClick = {
+                navController.navigate(Route.Widgets)
+            }
+        )
+        HorizontalDivider()
 
         /**
          * view IP

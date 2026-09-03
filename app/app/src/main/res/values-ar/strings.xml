@@ -486,6 +486,7 @@
     <string name="via_exit">عبر %1$s</string>
     <string name="welcome_to_urnetwork">مرحبًا بك في URnetwork</string>
     <string name="when_you_refer_a_friend">عندما تقوم بإحالة صديق:</string>
+    <string name="widgets">الأدوات</string>
     <string name="window_type_auto">تلقائي</string>
     <string name="window_type_quality">الويب</string>
     <string name="window_type_speed">البث</string>

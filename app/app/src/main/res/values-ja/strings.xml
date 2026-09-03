@@ -481,6 +481,7 @@
     <string name="via_exit">%1$s 経由</string>
     <string name="welcome_to_urnetwork">URnetworkへようこそ</string>
     <string name="when_you_refer_a_friend">友達を紹介するとき：</string>
+    <string name="widgets">ウィジェット</string>
     <string name="window_type_auto">自動</string>
     <string name="window_type_quality">ウェブ</string>
     <string name="window_type_speed">ストリーミング</string>

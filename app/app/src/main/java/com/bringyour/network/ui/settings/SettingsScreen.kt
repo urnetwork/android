@@ -944,11 +944,35 @@ private fun SettingsScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             /**
-             * Quick connect surfaces: the Quick Settings tile (Android 13+ can ask the
-             * system to add it; hidden once it is placed) and the Home Screen widgets
-             * (pinned through the launcher's confirmation).
+             * Quick connect surfaces: the Quick Settings tile and the Home Screen
+             * widgets live on their own screen (Account > Widgets), the same
+             * content as the last onboarding page; this row just opens it.
              */
-            QuickConnectSettingsRows()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate(Route.Widgets) }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(id = R.string.widgets),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        stringResource(id = R.string.settings_add_widgets_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = TextMuted
+                )
+            }
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -1710,88 +1734,3 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
 private enum class SeedphraseAction { GENERATE, REGENERATE }
 
 
-@Composable
-private fun QuickConnectSettingsRows() {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    var tileAdded by androidx.compose.runtime.remember {
-        androidx.compose.runtime.mutableStateOf(com.bringyour.network.QuickConnectTileService.isAdded(context))
-    }
-    val tileAddedMessage = stringResource(id = R.string.widget_quick_tile_added)
-
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU && !tileAdded) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    val statusBar = context.getSystemService(android.app.StatusBarManager::class.java)
-                    statusBar?.requestAddTileService(
-                        android.content.ComponentName(context, com.bringyour.network.QuickConnectTileService::class.java),
-                        context.getString(R.string.app_name),
-                        android.graphics.drawable.Icon.createWithResource(context, R.drawable.ic_tile_quick_on),
-                        context.mainExecutor,
-                    ) { result ->
-                        if (result == android.app.StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED ||
-                            result == android.app.StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED
-                        ) {
-                            com.bringyour.network.QuickConnectTileService.setAdded(context, true)
-                            com.bringyour.network.QuickConnectTileService.requestUpdate(context)
-                            tileAdded = true
-                            android.widget.Toast.makeText(context, tileAddedMessage, android.widget.Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-                .padding(vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    stringResource(id = R.string.settings_add_quick_tile),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    stringResource(id = R.string.settings_add_quick_tile_description),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted,
-                )
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "Keyboard Arrow Right",
-                tint = TextMuted
-            )
-        }
-        Spacer(modifier = Modifier.height(18.dp))
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                com.bringyour.network.widgets.requestPinWidget(
-                    context,
-                    com.bringyour.network.widgets.DashboardWidgetReceiver::class.java,
-                )
-            }
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                stringResource(id = R.string.settings_add_widgets),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                stringResource(id = R.string.settings_add_widgets_description),
-                style = MaterialTheme.typography.bodySmall,
-                color = TextMuted,
-            )
-        }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "Keyboard Arrow Right",
-            tint = TextMuted
-        )
-    }
-}

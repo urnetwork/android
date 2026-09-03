@@ -481,6 +481,7 @@
     <string name="via_exit">vía %1$s</string>
     <string name="welcome_to_urnetwork">Bienvenido a URnetwork</string>
     <string name="when_you_refer_a_friend">Cuando recomiendas a un amigo:</string>
+    <string name="widgets">Widgets</string>
     <string name="window_type_auto">Automático</string>
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streaming</string>

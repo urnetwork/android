@@ -107,6 +107,7 @@ import com.bringyour.network.ui.connect.BrowseLocationsScreen
 import com.bringyour.network.ui.connect.LocationsListViewModel
 import com.bringyour.network.ui.leaderboard.LeaderboardScreen
 import com.bringyour.network.ui.referrals.ReferralsScreen
+import com.bringyour.network.ui.widgets.WidgetsScreen
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
@@ -1308,6 +1309,15 @@ fun MainNavContent(
                     pointsLoaded = accountPointsViewModel.pointsLoaded.collectAsState().value,
                     fetchAccountPoints = { accountPointsViewModel.fetchAccountPoints() },
                 )
+            }
+
+            composable<Route.Widgets>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                WidgetsScreen(navController = navController)
             }
         }
     }

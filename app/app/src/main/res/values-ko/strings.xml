@@ -481,6 +481,7 @@
     <string name="via_exit">%1$s 경유</string>
     <string name="welcome_to_urnetwork">URnetwork에 오신 것을 환영합니다</string>
     <string name="when_you_refer_a_friend">친구를 추천하면:</string>
+    <string name="widgets">위젯</string>
     <string name="window_type_auto">자동</string>
     <string name="window_type_quality">웹</string>
     <string name="window_type_speed">스트리밍</string>

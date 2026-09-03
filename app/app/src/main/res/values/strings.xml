@@ -781,6 +781,7 @@
     <string name="widget_toggle_intent_title">Toggle URnetwork VPN</string>
     <string name="widget_updated_ago">Updated %1$s</string>
     <string name="widget_updated_just_now">Updated just now</string>
+    <string name="widgets">Widgets</string>
     <string name="window_type_auto">Auto</string>
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streaming</string>
