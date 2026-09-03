@@ -5,6 +5,7 @@
     <string name="activity">गतिविधि</string>
     <string name="add">जोड़ें</string>
     <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
+    <string name="add_emoji">इमोजी जोड़ें</string>
     <string name="add_referral_code">रेफरल कोड जोड़ें</string>
     <string name="add_referral_extra_rewards">अतिरिक्त पुरस्कार पाने के लिए रेफरल कोड जोड़ें</string>
     <string name="allow_local_connections">स्थानीय कनेक्शन की अनुमति दें</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">%1$d अनुमत · %2$d अवरुद्ध</string>
     <string name="always">हमेशा</string>
     <string name="amount">राशि</string>
+    <string name="anonymous">अनाम</string>
     <string name="api_error_contact">यदि समस्या बनी रहती है, तो %1$s पर हमसे संपर्क करें या सीधे समर्थन के लिए हमारे %2$s से जुड़ें।</string>
     <string name="app_excluded_toast">%1$s VPN को बायपास करेगा</string>
     <string name="app_included_toast">%1$s VPN से रूट होगा</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">विज्ञापन और ट्रैकर ब्लॉक करें</string>
     <string name="blocked">अवरुद्ध</string>
     <string name="blocked_locations">अवरुद्ध स्थान</string>
+    <string name="blocks">ब्लॉक</string>
     <string name="bonus_referral_code_label">बोनस रेफ़रल कोड</string>
     <string name="browse_locations">स्थान ब्राउज़ करें</string>
     <string name="build_right">इंटरनेट को\nसही तरीके से बनाएं</string>
@@ -71,6 +74,7 @@
     <string name="claim">दावा करें</string>
     <string name="claim_multiplier">गुणक का दावा करें</string>
     <string name="claim_network_name_hint">अपने-आप बने नाम की जगह लेने के लिए कस्टम नेटवर्क नाम चुनें</string>
+    <string name="clear">साफ़ करें</string>
     <string name="client_contracts">क्लाइंट कॉन्ट्रैक्ट</string>
     <string name="client_id_copied">क्लाइंट ID कॉपी किया गया</string>
     <string name="client_statistics">क्लाइंट आँकड़े</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">कमाई गुणक</string>
     <string name="earnings">आय</string>
     <string name="edit_device_name">डिवाइस का नाम संपादित करें</string>
+    <string name="edit_emoji">इमोजी संपादित करें</string>
     <string name="edit_network_name">नेटवर्क का नाम संपादित करें</string>
     <string name="edit_profile">प्रोफ़ाइल संपादित करें</string>
     <string name="edit_referral_code">रेफरल कोड संपादित करें</string>
     <string name="edit_split_rule">स्प्लिट नियम संपादित करें</string>
+    <string name="emoji_tag">इमोजी टैग</string>
+    <string name="emoji_tag_error_empty">कम से कम एक इमोजी जोड़ें।</string>
+    <string name="emoji_tag_error_not_emoji">केवल इमोजी की अनुमति है।</string>
+    <string name="emoji_tag_error_too_many">अधिकतम %1$d इमोजी का उपयोग करें।</string>
+    <string name="emoji_tag_hint">अपने नेटवर्क के बगल में दिखाने के लिए 1 से %1$d इमोजी चुनें।</string>
     <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
     <string name="enter">दर्ज</string>
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">अपना फ़ोन जांचें</string>
     <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
+    <string name="longest_streak">सबसे लंबी स्ट्रीक</string>
     <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
     <string name="member">सदस्य</string>
     <string name="mock_location_active">%1$s के साथ सिंक हो रहा है</string>
@@ -294,6 +305,10 @@
     <string name="plan">योजना</string>
     <string name="please_try_again">कृपया पुनः प्रयास करें।</string>
     <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>
+    <string name="points">पॉइंट</string>
+    <string name="points_leaderboard_description">अब तक के कुल पॉइंट। एक ब्लॉक एक पूर्ण एपोक है; स्ट्रीक पॉइंट वाले लगातार ब्लॉक गिनती है, जो नवीनतम पर समाप्त होती है।</string>
+    <string name="points_leaderboard_empty">पॉइंट लीडरबोर्ड पर अभी कोई नहीं है।</string>
+    <string name="points_leaderboard_private_hint">यह सिर्फ आप देख सकते हैं। लीडरबोर्ड पर दिखने के लिए इसे चालू करें।</string>
     <string name="post_quantum_encryption">पोस्ट-क्वांटम एन्क्रिप्शन</string>
     <string name="post_quantum_encryption_fallback_note">फ़ॉलबैक चालू (अस्थायी)</string>
     <string name="post_quantum_identity">पोस्ट-क्वांटम पहचान</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">प्रदाता आँकड़े</string>
     <string name="providing">प्रदान कर रहा है</string>
     <string name="providing_disabled">प्रदान करना बंद है</string>
+    <string name="ranked_networks_count">%1$s रैंक वाले नेटवर्क</string>
     <string name="ready_to_connect">कनेक्ट करने के लिए तैयार</string>
     <string name="receive">प्राप्त करें</string>
     <string name="receive_notifications">कनेक्शन सूचनाएं प्राप्त करें</string>
@@ -383,6 +399,7 @@
     <string name="share">शेयर करें</string>
     <string name="share_logs">लॉग साझा करें</string>
     <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
+    <string name="show_on_points_leaderboard">पॉइंट लीडरबोर्ड पर दिखाएँ</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>
     <string name="something_went_wrong">कुछ गलत हो गया।</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">इंटरनेट में कदम रखें\nजैसा कि होना चाहिए।</string>
     <string name="step_one">चरण 1</string>
     <string name="step_two">चरण 2</string>
+    <string name="streak">स्ट्रीक</string>
     <string name="strong_anonymization">मजबूत गुमनामीकरण</string>
     <string name="suggested_remote_dns_servers">सुझाए गए रिमोट DNS सर्वर</string>
     <string name="suggested_remote_dns_servers_description">जिस देश से आप कनेक्ट हैं, उसके सुझाव उसी के रंग से चिह्नित होते हैं। किसी को चालू करने पर वह रिमोट DNS सर्वर में जुड़ जाता है।</string>

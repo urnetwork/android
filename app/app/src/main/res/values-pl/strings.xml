@@ -5,6 +5,7 @@
     <string name="activity">Aktywność</string>
     <string name="add">Dodaj</string>
     <string name="add_blocked_location">Dodaj zablokowaną lokalizację</string>
+    <string name="add_emoji">Dodaj emoji</string>
     <string name="add_referral_code">Dodaj kod polecający</string>
     <string name="add_referral_extra_rewards">Dodaj kod polecający, aby zdobyć dodatkowe nagrody</string>
     <string name="allow_local_connections">Zezwalaj na lokalne połączenia</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">Dozwolone: %1$d · Zablokowane: %2$d</string>
     <string name="always">Zawsze</string>
     <string name="amount">Kwota</string>
+    <string name="anonymous">Anonimowy</string>
     <string name="api_error_contact">Jeśli problem nadal występuje, skontaktuj się z nami pod adresem %1$s lub dołącz do naszego %2$s, aby uzyskać bezpośrednie wsparcie.</string>
     <string name="app_excluded_toast">%1$s będzie omijać VPN</string>
     <string name="app_included_toast">%1$s będzie korzystać z VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">Blokuj reklamy i trackery</string>
     <string name="blocked">Zablokowane</string>
     <string name="blocked_locations">Zablokowane lokalizacje</string>
+    <string name="blocks">Bloki</string>
     <string name="bonus_referral_code_label">Bonusowy kod polecający</string>
     <string name="browse_locations">Przeglądaj lokalizacje</string>
     <string name="build_right">Buduj\ninternet we\nwłaściwy sposób</string>
@@ -71,6 +74,7 @@
     <string name="claim">Odbierz</string>
     <string name="claim_multiplier">Odbierz mnożnik</string>
     <string name="claim_network_name_hint">Uzyskaj własną nazwę sieci, która zastąpi nazwę wygenerowaną automatycznie</string>
+    <string name="clear">Wyczyść</string>
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id_copied">Skopiowano ID klienta</string>
     <string name="client_statistics">Statystyki klienta</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">Mnożniki zarobków</string>
     <string name="earnings">Zarobki</string>
     <string name="edit_device_name">Edytuj nazwę urządzenia</string>
+    <string name="edit_emoji">Edytuj emoji</string>
     <string name="edit_network_name">Edytuj nazwę sieci</string>
     <string name="edit_profile">Edytuj profil</string>
     <string name="edit_referral_code">Edytuj kod polecający</string>
     <string name="edit_split_rule">Edytuj regułę podziału</string>
+    <string name="emoji_tag">Tag emoji</string>
+    <string name="emoji_tag_error_empty">Dodaj co najmniej jedno emoji.</string>
+    <string name="emoji_tag_error_not_emoji">Dozwolone są tylko emoji.</string>
+    <string name="emoji_tag_error_too_many">Użyj najwyżej %1$d emoji.</string>
+    <string name="emoji_tag_hint">Wybierz od 1 do %1$d emoji wyświetlanych obok Twojej sieci.</string>
     <string name="enjoying_urnetwork">Czy podoba Ci się URnetwork?</string>
     <string name="enter">Wejdź</string>
     <string name="enter_balance_code">Wpisz kod salda</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">Sprawdź swój telefon</string>
     <string name="login_verify_details">Powiedz nam, kim naprawdę jesteś. Wprowadź kod,\nktóry wysłaliśmy, aby zweryfikować twoją tożsamość.</string>
     <string name="login_verify_header">Masz wiadomość</string>
+    <string name="longest_streak">Najdłuższa seria</string>
     <string name="manage_subscription">Zarządzaj subskrypcją</string>
     <string name="member">Członek</string>
     <string name="mock_location_active">Synchronizacja z: %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">Plan</string>
     <string name="please_try_again">Proszę spróbować ponownie.</string>
     <string name="please_wait">Poczekaj kilka minut i spróbuj ponownie.</string>
+    <string name="points">Punkty</string>
+    <string name="points_leaderboard_description">Punkty od początku. Blok to jedna sfinalizowana epoka; seria liczy kolejne bloki z punktami aż do ostatniego.</string>
+    <string name="points_leaderboard_empty">W rankingu punktów nie ma jeszcze nikogo.</string>
+    <string name="points_leaderboard_private_hint">Widzisz to tylko Ty. Włącz, aby pojawić się w rankingu.</string>
     <string name="post_quantum_encryption">Szyfrowanie postkwantowe</string>
     <string name="post_quantum_encryption_fallback_note">Tryb awaryjny włączony (tymczasowo)</string>
     <string name="post_quantum_identity">Tożsamość postkwantowa</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">Statystyki dostawcy</string>
     <string name="providing">Udostępnianie</string>
     <string name="providing_disabled">Udostępnianie jest wyłączone</string>
+    <string name="ranked_networks_count">%1$s sklasyfikowanych sieci</string>
     <string name="ready_to_connect">Gotowy do połączenia</string>
     <string name="receive">Odbierz</string>
     <string name="receive_notifications">Otrzymuj powiadomienia o połączeniach</string>
@@ -383,6 +399,7 @@
     <string name="share">Udostępnij</string>
     <string name="share_logs">Udostępnij logi</string>
     <string name="show_icon_when_connected">Pokaż ikonę UR po połączeniu</string>
+    <string name="show_on_points_leaderboard">Pokaż w rankingu punktów</string>
     <string name="sign_in_dgen1">Zaloguj się za pomocą dGEN1</string>
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>
     <string name="something_went_wrong">Coś poszło nie tak.</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">Wejdź do internetu\ntakiego, jakim powinien być.</string>
     <string name="step_one">Krok 1</string>
     <string name="step_two">Krok 2</string>
+    <string name="streak">Seria</string>
     <string name="strong_anonymization">Silna anonimizacja</string>
     <string name="suggested_remote_dns_servers">Sugerowane zdalne serwery DNS</string>
     <string name="suggested_remote_dns_servers_description">Sugestie dla połączonego kraju są oznaczone jego kolorem. Włączenie jednej z nich dodaje ją do zdalnych serwerów DNS.</string>

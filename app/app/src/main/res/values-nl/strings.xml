@@ -5,6 +5,7 @@
     <string name="activity">Activiteit</string>
     <string name="add">Toevoegen</string>
     <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
+    <string name="add_emoji">Emoji toevoegen</string>
     <string name="add_referral_code">Referentiecode toevoegen</string>
     <string name="add_referral_extra_rewards">Voeg een referentiecode toe en verdien extra beloningen</string>
     <string name="allow_local_connections">Sta lokale verbindingen toe</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">%1$d toegestaan · %2$d geblokkeerd</string>
     <string name="always">Altijd</string>
     <string name="amount">Bedrag</string>
+    <string name="anonymous">Anoniem</string>
     <string name="api_error_contact">Als het probleem blijft bestaan, neem dan contact met ons op via %1$s of sluit je aan bij onze %2$s voor directe ondersteuning.</string>
     <string name="app_excluded_toast">%1$s omzeilt de VPN</string>
     <string name="app_included_toast">%1$s gaat via de VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">Advertenties en trackers blokkeren</string>
     <string name="blocked">Geblokkeerd</string>
     <string name="blocked_locations">Geblokkeerde locaties</string>
+    <string name="blocks">Blokken</string>
     <string name="bonus_referral_code_label">Bonus-verwijzingscode</string>
     <string name="browse_locations">Locaties bekijken</string>
     <string name="build_right">Bouw het\ninternet op de\njuiste manier</string>
@@ -71,6 +74,7 @@
     <string name="claim">Opeisen</string>
     <string name="claim_multiplier">Claim je vermenigvuldiger</string>
     <string name="claim_network_name_hint">Claim een eigen netwerknaam ter vervanging van je automatisch gegenereerde naam</string>
+    <string name="clear">Wissen</string>
     <string name="client_contracts">Clientcontracten</string>
     <string name="client_id_copied">Client-ID gekopieerd</string>
     <string name="client_statistics">Clientstatistieken</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">Verdienvermenigvuldigers</string>
     <string name="earnings">Opbrengsten</string>
     <string name="edit_device_name">Apparaatnaam bewerken</string>
+    <string name="edit_emoji">Emoji bewerken</string>
     <string name="edit_network_name">Netwerknaam bewerken</string>
     <string name="edit_profile">Profiel bewerken</string>
     <string name="edit_referral_code">Referentiecode bewerken</string>
     <string name="edit_split_rule">Splitsregel bewerken</string>
+    <string name="emoji_tag">Emoji-tag</string>
+    <string name="emoji_tag_error_empty">Voeg minstens één emoji toe.</string>
+    <string name="emoji_tag_error_not_emoji">Alleen emoji zijn toegestaan.</string>
+    <string name="emoji_tag_error_too_many">Gebruik maximaal %1$d emoji.</string>
+    <string name="emoji_tag_hint">Kies 1 tot %1$d emoji om naast je netwerk te tonen.</string>
     <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
     <string name="enter">Enter</string>
     <string name="enter_balance_code">Voer saldo-code in</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">Controleer je telefoon</string>
     <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
     <string name="login_verify_header">Je hebt mail</string>
+    <string name="longest_streak">Langste reeks</string>
     <string name="manage_subscription">Abonnement beheren</string>
     <string name="member">Lid</string>
     <string name="mock_location_active">Synchroniseren met %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">Plan</string>
     <string name="please_try_again">Probeer het alstublieft opnieuw.</string>
     <string name="please_wait">Wacht alstublieft een paar minuten en probeer het opnieuw.</string>
+    <string name="points">Punten</string>
+    <string name="points_leaderboard_description">Punten aller tijden. Een blok is één afgeronde epoch; de reeks telt opeenvolgende blokken met punten tot het laatste.</string>
+    <string name="points_leaderboard_empty">Er staat nog niemand op het puntenscorebord.</string>
+    <string name="points_leaderboard_private_hint">Alleen jij ziet dit. Zet het aan om op het scorebord te verschijnen.</string>
     <string name="post_quantum_encryption">Post-quantumversleuteling</string>
     <string name="post_quantum_encryption_fallback_note">Fallback ingeschakeld (tijdelijk)</string>
     <string name="post_quantum_identity">Post-quantumidentiteit</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">Providerstatistieken</string>
     <string name="providing">Verstrekken</string>
     <string name="providing_disabled">Leveren is uitgeschakeld</string>
+    <string name="ranked_networks_count">%1$s gerangschikte netwerken</string>
     <string name="ready_to_connect">Klaar om te verbinden</string>
     <string name="receive">Ontvang</string>
     <string name="receive_notifications">Ontvang verbindingsmeldingen</string>
@@ -383,6 +399,7 @@
     <string name="share">Delen</string>
     <string name="share_logs">Logs delen</string>
     <string name="show_icon_when_connected">Toon UR-pictogram bij verbinding</string>
+    <string name="show_on_points_leaderboard">Toon op het puntenscorebord</string>
     <string name="sign_in_dgen1">Inloggen met dGEN1</string>
     <string name="solana_sign_in">Inloggen met Solana</string>
     <string name="something_went_wrong">Er is iets misgegaan.</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">Stap het internet in\nzoals het hoort te zijn.</string>
     <string name="step_one">Stap 1</string>
     <string name="step_two">Stap 2</string>
+    <string name="streak">Reeks</string>
     <string name="strong_anonymization">Sterke anonimisering</string>
     <string name="suggested_remote_dns_servers">Voorgestelde externe DNS-servers</string>
     <string name="suggested_remote_dns_servers_description">Suggesties voor het verbonden land zijn gemarkeerd met de kleur van dat land. Zet je er een aan, dan wordt die toegevoegd aan de externe DNS-servers.</string>

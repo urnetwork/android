@@ -5,6 +5,7 @@
     <string name="activity">Δραστηριότητα</string>
     <string name="add">Προσθήκη</string>
     <string name="add_blocked_location">Προσθήκη αποκλεισμένης τοποθεσίας</string>
+    <string name="add_emoji">Προσθήκη emoji</string>
     <string name="add_referral_code">Προσθήκη κωδικού παραπομπής</string>
     <string name="add_referral_extra_rewards">Προσθέστε κωδικό παραπομπής για να κερδίσετε επιπλέον ανταμοιβές</string>
     <string name="allow_local_connections">Να επιτρέπονται οι τοπικές συνδέσεις</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">%1$d επιτρεπόμενα · %2$d αποκλεισμένα</string>
     <string name="always">Πάντα</string>
     <string name="amount">Ποσό</string>
+    <string name="anonymous">Ανώνυμο</string>
     <string name="api_error_contact">Αν το πρόβλημα παραμένει, επικοινωνήστε μαζί μας στο %1$s ή μπείτε στο %2$s μας για άμεση υποστήριξη.</string>
     <string name="app_excluded_toast">Η εφαρμογή %1$s θα παρακάμπτει το VPN</string>
     <string name="app_included_toast">Η εφαρμογή %1$s θα δρομολογείται μέσω του VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">Αποκλεισμός διαφημίσεων και ιχνηλατών</string>
     <string name="blocked">Αποκλεισμένα</string>
     <string name="blocked_locations">Αποκλεισμένες τοποθεσίες</string>
+    <string name="blocks">Μπλοκ</string>
     <string name="bonus_referral_code_label">Μπόνους κωδικός παραπομπής</string>
     <string name="browse_locations">Περιήγηση σε τοποθεσίες</string>
     <string name="build_right">Δημιουργήστε\nτο Διαδίκτυο\nμε τον σωστό τρόπο</string>
@@ -71,6 +74,7 @@
     <string name="claim">Απαίτηση</string>
     <string name="claim_multiplier">Αξιώστε τον πολλαπλασιαστή</string>
     <string name="claim_network_name_hint">Αποκτήστε ένα προσαρμοσμένο όνομα δικτύου που θα αντικαταστήσει το αυτόματα δημιουργημένο</string>
+    <string name="clear">Καθαρισμός</string>
     <string name="client_contracts">Συμβόλαια πελάτη</string>
     <string name="client_id_copied">Το ID πελάτη αντιγράφηκε</string>
     <string name="client_statistics">Στατιστικά πελάτη</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">Πολλαπλασιαστές κερδών</string>
     <string name="earnings">Κέρδη</string>
     <string name="edit_device_name">Επεξεργασία ονόματος συσκευής</string>
+    <string name="edit_emoji">Επεξεργασία emoji</string>
     <string name="edit_network_name">Επεξεργασία ονόματος δικτύου</string>
     <string name="edit_profile">Επεξεργασία προφίλ</string>
     <string name="edit_referral_code">Επεξεργασία κωδικού παραπομπής</string>
     <string name="edit_split_rule">Επεξεργασία κανόνα διαχωρισμού</string>
+    <string name="emoji_tag">Ετικέτα emoji</string>
+    <string name="emoji_tag_error_empty">Προσθέστε τουλάχιστον ένα emoji.</string>
+    <string name="emoji_tag_error_not_emoji">Επιτρέπονται μόνο emoji.</string>
+    <string name="emoji_tag_error_too_many">Χρησιμοποιήστε το πολύ %1$d emoji.</string>
+    <string name="emoji_tag_hint">Επιλέξτε 1 έως %1$d emoji που θα εμφανίζονται δίπλα στο δίκτυό σας.</string>
     <string name="enjoying_urnetwork">Απολαμβάνετε το URnetwork;</string>
     <string name="enter">Εισαγωγή</string>
     <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">Ελέγξτε το τηλέφωνό σας</string>
     <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
     <string name="login_verify_header">Έχετε ένα email</string>
+    <string name="longest_streak">Μεγαλύτερο σερί</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="member">Μέλος</string>
     <string name="mock_location_active">Συγχρονισμός με %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">Πρόγραμμα</string>
     <string name="please_try_again">Παρακαλώ δοκιμάστε ξανά.</string>
     <string name="please_wait">Περιμένετε λίγα λεπτά και προσπαθήστε ξανά.</string>
+    <string name="points">Πόντοι</string>
+    <string name="points_leaderboard_description">Πόντοι όλων των εποχών. Ένα μπλοκ είναι μία οριστικοποιημένη εποχή· το σερί μετρά διαδοχικά μπλοκ με πόντους έως το τελευταίο.</string>
+    <string name="points_leaderboard_empty">Κανείς δεν είναι ακόμη στον πίνακα πόντων.</string>
+    <string name="points_leaderboard_private_hint">Μόνο εσείς το βλέπετε. Ενεργοποιήστε το για να εμφανιστείτε στον πίνακα.</string>
     <string name="post_quantum_encryption">Μετακβαντική κρυπτογράφηση</string>
     <string name="post_quantum_encryption_fallback_note">Εφεδρική λειτουργία ενεργή (προσωρινά)</string>
     <string name="post_quantum_identity">Μετακβαντική ταυτότητα</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">Στατιστικά παρόχου</string>
     <string name="providing">Παροχή</string>
     <string name="providing_disabled">Η παροχή είναι απενεργοποιημένη</string>
+    <string name="ranked_networks_count">%1$s δίκτυα με κατάταξη</string>
     <string name="ready_to_connect">Έτοιμο για σύνδεση</string>
     <string name="receive">Λήψη</string>
     <string name="receive_notifications">Λήψη ειδοποιήσεων σύνδεσης</string>
@@ -383,6 +399,7 @@
     <string name="share">Κοινή χρήση</string>
     <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
     <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
+    <string name="show_on_points_leaderboard">Εμφάνιση στον πίνακα πόντων</string>
     <string name="sign_in_dgen1">Σύνδεση με dGEN1</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">Μπείτε στο διαδίκτυο\nόπως θα έπρεπε να είναι.</string>
     <string name="step_one">Βήμα 1</string>
     <string name="step_two">Βήμα 2</string>
+    <string name="streak">Σερί</string>
     <string name="strong_anonymization">Ισχυρή ανωνυμοποίηση</string>
     <string name="suggested_remote_dns_servers">Προτεινόμενοι απομακρυσμένοι διακομιστές DNS</string>
     <string name="suggested_remote_dns_servers_description">Οι προτάσεις για τη συνδεδεμένη χώρα επισημαίνονται με το χρώμα της. Αν ενεργοποιήσετε μία, προστίθεται στους απομακρυσμένους διακομιστές DNS.</string>

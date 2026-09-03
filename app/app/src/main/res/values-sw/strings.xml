@@ -5,6 +5,7 @@
     <string name="activity">Shughuli</string>
     <string name="add">Ongeza</string>
     <string name="add_blocked_location">Ongeza eneo lililofungwa</string>
+    <string name="add_emoji">Ongeza emoji</string>
     <string name="add_referral_code">Ongeza msimbo wa rufaa</string>
     <string name="add_referral_extra_rewards">Ongeza msimbo wa rufaa ili kupata zawadi za ziada</string>
     <string name="allow_local_connections">Ruhusu miunganisho ya ndani</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">%1$d zimeruhusiwa · %2$d zimezuiwa</string>
     <string name="always">Daima</string>
     <string name="amount">Kiasi</string>
+    <string name="anonymous">Bila jina</string>
     <string name="api_error_contact">Ikiwa tatizo litaendelea, wasiliana nasi kupitia %1$s au jiunge na %2$s yetu kwa msaada wa moja kwa moja.</string>
     <string name="app_excluded_toast">%1$s itaepuka VPN</string>
     <string name="app_included_toast">%1$s itapitia VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">Zuia matangazo na vifuatiliaji</string>
     <string name="blocked">Imezuiwa</string>
     <string name="blocked_locations">Maeneo yaliyofungwa</string>
+    <string name="blocks">Vitalu</string>
     <string name="bonus_referral_code_label">Nambari ya rufaa ya ziada</string>
     <string name="browse_locations">Vinjari maeneo</string>
     <string name="build_right">Jenga\nmtandao\nkwa njia sahihi</string>
@@ -71,6 +74,7 @@
     <string name="claim">DAI</string>
     <string name="claim_multiplier">Dai Kizidishi</string>
     <string name="claim_network_name_hint">Pata jina la mtandao maalum badala ya lile lililotengenezwa kiotomatiki</string>
+    <string name="clear">Futa</string>
     <string name="client_contracts">Mikataba ya mteja</string>
     <string name="client_id_copied">Kitambulisho cha mteja kimenakiliwa</string>
     <string name="client_statistics">Takwimu za mteja</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">Vizidishi vya mapato</string>
     <string name="earnings">Mapato</string>
     <string name="edit_device_name">Hariri jina la kifaa</string>
+    <string name="edit_emoji">Hariri emoji</string>
     <string name="edit_network_name">Hariri jina la mtandao</string>
     <string name="edit_profile">Hariri Wasifu</string>
     <string name="edit_referral_code">Hariri msimbo wa rufaa</string>
     <string name="edit_split_rule">Hariri sheria ya mgawanyo</string>
+    <string name="emoji_tag">Lebo ya emoji</string>
+    <string name="emoji_tag_error_empty">Ongeza angalau emoji moja.</string>
+    <string name="emoji_tag_error_not_emoji">Emoji pekee ndizo zinaruhusiwa.</string>
+    <string name="emoji_tag_error_too_many">Tumia emoji zisizozidi %1$d.</string>
+    <string name="emoji_tag_hint">Chagua emoji 1 hadi %1$d zitakazoonekana kando ya mtandao wako.</string>
     <string name="enjoying_urnetwork">Unafurahia URnetwork?</string>
     <string name="enter">Ingia</string>
     <string name="enter_balance_code">Weka msimbo wa salio</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">Angalia simu yako</string>
     <string name="login_verify_details">Tuambie wewe ni nani hasa. Weka msimbo ambao tume\nkutumia ili kuthibitisha utambulisho wako.</string>
     <string name="login_verify_header">Umepata barua</string>
+    <string name="longest_streak">Mfululizo mrefu zaidi</string>
     <string name="manage_subscription">Dhibiti usajili</string>
     <string name="member">Mwanachama</string>
     <string name="mock_location_active">Inasawazisha na %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">Mpango</string>
     <string name="please_try_again">Tafadhali jaribu tena.</string>
     <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>
+    <string name="points">Pointi</string>
+    <string name="points_leaderboard_description">Pointi za wakati wote. Kitalu ni kipindi kimoja kilichokamilika; mfululizo huhesabu vitalu mfululizo vyenye pointi hadi cha mwisho.</string>
+    <string name="points_leaderboard_empty">Bado hakuna mtu kwenye ubao wa pointi.</string>
+    <string name="points_leaderboard_private_hint">Ni wewe tu unaona hii. Washa ili uonekane kwenye ubao.</string>
     <string name="post_quantum_encryption">Usimbaji fiche wa baada ya kwantamu</string>
     <string name="post_quantum_encryption_fallback_note">Mbadala umewashwa (kwa muda)</string>
     <string name="post_quantum_identity">Utambulisho wa baada ya kwantamu</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">Takwimu za mtoa huduma</string>
     <string name="providing">Inatoa</string>
     <string name="providing_disabled">Utoaji umezimwa</string>
+    <string name="ranked_networks_count">Mitandao %1$s iliyoorodheshwa</string>
     <string name="ready_to_connect">Tayari kuunganisha</string>
     <string name="receive">Pokea</string>
     <string name="receive_notifications">Pokea arifa za muunganisho</string>
@@ -383,6 +399,7 @@
     <string name="share">Shiriki</string>
     <string name="share_logs">Shiriki logi</string>
     <string name="show_icon_when_connected">Onyesha ikoni ya UR wakati umeunganishwa</string>
+    <string name="show_on_points_leaderboard">Onyesha kwenye ubao wa pointi</string>
     <string name="sign_in_dgen1">Ingia kwa dGEN1</string>
     <string name="solana_sign_in">Ingia na Solana</string>
     <string name="something_went_wrong">Kuna kitu kilienda vibaya.</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">Ingia kwenye mtandao\nkama inavyopaswa kuwa.</string>
     <string name="step_one">Hatua ya 1</string>
     <string name="step_two">Hatua ya 2</string>
+    <string name="streak">Mfululizo</string>
     <string name="strong_anonymization">Ufichaji utambulisho mkubwa</string>
     <string name="suggested_remote_dns_servers">Seva za DNS za mbali zinazopendekezwa</string>
     <string name="suggested_remote_dns_servers_description">Mapendekezo ya nchi uliyounganishwa nayo yana alama ya rangi yake. Ukiwasha mojawapo, huongezwa kwenye seva za DNS za mbali.</string>

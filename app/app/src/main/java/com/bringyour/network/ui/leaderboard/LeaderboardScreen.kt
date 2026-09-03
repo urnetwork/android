@@ -19,6 +19,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -27,8 +30,12 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +54,18 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.LeaderboardEarner
 import kotlinx.coroutines.launch
 
+/** the Data tab: the last-4-payments data leaderboard */
+private const val LEADERBOARD_TAB_DATA = 0
+
+/** the Points tab: the all-time points leaderboard */
+private const val LEADERBOARD_TAB_POINTS = 1
+
+/**
+ * The leaderboard: one title, a Data | Points tab row, and the tab's content.
+ * Data is the existing last-4-payments leaderboard; Points is the all-time
+ * points leaderboard (android/POINTSLEADERBOARD.md). The points view model
+ * (and its sdk view controller) is only created once that tab is opened.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardScreen(
@@ -56,6 +75,7 @@ fun LeaderboardScreen(
     val refreshState = rememberPullToRefreshState()
     val snackbarHostState = remember { SnackbarHostState() }
     val leaderboardEntries = leaderboardViewModel.leaderboardEntries.collectAsState()
+    var selectedTab by rememberSaveable { mutableIntStateOf(LEADERBOARD_TAB_DATA) }
 
     LaunchedEffect(leaderboardViewModel.displayErrorMsg) {
         if (leaderboardViewModel.displayErrorMsg) {
@@ -73,77 +93,138 @@ fun LeaderboardScreen(
         },
     ) { innerPadding ->
 
-        if (leaderboardViewModel.isInitializing) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-            }
+            LeaderboardTabs(
+                selectedTab = selectedTab,
+                setSelectedTab = { selectedTab = it },
+            )
 
-        } else {
-            /**
-             * Data initialized
-             */
+            when (selectedTab) {
+                LEADERBOARD_TAB_POINTS -> {
+                    PointsLeaderboardTab(snackbarHostState = snackbarHostState)
+                }
+                else -> {
+                    if (leaderboardViewModel.isInitializing) {
 
-            PullToRefreshBox(
-                isRefreshing = leaderboardViewModel.isLoading,
-                state = refreshState,
-                onRefresh = {
-                    leaderboardViewModel.fetchLeaderboardData()
-                },
-                modifier = Modifier.padding(innerPadding)
-            ) {
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-
-                    item {
-                        LeaderboardHeader(
-                            networkRank = leaderboardViewModel.networkRank,
-                            netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
-                            networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
-                            toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility
-                        )
-                    }
-
-                    itemsIndexed(
-                        leaderboardEntries.value,
-                        // the server blanks out network_id for networks that opted out
-                        // of the public leaderboard, so private rows all share the
-                        // same empty id; the indexed key keeps every row unique
-                        key = { index, entry ->
-                            indexedLazyListKey("leaderboard", index, entry.networkId)
-                        },
-                    ) { index, entry ->
-                        Column {
-                            HorizontalDivider()
-                            LeaderboardEntry(
-                                entry,
-                                rank = index + 1,
-                                netProvidedFormatted = remember(entry.netMiBCount) {
-                                    leaderboardViewModel.formatDataProvided(entry.netMiBCount)
-                                },
-                                isNetworkRow = leaderboardViewModel.networkId == entry.networkId.toString()
-                            )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
                         }
-                    }
-                    item {
-                        HorizontalDivider()
-                    }
 
+                    } else {
+                        /**
+                         * Data initialized
+                         */
+
+                        PullToRefreshBox(
+                            isRefreshing = leaderboardViewModel.isLoading,
+                            state = refreshState,
+                            onRefresh = {
+                                leaderboardViewModel.fetchLeaderboardData()
+                            },
+                        ) {
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+
+                                item {
+                                    LeaderboardHeader(
+                                        networkRank = leaderboardViewModel.networkRank,
+                                        netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
+                                        networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
+                                        toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility
+                                    )
+                                }
+
+                                itemsIndexed(
+                                    leaderboardEntries.value,
+                                    // the server blanks out network_id for networks that opted out
+                                    // of the public leaderboard, so private rows all share the
+                                    // same empty id; the indexed key keeps every row unique
+                                    key = { index, entry ->
+                                        indexedLazyListKey("leaderboard", index, entry.networkId)
+                                    },
+                                ) { index, entry ->
+                                    Column {
+                                        HorizontalDivider()
+                                        LeaderboardEntry(
+                                            entry,
+                                            rank = index + 1,
+                                            netProvidedFormatted = remember(entry.netMiBCount) {
+                                                leaderboardViewModel.formatDataProvided(entry.netMiBCount)
+                                            },
+                                            isNetworkRow = leaderboardViewModel.networkId == entry.networkId.toString()
+                                        )
+                                    }
+                                }
+                                item {
+                                    HorizontalDivider()
+                                }
+
+                            }
+                        }
+
+                    }
                 }
             }
-
         }
 
     }
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LeaderboardTabs(
+    selectedTab: Int,
+    setSelectedTab: (Int) -> Unit,
+) {
+    val tabs = listOf(
+        LEADERBOARD_TAB_DATA to stringResource(id = R.string.data),
+        LEADERBOARD_TAB_POINTS to stringResource(id = R.string.points),
+    )
+
+    Column(
+        modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp),
+    ) {
+        Text(
+            stringResource(id = R.string.leaderboard),
+            style = MaterialTheme.typography.headlineSmall,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            tabs.forEachIndexed { index, (id, label) ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = tabs.size
+                    ),
+                    onClick = { setSelectedTab(id) },
+                    selected = selectedTab == id,
+                    label = {
+                        Text(label, maxLines = 1)
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+    }
 }
 
 @Composable
@@ -156,15 +237,8 @@ private fun LeaderboardHeader(
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(horizontal = 16.dp),
     ) {
-        Text(
-            stringResource(id = R.string.leaderboard),
-            style = MaterialTheme.typography.headlineSmall,
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
         Box(
             modifier = Modifier
                 .background(

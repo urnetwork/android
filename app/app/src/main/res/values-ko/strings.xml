@@ -5,6 +5,7 @@
     <string name="activity">활동</string>
     <string name="add">추가</string>
     <string name="add_blocked_location">차단된 위치 추가</string>
+    <string name="add_emoji">이모지 추가</string>
     <string name="add_referral_code">추천 코드 추가</string>
     <string name="add_referral_extra_rewards">추가 보상을 얻으려면 추천 코드를 추가하세요</string>
     <string name="allow_local_connections">로컬 연결 허용</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">허용 %1$d · 차단 %2$d</string>
     <string name="always">항상</string>
     <string name="amount">금액</string>
+    <string name="anonymous">익명</string>
     <string name="api_error_contact">문제가 계속되면 %1$s로 문의하거나 직접 지원을 위해 저희 %2$s에 참여하세요.</string>
     <string name="app_excluded_toast">%1$s은(는) VPN을 우회합니다</string>
     <string name="app_included_toast">%1$s은(는) VPN으로 라우팅됩니다</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">광고 및 트래커 차단</string>
     <string name="blocked">차단</string>
     <string name="blocked_locations">차단된 위치</string>
+    <string name="blocks">블록</string>
     <string name="bonus_referral_code_label">보너스 추천 코드</string>
     <string name="browse_locations">위치 둘러보기</string>
     <string name="build_right">올바른 방식으로\n인터넷\n구축하기</string>
@@ -71,6 +74,7 @@
     <string name="claim">받기</string>
     <string name="claim_multiplier">배율 받기</string>
     <string name="claim_network_name_hint">자동 생성된 이름을 대체할 사용자 지정 네트워크 이름을 만드세요</string>
+    <string name="clear">지우기</string>
     <string name="client_contracts">클라이언트 계약</string>
     <string name="client_id_copied">클라이언트 ID가 복사되었습니다</string>
     <string name="client_statistics">클라이언트 통계</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">수익 배수</string>
     <string name="earnings">수익</string>
     <string name="edit_device_name">기기 이름 편집</string>
+    <string name="edit_emoji">이모지 편집</string>
     <string name="edit_network_name">네트워크 이름 편집</string>
     <string name="edit_profile">프로필 수정</string>
     <string name="edit_referral_code">추천 코드 편집</string>
     <string name="edit_split_rule">분할 규칙 편집</string>
+    <string name="emoji_tag">이모지 태그</string>
+    <string name="emoji_tag_error_empty">이모지를 하나 이상 추가하세요.</string>
+    <string name="emoji_tag_error_not_emoji">이모지만 사용할 수 있습니다.</string>
+    <string name="emoji_tag_error_too_many">이모지는 최대 %1$d개까지 사용할 수 있습니다.</string>
+    <string name="emoji_tag_hint">네트워크 옆에 표시할 이모지를 1~%1$d개 고르세요.</string>
     <string name="enjoying_urnetwork">URnetwork가 마음에 드시나요?</string>
     <string name="enter">들어가기</string>
     <string name="enter_balance_code">잔액 코드를 입력하세요</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">휴대폰을 확인하세요</string>
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
+    <string name="longest_streak">최장 연속</string>
     <string name="manage_subscription">구독 관리</string>
     <string name="member">회원</string>
     <string name="mock_location_active">%1$s와(과) 동기화 중</string>
@@ -294,6 +305,10 @@
     <string name="plan">플랜</string>
     <string name="please_try_again">다시 시도해 주세요.</string>
     <string name="please_wait">잠시 후 다시 시도해 주세요.</string>
+    <string name="points">포인트</string>
+    <string name="points_leaderboard_description">누적 포인트입니다. 블록은 확정된 에포크 하나이며, 연속은 최신 블록까지 포인트를 얻은 연속 블록 수입니다.</string>
+    <string name="points_leaderboard_empty">아직 포인트 리더보드에 아무도 없습니다.</string>
+    <string name="points_leaderboard_private_hint">나만 볼 수 있습니다. 켜면 리더보드에 표시됩니다.</string>
     <string name="post_quantum_encryption">포스트 양자 암호화</string>
     <string name="post_quantum_encryption_fallback_note">폴백 사용 중 (임시)</string>
     <string name="post_quantum_identity">포스트 양자 신원</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">제공자 통계</string>
     <string name="providing">제공 중</string>
     <string name="providing_disabled">제공이 비활성화되어 있습니다</string>
+    <string name="ranked_networks_count">순위가 매겨진 네트워크 %1$s개</string>
     <string name="ready_to_connect">연결 준비 완료</string>
     <string name="receive">받기</string>
     <string name="receive_notifications">연결 알림 받기</string>
@@ -383,6 +399,7 @@
     <string name="share">공유</string>
     <string name="share_logs">로그 공유</string>
     <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
+    <string name="show_on_points_leaderboard">포인트 리더보드에 표시</string>
     <string name="sign_in_dgen1">dGEN1로 로그인</string>
     <string name="solana_sign_in">Solana로 로그인</string>
     <string name="something_went_wrong">문제가 발생했습니다.</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">인터넷에 들어가세요\n원래 그래야 하는 것처럼.</string>
     <string name="step_one">1단계</string>
     <string name="step_two">2단계</string>
+    <string name="streak">연속</string>
     <string name="strong_anonymization">강력한 익명화</string>
     <string name="suggested_remote_dns_servers">추천 원격 DNS 서버</string>
     <string name="suggested_remote_dns_servers_description">연결된 국가의 추천 항목은 해당 국가의 색상으로 표시됩니다. 켜면 원격 DNS 서버에 추가됩니다.</string>

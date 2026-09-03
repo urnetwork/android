@@ -5,6 +5,7 @@
     <string name="activity">Activity</string>
     <string name="add">Add</string>
     <string name="add_blocked_location">Add blocked location</string>
+    <string name="add_emoji">Add emoji</string>
     <string name="add_referral_code">Add referral code</string>
     <string name="add_referral_extra_rewards">Add referral code to earn extra rewards</string>
     <string name="add_tao_for_gas">Add TAO for gas</string>
@@ -14,6 +15,7 @@
     <string name="allowed_blocked_counts">%1$d allowed · %2$d blocked</string>
     <string name="always">Always</string>
     <string name="amount">Amount</string>
+    <string name="anonymous">Anonymous</string>
     <string name="api_error_contact">If the problem persists, contact us at %1$s or join our %2$s for direct support.</string>
     <string name="app_excluded_toast">%1$s will bypass the VPN</string>
     <string name="app_included_toast">%1$s will route through the VPN</string>
@@ -62,6 +64,7 @@
     <string name="block_ads_and_trackers">Block ads and trackers</string>
     <string name="blocked">Blocked</string>
     <string name="blocked_locations">Blocked Locations</string>
+    <string name="blocks">Blocks</string>
     <string name="bonus_referral_code_label">Bonus referral code</string>
     <string name="browse_locations">Browse Locations</string>
     <string name="build_right">Build the\ninternet the\nright way</string>
@@ -94,6 +97,7 @@
     <string name="claim_your_spot">Claim your spot</string>
     <string name="claims_for_epoch_expired">Claims for epoch %1$d have expired.</string>
     <string name="claims_open_after_finalization">Claims open 48 hours after an epoch is finalized and stay open for the vault\'s expiry window.</string>
+    <string name="clear">Clear</string>
     <string name="client_contracts">Client contracts</string>
     <string name="client_id_copied">Client ID copied</string>
     <string name="client_statistics">Client statistics</string>
@@ -316,10 +320,17 @@
     <string name="earnings">Earnings</string>
     <string name="earnings_email_support">Questions about earlier payouts? Email support@ur.io.</string>
     <string name="edit_device_name">Edit device name</string>
+    <string name="edit_emoji">Edit emoji</string>
     <string name="edit_network_name">Edit network name</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="edit_referral_code">Edit referral code</string>
     <string name="edit_split_rule">Edit split rule</string>
+    <string name="emoji_tag">Emoji tag</string>
+    <string name="emoji_tag_counter" translatable="false">%1$d / %2$d</string>
+    <string name="emoji_tag_error_empty">Add at least one emoji.</string>
+    <string name="emoji_tag_error_not_emoji">Only emoji are allowed.</string>
+    <string name="emoji_tag_error_too_many">Use at most %1$d emoji.</string>
+    <string name="emoji_tag_hint">Pick 1 to %1$d emoji to show next to your network.</string>
     <string name="enabled_under_auto">Enabled under Auto</string>
     <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
@@ -405,6 +416,7 @@
     <string name="login_verify_check_phone">Check your phone</string>
     <string name="login_verify_details">Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
     <string name="login_verify_header">You\'ve got mail</string>
+    <string name="longest_streak">Longest streak</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="member">Member</string>
     <string name="mock_location_active">Syncing with %1$s</string>
@@ -502,7 +514,11 @@
     <string name="plan_price_per_year">%1$s/year</string>
     <string name="please_try_again">Please try again.</string>
     <string name="please_wait">Please wait a few minutes and try again.</string>
+    <string name="points">Points</string>
     <string name="points_earned">Points earned</string>
+    <string name="points_leaderboard_description">All-time points. A block is one finalized epoch; the streak counts consecutive blocks with points, ending at the latest one.</string>
+    <string name="points_leaderboard_empty">No one is on the points leaderboard yet.</string>
+    <string name="points_leaderboard_private_hint">Only you can see this. Turn it on to appear on the leaderboard.</string>
     <string name="points_short">%1$s pts</string>
     <string name="post_quantum_encryption">Post Quantum Encryption</string>
     <string name="post_quantum_encryption_fallback_note">Fallback enabled (temporary)</string>
@@ -533,6 +549,7 @@
     <string name="providing">Providing</string>
     <string name="providing_disabled">Providing is disabled</string>
     <string name="purchase_could_not_be_verified">This purchase could not be verified with Google Play, so it can\'t be applied to your account. If you were charged and your plan doesn\'t update, please contact support.</string>
+    <string name="ranked_networks_count">%1$s ranked networks</string>
     <string name="ready_to_connect">Ready to connect</string>
     <string name="receive">Receive</string>
     <string name="receive_notifications">Receive connection notifications</string>
@@ -616,6 +633,7 @@
     <string name="shortcut_disconnect_long">Disconnect from URnetwork</string>
     <string name="show_icon_when_connected">Show UR icon when connected</string>
     <string name="show_kill_switch_exception">Show kill switch exception</string>
+    <string name="show_on_points_leaderboard">Show on the points leaderboard</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
     <string name="sign_in_with_apple">Sign in with Apple</string>
     <string name="site_app_contracts">Contracts</string>
@@ -642,6 +660,7 @@
     <string name="step_into_the_internet">Step into the internet\nas it should be.</string>
     <string name="step_one">Step 1</string>
     <string name="step_two">Step 2</string>
+    <string name="streak">Streak</string>
     <string name="strong_anonymization">Strong Anonymization</string>
     <string name="subscribe">Subscribe</string>
     <string name="subscription_purchased_under_different_account">Your subscription was purchased under a different account. Log in to that account to use it.</string>

@@ -5,6 +5,7 @@
     <string name="activity">النشاط</string>
     <string name="add">إضافة</string>
     <string name="add_blocked_location">إضافة موقع محجوب</string>
+    <string name="add_emoji">إضافة إيموجي</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
     <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
     <string name="allow_local_connections">السماح بالاتصالات المحلية</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">%1$d مسموح · %2$d محظور</string>
     <string name="always">دائمًا</string>
     <string name="amount">المبلغ</string>
+    <string name="anonymous">مجهول</string>
     <string name="api_error_contact">إذا استمرت المشكلة، تواصل معنا على %1$s أو انضم إلى %2$s الخاص بنا للحصول على دعم مباشر.</string>
     <string name="app_excluded_toast">سيتجاوز %1$s شبكة VPN</string>
     <string name="app_included_toast">سيتم توجيه %1$s عبر VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">حظر الإعلانات والمتعقبات</string>
     <string name="blocked">محظور</string>
     <string name="blocked_locations">المواقع المحجوبة</string>
+    <string name="blocks">الكتل</string>
     <string name="bonus_referral_code_label">رمز إحالة إضافي</string>
     <string name="browse_locations">تصفح المواقع</string>
     <string name="build_right">ابنِ\nالإنترنت\nبالطريقة الصحيحة</string>
@@ -71,6 +74,7 @@
     <string name="claim">مطالبة</string>
     <string name="claim_multiplier">المطالبة بالمضاعف</string>
     <string name="claim_network_name_hint">احصل على اسم شبكة مخصص ليحل محل الاسم الذي تم إنشاؤه تلقائيًا</string>
+    <string name="clear">مسح</string>
     <string name="client_contracts">عقود العميل</string>
     <string name="client_id_copied">تم نسخ معرّف العميل</string>
     <string name="client_statistics">إحصائيات العميل</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">مضاعفات الأرباح</string>
     <string name="earnings">الأرباح</string>
     <string name="edit_device_name">تعديل اسم الجهاز</string>
+    <string name="edit_emoji">تعديل الإيموجي</string>
     <string name="edit_network_name">تعديل اسم الشبكة</string>
     <string name="edit_profile">تعديل الملف الشخصي</string>
     <string name="edit_referral_code">تعديل رمز الإحالة</string>
     <string name="edit_split_rule">تعديل قاعدة التقسيم</string>
+    <string name="emoji_tag">وسم الإيموجي</string>
+    <string name="emoji_tag_error_empty">أضف إيموجي واحدًا على الأقل.</string>
+    <string name="emoji_tag_error_not_emoji">يُسمح بالإيموجي فقط.</string>
+    <string name="emoji_tag_error_too_many">استخدم %1$d إيموجي كحد أقصى.</string>
+    <string name="emoji_tag_hint">اختر من 1 إلى %1$d إيموجي لعرضها بجانب شبكتك.</string>
     <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
     <string name="enter">ادخل</string>
     <string name="enter_balance_code">أدخل رمز الرصيد</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">تحقق من هاتفك</string>
     <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="login_verify_header">لديك بريد إلكتروني</string>
+    <string name="longest_streak">أطول سلسلة</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="member">عضو</string>
     <string name="mock_location_active">تتم المزامنة مع %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">خطة</string>
     <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
     <string name="please_wait">يرجى الانتظار بضع دقائق وحاول مرة أخرى.</string>
+    <string name="points">النقاط</string>
+    <string name="points_leaderboard_description">النقاط منذ البداية. الكتلة هي فترة مكتملة واحدة؛ وتحسب السلسلة الكتل المتتالية ذات النقاط حتى آخر كتلة.</string>
+    <string name="points_leaderboard_empty">لا أحد في لوحة صدارة النقاط بعد.</string>
+    <string name="points_leaderboard_private_hint">أنت وحدك من يرى هذا. فعّل الخيار للظهور في لوحة الصدارة.</string>
     <string name="post_quantum_encryption">التشفير ما بعد الكمومي</string>
     <string name="post_quantum_encryption_fallback_note">الرجوع الاحتياطي مفعّل (مؤقتًا)</string>
     <string name="post_quantum_identity">الهوية ما بعد الكمومية</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">إحصائيات المزود</string>
     <string name="providing">جاري التوفير</string>
     <string name="providing_disabled">التوفير معطّل</string>
+    <string name="ranked_networks_count">%1$s شبكة مصنفة</string>
     <string name="ready_to_connect">جاهز للاتصال</string>
     <string name="receive">استقبل</string>
     <string name="receive_notifications">تلقي إشعارات الاتصال</string>
@@ -386,6 +402,7 @@
     <string name="share">شارك</string>
     <string name="share_logs">مشاركة السجلات</string>
     <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
+    <string name="show_on_points_leaderboard">العرض في لوحة صدارة النقاط</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
     <string name="site_app_contracts">العقود</string>
     <string name="site_app_providers">المزوّدون</string>
@@ -405,6 +422,7 @@
     <string name="step_into_the_internet">"ادخل إلى الإنترنت\n كما يجب أن يكون."</string>
     <string name="step_one">الخطوة 1</string>
     <string name="step_two">الخطوة2</string>
+    <string name="streak">السلسلة</string>
     <string name="strong_anonymization">إخفاء الهوية القوي</string>
     <string name="suggested_remote_dns_servers">خوادم DNS بعيدة مقترحة</string>
     <string name="suggested_remote_dns_servers_description">الاقتراحات الخاصة بالدولة المتصل بها مميّزة بلونها. تشغيل أحدها يضيفه إلى خوادم DNS البعيدة.</string>

@@ -5,6 +5,7 @@
     <string name="activity">กิจกรรม</string>
     <string name="add">เพิ่ม</string>
     <string name="add_blocked_location">เพิ่มตำแหน่งที่ถูกบล็อก</string>
+    <string name="add_emoji">เพิ่มอีโมจิ</string>
     <string name="add_referral_code">เพิ่มรหัสแนะนำ</string>
     <string name="add_referral_extra_rewards">เพิ่มรหัสการแนะนำเพื่อรับรางวัลเสริม</string>
     <string name="allow_local_connections">เปิดให้เชื่อมต่อจากอุปกรณ์ในเครือข่ายเดียวกัน</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">อนุญาต %1$d · บล็อก %2$d</string>
     <string name="always">ตลอดเวลา</string>
     <string name="amount">ยอด</string>
+    <string name="anonymous">ไม่ระบุชื่อ</string>
     <string name="api_error_contact">หากปัญหายังคงอยู่ กรุณาติดต่อเราที่ %1$s หรือเข้าร่วม %2$s ของเราเพื่อรับการสนับสนุนโดยตรง</string>
     <string name="app_excluded_toast">%1$s จะไม่ใช้ VPN</string>
     <string name="app_included_toast">%1$s จะใช้งานผ่าน VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">บล็อกโฆษณาและตัวติดตาม</string>
     <string name="blocked">ถูกบล็อก</string>
     <string name="blocked_locations">ตำแหน่งที่ถูกบล็อก</string>
+    <string name="blocks">บล็อก</string>
     <string name="bonus_referral_code_label">รหัสแนะนำโบนัส</string>
     <string name="browse_locations">สำรวจพื้นที่ต่างๆ</string>
     <string name="build_right">ร่วมสร้าง\nอินเทอร์เน็ต\nในแบบที่ควรจะเป็น</string>
@@ -71,6 +74,7 @@
     <string name="claim">รับ</string>
     <string name="claim_multiplier">รับสิทธิ์ตัวคูณ</string>
     <string name="claim_network_name_hint">รับชื่อเครือข่ายที่กำหนดเองเพื่อแทนที่ชื่อที่สร้างขึ้นอัตโนมัติ</string>
+    <string name="clear">ล้าง</string>
     <string name="client_contracts">สัญญาไคลเอ็นต์</string>
     <string name="client_id_copied">คัดลอก ID ไคลเอ็นต์แล้ว</string>
     <string name="client_statistics">สถิติไคลเอ็นต์</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">ตัวคูณรายได้</string>
     <string name="earnings">การสร้างรายได้</string>
     <string name="edit_device_name">แก้ไขชื่ออุปกรณ์</string>
+    <string name="edit_emoji">แก้ไขอีโมจิ</string>
     <string name="edit_network_name">แก้ไขชื่อเครือข่าย</string>
     <string name="edit_profile">แก้ไขโปรไฟล์</string>
     <string name="edit_referral_code">แก้ไขรหัสแนะนำ</string>
     <string name="edit_split_rule">แก้ไขกฎแยกเส้นทาง</string>
+    <string name="emoji_tag">แท็กอีโมจิ</string>
+    <string name="emoji_tag_error_empty">เพิ่มอีโมจิอย่างน้อยหนึ่งตัว</string>
+    <string name="emoji_tag_error_not_emoji">ใช้ได้เฉพาะอีโมจิเท่านั้น</string>
+    <string name="emoji_tag_error_too_many">ใช้อีโมจิได้ไม่เกิน %1$d ตัว</string>
+    <string name="emoji_tag_hint">เลือกอีโมจิ 1 ถึง %1$d ตัวเพื่อแสดงข้างเครือข่ายของคุณ</string>
     <string name="enjoying_urnetwork">สนุกกับการใช้ URnetwork ไหม?</string>
     <string name="enter">เข้า</string>
     <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">ตรวจสอบมือถือของคุณ</string>
     <string name="login_verify_details">บอกเราหน่อยสิว่านี้คือคุณจริงๆ กรอกโค้ดทางเรา\nส่งให้เพื่อยืนยันตัวตน</string>
     <string name="login_verify_header">คุณได้รับอีเมลใหม่</string>
+    <string name="longest_streak">ต่อเนื่องยาวนานที่สุด</string>
     <string name="manage_subscription">จัดการระบบรายเดือน</string>
     <string name="member">รูปแบบสมาชิก</string>
     <string name="mock_location_active">กำลังซิงค์กับ %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">แพ็กเกจ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="please_wait">โปรดรอสักครู่ แล้วลองใหม่อีกครั้ง</string>
+    <string name="points">คะแนน</string>
+    <string name="points_leaderboard_description">คะแนนสะสมทั้งหมด บล็อกคือหนึ่งอีพอคที่สรุปแล้ว ต่อเนื่องนับบล็อกที่มีคะแนนติดต่อกันจนถึงบล็อกล่าสุด</string>
+    <string name="points_leaderboard_empty">ยังไม่มีใครบนกระดานคะแนน</string>
+    <string name="points_leaderboard_private_hint">มีเพียงคุณที่เห็นสิ่งนี้ เปิดเพื่อแสดงบนกระดาน</string>
     <string name="post_quantum_encryption">การเข้ารหัสแบบโพสต์ควอนตัม</string>
     <string name="post_quantum_encryption_fallback_note">เปิดใช้โหมดสำรอง (ชั่วคราว)</string>
     <string name="post_quantum_identity">ข้อมูลระบุตัวตนแบบโพสต์ควอนตัม</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">สถิติผู้ให้บริการ</string>
     <string name="providing">กำลังให้บริการ</string>
     <string name="providing_disabled">การให้บริการถูกปิดอยู่</string>
+    <string name="ranked_networks_count">เครือข่ายที่มีอันดับ %1$s รายการ</string>
     <string name="ready_to_connect">พร้อมเชื่อมต่อ</string>
     <string name="receive">รับ</string>
     <string name="receive_notifications">รับแจ้งเตือนการเชื่อมต่อ</string>
@@ -383,6 +399,7 @@
     <string name="share">แชร์</string>
     <string name="share_logs">แชร์ไฟล์บันทึก</string>
     <string name="show_icon_when_connected">แสดงไอคอน UR เมื่อเชื่อมต่อ</string>
+    <string name="show_on_points_leaderboard">แสดงบนกระดานคะแนน</string>
     <string name="sign_in_dgen1">ลงชื่อเข้าใช้ด้วย dGEN1</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>
     <string name="something_went_wrong">มีบางอย่างผิดปกติ</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">ก้าวเข้าสู่อินเทอร์เน็ต\nอย่างที่ควรจะเป็น</string>
     <string name="step_one">ขั้นตอนที่ 1</string>
     <string name="step_two">ขั้นตอนที่ 2</string>
+    <string name="streak">ต่อเนื่อง</string>
     <string name="strong_anonymization">การทำให้ไม่สามารถระบุตัวตนได้แบบเข้มงวด</string>
     <string name="suggested_remote_dns_servers">เซิร์ฟเวอร์ DNS ระยะไกลที่แนะนำ</string>
     <string name="suggested_remote_dns_servers_description">คำแนะนำสำหรับประเทศที่เชื่อมต่ออยู่จะทำเครื่องหมายด้วยสีของประเทศนั้น เมื่อเปิดใช้งานรายการใด รายการนั้นจะถูกเพิ่มเข้าไปในเซิร์ฟเวอร์ DNS ระยะไกล</string>

@@ -5,6 +5,7 @@
     <string name="activity">Aktivita</string>
     <string name="add">Přidat</string>
     <string name="add_blocked_location">Přidat blokovanou lokalitu</string>
+    <string name="add_emoji">Přidat emoji</string>
     <string name="add_referral_code">Přidání doporučujícího kódu</string>
     <string name="add_referral_extra_rewards">Přidáním kódu pro doporučení získáte další odměny</string>
     <string name="allow_local_connections">Povolit místní připojení</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">Povoleno: %1$d · Blokováno: %2$d</string>
     <string name="always">Vždy</string>
     <string name="amount">Částka</string>
+    <string name="anonymous">Anonymní</string>
     <string name="api_error_contact">Pokud problém přetrvává, kontaktujte nás na %1$s nebo se připojte k našemu %2$s pro přímou podporu.</string>
     <string name="app_excluded_toast">%1$s bude obcházet VPN</string>
     <string name="app_included_toast">%1$s bude používat VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">Blokovat reklamy a trackery</string>
     <string name="blocked">Blokováno</string>
     <string name="blocked_locations">Blokované lokality</string>
+    <string name="blocks">Bloky</string>
     <string name="bonus_referral_code_label">Bonusový doporučovací kód</string>
     <string name="browse_locations">Procházet lokality</string>
     <string name="build_right">Vytváření internetu\nsprávným způsobem</string>
@@ -71,6 +74,7 @@
     <string name="claim">Vyzvědněte</string>
     <string name="claim_multiplier">Nárokujte si násobej</string>
     <string name="claim_network_name_hint">Získejte vlastní název sítě, který nahradí automaticky vygenerovaný</string>
+    <string name="clear">Vymazat</string>
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id_copied">ID klienta zkopírováno</string>
     <string name="client_statistics">Statistiky klienta</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">Násobitele výdělku</string>
     <string name="earnings">Výdělky</string>
     <string name="edit_device_name">Upravit název zařízení</string>
+    <string name="edit_emoji">Upravit emoji</string>
     <string name="edit_network_name">Upravit název sítě</string>
     <string name="edit_profile">Upravit profil</string>
     <string name="edit_referral_code">Upravit doporučující kód</string>
     <string name="edit_split_rule">Upravit pravidlo rozdělení</string>
+    <string name="emoji_tag">Emoji značka</string>
+    <string name="emoji_tag_error_empty">Přidejte alespoň jedno emoji.</string>
+    <string name="emoji_tag_error_not_emoji">Povolena jsou pouze emoji.</string>
+    <string name="emoji_tag_error_too_many">Použijte nejvýše %1$d emoji.</string>
+    <string name="emoji_tag_hint">Vyberte 1 až %1$d emoji, které se zobrazí u vaší sítě.</string>
     <string name="enjoying_urnetwork">Užíváte si URnetwork?</string>
     <string name="enter">Enter</string>
     <string name="enter_balance_code">Zadejte kód zůstatku</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">Zkontrolujte telefon</string>
     <string name="login_verify_details">"Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost."</string>
     <string name="login_verify_header">Máš poštu</string>
+    <string name="longest_streak">Nejdelší série</string>
     <string name="manage_subscription">Správa předplatného</string>
     <string name="member">Člen</string>
     <string name="mock_location_active">Synchronizace: %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">Plán</string>
     <string name="please_try_again">Prosím, zkuste to znovu.</string>
     <string name="please_wait">Prosím, počkejte několik minut a zkuste to znovu.</string>
+    <string name="points">Body</string>
+    <string name="points_leaderboard_description">Body za celou dobu. Blok je jedna dokončená epocha; série počítá po sobě jdoucí bloky s body končící tím posledním.</string>
+    <string name="points_leaderboard_empty">V žebříčku bodů zatím nikdo není.</string>
+    <string name="points_leaderboard_private_hint">Vidíte to jen vy. Zapněte, abyste se objevili v žebříčku.</string>
     <string name="post_quantum_encryption">Postkvantové šifrování</string>
     <string name="post_quantum_encryption_fallback_note">Záložní režim zapnut (dočasně)</string>
     <string name="post_quantum_identity">Postkvantová identita</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">Statistiky poskytovatele</string>
     <string name="providing">Poskytování</string>
     <string name="providing_disabled">Poskytování je vypnuté</string>
+    <string name="ranked_networks_count">%1$s hodnocených sítí</string>
     <string name="ready_to_connect">Připraveno k připojení</string>
     <string name="receive">Přijmout</string>
     <string name="receive_notifications">Přijímání oznámení o připojení</string>
@@ -383,6 +399,7 @@
     <string name="share">Sdílet</string>
     <string name="share_logs">Sdílet protokoly</string>
     <string name="show_icon_when_connected">Zobrazit ikonu UR po připojení</string>
+    <string name="show_on_points_leaderboard">Zobrazit v žebříčku bodů</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>
     <string name="something_went_wrong">Něco se pokazilo.</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">Vstupte do internetu\njaký by měl být.</string>
     <string name="step_one">Krok 1</string>
     <string name="step_two">Krok 2</string>
+    <string name="streak">Série</string>
     <string name="strong_anonymization">Silná anonymizace</string>
     <string name="suggested_remote_dns_servers">Navrhované vzdálené servery DNS</string>
     <string name="suggested_remote_dns_servers_description">Návrhy pro připojenou zemi jsou označeny její barvou. Zapnutím se server přidá mezi vzdálené servery DNS.</string>

@@ -5,6 +5,7 @@
     <string name="activity">Activité</string>
     <string name="add">Ajouter</string>
     <string name="add_blocked_location">Ajouter un emplacement bloqué</string>
+    <string name="add_emoji">Ajouter des emojis</string>
     <string name="add_referral_code">Ajouter un code de parrainage</string>
     <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
     <string name="allow_local_connections">Autoriser les connexions locales</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">%1$d autorisés · %2$d bloqués</string>
     <string name="always">Toujours</string>
     <string name="amount">Montant</string>
+    <string name="anonymous">Anonyme</string>
     <string name="api_error_contact">Si le problème persiste, contactez-nous à %1$s ou rejoignez notre %2$s pour un support direct.</string>
     <string name="app_excluded_toast">%1$s contournera le VPN</string>
     <string name="app_included_toast">%1$s passera par le VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">Bloquer les publicités et les traqueurs</string>
     <string name="blocked">Bloqué</string>
     <string name="blocked_locations">Emplacements bloqués</string>
+    <string name="blocks">Blocs</string>
     <string name="bonus_referral_code_label">Code de parrainage bonus</string>
     <string name="browse_locations">Parcourir les emplacements</string>
     <string name="build_right">Construire\nInternet de la\nbonne manière</string>
@@ -71,6 +74,7 @@
     <string name="claim">Réclamer</string>
     <string name="claim_multiplier">Réclamer le multiplicateur</string>
     <string name="claim_network_name_hint">Choisissez un nom de réseau personnalisé pour remplacer celui généré automatiquement</string>
+    <string name="clear">Effacer</string>
     <string name="client_contracts">Contrats client</string>
     <string name="client_id_copied">ID client copié</string>
     <string name="client_statistics">Statistiques client</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">Multiplicateurs de gains</string>
     <string name="earnings">Gains</string>
     <string name="edit_device_name">Modifier le nom de l\'appareil</string>
+    <string name="edit_emoji">Modifier les emojis</string>
     <string name="edit_network_name">Modifier le nom du réseau</string>
     <string name="edit_profile">Modifier le profil</string>
     <string name="edit_referral_code">Modifier le code de parrainage</string>
     <string name="edit_split_rule">Modifier la règle de séparation</string>
+    <string name="emoji_tag">Tag emoji</string>
+    <string name="emoji_tag_error_empty">Ajoutez au moins un emoji.</string>
+    <string name="emoji_tag_error_not_emoji">Seuls les emojis sont autorisés.</string>
+    <string name="emoji_tag_error_too_many">Utilisez au plus %1$d emojis.</string>
+    <string name="emoji_tag_hint">Choisissez 1 à %1$d emojis à afficher à côté de votre réseau.</string>
     <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
     <string name="enter">Entrée</string>
     <string name="enter_balance_code">Entrez le code de solde</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">Vérifiez votre téléphone</string>
     <string name="login_verify_details">Dites-nous qui vous êtes vraiment. Entrez le code que nous\nvous avons envoyé pour vérifier votre identité.</string>
     <string name="login_verify_header">Vous avez un courriel</string>
+    <string name="longest_streak">Plus longue série</string>
     <string name="manage_subscription">Gérer l\'abonnement</string>
     <string name="member">Membre</string>
     <string name="mock_location_active">Synchronisation avec %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">Plan</string>
     <string name="please_try_again">Veuillez réessayer.</string>
     <string name="please_wait">Veuillez patienter quelques minutes et réessayer.</string>
+    <string name="points">Points</string>
+    <string name="points_leaderboard_description">Points cumulés. Un bloc est une époque finalisée ; la série compte les blocs consécutifs avec des points jusqu\'au dernier.</string>
+    <string name="points_leaderboard_empty">Personne n\'est encore dans le classement des points.</string>
+    <string name="points_leaderboard_private_hint">Vous seul voyez ceci. Activez-le pour apparaître dans le classement.</string>
     <string name="post_quantum_encryption">Chiffrement post-quantique</string>
     <string name="post_quantum_encryption_fallback_note">Secours activé (temporaire)</string>
     <string name="post_quantum_identity">Identité post-quantique</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">Statistiques fournisseur</string>
     <string name="providing">Fourniture</string>
     <string name="providing_disabled">La fourniture est désactivée</string>
+    <string name="ranked_networks_count">%1$s réseaux classés</string>
     <string name="ready_to_connect">Prêt à connecter</string>
     <string name="receive">Reçois</string>
     <string name="receive_notifications">Recevoir des notifications de connexion</string>
@@ -383,6 +399,7 @@
     <string name="share">Partage</string>
     <string name="share_logs">Partager les journaux</string>
     <string name="show_icon_when_connected">Afficher l’icône UR lors de la connexion</string>
+    <string name="show_on_points_leaderboard">Afficher dans le classement des points</string>
     <string name="sign_in_dgen1">Se connecter avec dGEN1</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>
     <string name="something_went_wrong">Quelque chose s\'est mal passé.</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">Entrez dans Internet\ncomme il devrait être.</string>
     <string name="step_one">Étape 1</string>
     <string name="step_two">Étape 2</string>
+    <string name="streak">Série</string>
     <string name="strong_anonymization">Anonymisation renforcée</string>
     <string name="suggested_remote_dns_servers">Serveurs DNS distants suggérés</string>
     <string name="suggested_remote_dns_servers_description">Les suggestions pour le pays connecté sont marquées de sa couleur. En activer une l\'ajoute aux serveurs DNS distants.</string>

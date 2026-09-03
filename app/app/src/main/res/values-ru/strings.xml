@@ -5,6 +5,7 @@
     <string name="activity">Активность</string>
     <string name="add">Добавить</string>
     <string name="add_blocked_location">Добавить заблокированную локацию</string>
+    <string name="add_emoji">Добавить эмодзи</string>
     <string name="add_referral_code">Добавить реферальный код</string>
     <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные награды</string>
     <string name="allow_local_connections">Разрешить локальные подключения</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">%1$d разрешено · %2$d заблокировано</string>
     <string name="always">Всегда</string>
     <string name="amount">Сумма</string>
+    <string name="anonymous">Анонимно</string>
     <string name="api_error_contact">Если проблема сохраняется, свяжитесь с нами по адресу %1$s или присоединяйтесь к нашему %2$s для получения прямой поддержки.</string>
     <string name="app_excluded_toast">%1$s будет работать в обход VPN</string>
     <string name="app_included_toast">%1$s будет работать через VPN</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">Блокировать рекламу и трекеры</string>
     <string name="blocked">Заблокировано</string>
     <string name="blocked_locations">Заблокированные локации</string>
+    <string name="blocks">Блоки</string>
     <string name="bonus_referral_code_label">Бонусный реферальный код</string>
     <string name="browse_locations">Просмотр локаций</string>
     <string name="build_right">Стройте\nинтернет\nправильно</string>
@@ -71,6 +74,7 @@
     <string name="claim">Получить</string>
     <string name="claim_multiplier">Получить множитель</string>
     <string name="claim_network_name_hint">Получите собственное имя сети вместо автоматически созданного</string>
+    <string name="clear">Очистить</string>
     <string name="client_contracts">Контракты клиента</string>
     <string name="client_id_copied">ID клиента скопирован</string>
     <string name="client_statistics">Статистика клиента</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">Множители заработка</string>
     <string name="earnings">Заработок</string>
     <string name="edit_device_name">Изменить имя устройства</string>
+    <string name="edit_emoji">Изменить эмодзи</string>
     <string name="edit_network_name">Изменить имя сети</string>
     <string name="edit_profile">Редактировать профиль</string>
     <string name="edit_referral_code">Изменить реферальный код</string>
     <string name="edit_split_rule">Изменить правило разделения</string>
+    <string name="emoji_tag">Эмодзи-тег</string>
+    <string name="emoji_tag_error_empty">Добавьте хотя бы один эмодзи.</string>
+    <string name="emoji_tag_error_not_emoji">Разрешены только эмодзи.</string>
+    <string name="emoji_tag_error_too_many">Используйте не более %1$d эмодзи.</string>
+    <string name="emoji_tag_hint">Выберите от 1 до %1$d эмодзи, которые будут показаны рядом с вашей сетью.</string>
     <string name="enjoying_urnetwork">Вам нравится URnetwork?</string>
     <string name="enter">Войти</string>
     <string name="enter_balance_code">Введите код баланса</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">Проверьте свой телефон</string>
     <string name="login_verify_details">Подтвердите, что это вы. Введите код,\nкоторый мы отправили, для проверки вашей личности.</string>
     <string name="login_verify_header">Вам письмо</string>
+    <string name="longest_streak">Самая длинная серия</string>
     <string name="manage_subscription">Управление подпиской</string>
     <string name="member">Участник</string>
     <string name="mock_location_active">Синхронизация: %1$s</string>
@@ -294,6 +305,10 @@
     <string name="plan">Тариф</string>
     <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
+    <string name="points">Очки</string>
+    <string name="points_leaderboard_description">Очки за всё время. Блок — одна завершённая эпоха; серия считает подряд идущие блоки с очками до последнего.</string>
+    <string name="points_leaderboard_empty">В таблице лидеров по очкам пока никого нет.</string>
+    <string name="points_leaderboard_private_hint">Это видите только вы. Включите, чтобы появиться в таблице лидеров.</string>
     <string name="post_quantum_encryption">Постквантовое шифрование</string>
     <string name="post_quantum_encryption_fallback_note">Резервный режим включён (временно)</string>
     <string name="post_quantum_identity">Постквантовая идентификация</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">Статистика провайдера</string>
     <string name="providing">Предоставление</string>
     <string name="providing_disabled">Предоставление отключено</string>
+    <string name="ranked_networks_count">Сетей в рейтинге: %1$s</string>
     <string name="ready_to_connect">Готово к подключению</string>
     <string name="receive">Получить</string>
     <string name="receive_notifications">Получать уведомления о подключении</string>
@@ -386,6 +402,7 @@
     <string name="share">Поделиться</string>
     <string name="share_logs">Поделиться логами</string>
     <string name="show_icon_when_connected">Показывать значок UR при подключении</string>
+    <string name="show_on_points_leaderboard">Показывать в таблице лидеров по очкам</string>
     <string name="sign_in_dgen1">Войти с помощью dGEN1</string>
     <string name="site_app_contracts">Контракты</string>
     <string name="site_app_providers">Провайдеры</string>
@@ -405,6 +422,7 @@
     <string name="step_into_the_internet">Войдите в интернет\nтаким, каким он должен быть.</string>
     <string name="step_one">Шаг 1</string>
     <string name="step_two">Шаг 2</string>
+    <string name="streak">Серия</string>
     <string name="strong_anonymization">Усиленная анонимизация</string>
     <string name="suggested_remote_dns_servers">Рекомендуемые удалённые DNS-серверы</string>
     <string name="suggested_remote_dns_servers_description">Предложения для страны подключения отмечены её цветом. Включение добавляет сервер в список удалённых DNS.</string>

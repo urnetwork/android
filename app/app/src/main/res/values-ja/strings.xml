@@ -5,6 +5,7 @@
     <string name="activity">アクティビティ</string>
     <string name="add">追加</string>
     <string name="add_blocked_location">ブロックされた場所を追加</string>
+    <string name="add_emoji">絵文字を追加</string>
     <string name="add_referral_code">紹介コードを追加</string>
     <string name="add_referral_extra_rewards">紹介コードを追加して追加の特典を獲得</string>
     <string name="allow_local_connections">ローカル接続を許可</string>
@@ -13,6 +14,7 @@
     <string name="allowed_blocked_counts">許可 %1$d · ブロック %2$d</string>
     <string name="always">常に</string>
     <string name="amount">金額</string>
+    <string name="anonymous">匿名</string>
     <string name="api_error_contact">問題が解決しない場合は、%1$s までご連絡いただくか、直接サポートのために私たちの %2$s にご参加ください。</string>
     <string name="app_excluded_toast">%1$sはVPNを迂回します</string>
     <string name="app_included_toast">%1$sはVPN経由でルーティングされます</string>
@@ -52,6 +54,7 @@
     <string name="block_ads_and_trackers">広告とトラッカーをブロック</string>
     <string name="blocked">ブロック</string>
     <string name="blocked_locations">ブロックされた場所</string>
+    <string name="blocks">ブロック</string>
     <string name="bonus_referral_code_label">ボーナス紹介コード</string>
     <string name="browse_locations">ロケーションを閲覧</string>
     <string name="build_right">正しい方法で\nインターネットを\n構築する</string>
@@ -71,6 +74,7 @@
     <string name="claim">受け取る</string>
     <string name="claim_multiplier">乗数を受け取る</string>
     <string name="claim_network_name_hint">自動生成されたネットワーク名の代わりに、カスタムのネットワーク名を取得しましょう</string>
+    <string name="clear">クリア</string>
     <string name="client_contracts">クライアント契約</string>
     <string name="client_id_copied">クライアントIDをコピーしました</string>
     <string name="client_statistics">クライアント統計</string>
@@ -137,10 +141,16 @@
     <string name="earning_multipliers">獲得ポイントの倍率</string>
     <string name="earnings">収益</string>
     <string name="edit_device_name">デバイス名を編集</string>
+    <string name="edit_emoji">絵文字を編集</string>
     <string name="edit_network_name">ネットワーク名を編集</string>
     <string name="edit_profile">プロフィールを編集</string>
     <string name="edit_referral_code">紹介コードを編集</string>
     <string name="edit_split_rule">分割ルールを編集</string>
+    <string name="emoji_tag">絵文字タグ</string>
+    <string name="emoji_tag_error_empty">絵文字を1つ以上追加してください。</string>
+    <string name="emoji_tag_error_not_emoji">絵文字のみ使用できます。</string>
+    <string name="emoji_tag_error_too_many">絵文字は最大%1$d個までです。</string>
+    <string name="emoji_tag_hint">ネットワーク名の横に表示する絵文字を1〜%1$d個選んでください。</string>
     <string name="enjoying_urnetwork">URnetworkを楽しんでいますか？</string>
     <string name="enter">ゴー！</string>
     <string name="enter_balance_code">残高コードを入力</string>
@@ -206,6 +216,7 @@
     <string name="login_verify_check_phone">携帯電話を確認してください</string>
     <string name="login_verify_details">本人確認のために、送信したコードを入力してください。</string>
     <string name="login_verify_header">メールが届いています</string>
+    <string name="longest_streak">最長連続</string>
     <string name="manage_subscription">サブスクリプションを管理</string>
     <string name="member">メンバー</string>
     <string name="mock_location_active">%1$s と同期中</string>
@@ -294,6 +305,10 @@
     <string name="plan">プラン</string>
     <string name="please_try_again">もう一度お試しください。</string>
     <string name="please_wait">しばらく待ってから再試行してください。</string>
+    <string name="points">ポイント</string>
+    <string name="points_leaderboard_description">累計ポイント。ブロックは確定した1エポック。連続は最新ブロックまでポイントを獲得した連続ブロック数です。</string>
+    <string name="points_leaderboard_empty">ポイントリーダーボードにはまだ誰もいません。</string>
+    <string name="points_leaderboard_private_hint">これはあなただけに表示されます。オンにするとリーダーボードに表示されます。</string>
     <string name="post_quantum_encryption">ポスト量子暗号</string>
     <string name="post_quantum_encryption_fallback_note">フォールバック有効（一時的）</string>
     <string name="post_quantum_identity">ポスト量子ID</string>
@@ -315,6 +330,7 @@
     <string name="provider_statistics">プロバイダー統計</string>
     <string name="providing">提供中</string>
     <string name="providing_disabled">提供は無効です</string>
+    <string name="ranked_networks_count">ランク付けされたネットワーク %1$s</string>
     <string name="ready_to_connect">接続準備完了</string>
     <string name="receive">受信</string>
     <string name="receive_notifications">接続通知を受け取る</string>
@@ -383,6 +399,7 @@
     <string name="share">共有</string>
     <string name="share_logs">ログを共有</string>
     <string name="show_icon_when_connected">接続時にURアイコンを表示</string>
+    <string name="show_on_points_leaderboard">ポイントリーダーボードに表示</string>
     <string name="sign_in_dgen1">dGEN1でサインイン</string>
     <string name="solana_sign_in">Solanaでサインイン</string>
     <string name="something_went_wrong">エラーが発生しました。</string>
@@ -400,6 +417,7 @@
     <string name="step_into_the_internet">本来あるべきインターネットへ\n踏み出そう。</string>
     <string name="step_one">ステップ1</string>
     <string name="step_two">ステップ2</string>
+    <string name="streak">連続</string>
     <string name="strong_anonymization">強力な匿名化</string>
     <string name="suggested_remote_dns_servers">推奨リモートDNSサーバー</string>
     <string name="suggested_remote_dns_servers_description">接続中の国の候補にはその国の色が付いています。オンにするとリモートDNSサーバーに追加されます。</string>
