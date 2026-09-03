@@ -525,6 +525,15 @@ class PlanViewModel @Inject constructor(
             if (productDetails != null) {
 
                 val offers = productDetails.subscriptionOfferDetails ?: emptyList()
+                // what Play actually returned for this device and account, so a missing
+                // plan can be told apart from a classification bug from a log alone
+                Log.i(
+                    "PlanViewModel",
+                    "play offers for ${productDetails.productId}: " + offers.joinToString("; ") { offer ->
+                        "${offer.basePlanId}/${offer.offerId ?: "-"} period=${offerPeriodDays(offer)}d phases=" +
+                            offer.pricingPhases.pricingPhaseList.joinToString(",") { "${it.billingPeriod}:${it.formattedPrice}" }
+                    }.ifEmpty { "none" },
+                )
                 val monthly = offers.firstOrNull { offerPeriodDays(it) in 28..31 }
                     ?: offers.firstOrNull()
                 val yearly = offers.firstOrNull { 360 <= offerPeriodDays(it) }
