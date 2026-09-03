@@ -48,7 +48,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -102,7 +101,6 @@ import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
-import com.bringyour.network.ui.settings.updateReferralNetworkBottomSheet.UpdateReferralNetworkBottomSheet
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
@@ -125,7 +123,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bringyour.network.TAG
-import com.bringyour.network.ui.components.CopyReferralCode
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
 import com.bringyour.network.ui.login.SeedphraseDisplayScreen
@@ -140,14 +137,11 @@ fun SettingsScreen(
     overlayViewModel: OverlayViewModel,
     activityResultSender: ActivityResultSender?,
     earningsViewModel: EarningsViewModel,
-    bonusReferralCode: String,
-    isPro: Boolean,
-    totalReferrals: Long = 0L
+    isPro: Boolean
 ) {
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
     val showDeleteAccountDialog = settingsViewModel.showDeleteAccountDialog.collectAsState().value
-    val referralNetwork = settingsViewModel.referralNetwork.collectAsState().value
     val isPresentingAuthCodeDialog = settingsViewModel.isPresentingAuthCodeDialog.collectAsState().value
     val authCode = settingsViewModel.authCode.collectAsState().value
 
@@ -179,11 +173,6 @@ fun SettingsScreen(
 
     val scope = rememberCoroutineScope()
 
-    val updateReferralNetworkSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isPresentingUpdateReferralNetworkSheet by remember { mutableStateOf(false) }
-    val setIsPresentingUpdateReferralNetworkSheet: (Boolean) -> Unit = { isPresenting ->
-        isPresentingUpdateReferralNetworkSheet = isPresenting
-    }
 
     val solanaUri = Uri.parse("https://ur.io")
     val iconUri = Uri.parse("favicon.ico")
@@ -192,12 +181,6 @@ fun SettingsScreen(
 
     val clipboardManager = LocalClipboardManager.current
 
-    val expandUpdateNetworkReferralSheet: () -> Unit = {
-        scope.launch {
-            updateReferralNetworkSheetState.expand()
-            setIsPresentingUpdateReferralNetworkSheet(true)
-        }
-    }
 
     var isPresentingRenameDevice by remember { mutableStateOf(false) }
     var editingDeviceName by remember { mutableStateOf(TextFieldValue("")) }
@@ -289,9 +272,6 @@ fun SettingsScreen(
         snackbarHostState = snackbarHostState,
         signAndVerifySeekerHolder = signAndVerifySeekerHolder,
         isSeekerHolder = earningsViewModel.isSeekerHolder.collectAsState().value,
-        bonusReferralCode = bonusReferralCode,
-        referralNetworkName = referralNetwork?.name,
-        expandUpdateNetworkReferralSheet = expandUpdateNetworkReferralSheet,
         version = settingsViewModel.version,
         allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
         toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
@@ -302,7 +282,6 @@ fun SettingsScreen(
         provideIndicatorColor = settingsViewModel.provideIndicatorColor,
         provideIndicatorRingColor = settingsViewModel.provideIndicatorRingColor,
         stripePortalUrl = settingsViewModel.stripePortalUrl.collectAsState().value,
-        totalReferrals = totalReferrals,
         authMethods = authMethods,
         onRemoveAuthMethod = { method -> pendingRemoveMethod = method },
         onAddAuthMethodClick = { presentAddAuthSheet = true },
@@ -363,34 +342,6 @@ fun SettingsScreen(
                 clipboardManager.setText(AnnotatedString(authCode ?: ""))
                 settingsViewModel.setIsPresentingAuthCodeDialog(false)
             }
-        )
-    }
-
-    if (isPresentingUpdateReferralNetworkSheet) {
-        UpdateReferralNetworkBottomSheet(
-            sheetState = updateReferralNetworkSheetState,
-            setIsPresenting = setIsPresentingUpdateReferralNetworkSheet,
-            onSuccess = {
-                setIsPresentingUpdateReferralNetworkSheet(false)
-                settingsViewModel.fetchReferralNetwork()
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = "Referral network updated",
-                        withDismissAction = true,
-                         duration = SnackbarDuration.Short
-                    )
-                }
-            },
-            onError = { errMsg ->
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = errMsg,
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            },
-            referralNetworkName = referralNetwork?.name
         )
     }
 
@@ -540,9 +491,6 @@ private fun SettingsScreen(
     snackbarHostState: SnackbarHostState,
     signAndVerifySeekerHolder: () -> Unit,
     isSeekerHolder: Boolean,
-    bonusReferralCode: String,
-    referralNetworkName: String?,
-    expandUpdateNetworkReferralSheet: () -> Unit,
     version: String,
     allowProvideCell: Boolean,
     toggleProvideCell: () -> Unit,
@@ -553,7 +501,6 @@ private fun SettingsScreen(
     provideIndicatorColor: Color,
     provideIndicatorRingColor: Color? = null,
     stripePortalUrl: String?,
-    totalReferrals: Long = 0L,
     authMethods: List<String>,
     onRemoveAuthMethod: (String) -> Unit,
     onAddAuthMethodClick: () -> Unit,
@@ -610,27 +557,6 @@ private fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(stringResource(id = R.string.settings), style = MaterialTheme.typography.headlineSmall)
-
-                /**
-                 * referral royalty: networks with at least one referral get the
-                 * crowned frog mascot (same as the ur.io site)
-                 */
-                if (0 < totalReferrals) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.referral_frog),
-                            contentDescription = stringResource(id = R.string.referral_royalty),
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Text(
-                            stringResource(id = R.string.referral_royalty),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TextMuted
-                        )
-                    }
-                }
             }
             Spacer(modifier = Modifier.height(64.dp))
 
@@ -671,47 +597,6 @@ private fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-
-            /**
-             * Referral code
-             */
-            URTextInputLabel(
-                text = stringResource(id = R.string.referral_code)
-            )
-
-            CopyReferralCode(
-                bonusReferralCode = bonusReferralCode
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            /**
-             * Update referral network
-             */
-            URTextInputLabel(stringResource(id = R.string.referral_network))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    referralNetworkName ?: stringResource(id = R.string.none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
-
-                TextButton(onClick = {
-                    expandUpdateNetworkReferralSheet()
-                }) {
-                    Text(
-                        stringResource(id = R.string.update),
-                        color = BlueMedium
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
 
             /**
              * Auth code
@@ -1590,9 +1475,6 @@ private fun SettingsScreenPreview() {
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,
-            bonusReferralCode = "ABC123",
-            referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
             allowProvideCell = true,
             toggleProvideCell = {},
@@ -1670,9 +1552,6 @@ private fun SettingsScreenSupporterPreview() {
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,
-            bonusReferralCode = "ABC123",
-            referralNetworkName = null,
-            expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
             allowProvideCell = true,
             toggleProvideCell = {},
@@ -1718,9 +1597,6 @@ private fun SettingsScreenNotificationsDisabledPreview() {
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = true,
-            bonusReferralCode = "ABC123",
-            referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
             allowProvideCell = true,
             toggleProvideCell = {},
@@ -1766,9 +1642,6 @@ private fun SettingsScreenNotificationsAllowedPreview() {
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,
-            bonusReferralCode = "ABC123",
-            referralNetworkName = "parent_network",
-            expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
             allowProvideCell = true,
             toggleProvideCell = {},
@@ -1814,9 +1687,6 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             snackbarHostState = remember { SnackbarHostState() },
             signAndVerifySeekerHolder = {},
             isSeekerHolder = false,
-            bonusReferralCode = "ABC123",
-            referralNetworkName = null,
-            expandUpdateNetworkReferralSheet = {},
             version = "1.2.3",
             allowProvideCell = true,
             toggleProvideCell = {},

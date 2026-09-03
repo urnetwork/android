@@ -337,6 +337,7 @@
     <string name="referral_code">Doporující kód</string>
     <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
     <string name="referral_network">Síť doporučení</string>
+    <string name="referral_points">Body za doporučení</string>
     <string name="referral_royal_welcome">Královské přivítání!</string>
     <string name="referral_royal_welcome_detail">Doporučení potvrzeno — vy i váš přítel získáte každý +%1$d GiB/den dat zdarma, na celý život.</string>
     <string name="referral_royalty">Doporučujete po královsku!</string>

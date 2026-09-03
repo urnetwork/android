@@ -340,6 +340,7 @@
     <string name="referral_panel_detail">Каждый подтверждённый реферал даёт каждому из вас по %1$d ГиБ в день бесплатно, навсегда.</string>
     <string name="referral_panel_heading">Пригласите друга и вы оба получите бесплатный трафик</string>
     <string name="referral_panel_none">Пока нет друзей — поделитесь кодом, и появится корона. 👑</string>
+    <string name="referral_points">Реферальные баллы</string>
     <string name="referral_royal_welcome">Королевский приём!</string>
     <string name="referral_royal_welcome_detail">Реферал подтверждён — вы и ваш друг получаете по +%1$d GiB бесплатных данных в день, навсегда.</string>
     <string name="referral_royalty">Вы — звезда рефералов!</string>

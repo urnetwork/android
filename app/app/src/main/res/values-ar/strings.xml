@@ -340,6 +340,7 @@
     <string name="referral_panel_detail">كل إحالة موثّقة تمنح كلاً منكما %1$d جيبي بايت يومياً مجاناً، مدى الحياة.</string>
     <string name="referral_panel_heading">أحِل صديقاً واحصلا كلاكما على بيانات مجانية</string>
     <string name="referral_panel_none">لا أصدقاء بعد. شارك رمزك وسيظهر التاج. 👑</string>
+    <string name="referral_points">نقاط الإحالة</string>
     <string name="referral_royal_welcome">ترحيب ملكي!</string>
     <string name="referral_royal_welcome_detail">تم تأكيد الإحالة — تحصل أنت وصديقك على +%1$d GiB يوميًا من البيانات المجانية، مدى الحياة.</string>
     <string name="referral_royalty">أنت نجم الإحالات!</string>

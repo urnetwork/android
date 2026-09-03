@@ -337,6 +337,7 @@
     <string name="referral_code">Referentiecode</string>
     <string name="referral_code_capped">Deze code is al gebruikt</string>
     <string name="referral_network">Referentienetwerk</string>
+    <string name="referral_points">Doorverwijzingspunten</string>
     <string name="referral_royal_welcome">Een koninklijk welkom!</string>
     <string name="referral_royal_welcome_detail">Verwijzing bevestigd — jij en je vriend krijgen elk +%1$d GiB/dag aan gratis data, levenslang.</string>
     <string name="referral_royalty">Jij bent een verwijzingskampioen!</string>

@@ -100,6 +100,7 @@ sealed class Route {
     @Serializable object Profile : Route()
     @Serializable object Settings : Route()
     @Serializable object Earnings : Route()
+    @Serializable object Referrals : Route()
     @Serializable object BlockedRegions: Route()
     @Serializable object Developer: Route()
     @Serializable object BalanceCodes: Route()

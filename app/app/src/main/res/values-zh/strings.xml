@@ -340,6 +340,7 @@
     <string name="referral_panel_detail">每一次通过验证的推荐，都会让你们双方各获得每天 %1$d GiB 免费流量，终身有效。</string>
     <string name="referral_panel_heading">推荐好友，双方都获得免费流量</string>
     <string name="referral_panel_none">还没有好友——分享你的推荐码，皇冠即将出现。👑</string>
+    <string name="referral_points">推荐积分</string>
     <string name="referral_royal_welcome">王者般的欢迎！</string>
     <string name="referral_royal_welcome_detail">推荐已确认——你和好友每人每天获得 +%1$d GiB 免费流量，终身有效。</string>
     <string name="referral_royalty">你是推荐王者！</string>

@@ -337,6 +337,7 @@
     <string name="referral_code">Κωδικός παραπομπής</string>
     <string name="referral_code_capped">Αυτός ο κωδικός έχει εξαντληθεί</string>
     <string name="referral_network">Δίκτυο παραπομπών</string>
+    <string name="referral_points">Πόντοι παραπομπών</string>
     <string name="referral_royal_welcome">Βασιλικό καλωσόρισμα!</string>
     <string name="referral_royal_welcome_detail">Η παραπομπή επιβεβαιώθηκε — εσύ και ο φίλος σου παίρνετε από +%1$d GiB/ημέρα δωρεάν δεδομένα, για πάντα.</string>
     <string name="referral_royalty">Είστε αστέρι στις παραπομπές!</string>

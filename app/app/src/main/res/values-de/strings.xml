@@ -340,6 +340,7 @@
     <string name="referral_panel_detail">Jede verifizierte Empfehlung bringt Ihnen beiden je %1$d GiB/Tag kostenlos, auf Lebenszeit.</string>
     <string name="referral_panel_heading">Freunde einladen und Sie beide bekommen kostenlose Daten</string>
     <string name="referral_panel_none">Noch keine Freunde – teilen Sie Ihren Code und die Krone erscheint. 👑</string>
+    <string name="referral_points">Empfehlungspunkte</string>
     <string name="referral_royal_welcome">Ein königlicher Empfang!</string>
     <string name="referral_royal_welcome_detail">Empfehlung bestätigt – du und dein Freund erhaltet je +%1$d GiB/Tag an kostenlosen Daten, ein Leben lang.</string>
     <string name="referral_royalty">Du bist ein Empfehlungs-Star!</string>

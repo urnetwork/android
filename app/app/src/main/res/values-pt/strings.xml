@@ -337,6 +337,7 @@
     <string name="referral_code">Código de referência</string>
     <string name="referral_code_capped">Este código já foi utilizado</string>
     <string name="referral_network">Rede de referências</string>
+    <string name="referral_points">Pontos de referência</string>
     <string name="referral_royal_welcome">Boas-vindas reais!</string>
     <string name="referral_royal_welcome_detail">Referência confirmada — você e o seu amigo recebem, cada um, +%1$d GiB/dia de dados grátis, para toda a vida.</string>
     <string name="referral_royalty">É uma estrela das referências!</string>

@@ -337,6 +337,7 @@
     <string name="referral_code">Code de parrainage</string>
     <string name="referral_code_capped">Ce code a déjà été utilisé</string>
     <string name="referral_network">Réseau de parrainage</string>
+    <string name="referral_points">Points de parrainage</string>
     <string name="referral_royal_welcome">Un accueil royal !</string>
     <string name="referral_royal_welcome_detail">Parrainage confirmé — vous et votre ami recevez chacun +%1$d GiB/jour de données gratuites, à vie.</string>
     <string name="referral_royalty">Vous êtes une star du parrainage !</string>

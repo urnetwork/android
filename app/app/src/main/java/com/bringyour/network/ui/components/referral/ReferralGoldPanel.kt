@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.components.referral
 
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -227,6 +229,13 @@ fun ReferralGoldPanel(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            ReferralProgressBar(
+                count = totalReferrals,
+                max = terms.maxReferrals
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             if (crowned) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -255,6 +264,65 @@ fun ReferralGoldPanel(
                 )
             }
         }
+    }
+}
+
+/**
+ * Referrals toward the code's cap (the SDK's referral terms, never a literal):
+ * a thin gold track that fills per friend, with "joined / cap" under it, and
+ * the used-up line once the cap is reached. Shared by the onboarding page and
+ * the Refer and earn screen so the two never drift.
+ */
+@Composable
+fun ReferralProgressBar(
+    count: Long,
+    max: Int,
+    modifier: Modifier = Modifier,
+) {
+    val cap = max.coerceAtLeast(1)
+    val joined = count.coerceIn(0L, cap.toLong()).toInt()
+    val capped = cap <= joined
+    val reducedMotion = rememberReducedMotion()
+    val target = joined.toFloat() / cap
+    val fraction = if (reducedMotion) {
+        target
+    } else {
+        animateFloatAsState(
+            targetValue = target,
+            animationSpec = tween(600, easing = FastOutSlowInEasing),
+            label = "referral-progress"
+        ).value
+    }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(100))
+                .background(ReferralGold.copy(alpha = 0.18f))
+        ) {
+            if (0f < fraction) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction)
+                        .fillMaxHeight()
+                        .background(
+                            Brush.horizontalGradient(listOf(ReferralGold, ReferralGoldLight)),
+                            RoundedCornerShape(100)
+                        )
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            if (capped) stringResource(id = R.string.referral_code_capped) else "$joined / $cap",
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+            color = if (capped) ReferralGoldLight else BlueLight.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center
+        )
     }
 }
 

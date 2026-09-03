@@ -277,7 +277,11 @@ fun AccountScreenContent(
                     meanReliabilityWeight = meanReliabilityWeight,
                     dailyByteCount = dailyBalanceBytes,
                     onReferralClick = {
-                        launchOverlay(OverlayMode.Refer)
+                        if (loginMode == LoginMode.Authenticated) {
+                            navController.navigate(Route.Referrals)
+                        } else {
+                            context.startActivity(Intent(context, LoginActivity::class.java))
+                        }
                     }
                 )
                 
@@ -429,10 +433,10 @@ fun AccountScreenContent(
         HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_refer,
-            text = stringResource(id = R.string.refer_and_earn),
+            text = stringResource(id = R.string.referrals),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    launchOverlay(OverlayMode.Refer)
+                    navController.navigate(Route.Referrals)
                 } else {
                     context.startActivity(Intent(context, LoginActivity::class.java))
                 }

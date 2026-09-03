@@ -337,6 +337,7 @@
     <string name="referral_code">Msimbo wa rufaa</string>
     <string name="referral_code_capped">Msimbo huu umetumika tayari</string>
     <string name="referral_network">Mtandao wa rufaa</string>
+    <string name="referral_points">Pointi za marejeleo</string>
     <string name="referral_royal_welcome">Karibu ya kifalme!</string>
     <string name="referral_royal_welcome_detail">Rufaa imethibitishwa — wewe na rafiki yako mtapata kila mmoja +%1$d GiB kwa siku za data bila malipo, maisha yote.</string>
     <string name="referral_royalty">Wewe ni bingwa wa rufaa!</string>

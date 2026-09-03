@@ -340,6 +340,7 @@
     <string name="referral_panel_detail">Cada referido verificado les da a cada uno %1$d GiB/día gratis, de por vida.</string>
     <string name="referral_panel_heading">Refiere a un amigo y los dos consiguen datos gratis</string>
     <string name="referral_panel_none">Aún no hay amigos. Comparte tu código y verás aparecer la corona. 👑</string>
+    <string name="referral_points">Puntos por referencias</string>
     <string name="referral_royal_welcome">¡Una bienvenida real!</string>
     <string name="referral_royal_welcome_detail">Referido confirmado: tú y tu amigo obtienen +%1$d GiB/día de datos gratis cada uno, de por vida.</string>
     <string name="referral_royalty">¡Eres una estrella de los referidos!</string>

@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +53,6 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLinkText
-import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.stats.ProviderStatsSection
 import com.bringyour.network.ui.theme.Amber
@@ -89,7 +88,6 @@ fun EarningsScreen(
     reliabilityPoints: Double,
     fetchAccountPoints: () -> Unit,
     reliabilityWindow: ReliabilityWindow?,
-    totalReferralCount: Long,
 ) {
     val context = LocalContext.current
 
@@ -144,8 +142,6 @@ fun EarningsScreen(
         epochsLoaded = epochsLoaded,
         head = head,
         reliabilityWindow = reliabilityWindow,
-        totalReferralCount = totalReferralCount,
-        launchOverlay = overlayViewModel.launch,
         formatAlpha = earningsViewModel::formatAlpha,
         formatShareBps = earningsViewModel::formatShareBps,
         shortSs58 = earningsViewModel::shortSs58,
@@ -200,8 +196,6 @@ fun EarningsScreenContent(
     epochsLoaded: Boolean,
     head: SnHeadState?,
     reliabilityWindow: ReliabilityWindow?,
-    totalReferralCount: Long,
-    launchOverlay: (OverlayMode?) -> Unit,
     formatAlpha: (Long) -> String,
     formatShareBps: (Long) -> String,
     shortSs58: (String) -> String,
@@ -297,33 +291,6 @@ fun EarningsScreenContent(
                 HorizontalDivider(color = TextFaint)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { launchOverlay(OverlayMode.Refer) }
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        stringResource(id = R.string.total_referrals),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "$totalReferralCount",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = TextMuted
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 NetworkReliability(reliabilityWindow = reliabilityWindow)
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -341,14 +308,6 @@ fun EarningsScreenContent(
                     loaded = epochsLoaded,
                     formatAlpha = formatAlpha,
                     formatShareBps = formatShareBps
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    stringResource(id = R.string.earnings_email_support),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted
                 )
 
                 Spacer(modifier = Modifier.height(48.dp))
@@ -405,32 +364,42 @@ private fun PointsHeadline(
             Spacer(modifier = Modifier.height(12.dp))
             HorizontalDivider(color = TextFaint)
             Spacer(modifier = Modifier.height(12.dp))
+            /**
+             * The badge and its two lines take whatever width the value leaves;
+             * the value itself never wraps. Without the weight the text column
+             * filled the row and the "+76,072" was squeezed into a one-digit
+             * column, one digit per line.
+             */
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(R.drawable.point_multiplier),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.width(36.dp)
+                Icon(
+                    painter = painterResource(R.drawable.point_multiplier),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.width(36.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(id = R.string.seeker_token_verified),
+                        style = MaterialTheme.typography.bodyLarge
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            stringResource(id = R.string.seeker_token_verified),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            stringResource(id = R.string.seeker_points_only),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextMuted
-                        )
-                    }
+                    Text(
+                        stringResource(id = R.string.seeker_points_only),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
+                    )
                 }
-                Text("+${EarningsFormat.points(multiplierPoints)}", style = HeadingLargeCondensed)
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "+${EarningsFormat.points(multiplierPoints)}",
+                    style = HeadingLargeCondensed,
+                    maxLines = 1,
+                    softWrap = false,
+                    textAlign = TextAlign.End
+                )
             }
         }
     }
@@ -704,8 +673,6 @@ private fun EarningsScreenNoWalletPreview() {
             epochsLoaded = true,
             head = null,
             reliabilityWindow = null,
-            totalReferralCount = 3,
-            launchOverlay = {},
             formatAlpha = { EarningsFormat.alpha(it) },
             formatShareBps = { EarningsFormat.shareBps(it) },
             shortSs58 = { Ss58.short(it) },
@@ -747,8 +714,6 @@ private fun EarningsScreenWalletPreview() {
             epochsLoaded = true,
             head = SnHeadState(true, 812.0, 640.0, 143, 200, false, null, 0, 0, 1219, "server"),
             reliabilityWindow = null,
-            totalReferralCount = 3,
-            launchOverlay = {},
             formatAlpha = { EarningsFormat.alpha(it) },
             formatShareBps = { EarningsFormat.shareBps(it) },
             shortSs58 = { Ss58.short(it) },
