@@ -147,10 +147,12 @@
     <string name="edit_referral_code">Modifier le code de parrainage</string>
     <string name="edit_split_rule">Modifier la règle de séparation</string>
     <string name="emoji_tag">Tag emoji</string>
+    <string name="emoji_tag_delete_last">Supprimer le dernier emoji</string>
     <string name="emoji_tag_error_empty">Ajoutez au moins un emoji.</string>
     <string name="emoji_tag_error_not_emoji">Seuls les emojis sont autorisés.</string>
     <string name="emoji_tag_error_too_many">Utilisez au plus %1$d emojis.</string>
     <string name="emoji_tag_hint">Choisissez 1 à %1$d emojis à afficher à côté de votre réseau.</string>
+    <string name="emoji_tag_shuffle">Autre suggestion</string>
     <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
     <string name="enter">Entrée</string>
     <string name="enter_balance_code">Entrez le code de solde</string>

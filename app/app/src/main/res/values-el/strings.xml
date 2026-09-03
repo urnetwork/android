@@ -147,10 +147,12 @@
     <string name="edit_referral_code">Επεξεργασία κωδικού παραπομπής</string>
     <string name="edit_split_rule">Επεξεργασία κανόνα διαχωρισμού</string>
     <string name="emoji_tag">Ετικέτα emoji</string>
+    <string name="emoji_tag_delete_last">Διαγραφή τελευταίου emoji</string>
     <string name="emoji_tag_error_empty">Προσθέστε τουλάχιστον ένα emoji.</string>
     <string name="emoji_tag_error_not_emoji">Επιτρέπονται μόνο emoji.</string>
     <string name="emoji_tag_error_too_many">Χρησιμοποιήστε το πολύ %1$d emoji.</string>
     <string name="emoji_tag_hint">Επιλέξτε 1 έως %1$d emoji που θα εμφανίζονται δίπλα στο δίκτυό σας.</string>
+    <string name="emoji_tag_shuffle">Άλλη πρόταση</string>
     <string name="enjoying_urnetwork">Απολαμβάνετε το URnetwork;</string>
     <string name="enter">Εισαγωγή</string>
     <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>

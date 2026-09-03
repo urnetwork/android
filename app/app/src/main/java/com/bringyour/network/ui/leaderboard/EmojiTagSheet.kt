@@ -1,16 +1,27 @@
 package com.bringyour.network.ui.leaderboard
 
+import android.content.Context
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,28 +30,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.emoji2.emojipicker.EmojiPickerView
 import com.bringyour.network.R
-import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.theme.MainBorderBase
+import com.bringyour.network.ui.theme.MainTintedBackgroundBase
+import com.bringyour.network.ui.theme.TextDanger
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.sdk.Sdk
 
 /**
- * The emoji tag editor: one field that accepts only emoji, validated on
- * every change by the sdk (the same rule the server applies), a counter
- * "n / max", Save for a valid changed tag and Clear for an existing one.
- * `onSave` gets the sdk's normalized tag; `onClear` sends an empty tag.
+ * The emoji tag editor. The tag is typed on an emoji-only keyboard
+ * (androidx.emoji2 EmojiPickerView), never the system text keyboard: the
+ * field is a read-only display of the draft with a backspace key that
+ * removes one emoji at a time. A network with no tag starts from a random
+ * 1-3 emoji suggestion from the sdk (`Sdk.suggestEmojiTag`), and the shuffle
+ * key re-rolls it; a suggestion is only a draft until Save. Every change is
+ * validated by the sdk exactly the way the server validates it, and the
+ * counter reads "n / max". `onSave` gets the sdk's normalized tag; `onClear`
+ * sends an empty tag.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,20 +71,22 @@ fun EmojiTagSheet(
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var value by rememberSaveable(stateSaver = androidx.compose.ui.text.input.TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(currentTag, selection = androidx.compose.ui.text.TextRange(currentTag.length)))
-    }
     val maxCount = Sdk.EmojiTagMaxCount.toInt()
 
+    var draft by rememberSaveable {
+        mutableStateOf(if (currentTag.isEmpty()) suggestEmojiTag() else currentTag)
+    }
+
     // the sdk validates exactly the way the server does; run it on every
-    // change so a stray letter is rejected before any request
-    val validation = remember(value.text) { Sdk.validateEmojiTag(value.text) }
+    // change so the counter and Save always reflect what the server would say
+    val validation = remember(draft) { Sdk.validateEmojiTag(draft) }
     val ok = validation?.ok == true
     val count = validation?.count?.toInt() ?: 0
     val normalized = validation?.normalized ?: ""
     val error = EmojiTagEditor.errorFor(ok, validation?.reason)
-    val showsError = EmojiTagEditor.showsError(value.text, error)
+    val showsError = EmojiTagEditor.showsError(draft, error)
     val canSave = EmojiTagEditor.canSave(ok, normalized, currentTag, isSaving)
+    val full = ok && count >= maxCount
 
     val supportingText = when {
         saveError != null -> saveError
@@ -78,9 +98,11 @@ fun EmojiTagSheet(
         else -> stringResource(id = R.string.emoji_tag_counter, count, maxCount)
     }
 
-    val save = {
-        if (canSave) {
-            onSave(normalized)
+    // the picker's listener is installed once in the view factory; it must
+    // always see the current draft, not the one from the first composition
+    val appendEmoji by rememberUpdatedState { emoji: String ->
+        if (!full) {
+            draft += emoji
         }
     }
 
@@ -90,7 +112,7 @@ fun EmojiTagSheet(
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .padding(bottom = 24.dp)
         ) {
             Text(
@@ -105,25 +127,89 @@ fun EmojiTagSheet(
 
             Text(
                 stringResource(id = R.string.emoji_tag_hint, maxCount),
-                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            URTextInput(
-                value = value,
-                onValueChange = { value = it },
-                label = null,
-                placeholder = "🐬🔥",
-                supportingText = supportingText,
-                isValid = !showsError && saveError == null,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
-                ),
-                onDone = { save() },
+            // the draft: read-only, edited only through the keys below
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 56.dp)
+                        .background(
+                            color = MainTintedBackgroundBase,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        draft,
+                        fontSize = 28.sp,
+                        maxLines = 1,
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                IconButton(
+                    onClick = { draft = EmojiTagEditor.dropLastEmoji(draft) },
+                    enabled = draft.isNotEmpty() && !isSaving
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Backspace,
+                        contentDescription = stringResource(id = R.string.emoji_tag_delete_last),
+                    )
+                }
+
+                IconButton(
+                    onClick = { draft = suggestEmojiTag() },
+                    enabled = !isSaving
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Shuffle,
+                        contentDescription = stringResource(id = R.string.emoji_tag_shuffle),
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                supportingText,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (showsError || saveError != null) TextDanger else TextMuted
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // the keyboard: emoji only. The picker takes its colors from the
+            // night resources, so it is built on a night configuration to
+            // match the sheet whatever the system theme is
+            AndroidView(
+                factory = { context ->
+                    EmojiPickerView(nightContext(context)).apply {
+                        setOnEmojiPickedListener { item ->
+                            appendEmoji(item.emoji)
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(320.dp)
+                    .background(
+                        color = MainBorderBase,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -150,7 +236,7 @@ fun EmojiTagSheet(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
-                    onClick = { save() },
+                    onClick = { if (canSave) onSave(normalized) },
                     enabled = canSave
                 ) {
                     Text(stringResource(id = R.string.save))
@@ -158,4 +244,17 @@ fun EmojiTagSheet(
             }
         }
     }
+}
+
+/** a random 1-3 emoji draft from the sdk; empty if the sdk has none */
+private fun suggestEmojiTag(): String {
+    return Sdk.suggestEmojiTag(0L) ?: ""
+}
+
+/** the context with night mode forced on, for views that theme by uiMode */
+private fun nightContext(context: Context): Context {
+    val configuration = Configuration(context.resources.configuration)
+    configuration.uiMode =
+        (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES
+    return context.createConfigurationContext(configuration)
 }

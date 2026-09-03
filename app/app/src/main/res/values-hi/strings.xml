@@ -147,10 +147,12 @@
     <string name="edit_referral_code">रेफरल कोड संपादित करें</string>
     <string name="edit_split_rule">स्प्लिट नियम संपादित करें</string>
     <string name="emoji_tag">इमोजी टैग</string>
+    <string name="emoji_tag_delete_last">आख़िरी इमोजी हटाएँ</string>
     <string name="emoji_tag_error_empty">कम से कम एक इमोजी जोड़ें।</string>
     <string name="emoji_tag_error_not_emoji">केवल इमोजी की अनुमति है।</string>
     <string name="emoji_tag_error_too_many">अधिकतम %1$d इमोजी का उपयोग करें।</string>
     <string name="emoji_tag_hint">अपने नेटवर्क के बगल में दिखाने के लिए 1 से %1$d इमोजी चुनें।</string>
+    <string name="emoji_tag_shuffle">दूसरा सुझाव</string>
     <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
     <string name="enter">दर्ज</string>
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>

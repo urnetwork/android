@@ -147,10 +147,12 @@
     <string name="edit_referral_code">Изменить реферальный код</string>
     <string name="edit_split_rule">Изменить правило разделения</string>
     <string name="emoji_tag">Эмодзи-тег</string>
+    <string name="emoji_tag_delete_last">Удалить последний эмодзи</string>
     <string name="emoji_tag_error_empty">Добавьте хотя бы один эмодзи.</string>
     <string name="emoji_tag_error_not_emoji">Разрешены только эмодзи.</string>
     <string name="emoji_tag_error_too_many">Используйте не более %1$d эмодзи.</string>
     <string name="emoji_tag_hint">Выберите от 1 до %1$d эмодзи, которые будут показаны рядом с вашей сетью.</string>
+    <string name="emoji_tag_shuffle">Предложить другой</string>
     <string name="enjoying_urnetwork">Вам нравится URnetwork?</string>
     <string name="enter">Войти</string>
     <string name="enter_balance_code">Введите код баланса</string>

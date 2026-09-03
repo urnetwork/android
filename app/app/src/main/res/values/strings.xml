@@ -327,10 +327,12 @@
     <string name="edit_split_rule">Edit split rule</string>
     <string name="emoji_tag">Emoji tag</string>
     <string name="emoji_tag_counter" translatable="false">%1$d / %2$d</string>
+    <string name="emoji_tag_delete_last">Delete last emoji</string>
     <string name="emoji_tag_error_empty">Add at least one emoji.</string>
     <string name="emoji_tag_error_not_emoji">Only emoji are allowed.</string>
     <string name="emoji_tag_error_too_many">Use at most %1$d emoji.</string>
     <string name="emoji_tag_hint">Pick 1 to %1$d emoji to show next to your network.</string>
+    <string name="emoji_tag_shuffle">Suggest another</string>
     <string name="enabled_under_auto">Enabled under Auto</string>
     <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>

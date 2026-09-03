@@ -147,10 +147,12 @@
     <string name="edit_referral_code">Hariri msimbo wa rufaa</string>
     <string name="edit_split_rule">Hariri sheria ya mgawanyo</string>
     <string name="emoji_tag">Lebo ya emoji</string>
+    <string name="emoji_tag_delete_last">Futa emoji ya mwisho</string>
     <string name="emoji_tag_error_empty">Ongeza angalau emoji moja.</string>
     <string name="emoji_tag_error_not_emoji">Emoji pekee ndizo zinaruhusiwa.</string>
     <string name="emoji_tag_error_too_many">Tumia emoji zisizozidi %1$d.</string>
     <string name="emoji_tag_hint">Chagua emoji 1 hadi %1$d zitakazoonekana kando ya mtandao wako.</string>
+    <string name="emoji_tag_shuffle">Pendekeza nyingine</string>
     <string name="enjoying_urnetwork">Unafurahia URnetwork?</string>
     <string name="enter">Ingia</string>
     <string name="enter_balance_code">Weka msimbo wa salio</string>

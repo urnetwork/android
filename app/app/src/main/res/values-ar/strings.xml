@@ -147,10 +147,12 @@
     <string name="edit_referral_code">تعديل رمز الإحالة</string>
     <string name="edit_split_rule">تعديل قاعدة التقسيم</string>
     <string name="emoji_tag">وسم الإيموجي</string>
+    <string name="emoji_tag_delete_last">حذف آخر إيموجي</string>
     <string name="emoji_tag_error_empty">أضف إيموجي واحدًا على الأقل.</string>
     <string name="emoji_tag_error_not_emoji">يُسمح بالإيموجي فقط.</string>
     <string name="emoji_tag_error_too_many">استخدم %1$d إيموجي كحد أقصى.</string>
     <string name="emoji_tag_hint">اختر من 1 إلى %1$d إيموجي لعرضها بجانب شبكتك.</string>
+    <string name="emoji_tag_shuffle">اقتراح آخر</string>
     <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
     <string name="enter">ادخل</string>
     <string name="enter_balance_code">أدخل رمز الرصيد</string>

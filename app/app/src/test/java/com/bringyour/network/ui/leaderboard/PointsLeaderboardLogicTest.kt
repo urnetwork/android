@@ -63,4 +63,13 @@ class PointsLeaderboardLogicTest {
         // not-emoji and that must show
         assertTrue(EmojiTagEditor.showsError(" ", EmojiTagError.NOT_EMOJI))
     }
+
+    @Test
+    fun backspaceDropsOneEmojiAtATime() {
+        assertEquals("🐬", EmojiTagEditor.dropLastEmoji("🐬🔥"))
+        assertEquals("", EmojiTagEditor.dropLastEmoji("🐬"))
+        assertEquals("", EmojiTagEditor.dropLastEmoji(""))
+        // a flag is two code points but one emoji
+        assertEquals("🐬", EmojiTagEditor.dropLastEmoji("🐬🇫🇷"))
+    }
 }

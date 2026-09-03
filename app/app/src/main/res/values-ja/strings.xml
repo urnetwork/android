@@ -147,10 +147,12 @@
     <string name="edit_referral_code">紹介コードを編集</string>
     <string name="edit_split_rule">分割ルールを編集</string>
     <string name="emoji_tag">絵文字タグ</string>
+    <string name="emoji_tag_delete_last">最後の絵文字を削除</string>
     <string name="emoji_tag_error_empty">絵文字を1つ以上追加してください。</string>
     <string name="emoji_tag_error_not_emoji">絵文字のみ使用できます。</string>
     <string name="emoji_tag_error_too_many">絵文字は最大%1$d個までです。</string>
     <string name="emoji_tag_hint">ネットワーク名の横に表示する絵文字を1〜%1$d個選んでください。</string>
+    <string name="emoji_tag_shuffle">別の候補</string>
     <string name="enjoying_urnetwork">URnetworkを楽しんでいますか？</string>
     <string name="enter">ゴー！</string>
     <string name="enter_balance_code">残高コードを入力</string>

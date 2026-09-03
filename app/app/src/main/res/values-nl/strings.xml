@@ -147,10 +147,12 @@
     <string name="edit_referral_code">Referentiecode bewerken</string>
     <string name="edit_split_rule">Splitsregel bewerken</string>
     <string name="emoji_tag">Emoji-tag</string>
+    <string name="emoji_tag_delete_last">Laatste emoji verwijderen</string>
     <string name="emoji_tag_error_empty">Voeg minstens één emoji toe.</string>
     <string name="emoji_tag_error_not_emoji">Alleen emoji zijn toegestaan.</string>
     <string name="emoji_tag_error_too_many">Gebruik maximaal %1$d emoji.</string>
     <string name="emoji_tag_hint">Kies 1 tot %1$d emoji om naast je netwerk te tonen.</string>
+    <string name="emoji_tag_shuffle">Andere suggestie</string>
     <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
     <string name="enter">Enter</string>
     <string name="enter_balance_code">Voer saldo-code in</string>

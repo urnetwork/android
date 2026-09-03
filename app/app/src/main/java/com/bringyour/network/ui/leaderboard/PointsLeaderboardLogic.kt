@@ -76,4 +76,23 @@ object EmojiTagEditor {
     fun showsError(text: String, error: EmojiTagError?): Boolean {
         return error != null && !(text.isEmpty() && error == EmojiTagError.EMPTY)
     }
+
+    /**
+     * The tag without its last emoji: the editor's backspace. One emoji can
+     * be several code points (skin tones, flags, ZWJ sequences), so the cut
+     * is at the last grapheme boundary, never inside a sequence.
+     */
+    fun dropLastEmoji(tag: String): String {
+        if (tag.isEmpty()) {
+            return tag
+        }
+        val it = java.text.BreakIterator.getCharacterInstance()
+        it.setText(tag)
+        val end = it.last()
+        val start = it.previous()
+        if (start == java.text.BreakIterator.DONE || start < 0 || start >= end) {
+            return ""
+        }
+        return tag.substring(0, start)
+    }
 }

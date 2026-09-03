@@ -147,10 +147,12 @@
     <string name="edit_referral_code">Empfehlungscode bearbeiten</string>
     <string name="edit_split_rule">Split-Regel bearbeiten</string>
     <string name="emoji_tag">Emoji-Tag</string>
+    <string name="emoji_tag_delete_last">Letztes Emoji löschen</string>
     <string name="emoji_tag_error_empty">Füge mindestens ein Emoji hinzu.</string>
     <string name="emoji_tag_error_not_emoji">Nur Emoji sind erlaubt.</string>
     <string name="emoji_tag_error_too_many">Verwende höchstens %1$d Emoji.</string>
     <string name="emoji_tag_hint">Wähle 1 bis %1$d Emoji, die neben deinem Netzwerk erscheinen.</string>
+    <string name="emoji_tag_shuffle">Anderen Vorschlag</string>
     <string name="enjoying_urnetwork">Gefällt dir URnetwork?</string>
     <string name="enter">Rein</string>
     <string name="enter_balance_code">Guthabencode eingeben</string>

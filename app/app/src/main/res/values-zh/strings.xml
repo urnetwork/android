@@ -147,10 +147,12 @@
     <string name="edit_referral_code">编辑推荐码</string>
     <string name="edit_split_rule">编辑分流规则</string>
     <string name="emoji_tag">表情标签</string>
+    <string name="emoji_tag_delete_last">删除最后一个表情</string>
     <string name="emoji_tag_error_empty">至少添加一个表情。</string>
     <string name="emoji_tag_error_not_emoji">只能使用表情。</string>
     <string name="emoji_tag_error_too_many">最多使用 %1$d 个表情。</string>
     <string name="emoji_tag_hint">选择 1 到 %1$d 个表情，显示在你的网络旁边。</string>
+    <string name="emoji_tag_shuffle">换一个</string>
     <string name="enjoying_urnetwork">喜欢 URnetwork 吗？</string>
     <string name="enter">进入</string>
     <string name="enter_balance_code">输入余额码</string>

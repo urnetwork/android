@@ -147,10 +147,12 @@
     <string name="edit_referral_code">แก้ไขรหัสแนะนำ</string>
     <string name="edit_split_rule">แก้ไขกฎแยกเส้นทาง</string>
     <string name="emoji_tag">แท็กอีโมจิ</string>
+    <string name="emoji_tag_delete_last">ลบอีโมจิตัวสุดท้าย</string>
     <string name="emoji_tag_error_empty">เพิ่มอีโมจิอย่างน้อยหนึ่งตัว</string>
     <string name="emoji_tag_error_not_emoji">ใช้ได้เฉพาะอีโมจิเท่านั้น</string>
     <string name="emoji_tag_error_too_many">ใช้อีโมจิได้ไม่เกิน %1$d ตัว</string>
     <string name="emoji_tag_hint">เลือกอีโมจิ 1 ถึง %1$d ตัวเพื่อแสดงข้างเครือข่ายของคุณ</string>
+    <string name="emoji_tag_shuffle">แนะนำอันอื่น</string>
     <string name="enjoying_urnetwork">สนุกกับการใช้ URnetwork ไหม?</string>
     <string name="enter">เข้า</string>
     <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
