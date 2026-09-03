@@ -21,6 +21,8 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.network.ui.shared.models.provideIndicatorDotColorFor
+import com.bringyour.network.ui.shared.models.provideIndicatorRingColorFor
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Red
@@ -564,18 +566,10 @@ class SettingsViewModel @Inject constructor(
     // provide = green dot + outer green ring (yellow while paused, which
     // stops public only); not providing = red dot, no ring
     val provideIndicatorColor: Color
-        get() = when (provideMode.value) {
-            Sdk.ProvideModePublic -> if (providePaused.value) Yellow else Green
-            Sdk.ProvideModeNetwork, Sdk.ProvideModeFriendsAndFamily -> Green
-            else -> Red
-        }
+        get() = provideIndicatorDotColorFor(provideMode.value, providePaused.value)
 
     val provideIndicatorRingColor: Color?
-        get() = when {
-            provideMode.value != Sdk.ProvideModePublic -> null
-            providePaused.value -> Yellow
-            else -> Green
-        }
+        get() = provideIndicatorRingColorFor(provideMode.value, providePaused.value)
 
     init {
         provideControlMode = deviceManager.provideControlMode

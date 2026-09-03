@@ -10,6 +10,11 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import androidx.compose.ui.graphics.Color
+import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.network.ui.shared.models.provideIndicatorDotColorFor
+import com.bringyour.network.ui.shared.models.provideIndicatorRingColorFor
+import com.bringyour.sdk.Sdk
 import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.sdk.ContractViewController
 import com.bringyour.sdk.DeviceLocal
@@ -220,6 +225,32 @@ class ThroughputViewModel @Inject constructor(
     var hasProviderStats by mutableStateOf(false)
         private set
 
+    /**
+     * The provide mode as the stats and earnings screens render it: the
+     * control mode the user picked, and the live effective tier + pause the
+     * indicator colors encode (the same functions settings uses).
+     */
+    var provideControlMode by mutableStateOf(ProvideControlMode.NEVER)
+        private set
+    var provideMode by mutableStateOf(Sdk.ProvideModeNone)
+        private set
+    var providePaused by mutableStateOf(false)
+        private set
+    val provideIndicatorColor: Color
+        get() = provideIndicatorDotColorFor(provideMode, providePaused)
+    val provideIndicatorRingColor: Color?
+        get() = provideIndicatorRingColorFor(provideMode, providePaused)
+
+    /**
+     * Whether the provider plots show: the provide mode the user picked
+     * (the same value the provide-mode row displays) must not be Never, and
+     * the device must be publishing provider stats. With the mode on Never the
+     * stats and earnings screens show the providing-disabled message instead,
+     * whatever the device's live provide state says.
+     */
+    val providerStatsEnabled: Boolean
+        get() = provideControlMode != ProvideControlMode.NEVER && hasProviderStats
+
     var windowSeconds by mutableStateOf(60L)
         private set
 
@@ -254,6 +285,9 @@ class ThroughputViewModel @Inject constructor(
         clientTransportDistribution = TransportDistributionUi.Empty
         providerTransportDistribution = TransportDistributionUi.Empty
         hasProviderStats = false
+        provideControlMode = ProvideControlMode.NEVER
+        provideMode = Sdk.ProvideModeNone
+        providePaused = false
         controllerOwner.setDevice(device)
     }
 
@@ -281,6 +315,12 @@ class ThroughputViewModel @Inject constructor(
                 updateTransportDistributions()
             }
         })
+        // the provide indicator follows the live effective tier
+        device.addProvideModeChangeListener {
+            viewModelScope.launch {
+                refreshProvideState()
+            }
+        }?.let { subs.add(it) }
         vc.start()
         update()
         return vc
@@ -303,6 +343,15 @@ class ThroughputViewModel @Inject constructor(
         providerPoints = mapPoints(vc.providerThroughputPoints)
         updateTransportDistributions()
         hasProviderStats = vc.providerPacketStats != null
+        refreshProvideState()
+    }
+
+    private fun refreshProvideState() {
+        val device = viewControllerDevice ?: return
+        provideControlMode = ProvideControlMode.fromString(device.provideControlMode)
+            ?: ProvideControlMode.NEVER
+        provideMode = device.provideMode
+        providePaused = device.providePaused
     }
 
     /**

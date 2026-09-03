@@ -23,6 +23,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.Route
+import com.bringyour.network.ui.components.ProvideModeRow
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.MutedCoral
 import com.bringyour.network.ui.theme.TextFaint
@@ -41,7 +42,7 @@ fun ProviderStatsSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = throughputViewModel.hasProviderStats) {
+            .clickable(enabled = throughputViewModel.providerStatsEnabled) {
                 navController.navigate(Route.ContractStats(provider = true))
             }
     ) {
@@ -56,7 +57,7 @@ fun ProviderStatsSection(
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
-            if (throughputViewModel.hasProviderStats) {
+            if (throughputViewModel.providerStatsEnabled) {
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
@@ -68,7 +69,19 @@ fun ProviderStatsSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (throughputViewModel.hasProviderStats) {
+        // the current provide mode, rendered like the settings picker; tapping
+        // the row opens settings to change it. The child tap wins over the
+        // section's tap.
+        ProvideModeRow(
+            mode = throughputViewModel.provideControlMode,
+            dotColor = throughputViewModel.provideIndicatorColor,
+            ringColor = throughputViewModel.provideIndicatorRingColor,
+            onClick = { navController.navigate(Route.Settings) }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (throughputViewModel.providerStatsEnabled) {
 
             TransferChart(
                 points = throughputViewModel.providerPoints,

@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,6 +54,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLearnMoreText
+import com.bringyour.network.ui.stats.ThroughputViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.stats.ProviderStatsSection
 import com.bringyour.network.ui.theme.Amber
@@ -290,11 +292,20 @@ fun EarningsScreenContent(
                 HorizontalDivider(color = TextFaint)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                NetworkReliability(reliabilityWindow = reliabilityWindow)
+                // provider statistics follow the provide mode: with providing off
+                // the reliability chart hides and the section says so, the same
+                // gate and message as the stats screen
+                val throughputViewModel: ThroughputViewModel = hiltViewModel()
+                if (throughputViewModel.providerStatsEnabled) {
+                    NetworkReliability(reliabilityWindow = reliabilityWindow)
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-                ProviderStatsSection(navController = navController)
+                ProviderStatsSection(
+                    navController = navController,
+                    throughputViewModel = throughputViewModel
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
                 HorizontalDivider(color = TextFaint)
