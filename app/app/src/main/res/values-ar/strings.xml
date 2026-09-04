@@ -106,6 +106,7 @@
     <string name="country_multipliers">مضاعفات الدول</string>
     <string name="create">إنشاء</string>
     <string name="create_account">إنشاء حساب</string>
+    <string name="create_account_2">إنشاء حساب</string>
     <string name="create_instant_account">إنشاء حساب فوري</string>
     <string name="create_network_error">حدث خطأ ما. حاول مجددا.</string>
     <string name="current_network_referral">شبكة الإحالة الحالية</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">احصل على Pro</string>
     <string name="get_started">البدء</string>
     <string name="get_urnetwork_free_for_life_by_participating">احصل على URnetwork مجانًا مدى الحياة من خلال المشاركة</string>
+    <string name="go_back">رجوع</string>
     <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
     <string name="guest">ضيف</string>
     <string name="how_are_we_doing">كيف حالنا؟</string>
+    <string name="i_ve_saved_my_seedphrase">حفظت عبارة الاسترداد</string>
     <string name="identity_key_hash_copied">تم نسخ بصمة مفتاح الهوية</string>
     <string name="ignore_battery_optimizations">تجاهل تحسينات البطارية</string>
     <string name="in_guest_mode">أنت في وضع الضيف</string>
     <string name="include_app">التوجيه عبر VPN</string>
     <string name="include_app_description">التطبيقات المشمولة فقط تستخدم النفق.</string>
     <string name="included">مشمول</string>
+    <string name="instant_account_no_email_password">لا حاجة إلى بريد إلكتروني أو كلمة مرور. حسابك محمي بعبارة الاسترداد.</string>
     <string name="insufficient_balance">رصيد غير كافٍ</string>
     <string name="insufficient_funds">رصيد غير كافٍ</string>
     <string name="invalid_referral_code">هذا الرمز غير صالح</string>
@@ -394,10 +398,13 @@
     <string name="save">حفظ</string>
     <string name="save_logs">حفظ السجلات</string>
     <string name="search_placeholder">البحث في جميع المواقع</string>
+    <string name="secure_your_account">أمّن حسابك</string>
     <string name="see_world_content">شاهد كل\nمحتوى\nالعالم</string>
     <string name="see_world_content_description">شاهد كل محتوى العالم مع URnetwork</string>
     <string name="seedphrase">عبارة الاسترداد</string>
+    <string name="seedphrase_copied_to_clipboard">تم نسخ عبارة الاسترداد إلى الحافظة</string>
     <string name="seedphrase_invalid_word_count">يجب أن تتكون عبارة الاسترداد من 12 أو 24 كلمة</string>
+    <string name="seedphrase_leave_confirm_body">هل أنت متأكد؟ هذه هي المرة الوحيدة التي سترى فيها عبارة الاسترداد. تأكد من حفظها قبل الرجوع.</string>
     <string name="seedphrase_paste_hint">الصق عبارة الاسترداد المكونة من 12 أو 24 كلمة هنا</string>
     <string name="seedphrase_required">يرجى إدخال عبارة الاسترداد</string>
     <string name="seeker_token_verified">تم التحقق من رمز Seeker!</string>
@@ -417,6 +424,7 @@
     <string name="sign_in_with_seedphrase">تسجيل الدخول بعبارة الاسترداد</string>
     <string name="site_app_contracts">العقود</string>
     <string name="site_app_providers">المزوّدون</string>
+    <string name="site_save_your_seedphrase">احفظ عبارة الاسترداد</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
     <string name="something_went_wrong">حدث خطأ ما.</string>
     <string name="sorry_to_see_you_go">نحن آسفون لرؤيتك تذهب!</string>
@@ -426,6 +434,7 @@
     <string name="split_rules_hint">انقر على حركة المرور أدناه لتوجيهها محليًا وتجاوز النفق.</string>
     <string name="split_rules_info_note">تنطبق الاستثناءات على مجموعة الشبكة المرتبطة بالكامل، لذا يتم استثناء حركة المرور ذات الصلة معًا.</string>
     <string name="start_earning_join">للبدء في الربح، انضم إلى الشبكة</string>
+    <string name="stay">البقاء</string>
     <string name="stay_in_touch">البقاء على اتصال</string>
     <string name="stay_private">ابق\nخاصًا\nومجهول الهو\nتمامًا</string>
     <string name="stay_private_description">ابق خاصًا ومجهول الهوية تمامًا مع URnetwork</string>
@@ -492,8 +501,10 @@
     <string name="window_type_quality">الويب</string>
     <string name="window_type_speed">البث</string>
     <string name="with_urnetwork">مع URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">اكتبها واحفظها في مكان آمن. إذا فقدتها، ستفقد إمكانية الوصول إلى حسابك.</string>
     <string name="yes">نعم</string>
     <string name="your_referral_code">رمز الإحالة الخاص بك</string>
+    <string name="your_seedphrase">عبارة الاسترداد الخاصة بك</string>
     <plurals name="apps_excluded_count">
         <item quantity="zero">%1$d تطبيق مستثنى</item>
         <item quantity="one">تطبيق واحد مستثنى</item>

@@ -106,6 +106,7 @@
     <string name="country_multipliers">Πολλαπλασιαστές χώρας</string>
     <string name="create">Δημιουργία</string>
     <string name="create_account">Δημιουργία λογαριασμού</string>
+    <string name="create_account_2">Δημιουργία λογαριασμού</string>
     <string name="create_instant_account">Δημιουργία άμεσου λογαριασμού</string>
     <string name="create_network_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
     <string name="current_network_referral">Τρέχον δίκτυο παραπομπών</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Απόκτησε το Pro</string>
     <string name="get_started">Ξεκίνα</string>
     <string name="get_urnetwork_free_for_life_by_participating">Αποκτήστε το URnetwork δωρεάν για πάντα συμμετέχοντας</string>
+    <string name="go_back">Επιστροφή</string>
     <string name="google_auth_btn_text">Συνδέσου με Google</string>
     <string name="guest">Επισκέπτης</string>
     <string name="how_are_we_doing">Πώς τα πάμε;</string>
+    <string name="i_ve_saved_my_seedphrase">Αποθήκευσα τη φράση ανάκτησης</string>
     <string name="identity_key_hash_copied">Το hash του κλειδιού ταυτότητας αντιγράφηκε</string>
     <string name="ignore_battery_optimizations">Παράβλεψη βελτιστοποιήσεων μπαταρίας</string>
     <string name="in_guest_mode">Είστε σε λειτουργία επισκέπτη</string>
     <string name="include_app">Δρομολόγηση μέσω VPN</string>
     <string name="include_app_description">Μόνο οι συμπεριλαμβανόμενες εφαρμογές χρησιμοποιούν το τούνελ.</string>
     <string name="included">Συμπερίληψη</string>
+    <string name="instant_account_no_email_password">Δεν χρειάζεται email ή κωδικός. Ο λογαριασμός σου προστατεύεται από ένα seedphrase.</string>
     <string name="insufficient_balance">Ανεπαρκές υπόλοιπο</string>
     <string name="insufficient_funds">Ανεπαρκή κεφάλαια</string>
     <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
@@ -391,10 +395,13 @@
     <string name="save">Αποθήκευση</string>
     <string name="save_logs">Αποθήκευση αρχείων καταγραφής</string>
     <string name="search_placeholder">Αναζήτηση σε όλες τις τοποθεσίες</string>
+    <string name="secure_your_account">Ασφαλίστε τον λογαριασμό σας</string>
     <string name="see_world_content">Δείτε όλο\nτο περιεχόμενο\nτου κόσμου</string>
     <string name="see_world_content_description">Δείτε όλο το περιεχόμενο του κόσμου με το URnetwork</string>
     <string name="seedphrase">Φράση ανάκτησης</string>
+    <string name="seedphrase_copied_to_clipboard">Το seedphrase αντιγράφηκε στο πρόχειρο</string>
     <string name="seedphrase_invalid_word_count">Η φράση ανάκτησης πρέπει να έχει 12 ή 24 λέξεις</string>
+    <string name="seedphrase_leave_confirm_body">Είσαι σίγουρος; Αυτή είναι η ΜΟΝΗ φορά που θα δεις το seedphrase σου. Βεβαιώσου ότι το αποθήκευσες πριν επιστρέψεις.</string>
     <string name="seedphrase_paste_hint">Επικολλήστε εδώ τη φράση ανάκτησης 12 ή 24 λέξεων</string>
     <string name="seedphrase_required">Εισαγάγετε μια φράση ανάκτησης</string>
     <string name="seeker_token_verified">Το διακριτικό Seeker επαληθεύτηκε!</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">Είσοδος</string>
     <string name="sign_in_dgen1">Σύνδεση με dGEN1</string>
     <string name="sign_in_with_seedphrase">Σύνδεση με φράση ανάκτησης</string>
+    <string name="site_save_your_seedphrase">Αποθηκεύστε τη seedphrase σας</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
     <string name="sorry_to_see_you_go">Λυπούμαστε που φεύγετε!</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">Πατήστε την κίνηση παρακάτω για να δρομολογηθεί τοπικά, παρακάμπτοντας το τούνελ.</string>
     <string name="split_rules_info_note">Οι εξαιρέσεις ισχύουν για ολόκληρη τη συσχετισμένη ομάδα δικτύων, ώστε η σχετική κίνηση να καλύπτεται μαζί.</string>
     <string name="start_earning_join">Για να ξεκινήσετε να κερδίζετε, γίνετε μέλος του δικτύου</string>
+    <string name="stay">Παραμονή</string>
     <string name="stay_in_touch">Μείνετε σε επαφή</string>
     <string name="stay_private">Παραμείνετε\nεντελώς\nιδιωτικοί και\nανώνυμοι</string>
     <string name="stay_private_description">Παραμείνετε εντελώς ιδιωτικοί και ανώνυμοι με το URnetwork</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">Ιστός</string>
     <string name="window_type_speed">Ροή</string>
     <string name="with_urnetwork">με το URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Γράψτε την και φυλάξτε την σε ασφαλές μέρος. Αν τη χάσετε, θα χάσετε την πρόσβαση στον λογαριασμό σας.</string>
     <string name="yes">Ναι</string>
+    <string name="your_seedphrase">Η φράση ανάκτησής σας</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d εξαιρούμενη εφαρμογή</item>
         <item quantity="other">%1$d εξαιρούμενες εφαρμογές</item>

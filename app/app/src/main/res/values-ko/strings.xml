@@ -106,6 +106,7 @@
     <string name="country_multipliers">국가별 배수</string>
     <string name="create">생성</string>
     <string name="create_account">계정 만들기</string>
+    <string name="create_account_2">계정 만들기</string>
     <string name="create_instant_account">즉시 계정 만들기</string>
     <string name="create_network_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="current_network_referral">현재 추천 네트워크</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Pro로 업그레이드</string>
     <string name="get_started">시작하기</string>
     <string name="get_urnetwork_free_for_life_by_participating">참여하면 URnetwork를 평생 무료로 이용할 수 있습니다</string>
+    <string name="go_back">돌아가기</string>
     <string name="google_auth_btn_text">Google로 로그인</string>
     <string name="guest">게스트</string>
     <string name="how_are_we_doing">우리는 어떻게 하고 있나요?</string>
+    <string name="i_ve_saved_my_seedphrase">시드 문구를 저장했습니다</string>
     <string name="identity_key_hash_copied">신원 키 해시가 복사되었습니다</string>
     <string name="ignore_battery_optimizations">배터리 최적화 무시</string>
     <string name="in_guest_mode">게스트 모드입니다</string>
     <string name="include_app">VPN으로 라우팅</string>
     <string name="include_app_description">포함된 앱만 터널을 사용합니다.</string>
     <string name="included">포함</string>
+    <string name="instant_account_no_email_password">이메일이나 비밀번호가 필요 없습니다. 계정은 시드 문구로 보호됩니다.</string>
     <string name="insufficient_balance">잔액 부족</string>
     <string name="insufficient_funds">잔액 부족</string>
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
@@ -391,10 +395,13 @@
     <string name="save">저장</string>
     <string name="save_logs">로그 저장</string>
     <string name="search_placeholder">모든 위치 검색</string>
+    <string name="secure_your_account">계정 보호하기</string>
     <string name="see_world_content">전 세계의\n콘텐츠 보기</string>
     <string name="see_world_content_description">URnetwork로 전 세계의 콘텐츠 보기</string>
     <string name="seedphrase">시드 문구</string>
+    <string name="seedphrase_copied_to_clipboard">시드 문구를 클립보드에 복사했습니다</string>
     <string name="seedphrase_invalid_word_count">시드 문구는 12개 또는 24개 단어여야 합니다</string>
+    <string name="seedphrase_leave_confirm_body">정말인가요? 시드 문구는 지금 한 번만 볼 수 있습니다. 돌아가기 전에 저장했는지 확인하세요.</string>
     <string name="seedphrase_paste_hint">12개 또는 24개 단어의 시드 문구를 여기에 붙여넣으세요</string>
     <string name="seedphrase_required">시드 문구를 입력하세요</string>
     <string name="seeker_token_verified">Seeker 토큰이 인증되었습니다!</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">로그인</string>
     <string name="sign_in_dgen1">dGEN1로 로그인</string>
     <string name="sign_in_with_seedphrase">시드 문구로 로그인</string>
+    <string name="site_save_your_seedphrase">시드 문구를 저장하세요</string>
     <string name="solana_sign_in">Solana로 로그인</string>
     <string name="something_went_wrong">문제가 발생했습니다.</string>
     <string name="sorry_to_see_you_go">저희는 당신이 가는 것을 보게 되어 유감입니다!</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">아래 트래픽을 탭하면 터널을 우회하여 로컬로 라우팅됩니다.</string>
     <string name="split_rules_info_note">제외는 연관된 네트워크 클러스터 전체에 적용되므로 관련 트래픽이 함께 처리됩니다.</string>
     <string name="start_earning_join">수익을 얻기 시작하려면 네트워크에 가입하세요</string>
+    <string name="stay">머무르기</string>
     <string name="stay_in_touch">연락 유지하기</string>
     <string name="stay_private">완전히\n프라이빗하고\n익명으로\n유지하세요</string>
     <string name="stay_private_description">URnetwork로 완전히 프라이빗하고 익명으로 유지하세요</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">웹</string>
     <string name="window_type_speed">스트리밍</string>
     <string name="with_urnetwork">URnetwork와 함께</string>
+    <string name="write_it_down_and_store_it_somewhere">적어서 안전한 곳에 보관하세요. 잃어버리면 계정에 접근할 수 없게 됩니다.</string>
     <string name="yes">예</string>
+    <string name="your_seedphrase">내 시드 문구</string>
     <plurals name="apps_excluded_count">
         <item quantity="other">제외된 앱 %1$d개</item>
     </plurals>

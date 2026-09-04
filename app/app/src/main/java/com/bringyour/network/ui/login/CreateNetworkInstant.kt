@@ -127,7 +127,7 @@ internal fun CreateNetworkInstantContent(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
                 },
@@ -152,7 +152,7 @@ internal fun CreateNetworkInstantContent(
                 modifier = Modifier.widthIn(max = 512.dp)
             ) {
                 Text(
-                    "Create Instant Account",
+                    stringResource(id = R.string.create_instant_account),
                     style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -161,7 +161,7 @@ internal fun CreateNetworkInstantContent(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    "No email or password needed. Your account is secured by a seedphrase.",
+                    stringResource(id = R.string.instant_account_no_email_password),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -195,7 +195,7 @@ internal fun CreateNetworkInstantContent(
                     isProcessing = inProgress,
                     modifier = Modifier.testTag(ACCEPTANCE_INSTANT_CREATE_TAG),
                 ) { buttonTextStyle ->
-                    Text("Create Account", style = buttonTextStyle)
+                    Text(stringResource(id = R.string.create_account_2), style = buttonTextStyle)
                 }
 
                 error?.let { refusal ->

@@ -106,6 +106,7 @@
     <string name="country_multipliers">Násobitele podle zemí</string>
     <string name="create">Vytvořit</string>
     <string name="create_account">Vytvořit účet</string>
+    <string name="create_account_2">Vytvořit účet</string>
     <string name="create_instant_account">Vytvořit okamžitý účet</string>
     <string name="create_network_error">Něco se pokazilo. Zkuste to znovu.</string>
     <string name="current_network_referral">Aktuální síťové doporučení</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Získat Pro</string>
     <string name="get_started">Začněte</string>
     <string name="get_urnetwork_free_for_life_by_participating">Získejte URnetwork zdarma na celý život účastí</string>
+    <string name="go_back">Zpět</string>
     <string name="google_auth_btn_text">Přihlásit se přes Google</string>
     <string name="guest">Host</string>
     <string name="how_are_we_doing">Jak se nám daří?</string>
+    <string name="i_ve_saved_my_seedphrase">Seed frázi mám uloženou</string>
     <string name="identity_key_hash_copied">Otisk identitního klíče zkopírován</string>
     <string name="ignore_battery_optimizations">Ignorovat optimalizace baterie</string>
     <string name="in_guest_mode">Jste v režimu pro hosty</string>
     <string name="include_app">Směrovat přes VPN</string>
     <string name="include_app_description">Tunel používají jen zahrnuté aplikace.</string>
     <string name="included">Zahrnuto</string>
+    <string name="instant_account_no_email_password">Není potřeba e-mail ani heslo. Váš účet je zabezpečen seedphrase.</string>
     <string name="insufficient_balance">Nedostatečný zůstatek</string>
     <string name="insufficient_funds">Nedostatek financí</string>
     <string name="invalid_referral_code">Tento kód není platný</string>
@@ -391,10 +395,13 @@
     <string name="save">Uložit</string>
     <string name="save_logs">Uložit protokoly</string>
     <string name="search_placeholder">Hledat všechna místa</string>
+    <string name="secure_your_account">Zabezpečte svůj účet</string>
     <string name="see_world_content">Zobrazit veškerý\nkontent světa</string>
     <string name="see_world_content_description">Prohlédněte si veškerý obsah světa pomocí sítě URnetwork</string>
     <string name="seedphrase">Seed fráze</string>
+    <string name="seedphrase_copied_to_clipboard">Seedphrase zkopírována do schránky</string>
     <string name="seedphrase_invalid_word_count">Seed fráze musí mít 12 nebo 24 slov</string>
+    <string name="seedphrase_leave_confirm_body">Opravdu? Toto je JEDINÁ chvíle, kdy svou seedphrase uvidíte. Než se vrátíte, ujistěte se, že jste si ji uložili.</string>
     <string name="seedphrase_paste_hint">Sem vložte svou seed frázi o 12 nebo 24 slovech</string>
     <string name="seedphrase_required">Zadejte prosím seed frázi</string>
     <string name="seeker_token_verified">Token Seeker ověřen!</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">Přihlásit se</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
     <string name="sign_in_with_seedphrase">Přihlásit se pomocí seed fráze</string>
+    <string name="site_save_your_seedphrase">Uložte si seedphrase</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>
     <string name="something_went_wrong">Něco se pokazilo.</string>
     <string name="sorry_to_see_you_go">Je nám líto, že odcházíte!</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">Klepnutím na provoz níže jej nasměrujete lokálně, mimo tunel.</string>
     <string name="split_rules_info_note">Výjimky platí pro celý propojený síťový cluster, takže související provoz je zachycen společně.</string>
     <string name="start_earning_join">Chcete-li začít vydělávat, připojte se k síti</string>
+    <string name="stay">Zůstat</string>
     <string name="stay_in_touch">Zůstaňte v kontaktu</string>
     <string name="stay_private">Zůstaňte\nkompletně\nprivátní a\nanonymní</string>
     <string name="stay_private_description">Zůstaňte zcela soukromí a anonymní s URnetwork</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streamování</string>
     <string name="with_urnetwork">se sítí URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Zapište si ji a uložte na bezpečné místo. Pokud ji ztratíte, přijdete o přístup ke svému účtu.</string>
     <string name="yes">Ano</string>
+    <string name="your_seedphrase">Vaše seed fráze</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d vyloučená aplikace</item>
         <item quantity="few">%1$d vyloučené aplikace</item>

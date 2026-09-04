@@ -106,6 +106,7 @@
     <string name="country_multipliers">Vizidishi vya nchi</string>
     <string name="create">Tengeneza</string>
     <string name="create_account">Unda akaunti</string>
+    <string name="create_account_2">Fungua akaunti</string>
     <string name="create_instant_account">Fungua akaunti ya papo hapo</string>
     <string name="create_network_error">Kuna kitu kilienda vibaya. Jaribu tena.</string>
     <string name="current_network_referral">Mtandao wa rufaa wa sasa</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Pata Pro</string>
     <string name="get_started">Anza</string>
     <string name="get_urnetwork_free_for_life_by_participating">Pata URnetwork bure maisha yote kwa kushiriki</string>
+    <string name="go_back">Rudi nyuma</string>
     <string name="google_auth_btn_text">Ingia ukitumia Google</string>
     <string name="guest">Mgeni</string>
     <string name="how_are_we_doing">Tunaendaje?</string>
+    <string name="i_ve_saved_my_seedphrase">Nimehifadhi kifungu changu cha seed</string>
     <string name="identity_key_hash_copied">Heshi ya ufunguo wa utambulisho imenakiliwa</string>
     <string name="ignore_battery_optimizations">Puuzia uboreshaji wa betri</string>
     <string name="in_guest_mode">Uko katika hali ya mgeni</string>
     <string name="include_app">Pitisha kupitia VPN</string>
     <string name="include_app_description">Ni programu zilizojumuishwa pekee zinazotumia tuneli.</string>
     <string name="included">Imejumuishwa</string>
+    <string name="instant_account_no_email_password">Hakuna haja ya barua pepe au nenosiri. Akaunti yako inalindwa na seedphrase.</string>
     <string name="insufficient_balance">Salio halitoshi</string>
     <string name="insufficient_funds">Fedha haitoshi</string>
     <string name="invalid_referral_code">Msimbo huu si sahihi</string>
@@ -391,10 +395,13 @@
     <string name="save">Hifadhi</string>
     <string name="save_logs">Hifadhi logi</string>
     <string name="search_placeholder">Tafuta maeneo yote</string>
+    <string name="secure_your_account">Linda akaunti yako</string>
     <string name="see_world_content">Tazama yote\nmaudhui ya dunia</string>
     <string name="see_world_content_description">Tazama maudhui yote ya dunia ukitumia URnetwork</string>
     <string name="seedphrase">Kifungu cha seed</string>
+    <string name="seedphrase_copied_to_clipboard">Seedphrase imenakiliwa kwenye ubao wa kunakili</string>
     <string name="seedphrase_invalid_word_count">Kifungu cha seed lazima kiwe na maneno 12 au 24</string>
+    <string name="seedphrase_leave_confirm_body">Una uhakika? Hii ndiyo mara PEKEE utakayoona seedphrase yako. Hakikisha umeihifadhi kabla ya kurudi.</string>
     <string name="seedphrase_paste_hint">Bandika hapa kifungu chako cha seed cha maneno 12 au 24</string>
     <string name="seedphrase_required">Tafadhali weka kifungu cha seed</string>
     <string name="seeker_token_verified">Tokeni ya Seeker imethibitishwa!</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">Ingia</string>
     <string name="sign_in_dgen1">Ingia kwa dGEN1</string>
     <string name="sign_in_with_seedphrase">Ingia kwa kifungu cha seed</string>
+    <string name="site_save_your_seedphrase">Hifadhi seedphrase yako</string>
     <string name="solana_sign_in">Ingia na Solana</string>
     <string name="something_went_wrong">Kuna kitu kilienda vibaya.</string>
     <string name="sorry_to_see_you_go">Samahani kuona ukienda!</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">Gusa trafiki hapa chini ili ipitishwe ndani, ikiepuka tuneli.</string>
     <string name="split_rules_info_note">Utengaji hutumika kwa kundi zima la mtandao linalohusiana, hivyo trafiki inayohusiana hunaswa pamoja.</string>
     <string name="start_earning_join">Ili kuanza kupata, jiunge na mtandao</string>
+    <string name="stay">Baki</string>
     <string name="stay_in_touch">Kaa nasi</string>
     <string name="stay_private">Kaa\nkabisa\nfaragha na\nbila majina</string>
     <string name="stay_private_description">Kaa faragha kabisa na bila majina ukitumia URnetwork</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">Wavuti</string>
     <string name="window_type_speed">Utiririshaji</string>
     <string name="with_urnetwork">na URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Kiandike na ukihifadhi mahali salama. Ukikipoteza, utapoteza ufikiaji wa akaunti yako.</string>
     <string name="yes">Ndiyo</string>
+    <string name="your_seedphrase">Kifungu chako cha seed</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d programu imetengwa</item>
         <item quantity="other">%1$d programu zimetengwa</item>

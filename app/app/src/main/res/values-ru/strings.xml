@@ -106,6 +106,7 @@
     <string name="country_multipliers">Множители по странам</string>
     <string name="create">Создать</string>
     <string name="create_account">Создать аккаунт</string>
+    <string name="create_account_2">Создать аккаунт</string>
     <string name="create_instant_account">Создать мгновенный аккаунт</string>
     <string name="create_network_error">Что-то пошло не так. Попробуйте еще раз.</string>
     <string name="current_network_referral">Текущая реферальная сеть</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Получить Pro</string>
     <string name="get_started">Начать</string>
     <string name="get_urnetwork_free_for_life_by_participating">Получите URnetwork бесплатно навсегда, участвуя</string>
+    <string name="go_back">Назад</string>
     <string name="google_auth_btn_text">Войти через Google</string>
     <string name="guest">Гость</string>
     <string name="how_are_we_doing">Как наши успехи?</string>
+    <string name="i_ve_saved_my_seedphrase">Я сохранил сид-фразу</string>
     <string name="identity_key_hash_copied">Хеш ключа идентификации скопирован</string>
     <string name="ignore_battery_optimizations">Игнорировать оптимизацию батареи</string>
     <string name="in_guest_mode">Вы в гостевом режиме</string>
     <string name="include_app">Направить через VPN</string>
     <string name="include_app_description">Туннель используют только включённые приложения.</string>
     <string name="included">Включённые</string>
+    <string name="instant_account_no_email_password">Не нужны ни почта, ни пароль. Ваш аккаунт защищён сид-фразой.</string>
     <string name="insufficient_balance">Недостаточно средств</string>
     <string name="insufficient_funds">Недостаточно средств</string>
     <string name="invalid_referral_code">Этот код недействителен</string>
@@ -394,10 +398,13 @@
     <string name="save">Сохранить</string>
     <string name="save_logs">Сохранить логи</string>
     <string name="search_placeholder">Поиск по всем локациям</string>
+    <string name="secure_your_account">Защитите свой аккаунт</string>
     <string name="see_world_content">Смотрите контент\nсо всего мира</string>
     <string name="see_world_content_description">Смотрите контент со всего мира с URnetwork</string>
     <string name="seedphrase">Сид-фраза</string>
+    <string name="seedphrase_copied_to_clipboard">Сид-фраза скопирована в буфер обмена</string>
     <string name="seedphrase_invalid_word_count">Сид-фраза должна состоять из 12 или 24 слов</string>
+    <string name="seedphrase_leave_confirm_body">Вы уверены? Это ЕДИНСТВЕННЫЙ раз, когда вы увидите свою сид-фразу. Сохраните её, прежде чем вернуться.</string>
     <string name="seedphrase_paste_hint">Вставьте сюда сид-фразу из 12 или 24 слов</string>
     <string name="seedphrase_required">Введите сид-фразу</string>
     <string name="seeker_token_verified">Токен Seeker проверен!</string>
@@ -417,6 +424,7 @@
     <string name="sign_in_with_seedphrase">Войти по сид-фразе</string>
     <string name="site_app_contracts">Контракты</string>
     <string name="site_app_providers">Провайдеры</string>
+    <string name="site_save_your_seedphrase">Сохраните сид-фразу</string>
     <string name="solana_sign_in">Войти через Solana</string>
     <string name="something_went_wrong">Что-то пошло не так.</string>
     <string name="sorry_to_see_you_go">Нам жаль, что вы уходите!</string>
@@ -426,6 +434,7 @@
     <string name="split_rules_hint">Нажмите на трафик ниже, чтобы направить его локально, в обход туннеля.</string>
     <string name="split_rules_info_note">Исключения применяются ко всему связанному сетевому кластеру, поэтому сопутствующий трафик исключается вместе.</string>
     <string name="start_earning_join">Чтобы начать зарабатывать, присоединяйтесь к сети</string>
+    <string name="stay">Остаться</string>
     <string name="stay_in_touch">Оставайтесь на связи</string>
     <string name="stay_private">Оставайтесь\nполностью\nприватными и\nанонимными</string>
     <string name="stay_private_description">Оставайтесь полностью приватными и анонимными с URnetwork</string>
@@ -492,8 +501,10 @@
     <string name="window_type_quality">Веб</string>
     <string name="window_type_speed">Стриминг</string>
     <string name="with_urnetwork">с URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Запишите её и храните в надёжном месте. Если вы её потеряете, то потеряете доступ к аккаунту.</string>
     <string name="yes">Да</string>
     <string name="your_referral_code">Ваш реферальный код</string>
+    <string name="your_seedphrase">Ваша сид-фраза</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d приложение исключено</item>
         <item quantity="few">%1$d приложения исключены</item>

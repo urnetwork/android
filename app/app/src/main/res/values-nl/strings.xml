@@ -106,6 +106,7 @@
     <string name="country_multipliers">Landmultipliers</string>
     <string name="create">Maken</string>
     <string name="create_account">Account creëren</string>
+    <string name="create_account_2">Account aanmaken</string>
     <string name="create_instant_account">Direct account aanmaken</string>
     <string name="create_network_error">Er is iets misgegaan. Probeer het opnieuw.</string>
     <string name="current_network_referral">Huidige netwerk-referentie</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Word Pro</string>
     <string name="get_started">Aan de slag</string>
     <string name="get_urnetwork_free_for_life_by_participating">Krijg URnetwork gratis voor altijd door deel te nemen</string>
+    <string name="go_back">Terug</string>
     <string name="google_auth_btn_text">Log in met google</string>
     <string name="guest">Gast</string>
     <string name="how_are_we_doing">Hoe gaat het met ons?</string>
+    <string name="i_ve_saved_my_seedphrase">Ik heb mijn seedphrase opgeslagen</string>
     <string name="identity_key_hash_copied">Hash van identiteitssleutel gekopieerd</string>
     <string name="ignore_battery_optimizations">Batterijoptimalisaties negeren</string>
     <string name="in_guest_mode">Je bent in de gastmodus</string>
     <string name="include_app">Via VPN routeren</string>
     <string name="include_app_description">Alleen inbegrepen apps gebruiken de tunnel.</string>
     <string name="included">Inbegrepen</string>
+    <string name="instant_account_no_email_password">Geen e-mail of wachtwoord nodig. Je account wordt beveiligd met een seedphrase.</string>
     <string name="insufficient_balance">Onvoldoende saldo</string>
     <string name="insufficient_funds">Onvoldoende saldo</string>
     <string name="invalid_referral_code">Deze code is niet geldig</string>
@@ -391,10 +395,13 @@
     <string name="save">Opslaan</string>
     <string name="save_logs">Logs opslaan</string>
     <string name="search_placeholder">Zoek naar alle locaties</string>
+    <string name="secure_your_account">Beveilig je account</string>
     <string name="see_world_content">Bekijk alle\ninhoud van de wereld</string>
     <string name="see_world_content_description">Bekijk alle inhoud van de wereld met URnetwork</string>
     <string name="seedphrase">Seedphrase</string>
+    <string name="seedphrase_copied_to_clipboard">Seedphrase gekopieerd naar het klembord</string>
     <string name="seedphrase_invalid_word_count">De seedphrase moet 12 of 24 woorden bevatten</string>
+    <string name="seedphrase_leave_confirm_body">Weet je het zeker? Dit is de ENIGE keer dat je je seedphrase ziet. Sla hem op voordat je teruggaat.</string>
     <string name="seedphrase_paste_hint">Plak hier je seedphrase van 12 of 24 woorden</string>
     <string name="seedphrase_required">Voer een seedphrase in</string>
     <string name="seeker_token_verified">Seeker Token geverifieerd!</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">Log in</string>
     <string name="sign_in_dgen1">Inloggen met dGEN1</string>
     <string name="sign_in_with_seedphrase">Inloggen met seedphrase</string>
+    <string name="site_save_your_seedphrase">Bewaar je seedphrase</string>
     <string name="solana_sign_in">Inloggen met Solana</string>
     <string name="something_went_wrong">Er is iets misgegaan.</string>
     <string name="sorry_to_see_you_go">Het spijt ons dat je weggaat!</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">Tik hieronder op verkeer om het lokaal te routeren, buiten de tunnel om.</string>
     <string name="split_rules_info_note">Uitsluitingen gelden voor het hele samenhangende netwerkcluster, zodat gerelateerd verkeer samen wordt meegenomen.</string>
     <string name="start_earning_join">Om te beginnen met verdienen, sluit je aan bij ons netwerk</string>
+    <string name="stay">Blijven</string>
     <string name="stay_in_touch">Blijf in contact</string>
     <string name="stay_private">Blijf\nvolledig\nprivé en\nanoniem</string>
     <string name="stay_private_description">Blijf volledig privé en anoniem met URnetwork</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streamen</string>
     <string name="with_urnetwork">Met URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Schrijf hem op en bewaar hem op een veilige plek. Als je hem kwijtraakt, verlies je de toegang tot je account.</string>
     <string name="yes">Ja</string>
+    <string name="your_seedphrase">Jouw seedphrase</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d app uitgesloten</item>
         <item quantity="other">%1$d apps uitgesloten</item>

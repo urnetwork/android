@@ -106,6 +106,7 @@
     <string name="country_multipliers">Multiplicadores por país</string>
     <string name="create">Criar</string>
     <string name="create_account">Criar conta</string>
+    <string name="create_account_2">Criar uma conta</string>
     <string name="create_instant_account">Criar conta instantânea</string>
     <string name="create_network_error">Algo deu errado. Tente novamente.</string>
     <string name="current_network_referral">Rede de referências atual</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Obter Pro</string>
     <string name="get_started">Começar</string>
     <string name="get_urnetwork_free_for_life_by_participating">Tenha URnetwork grátis para sempre ao participar</string>
+    <string name="go_back">Voltar</string>
     <string name="google_auth_btn_text">Entrar com o Google</string>
     <string name="guest">Convidado</string>
     <string name="how_are_we_doing">Como estamos a fazer?</string>
+    <string name="i_ve_saved_my_seedphrase">Guardei a minha frase-semente</string>
     <string name="identity_key_hash_copied">Hash da chave de identidade copiado</string>
     <string name="ignore_battery_optimizations">Ignorar otimizações da bateria</string>
     <string name="in_guest_mode">Você está no modo convidado</string>
     <string name="include_app">Encaminhar pela VPN</string>
     <string name="include_app_description">Apenas as aplicações incluídas utilizam o túnel.</string>
     <string name="included">Incluídas</string>
+    <string name="instant_account_no_email_password">Sem e-mail nem palavra-passe. A sua conta está protegida por uma frase-semente.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
     <string name="insufficient_funds">Fundos insuficientes</string>
     <string name="invalid_referral_code">Este código não é válido</string>
@@ -391,10 +395,13 @@
     <string name="save">Salvar</string>
     <string name="save_logs">Guardar logs</string>
     <string name="search_placeholder">Pesquisar todos os locais</string>
+    <string name="secure_your_account">Proteja a sua conta</string>
     <string name="see_world_content">Ver todo o\nconteúdo do mundo</string>
     <string name="see_world_content_description">Ver todo o conteúdo do mundo com a URnetwork</string>
     <string name="seedphrase">Frase-semente</string>
+    <string name="seedphrase_copied_to_clipboard">Frase-semente copiada para a área de transferência</string>
     <string name="seedphrase_invalid_word_count">A frase-semente tem de ter 12 ou 24 palavras</string>
+    <string name="seedphrase_leave_confirm_body">Tem a certeza? Esta é a ÚNICA vez que verá a sua frase-semente. Guarde-a antes de voltar atrás.</string>
     <string name="seedphrase_paste_hint">Cole aqui a sua frase-semente de 12 ou 24 palavras</string>
     <string name="seedphrase_required">Introduza uma frase-semente</string>
     <string name="seeker_token_verified">Token Seeker verificado!</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">Iniciar sessão</string>
     <string name="sign_in_dgen1">Iniciar sessão com dGEN1</string>
     <string name="sign_in_with_seedphrase">Iniciar sessão com a frase-semente</string>
+    <string name="site_save_your_seedphrase">Guarde a sua frase-semente</string>
     <string name="solana_sign_in">Iniciar sessão com Solana</string>
     <string name="something_went_wrong">Algo deu errado.</string>
     <string name="sorry_to_see_you_go">Lamentamos vê-lo partir!</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">Toque no tráfego abaixo para o encaminhar localmente, contornando o túnel.</string>
     <string name="split_rules_info_note">As exclusões aplicam-se a todo o cluster de rede coassociado, para que o tráfego relacionado seja abrangido em conjunto.</string>
     <string name="start_earning_join">Para começar a ganhar, entre na rede</string>
+    <string name="stay">Ficar</string>
     <string name="stay_in_touch">Manter contato</string>
     <string name="stay_private">Permanecer\ncompletamente\nprivado e\nanônimo</string>
     <string name="stay_private_description">Permanecer completamente privado e anônimo com a URnetwork</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streaming</string>
     <string name="with_urnetwork">com a URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Escreva-a e guarde-a num local seguro. Se a perder, perde o acesso à sua conta.</string>
     <string name="yes">Sim</string>
+    <string name="your_seedphrase">A sua frase-semente</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d aplicação excluída</item>
         <item quantity="other">%1$d aplicações excluídas</item>

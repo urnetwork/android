@@ -106,6 +106,7 @@
     <string name="country_multipliers">देश गुणक</string>
     <string name="create">बनाएँ</string>
     <string name="create_account">खाता बनाएँ</string>
+    <string name="create_account_2">खाता बनाएं</string>
     <string name="create_instant_account">इंस्टेंट खाता बनाएं</string>
     <string name="create_network_error">कुछ गलत हो गया. पुनः प्रयास करें.</string>
     <string name="current_network_referral">वर्तमान रेफ़रल नेटवर्क</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">प्रो प्राप्त करें</string>
     <string name="get_started">आरंभ करें</string>
     <string name="get_urnetwork_free_for_life_by_participating">भाग लेकर URnetwork जीवनभर मुफ्त पाएं</string>
+    <string name="go_back">वापस जाएँ</string>
     <string name="google_auth_btn_text">Google से लॉग इन करें</string>
     <string name="guest">अतिथि</string>
     <string name="how_are_we_doing">हम कैसा कर रहे हैं?</string>
+    <string name="i_ve_saved_my_seedphrase">मैंने अपना सीड फ़्रेज़ सहेज लिया</string>
     <string name="identity_key_hash_copied">पहचान कुंजी का हैश कॉपी किया गया</string>
     <string name="ignore_battery_optimizations">बैटरी ऑप्टिमाइज़ेशन को अनदेखा करें</string>
     <string name="in_guest_mode">आप गेस्ट मोड में हैं</string>
     <string name="include_app">VPN से रूट करें</string>
     <string name="include_app_description">केवल शामिल ऐप्स ही टनल का उपयोग करते हैं।</string>
     <string name="included">शामिल</string>
+    <string name="instant_account_no_email_password">ईमेल या पासवर्ड की ज़रूरत नहीं। आपका खाता एक सीडफ़्रेज़ से सुरक्षित है।</string>
     <string name="insufficient_balance">अपर्याप्त शेष राशि</string>
     <string name="insufficient_funds">अपर्याप्त धन</string>
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
@@ -391,10 +395,13 @@
     <string name="save">सहेजें</string>
     <string name="save_logs">लॉग सहेजें</string>
     <string name="search_placeholder">सभी स्थानों पर खोजें</string>
+    <string name="secure_your_account">अपना खाता सुरक्षित करें</string>
     <string name="see_world_content">दुनिया की सभी\nसामग्री देखें</string>
     <string name="see_world_content_description">URnetwork के साथ दुनिया की सभी सामग्री देखें</string>
     <string name="seedphrase">सीड फ़्रेज़</string>
+    <string name="seedphrase_copied_to_clipboard">सीडफ़्रेज़ क्लिपबोर्ड पर कॉपी हो गया</string>
     <string name="seedphrase_invalid_word_count">सीड फ़्रेज़ में 12 या 24 शब्द होने चाहिए</string>
+    <string name="seedphrase_leave_confirm_body">क्या आप निश्चित हैं? यह एकमात्र समय है जब आप अपना सीडफ़्रेज़ देखेंगे। वापस जाने से पहले उसे सहेज लें।</string>
     <string name="seedphrase_paste_hint">अपना 12 या 24 शब्दों का सीड फ़्रेज़ यहाँ पेस्ट करें</string>
     <string name="seedphrase_required">कृपया सीड फ़्रेज़ दर्ज करें</string>
     <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">साइन इन करें</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
     <string name="sign_in_with_seedphrase">सीड फ़्रेज़ से साइन इन करें</string>
+    <string name="site_save_your_seedphrase">अपना सीडफ़्रेज़ सहेजें</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>
     <string name="something_went_wrong">कुछ गलत हो गया।</string>
     <string name="sorry_to_see_you_go">हमें आपको जाते हुए देखकर दुख हो रहा है!</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">नीचे किसी ट्रैफ़िक पर टैप करें ताकि वह टनल को बायपास कर स्थानीय रूप से रूट हो।</string>
     <string name="split_rules_info_note">अपवाद पूरे संबद्ध नेटवर्क क्लस्टर पर लागू होते हैं, इसलिए संबंधित ट्रैफ़िक एक साथ शामिल हो जाता है।</string>
     <string name="start_earning_join">कमाई शुरू करने के लिए, नेटवर्क से जुड़ें</string>
+    <string name="stay">यहीं रहें</string>
     <string name="stay_in_touch">संपर्क में रहें</string>
     <string name="stay_private">पूरी तरह से\nनिजी और\nगुमनाम रहें</string>
     <string name="stay_private_description">URnetwork के साथ पूरी तरह से निजी और गुमनाम रहें</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">वेब</string>
     <string name="window_type_speed">स्ट्रीमिंग</string>
     <string name="with_urnetwork">URnetwork के साथ</string>
+    <string name="write_it_down_and_store_it_somewhere">इसे लिखकर किसी सुरक्षित जगह पर रखें। अगर यह खो गया, तो आप अपने खाते तक पहुंच खो देंगे।</string>
     <string name="yes">हाँ</string>
+    <string name="your_seedphrase">आपका सीड फ़्रेज़</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d ऐप बाहर रखा गया</item>
         <item quantity="other">%1$d ऐप्स बाहर रखे गए</item>

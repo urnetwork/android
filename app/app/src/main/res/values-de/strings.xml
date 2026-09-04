@@ -106,6 +106,7 @@
     <string name="country_multipliers">Länder-Multiplikatoren</string>
     <string name="create">Erstellen</string>
     <string name="create_account">Konto erstellen</string>
+    <string name="create_account_2">Ein Konto erstellen</string>
     <string name="create_instant_account">Sofortkonto erstellen</string>
     <string name="create_network_error">Etwas ist schiefgelaufen. Versuche es erneut.</string>
     <string name="current_network_referral">Aktuelles Empfehlungsnetzwerk</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Pro holen</string>
     <string name="get_started">Loslegen</string>
     <string name="get_urnetwork_free_for_life_by_participating">Erhalte URnetwork lebenslang kostenlos durch Teilnahme</string>
+    <string name="go_back">Zurück</string>
     <string name="google_auth_btn_text">Mit Google anmelden</string>
     <string name="guest">Gast</string>
     <string name="how_are_we_doing">Wie geht es uns?</string>
+    <string name="i_ve_saved_my_seedphrase">Ich habe meine Seedphrase gespeichert</string>
     <string name="identity_key_hash_copied">Hash des Identitätsschlüssels kopiert</string>
     <string name="ignore_battery_optimizations">Akku-Optimierungen ignorieren</string>
     <string name="in_guest_mode">Du befindest dich im Gastmodus</string>
     <string name="include_app">Über VPN leiten</string>
     <string name="include_app_description">Nur eingeschlossene Apps nutzen den Tunnel.</string>
     <string name="included">Eingeschlossen</string>
+    <string name="instant_account_no_email_password">Keine E-Mail und kein Passwort nötig. Dein Konto wird durch eine Seedphrase gesichert.</string>
     <string name="insufficient_balance">Unzureichendes Guthaben</string>
     <string name="insufficient_funds">Unzureichende Mittel</string>
     <string name="invalid_referral_code">Dieser Code ist ungültig</string>
@@ -394,10 +398,13 @@
     <string name="save">Speichern</string>
     <string name="save_logs">Protokolle speichern</string>
     <string name="search_placeholder">Alle Standorte durchsuchen</string>
+    <string name="secure_your_account">Sichere dein Konto</string>
     <string name="see_world_content">Sieh alle\nInhalte\nder Welt</string>
     <string name="see_world_content_description">Sieh alle Inhalte der Welt mit URnetwork</string>
     <string name="seedphrase">Seedphrase</string>
+    <string name="seedphrase_copied_to_clipboard">Seedphrase in die Zwischenablage kopiert</string>
     <string name="seedphrase_invalid_word_count">Die Seedphrase muss 12 oder 24 Wörter haben</string>
+    <string name="seedphrase_leave_confirm_body">Bist du sicher? Das ist das EINZIGE Mal, dass du deine Seedphrase siehst. Speichere sie, bevor du zurückgehst.</string>
     <string name="seedphrase_paste_hint">Füge hier deine Seedphrase mit 12 oder 24 Wörtern ein</string>
     <string name="seedphrase_required">Bitte gib eine Seedphrase ein</string>
     <string name="seeker_token_verified">Seeker-Token verifiziert!</string>
@@ -417,6 +424,7 @@
     <string name="sign_in_with_seedphrase">Mit Seedphrase anmelden</string>
     <string name="site_app_contracts">Verträge</string>
     <string name="site_app_providers">Provider</string>
+    <string name="site_save_your_seedphrase">Sichere deine Seedphrase</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>
     <string name="something_went_wrong">Etwas ist schiefgelaufen.</string>
     <string name="sorry_to_see_you_go">Wir bedauern, dass du gehst!</string>
@@ -426,6 +434,7 @@
     <string name="split_rules_hint">Tippe unten auf Datenverkehr, um ihn lokal zu leiten und den Tunnel zu umgehen.</string>
     <string name="split_rules_info_note">Ausschlüsse gelten für den gesamten zusammengehörigen Netzwerk-Cluster, sodass verwandter Datenverkehr gemeinsam erfasst wird.</string>
     <string name="start_earning_join">Um mit dem Verdienen zu beginnen, trete dem Netzwerk bei</string>
+    <string name="stay">Bleiben</string>
     <string name="stay_in_touch">In Kontakt bleiben</string>
     <string name="stay_private">Bleib\nabsolut\nprivat und\nanonym</string>
     <string name="stay_private_description">Bleib absolut privat und anonym mit URnetwork</string>
@@ -492,8 +501,10 @@
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streaming</string>
     <string name="with_urnetwork">mit URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Schreibe sie auf und bewahre sie an einem sicheren Ort auf. Wenn du sie verlierst, verlierst du den Zugriff auf dein Konto.</string>
     <string name="yes">Ja</string>
     <string name="your_referral_code">Ihr Empfehlungscode</string>
+    <string name="your_seedphrase">Deine Seedphrase</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d App ausgeschlossen</item>
         <item quantity="other">%1$d Apps ausgeschlossen</item>

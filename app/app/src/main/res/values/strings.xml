@@ -131,6 +131,7 @@
     <string name="country_multipliers">Country multipliers</string>
     <string name="create">Create</string>
     <string name="create_account">Create account</string>
+    <string name="create_account_2">Create Account</string>
     <string name="create_instant_account">Create Instant Account</string>
     <string name="create_network_error">Something went wrong. Try again.</string>
     <string name="current_network_referral">Current network referral</string>
@@ -373,9 +374,11 @@
     <string name="get_pro">Get Pro</string>
     <string name="get_started">Get started</string>
     <string name="get_urnetwork_free_for_life_by_participating">Get URnetwork free for life by participating</string>
+    <string name="go_back">Go Back</string>
     <string name="google_auth_btn_text">Log in with Google</string>
     <string name="guest">Guest</string>
     <string name="how_are_we_doing">How are we doing?</string>
+    <string name="i_ve_saved_my_seedphrase">I\'ve Saved My Seedphrase</string>
     <string name="identity_key_hash_copied">Identity key hash copied</string>
     <string name="ignore_battery_optimizations">Ignore battery optimizations</string>
     <string name="in_guest_mode">You\'re in guest mode</string>
@@ -383,6 +386,7 @@
     <string name="include_app_description">Only included apps use the tunnel.</string>
     <string name="included">Included</string>
     <string name="includes_free_trial_days">Includes %1$d day free trial</string>
+    <string name="instant_account_no_email_password">No email or password needed. Your account is secured by a seedphrase.</string>
     <string name="insufficient_balance">Insufficient balance</string>
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="intro_quick_connect_details">Turn URnetwork on and off from Quick Settings, and keep an eye on it from your home screen.</string>
@@ -623,10 +627,13 @@
     <string name="save">Save</string>
     <string name="save_logs">Save logs</string>
     <string name="search_placeholder">Search for all locations</string>
+    <string name="secure_your_account">Secure Your Account</string>
     <string name="see_world_content">See all the\nworld\'s content</string>
     <string name="see_world_content_description">See all the world\'s content with URnetwork</string>
     <string name="seedphrase">Seedphrase</string>
+    <string name="seedphrase_copied_to_clipboard">Seedphrase copied to clipboard</string>
     <string name="seedphrase_invalid_word_count">Seedphrase must be 12 or 24 words</string>
+    <string name="seedphrase_leave_confirm_body">Are you sure? This is the ONLY time you\'ll see your seedphrase. Make sure you\'ve saved it before going back.</string>
     <string name="seedphrase_paste_hint">Paste your 12 or 24-word seedphrase here</string>
     <string name="seedphrase_required">Please enter a seedphrase</string>
     <string name="seeker_points_only">The Seeker multiplier applies to points only.</string>
@@ -656,6 +663,7 @@
     <string name="sign_in_with_seedphrase">Sign in with Seedphrase</string>
     <string name="site_app_contracts">Contracts</string>
     <string name="site_app_providers">Providers</string>
+    <string name="site_save_your_seedphrase">Save Your Seedphrase</string>
     <string name="skip">Skip</string>
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>
     <string name="sn_protocol_note">SN25α are your earnings on the UR protocol. The UR protocol is an open source protocol from URnetwork. Connect a Bittensor wallet to settle them as SN25α through the UR protocol.</string>
@@ -671,6 +679,7 @@
     <string name="split_rules_info_note">Exclusions apply to the whole co-associated network cluster, so related traffic is caught together.</string>
     <string name="start_earning_join">To start earning, join the network</string>
     <string name="start_free_trial">Start free trial</string>
+    <string name="stay">Stay</string>
     <string name="stay_in_touch">Stay in touch</string>
     <string name="stay_private">Stay\ncompletely\nprivate and\nanonymous</string>
     <string name="stay_private_description">Stay completely private and anonymous with URnetwork</string>
@@ -787,10 +796,12 @@
     <string name="window_type_quality">Web</string>
     <string name="window_type_speed">Streaming</string>
     <string name="with_urnetwork">with URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">Write it down and store it somewhere safe. If you lose it, you\'ll lose access to your account.</string>
     <string name="yes">Yes</string>
     <string name="you_get_free_data_every_day">You get free data every day.</string>
     <string name="your_bandwidth">Your bandwidth</string>
     <string name="your_referral_code">Your referral code</string>
+    <string name="your_seedphrase">Your Seedphrase</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d app excluded</item>
         <item quantity="other">%1$d apps excluded</item>

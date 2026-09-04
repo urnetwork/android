@@ -106,6 +106,7 @@
     <string name="country_multipliers">ตัวคูณตามประเทศ</string>
     <string name="create">สร้าง</string>
     <string name="create_account">สร้างบัญชี</string>
+    <string name="create_account_2">สร้างบัญชี</string>
     <string name="create_instant_account">สร้างบัญชีทันที</string>
     <string name="create_network_error">มีบางอย่างผิดปกติ ลองใหม่อีกครั้ง</string>
     <string name="current_network_referral">รหัสการแนะนำเครือข่ายปัจจุบัน</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">รับ Pro</string>
     <string name="get_started">เริ่มต้นใช้งาน</string>
     <string name="get_urnetwork_free_for_life_by_participating">รับ URnetwork ฟรีตลอดชีวิตโดยการเข้าร่วม</string>
+    <string name="go_back">ย้อนกลับ</string>
     <string name="google_auth_btn_text">เข้าสู่ระบบด้วยบัญชี Google</string>
     <string name="guest">ผู้เยี่ยมชม</string>
     <string name="how_are_we_doing">ใช้งานเป็นยังไงบ้าง?</string>
+    <string name="i_ve_saved_my_seedphrase">ฉันบันทึกวลีกู้คืนแล้ว</string>
     <string name="identity_key_hash_copied">คัดลอกแฮชของคีย์ระบุตัวตนแล้ว</string>
     <string name="ignore_battery_optimizations">ไม่สนใจการเพิ่มประสิทธิภาพแบตเตอรี่</string>
     <string name="in_guest_mode">คุณกำลังใช้งานโหมดผู้เยี่ยมชม</string>
     <string name="include_app">ส่งผ่าน VPN</string>
     <string name="include_app_description">เฉพาะแอปที่รวมไว้เท่านั้นที่ใช้อุโมงค์</string>
     <string name="included">รวมไว้</string>
+    <string name="instant_account_no_email_password">ไม่ต้องใช้อีเมลหรือรหัสผ่าน บัญชีของคุณได้รับการปกป้องด้วยซีดเฟรส</string>
     <string name="insufficient_balance">ยอดเงินไม่เพียงพอ</string>
     <string name="insufficient_funds">ยอดเงินไม่เพียงพอ</string>
     <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
@@ -391,10 +395,13 @@
     <string name="save">บันทึก</string>
     <string name="save_logs">บันทึกไฟล์บันทึก</string>
     <string name="search_placeholder">ค้นหาทุกประเทศ</string>
+    <string name="secure_your_account">ปกป้องบัญชีของคุณ</string>
     <string name="see_world_content">เข้าถึงทุกคอนเทนต์\nจากทั่วทุกมุมโลก</string>
     <string name="see_world_content_description">เข้าถึงทุกคอนเทนต์จากทั่วโลกด้วย URnetwork</string>
     <string name="seedphrase">วลีกู้คืน</string>
+    <string name="seedphrase_copied_to_clipboard">คัดลอกซีดเฟรสไปยังคลิปบอร์ดแล้ว</string>
     <string name="seedphrase_invalid_word_count">วลีกู้คืนต้องมี 12 หรือ 24 คำ</string>
+    <string name="seedphrase_leave_confirm_body">แน่ใจหรือไม่ นี่เป็นครั้งเดียวที่คุณจะเห็นซีดเฟรส โปรดบันทึกให้เรียบร้อยก่อนย้อนกลับ</string>
     <string name="seedphrase_paste_hint">วางวลีกู้คืน 12 หรือ 24 คำของคุณที่นี่</string>
     <string name="seedphrase_required">กรุณาป้อนวลีกู้คืน</string>
     <string name="seeker_token_verified">ยืนยัน Seeker Token สำเร็จ</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">ลงชื่อเข้าใช้</string>
     <string name="sign_in_dgen1">ลงชื่อเข้าใช้ด้วย dGEN1</string>
     <string name="sign_in_with_seedphrase">ลงชื่อเข้าใช้ด้วยวลีกู้คืน</string>
+    <string name="site_save_your_seedphrase">บันทึกซีดเฟรสของคุณ</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>
     <string name="something_went_wrong">มีบางอย่างผิดปกติ</string>
     <string name="sorry_to_see_you_go">ขอบคุณที่เคยเป็นส่วนหนึ่งกับเรา เราเสียดายที่ต้องลาจากกัน</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">แตะทราฟฟิกด้านล่างเพื่อส่งผ่านภายในเครื่องโดยไม่ผ่านอุโมงค์</string>
     <string name="split_rules_info_note">การยกเว้นจะมีผลกับคลัสเตอร์เครือข่ายที่เกี่ยวข้องกันทั้งกลุ่ม ทราฟฟิกที่เกี่ยวข้องจึงถูกยกเว้นไปพร้อมกัน</string>
     <string name="start_earning_join">เพื่อเริ่มสร้างรายได้ เข้าร่วมกับระบบเน็ตเวิร์ค</string>
+    <string name="stay">อยู่ต่อ</string>
     <string name="stay_in_touch">ติดตามเรา</string>
     <string name="stay_private">เป็นส่วนตัว\nอย่างแท้จริง\nไร้ตัวตน\nไร้การติดตาม</string>
     <string name="stay_private_description">เชื่อมต่อด้วยความปลอดภัย ไม่ทิ้งร่องรอยด้วย URnetwork</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">เว็บ</string>
     <string name="window_type_speed">สตรีมมิง</string>
     <string name="with_urnetwork">ด้วยกันกับ URnetwork</string>
+    <string name="write_it_down_and_store_it_somewhere">จดไว้และเก็บในที่ปลอดภัย หากทำหาย คุณจะเข้าถึงบัญชีของคุณไม่ได้อีก</string>
     <string name="yes">ใช่</string>
+    <string name="your_seedphrase">วลีกู้คืนของคุณ</string>
     <plurals name="apps_excluded_count">
         <item quantity="other">ยกเว้น %1$d แอป</item>
     </plurals>

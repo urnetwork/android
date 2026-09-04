@@ -106,6 +106,7 @@
     <string name="country_multipliers">国別倍率</string>
     <string name="create">作成</string>
     <string name="create_account">アカウントを作成</string>
+    <string name="create_account_2">アカウントを作成</string>
     <string name="create_instant_account">インスタントアカウントを作成</string>
     <string name="create_network_error">エラーが発生しました。もう一度お試しください。</string>
     <string name="current_network_referral">現在の紹介ネットワーク</string>
@@ -178,15 +179,18 @@
     <string name="get_pro">Proを取得</string>
     <string name="get_started">始める</string>
     <string name="get_urnetwork_free_for_life_by_participating">参加するだけでURnetworkを一生無料で利用できます</string>
+    <string name="go_back">戻る</string>
     <string name="google_auth_btn_text">Googleでログイン</string>
     <string name="guest">ゲスト</string>
     <string name="how_are_we_doing">私たちの調子はどうですか？</string>
+    <string name="i_ve_saved_my_seedphrase">シードフレーズを保存しました</string>
     <string name="identity_key_hash_copied">IDキーのハッシュをコピーしました</string>
     <string name="ignore_battery_optimizations">バッテリー最適化を無視する</string>
     <string name="in_guest_mode">ゲストモードです</string>
     <string name="include_app">VPN経由でルーティング</string>
     <string name="include_app_description">含めたアプリのみトンネルを使用します。</string>
     <string name="included">含める</string>
+    <string name="instant_account_no_email_password">メールアドレスやパスワードは不要です。アカウントはシードフレーズで保護されます。</string>
     <string name="insufficient_balance">残高不足</string>
     <string name="insufficient_funds">残高不足</string>
     <string name="invalid_referral_code">このコードは無効です</string>
@@ -391,10 +395,13 @@
     <string name="save">保存</string>
     <string name="save_logs">ログを保存</string>
     <string name="search_placeholder">全てのロケーションを検索</string>
+    <string name="secure_your_account">アカウントを保護</string>
     <string name="see_world_content">世界中のコンテンツを\n見る</string>
     <string name="see_world_content_description">URnetworkで世界中のコンテンツを見る</string>
     <string name="seedphrase">シードフレーズ</string>
+    <string name="seedphrase_copied_to_clipboard">シードフレーズをクリップボードにコピーしました</string>
     <string name="seedphrase_invalid_word_count">シードフレーズは12語または24語である必要があります</string>
+    <string name="seedphrase_leave_confirm_body">本当によろしいですか？シードフレーズを確認できるのはこの一度だけです。戻る前に必ず保存してください。</string>
     <string name="seedphrase_paste_hint">12語または24語のシードフレーズをここに貼り付けてください</string>
     <string name="seedphrase_required">シードフレーズを入力してください</string>
     <string name="seeker_token_verified">Seekerトークンが認証されました！</string>
@@ -412,6 +419,7 @@
     <string name="sign_in">サインイン</string>
     <string name="sign_in_dgen1">dGEN1でサインイン</string>
     <string name="sign_in_with_seedphrase">シードフレーズでサインイン</string>
+    <string name="site_save_your_seedphrase">シードフレーズを保存</string>
     <string name="solana_sign_in">Solanaでサインイン</string>
     <string name="something_went_wrong">エラーが発生しました。</string>
     <string name="sorry_to_see_you_go">お見送り残念です！</string>
@@ -421,6 +429,7 @@
     <string name="split_rules_hint">下のトラフィックをタップすると、トンネルを迂回してローカルにルーティングされます。</string>
     <string name="split_rules_info_note">除外は関連するネットワーククラスタ全体に適用されるため、関連するトラフィックもまとめて対象になります。</string>
     <string name="start_earning_join">収益を得始めるには、ネットワークに参加してください</string>
+    <string name="stay">とどまる</string>
     <string name="stay_in_touch">連絡を取り合う</string>
     <string name="stay_private">完全に\nプライベートで\n匿名性を\n保つ</string>
     <string name="stay_private_description">URnetworkで完全にプライベートで匿名性を保つ</string>
@@ -487,7 +496,9 @@
     <string name="window_type_quality">ウェブ</string>
     <string name="window_type_speed">ストリーミング</string>
     <string name="with_urnetwork">URnetworkで</string>
+    <string name="write_it_down_and_store_it_somewhere">書き留めて安全な場所に保管してください。紛失すると、アカウントにアクセスできなくなります。</string>
     <string name="yes">はい</string>
+    <string name="your_seedphrase">あなたのシードフレーズ</string>
     <plurals name="apps_excluded_count">
         <item quantity="other">%1$d個のアプリを除外</item>
     </plurals>
