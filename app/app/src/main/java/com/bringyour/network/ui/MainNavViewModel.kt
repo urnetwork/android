@@ -33,22 +33,23 @@ class MainNavViewModel @Inject constructor(
     }
 
     /**
-     * For initial prompting, we check the SDK local state for the last time prompting as occurred.
-     * If more than X time has passed, prompt intro funnel
+     * Whether the intro funnel may still be presented. The SDK local-state
+     * flag is armed only when a network is created and cleared as soon as the
+     * funnel is shown; the gate keeps the in-memory mirror in step with it so
+     * a recreated activity (rotation) never re-presents a completed funnel.
      */
-    private val _allowDisplayIntroFunnel = MutableStateFlow<Boolean>(false)
-    val allowDisplayIntroFunnel: StateFlow<Boolean> = _allowDisplayIntroFunnel.asStateFlow()
+    private val introFunnelGate = IntroFunnelGate(
+        readCanPrompt = { deviceManager.canPromptIntroFunnel },
+        clearCanPrompt = { deviceManager.canPromptIntroFunnel = false },
+    )
+    val allowDisplayIntroFunnel: StateFlow<Boolean> = introFunnelGate.allow
 
     val setIntroFunnelLastPrompted: () -> Unit = {
-        deviceManager.canPromptIntroFunnel = false
+        introFunnelGate.markPrompted()
     }
 
     val refreshTokenOnForeground: () -> Unit = {
         deviceManager.device?.refreshToken(0)
-    }
-
-    init {
-        _allowDisplayIntroFunnel.value = deviceManager.canPromptIntroFunnel
     }
 
     val setCurrentRoute: (Route?) -> Unit = { route ->
