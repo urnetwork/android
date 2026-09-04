@@ -12,7 +12,6 @@ import com.bringyour.network.ui.shared.viewmodels.ReferralCodeViewModel
 
 enum class OverlayMode {
     Upgrade,
-    Refer,
     FeedbackSubmitted,
     Onboarding,
     // a purchase Play accepted but has not completed -- awaiting approval or an
@@ -29,7 +28,6 @@ fun FullScreenOverlay(
     // server-confirmed subscription (`currentSubscription != null`). Gates the
     // Upgrade overlay's copy: processing-shaped until the server confirms.
     planUpgradeConfirmed: Boolean = false,
-    totalReferralCount: Long = 0L,
     // how many referrals the ReferralCelebration overlay is celebrating
     referralCelebrationJoined: Long = 1L,
     onReferralCelebrationDismissed: () -> Unit = {},
@@ -39,24 +37,6 @@ fun FullScreenOverlay(
     val exitTransition = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
 
     val overlayMode = overlayViewModel.overlayModeState.collectAsState().value
-
-    // Refer overlay
-    AnimatedVisibility(
-        visible = overlayMode == OverlayMode.Refer,
-        enter = enterTransition,
-        exit = exitTransition,
-    ) {
-
-        if (referralCode != null) {
-            ReferOverlay(
-                referralCode = referralCode,
-                totalReferrals = totalReferralCount,
-                onDismiss = {
-                    overlayViewModel.launch(null)
-                }
-            )
-        }
-    }
 
     // First-referral crowning celebration
     AnimatedVisibility(

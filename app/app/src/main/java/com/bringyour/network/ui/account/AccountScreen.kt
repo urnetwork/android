@@ -230,7 +230,7 @@ fun AccountScreenContent(
                 networkName = networkName,
                 // Pro members get a glowing gold ring around their avatar
                 isPro = currentPlan == Plan.Supporter,
-                launchOverlay = launchOverlay
+                openReferrals = { navController.navigate(Route.Referrals) }
             )
         }
 

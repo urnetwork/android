@@ -53,7 +53,6 @@ import androidx.compose.ui.zIndex
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
-import com.bringyour.network.ui.components.overlays.OverlayMode
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Brush
@@ -74,7 +73,7 @@ fun AccountSwitcher(
     loginMode: LoginMode,
     networkName: String?,
     isPro: Boolean = false,
-    launchOverlay: (OverlayMode) -> Unit
+    openReferrals: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -145,14 +144,14 @@ fun AccountSwitcher(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
                     context = context,
-                    launchOverlay = launchOverlay,
+                    openReferrals = openReferrals,
                     focusRequester = focusRequester
                 )
                 LoginMode.Authenticated -> AuthenticatedPopup(
                     onDismiss = { isOverlayVisible = false },
                     application = application,
                     context = context,
-                    launchOverlay = launchOverlay,
+                    openReferrals = openReferrals,
                     networkName = networkName,
                     focusRequester = focusRequester
                 )
@@ -203,7 +202,7 @@ fun GuestPopup(
     onDismiss: () -> Unit,
     context: Context?,
     application: MainApplication?,
-    launchOverlay: (OverlayMode) -> Unit,
+    openReferrals: () -> Unit,
     focusRequester: FocusRequester
 ) {
 
@@ -237,7 +236,7 @@ fun GuestPopup(
             iconResourceId = R.drawable.export,
             text = "Share URnetwork",
             onClick = {
-                launchOverlay(OverlayMode.Refer)
+                openReferrals()
                 onDismiss()
             },
         )
@@ -249,7 +248,7 @@ fun AuthenticatedPopup(
     onDismiss: () -> Unit,
     context: Context?,
     application: MainApplication?,
-    launchOverlay: (OverlayMode) -> Unit,
+    openReferrals: () -> Unit,
     networkName: String?,
     focusRequester: FocusRequester
 ) {
@@ -282,7 +281,7 @@ fun AuthenticatedPopup(
             iconResourceId = R.drawable.export,
             text = "Share URnetwork",
             onClick = {
-                launchOverlay(OverlayMode.Refer)
+                openReferrals()
                 onDismiss()
             },
         )
@@ -360,7 +359,7 @@ fun AccountSwitcherGuestPreview() {
         AccountSwitcher(
             loginMode = LoginMode.Guest,
             networkName = "ur_network",
-            launchOverlay = {}
+            openReferrals = {}
         )
     }
 }
@@ -372,7 +371,7 @@ fun AccountSwitcherAuthenticatedPreview() {
         AccountSwitcher(
             loginMode = LoginMode.Authenticated,
             networkName = "ur_network",
-            launchOverlay = {}
+            openReferrals = {}
         )
     }
 }
@@ -388,7 +387,7 @@ fun GuestPopupPreview() {
             onDismiss = {},
             application =  null,
             context = null,
-            launchOverlay = {},
+            openReferrals = {},
             focusRequester = focusRequester
         )
     }

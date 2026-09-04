@@ -49,6 +49,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.account.AccountViewModel
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.URButton
@@ -208,7 +209,7 @@ fun ProfileScreen(
                     loginMode = loginMode,
                     // todo - this should be the current network name, not the one being edited
                     networkName = networkName,
-                    launchOverlay = launchOverlay
+                    openReferrals = { navController.navigate(Route.Referrals) }
                 )
             }
             Spacer(modifier = Modifier.height(64.dp))

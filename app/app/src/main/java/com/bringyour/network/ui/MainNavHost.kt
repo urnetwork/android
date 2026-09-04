@@ -800,7 +800,6 @@ private fun MainNavHostContent(
         overlayViewModel,
         referralCode = referralCode,
         planUpgradeConfirmed = hasActiveSubscription,
-        totalReferralCount = totalReferralCount,
         referralCelebrationJoined = pendingReferralCelebration?.joined ?: 1L,
         onReferralCelebrationDismissed = {
             referralCodeViewModel.clearCelebration()
@@ -844,7 +843,7 @@ private fun MainNavHostContent(
             ),
             onClick = {
                 referralCodeViewModel.clearCelebration()
-                overlayViewModel.launch(OverlayMode.Refer)
+                navController.navigate(Route.Referrals)
             },
         )
     }

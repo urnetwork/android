@@ -207,7 +207,7 @@ fun ConnectScreen(
                 dnsSettingsViewModel = dnsSettingsViewModel,
                 blockerViewModel = blockerViewModel,
                 onReferralClick = {
-                    overlayViewModel.launch(OverlayMode.Refer)
+                    navController.navigate(Route.Referrals)
                 },
             )
         },
