@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -233,8 +234,8 @@ fun GuestPopup(
         HorizontalDivider()
 
         PopupActionRow(
-            iconResourceId = R.drawable.export,
-            text = "Share URnetwork",
+            iconResourceId = R.drawable.nav_list_item_refer,
+            text = stringResource(id = R.string.referrals),
             onClick = {
                 openReferrals()
                 onDismiss()
@@ -278,8 +279,8 @@ fun AuthenticatedPopup(
 
         HorizontalDivider()
         PopupActionRow(
-            iconResourceId = R.drawable.export,
-            text = "Share URnetwork",
+            iconResourceId = R.drawable.nav_list_item_refer,
+            text = stringResource(id = R.string.referrals),
             onClick = {
                 openReferrals()
                 onDismiss()
