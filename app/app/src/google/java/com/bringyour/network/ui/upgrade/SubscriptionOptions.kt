@@ -56,56 +56,53 @@ fun SubscriptionOptions(
 /**
  * The Play plan picker: yearly ($40/year) is the highlighted default in the
  * Pro-gold dress with the Best value pill and the free trial; monthly is the
- * quiet alternative with no trial. Only the yearly plan has a trial.
+ * quiet alternative with no trial. Only the yearly plan has a trial. Both
+ * plans render unconditionally, before, during and after the store query:
+ * the store only refines the printed prices, and a plan it cannot sell
+ * surfaces the store's error on purchase instead of disappearing.
  */
 @Composable
 fun SubscriptionOptions(
     upgrade: () -> Unit,
     upgradeInProgress: Boolean,
     monthlyCostFormatted: String,
-    // null until Play reports a yearly base plan; then only monthly can be bought
-    yearlyCostFormatted: String? = null,
+    // Play's price once loaded, the shared fallback until then
+    yearlyCostFormatted: String = FALLBACK_YEARLY_PRICE,
     selectedPlan: PlanType = PlanType.YEARLY,
     setSelectedPlan: (PlanType) -> Unit = {},
-    // the yearly Play offer's free trial, in days; the app default until the offers
-    // load, 0 once they have and none of them carries a trial
+    // the yearly plan's free trial, in days
     freeTrialDays: Int = FREE_TRIAL_DAYS,
 ) {
 
-    val yearlyAvailable = yearlyCostFormatted != null
-    val yearlySelected = yearlyAvailable && selectedPlan == PlanType.YEARLY
-    // a trial is promised only when Play returned a yearly offer that grants one
-    val trialOffered = yearlyAvailable && 0 < freeTrialDays
+    val yearlySelected = selectedPlan == PlanType.YEARLY
+    val trialOffered = 0 < freeTrialDays
 
     Column {
-
-        if (yearlyAvailable) {
-            PlanOptionContainer(
-                isSelected = yearlySelected,
-                select = { setSelectedPlan(PlanType.YEARLY) },
-                content = {
-                    Column {
+        PlanOptionContainer(
+            isSelected = yearlySelected,
+            select = { setSelectedPlan(PlanType.YEARLY) },
+            content = {
+                Column {
+                    Text(
+                        stringResource(id = R.string.plan_price_per_year, yearlyCostFormatted),
+                        style = TopBarTitleTextStyle
+                    )
+                    if (trialOffered) {
                         Text(
-                            stringResource(id = R.string.plan_price_per_year, yearlyCostFormatted ?: ""),
-                            style = TopBarTitleTextStyle
+                            stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = ProGoldLight
                         )
-                        if (trialOffered) {
-                            Text(
-                                stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = ProGoldLight
-                            )
-                        }
                     }
-                },
-                badge = {
-                    BestValuePill()
-                },
-                glow = true
-            )
+                }
+            },
+            badge = {
+                BestValuePill()
+            },
+            glow = true
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         PlanOptionContainer(
             isSelected = !yearlySelected,

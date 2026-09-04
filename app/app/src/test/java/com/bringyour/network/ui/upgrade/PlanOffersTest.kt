@@ -16,8 +16,8 @@ class PlanOffersTest {
         val offers = listOf(monthly)
         assertNull(PlanOffers.yearly(offers))
         assertEquals(0, PlanOffers.trialDays(offers))
-        // the yearly plan cannot be bought: the purchase falls back to what exists
-        assertEquals(monthly, PlanOffers.forPlan(offers, PlanType.YEARLY))
+        // the yearly plan cannot be bought: the purchase reports that instead of selling monthly
+        assertNull(PlanOffers.forPlan(offers, PlanType.YEARLY))
         assertEquals(monthly, PlanOffers.forPlan(offers, PlanType.MONTHLY))
     }
 
@@ -58,7 +58,7 @@ class PlanOffersTest {
         val unknown = PlanOffer(index = 0, periodDays = 0, freeDays = 0)
         assertNull(PlanOffers.yearly(listOf(unknown)))
         assertNull(PlanOffers.monthly(listOf(unknown)))
-        assertEquals(unknown, PlanOffers.forPlan(listOf(unknown), PlanType.YEARLY))
+        assertNull(PlanOffers.forPlan(listOf(unknown), PlanType.YEARLY))
         assertEquals(0, PlanOffers.trialDays(emptyList()))
         assertNull(PlanOffers.forPlan(emptyList(), PlanType.MONTHLY))
     }

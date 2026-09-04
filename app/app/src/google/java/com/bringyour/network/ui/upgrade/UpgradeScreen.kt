@@ -111,8 +111,8 @@ private fun UpgradeScreenContentPreview() {
             SubscriptionOptions(
                 upgrade = {},
                 upgradeInProgress = false,
-                monthlyCostFormatted = "$5.00",
-                yearlyCostFormatted = "$40.00"
+                monthlyCostFormatted = FALLBACK_MONTHLY_PRICE,
+                yearlyCostFormatted = FALLBACK_YEARLY_PRICE
             )
         }
     }

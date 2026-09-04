@@ -38,9 +38,13 @@ object PlanOffers {
     /** Days of free trial the yearly offer starts with; 0 when it has no free phase or there is no yearly offer. */
     fun trialDays(offers: List<PlanOffer>): Int = yearly(offers)?.freeDays ?: 0
 
-    /** The offer to buy for a plan; the first offer when the store has no such plan. */
+    /**
+     * The offer to buy for a plan; null when the store has no such plan, so the
+     * purchase surfaces the store's error rather than selling the other plan
+     * behind the one the user picked.
+     */
     fun forPlan(offers: List<PlanOffer>, plan: PlanType): PlanOffer? = when (plan) {
         PlanType.YEARLY -> yearly(offers)
         PlanType.MONTHLY -> monthly(offers)
-    } ?: offers.firstOrNull()
+    }
 }
