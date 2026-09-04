@@ -4,7 +4,6 @@ import android.content.Context
 import com.bringyour.network.MainApplication
 import com.bringyour.network.QuickConnect
 import kotlin.math.exp
-import kotlin.math.max
 import kotlin.math.roundToLong
 
 /**
@@ -67,12 +66,12 @@ class WidgetEntry(
             val count = WidgetThroughputAccumulator.BUCKET_COUNT
             // real client traffic: an idle floor with a handful of sharp bursts;
             // the provider side stays empty because the sample provides never
-            val clientBytes = sampleSeries(count, bucketSeconds, SAMPLE_BYTE_FLOOR, SAMPLE_BYTE_BURSTS, SAMPLE_BYTE_PEAK)
-            val clientPackets = sampleSeries(count, bucketSeconds, SAMPLE_PACKET_FLOOR, SAMPLE_PACKET_BURSTS, SAMPLE_PACKET_PEAK)
+            val clientBytes = sampleSeries(count, bucketSeconds, SAMPLE_BYTE_FLOOR, SAMPLE_BYTE_BURSTS, unit = 1024.0)
+            val clientPackets = sampleSeries(count, bucketSeconds, SAMPLE_PACKET_FLOOR, SAMPLE_PACKET_BURSTS, unit = 1.0)
             val buckets = (0 until count).map { i ->
                 val start = ((now / bucketSeconds) - (count - 1 - i)) * bucketSeconds
-                // downloads dominate; the acks riding back are small in bytes
-                // and about one per two data packets
+                // downloads dominate; the acks riding back are a tenth of the
+                // bytes and one per two data packets
                 WidgetThroughputBucket(
                     start = start,
                     clientEgress = (clientBytes[i] * SAMPLE_ACK_BYTE_SHARE).roundToLong(),
@@ -138,41 +137,39 @@ class WidgetEntry(
 /** One burst in the sample series: a bell `amplitude * exp(-((t - center) / width)^2)` over the chart width t in [0, 1]. */
 private class Burst(val center: Double, val width: Double, val amplitude: Double)
 
-// The sample client line, shared with the Apple sample so the previews match:
-// an idle floor with six sharp bursts, the tallest at the right edge, in KiB/s
-// and packets/s before scaling to the labelled peaks.
+/** A burst center sitting exactly on sample bucket `bucket` of the window, so its peak lands on a bucket by construction. */
+private fun onBucket(bucket: Int): Double = bucket.toDouble() / (WidgetThroughputAccumulator.BUCKET_COUNT - 1)
+
+// The sample client line, shared with the Apple sample so both previews
+// compute the same numbers: an idle floor with six sharp bursts, the tallest
+// on the last-but-two bucket, in KiB/s and packets/s. The peaks the client
+// row labels follow from the table: 410 KiB/s and 594 pkt/s at bucket 57.
 private const val SAMPLE_BYTE_FLOOR = 6.0
 private val SAMPLE_BYTE_BURSTS = listOf(
-    Burst(0.13, 0.012, 60.0), Burst(0.26, 0.010, 330.0), Burst(0.37, 0.012, 190.0),
-    Burst(0.45, 0.010, 160.0), Burst(0.80, 0.015, 45.0), Burst(0.97, 0.012, 404.0),
+    Burst(onBucket(8), 0.012, 60.0), Burst(onBucket(15), 0.010, 330.0), Burst(onBucket(22), 0.012, 190.0),
+    Burst(onBucket(27), 0.010, 160.0), Burst(onBucket(47), 0.015, 45.0), Burst(onBucket(57), 0.012, 404.0),
 )
-/** The byte peak the client row labels: 410 KiB/s. */
-private const val SAMPLE_BYTE_PEAK = 410.0 * 1024.0
 private const val SAMPLE_PACKET_FLOOR = 9.0
 private val SAMPLE_PACKET_BURSTS = listOf(
-    Burst(0.13, 0.014, 110.0), Burst(0.26, 0.011, 470.0), Burst(0.37, 0.013, 300.0),
-    Burst(0.45, 0.012, 260.0), Burst(0.80, 0.016, 90.0), Burst(0.97, 0.013, 585.0),
+    Burst(onBucket(8), 0.014, 110.0), Burst(onBucket(15), 0.011, 470.0), Burst(onBucket(22), 0.013, 300.0),
+    Burst(onBucket(27), 0.012, 260.0), Burst(onBucket(47), 0.016, 90.0), Burst(onBucket(57), 0.013, 585.0),
 )
-/** The packet peak the client row labels: 594 pkt/s. */
-private const val SAMPLE_PACKET_PEAK = 594.0
-/** Acks riding back against a download: about 60 bytes per 1200-byte data packet, one ack per two packets. */
-private const val SAMPLE_ACK_BYTE_SHARE = 0.08
+/** Acks riding back against a download: a tenth of the bytes, one ack per two data packets. */
+private const val SAMPLE_ACK_BYTE_SHARE = 0.1
 private const val SAMPLE_ACK_PACKET_SHARE = 0.5
 
 /**
  * A per-bucket series shaped like real traffic: the floor plus the bursts,
- * sampled once per bucket across the window, then scaled so the tallest
- * bucket reads exactly `peakPerSecond` in the widget's peak label.
- * Deterministic, so the preview never flickers.
+ * sampled once per bucket across the window (t = bucket / (count - 1)) and
+ * turned into a bucket total by `unit` (bytes per KiB, or 1 for packets) times
+ * the bucket length. Deterministic, so the preview never flickers.
  */
-private fun sampleSeries(count: Int, bucketSeconds: Long, floor: Double, bursts: List<Burst>, peakPerSecond: Double): DoubleArray {
-    val rates = DoubleArray(count) { i ->
+private fun sampleSeries(count: Int, bucketSeconds: Long, floor: Double, bursts: List<Burst>, unit: Double): DoubleArray =
+    DoubleArray(count) { i ->
         val t = if (count <= 1) 0.0 else i.toDouble() / (count - 1)
-        floor + bursts.sumOf { burst ->
+        val rate = floor + bursts.sumOf { burst ->
             val d = (t - burst.center) / burst.width
             burst.amplitude * exp(-d * d)
         }
+        rate * unit * bucketSeconds
     }
-    val scale = peakPerSecond * bucketSeconds / max(rates.maxOrNull() ?: 1.0, 1e-9)
-    return DoubleArray(count) { i -> rates[i] * scale }
-}
