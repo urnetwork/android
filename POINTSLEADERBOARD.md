@@ -49,9 +49,10 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
 
 ## Visibility and identity
 
-- **Opt-in flag**: new `network.points_leaderboard_public` (default false). Independent of the
-  data leaderboard's `leaderboard_public` (which today means "show my name"). Toggled from the
-  Points tab header.
+- **Name switch**: `network.points_leaderboard_public` (default false) means "show my network
+  name on the points leaderboard". It is independent of the data leaderboard's
+  `leaderboard_public`. Toggled from the Points tab header. (Until 2026-09-04 it meant "appear
+  at all"; see the amendment below.)
 - **Emoji tag**: new `network.emoji_tag`, 1–6 emoji. Validation (server, and the same Go
   function exported through the SDK so the editor validates live):
   - split into grapheme clusters; every cluster must be an RGI emoji sequence (single
@@ -59,12 +60,12 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
     ONE); letters, digits, punctuation, whitespace, variation-selector-only or ZWJ-only clusters
     are rejected; 1 ≤ clusters ≤ 6; NFC-normalized; stored as text. Empty string clears the tag.
   - No profanity/review pass (emoji only), as requested.
-- **What a row shows** (to be confirmed, see decisions D4/D5):
+- **What a row shows**: every ranked network has a row.
   - emoji tag, always, if the network set one;
-  - the network name only when the network's name is public (`leaderboard_public`);
+  - the network name only when the network turned on `points_leaderboard_public`;
   - otherwise the row reads "Anonymous" + emoji (or just "Anonymous").
-- **Own row**: the caller always sees its own stats and ranks in the header, opted in or not;
-  when not opted in the header says "Only you can see this. Turn on public to appear."
+- **Own row**: the caller always sees its own name, stats and ranks in the header; when the
+  name switch is off the hint says the row shows as Anonymous to everyone else.
 
 ## Data architecture (server)
 
@@ -157,12 +158,13 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
   shown as a secondary number, never ranked.
 - **D3 Rank population = everyone with points** — RESOLVED (user). The opt-in only controls
   display; the visible list has gaps; "of N" = all ranked networks.
-- **D4 Opt-in = appear at all** — RESOLVED (user). Only networks with
-  `points_leaderboard_public` are listed. A listed row always shows the emoji tag when set; the
-  network name shows only when `leaderboard_public` (the existing name-public flag) is also on,
-  otherwise the row reads "Anonymous" + emoji.
-- **D5 Emoji visibility**: follows D4 — shown on listed rows and in the network's own header;
-  never shown for networks that did not opt in (nothing about them is shown).
+- **D4 Every ranked network is listed; the switch reveals the name** — RESOLVED (user,
+  2026-09-04, replacing the 2026-09-03 "opt-in = appear at all"). The list is one continuous
+  sequence with no gaps, loaded in 50-row chunks by the view controller as the user scrolls.
+  A row shows the network name only when `points_leaderboard_public` is on; otherwise it reads
+  "Anonymous". The data leaderboard's `leaderboard_public` does not affect the points list.
+- **D5 Emoji visibility**: the emoji tag shows on every row that set one, named or not, and in
+  the network's own header.
 - **D6 Ties**: competition ranking (1, 2, 2, 4) on the full key tuple; tie-break order per sort = points (points, streak, blocks), blocks (blocks, streak, points), streak (streak, blocks, points), then network id — RESOLVED (user, 2026-09-03), defined once in the SDK view controller.
 - **D7 Rebuild cadence**: on epoch finalize + payout plan complete + hourly fallback; two
   snapshots retained — default.
@@ -190,3 +192,15 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
   compile classpath explicitly. Guava is unrelated to the leaderboard: sorting, ranking and
   paging live only in the SDK's `PointsLeaderboardViewController`. Other platforms pick their
   own emoji keyboard; the tag rules stay in the SDK (`ValidateEmojiTag`, `SuggestEmojiTag`).
+
+## Amendment (user, 2026-09-04): every row listed
+> The points leaderboard should show all rows, but only reveal the network name of those that
+> have opted in to reveal network name. The UI should be infinitely scrollable so it is just one
+> long list loaded in chunks.
+
+- Server: `POST /stats/points-leaderboard` no longer filters on `points_leaderboard_public`;
+  `anonymous` / `network_name` follow that flag per row, `emoji_tag` is on every row that set
+  one, `total_ranked` equals the number of listed rows across the pages.
+- SDK/apps: no shape change; the view controller already appends 50-row pages into one list
+  and renders "Anonymous" + emoji for anonymous rows. The header switch's copy becomes "show my
+  network name" (store keys `show_on_points_leaderboard`, `points_leaderboard_private_hint`).
