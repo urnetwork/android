@@ -3,6 +3,9 @@ package com.bringyour.network.widgets
 import android.content.Context
 import com.bringyour.network.MainApplication
 import com.bringyour.network.QuickConnect
+import kotlin.math.exp
+import kotlin.math.max
+import kotlin.math.roundToLong
 
 /**
  * Everything a widget composition needs, read once per update. The on/off
@@ -52,34 +55,30 @@ class WidgetEntry(
             return if (entry.isConfigured && WidgetSnapshotStore.hasTunnelSnapshot(context)) entry else sample(entry.nowMillis)
         }
 
-        /** What the picker preview shows: a connected tunnel with a few providers and an hour of traffic. */
+        /**
+         * What the picker preview and the onboarding widgets step show: a
+         * connected tunnel with a few providers, an hour of client traffic and
+         * providing set to never, so the provider block reads the way it does
+         * for a fresh account.
+         */
         fun sample(nowMillis: Long = System.currentTimeMillis()): WidgetEntry {
             val now = nowMillis / 1000
             val bucketSeconds = WidgetThroughputAccumulator.BUCKET_SECONDS
             val count = WidgetThroughputAccumulator.BUCKET_COUNT
-            // real traffic: a quiet floor with a few bursts that spike and decay
-            val clientBursts = burstSeries(count, listOf(Burst(7, 5_200_000.0, 0.62), Burst(19, 2_400_000.0, 0.5), Burst(31, 8_100_000.0, 0.7), Burst(46, 3_600_000.0, 0.55), Burst(55, 1_500_000.0, 0.45)), floor = 60_000.0, seed = 17)
-            val providerBursts = burstSeries(count, listOf(Burst(11, 1_300_000.0, 0.6), Burst(38, 900_000.0, 0.55), Burst(52, 1_900_000.0, 0.65)), floor = 25_000.0, seed = 41)
-            // packets follow the bytes at real packet sizes: downloads ride in
-            // near-full packets, uploads and acks are small, and a little
-            // chatter keeps the packet line alive between bursts
-            val chatter = burstSeries(count, emptyList(), 90.0, seed = 0x5eed7L)
+            // real client traffic: an idle floor with a handful of sharp bursts;
+            // the provider side stays empty because the sample provides never
+            val clientBytes = sampleSeries(count, bucketSeconds, SAMPLE_BYTE_FLOOR, SAMPLE_BYTE_BURSTS, SAMPLE_BYTE_PEAK)
+            val clientPackets = sampleSeries(count, bucketSeconds, SAMPLE_PACKET_FLOOR, SAMPLE_PACKET_BURSTS, SAMPLE_PACKET_PEAK)
             val buckets = (0 until count).map { i ->
                 val start = ((now / bucketSeconds) - (count - 1 - i)) * bucketSeconds
-                val client = clientBursts[i]
-                val provider = providerBursts[i]
-                val clientEgress = client * 0.18
-                val providerIngress = provider * 0.3
+                // downloads dominate; the acks riding back are small in bytes
+                // and about one per two data packets
                 WidgetThroughputBucket(
                     start = start,
-                    clientEgress = clientEgress.toLong(),
-                    clientIngress = client.toLong(),
-                    providerEgress = provider.toLong(),
-                    providerIngress = providerIngress.toLong(),
-                    clientEgressPackets = (clientEgress / 180.0 + chatter[i]).toLong(),
-                    clientIngressPackets = (client / 1100.0 + chatter[i] * 0.6).toLong(),
-                    providerEgressPackets = (provider / 1000.0 + chatter[i] * 0.5).toLong(),
-                    providerIngressPackets = (providerIngress / 160.0 + chatter[i]).toLong(),
+                    clientEgress = (clientBytes[i] * SAMPLE_ACK_BYTE_SHARE).roundToLong(),
+                    clientIngress = clientBytes[i].roundToLong(),
+                    clientEgressPackets = (clientPackets[i] * SAMPLE_ACK_PACKET_SHARE).roundToLong(),
+                    clientIngressPackets = clientPackets[i].roundToLong(),
                 )
             }
             val providers = listOf(
@@ -115,10 +114,10 @@ class WidgetEntry(
                 ),
             )
             val tunnel = WidgetTunnelSnapshot(
-                provideMode = "auto",
+                provideMode = "never",
                 updatedAtMillis = nowMillis,
                 tunnelActive = true,
-                providing = true,
+                providing = false,
                 location = WidgetLocationSnapshot("Japan", "jp", "", "", "Japan", false, false, 3, "F94144"),
                 providers = providers,
                 throughput = WidgetThroughputSnapshot(bucketSeconds, buckets),
@@ -136,32 +135,44 @@ class WidgetEntry(
     }
 }
 
-/** A traffic burst in the sample series: starts at a bucket, peaks, and decays by `decay` per bucket. */
-private class Burst(val at: Int, val peak: Double, val decay: Double)
+/** One burst in the sample series: a bell `amplitude * exp(-((t - center) / width)^2)` over the chart width t in [0, 1]. */
+private class Burst(val center: Double, val width: Double, val amplitude: Double)
+
+// The sample client line, shared with the Apple sample so the previews match:
+// an idle floor with six sharp bursts, the tallest at the right edge, in KiB/s
+// and packets/s before scaling to the labelled peaks.
+private const val SAMPLE_BYTE_FLOOR = 6.0
+private val SAMPLE_BYTE_BURSTS = listOf(
+    Burst(0.13, 0.012, 60.0), Burst(0.26, 0.010, 330.0), Burst(0.37, 0.012, 190.0),
+    Burst(0.45, 0.010, 160.0), Burst(0.80, 0.015, 45.0), Burst(0.97, 0.012, 404.0),
+)
+/** The byte peak the client row labels: 410 KiB/s. */
+private const val SAMPLE_BYTE_PEAK = 410.0 * 1024.0
+private const val SAMPLE_PACKET_FLOOR = 9.0
+private val SAMPLE_PACKET_BURSTS = listOf(
+    Burst(0.13, 0.014, 110.0), Burst(0.26, 0.011, 470.0), Burst(0.37, 0.013, 300.0),
+    Burst(0.45, 0.012, 260.0), Burst(0.80, 0.016, 90.0), Burst(0.97, 0.013, 585.0),
+)
+/** The packet peak the client row labels: 594 pkt/s. */
+private const val SAMPLE_PACKET_PEAK = 594.0
+/** Acks riding back against a download: about 60 bytes per 1200-byte data packet, one ack per two packets. */
+private const val SAMPLE_ACK_BYTE_SHARE = 0.08
+private const val SAMPLE_ACK_PACKET_SHARE = 0.5
 
 /**
- * A bytes-per-bucket series shaped like real traffic: a low, jittery floor
- * with bursts that jump up and tail off. Deterministic for a given seed so
- * the preview never flickers.
+ * A per-bucket series shaped like real traffic: the floor plus the bursts,
+ * sampled once per bucket across the window, then scaled so the tallest
+ * bucket reads exactly `peakPerSecond` in the widget's peak label.
+ * Deterministic, so the preview never flickers.
  */
-private fun burstSeries(count: Int, bursts: List<Burst>, floor: Double, seed: Long): DoubleArray {
-    var state = seed
-    fun noise(): Double {
-        // a small linear congruential generator: enough for jitter, no randomness API needed
-        state = (state * 6364136223846793005L + 1442695040888963407L)
-        return ((state ushr 33) % 1000) / 1000.0
-    }
-    val series = DoubleArray(count) { floor * (0.6 + 0.8 * noise()) }
-    for (burst in bursts) {
-        var level = burst.peak
-        var i = burst.at
-        while (i < count && 0.02 * burst.peak < level) {
-            series[i] += level * (0.85 + 0.3 * noise())
-            level *= burst.decay
-            i += 1
+private fun sampleSeries(count: Int, bucketSeconds: Long, floor: Double, bursts: List<Burst>, peakPerSecond: Double): DoubleArray {
+    val rates = DoubleArray(count) { i ->
+        val t = if (count <= 1) 0.0 else i.toDouble() / (count - 1)
+        floor + bursts.sumOf { burst ->
+            val d = (t - burst.center) / burst.width
+            burst.amplitude * exp(-d * d)
         }
-        // a short ramp into the burst, one bucket before the peak
-        if (0 < burst.at) series[burst.at - 1] += burst.peak * 0.3 * noise()
     }
-    return series
+    val scale = peakPerSecond * bucketSeconds / max(rates.maxOrNull() ?: 1.0, 1e-9)
+    return DoubleArray(count) { i -> rates[i] * scale }
 }
