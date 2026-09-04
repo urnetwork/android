@@ -11,12 +11,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -32,7 +35,11 @@ final class EgressProbeClient {
     private static final int CONNECT_TIMEOUT_MILLIS = 10_000;
     private static final int READ_TIMEOUT_MILLIS = 10_000;
     private static final int QUERY_TIMEOUT_MILLIS = 20_000;
-    private static final int WORKER_SHUTDOWN_TIMEOUT_MILLIS = 1_000;
+    // A losing HttpURLConnection is allowed its remaining platform I/O timeout
+    // after disconnect. The outer Binder request is 45 seconds, so a 20-second
+    // query plus this cleanup bound still returns a result or a cleanup failure
+    // before the caller's deadline.
+    private static final int WORKER_SHUTDOWN_TIMEOUT_MILLIS = 20_000;
     private static final int MAX_RESPONSE_BYTES = 256;
     private static final Pattern IPV6_CHARACTERS = Pattern.compile("[0-9a-fA-F:]+");
     private static final String[] ENDPOINTS = {
@@ -44,7 +51,100 @@ final class EgressProbeClient {
         HttpURLConnection open(String endpoint) throws Exception;
     }
 
+    /** Owns one endpoint connection across cancellation and late publication. */
+    static final class Attempt implements Callable<String> {
+        private final String endpoint;
+        private final ConnectionFactory connectionFactory;
+        private final Map<String, String> failures;
+        private final Object stateLock = new Object();
+
+        private boolean canceled;
+        private HttpURLConnection connection;
+
+        Attempt(
+            String endpoint,
+            ConnectionFactory connectionFactory,
+            Map<String, String> failures
+        ) {
+            this.endpoint = endpoint;
+            this.connectionFactory = connectionFactory;
+            this.failures = failures;
+        }
+
+        @Override
+        public String call() throws Exception {
+            HttpURLConnection openedConnection = null;
+            try {
+                synchronized (stateLock) {
+                    if (canceled) {
+                        throw new IOException("egress endpoint attempt canceled before open");
+                    }
+                }
+
+                openedConnection = connectionFactory.open(endpoint);
+                boolean cancelOpenedConnection;
+                synchronized (stateLock) {
+                    cancelOpenedConnection = canceled;
+                    if (!cancelOpenedConnection) {
+                        connection = openedConnection;
+                    }
+                }
+                if (cancelOpenedConnection) {
+                    openedConnection.disconnect();
+                    throw new IOException("egress endpoint attempt canceled during open");
+                }
+                return queryEndpoint(openedConnection, this);
+            } catch (Exception error) {
+                failures.put(endpoint, failureDetail(error));
+                throw error;
+            } finally {
+                if (openedConnection != null) {
+                    synchronized (stateLock) {
+                        if (connection == openedConnection) {
+                            connection = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        void cancel() {
+            HttpURLConnection activeConnection;
+            synchronized (stateLock) {
+                canceled = true;
+                activeConnection = connection;
+            }
+            if (activeConnection != null) {
+                try {
+                    activeConnection.disconnect();
+                } catch (RuntimeException error) {
+                    failures.putIfAbsent(endpoint, failureDetail(error));
+                }
+            }
+        }
+
+        void checkCanceled() throws IOException {
+            synchronized (stateLock) {
+                if (canceled) {
+                    throw new IOException("egress endpoint attempt canceled");
+                }
+            }
+        }
+    }
+
     private EgressProbeClient() {
+    }
+
+    static long defaultMaximumDurationMillis() {
+        return (long) QUERY_TIMEOUT_MILLIS + WORKER_SHUTDOWN_TIMEOUT_MILLIS;
+    }
+
+    static long maximumBlockingPhaseDurationMillis() {
+        return Math.max(CONNECT_TIMEOUT_MILLIS, READ_TIMEOUT_MILLIS);
+    }
+
+    static long defaultWorkerShutdownTimeoutMillis() {
+        return WORKER_SHUTDOWN_TIMEOUT_MILLIS;
     }
 
     static String queryPublicIp() throws Exception {
@@ -62,32 +162,34 @@ final class EgressProbeClient {
         ConnectionFactory connectionFactory,
         long timeoutMillis
     ) throws Exception {
+        return queryPublicIp(
+            endpoints,
+            connectionFactory,
+            timeoutMillis,
+            WORKER_SHUTDOWN_TIMEOUT_MILLIS
+        );
+    }
+
+    static String queryPublicIp(
+        String[] endpoints,
+        ConnectionFactory connectionFactory,
+        long timeoutMillis,
+        long workerShutdownTimeoutMillis
+    ) throws Exception {
         if (endpoints.length == 0) {
             throw new IllegalArgumentException("at least one egress endpoint is required");
         }
         if (timeoutMillis <= 0) {
             throw new IllegalArgumentException("egress query timeout must be positive");
         }
+        if (workerShutdownTimeoutMillis <= 0) {
+            throw new IllegalArgumentException("egress worker shutdown timeout must be positive");
+        }
 
         Map<String, String> failures = new ConcurrentHashMap<>();
-        Set<HttpURLConnection> activeConnections = ConcurrentHashMap.newKeySet();
-        List<Callable<String>> attempts = new ArrayList<>();
+        List<Attempt> attempts = new ArrayList<>();
         for (String endpoint : endpoints) {
-            attempts.add(() -> {
-                HttpURLConnection connection = null;
-                try {
-                    connection = connectionFactory.open(endpoint);
-                    activeConnections.add(connection);
-                    return queryEndpoint(connection);
-                } catch (Exception error) {
-                    failures.put(endpoint, failureDetail(error));
-                    throw error;
-                } finally {
-                    if (connection != null) {
-                        activeConnections.remove(connection);
-                    }
-                }
-            });
+            attempts.add(new Attempt(endpoint, connectionFactory, failures));
         }
 
         AtomicInteger threadIndex = new AtomicInteger();
@@ -100,45 +202,72 @@ final class EgressProbeClient {
             return thread;
         };
         ExecutorService executor = Executors.newFixedThreadPool(endpoints.length, threadFactory);
+        CompletionService<String> completions = new ExecutorCompletionService<>(executor);
+        List<Future<String>> futures = new ArrayList<>();
+        for (Attempt attempt : attempts) {
+            futures.add(completions.submit(attempt));
+        }
 
         String address = null;
         Exception queryFailure = null;
+        Throwable lastEndpointFailure = null;
+        long queryDeadlineNanos = System.nanoTime()
+            + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
         try {
-            address = executor.invokeAny(attempts, timeoutMillis, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException error) {
-            queryFailure = new IOException(
-                "egress query deadline exceeded after " + timeoutMillis + "ms: "
-                    + formatFailures(endpoints, failures),
-                error
-            );
-        } catch (ExecutionException error) {
-            queryFailure = new IOException(
-                "all egress endpoints failed: " + formatFailures(endpoints, failures),
-                error.getCause()
-            );
+            int remainingAttempts = attempts.size();
+            while (0 < remainingAttempts && address == null) {
+                long remainingNanos = queryDeadlineNanos - System.nanoTime();
+                if (remainingNanos <= 0) {
+                    break;
+                }
+                Future<String> completed = completions.poll(remainingNanos, TimeUnit.NANOSECONDS);
+                if (completed == null) {
+                    break;
+                }
+                remainingAttempts -= 1;
+                try {
+                    address = completed.get();
+                } catch (ExecutionException error) {
+                    lastEndpointFailure = error.getCause();
+                } catch (CancellationException error) {
+                    lastEndpointFailure = error;
+                }
+            }
+            if (address == null) {
+                if (failures.size() == endpoints.length) {
+                    queryFailure = new IOException(
+                        "all egress endpoints failed: " + formatFailures(endpoints, failures),
+                        lastEndpointFailure
+                    );
+                } else {
+                    queryFailure = new IOException(
+                        "egress query deadline exceeded after " + timeoutMillis + "ms: "
+                            + formatFailures(endpoints, failures),
+                        new TimeoutException("egress query deadline exceeded")
+                    );
+                }
+            }
         } catch (InterruptedException error) {
             Thread.currentThread().interrupt();
             queryFailure = new IOException("egress query interrupted", error);
         }
 
-        for (HttpURLConnection connection : activeConnections) {
-            connection.disconnect();
+        // Mark every owner canceled before interrupting its Future. A connection
+        // published after this point observes canceled under the same lock and
+        // disconnects itself instead of escaping both cleanup snapshots.
+        for (Attempt attempt : attempts) {
+            attempt.cancel();
+        }
+        for (Future<String> future : futures) {
+            future.cancel(true);
         }
         executor.shutdownNow();
-        boolean stopped;
-        try {
-            stopped = executor.awaitTermination(WORKER_SHUTDOWN_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException error) {
-            Thread.currentThread().interrupt();
-            stopped = false;
-            if (queryFailure == null) {
-                queryFailure = new IOException("interrupted while stopping egress probe workers", error);
-            } else {
-                queryFailure.addSuppressed(error);
-            }
-        }
-        for (HttpURLConnection connection : activeConnections) {
-            connection.disconnect();
+        boolean stopped = awaitTerminationRestoringInterrupt(
+            executor,
+            workerShutdownTimeoutMillis
+        );
+        for (Attempt attempt : attempts) {
+            attempt.cancel();
         }
         if (!stopped) {
             IOException cleanupFailure = new IOException("egress probe workers did not stop after cancellation");
@@ -153,12 +282,42 @@ final class EgressProbeClient {
         return address;
     }
 
-    private static String queryEndpoint(HttpURLConnection connection) throws Exception {
+    /** Waits through caller interruption, then restores its interrupt status. */
+    private static boolean awaitTerminationRestoringInterrupt(
+        ExecutorService executor,
+        long timeoutMillis
+    ) {
+        long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+        boolean interrupted = false;
+        try {
+            while (true) {
+                long remainingNanos = deadlineNanos - System.nanoTime();
+                if (remainingNanos <= 0) {
+                    return executor.isTerminated();
+                }
+                try {
+                    return executor.awaitTermination(remainingNanos, TimeUnit.NANOSECONDS);
+                } catch (InterruptedException error) {
+                    interrupted = true;
+                }
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private static String queryEndpoint(HttpURLConnection connection, Attempt attempt) throws Exception {
         connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
         connection.setReadTimeout(READ_TIMEOUT_MILLIS);
         connection.setInstanceFollowRedirects(false);
         try {
+            attempt.checkCanceled();
             int statusCode = connection.getResponseCode();
+            // Cancellation may have landed while connecting or reading the
+            // response headers. Never enter the next blocking phase after it.
+            attempt.checkCanceled();
             if (statusCode != HttpURLConnection.HTTP_OK) {
                 throw new IllegalStateException("HTTP " + statusCode);
             }
@@ -166,7 +325,13 @@ final class EgressProbeClient {
             try (InputStream input = connection.getInputStream()) {
                 byte[] buffer = new byte[64];
                 int count;
-                while ((count = input.read(buffer)) != -1) {
+                while (true) {
+                    attempt.checkCanceled();
+                    count = input.read(buffer);
+                    attempt.checkCanceled();
+                    if (count == -1) {
+                        break;
+                    }
                     if (MAX_RESPONSE_BYTES < response.size() + count) {
                         throw new IllegalStateException(
                             "address response exceeds " + MAX_RESPONSE_BYTES + " bytes"
