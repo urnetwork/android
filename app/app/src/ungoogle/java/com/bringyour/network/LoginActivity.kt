@@ -36,6 +36,7 @@ import com.bringyour.sdk.AuthCodeLoginArgs
 import com.bringyour.sdk.AuthLoginArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 
@@ -58,6 +59,10 @@ class LoginActivity : AppCompatActivity() {
     private var defaultLocation: String? = null
     private var startInstantCreate by mutableStateOf(false)
     private var isLoadingAuthCode by mutableStateOf(false)
+
+    // the entrance animation before the main activity opens, for the sign-ins
+    // that complete in this activity rather than on a login screen
+    private var welcomeOverlayVisible by mutableStateOf(false)
     private var walletCreateNetworkParams by mutableStateOf<LoginCreateNetworkParams.LoginCreateWalletParams?>(null)
     private var jwtCreateNetworkParams by mutableStateOf<LoginCreateNetworkParams.LoginCreateAuthJwtParams?>(null)
 
@@ -124,6 +129,7 @@ class LoginActivity : AppCompatActivity() {
                     currentNetworkName = currentNetworkName,
                     startInstantCreate = startInstantCreate,
                     isLoadingAuthCode = isLoadingAuthCode,
+                    welcomeOverlayVisible = welcomeOverlayVisible,
                     referralCode = referralCode,
                     activityResultSender = activityResultSender,
                     walletCreateNetworkParams = walletCreateNetworkParams,
@@ -203,7 +209,7 @@ class LoginActivity : AppCompatActivity() {
                                             Log.i(TAG, "authCodeLogin: local byJwt parse failed")
                                             app.logout()
                                             app.login(loginJwt)
-                                            authClientAndFinish(
+                                            welcomeThenAuthClientAndFinish(
                                                 callback = { error ->
                                                     if (error != null) {
                                                         Log.i(TAG, "authClientAndFinish error: $error")
@@ -218,7 +224,7 @@ class LoginActivity : AppCompatActivity() {
                                 Log.i(TAG, "authCodeLogin: local state missing")
                                 app.logout()
                                 app.login(loginJwt)
-                                authClientAndFinish(
+                                welcomeThenAuthClientAndFinish(
                                     callback = { error ->
                                         if (error != null) {
                                             Log.i(TAG, "authClientAndFinish error: $error")
@@ -232,7 +238,7 @@ class LoginActivity : AppCompatActivity() {
 
                             app.login(loginJwt)
 
-                            authClientAndFinish(
+                            welcomeThenAuthClientAndFinish(
                                 callback = { err ->
                                     if (err != null) {
                                         Log.i(TAG, "authClientAndFinish error: $err")
@@ -357,7 +363,7 @@ class LoginActivity : AppCompatActivity() {
 
                     app.login(result.network.byJwt)
 
-                    authClientAndFinish(
+                    welcomeThenAuthClientAndFinish(
                         callback = { finishError ->
                             if (finishError != null) {
                                 Log.i(TAG, "authClientAndFinish error: $finishError")
@@ -451,7 +457,7 @@ class LoginActivity : AppCompatActivity() {
 
                     app.login(result.network.byJwt)
 
-                    authClientAndFinish(
+                    welcomeThenAuthClientAndFinish(
                         callback = { error ->
                             if (error != null) {
                                 Log.i(TAG, "authClientAndFinish error: $error")
@@ -541,6 +547,27 @@ class LoginActivity : AppCompatActivity() {
         startActivity(intent)
 
         finish()
+    }
+
+    /**
+     * Plays the welcome animation the login screens play, then finishes into
+     * the main activity. For the sign-ins that complete here (an auth code
+     * link, the Apple and bittensor returns) instead of on a screen that has
+     * its own overlay; a failed finish takes the overlay down for the retry.
+     */
+    private fun welcomeThenAuthClientAndFinish(
+        callback: (String?) -> Unit,
+    ) {
+        welcomeOverlayVisible = true
+        lifecycleScope.launch(Dispatchers.Main) {
+            delay(2250)
+            authClientAndFinish { error ->
+                if (error != null) {
+                    welcomeOverlayVisible = false
+                }
+                callback(error)
+            }
+        }
     }
 
     fun authClientAndFinish(

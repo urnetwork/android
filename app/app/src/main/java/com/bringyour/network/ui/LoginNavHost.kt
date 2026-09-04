@@ -1,6 +1,7 @@
 package com.bringyour.network.ui
 
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -15,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
+import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.login.AuthCodeLoadingScreen
 import com.bringyour.network.ui.login.CreateNetworkInstant
 import com.bringyour.network.ui.login.CreateNetworkInstantViewModel
@@ -39,6 +42,8 @@ import com.bringyour.network.ui.login.SwitchAccountScreen
 import com.bringyour.network.ui.login.toWalletCreateBundle
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginNavHost(
@@ -48,6 +53,9 @@ fun LoginNavHost(
     targetJwt: String? = null,
     startInstantCreate: Boolean = false,
     isLoadingAuthCode: Boolean,
+    // the entrance animation for a sign-in that completes in the activity (an
+    // auth code link, the Apple or bittensor return) rather than on a screen
+    welcomeOverlayVisible: Boolean = false,
     referralCode: String?,
     activityResultSender: ActivityResultSender?,
     walletCreateNetworkParams: LoginCreateNetworkParams.LoginCreateWalletParams? = null,
@@ -241,16 +249,37 @@ fun LoginNavHost(
                         val createNetworkInstantViewModel: CreateNetworkInstantViewModel = hiltViewModel()
                         val seedphrase by createNetworkInstantViewModel.seedphrase.collectAsState()
 
+                        val scope = rememberCoroutineScope()
+                        var contentVisible by remember { mutableStateOf(true) }
+                        var welcomeVisible by remember { mutableStateOf(false) }
+
                         // the account exists server side and its jwt is persisted
                         // before the phrase is shown, so there is no way back out of
                         // this screen -- both exits go forward into the app, and a
                         // failed finish leaves the phrase up to retry instead of
-                        // stranding an account whose seedphrase was never seen
+                        // stranding an account whose seedphrase was never seen.
+                        // Entering plays the welcome animation every other sign-in
+                        // plays before the main activity opens on its Enter card
                         val continueIntoApp: () -> Unit = {
-                            loginActivity?.authClientAndFinish { error ->
-                                if (error != null) {
-                                    android.util.Log.e("LoginNavHost", "auth client finish err: $error")
-                                    android.widget.Toast.makeText(context, "Error logging in, please try again.", android.widget.Toast.LENGTH_LONG).show()
+                            if (!welcomeVisible) {
+                                scope.launch {
+                                    contentVisible = false
+                                    delay(500)
+                                    welcomeVisible = true
+                                    delay(2250)
+                                    val activity = loginActivity ?: run {
+                                        welcomeVisible = false
+                                        contentVisible = true
+                                        return@launch
+                                    }
+                                    activity.authClientAndFinish { error ->
+                                        if (error != null) {
+                                            android.util.Log.e("LoginNavHost", "auth client finish err: $error")
+                                            android.widget.Toast.makeText(context, "Error logging in, please try again.", android.widget.Toast.LENGTH_LONG).show()
+                                            welcomeVisible = false
+                                            contentVisible = true
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -265,11 +294,19 @@ fun LoginNavHost(
                                 createNetworkInstantViewModel = createNetworkInstantViewModel
                             )
                         } else {
-                            SeedphraseDisplayScreen(
-                                seedphrase = createdSeedphrase,
-                                onConfirmed = continueIntoApp,
-                                onBack = continueIntoApp
-                            )
+                            AnimatedVisibility(
+                                visible = contentVisible,
+                                exit = fadeOut(),
+                            ) {
+                                SeedphraseDisplayScreen(
+                                    seedphrase = createdSeedphrase,
+                                    onConfirmed = continueIntoApp,
+                                    onBack = continueIntoApp
+                                )
+                            }
+                            if (welcomeVisible) {
+                                WelcomeAnimatedOverlayLogin()
+                            }
                         }
                     }
                 }
@@ -320,6 +357,10 @@ fun LoginNavHost(
                 )
             }
 
+        }
+
+        if (welcomeOverlayVisible) {
+            WelcomeAnimatedOverlayLogin()
         }
 
     }
