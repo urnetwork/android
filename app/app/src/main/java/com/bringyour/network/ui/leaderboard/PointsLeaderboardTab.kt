@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -489,9 +490,13 @@ private fun PointsRow(
             maxLines = 1,
         )
 
-        Row(
+        // identity cell: the emoji tag on its own line above the name, like the
+        // own-stats header, so a long tag never squeezes the name on narrow
+        // screens; rows without a tag show just the name, centered
+        Column(
             modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center,
         ) {
             if (row.emojiTag.isNotEmpty()) {
                 Text(
@@ -499,7 +504,7 @@ private fun PointsRow(
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.height(2.dp))
             }
             Text(
                 text = name,
@@ -507,6 +512,7 @@ private fun PointsRow(
                 fontWeight = if (isNetworkRow) FontWeight.ExtraBold else FontWeight.Normal,
                 color = nameColor,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
