@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,7 +43,11 @@ fun UpgradeScreen(
     onStripePaymentSuccess: () -> Unit,
     isCheckingSolanaTransaction: Boolean
 ) {
-
+    // the store offers load at launch; repeat the query here when that one
+    // failed, so the picker shows the yearly plan Play has for this account
+    LaunchedEffect(Unit) {
+        planViewModel.ensureStoreOffersLoaded()
+    }
 
     Scaffold(
         topBar = {

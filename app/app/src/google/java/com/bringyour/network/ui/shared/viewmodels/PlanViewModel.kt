@@ -29,6 +29,7 @@ import com.bringyour.network.R
 import com.bringyour.network.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -504,71 +505,118 @@ class PlanViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Backoff before each retry of the store offers query. Play answers
+     * SERVICE_UNAVAILABLE (2) for a query it could not complete, which the
+     * billing docs call transient and ask to retry with exponential backoff:
+     * on a device this happens while the app's own tunnel is coming up at
+     * launch (the default network flips under Play's request), and a query
+     * that failed once used to leave the picker without a yearly plan for the
+     * whole session.
+     */
+    private val storeOffersRetryBackoffMs = listOf(0L, 1_000L, 2_000L, 4_000L, 8_000L, 16_000L, 32_000L, 60_000L)
+    private var storeOffersLoaded = false
+    private var storeOffersJob: Job? = null
+
     private val fetchSubscriptionPriceInfo: () -> Unit = {
-        val params = QueryProductDetailsParams.newBuilder()
+        loadStoreOffers()
+    }
 
-        val productList = listOf(
-            QueryProductDetailsParams.Product.newBuilder()
-                .setProductId("supporter")
-                .setProductType(BillingClient.ProductType.SUBS)
-                .build(),
-        )
-
-        params.setProductList(productList)
-
-        viewModelScope.launch {
-
-            val productDetailsResult = billingClient.value?.queryProductDetails(params.build())
-
-            val productDetails = productDetailsResult?.productDetailsList?.find { productDetails: ProductDetails ->
-                productDetails.productId == "supporter"
+    /**
+     * Loads the store offers if they are not loaded yet: the plan picker calls
+     * this when it opens, so a query that failed at launch is repeated when the
+     * user actually looks at the plans. Reconnects the billing client first when
+     * the launch-time connection is gone.
+     */
+    fun ensureStoreOffersLoaded() {
+        if (storeOffersLoaded || storeOffersJob?.isActive == true) {
+            return
+        }
+        val client = _billingClient.value
+        if (client == null || !client.isReady) {
+            createBillingClientConnection {
+                loadStoreOffers()
             }
+        } else {
+            loadStoreOffers()
+        }
+    }
 
-            if (productDetails != null) {
-
-                val offers = productDetails.subscriptionOfferDetails ?: emptyList()
-                // what Play actually returned for this device and account, so a missing
-                // plan can be told apart from a classification bug from a log alone
+    private fun loadStoreOffers() {
+        storeOffersJob?.cancel()
+        storeOffersJob = viewModelScope.launch {
+            val params = QueryProductDetailsParams.newBuilder()
+            val productList = listOf(
+                QueryProductDetailsParams.Product.newBuilder()
+                    .setProductId("supporter")
+                    .setProductType(BillingClient.ProductType.SUBS)
+                    .build(),
+            )
+            params.setProductList(productList)
+            for ((attempt, backoffMs) in storeOffersRetryBackoffMs.withIndex()) {
+                delay(backoffMs)
+                val client = _billingClient.value
+                if (client == null || !client.isReady) {
+                    Log.i("PlanViewModel", "play offers query skipped: billing client not connected")
+                    return@launch
+                }
+                val productDetailsResult = client.queryProductDetails(params.build())
+                val productDetails = productDetailsResult.productDetailsList?.find { productDetails: ProductDetails ->
+                    productDetails.productId == "supporter"
+                }
+                if (productDetails != null) {
+                    applyStoreOffers(productDetails)
+                    storeOffersLoaded = true
+                    return@launch
+                }
+                // what Play answered, so a device log tells a store-side refusal
+                // (response code, e.g. 2 = SERVICE_UNAVAILABLE) from a missing plan
+                val result = productDetailsResult.billingResult
                 Log.i(
                     "PlanViewModel",
-                    "play offers for ${productDetails.productId}: " + offers.joinToString("; ") { offer ->
-                        "${offer.basePlanId}/${offer.offerId ?: "-"} period=${offerPeriodDays(offer)}d phases=" +
-                            offer.pricingPhases.pricingPhaseList.joinToString(",") { "${it.billingPeriod}:${it.formattedPrice}" }
-                    }.ifEmpty { "none" },
+                    "play offers query failed (attempt ${attempt + 1}/${storeOffersRetryBackoffMs.size}): " +
+                        "code=${result.responseCode} ${result.debugMessage}; products=${productDetailsResult.productDetailsList?.size ?: 0}",
                 )
-                val planOffers = offers.toPlanOffers()
-                val monthly = PlanOffers.monthly(planOffers)?.let { offers[it.index] }
-                    ?: offers.firstOrNull()
-                // the yearly offer with the trial when Play returns one; the plain
-                // yearly base plan otherwise (the same choice the purchase makes)
-                val yearly = PlanOffers.yearly(planOffers)?.let { offers[it.index] }
-
-                // the price is the first paid phase: a free trial phase comes first
-                // in the list and reads "Free"
-                formattedMonthlySubscriptionPrice = monthly?.pricingPhases?.pricingPhaseList
-                    ?.firstOrNull { 0L < it.priceAmountMicros }
-                    ?.formattedPrice
-                    ?: "$5.00"
-                formattedYearlySubscriptionPrice = yearly?.pricingPhases?.pricingPhaseList
-                    ?.firstOrNull { 0L < it.priceAmountMicros }
-                    ?.formattedPrice
-
-                // the trial the picker promises is the one Play will actually
-                // grant: the yearly offer's free phase, or none. Before the offers
-                // load the app default stands in; after, 0 means no trial line and
-                // no "Start free trial" button, so a yearly purchase without an
-                // offer is never sold as a trial
-                freeTrialDays = PlanOffers.trialDays(planOffers)
-
-                if (yearly == null) {
-                    // the Play product has no yearly base plan yet: only monthly can be bought
-                    selectedPlan = PlanType.MONTHLY
-                }
-
             }
-
         }
+    }
 
+    private fun applyStoreOffers(productDetails: ProductDetails) {
+        val offers = productDetails.subscriptionOfferDetails ?: emptyList()
+        // what Play actually returned for this device and account, so a missing
+        // plan can be told apart from a classification bug from a log alone
+        Log.i(
+            "PlanViewModel",
+            "play offers for ${productDetails.productId}: " + offers.joinToString("; ") { offer ->
+                "${offer.basePlanId}/${offer.offerId ?: "-"} period=${offerPeriodDays(offer)}d phases=" +
+                    offer.pricingPhases.pricingPhaseList.joinToString(",") { "${it.billingPeriod}:${it.formattedPrice}" }
+            }.ifEmpty { "none" },
+        )
+        val planOffers = offers.toPlanOffers()
+        val monthly = PlanOffers.monthly(planOffers)?.let { offers[it.index] }
+            ?: offers.firstOrNull()
+        // the yearly offer with the trial when Play returns one; the plain
+        // yearly base plan otherwise (the same choice the purchase makes)
+        val yearly = PlanOffers.yearly(planOffers)?.let { offers[it.index] }
+        // the price is the first paid phase: a free trial phase comes first
+        // in the list and reads "Free"
+        formattedMonthlySubscriptionPrice = monthly?.pricingPhases?.pricingPhaseList
+            ?.firstOrNull { 0L < it.priceAmountMicros }
+            ?.formattedPrice
+            ?: "$5.00"
+        formattedYearlySubscriptionPrice = yearly?.pricingPhases?.pricingPhaseList
+            ?.firstOrNull { 0L < it.priceAmountMicros }
+            ?.formattedPrice
+        // the trial the picker promises is the one Play will actually
+        // grant: the yearly offer's free phase, or none. Before the offers
+        // load the app default stands in; after, 0 means no trial line and
+        // no "Start free trial" button, so a yearly purchase without an
+        // offer is never sold as a trial
+        freeTrialDays = PlanOffers.trialDays(planOffers)
+        if (yearly == null) {
+            // the Play product has no yearly base plan yet: only monthly can be bought
+            selectedPlan = PlanType.MONTHLY
+        }
     }
 
     val setInProgress: (Boolean) -> Unit = { ip ->
