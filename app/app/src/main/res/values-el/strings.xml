@@ -312,7 +312,7 @@
     <string name="points">Πόντοι</string>
     <string name="points_leaderboard_description">Πόντοι όλων των εποχών. Ένα μπλοκ είναι μία οριστικοποιημένη εποχή· το σερί μετρά διαδοχικά μπλοκ με πόντους έως το τελευταίο.</string>
     <string name="points_leaderboard_empty">Κανείς δεν είναι ακόμη στον πίνακα πόντων.</string>
-    <string name="points_leaderboard_private_hint">Μόνο εσείς το βλέπετε. Ενεργοποιήστε το για να εμφανιστείτε στον πίνακα.</string>
+    <string name="points_leaderboard_private_hint">Το δίκτυό σας εμφανίζεται ως Ανώνυμο μέχρι να το ενεργοποιήσετε.</string>
     <string name="post_quantum_encryption">Μετακβαντική κρυπτογράφηση</string>
     <string name="post_quantum_encryption_fallback_note">Εφεδρική λειτουργία ενεργή (προσωρινά)</string>
     <string name="post_quantum_identity">Μετακβαντική ταυτότητα</string>
@@ -408,7 +408,7 @@
     <string name="share">Κοινή χρήση</string>
     <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
     <string name="show_icon_when_connected">Εμφάνιση του εικονιδίου UR όταν είστε συνδεδεμένοι</string>
-    <string name="show_on_points_leaderboard">Εμφάνιση στον πίνακα πόντων</string>
+    <string name="show_on_points_leaderboard">Εμφάνιση του ονόματος του δικτύου μου</string>
     <string name="sign_in">Είσοδος</string>
     <string name="sign_in_dgen1">Σύνδεση με dGEN1</string>
     <string name="sign_in_with_seedphrase">Σύνδεση με φράση ανάκτησης</string>

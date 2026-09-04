@@ -312,7 +312,7 @@
     <string name="points">Punkty</string>
     <string name="points_leaderboard_description">Punkty od początku. Blok to jedna sfinalizowana epoka; seria liczy kolejne bloki z punktami aż do ostatniego.</string>
     <string name="points_leaderboard_empty">W rankingu punktów nie ma jeszcze nikogo.</string>
-    <string name="points_leaderboard_private_hint">Widzisz to tylko Ty. Włącz, aby pojawić się w rankingu.</string>
+    <string name="points_leaderboard_private_hint">Twoja sieć jest wyświetlana jako Anonimowy, dopóki tego nie włączysz.</string>
     <string name="post_quantum_encryption">Szyfrowanie postkwantowe</string>
     <string name="post_quantum_encryption_fallback_note">Tryb awaryjny włączony (tymczasowo)</string>
     <string name="post_quantum_identity">Tożsamość postkwantowa</string>
@@ -408,7 +408,7 @@
     <string name="share">Udostępnij</string>
     <string name="share_logs">Udostępnij logi</string>
     <string name="show_icon_when_connected">Pokaż ikonę UR po połączeniu</string>
-    <string name="show_on_points_leaderboard">Pokaż w rankingu punktów</string>
+    <string name="show_on_points_leaderboard">Pokaż nazwę mojej sieci</string>
     <string name="sign_in">Zaloguj się</string>
     <string name="sign_in_dgen1">Zaloguj się za pomocą dGEN1</string>
     <string name="sign_in_with_seedphrase">Zaloguj się frazą seed</string>

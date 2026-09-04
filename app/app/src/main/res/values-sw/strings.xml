@@ -312,7 +312,7 @@
     <string name="points">Pointi</string>
     <string name="points_leaderboard_description">Pointi za wakati wote. Kitalu ni kipindi kimoja kilichokamilika; mfululizo huhesabu vitalu mfululizo vyenye pointi hadi cha mwisho.</string>
     <string name="points_leaderboard_empty">Bado hakuna mtu kwenye ubao wa pointi.</string>
-    <string name="points_leaderboard_private_hint">Ni wewe tu unaona hii. Washa ili uonekane kwenye ubao.</string>
+    <string name="points_leaderboard_private_hint">Mtandao wako unaonekana kama Bila jina hadi uwashe hii.</string>
     <string name="post_quantum_encryption">Usimbaji fiche wa baada ya kwantamu</string>
     <string name="post_quantum_encryption_fallback_note">Mbadala umewashwa (kwa muda)</string>
     <string name="post_quantum_identity">Utambulisho wa baada ya kwantamu</string>
@@ -408,7 +408,7 @@
     <string name="share">Shiriki</string>
     <string name="share_logs">Shiriki logi</string>
     <string name="show_icon_when_connected">Onyesha ikoni ya UR wakati umeunganishwa</string>
-    <string name="show_on_points_leaderboard">Onyesha kwenye ubao wa pointi</string>
+    <string name="show_on_points_leaderboard">Onyesha jina la mtandao wangu</string>
     <string name="sign_in">Ingia</string>
     <string name="sign_in_dgen1">Ingia kwa dGEN1</string>
     <string name="sign_in_with_seedphrase">Ingia kwa kifungu cha seed</string>

@@ -312,7 +312,7 @@
     <string name="points">Body</string>
     <string name="points_leaderboard_description">Body za celou dobu. Blok je jedna dokončená epocha; série počítá po sobě jdoucí bloky s body končící tím posledním.</string>
     <string name="points_leaderboard_empty">V žebříčku bodů zatím nikdo není.</string>
-    <string name="points_leaderboard_private_hint">Vidíte to jen vy. Zapněte, abyste se objevili v žebříčku.</string>
+    <string name="points_leaderboard_private_hint">Vaše síť se zobrazuje jako Anonymní, dokud to nezapnete.</string>
     <string name="post_quantum_encryption">Postkvantové šifrování</string>
     <string name="post_quantum_encryption_fallback_note">Záložní režim zapnut (dočasně)</string>
     <string name="post_quantum_identity">Postkvantová identita</string>
@@ -408,7 +408,7 @@
     <string name="share">Sdílet</string>
     <string name="share_logs">Sdílet protokoly</string>
     <string name="show_icon_when_connected">Zobrazit ikonu UR po připojení</string>
-    <string name="show_on_points_leaderboard">Zobrazit v žebříčku bodů</string>
+    <string name="show_on_points_leaderboard">Zobrazit název mé sítě</string>
     <string name="sign_in">Přihlásit se</string>
     <string name="sign_in_dgen1">Přihlásit se pomocí dGEN1</string>
     <string name="sign_in_with_seedphrase">Přihlásit se pomocí seed fráze</string>

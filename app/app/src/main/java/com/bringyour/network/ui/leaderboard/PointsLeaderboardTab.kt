@@ -82,6 +82,10 @@ fun PointsLeaderboardTab(
     var emojiSaveError by remember { mutableStateOf<String?>(null) }
 
     val ownNetworkId = viewModel.me?.row?.networkId
+    // the caller always sees their own name: the me row's, or the jwt's until
+    // me lands; the own list row shows it too when it is anonymous to others
+    val jwtNetworkName by viewModel.ownNetworkName.collectAsState()
+    val ownName = viewModel.me?.row?.displayName?.takeIf { it.isNotEmpty() } ?: jwtNetworkName
 
     // the pull indicator follows the controller's loading flag only for a
     // refresh the user asked for; page loads show in the footer instead
@@ -169,6 +173,7 @@ fun PointsLeaderboardTab(
             item(key = "points-header") {
                 PointsHeader(
                     viewModel = viewModel,
+                    ownName = ownName,
                     onEditEmoji = {
                         emojiSaveError = null
                         showEmojiSheet = true
@@ -193,6 +198,7 @@ fun PointsLeaderboardTab(
                         row = row,
                         sort = viewModel.sort,
                         isNetworkRow = ownNetworkId != null && ownNetworkId == row.networkId,
+                        ownName = ownName,
                     )
                 }
             }
@@ -216,12 +222,12 @@ private const val POINTS_LIST_ROWS_OFFSET = 2
 @Composable
 private fun PointsHeader(
     viewModel: PointsLeaderboardViewModel,
+    ownName: String,
     onEditEmoji: () -> Unit,
 ) {
     val me = viewModel.me
     val ownRow = me?.row
     val emojiTag = viewModel.emojiTag
-    val ownName = ownRow?.displayName?.takeIf { it.isNotEmpty() }
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -236,8 +242,9 @@ private fun PointsHeader(
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
 
-                // identity line: the emoji tag, the network's own name, the
-                // pencil that opens the editor
+                // identity line: the emoji tag, a clear gap, the network's own
+                // name, the pencil that opens the editor; the ranked count sits
+                // on its own line below, left-aligned under the emoji
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -248,28 +255,17 @@ private fun PointsHeader(
                             fontSize = 28.sp,
                             maxLines = 1,
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                     }
 
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            ownName ?: "-",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            maxLines = 1,
-                        )
-                        if (viewModel.totalRanked > 0) {
-                            Text(
-                                stringResource(
-                                    id = R.string.ranked_networks_count,
-                                    Sdk.formatPoints(viewModel.totalRanked.toDouble())
-                                ),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = TextMuted
-                            )
-                        }
-                    }
+                    Text(
+                        ownName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f)
+                    )
 
                     IconButton(onClick = onEditEmoji) {
                         Icon(
@@ -280,6 +276,17 @@ private fun PointsHeader(
                             tint = TextMuted
                         )
                     }
+                }
+                if (viewModel.totalRanked > 0) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        stringResource(
+                            id = R.string.ranked_networks_count,
+                            Sdk.formatPoints(viewModel.totalRanked.toDouble())
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -445,16 +452,20 @@ private fun PointsRow(
     row: PointsLeaderboardRowUi,
     sort: String,
     isNetworkRow: Boolean,
+    ownName: String = "",
 ) {
     val rank = when (sort) {
         Sdk.PointsLeaderboardSortBlocks -> row.rankBlocksText
         Sdk.PointsLeaderboardSortStreak -> row.rankStreakText
         else -> row.rankPointsText
     }
-    val name = if (row.anonymous || row.displayName.isEmpty())
-        stringResource(id = R.string.anonymous)
-    else
+    // an anonymous row reads "Anonymous" to everyone but its owner, who sees
+    // their own name (the highlight keys on the network id, never the name)
+    val name = if (row.anonymous || row.displayName.isEmpty()) {
+        if (isNetworkRow && ownName.isNotEmpty()) ownName else stringResource(id = R.string.anonymous)
+    } else {
         row.displayName
+    }
 
     val nameColor = when {
         isNetworkRow -> Green500

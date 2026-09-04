@@ -312,7 +312,7 @@
     <string name="points">النقاط</string>
     <string name="points_leaderboard_description">النقاط منذ البداية. الكتلة هي فترة مكتملة واحدة؛ وتحسب السلسلة الكتل المتتالية ذات النقاط حتى آخر كتلة.</string>
     <string name="points_leaderboard_empty">لا أحد في لوحة صدارة النقاط بعد.</string>
-    <string name="points_leaderboard_private_hint">أنت وحدك من يرى هذا. فعّل الخيار للظهور في لوحة الصدارة.</string>
+    <string name="points_leaderboard_private_hint">تظهر شبكتك باسم «مجهول» حتى تفعّل هذا الخيار.</string>
     <string name="post_quantum_encryption">التشفير ما بعد الكمومي</string>
     <string name="post_quantum_encryption_fallback_note">الرجوع الاحتياطي مفعّل (مؤقتًا)</string>
     <string name="post_quantum_identity">الهوية ما بعد الكمومية</string>
@@ -411,7 +411,7 @@
     <string name="share">شارك</string>
     <string name="share_logs">مشاركة السجلات</string>
     <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
-    <string name="show_on_points_leaderboard">العرض في لوحة صدارة النقاط</string>
+    <string name="show_on_points_leaderboard">إظهار اسم شبكتي</string>
     <string name="sign_in">تسجيل الدخول</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
     <string name="sign_in_with_seedphrase">تسجيل الدخول بعبارة الاسترداد</string>

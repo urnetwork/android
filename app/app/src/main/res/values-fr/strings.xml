@@ -312,7 +312,7 @@
     <string name="points">Points</string>
     <string name="points_leaderboard_description">Points cumulés. Un bloc est une époque finalisée ; la série compte les blocs consécutifs avec des points jusqu\'au dernier.</string>
     <string name="points_leaderboard_empty">Personne n\'est encore dans le classement des points.</string>
-    <string name="points_leaderboard_private_hint">Vous seul voyez ceci. Activez-le pour apparaître dans le classement.</string>
+    <string name="points_leaderboard_private_hint">Votre réseau apparaît comme Anonyme tant que cette option est désactivée.</string>
     <string name="post_quantum_encryption">Chiffrement post-quantique</string>
     <string name="post_quantum_encryption_fallback_note">Secours activé (temporaire)</string>
     <string name="post_quantum_identity">Identité post-quantique</string>
@@ -408,7 +408,7 @@
     <string name="share">Partage</string>
     <string name="share_logs">Partager les journaux</string>
     <string name="show_icon_when_connected">Afficher l’icône UR lors de la connexion</string>
-    <string name="show_on_points_leaderboard">Afficher dans le classement des points</string>
+    <string name="show_on_points_leaderboard">Afficher le nom de mon réseau</string>
     <string name="sign_in">Se connecter</string>
     <string name="sign_in_dgen1">Se connecter avec dGEN1</string>
     <string name="sign_in_with_seedphrase">Se connecter avec la phrase de récupération</string>

@@ -312,7 +312,7 @@
     <string name="points">Puntos</string>
     <string name="points_leaderboard_description">Puntos históricos. Un bloque es una época finalizada; la racha cuenta bloques consecutivos con puntos hasta el último.</string>
     <string name="points_leaderboard_empty">Todavía no hay nadie en la clasificación de puntos.</string>
-    <string name="points_leaderboard_private_hint">Solo tú puedes ver esto. Actívalo para aparecer en la clasificación.</string>
+    <string name="points_leaderboard_private_hint">Tu red aparece como Anónimo hasta que actives esta opción.</string>
     <string name="post_quantum_encryption">Cifrado poscuántico</string>
     <string name="post_quantum_encryption_fallback_note">Reserva activada (temporal)</string>
     <string name="post_quantum_identity">Identidad poscuántica</string>
@@ -411,7 +411,7 @@
     <string name="share">Comparte</string>
     <string name="share_logs">Compartir registros</string>
     <string name="show_icon_when_connected">Mostrar el ícono UR cuando esté conectado</string>
-    <string name="show_on_points_leaderboard">Mostrar en la clasificación de puntos</string>
+    <string name="show_on_points_leaderboard">Mostrar el nombre de mi red</string>
     <string name="sign_in">Iniciar sesión</string>
     <string name="sign_in_dgen1">Iniciar sesión con dGEN1</string>
     <string name="sign_in_with_seedphrase">Iniciar sesión con la frase semilla</string>

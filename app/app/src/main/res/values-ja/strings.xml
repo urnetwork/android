@@ -312,7 +312,7 @@
     <string name="points">ポイント</string>
     <string name="points_leaderboard_description">累計ポイント。ブロックは確定した1エポック。連続は最新ブロックまでポイントを獲得した連続ブロック数です。</string>
     <string name="points_leaderboard_empty">ポイントリーダーボードにはまだ誰もいません。</string>
-    <string name="points_leaderboard_private_hint">これはあなただけに表示されます。オンにするとリーダーボードに表示されます。</string>
+    <string name="points_leaderboard_private_hint">オンにするまで、あなたのネットワークは匿名として表示されます。</string>
     <string name="post_quantum_encryption">ポスト量子暗号</string>
     <string name="post_quantum_encryption_fallback_note">フォールバック有効（一時的）</string>
     <string name="post_quantum_identity">ポスト量子ID</string>
@@ -408,7 +408,7 @@
     <string name="share">共有</string>
     <string name="share_logs">ログを共有</string>
     <string name="show_icon_when_connected">接続時にURアイコンを表示</string>
-    <string name="show_on_points_leaderboard">ポイントリーダーボードに表示</string>
+    <string name="show_on_points_leaderboard">ネットワーク名を表示</string>
     <string name="sign_in">サインイン</string>
     <string name="sign_in_dgen1">dGEN1でサインイン</string>
     <string name="sign_in_with_seedphrase">シードフレーズでサインイン</string>

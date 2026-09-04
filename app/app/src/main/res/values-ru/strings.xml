@@ -312,7 +312,7 @@
     <string name="points">Очки</string>
     <string name="points_leaderboard_description">Очки за всё время. Блок — одна завершённая эпоха; серия считает подряд идущие блоки с очками до последнего.</string>
     <string name="points_leaderboard_empty">В таблице лидеров по очкам пока никого нет.</string>
-    <string name="points_leaderboard_private_hint">Это видите только вы. Включите, чтобы появиться в таблице лидеров.</string>
+    <string name="points_leaderboard_private_hint">Ваша сеть отображается как Анонимно, пока вы не включите это.</string>
     <string name="post_quantum_encryption">Постквантовое шифрование</string>
     <string name="post_quantum_encryption_fallback_note">Резервный режим включён (временно)</string>
     <string name="post_quantum_identity">Постквантовая идентификация</string>
@@ -411,7 +411,7 @@
     <string name="share">Поделиться</string>
     <string name="share_logs">Поделиться логами</string>
     <string name="show_icon_when_connected">Показывать значок UR при подключении</string>
-    <string name="show_on_points_leaderboard">Показывать в таблице лидеров по очкам</string>
+    <string name="show_on_points_leaderboard">Показывать название моей сети</string>
     <string name="sign_in">Войти</string>
     <string name="sign_in_dgen1">Войти с помощью dGEN1</string>
     <string name="sign_in_with_seedphrase">Войти по сид-фразе</string>

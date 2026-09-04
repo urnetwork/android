@@ -312,7 +312,7 @@
     <string name="points">คะแนน</string>
     <string name="points_leaderboard_description">คะแนนสะสมทั้งหมด บล็อกคือหนึ่งอีพอคที่สรุปแล้ว ต่อเนื่องนับบล็อกที่มีคะแนนติดต่อกันจนถึงบล็อกล่าสุด</string>
     <string name="points_leaderboard_empty">ยังไม่มีใครบนกระดานคะแนน</string>
-    <string name="points_leaderboard_private_hint">มีเพียงคุณที่เห็นสิ่งนี้ เปิดเพื่อแสดงบนกระดาน</string>
+    <string name="points_leaderboard_private_hint">เครือข่ายของคุณจะแสดงเป็นไม่ระบุชื่อจนกว่าคุณจะเปิดตัวเลือกนี้</string>
     <string name="post_quantum_encryption">การเข้ารหัสแบบโพสต์ควอนตัม</string>
     <string name="post_quantum_encryption_fallback_note">เปิดใช้โหมดสำรอง (ชั่วคราว)</string>
     <string name="post_quantum_identity">ข้อมูลระบุตัวตนแบบโพสต์ควอนตัม</string>
@@ -408,7 +408,7 @@
     <string name="share">แชร์</string>
     <string name="share_logs">แชร์ไฟล์บันทึก</string>
     <string name="show_icon_when_connected">แสดงไอคอน UR เมื่อเชื่อมต่อ</string>
-    <string name="show_on_points_leaderboard">แสดงบนกระดานคะแนน</string>
+    <string name="show_on_points_leaderboard">แสดงชื่อเครือข่ายของฉัน</string>
     <string name="sign_in">ลงชื่อเข้าใช้</string>
     <string name="sign_in_dgen1">ลงชื่อเข้าใช้ด้วย dGEN1</string>
     <string name="sign_in_with_seedphrase">ลงชื่อเข้าใช้ด้วยวลีกู้คืน</string>

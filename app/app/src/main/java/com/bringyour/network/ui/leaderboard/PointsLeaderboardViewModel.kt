@@ -20,6 +20,9 @@ import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -64,6 +67,15 @@ class PointsLeaderboardViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _rows = MutableStateFlow<List<PointsLeaderboardRowUi>>(emptyList())
+
+    /**
+     * The network's own name from the jwt: what the header shows until `me`
+     * lands, and what the own row shows when it is anonymous to everyone else
+     * (the caller always sees their own name).
+     */
+    val ownNetworkName: StateFlow<String> = deviceManager.jwtFlow
+        .map { it?.networkName ?: "" }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, deviceManager.jwtFlow.value?.networkName ?: "")
     val rows: StateFlow<List<PointsLeaderboardRowUi>> = _rows.asStateFlow()
 
     var sort by mutableStateOf(Sdk.PointsLeaderboardSortPoints)

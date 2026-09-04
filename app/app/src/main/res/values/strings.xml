@@ -529,7 +529,7 @@
     <string name="points_earned">Points earned</string>
     <string name="points_leaderboard_description">All-time points. A block is one finalized epoch; the streak counts consecutive blocks with points, ending at the latest one.</string>
     <string name="points_leaderboard_empty">No one is on the points leaderboard yet.</string>
-    <string name="points_leaderboard_private_hint">Only you can see this. Turn it on to appear on the leaderboard.</string>
+    <string name="points_leaderboard_private_hint">Your network appears as Anonymous until you turn this on.</string>
     <string name="points_short">%1$s pts</string>
     <string name="post_quantum_encryption">Post Quantum Encryption</string>
     <string name="post_quantum_encryption_fallback_note">Fallback enabled (temporary)</string>
@@ -649,7 +649,7 @@
     <string name="shortcut_disconnect_long">Disconnect from URnetwork</string>
     <string name="show_icon_when_connected">Show UR icon when connected</string>
     <string name="show_kill_switch_exception">Show kill switch exception</string>
-    <string name="show_on_points_leaderboard">Show on the points leaderboard</string>
+    <string name="show_on_points_leaderboard">Show my network name</string>
     <string name="sign_in">Sign in</string>
     <string name="sign_in_dgen1">Sign in with dGEN1</string>
     <string name="sign_in_with_apple">Sign in with Apple</string>

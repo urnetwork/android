@@ -312,7 +312,7 @@
     <string name="points">포인트</string>
     <string name="points_leaderboard_description">누적 포인트입니다. 블록은 확정된 에포크 하나이며, 연속은 최신 블록까지 포인트를 얻은 연속 블록 수입니다.</string>
     <string name="points_leaderboard_empty">아직 포인트 리더보드에 아무도 없습니다.</string>
-    <string name="points_leaderboard_private_hint">나만 볼 수 있습니다. 켜면 리더보드에 표시됩니다.</string>
+    <string name="points_leaderboard_private_hint">이 옵션을 켜기 전까지 내 네트워크는 익명으로 표시됩니다.</string>
     <string name="post_quantum_encryption">포스트 양자 암호화</string>
     <string name="post_quantum_encryption_fallback_note">폴백 사용 중 (임시)</string>
     <string name="post_quantum_identity">포스트 양자 신원</string>
@@ -408,7 +408,7 @@
     <string name="share">공유</string>
     <string name="share_logs">로그 공유</string>
     <string name="show_icon_when_connected">연결 시 UR 아이콘 표시</string>
-    <string name="show_on_points_leaderboard">포인트 리더보드에 표시</string>
+    <string name="show_on_points_leaderboard">내 네트워크 이름 표시</string>
     <string name="sign_in">로그인</string>
     <string name="sign_in_dgen1">dGEN1로 로그인</string>
     <string name="sign_in_with_seedphrase">시드 문구로 로그인</string>

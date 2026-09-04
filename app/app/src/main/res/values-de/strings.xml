@@ -312,7 +312,7 @@
     <string name="points">Punkte</string>
     <string name="points_leaderboard_description">Punkte seit Beginn. Ein Block ist eine abgeschlossene Epoche; die Serie zählt aufeinanderfolgende Blöcke mit Punkten bis zum letzten.</string>
     <string name="points_leaderboard_empty">Noch niemand ist in der Punkte-Bestenliste.</string>
-    <string name="points_leaderboard_private_hint">Nur du siehst das. Schalte es ein, um in der Bestenliste zu erscheinen.</string>
+    <string name="points_leaderboard_private_hint">Dein Netzwerk erscheint als Anonym, bis du das einschaltest.</string>
     <string name="post_quantum_encryption">Post-Quanten-Verschlüsselung</string>
     <string name="post_quantum_encryption_fallback_note">Fallback aktiv (vorübergehend)</string>
     <string name="post_quantum_identity">Post-Quanten-Identität</string>
@@ -411,7 +411,7 @@
     <string name="share">Teile</string>
     <string name="share_logs">Protokolle teilen</string>
     <string name="show_icon_when_connected">UR-Symbol bei Verbindung anzeigen</string>
-    <string name="show_on_points_leaderboard">In der Punkte-Bestenliste anzeigen</string>
+    <string name="show_on_points_leaderboard">Meinen Netzwerknamen anzeigen</string>
     <string name="sign_in">Anmelden</string>
     <string name="sign_in_dgen1">Mit dGEN1 anmelden</string>
     <string name="sign_in_with_seedphrase">Mit Seedphrase anmelden</string>

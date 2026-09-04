@@ -312,7 +312,7 @@
     <string name="points">积分</string>
     <string name="points_leaderboard_description">历史累计积分。一个区块是一个已确认的周期；连续统计直到最新区块的连续得分区块数。</string>
     <string name="points_leaderboard_empty">积分排行榜上还没有人。</string>
-    <string name="points_leaderboard_private_hint">只有你能看到。开启后即可出现在排行榜上。</string>
+    <string name="points_leaderboard_private_hint">在你开启此项之前，你的网络显示为匿名。</string>
     <string name="post_quantum_encryption">后量子加密</string>
     <string name="post_quantum_encryption_fallback_note">已启用回退（临时）</string>
     <string name="post_quantum_identity">后量子身份</string>
@@ -411,7 +411,7 @@
     <string name="share">分享</string>
     <string name="share_logs">分享日志</string>
     <string name="show_icon_when_connected">连接时显示 UR 图标</string>
-    <string name="show_on_points_leaderboard">在积分排行榜上显示</string>
+    <string name="show_on_points_leaderboard">显示我的网络名称</string>
     <string name="sign_in">登录</string>
     <string name="sign_in_dgen1">使用 dGEN1 登录</string>
     <string name="sign_in_with_seedphrase">使用助记词登录</string>

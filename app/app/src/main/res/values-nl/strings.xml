@@ -312,7 +312,7 @@
     <string name="points">Punten</string>
     <string name="points_leaderboard_description">Punten aller tijden. Een blok is één afgeronde epoch; de reeks telt opeenvolgende blokken met punten tot het laatste.</string>
     <string name="points_leaderboard_empty">Er staat nog niemand op het puntenscorebord.</string>
-    <string name="points_leaderboard_private_hint">Alleen jij ziet dit. Zet het aan om op het scorebord te verschijnen.</string>
+    <string name="points_leaderboard_private_hint">Je netwerk wordt als Anoniem getoond totdat je dit aanzet.</string>
     <string name="post_quantum_encryption">Post-quantumversleuteling</string>
     <string name="post_quantum_encryption_fallback_note">Fallback ingeschakeld (tijdelijk)</string>
     <string name="post_quantum_identity">Post-quantumidentiteit</string>
@@ -408,7 +408,7 @@
     <string name="share">Delen</string>
     <string name="share_logs">Logs delen</string>
     <string name="show_icon_when_connected">Toon UR-pictogram bij verbinding</string>
-    <string name="show_on_points_leaderboard">Toon op het puntenscorebord</string>
+    <string name="show_on_points_leaderboard">Mijn netwerknaam tonen</string>
     <string name="sign_in">Log in</string>
     <string name="sign_in_dgen1">Inloggen met dGEN1</string>
     <string name="sign_in_with_seedphrase">Inloggen met seedphrase</string>

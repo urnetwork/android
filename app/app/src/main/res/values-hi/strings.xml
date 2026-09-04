@@ -312,7 +312,7 @@
     <string name="points">पॉइंट</string>
     <string name="points_leaderboard_description">अब तक के कुल पॉइंट। एक ब्लॉक एक पूर्ण एपोक है; स्ट्रीक पॉइंट वाले लगातार ब्लॉक गिनती है, जो नवीनतम पर समाप्त होती है।</string>
     <string name="points_leaderboard_empty">पॉइंट लीडरबोर्ड पर अभी कोई नहीं है।</string>
-    <string name="points_leaderboard_private_hint">यह सिर्फ आप देख सकते हैं। लीडरबोर्ड पर दिखने के लिए इसे चालू करें।</string>
+    <string name="points_leaderboard_private_hint">जब तक आप इसे चालू नहीं करते, आपका नेटवर्क अनाम के रूप में दिखता है।</string>
     <string name="post_quantum_encryption">पोस्ट-क्वांटम एन्क्रिप्शन</string>
     <string name="post_quantum_encryption_fallback_note">फ़ॉलबैक चालू (अस्थायी)</string>
     <string name="post_quantum_identity">पोस्ट-क्वांटम पहचान</string>
@@ -408,7 +408,7 @@
     <string name="share">शेयर करें</string>
     <string name="share_logs">लॉग साझा करें</string>
     <string name="show_icon_when_connected">कनेक्ट होने पर UR आइकन दिखाएँ</string>
-    <string name="show_on_points_leaderboard">पॉइंट लीडरबोर्ड पर दिखाएँ</string>
+    <string name="show_on_points_leaderboard">मेरे नेटवर्क का नाम दिखाएँ</string>
     <string name="sign_in">साइन इन करें</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
     <string name="sign_in_with_seedphrase">सीड फ़्रेज़ से साइन इन करें</string>

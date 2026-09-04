@@ -312,7 +312,7 @@
     <string name="points">Pontos</string>
     <string name="points_leaderboard_description">Pontos de sempre. Um bloco é uma época finalizada; a sequência conta blocos consecutivos com pontos até ao último.</string>
     <string name="points_leaderboard_empty">Ainda ninguém está na tabela de pontos.</string>
-    <string name="points_leaderboard_private_hint">Só você vê isto. Ative para aparecer na tabela.</string>
+    <string name="points_leaderboard_private_hint">A sua rede aparece como Anónimo até ativar esta opção.</string>
     <string name="post_quantum_encryption">Encriptação pós-quântica</string>
     <string name="post_quantum_encryption_fallback_note">Fallback ativado (temporário)</string>
     <string name="post_quantum_identity">Identidade pós-quântica</string>
@@ -408,7 +408,7 @@
     <string name="share">Compartilhe</string>
     <string name="share_logs">Partilhar logs</string>
     <string name="show_icon_when_connected">Mostrar o ícone UR quando conectado</string>
-    <string name="show_on_points_leaderboard">Mostrar na tabela de pontos</string>
+    <string name="show_on_points_leaderboard">Mostrar o nome da minha rede</string>
     <string name="sign_in">Iniciar sessão</string>
     <string name="sign_in_dgen1">Iniciar sessão com dGEN1</string>
     <string name="sign_in_with_seedphrase">Iniciar sessão com a frase-semente</string>

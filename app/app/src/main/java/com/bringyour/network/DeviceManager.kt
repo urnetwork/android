@@ -37,6 +37,10 @@ class DeviceManager @Inject constructor(
         private set
 
     private var jwtRefreshSub: Sub? = null
+
+    /** The signed-in jwt as it changes (network id and name); null when signed out. */
+    val jwtFlow: kotlinx.coroutines.flow.StateFlow<com.bringyour.sdk.ByJwt?>
+        get() = jwtManager.jwtFlow
     private var authLogoutSub: Sub? = null
     private var provideSecretKeysSub: Sub? = null
     private val localStateChangeSubs = mutableListOf<Sub>()
