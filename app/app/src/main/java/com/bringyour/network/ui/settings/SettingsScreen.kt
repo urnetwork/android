@@ -943,39 +943,6 @@ private fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            /**
-             * Quick connect surfaces: the Quick Settings tile and the Home Screen
-             * widgets live on their own screen (Account > Widgets), the same
-             * content as the last onboarding page; this row just opens it.
-             */
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { navController.navigate(Route.Widgets) }
-                    .padding(vertical = 6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        stringResource(id = R.string.widgets),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        stringResource(id = R.string.settings_add_widgets_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted,
-                    )
-                }
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = TextMuted
-                )
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
