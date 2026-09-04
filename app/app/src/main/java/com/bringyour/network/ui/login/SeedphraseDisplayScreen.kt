@@ -51,6 +51,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.size
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
@@ -210,9 +215,20 @@ fun SeedphraseDisplayScreen(
                         clipboard.setPrimaryClip(clip)
                         Toast.makeText(context, "Seedphrase copied to clipboard", Toast.LENGTH_SHORT).show()
                     },
-                    modifier = Modifier.testTag("acceptance.instant.copy")
+                    // secondary action: the one primary button on this screen is the
+                    // confirmation below
+                    style = ButtonStyle.OUTLINE,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("acceptance.instant.copy")
                 ) { buttonTextStyle ->
-                    Text("Copy to Clipboard", style = buttonTextStyle)
+                    Icon(
+                        painter = painterResource(id = R.drawable.content_copy),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(id = R.string.copy), style = buttonTextStyle)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
