@@ -11,6 +11,77 @@ fail() {
   exit 1
 }
 
+fleet_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-fleet.test.XXXXXX")"
+fleet_raw="$fleet_dir/adb-devices.raw"
+fleet_selected="$fleet_dir/selected"
+fleet_excluded="$fleet_dir/excluded"
+printf '%s\n' \
+  '* daemon not running; starting now at tcp:5037' \
+  '* daemon started successfully' \
+  'List of devices attached' \
+  $'R5CX21FY6ND\toffline product:e3q model:SM_S928U device:e3q' \
+  $'emulator-5554\tdevice product:sdk model:Pixel_7 device:emu transport_id:2' \
+  $'3B161FDJG001KT\tdevice product:husky model:Pixel_8_Pro device:husky' \
+  $'partner-serial\tdevice product:partner model:Partner_Device device:partner' \
+  >"$fleet_raw"
+android_acceptance_select_adb_devices \
+  "$fleet_raw" "$fleet_selected" "$fleet_excluded" \
+  3B161FDJG001KT R5CX21FY6ND || fail "valid attached fleet was rejected"
+[ "$(cat "$fleet_selected")" = "emulator-5554
+partner-serial" ] || fail "eligible devices were not selected and sorted exactly"
+expected_excluded=$'3B161FDJG001KT\tdevice\treserved-for-performance\nR5CX21FY6ND\toffline\treserved-for-performance'
+[ "$(cat "$fleet_excluded")" = "$expected_excluded" ] || \
+  fail "reserved performance devices were not excluded exactly"
+
+fleet_records="$fleet_dir/records"
+fleet_plan="$fleet_dir/plan"
+fleet_results="$fleet_dir/results"
+android_acceptance_write_device_records "$fleet_selected" "$fleet_records" || \
+  fail "could not create device records"
+[ "$(cat "$fleet_records")" = $'device-001-emulator-5554\temulator-5554\ndevice-002-partner-serial\tpartner-serial' ] || \
+  fail "device artifact ids were not deterministic"
+android_acceptance_write_device_flavor_plan \
+  "$fleet_records" "$fleet_plan" github play solana_dapp ethos_dapp fdroid || \
+  fail "could not create fleet plan"
+[ "$(wc -l <"$fleet_plan" | tr -d ' ')" = 10 ] || \
+  fail "device/flavor plan did not contain the full Cartesian product"
+[ "$(sort -u "$fleet_plan" | wc -l | tr -d ' ')" = 10 ] || \
+  fail "device/flavor plan contains a duplicate"
+while IFS=$'\t' read -r device_id device_serial flavor; do
+  for result_case in email phone instant password data-plane peer-to-peer; do
+    printf '%s\t%s\t%s\t%s\tPASS\tcovered\n' \
+      "$device_id" "$device_serial" "$flavor" "$result_case" >>"$fleet_results"
+  done
+done <"$fleet_plan"
+android_acceptance_verify_device_flavor_results "$fleet_plan" "$fleet_results" || \
+  fail "complete passing device/flavor results were rejected"
+sed '$d' "$fleet_results" >"$fleet_dir/incomplete-results"
+if android_acceptance_verify_device_flavor_results "$fleet_plan" "$fleet_dir/incomplete-results"; then
+  fail "an incomplete device/flavor result matrix was accepted"
+fi
+cp "$fleet_results" "$fleet_dir/failed-results"
+sed -i.acceptance '1s/\tPASS\t/\tFAIL\t/' "$fleet_dir/failed-results"
+rm -f "$fleet_dir/failed-results.acceptance"
+if android_acceptance_verify_device_flavor_results "$fleet_plan" "$fleet_dir/failed-results"; then
+  fail "a failing device/flavor result cell was accepted"
+fi
+
+printf '%s\n' 'List of devices attached' $'unreserved\tunauthorized usb:1-1' >"$fleet_raw"
+if android_acceptance_select_adb_devices \
+    "$fleet_raw" "$fleet_selected" "$fleet_excluded" \
+    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+  fail "an unavailable non-reserved attached device was silently skipped"
+fi
+printf '%s\n' 'List of devices attached' $'same\tdevice' $'same\tdevice' >"$fleet_raw"
+if android_acceptance_select_adb_devices \
+    "$fleet_raw" "$fleet_selected" "$fleet_excluded" \
+    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+  fail "duplicate attached device serials were accepted"
+fi
+grep -Fq 'reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)' "$here/test-main.sh" || \
+  fail "the two performance devices are not mandatory runner exclusions"
+rm -rf "$fleet_dir"
+
 foreground_timeout_seen=0
 fake_foreground_timeout() {
   [ "$1" = --foreground ] || fail "timeout child was not kept in the foreground process group"

@@ -108,6 +108,161 @@ android_acceptance_adb_device_ready() {
   [ "$(printf '%s' "$state" | tr -d '\r\n')" = device ]
 }
 
+# Resolve one immutable acceptance fleet from `adb devices -l`. Reserved
+# performance devices are recorded but never selected, even if they are the
+# only attached hardware. Every other visible adb target must be fully
+# authorized and online: silently dropping an offline/unauthorized device
+# would let a fleet run claim coverage it never exercised.
+android_acceptance_select_adb_devices() {
+  local raw_file="$1" selected_file="$2" excluded_file="$3"
+  shift 3
+  local selected_tmp="${selected_file}.tmp.$$"
+  local excluded_tmp="${excluded_file}.tmp.$$"
+  local line serial state reserved candidate
+
+  : >"$selected_tmp" || return 1
+  : >"$excluded_tmp" || { rm -f "$selected_tmp"; return 1; }
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"
+    case "$line" in
+      ""|"List of devices attached"|\**daemon*) continue ;;
+    esac
+    read -r serial state _ <<<"$line"
+    if [ -z "${serial:-}" ] || [ -z "${state:-}" ]; then
+      echo "malformed adb device row: $line" >&2
+      rm -f "$selected_tmp" "$excluded_tmp"
+      return 1
+    fi
+    case "$serial" in
+      *[[:space:]]*)
+        echo "invalid adb device serial" >&2
+        rm -f "$selected_tmp" "$excluded_tmp"
+        return 1
+        ;;
+    esac
+    reserved=0
+    for candidate in "$@"; do
+      if [ "$serial" = "$candidate" ]; then
+        reserved=1
+        break
+      fi
+    done
+    if [ "$reserved" -eq 1 ]; then
+      printf '%s\t%s\treserved-for-performance\n' "$serial" "$state" >>"$excluded_tmp"
+      continue
+    fi
+    if [ "$state" != device ]; then
+      echo "adb device $serial is $state; every non-reserved attached device must be authorized and online" >&2
+      rm -f "$selected_tmp" "$excluded_tmp"
+      return 1
+    fi
+    if grep -Fqx -- "$serial" "$selected_tmp"; then
+      echo "duplicate adb device serial: $serial" >&2
+      rm -f "$selected_tmp" "$excluded_tmp"
+      return 1
+    fi
+    printf '%s\n' "$serial" >>"$selected_tmp"
+  done <"$raw_file"
+
+  LC_ALL=C sort "$selected_tmp" >"${selected_tmp}.sorted" || {
+    rm -f "$selected_tmp" "$selected_tmp.sorted" "$excluded_tmp"
+    return 1
+  }
+  LC_ALL=C sort "$excluded_tmp" >"${excluded_tmp}.sorted" || {
+    rm -f "$selected_tmp" "$selected_tmp.sorted" "$excluded_tmp" "$excluded_tmp.sorted"
+    return 1
+  }
+  mv "${selected_tmp}.sorted" "$selected_file" || return 1
+  mv "${excluded_tmp}.sorted" "$excluded_file" || return 1
+  rm -f "$selected_tmp" "$excluded_tmp"
+}
+
+# Give every selected device a collision-free artifact id without hiding its
+# adb serial. The numeric prefix remains unique even when two serials collapse
+# to the same filesystem-safe spelling.
+android_acceptance_write_device_records() {
+  local serials_file="$1" records_file="$2"
+  local temporary="${records_file}.tmp.$$" serial safe index=0
+
+  : >"$temporary" || return 1
+  while IFS= read -r serial || [ -n "$serial" ]; do
+    [ -n "$serial" ] || continue
+    index=$((index + 1))
+    safe="$(printf '%s' "$serial" | tr -c 'A-Za-z0-9._-' '_')"
+    printf 'device-%03d-%s\t%s\n' "$index" "$safe" "$serial" >>"$temporary" || {
+      rm -f "$temporary"
+      return 1
+    }
+  done <"$serials_file"
+  mv "$temporary" "$records_file"
+}
+
+# This file is both the execution plan and the deterministic proof that the
+# Cartesian product is complete. Target-major order builds each APK once, then
+# runs it sequentially on every selected device.
+android_acceptance_write_device_flavor_plan() {
+  local records_file="$1" plan_file="$2"
+  shift 2
+  local temporary="${plan_file}.tmp.$$" target device_id serial
+
+  : >"$temporary" || return 1
+  for target in "$@"; do
+    while IFS=$'\t' read -r device_id serial extra; do
+      [ -n "$device_id" ] && [ -n "$serial" ] && [ -z "${extra:-}" ] || {
+        rm -f "$temporary"
+        return 1
+      }
+      printf '%s\t%s\t%s\n' "$device_id" "$serial" "$target" >>"$temporary" || {
+        rm -f "$temporary"
+        return 1
+      }
+    done <"$records_file"
+  done
+  mv "$temporary" "$plan_file"
+}
+
+# Require exactly one result for every device/flavor/case cell. This prevents
+# an early loop exit or a duplicate row from being summarized as an aggregate
+# Android pass.
+android_acceptance_verify_device_flavor_results() {
+  local plan_file="$1" results_file="$2"
+  awk -F '\t' '
+    BEGIN {
+      split("email phone instant password data-plane peer-to-peer", required, " ")
+      failed = 0
+    }
+    NR == FNR {
+      if (NF != 3 || $1 == "" || $2 == "" || $3 == "") { failed = 1; next }
+      pair = $1 FS $2 FS $3
+      if (++plans[pair] != 1) failed = 1
+      next
+    }
+    {
+      if (NF != 6) { failed = 1; next }
+      pair = $1 FS $2 FS $3
+      if (!(pair in plans)) { failed = 1; next }
+      valid_case = 0
+      for (i in required) if ($4 == required[i]) valid_case = 1
+      if (!valid_case || ($5 != "PASS" && $5 != "FAIL") || $6 == "") {
+        failed = 1
+        next
+      }
+      cell = pair FS $4
+      if (++seen[cell] != 1) failed = 1
+      if ($5 != "PASS") failed = 1
+    }
+    END {
+      for (pair in plans) {
+        for (i in required) {
+          cell = pair FS required[i]
+          if (seen[cell] != 1) failed = 1
+        }
+      }
+      exit failed
+    }
+  ' "$plan_file" "$results_file"
+}
+
 # The acceptance AVD's launcher can ANR while multiple read-only instances
 # start under software rendering. Its system error dialog then owns the
 # foreground window and hides the app from UI Automator even though the app is
