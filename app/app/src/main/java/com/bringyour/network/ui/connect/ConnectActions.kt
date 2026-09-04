@@ -86,7 +86,6 @@ fun ConnectActions(
     meanReliabilityWeight: Double,
     totalReferrals: Long,
     dailyByteCount: Long,
-    launchIntro: () -> Unit,
     fixedIpSize: Boolean,
     toggleFixedIpSize: () -> Unit,
     selectedWindowType: WindowType,
@@ -480,7 +479,9 @@ fun ConnectActions(
                     if (currentPlan != Plan.Supporter) {
 
                         TextButton(onClick = {
-                            launchIntro()
+                            // the same upgrade flow Account's "Change" opens; this used to
+                            // launch the onboarding funnel instead of the plan picker
+                            navController.navigate(Route.Upgrade)
                         }) {
                             Text(
                                 stringResource(id = R.string.get_pro),

@@ -734,9 +734,6 @@ private fun MainNavHostContent(
                                         subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                                         referralCodeViewModel = referralCodeViewModel,
                                         bundleStore = bundleStore,
-                                        launchIntro = {
-                                            mainNavViewModel.setDisplayIntroFunnel(true)
-                                        },
                                         reliabilityWindow = reliabilityWindow,
                                         totalReferralCount = totalReferralCount,
                                         solanaPaymentViewModel = solanaPaymentViewModel,
@@ -773,9 +770,6 @@ private fun MainNavHostContent(
                                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                                     referralCodeViewModel = referralCodeViewModel,
                                     bundleStore = bundleStore,
-                                    launchIntro = {
-                                        mainNavViewModel.setDisplayIntroFunnel(true)
-                                    },
                                     reliabilityWindow = reliabilityWindow,
                                     totalReferralCount = totalReferralCount,
                                     solanaPaymentViewModel = solanaPaymentViewModel,
@@ -982,7 +976,6 @@ fun MainNavContent(
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     referralCodeViewModel: ReferralCodeViewModel,
     bundleStore: BundleStore?,
-    launchIntro: () -> Unit,
     reliabilityWindow: ReliabilityWindow?,
     totalReferralCount: Long,
     solanaPaymentViewModel: SolanaPaymentViewModel,
@@ -1041,7 +1034,6 @@ fun MainNavContent(
                     bundleStore,
                     meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
                     totalReferrals = totalReferralCount,
-                    launchIntro = launchIntro,
                     isPro = isPro,
                     connectActionsSheetState = connectActionsSheetState
                 )
