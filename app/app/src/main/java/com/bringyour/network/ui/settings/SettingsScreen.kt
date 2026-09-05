@@ -125,6 +125,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
+import com.bringyour.network.location.MockLocationStatus
+import com.bringyour.network.location.MockLocationTarget
 import com.bringyour.network.ui.connect.providerlocations.MockLocationViewModel
 import com.bringyour.network.ui.login.SeedphraseDisplayScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -309,12 +311,18 @@ fun SettingsScreen(
         isRegeneratingSeedphrase = isRegeneratingSeedphrase,
         onSeedphraseActionClick = { action -> pendingSeedphraseAction = action },
         mockLocationEnabled = mockLocationState.enabled,
+        mockLocationSetupComplete = mockLocationState.setupComplete,
+        mockLocationStatus = mockLocationState.status,
+        mockLocationTarget = mockLocationState.target,
         onToggleMockLocation = {
             val enabled = !mockLocationState.enabled
             mockLocationViewModel.setEnabled(enabled)
-            if (enabled && !mockLocationState.setupComplete) {
+            if (mockLocationState.status == MockLocationStatus.ORPHANED || (enabled && !mockLocationState.setupComplete)) {
                 navController.navigate(Route.MockLocationGuide)
             }
+        },
+        onOpenMockLocationGuide = {
+            navController.navigate(Route.MockLocationGuide)
         },
     )
 
@@ -536,7 +544,11 @@ private fun SettingsScreen(
     isRegeneratingSeedphrase: Boolean,
     onSeedphraseActionClick: (SeedphraseAction) -> Unit,
     mockLocationEnabled: Boolean = false,
+    mockLocationSetupComplete: Boolean = false,
+    mockLocationStatus: MockLocationStatus = MockLocationStatus.DISABLED,
+    mockLocationTarget: MockLocationTarget? = null,
     onToggleMockLocation: () -> Unit = {},
+    onOpenMockLocationGuide: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -948,40 +960,65 @@ private fun SettingsScreen(
             /**
              * Device location sync (the mock location provider setup guide)
              */
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable {
-                            navController.navigate(Route.MockLocationGuide)
-                        }
-                        .padding(vertical = 6.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        stringResource(id = R.string.mock_location_settings_row),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                onOpenMockLocationGuide()
+                            }
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(id = R.string.mock_location_settings_row),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
 
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "Keyboard Arrow Right",
-                        tint = TextMuted
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "Keyboard Arrow Right",
+                            tint = TextMuted
+                        )
+                    }
+
+                    URSwitch(
+                        checked = mockLocationEnabled,
+                        toggle = onToggleMockLocation,
                     )
                 }
 
-                URSwitch(
-                    checked = mockLocationEnabled,
-                    toggle = onToggleMockLocation,
-                )
+                val statusSubtitle = when {
+                    mockLocationStatus == MockLocationStatus.ORPHANED ->
+                        stringResource(id = R.string.mock_location_error_cleanup_required)
+                    mockLocationEnabled && !mockLocationSetupComplete ->
+                        stringResource(id = R.string.mock_location_needs_setup)
+                    mockLocationStatus == MockLocationStatus.ACTIVE && mockLocationTarget != null ->
+                        stringResource(id = R.string.mock_location_active, mockLocationTarget.label)
+                    mockLocationStatus == MockLocationStatus.ELIGIBLE && mockLocationEnabled ->
+                        stringResource(id = R.string.mock_location_waiting_for_provider)
+                    else -> null
+                }
+
+                if (statusSubtitle != null) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        statusSubtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (mockLocationStatus == MockLocationStatus.ORPHANED)
+                            MaterialTheme.colorScheme.error
+                        else
+                            TextMuted
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(18.dp))

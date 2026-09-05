@@ -24,6 +24,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.WorkManager
 import com.bringyour.network.location.MockLocationController
+import com.bringyour.network.location.MockLocationFeeder
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.LocalState
@@ -166,6 +167,9 @@ class MainApplication : Application() {
 
     @Inject
     lateinit var mockLocationController: MockLocationController
+
+    @Inject
+    lateinit var mockLocationFeeder: MockLocationFeeder
 
     var vpnRequestStart: Boolean = false
         private set
@@ -471,6 +475,7 @@ class MainApplication : Application() {
         // from the feature UI) so a previous process's leftovers are cleared
         // even when the user never opens the provider locations sheet.
         mockLocationController.start()
+        mockLocationFeeder.start()
 
         networkSpaceManagerProvider.init(filesDir.absolutePath)
 

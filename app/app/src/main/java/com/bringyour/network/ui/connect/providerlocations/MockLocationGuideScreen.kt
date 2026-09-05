@@ -165,8 +165,17 @@ fun MockLocationGuideScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    val statusText = when {
+                        state.status == MockLocationStatus.ACTIVE && state.target != null ->
+                            stringResource(id = R.string.mock_location_active, state.target.label)
+                        state.enabled ->
+                            stringResource(id = R.string.mock_location_waiting_for_provider)
+                        else ->
+                            stringResource(id = R.string.mock_location_ready)
+                    }
+
                     Text(
-                        stringResource(id = R.string.mock_location_ready),
+                        statusText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = Green,
                         modifier = Modifier.weight(1f),
