@@ -48,6 +48,7 @@ import com.bringyour.network.location.openAboutPhone
 import com.bringyour.network.location.openDeveloperOptions
 import com.bringyour.network.location.openLocationSettings
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
@@ -159,11 +160,23 @@ fun MockLocationGuideScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (state.setupComplete) {
-                Text(
-                    stringResource(id = R.string.mock_location_ready),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Green,
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(id = R.string.mock_location_ready),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Green,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    URSwitch(
+                        checked = state.enabled,
+                        toggle = { viewModel.setEnabled(!state.enabled) },
+                    )
+                }
                 Spacer(modifier = Modifier.height(24.dp))
             }
 

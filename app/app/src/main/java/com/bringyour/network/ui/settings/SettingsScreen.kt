@@ -125,7 +125,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
+import com.bringyour.network.ui.connect.providerlocations.MockLocationViewModel
 import com.bringyour.network.ui.login.SeedphraseDisplayScreen
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,8 +139,25 @@ fun SettingsScreen(
     overlayViewModel: OverlayViewModel,
     activityResultSender: ActivityResultSender?,
     earningsViewModel: EarningsViewModel,
-    isPro: Boolean
+    isPro: Boolean,
+    mockLocationViewModel: MockLocationViewModel = hiltViewModel(),
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val mockLocationState by mockLocationViewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        mockLocationViewModel.refreshEligibility()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                mockLocationViewModel.refreshEligibility()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     val notificationsAllowed = settingsViewModel.permissionGranted.collectAsState().value
     val showDeleteAccountDialog = settingsViewModel.showDeleteAccountDialog.collectAsState().value
@@ -289,6 +308,14 @@ fun SettingsScreen(
         isGeneratingSeedphrase = isGeneratingSeedphrase,
         isRegeneratingSeedphrase = isRegeneratingSeedphrase,
         onSeedphraseActionClick = { action -> pendingSeedphraseAction = action },
+        mockLocationEnabled = mockLocationState.enabled,
+        onToggleMockLocation = {
+            val enabled = !mockLocationState.enabled
+            mockLocationViewModel.setEnabled(enabled)
+            if (enabled && !mockLocationState.setupComplete) {
+                navController.navigate(Route.MockLocationGuide)
+            }
+        },
     )
 
     if (isPresentingRenameDevice) {
@@ -508,6 +535,8 @@ private fun SettingsScreen(
     isGeneratingSeedphrase: Boolean,
     isRegeneratingSeedphrase: Boolean,
     onSeedphraseActionClick: (SeedphraseAction) -> Unit,
+    mockLocationEnabled: Boolean = false,
+    onToggleMockLocation: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -921,23 +950,37 @@ private fun SettingsScreen(
              */
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        navController.navigate(Route.MockLocationGuide)
-                    }
-                    .padding(vertical = 6.dp)
-                ,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    stringResource(id = R.string.mock_location_settings_row),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            navController.navigate(Route.MockLocationGuide)
+                        }
+                        .padding(vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(id = R.string.mock_location_settings_row),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Keyboard Arrow Right",
-                    tint = TextMuted
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "Keyboard Arrow Right",
+                        tint = TextMuted
+                    )
+                }
+
+                URSwitch(
+                    checked = mockLocationEnabled,
+                    toggle = onToggleMockLocation,
                 )
             }
 
