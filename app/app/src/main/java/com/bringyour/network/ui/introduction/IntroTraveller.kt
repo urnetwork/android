@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.introduction
 
 import kotlin.math.roundToInt
+import androidx.compose.animation.core.withInfiniteAnimationFrameNanos
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.graphics.ColorFilter
@@ -22,7 +23,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -45,6 +45,8 @@ import com.bringyour.network.ui.components.referral.rememberReducedMotion
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Pink
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -62,6 +64,31 @@ private const val TRIP_MILLIS = 6500L
 private const val TRAVELLER_SIZE_DP = 40
 private const val CONNECTOR_SIZE_DP = 72
 private const val ROUTE_HEIGHT_DP = 76
+
+internal data class IntroTravellerFrame(
+    val trip: Float,
+    val tripCount: Int,
+)
+
+internal suspend fun runIntroTravellerAnimation(
+    onFrame: (IntroTravellerFrame) -> Unit,
+) {
+    // Both the epoch and every update are infinite-animation operations. The
+    // Compose test clock can therefore cancel this perpetual visual loop while
+    // waitForIdle advances finite application work.
+    val start = withInfiniteAnimationFrameNanos { it }
+    while (currentCoroutineContext().isActive) {
+        withInfiniteAnimationFrameNanos { now ->
+            val elapsedMillis = (now - start) / 1_000_000L
+            onFrame(
+                IntroTravellerFrame(
+                    trip = (elapsedMillis % TRIP_MILLIS).toFloat() / TRIP_MILLIS,
+                    tripCount = (elapsedMillis / TRIP_MILLIS).toInt(),
+                ),
+            )
+        }
+    }
+}
 
 private val UR_PEOPLE = listOf(
     R.drawable.ur_person_1,
@@ -82,13 +109,9 @@ fun IntroTraveller(
 
     if (!reducedMotion) {
         LaunchedEffect(Unit) {
-            val start = withFrameNanos { it }
-            while (true) {
-                withFrameNanos { now ->
-                    val elapsedMillis = (now - start) / 1_000_000L
-                    trip = (elapsedMillis % TRIP_MILLIS).toFloat() / TRIP_MILLIS
-                    tripCount = (elapsedMillis / TRIP_MILLIS).toInt()
-                }
+            runIntroTravellerAnimation { frame ->
+                trip = frame.trip
+                tripCount = frame.tripCount
             }
         }
     }

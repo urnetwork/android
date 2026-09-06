@@ -1,0 +1,4 @@
+  mCurrentFocus=Window{43515ba u0 android}
+  mFocusedWindow=
+  mFocusedWindow=null
+  mFocusedWindow=Window{43515ba u0 android}

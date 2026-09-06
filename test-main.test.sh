@@ -158,6 +158,23 @@ grep -Fq 'android_acceptance_session_running "$session_pid"' "$here/test-main.sh
 # shellcheck disable=SC2016
 grep -Fq 'release_active_clients "$artifacts"' "$here/test-main.sh" || \
   fail "EXIT cleanup does not retry every retained P2P ownership ledger"
+release_cleanup_source="$(sed -n \
+  '/^release_active_clients()/,/^# Invoked through the EXIT/p' \
+  "$here/test-main.sh")"
+grep -Fq -- "-name 'active-client-id-*' -o -name 'physical-active-client-id'" \
+  <<<"$release_cleanup_source" || \
+  fail "Android cleanup does not collect both ledger and physical marker aliases"
+# All collected paths must cross one CLI boundary so duplicate IDs are grouped
+# by build/all/acceptance/client-cleanup.mjs before any destructive API call.
+# shellcheck disable=SC2016
+grep -Fq '"${active_clients[@]}"' <<<"$release_cleanup_source" || \
+  fail "Android cleanup still invokes the client cleanup CLI once per marker"
+[ "$(grep -Fc 'client-cleanup.mjs' <<<"$release_cleanup_source")" -eq 1 ] || \
+  fail "Android cleanup has more than one client-cleanup CLI boundary"
+physical_cleanup_source="$(sed -n \
+  '/^cleanup()/,/^record_smoke_result()/p' "$here/test-main.sh")"
+[ "$(grep -Fc 'client-cleanup.mjs' <<<"$physical_cleanup_source")" -eq 0 ] || \
+  fail "EXIT cleanup separately releases physical aliases after the batch"
 grep -Fq 'p2p_cleanup_failed=1' "$here/test-main.sh" || \
   fail "P2P cleanup failures are not retained as an unsafe-stop condition"
 # shellcheck disable=SC2016
@@ -785,6 +802,27 @@ assert_preflight_classification \
 assert_preflight_classification \
   android_acceptance_classify_focused_window clear \
   "$preflight_fixture_dir/equivalent-window-syntax.txt"
+assert_preflight_classification \
+  android_acceptance_classify_focused_window clear \
+  "$preflight_fixture_dir/transient-empty-window.txt"
+assert_preflight_classification \
+  android_acceptance_classify_focused_window error-dialog \
+  "$preflight_fixture_dir/transient-empty-error-window.txt"
+assert_preflight_classification \
+  android_acceptance_classify_focused_window error-dialog \
+  "$preflight_fixture_dir/transient-empty-current-error-window.txt"
+assert_preflight_classification \
+  android_acceptance_classify_focused_window malformed \
+  "$preflight_fixture_dir/only-empty-window.txt"
+assert_preflight_classification \
+  android_acceptance_classify_focused_window malformed \
+  "$preflight_fixture_dir/only-empty-current-window.txt"
+assert_preflight_classification \
+  android_acceptance_classify_focused_window malformed \
+  "$preflight_fixture_dir/empty-null-window.txt"
+assert_preflight_classification \
+  android_acceptance_classify_focused_window ambiguous \
+  "$preflight_fixture_dir/empty-conflicting-window.txt"
 for fixture_kind in cpu renderer window; do
   classifier="android_acceptance_classify_${fixture_kind}_evidence"
   [ "$fixture_kind" != window ] || classifier=android_acceptance_classify_focused_window
@@ -805,6 +843,15 @@ done
 [ "$(android_acceptance_focused_error_subject \
   "$(cat "$preflight_fixture_dir/captured-window.txt")")" = com.android.systemui ] || \
   fail "captured SystemUI ANR subject was not retained"
+[ "$(android_acceptance_focused_error_subject \
+  "$(cat "$preflight_fixture_dir/transient-empty-error-window.txt")")" = com.android.systemui ] || \
+  fail "SystemUI ANR subject after a transient empty window was not retained"
+[ "$(android_acceptance_focused_error_subject \
+  "$(cat "$preflight_fixture_dir/transient-empty-current-error-window.txt")")" = com.android.systemui ] || \
+  fail "SystemUI ANR subject after a transient empty current focus was not retained"
+[ "$(android_acceptance_focused_error_subject \
+  "$(cat "$preflight_fixture_dir/only-empty-current-window.txt")")" = unknown ] || \
+  fail "an empty-only current focus produced a trustworthy error subject"
 [ "$(android_acceptance_classify_renderer_evidence \
   'GLES: Google (Apple), Android Emulator OpenGL ES Translator (Apple M1 Max), OpenGL ES 3.0')" = host ] || \
   fail "a live host-rendered SurfaceFlinger identity was rejected"
@@ -1248,9 +1295,16 @@ owned_diagnostic_field_is() {
     fail "owned AVD diagnostic $field was not $expected"
 }
 
+prepare_physical_readiness() {
+  [ "$#" -eq 7 ] || return 2
+  android_acceptance_prepare_device \
+    "$1" "$2" "$3" "$4" "$5" \
+    "$readiness_interactive" device-001 readiness "$6" "$7" 3
+}
+
 reset_readiness_fake
 FAKE_READY_LARGE_POWER=1
-android_acceptance_prepare_device \
+prepare_physical_readiness \
   fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1 || \
   fail "a ready supported-ARM device with working API TCP was rejected"
 readiness_status_is ready
@@ -1267,7 +1321,7 @@ fi
 
 reset_readiness_fake
 FAKE_READY_ADB_AVAILABLE=0
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "an unavailable adb device passed readiness"
 fi
@@ -1275,7 +1329,7 @@ readiness_status_is adb-unavailable
 
 reset_readiness_fake
 FAKE_READY_BOOT=0
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "an unbooted device passed readiness"
 fi
@@ -1283,7 +1337,7 @@ readiness_status_is boot-incomplete
 
 reset_readiness_fake
 FAKE_READY_API_AVAILABLE=0
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "a device with unreadable Android API level passed readiness"
 fi
@@ -1291,7 +1345,7 @@ readiness_status_is api-unavailable
 
 reset_readiness_fake
 FAKE_READY_API=25
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "a device older than the base shipping SDK passed readiness"
 fi
@@ -1299,7 +1353,7 @@ readiness_status_is shipping-api-unsupported
 
 reset_readiness_fake
 FAKE_READY_ABI_AVAILABLE=0
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "a device with unreadable ABI state passed readiness"
 fi
@@ -1307,14 +1361,14 @@ readiness_status_is abi-unavailable
 
 reset_readiness_fake
 FAKE_READY_ABI=armeabi-v7a,armeabi
-android_acceptance_prepare_device \
+prepare_physical_readiness \
   fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1 || \
   fail "a shipping 32-bit ARM device was rejected"
 readiness_status_is ready
 
 reset_readiness_fake
 FAKE_READY_ABI=x86_64,x86
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "a device without a general shipping ARM ABI passed readiness"
 fi
@@ -1322,7 +1376,7 @@ readiness_status_is shipping-abi-unsupported
 
 reset_readiness_fake
 FAKE_READY_UNLOCK_STATE=unknown
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "a device with unknown unlock state passed readiness"
 fi
@@ -1499,7 +1553,7 @@ for failure_case in network dns tcp; do
     network) FAKE_READY_LARGE_CONNECTIVITY=1 ;;
     dns) FAKE_READY_LARGE_PROBE=1 ;;
   esac
-  if android_acceptance_prepare_device \
+  if prepare_physical_readiness \
       fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
     fail "$failure_case failure passed device readiness"
   fi
@@ -1513,7 +1567,7 @@ done
 reset_readiness_fake
 FAKE_READY_TCP_SUCCEEDS_AFTER=1
 FAKE_READY_TCP_FAILURE=tcp
-android_acceptance_prepare_device \
+prepare_physical_readiness \
   fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1 || \
   fail "an already-enabled network did not recover on a later TCP probe"
 readiness_status_is ready
@@ -1526,7 +1580,7 @@ FAKE_READY_TCP_SUCCEEDS_AFTER=1
 FAKE_READY_TCP_FAILURE=network
 FAKE_READY_WIFI=disabled
 FAKE_READY_SCAN=0
-android_acceptance_prepare_device \
+prepare_physical_readiness \
   fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1 || \
   fail "an initially offline device did not recover through its saved Wi-Fi configuration"
 readiness_status_is ready
@@ -1550,7 +1604,7 @@ reset_readiness_fake
 FAKE_READY_TCP_SUCCEEDS_AFTER=99
 FAKE_READY_WIFI=disabled
 FAKE_READY_WIFI_ENABLE=0
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "a failed Wi-Fi enable passed readiness"
 fi
@@ -1561,7 +1615,7 @@ readiness_status_is wifi-enable-failed
 reset_readiness_fake
 FAKE_READY_TCP_SUCCEEDS_AFTER=99
 FAKE_READY_WIFI=unknown
-if android_acceptance_prepare_device \
+if prepare_physical_readiness \
     fake_readiness_adb readiness-device 010181 "$readiness_dir/state" "$readiness_status" 1 1; then
   fail "an unknown Wi-Fi state passed readiness"
 fi
@@ -1584,26 +1638,32 @@ unlock_calls="$device_helper_dir/unlock-calls"
 unlock_keys="$device_helper_dir/unlock-keys"
 unlock_submissions="$device_helper_dir/unlock-submissions"
 unlock_wake_polls="$device_helper_dir/unlock-wake-polls"
+unlock_trust_polls="$device_helper_dir/unlock-trust-polls"
 unlock_pending_polls="$device_helper_dir/unlock-pending-polls"
 unlock_pending="$device_helper_dir/unlock-pending"
 unlock_surface="$device_helper_dir/unlock-surface"
+unlock_diagnostic="$device_helper_dir/unlock-diagnostic.txt"
 
 reset_unlock_fake() {
   printf '1\n' >"$unlock_state"
   printf '0\n' >"$unlock_submissions"
   printf '0\n' >"$unlock_wake_polls"
+  printf '0\n' >"$unlock_trust_polls"
   printf '0\n' >"$unlock_pending_polls"
   : >"$unlock_calls"
   : >"$unlock_keys"
-  rm -f "$unlock_pending" "$unlock_surface"
+  rm -f "$unlock_pending" "$unlock_surface" "$unlock_diagnostic"
   FAKE_UNLOCK_AWAKE_AFTER=1
+  FAKE_UNLOCK_POWER_UNKNOWN_BEFORE=0
+  FAKE_UNLOCK_PRE_SUBMIT_UNKNOWN_BEFORE=0
   FAKE_UNLOCK_UNLOCK_AFTER=1
-  FAKE_UNLOCK_POST_SUBMIT_UNKNOWN=0
+  FAKE_UNLOCK_POST_SUBMIT_UNKNOWN_BEFORE=0
   FAKE_UNLOCK_SIZE='Physical size: 1080x2400'
 }
 
 fake_unlock_adb() {
-  local current_state eval_status pending_count remote_script submission_count wake_count
+  local current_state eval_status known_count pending_count remote_script submission_count
+  local trust_count wake_count
   [ "$1" = -s ] && [ -n "$2" ] || return 90
   shift 2
   printf '%s\n' "$*" >>"$unlock_calls"
@@ -1616,7 +1676,9 @@ fake_unlock_adb() {
           wake_count="$(tr -d '\r\n' <"$unlock_wake_polls")"
           wake_count=$((wake_count + 1))
           printf '%s\n' "$wake_count" >"$unlock_wake_polls"
-          if [ "$wake_count" -ge "$FAKE_UNLOCK_AWAKE_AFTER" ]; then
+          if [ "$wake_count" -le "$FAKE_UNLOCK_POWER_UNKNOWN_BEFORE" ]; then
+            printf 'wake state unavailable\n'
+          elif [ "$wake_count" -ge "$FAKE_UNLOCK_AWAKE_AFTER" ]; then
             printf '  mWakefulness=Awake\n'
           else
             printf '  mWakefulness=Asleep\n'
@@ -1624,15 +1686,24 @@ fake_unlock_adb() {
           ;;
         'dumpsys trust')
           if [ -e "$unlock_pending" ]; then
-            if [ "$FAKE_UNLOCK_POST_SUBMIT_UNKNOWN" -eq 1 ]; then
-              printf 'lock state unavailable\n'
-              return 0
-            fi
             pending_count="$(tr -d '\r\n' <"$unlock_pending_polls")"
             pending_count=$((pending_count + 1))
             printf '%s\n' "$pending_count" >"$unlock_pending_polls"
-            if [ "$pending_count" -ge "$FAKE_UNLOCK_UNLOCK_AFTER" ]; then
+            if [ "$pending_count" -le "$FAKE_UNLOCK_POST_SUBMIT_UNKNOWN_BEFORE" ]; then
+              printf 'lock state unavailable\n'
+              return 0
+            fi
+            known_count=$((pending_count - FAKE_UNLOCK_POST_SUBMIT_UNKNOWN_BEFORE))
+            if [ "$known_count" -ge "$FAKE_UNLOCK_UNLOCK_AFTER" ]; then
               printf '0\n' >"$unlock_state"
+            fi
+          else
+            trust_count="$(tr -d '\r\n' <"$unlock_trust_polls")"
+            trust_count=$((trust_count + 1))
+            printf '%s\n' "$trust_count" >"$unlock_trust_polls"
+            if [ "$trust_count" -le "$FAKE_UNLOCK_PRE_SUBMIT_UNKNOWN_BEFORE" ]; then
+              printf 'lock state unavailable\n'
+              return 0
             fi
           fi
           current_state="$(tr -d '\r\n' <"$unlock_state")"
@@ -1728,20 +1799,37 @@ else
   [ "$?" -eq 2 ] || fail "an unknown OEM lock state was not fail-closed"
 fi
 
+# Poll-count tests are state driven; wall-clock sleeping would add no coverage.
+android_acceptance_interactive_poll_sleep() { :; }
+
 reset_unlock_fake
 FAKE_UNLOCK_AWAKE_AFTER=3
-FAKE_UNLOCK_UNLOCK_AFTER=3
+FAKE_UNLOCK_POWER_UNKNOWN_BEFORE=2
+FAKE_UNLOCK_PRE_SUBMIT_UNKNOWN_BEFORE=2
+FAKE_UNLOCK_POST_SUBMIT_UNKNOWN_BEFORE=1
+FAKE_UNLOCK_UNLOCK_AFTER=2
 unlock_log="$device_helper_dir/unlock-log"
 android_acceptance_unlock_device \
-  fake_unlock_adb test-device 010181 >"$unlock_log" 2>&1 || \
+  fake_unlock_adb test-device 010181 "$unlock_diagnostic" device-011 readiness 4 \
+  >"$unlock_log" 2>&1 || \
   fail "a locked authorized device was not unlocked"
 [ "$(cat "$unlock_state")" = 0 ] || fail "unlock completion was not verified"
 [ "$(cat "$unlock_wake_polls")" -eq 3 ] || \
-  fail "the asynchronous OEM wake transition was not polled"
+  fail "the transient unknown OEM wake transition was not polled"
+[ "$(grep -Fxc 'shell input keyevent KEYCODE_WAKEUP' "$unlock_calls")" -eq 1 ] || \
+  fail "the wake command was submitted more than once"
+[ "$(cat "$unlock_trust_polls")" -eq 3 ] || \
+  fail "the transient unknown pre-credential trust state was not polled"
 [ "$(cat "$unlock_pending_polls")" -eq 3 ] || \
-  fail "the asynchronous OEM unlock transition was not polled"
+  fail "the mixed unknown/locked OEM unlock transition was not polled"
 [ "$(cat "$unlock_submissions")" -eq 1 ] || \
   fail "the private credential was not submitted exactly once"
+grep -Fxq 'stage=complete' "$unlock_diagnostic" || \
+  fail "successful physical unlock did not retain its completed stage"
+grep -Fxq 'credential=submitted' "$unlock_diagnostic" || \
+  fail "successful physical unlock did not retain its credential state"
+grep -Fxq 'result=ready' "$unlock_diagnostic" || \
+  fail "successful physical unlock did not retain its terminal result"
 [ "$(sed -n '1p' "$unlock_keys")" = KEYCODE_0 ] || \
   fail "the leading-zero unlock code was not preserved as a digit key"
 if grep -Fq 010181 "$unlock_log" "$unlock_calls" "$unlock_keys"; then
@@ -1753,39 +1841,129 @@ fi
 submission_count="$(cat "$unlock_submissions")"
 swipe_count="$(grep -Fc 'shell input swipe 540 1920 540 480 300' "$unlock_calls")"
 android_acceptance_unlock_device \
-  fake_unlock_adb test-device 010181 >/dev/null 2>&1 || \
+  fake_unlock_adb test-device 010181 "$unlock_diagnostic" device-011 readiness 4 \
+  >/dev/null 2>&1 || \
   fail "an already-unlocked device was rejected"
 [ "$(cat "$unlock_submissions")" = "$submission_count" ] || \
   fail "an already-unlocked device received the unlock code"
 [ "$(grep -Fc 'shell input swipe 540 1920 540 480 300' "$unlock_calls")" = "$swipe_count" ] || \
   fail "an already-unlocked device reopened its credential surface"
 if android_acceptance_unlock_device \
-    fake_unlock_adb test-device '01 0181' >/dev/null 2>&1; then
+    fake_unlock_adb test-device '01 0181' \
+    "$unlock_diagnostic" device-011 readiness 4 >/dev/null 2>&1; then
   fail "a malformed Android unlock code was accepted"
 fi
 [ "$(cat "$unlock_submissions")" = "$submission_count" ] || \
   fail "a malformed Android unlock code reached SystemUI"
 
+# A trust signal can settle directly from unknown to unlocked. That path must
+# return ready without ever opening or submitting to the credential surface.
+reset_unlock_fake
+printf '0\n' >"$unlock_state"
+FAKE_UNLOCK_PRE_SUBMIT_UNKNOWN_BEFORE=2
+android_acceptance_unlock_device \
+  fake_unlock_adb test-device 010181 \
+  "$unlock_diagnostic" device-011 readiness 3 >/dev/null 2>&1 || \
+  fail "an unknown-to-unlocked pre-credential transition was rejected"
+[ "$(cat "$unlock_trust_polls")" -eq 3 ] || \
+  fail "unknown-to-unlocked trust observations did not reach the known state"
+[ "$(cat "$unlock_submissions")" -eq 0 ] || \
+  fail "an unknown-to-unlocked device received the credential"
+grep -Fxq 'credential=not-required' "$unlock_diagnostic" || \
+  fail "unknown-to-unlocked diagnostics did not record the credential-free result"
+
 reset_unlock_fake
 FAKE_UNLOCK_SIZE='size unavailable'
 if android_acceptance_unlock_device \
-    fake_unlock_adb test-device 010181 >/dev/null 2>&1; then
+    fake_unlock_adb test-device 010181 \
+    "$unlock_diagnostic" device-011 readiness 4 >/dev/null 2>&1; then
   fail "an unlock with unknown display geometry was accepted"
 fi
 [ "$(cat "$unlock_submissions")" -eq 0 ] || \
   fail "unknown display geometry sent a credential to an unlocated surface"
 
-# A post-submit state that becomes untrustworthy must fail closed without
-# resubmitting the credential. A later runner invocation may be authorized,
-# but one helper invocation is never a PIN retry loop.
+# Unknown pre-credential observations are retried, but exhaustion fails before
+# any credential reaches an unverified surface.
 reset_unlock_fake
-FAKE_UNLOCK_POST_SUBMIT_UNKNOWN=1
+FAKE_UNLOCK_PRE_SUBMIT_UNKNOWN_BEFORE=99
 if android_acceptance_unlock_device \
-    fake_unlock_adb test-device 010181 >/dev/null 2>&1; then
+    fake_unlock_adb test-device 010181 \
+    "$unlock_diagnostic" device-011 readiness 3 >/dev/null 2>&1; then
+  fail "an unknown pre-credential OEM state was accepted"
+fi
+[ "$(cat "$unlock_trust_polls")" -eq 3 ] || \
+  fail "unknown pre-credential observations were not retried to the bound"
+[ "$(cat "$unlock_submissions")" -eq 0 ] || \
+  fail "an unknown pre-credential state received the credential"
+grep -Fxq 'stage=pre-credential' "$unlock_diagnostic" || \
+  fail "unknown pre-credential diagnostics collapsed the failing stage"
+grep -Fxq 'trust=unknown' "$unlock_diagnostic" || \
+  fail "unknown pre-credential diagnostics omitted the trust state"
+grep -Fxq 'credential=not-submitted' "$unlock_diagnostic" || \
+  fail "unknown pre-credential diagnostics misreported PIN submission"
+
+# A post-submit state that stays untrustworthy must fail closed after bounded
+# observation retries without ever resubmitting the credential.
+reset_unlock_fake
+FAKE_UNLOCK_POST_SUBMIT_UNKNOWN_BEFORE=99
+if android_acceptance_unlock_device \
+    fake_unlock_adb test-device 010181 \
+    "$unlock_diagnostic" device-011 instrumentation 3 >/dev/null 2>&1; then
   fail "an unverifiable OEM unlock was accepted"
 fi
+[ "$(cat "$unlock_pending_polls")" -eq 3 ] || \
+  fail "unknown post-credential observations were not retried to the bound"
 [ "$(cat "$unlock_submissions")" -eq 1 ] || \
   fail "an unverifiable OEM unlock repeated the credential"
+grep -Fxq 'stage=post-credential' "$unlock_diagnostic" || \
+  fail "unknown post-credential diagnostics collapsed the failing stage"
+grep -Fxq 'trust=unknown' "$unlock_diagnostic" || \
+  fail "unknown post-credential diagnostics omitted the trust state"
+grep -Fxq 'credential=submitted' "$unlock_diagnostic" || \
+  fail "unknown post-credential diagnostics lost the one PIN submission"
+
+# Power observations use the same bounded tri-state contract and must fail
+# before trust or credential handling if no authoritative signal arrives.
+reset_unlock_fake
+FAKE_UNLOCK_POWER_UNKNOWN_BEFORE=99
+if android_acceptance_unlock_device \
+    fake_unlock_adb test-device 010181 \
+    "$unlock_diagnostic" device-011 client 3 >/dev/null 2>&1; then
+  fail "an unverifiable OEM wake was accepted"
+fi
+[ "$(cat "$unlock_wake_polls")" -eq 3 ] || \
+  fail "unknown power observations were not retried to the bound"
+[ "$(cat "$unlock_submissions")" -eq 0 ] || \
+  fail "an unknown power state received the credential"
+
+# The durable artifact contains only finite classifications and caller-supplied
+# sanitized attribution. It must never retain the adb serial or PIN.
+grep -Fxq 'device_id=device-011' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic omitted its sanitized device ID"
+grep -Fxq 'role=client' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic omitted its role"
+grep -Fxq 'stage=wake-observe' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic collapsed the failing wake stage"
+grep -Fxq 'attempt=3' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic omitted the terminal retry count"
+grep -Fxq 'wake_command=sent' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic omitted its one successful wake command"
+grep -Fxq 'power=unknown' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic omitted unknown power state"
+grep -Fxq 'credential=not-submitted' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic misreported credential submission"
+grep -Fxq 'result=failed' "$unlock_diagnostic" || \
+  fail "physical interactive diagnostic omitted its terminal result"
+if unlock_diagnostic_mode="$(stat -c '%a' "$unlock_diagnostic" 2>/dev/null)"; then
+  :
+else
+  unlock_diagnostic_mode="$(stat -f '%Lp' "$unlock_diagnostic")"
+fi
+[ "$unlock_diagnostic_mode" = 600 ] || \
+  fail "physical interactive diagnostic mode was not 0600"
+if grep -Eq 'test-device|010181' "$unlock_diagnostic"; then
+  fail "physical interactive diagnostic exposed a serial or credential"
+fi
 
 # Real adb may drain inherited stdin. Each helper invocation must own /dev/null
 # so a fleet loop cannot silently lose every row after its first device.
@@ -1796,7 +1974,8 @@ printf '%s\n' test-device second-device >"$device_helper_dir/device-rows"
 FAKE_UNLOCK_DRAIN_STDIN=1
 while IFS= read -r helper_serial; do
   android_acceptance_unlock_device \
-    fake_unlock_adb "$helper_serial" 010181 >/dev/null 2>&1 || \
+    fake_unlock_adb "$helper_serial" 010181 \
+    "$unlock_diagnostic" device-011 readiness 3 >/dev/null 2>&1 || \
     fail "stdin-draining adb rejected $helper_serial"
   printf '%s\n' "$helper_serial" >>"$device_helper_dir/device-seen"
 done <"$device_helper_dir/device-rows"
@@ -1819,6 +1998,7 @@ printf '0\n' >"$unlock_state"
 printf '1\n' >"$unlock_state"
 android_acceptance_run_after_unlock \
   fake_unlock_adb test-device 010181 \
+  "$unlock_diagnostic" device-011 instrumentation 3 \
   run_if_execution_unlocked launched || \
   fail "a device re-locked during install was not refreshed before execution"
 [ "$(cat "$execution_marker")" = launched ] || \
@@ -1828,16 +2008,18 @@ android_acceptance_run_after_unlock \
 
 rm -f "$execution_marker"
 reset_unlock_fake
-FAKE_UNLOCK_POST_SUBMIT_UNKNOWN=1
+FAKE_UNLOCK_POST_SUBMIT_UNKNOWN_BEFORE=99
 if android_acceptance_run_after_unlock \
     fake_unlock_adb test-device 010181 \
+    "$unlock_diagnostic" device-011 instrumentation 3 \
     run_if_execution_unlocked should-not-run >/dev/null 2>&1; then
   fail "an unverifiable post-install unlock was accepted"
 fi
 [ ! -e "$execution_marker" ] || \
   fail "the product command ran after an unverifiable unlock"
 if android_acceptance_run_after_unlock \
-    fake_unlock_adb test-device 010181 >/dev/null 2>&1; then
+    fake_unlock_adb test-device 010181 \
+    "$unlock_diagnostic" device-011 instrumentation 3 >/dev/null 2>&1; then
   fail "an empty post-unlock execution command was accepted"
 else
   [ "$?" -eq 2 ] || fail "an empty execution command returned the wrong status"
@@ -1864,6 +2046,9 @@ grep -Fq 'android_acceptance_prepare_device' <<<"$owned_selection_source" || \
   fail "non-owned targets no longer use strict physical-device readiness"
 grep -Fq 'android_acceptance_unlock_device' <<<"$owned_selection_source" || \
   fail "non-owned execution no longer uses the private-PIN gate"
+grep -Fq '"$diagnostic_file" "$diagnostic_device_id" readiness 180 24 20' \
+  <<<"$owned_selection_source" || \
+  fail "physical readiness lacks sanitized role-attributed interactive diagnostics"
 
 peer_boot_source="$(sed -n '/^boot_peer_emulator()/,/^wait_physical_status()/p' "$runner_source")"
 grep -Fq 'android_acceptance_prepare_owned_emulator' <<<"$peer_boot_source" || \
@@ -1912,6 +2097,9 @@ grep -Fq 'provider-interactive.txt' <<<"$peer_source" || \
   fail "peer provider launch lacks its own durable diagnostic artifact"
 grep -Fq 'client-interactive.txt' <<<"$peer_source" || \
   fail "peer client launch lacks its own durable diagnostic artifact"
+grep -Fq '"$serial" "$client_diagnostic_id" client "$out/client-interactive.txt"' \
+  <<<"$peer_source" || \
+  fail "peer client interactive evidence lacks sanitized client attribution"
 grep -Fq 'provider-preflight.txt' <<<"$peer_source" || \
   fail "peer provider launch lacks role-attributed preflight evidence"
 grep -Fq 'client-preflight.txt' <<<"$peer_source" || \
@@ -1948,6 +2136,8 @@ grep -Fq 'instrumentation-preflight.txt' <<<"$cell_source" || \
 preflight_wrapper_source="$(sed -n \
   '/^run_after_selected_device_interactive()/,/^capture_device_fleet ||/p' \
   "$runner_source")"
+grep -Fq '"$diagnostic_device_id" "$role" 20' <<<"$preflight_wrapper_source" || \
+  fail "physical launch boundaries do not attribute interactive diagnostics"
 preflight_command_line="$(grep -Fn -m1 'android_acceptance_preflight_device' \
   <<<"$preflight_wrapper_source" | cut -d: -f1)"
 preflight_execute_line="$(grep -Fn -m1 '  "$@"' \

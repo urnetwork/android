@@ -258,24 +258,34 @@ android_acceptance_normalize_focused_window_lines() {
   local lines="$1" line
 
   while IFS= read -r line; do
+    [ -n "$(printf '%s\n' "$line" | tr -d '[:space:]')" ] || continue
     android_acceptance_normalize_focused_window_value "$line" || return 1
   done <<<"$lines"
 }
 
 android_acceptance_classify_focused_window() {
-  local evidence="${1-}" current_lines focused_lines current focused
+  local evidence="${1-}" current_occurrences focused_occurrences
+  local current_lines focused_lines current focused
   local current_values focused_values current_count focused_count lower
 
   evidence="${evidence//$'\r'/}"
+  current_occurrences="$(printf '%s\n' "$evidence" | awk '
+    /^[[:space:]]*mCurrentFocus=/ { count++ }
+    END { print count + 0 }
+  ')"
+  focused_occurrences="$(printf '%s\n' "$evidence" | awk '
+    /^[[:space:]]*mFocusedWindow=/ { count++ }
+    END { print count + 0 }
+  ')"
   current_lines="$(printf '%s\n' "$evidence" | \
     sed -n 's/^[[:space:]]*mCurrentFocus=//p')"
   focused_lines="$(printf '%s\n' "$evidence" | \
     sed -n 's/^[[:space:]]*mFocusedWindow=//p')"
-  if [ -z "$current_lines" ] && [ -z "$focused_lines" ]; then
+  if [ "$current_occurrences" -eq 0 ] && [ "$focused_occurrences" -eq 0 ]; then
     printf 'missing\n'
     return 0
   fi
-  if [ -z "$current_lines" ] || [ -z "$focused_lines" ]; then
+  if [ "$current_occurrences" -eq 0 ] || [ "$focused_occurrences" -eq 0 ]; then
     printf 'malformed\n'
     return 0
   fi
@@ -283,6 +293,10 @@ android_acceptance_classify_focused_window() {
       "$current_lines")" || \
      ! focused_values="$(android_acceptance_normalize_focused_window_lines \
       "$focused_lines")"; then
+    printf 'malformed\n'
+    return 0
+  fi
+  if [ -z "$current_values" ] || [ -z "$focused_values" ]; then
     printf 'malformed\n'
     return 0
   fi
@@ -310,16 +324,22 @@ android_acceptance_classify_focused_window() {
 }
 
 android_acceptance_focused_error_subject() {
-  local evidence="${1-}" current_lines current subject
+  local evidence="${1-}" current_occurrences current_lines current subject
 
-  current_lines="$(printf '%s\n' "${evidence//$'\r'/}" | \
+  evidence="${evidence//$'\r'/}"
+  current_occurrences="$(printf '%s\n' "$evidence" | awk '
+    /^[[:space:]]*mCurrentFocus=/ { count++ }
+    END { print count + 0 }
+  ')"
+  [ "$current_occurrences" -gt 0 ] || { printf 'none\n'; return 0; }
+  current_lines="$(printf '%s\n' "$evidence" | \
     sed -n 's/^[[:space:]]*mCurrentFocus=//p')"
-  [ -n "$current_lines" ] || { printf 'none\n'; return 0; }
   if ! current="$(android_acceptance_normalize_focused_window_lines \
       "$current_lines")"; then
     printf 'unknown\n'
     return 0
   fi
+  [ -n "$current" ] || { printf 'unknown\n'; return 0; }
   current="$(printf '%s\n' "$current" | LC_ALL=C sort -u)"
   [ "$(printf '%s\n' "$current" | wc -l | tr -d '[:space:]')" = 1 ] || {
     printf 'unknown\n'
@@ -635,6 +655,48 @@ android_acceptance_write_owned_emulator_interactive_diagnostics() {
   mv "$temporary" "$diagnostic_file"
 }
 
+# Persist only finite, non-secret physical-device interactive state. The caller
+# supplies a sanitized device ordinal and explicit role; the adb serial, unlock
+# code, and raw platform dumps are deliberately excluded. Each update is a
+# mode-0600 atomic replacement so interruption leaves one complete snapshot.
+android_acceptance_write_physical_interactive_diagnostics() {
+  local diagnostic_file="$1" device_id="$2" role="$3" stage="$4"
+  local attempt="$5" wake_command_state="$6" power_state="$7" trust_state="$8"
+  local credential_state="$9"
+  shift 9
+  local result="$1" temporary
+
+  case "$diagnostic_file" in ''|*$'\r'*|*$'\n'*) return 2 ;; esac
+  [[ "$device_id" =~ ^device-[0-9][0-9][0-9]$ ]] || return 2
+  case "$role" in readiness|smoke|instrumentation|client|provider) ;; *) return 2 ;; esac
+  case "$stage" in validate|adb|wake-command|wake-observe|pre-credential|credential-submit|post-credential|complete) ;; *) return 2 ;; esac
+  case "$attempt" in ''|*[!0-9]*) return 2 ;; esac
+  case "$wake_command_state" in not-sent|sent|failed) ;; *) return 2 ;; esac
+  case "$power_state" in unchecked|awake|not-awake|unknown) ;; *) return 2 ;; esac
+  case "$trust_state" in unchecked|unlocked|locked|unknown) ;; *) return 2 ;; esac
+  case "$credential_state" in not-submitted|not-required|submitted|failed) ;; *) return 2 ;; esac
+  case "$result" in checking|ready|failed) ;; *) return 2 ;; esac
+
+  mkdir -p "$(dirname "$diagnostic_file")" || return 1
+  temporary="${diagnostic_file}.tmp.$$"
+  (
+    umask 077
+    printf '%s\n' \
+      'version=1' \
+      "device_id=$device_id" \
+      "role=$role" \
+      "stage=$stage" \
+      "attempt=$attempt" \
+      "wake_command=$wake_command_state" \
+      "power=$power_state" \
+      "trust=$trust_state" \
+      "credential=$credential_state" \
+      "result=$result" >"$temporary"
+  ) || { rm -f "$temporary"; return 1; }
+  chmod 600 "$temporary" || { rm -f "$temporary"; return 1; }
+  mv "$temporary" "$diagnostic_file"
+}
+
 # Probe the control-plane transport the app actually needs. ICMP is not a
 # service-readiness contract: it can be blocked while HTTPS is healthy. The
 # output is deliberately a finite, non-secret reason token rather than raw
@@ -833,12 +895,17 @@ android_acceptance_validate_booted_device() {
 # Wi-Fi autoconnect is quiescent while it is asleep or keyguarded.
 android_acceptance_prepare_device() {
   local adb="$1" serial="$2" unlock_code="$3" state_dir="$4" status_file="$5"
-  local boot_attempts="${6:-180}" network_attempts="${7:-24}"
+  local diagnostic_file="$6" device_id="$7" role="$8"
+  local boot_attempts="${9:-180}"
+  shift 9
+  local network_attempts="${1:-24}" interactive_attempts="${2:-20}"
 
   mkdir -p "$state_dir" || return 1
   android_acceptance_validate_booted_device \
     "$adb" "$serial" "$status_file" "$boot_attempts" || return
-  if ! android_acceptance_unlock_device "$adb" "$serial" "$unlock_code"; then
+  if ! android_acceptance_unlock_device \
+      "$adb" "$serial" "$unlock_code" "$diagnostic_file" \
+      "$device_id" "$role" "$interactive_attempts"; then
     android_acceptance_write_readiness_status "$status_file" unlock-failed
     return 1
   fi
@@ -915,22 +982,46 @@ android_acceptance_device_awake() {
   return 2
 }
 
-# Wake the display once, then poll the authoritative platform state. Retrying
-# the observation handles an asynchronous OEM wake transition without
-# repeating credentials or guessing a fixed device-specific delay.
-android_acceptance_wake_device() {
-  local adb="$1" serial="$2" state
+# One bounded poll step, overridden by deterministic shell tests.
+android_acceptance_interactive_poll_sleep() {
+  sleep 0.25
+}
 
-  timeout 15 "$adb" -s "$serial" shell input keyevent KEYCODE_WAKEUP \
-    </dev/null >/dev/null 2>&1 || return 1
-  for _ in $(seq 1 20); do
+# Wake the display once, then poll the authoritative platform state. Both
+# negative and unknown observations are transient during some OEM wake paths;
+# neither resubmits input, and both fail closed when the shared bound expires.
+android_acceptance_wake_device() {
+  local adb="$1" serial="$2" diagnostic_file="$3" device_id="$4" role="$5"
+  local attempts="${6:-20}" attempt power_state result state
+
+  case "$attempts" in ''|*[!0-9]*|0) return 2 ;; esac
+  if ! timeout 15 "$adb" -s "$serial" shell input keyevent KEYCODE_WAKEUP \
+      </dev/null >/dev/null 2>&1; then
+    android_acceptance_write_physical_interactive_diagnostics \
+      "$diagnostic_file" "$device_id" "$role" wake-command 0 failed unknown \
+      unchecked not-submitted failed || return
+    return 1
+  fi
+  for attempt in $(seq 1 "$attempts"); do
     if android_acceptance_device_awake "$adb" "$serial"; then
+      android_acceptance_write_physical_interactive_diagnostics \
+        "$diagnostic_file" "$device_id" "$role" wake-observe "$attempt" sent awake \
+        unchecked not-submitted checking || return
       return 0
     else
       state=$?
     fi
-    [ "$state" -eq 1 ] || return 1
-    sleep 0.25
+    case "$state" in
+      1) power_state=not-awake ;;
+      *) power_state=unknown ;;
+    esac
+    result=checking
+    [ "$attempt" -lt "$attempts" ] || result=failed
+    android_acceptance_write_physical_interactive_diagnostics \
+      "$diagnostic_file" "$device_id" "$role" wake-observe "$attempt" \
+      sent "$power_state" unchecked not-submitted "$result" || return
+    [ "$result" = checking ] || return 1
+    android_acceptance_interactive_poll_sleep
   done
   return 1
 }
@@ -1168,34 +1259,97 @@ android_acceptance_enter_unlock_code() {
 # debugging authorization is necessarily a one-time manual prerequisite: adb
 # cannot inject input into a device that has not authorized this host.
 android_acceptance_unlock_device() {
-  local adb="$1" serial="$2" unlock_code="$3" state
+  local adb="$1" serial="$2" unlock_code="$3" diagnostic_file="$4"
+  local device_id="$5" role="$6" attempts="${7:-20}"
+  local attempt credential_state=not-submitted result state trust_state
 
+  case "$attempts" in ''|*[!0-9]*|0) return 2 ;; esac
+  android_acceptance_write_physical_interactive_diagnostics \
+    "$diagnostic_file" "$device_id" "$role" validate 0 not-sent unchecked \
+    unchecked not-submitted checking || return
   case "$unlock_code" in
-    ''|*[!0-9]*) return 2 ;;
+    ''|*[!0-9]*)
+      android_acceptance_write_physical_interactive_diagnostics \
+        "$diagnostic_file" "$device_id" "$role" validate 0 not-sent unchecked \
+        unchecked not-submitted failed || return
+      return 2
+      ;;
   esac
-  [ "${#unlock_code}" -ge 4 ] && [ "${#unlock_code}" -le 16 ] || return 2
-  android_acceptance_adb_device_ready "$adb" "$serial" || return 1
-  android_acceptance_wake_device "$adb" "$serial" || return 1
-
-  if android_acceptance_device_unlocked "$adb" "$serial"; then
-    return 0
-  else
-    state=$?
+  if [ "${#unlock_code}" -lt 4 ] || [ "${#unlock_code}" -gt 16 ]; then
+    android_acceptance_write_physical_interactive_diagnostics \
+      "$diagnostic_file" "$device_id" "$role" validate 0 not-sent unchecked \
+      unchecked not-submitted failed || return
+    return 2
   fi
-  [ "$state" -eq 1 ] || return 1
+  if ! android_acceptance_adb_device_ready "$adb" "$serial"; then
+    android_acceptance_write_physical_interactive_diagnostics \
+      "$diagnostic_file" "$device_id" "$role" adb 0 not-sent unchecked \
+      unchecked not-submitted failed || return
+    return 1
+  fi
+  android_acceptance_write_physical_interactive_diagnostics \
+    "$diagnostic_file" "$device_id" "$role" adb 0 not-sent unchecked \
+    unchecked not-submitted checking || return
+  android_acceptance_wake_device \
+    "$adb" "$serial" "$diagnostic_file" "$device_id" "$role" "$attempts" || return
 
-  # Submit the credential exactly once. The loop below retries only the
-  # lock-state observation, never the PIN.
-  android_acceptance_enter_unlock_code "$adb" "$serial" "$unlock_code" || return 1
-
-  for _ in $(seq 1 20); do
+  for attempt in $(seq 1 "$attempts"); do
     if android_acceptance_device_unlocked "$adb" "$serial"; then
+      android_acceptance_write_physical_interactive_diagnostics \
+        "$diagnostic_file" "$device_id" "$role" complete "$attempt" sent awake \
+        unlocked not-required ready || return
       return 0
     else
       state=$?
     fi
-    [ "$state" -eq 1 ] || return 1
-    sleep 0.25
+    case "$state" in
+      1) trust_state=locked ;;
+      *) trust_state=unknown ;;
+    esac
+    result=checking
+    [ "$trust_state" = locked ] || \
+      { [ "$attempt" -lt "$attempts" ] || result=failed; }
+    android_acceptance_write_physical_interactive_diagnostics \
+      "$diagnostic_file" "$device_id" "$role" pre-credential "$attempt" sent \
+      awake "$trust_state" not-submitted "$result" || return
+    [ "$trust_state" = locked ] && break
+    [ "$result" = checking ] || return 1
+    android_acceptance_interactive_poll_sleep
+  done
+
+  # Submit the credential exactly once. The loop below retries only the
+  # lock-state observation, never the PIN.
+  if ! android_acceptance_enter_unlock_code "$adb" "$serial" "$unlock_code"; then
+    android_acceptance_write_physical_interactive_diagnostics \
+      "$diagnostic_file" "$device_id" "$role" credential-submit 0 sent awake \
+      locked failed failed || return
+    return 1
+  fi
+  credential_state=submitted
+  android_acceptance_write_physical_interactive_diagnostics \
+    "$diagnostic_file" "$device_id" "$role" credential-submit 0 sent awake \
+    locked "$credential_state" checking || return
+
+  for attempt in $(seq 1 "$attempts"); do
+    if android_acceptance_device_unlocked "$adb" "$serial"; then
+      android_acceptance_write_physical_interactive_diagnostics \
+        "$diagnostic_file" "$device_id" "$role" complete "$attempt" sent awake \
+        unlocked "$credential_state" ready || return
+      return 0
+    else
+      state=$?
+    fi
+    case "$state" in
+      1) trust_state=locked ;;
+      *) trust_state=unknown ;;
+    esac
+    result=checking
+    [ "$attempt" -lt "$attempts" ] || result=failed
+    android_acceptance_write_physical_interactive_diagnostics \
+      "$diagnostic_file" "$device_id" "$role" post-credential "$attempt" sent \
+      awake "$trust_state" "$credential_state" "$result" || return
+    [ "$result" = checking ] || return 1
+    android_acceptance_interactive_poll_sleep
   done
   return 1
 }
@@ -1206,11 +1360,14 @@ android_acceptance_unlock_device() {
 # command without an intervening wait. This submits the private credential at
 # most once for this boundary and never retries the product command.
 android_acceptance_run_after_unlock() {
-  local adb="$1" serial="$2" unlock_code="$3"
-  shift 3
+  local adb="$1" serial="$2" unlock_code="$3" diagnostic_file="$4"
+  local device_id="$5" role="$6" attempts="$7"
+  shift 7
 
   [ "$#" -gt 0 ] || return 2
-  android_acceptance_unlock_device "$adb" "$serial" "$unlock_code" || return 1
+  android_acceptance_unlock_device \
+    "$adb" "$serial" "$unlock_code" "$diagnostic_file" \
+    "$device_id" "$role" "$attempts" || return
   "$@"
 }
 

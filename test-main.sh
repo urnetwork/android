@@ -251,15 +251,25 @@ pull_active_clients() {
 }
 
 release_active_clients() {
-  local directory="$1" active result=0
+  local directory="$1" active timeout_seconds
+  local -a active_clients=()
   [ -n "$credentials" ] || return 1
   while IFS= read -r active; do
-    if ! UR_ACCEPT_CREDENTIALS_FILE="$credentials" \
-      timeout 90 node "$root/build/all/acceptance/client-cleanup.mjs" "$active"; then
-      result=1
-    fi
-  done < <(find "$directory" -type f -name 'active-client-id-*' -print 2>/dev/null | LC_ALL=C sort)
-  return "$result"
+    [ -s "$active" ] || continue
+    active_clients+=("$active")
+  done < <(find "$directory" -type f \
+    \( -name 'active-client-id-*' -o -name 'physical-active-client-id' \) \
+    -print 2>/dev/null | LC_ALL=C sort)
+  [ "${#active_clients[@]}" -gt 0 ] || return 0
+
+  # Each unique client makes two independently bounded API calls. The shared
+  # CLI groups aliases before those calls and continues across independent
+  # client groups, so give it a finite outer guard without reverting to one
+  # process (and one destructive remove) per marker.
+  timeout_seconds=$((30 + 60 * ${#active_clients[@]}))
+  UR_ACCEPT_CREDENTIALS_FILE="$credentials" \
+    timeout "$timeout_seconds" node \
+    "$root/build/all/acceptance/client-cleanup.mjs" "${active_clients[@]}"
 }
 
 # Invoked through the EXIT/INT/TERM traps installed below.
@@ -355,16 +365,6 @@ cleanup() {
   if [ -n "$credentials" ] && ! release_active_clients "$artifacts"; then
     echo "[android acceptance] could not release every retained network client" >&2
     exit_status=1
-  fi
-  if [ -n "$credentials" ]; then
-    while IFS= read -r physical_active; do
-      [ -s "$physical_active" ] || continue
-      if ! UR_ACCEPT_CREDENTIALS_FILE="$credentials" timeout 90 \
-        node "$root/build/all/acceptance/client-cleanup.mjs" "$physical_active"; then
-        echo "[android acceptance] could not release a physical-session client" >&2
-        exit_status=1
-      fi
-    done < <(find "$artifacts/cleanup-clients" -type f -name 'physical-active-client-id' -print 2>/dev/null | LC_ALL=C sort)
   fi
   if [ -n "$peer_emulator_pid" ]; then
     for _ in $(seq 1 150); do
@@ -539,6 +539,7 @@ runner_owns_fallback_emulator() {
 
 prepare_selected_device() {
   local target_serial="$1" state_dir="$2" status_file="$3"
+  local diagnostic_device_id="$4"
   local diagnostic_file="${status_file%.txt}-interactive.txt"
 
   if runner_owns_fallback_emulator "$target_serial"; then
@@ -547,18 +548,22 @@ prepare_selected_device() {
       "$state_dir" "$status_file" "$diagnostic_file"
   else
     android_acceptance_prepare_device \
-      "$adb" "$target_serial" "$android_unlock_code" "$state_dir" "$status_file"
+      "$adb" "$target_serial" "$android_unlock_code" "$state_dir" "$status_file" \
+      "$diagnostic_file" "$diagnostic_device_id" readiness 180 24 20
   fi
 }
 
 selected_device_interactive() {
-  local target_serial="$1" diagnostic_file="$2"
+  local target_serial="$1" diagnostic_device_id="$2" role="$3"
+  local diagnostic_file="$4"
 
   if runner_owns_fallback_emulator "$target_serial"; then
     android_acceptance_runner_owned_emulator_interactive \
       "$adb" "$target_serial" "$avd_name" "$emulator_pid" "$diagnostic_file"
   else
-    android_acceptance_unlock_device "$adb" "$target_serial" "$android_unlock_code"
+    android_acceptance_unlock_device \
+      "$adb" "$target_serial" "$android_unlock_code" "$diagnostic_file" \
+      "$diagnostic_device_id" "$role" 20
   fi
 }
 
@@ -577,7 +582,8 @@ run_after_selected_device_interactive() {
       "$renderer_evidence" "$@"
   else
     android_acceptance_run_after_unlock \
-      "$adb" "$target_serial" "$android_unlock_code" \
+      "$adb" "$target_serial" "$android_unlock_code" "$interactive_file" \
+      "$diagnostic_device_id" "$role" 20 \
       run_after_android_preflight \
       "$target_serial" "$diagnostic_device_id" "$role" "$preflight_file" \
       "$renderer_evidence" "$@"
@@ -636,11 +642,13 @@ while IFS=$'\t' read -r device_id target_serial extra <&3; do
     die "malformed Android device record"
   serial="$target_serial"
   echo "[android acceptance] preparing attached device $serial ($device_id)"
+  readiness_diagnostic_id="$(android_acceptance_sanitized_device_id "$device_id")" || \
+    die "could not derive a sanitized readiness ID for $device_id"
   device_state_dir="$run_dir/devices/$device_id"
   mkdir -p "$device_state_dir"
   readiness_file="$artifacts/device-readiness/$device_id.txt"
   if ! prepare_selected_device \
-      "$serial" "$device_state_dir" "$readiness_file"; then
+      "$serial" "$device_state_dir" "$readiness_file" "$readiness_diagnostic_id"; then
     readiness_status="$(sed -n 's/^status=//p' "$readiness_file" 2>/dev/null || true)"
     die "Android device $serial readiness failed: ${readiness_status:-unknown}; see $readiness_file"
   fi
@@ -1046,7 +1054,8 @@ run_android_peer_to_peer() {
   fi
 
   if [ "$session_status" -eq 0 ]; then
-    if ! selected_device_interactive "$serial" "$out/client-interactive.txt"; then
+    if ! selected_device_interactive \
+        "$serial" "$client_diagnostic_id" client "$out/client-interactive.txt"; then
       echo "Android peer client did not reach its required interactive state" >&2
       session_status=1
     elif ! android_acceptance_preflight_device \

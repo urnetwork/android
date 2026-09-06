@@ -1,0 +1,3 @@
+  mCurrentFocus=Window{1111111 u0 com.example.first/.MainActivity}
+  mFocusedWindow=
+  mFocusedWindow=Window{2222222 u0 com.example.second/.MainActivity}
