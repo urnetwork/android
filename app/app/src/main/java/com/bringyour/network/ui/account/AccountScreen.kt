@@ -147,6 +147,7 @@ fun AccountScreen(
                         currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
                         currentStore = currentStore,
                         launchOverlay = overlayViewModel.launch,
+                        onPlanLabelTap = { overlayViewModel.launchSunglassesFlight() },
                         isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                         isCheckingSolanaTransaction = subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState().value,
                         isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPolling,
@@ -193,6 +194,8 @@ fun AccountScreenContent(
     currentPlan: Plan,
     currentStore: String?,
     launchOverlay: (OverlayMode) -> Unit,
+    // a Pro network's plan label replays the Pro celebration
+    onPlanLabelTap: () -> Unit = {},
     isProcessingUpgrade: Boolean, // checking for Stripe, Apple, Play
     isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
     isPollingSubscriptionBalance: Boolean,
@@ -253,6 +256,7 @@ fun AccountScreenContent(
                 AccountRootSubscription(
                     loginMode = loginMode,
                     currentPlan = currentPlan,
+                    onPlanLabelTap = onPlanLabelTap,
                     currentStore = currentStore,
 //                    scope = scope,
                     logout = {

@@ -2,18 +2,20 @@ package com.bringyour.network.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -24,44 +26,75 @@ import com.bringyour.network.ui.components.referral.rememberReducedMotion
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 /**
- * The Pro celebration: the pixel sunglasses, the square eye cover and the
- * circular face cover race one after another from off the left edge to off
- * the right edge, each bobbing like Flappy Bird and pitching with its
- * vertical velocity, with a fading trail behind it. The overlay draws above
- * everything else, takes no touches, dismisses itself when the last sprite
- * has left, and does not play at all when the system animator duration
- * scale is 0.
+ * The Pro celebration: a confetti burst of pixel sunglasses, eye covers and
+ * face discs racing from off the left edge to off the right edge, every one
+ * on its own lane, at its own speed, size and bob, pitching with its
+ * vertical velocity and towing a light trail. Some fly behind (smaller,
+ * dimmer), some in front. Everything is drawn in one Canvas from three
+ * cached vector painters, so a flight of two dozen sprites costs one draw
+ * pass per frame. The overlay takes no touches, dismisses itself when the
+ * last sprite has left, and does not play at all when the system animator
+ * duration scale is 0.
  *
  * `sequence` is the OverlayViewModel flight sequence: 0 is idle, and each
- * launch bumps it, which starts a fresh flight even mid-air. `onFinished`
- * reports the sequence it flew so the host clears only that launch.
+ * launch bumps it, which starts a fresh flight even mid-air. It also seeds
+ * the mix, so a replay is a new burst. `onFinished` reports the sequence it
+ * flew so the host clears only that launch.
  */
-private const val FLIGHT_MILLIS = 1600
-private const val STAGGER_MILLIS = 250L
-private const val BOB_CYCLES = 3.5f
+private const val TOTAL_MILLIS = 2500
+private const val SPRITE_COUNT = 24
+// take-offs spread over the first part of the flight
+private const val MAX_DELAY_SECONDS = 0.6f
+// time to cross the screen, fast to slow
+private const val MIN_CROSSING_SECONDS = 1.2f
+private const val MAX_CROSSING_SECONDS = 1.9f
 private const val PITCH_DEGREES = 20f
-private const val TRAIL_COUNT = 3
+private const val TRAIL_COUNT = 2
 
-// the three sprites, in flight order: drawable, rendered size, bob phase offset
-private data class FlightSprite(
-    val drawable: Int,
-    val width: Dp,
-    val height: Dp,
+private enum class SpriteKind { Sunglasses, EyeCover, FaceCover }
+
+// one sprite of the burst, fixed for the whole flight
+private class Sprite(
+    val kind: SpriteKind,
+    val delaySeconds: Float,
+    val crossingSeconds: Float,
+    // vertical lane, as a fraction of the height
+    val lane: Float,
+    val bobAmplitude: Dp,
+    val bobCycles: Float,
     val phaseOffset: Float,
+    val scale: Float,
+    val behind: Boolean,
 )
 
-private val sprites = listOf(
-    // privacy_glasses.xml geometry in the pink accent (pro_flight_sunglasses.xml)
-    FlightSprite(R.drawable.pro_flight_sunglasses, 96.dp, 22.dp, 0f),
-    // the pixel censor bar
-    FlightSprite(R.drawable.pixel_eye_cover, 96.dp, 35.dp, 1.9f),
-    // the stepped pixel disc
-    FlightSprite(R.drawable.pixel_face_cover, 64.dp, 64.dp, 3.7f),
-)
+private fun burst(seed: Long): List<Sprite> {
+    val random = Random(seed)
+    val sprites = List(SPRITE_COUNT) {
+        val scale = 0.6f + random.nextFloat() * 0.6f
+        Sprite(
+            kind = when (random.nextInt(5)) {
+                0, 1 -> SpriteKind.Sunglasses
+                2, 3 -> SpriteKind.EyeCover
+                else -> SpriteKind.FaceCover
+            },
+            delaySeconds = random.nextFloat() * MAX_DELAY_SECONDS,
+            crossingSeconds = MIN_CROSSING_SECONDS +
+                random.nextFloat() * (MAX_CROSSING_SECONDS - MIN_CROSSING_SECONDS),
+            lane = 0.08f + random.nextFloat() * 0.84f,
+            bobAmplitude = (12 + random.nextInt(29)).dp,
+            bobCycles = 2f + random.nextFloat() * 2f,
+            phaseOffset = random.nextFloat() * 2f * PI.toFloat(),
+            scale = scale,
+            // the small ones fly behind
+            behind = scale < 0.85f,
+        )
+    }
+    // behind first so the front layer draws over it
+    return sprites.sortedBy { if (it.behind) 0 else 1 }
+}
 
 @Composable
 fun ProSunglassesFlight(
@@ -77,106 +110,105 @@ fun ProSunglassesFlight(
         return
     }
 
-    // one flight progress per sprite, restarted for every sequence; the
-    // sprites take off a quarter second apart
-    val progress = remember(sequence) { sprites.map { Animatable(0f) } }
+    // the flight clock, 0..1 over the whole burst, restarted for every sequence
+    val clock = remember(sequence) { Animatable(0f) }
     LaunchedEffect(sequence) {
-        progress.forEachIndexed { index, animatable ->
-            if (index > 0) {
-                delay(STAGGER_MILLIS)
-            }
-            // the last take-off waits for its own landing, the others fly on
-            if (index < progress.lastIndex) {
-                launch {
-                    animatable.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(durationMillis = FLIGHT_MILLIS, easing = FastOutSlowInEasing)
-                    )
-                }
-            } else {
-                animatable.animateTo(
-                    targetValue = 1f,
-                    animationSpec = tween(durationMillis = FLIGHT_MILLIS, easing = FastOutSlowInEasing)
-                )
-            }
-        }
+        clock.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = TOTAL_MILLIS, easing = LinearEasing)
+        )
         onFinished(sequence)
     }
+    val sprites = remember(sequence) { burst(sequence) }
 
+    val sunglasses = painterResource(id = R.drawable.pro_flight_sunglasses)
+    val eyeCover = painterResource(id = R.drawable.pixel_eye_cover)
+    val faceCover = painterResource(id = R.drawable.pixel_face_cover)
     val density = LocalDensity.current
-    val bobAmplitudePx = with(density) { 40.dp.toPx() }
-    val trailStepPx = with(density) { 22.dp.toPx() }
+    val sunglassesSize = with(density) { Size(96.dp.toPx(), 22.dp.toPx()) }
+    val eyeCoverSize = with(density) { Size(96.dp.toPx(), 35.dp.toPx()) }
+    val faceCoverSize = with(density) { Size(64.dp.toPx(), 64.dp.toPx()) }
+    val trailStepPx = with(density) { 18.dp.toPx() }
 
-    BoxWithConstraints(
+    Canvas(
         modifier = Modifier
             .fillMaxSize()
             // decoration only: never announced, never a touch target
             .clearAndSetSemantics {}
     ) {
-        val widthPx = with(density) { maxWidth.toPx() }
-        sprites.forEachIndexed { index, sprite ->
-            val t = progress[index].value
-            if (t <= 0f || t >= 1f) {
-                return@forEachIndexed
+        val seconds = clock.value * TOTAL_MILLIS / 1000f
+        for (sprite in sprites) {
+            val local = (seconds - sprite.delaySeconds) / sprite.crossingSeconds
+            if (local <= 0f || local >= 1f) {
+                continue
             }
-            val spriteWidthPx = with(density) { sprite.width.toPx() }
-            val travelPx = widthPx + 2 * spriteWidthPx
-            // just off the left edge to just off the right edge
-            val x = -spriteWidthPx + t * travelPx
+            val t = FastOutSlowInEasing.transform(local)
+            val painter: Painter
+            val base: Size
+            when (sprite.kind) {
+                SpriteKind.Sunglasses -> { painter = sunglasses; base = sunglassesSize }
+                SpriteKind.EyeCover -> { painter = eyeCover; base = eyeCoverSize }
+                SpriteKind.FaceCover -> { painter = faceCover; base = faceCoverSize }
+            }
+            val spriteWidth = base.width * sprite.scale
+            val travel = size.width + 2 * spriteWidth
+            val laneY = size.height * sprite.lane
+            val amplitude = with(density) { sprite.bobAmplitude.toPx() }
+            val layerAlpha = if (sprite.behind) 0.55f else 1f
 
-            // the trail: fading copies a step behind, slightly smaller
+            // the trail: fading copies a step behind
             for (i in TRAIL_COUNT downTo 1) {
-                val trailT = (t - i * trailStepPx / travelPx).coerceAtLeast(0f)
-                Sprite(
+                val trailT = (t - i * trailStepPx / travel).coerceAtLeast(0f)
+                drawSprite(
+                    painter = painter,
+                    base = base,
+                    x = -spriteWidth + trailT * travel - i * trailStepPx,
+                    laneY = laneY,
+                    amplitude = amplitude,
                     sprite = sprite,
-                    translationX = x - i * trailStepPx,
                     progress = trailT,
-                    bobAmplitudePx = bobAmplitudePx,
-                    alpha = 0.32f - 0.09f * i,
-                    scale = 1f - 0.08f * i,
+                    alpha = layerAlpha * (0.28f - 0.1f * i),
+                    scale = sprite.scale * (1f - 0.08f * i),
                 )
             }
-            Sprite(
+            drawSprite(
+                painter = painter,
+                base = base,
+                x = -spriteWidth + t * travel,
+                laneY = laneY,
+                amplitude = amplitude,
                 sprite = sprite,
-                translationX = x,
                 progress = t,
-                bobAmplitudePx = bobAmplitudePx,
-                alpha = 1f,
-                scale = 1f,
+                alpha = layerAlpha,
+                scale = sprite.scale,
             )
         }
     }
 }
 
-@Composable
-private fun BoxWithConstraintsScope.Sprite(
-    sprite: FlightSprite,
-    translationX: Float,
+private fun DrawScope.drawSprite(
+    painter: Painter,
+    base: Size,
+    x: Float,
+    laneY: Float,
+    amplitude: Float,
+    sprite: Sprite,
     progress: Float,
-    bobAmplitudePx: Float,
     alpha: Float,
     scale: Float,
 ) {
-    val phase = 2.0 * PI * BOB_CYCLES * progress + sprite.phaseOffset
+    val phase = 2.0 * PI * sprite.bobCycles * progress + sprite.phaseOffset
     // the vertical velocity sets the pitch: nose up while rising (y
     // decreasing on screen), nose down while falling
-    val translationY = bobAmplitudePx * sin(phase).toFloat()
+    val y = laneY + amplitude * sin(phase).toFloat() - base.height * scale / 2
     val pitch = -PITCH_DEGREES * cos(phase).toFloat()
-    Image(
-        painter = painterResource(id = sprite.drawable),
-        contentDescription = null,
-        modifier = Modifier
-            .align(Alignment.CenterStart)
-            .size(sprite.width, sprite.height)
-            .graphicsLayer {
-                this.translationX = translationX
-                this.translationY = translationY
-                this.rotationZ = pitch
-                this.alpha = alpha
-                this.scaleX = scale
-                this.scaleY = scale
-                // a soft drop shadow so it reads as fast against any ground
-                this.shadowElevation = 6.dp.toPx()
+    translate(left = x, top = y) {
+        scale(scale = scale, pivot = androidx.compose.ui.geometry.Offset.Zero) {
+            rotate(degrees = pitch, pivot = androidx.compose.ui.geometry.Offset(base.width / 2, base.height / 2)) {
+                with(painter) {
+                    draw(size = base, alpha = alpha)
+                }
             }
-    )
+        }
+    }
 }

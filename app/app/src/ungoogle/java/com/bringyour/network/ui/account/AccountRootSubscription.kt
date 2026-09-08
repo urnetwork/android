@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -43,7 +44,9 @@ fun AccountRootSubscription(
     isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
     isPollingSubscriptionBalance: Boolean,
     logout: () -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
+    // a Pro network's plan label replays the Pro celebration
+    onPlanLabelTap: () -> Unit = {},
 ) {
 
     val uriHandler = LocalUriHandler.current
@@ -99,7 +102,13 @@ fun AccountRootSubscription(
 
                     } else {
                         Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
-                            style = MaterialTheme.typography.headlineMedium
+                            style = MaterialTheme.typography.headlineMedium,
+                            // Pro: the label itself is a button that replays the celebration
+                            modifier = if (currentPlan == Plan.Supporter) {
+                                Modifier.clickable(role = Role.Button) { onPlanLabelTap() }
+                            } else {
+                                Modifier
+                            }
                         )
                     }
                 }
