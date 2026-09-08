@@ -9,7 +9,7 @@ class TapSequenceGateTest {
 
     @Test
     fun fiveQuickTapsCompleteTheSequence() {
-        val gate = TapSequenceGate(count = 5, windowMillis = 5_000L)
+        val gate = TapSequenceGate(count = 5, windowMillis = 2_000L)
         assertFalse(gate.tap(0L))
         assertFalse(gate.tap(1_000L))
         assertFalse(gate.tap(2_000L))
@@ -20,30 +20,30 @@ class TapSequenceGateTest {
 
     @Test
     fun aGapLongerThanTheWindowResetsTheCount() {
-        val gate = TapSequenceGate(count = 5, windowMillis = 5_000L)
+        val gate = TapSequenceGate(count = 5, windowMillis = 2_000L)
         gate.tap(0L)
         gate.tap(1_000L)
         gate.tap(2_000L)
         assertEquals(3, gate.progress)
-        // 5.001 s after the last tap: the sequence starts over with this tap
-        assertFalse(gate.tap(7_001L))
+        // 2.001 s after the last tap: the sequence starts over with this tap
+        assertFalse(gate.tap(4_001L))
         assertEquals(1, gate.progress)
-        assertFalse(gate.tap(8_000L))
-        assertFalse(gate.tap(9_000L))
-        assertFalse(gate.tap(10_000L))
-        assertTrue(gate.tap(11_000L))
+        assertFalse(gate.tap(5_000L))
+        assertFalse(gate.tap(6_000L))
+        assertFalse(gate.tap(7_000L))
+        assertTrue(gate.tap(8_000L))
     }
 
     @Test
     fun aTapExactlyAtTheWindowStillCounts() {
-        val gate = TapSequenceGate(count = 2, windowMillis = 5_000L)
+        val gate = TapSequenceGate(count = 2, windowMillis = 2_000L)
         gate.tap(0L)
-        assertTrue(gate.tap(5_000L))
+        assertTrue(gate.tap(2_000L))
     }
 
     @Test
     fun tapsAfterACompletionStartANewSequence() {
-        val gate = TapSequenceGate(count = 5, windowMillis = 5_000L)
+        val gate = TapSequenceGate(count = 5, windowMillis = 2_000L)
         for (i in 0 until 4) assertFalse(gate.tap(i * 100L))
         assertTrue(gate.tap(400L))
         assertEquals(0, gate.progress)
@@ -54,7 +54,7 @@ class TapSequenceGateTest {
 
     @Test
     fun resetDropsTheCount() {
-        val gate = TapSequenceGate(count = 3, windowMillis = 5_000L)
+        val gate = TapSequenceGate(count = 3, windowMillis = 2_000L)
         gate.tap(0L)
         gate.tap(100L)
         gate.reset()

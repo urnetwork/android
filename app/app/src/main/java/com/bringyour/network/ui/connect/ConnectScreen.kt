@@ -441,9 +441,9 @@ fun ConnectMainContent(
     launchProCelebration: () -> Unit = {},
 ) {
 
-    // silent: no ripple change, no counter, no announcement; a 5 s gap or
+    // silent: no ripple change, no counter, no announcement; a 2 s gap or
     // leaving the connected state starts the count over
-    val connectedTapGate = remember { TapSequenceGate(count = 5, windowMillis = 5_000L) }
+    val connectedTapGate = remember { TapSequenceGate(count = 5, windowMillis = 2_000L) }
     LaunchedEffect(connectStatus) {
         if (connectStatus != ConnectStatus.CONNECTED) {
             connectedTapGate.reset()

@@ -9,7 +9,7 @@ package com.bringyour.network.ui.components
  */
 class TapSequenceGate(
     private val count: Int = 5,
-    private val windowMillis: Long = 5_000L,
+    private val windowMillis: Long = 2_000L,
 ) {
     private var taps = 0
     private var lastTapMillis = 0L
