@@ -84,8 +84,8 @@ fun PointsLeaderboardTab(
     var emojiSaveError by remember { mutableStateOf<String?>(null) }
 
     val ownNetworkId = viewModel.me?.row?.networkId
-    // the caller always sees their own name: the me row's, or the jwt's until
-    // me lands; the own list row shows it too when it is anonymous to others
+    // the own-stats card always shows the caller's own name: the me row's, or
+    // the jwt's until me lands; the list row is what everyone else sees
     val jwtNetworkName by viewModel.ownNetworkName.collectAsState()
     val ownName = viewModel.me?.row?.displayName?.takeIf { it.isNotEmpty() } ?: jwtNetworkName
 
@@ -200,7 +200,6 @@ fun PointsLeaderboardTab(
                         row = row,
                         sort = viewModel.sort,
                         isNetworkRow = ownNetworkId != null && ownNetworkId == row.networkId,
-                        ownName = ownName,
                     )
                 }
             }
@@ -454,17 +453,17 @@ private fun PointsRow(
     row: PointsLeaderboardRowUi,
     sort: String,
     isNetworkRow: Boolean,
-    ownName: String = "",
 ) {
     val rank = when (sort) {
         Sdk.PointsLeaderboardSortBlocks -> row.rankBlocksText
         Sdk.PointsLeaderboardSortStreak -> row.rankStreakText
         else -> row.rankPointsText
     }
-    // an anonymous row reads "Anonymous" to everyone but its owner, who sees
-    // their own name (the highlight keys on the network id, never the name)
+    // an anonymous row reads "Anonymous" to everyone, its owner included: the
+    // caller sees the list as everyone sees it, and only the highlight (keyed
+    // on the network id, never the name) marks the own row
     val name = if (row.anonymous || row.displayName.isEmpty()) {
-        if (isNetworkRow && ownName.isNotEmpty()) ownName else stringResource(id = R.string.anonymous)
+        stringResource(id = R.string.anonymous)
     } else {
         row.displayName
     }
