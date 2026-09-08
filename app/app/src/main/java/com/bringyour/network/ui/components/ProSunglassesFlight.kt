@@ -1,13 +1,9 @@
 package com.bringyour.network.ui.components
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -22,7 +18,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
-import com.bringyour.network.ui.components.referral.rememberReducedMotion
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -39,12 +34,9 @@ import kotlin.random.Random
  * last sprite has left, and does not play at all when the system animator
  * duration scale is 0.
  *
- * `sequence` is the OverlayViewModel flight sequence: 0 is idle, and each
- * launch bumps it, which starts a fresh flight even mid-air. It also seeds
- * the mix, so a replay is a new burst. `onFinished` reports the sequence it
- * flew so the host clears only that launch.
+ * The flight follows a [ProFlightClock] (the same clock the pixelation layer
+ * reads); its sequence seeds the mix, so a replay is a new burst.
  */
-private const val TOTAL_MILLIS = 2500
 private const val SPRITE_COUNT = 24
 // take-offs spread over the first part of the flight
 private const val MAX_DELAY_SECONDS = 0.6f
@@ -98,26 +90,11 @@ private fun burst(seed: Long): List<Sprite> {
 
 @Composable
 fun ProSunglassesFlight(
-    sequence: Long,
-    onFinished: (Long) -> Unit,
+    clock: ProFlightClock,
 ) {
+    val sequence = clock.sequence
     if (sequence == 0L) {
         return
-    }
-    val reducedMotion = rememberReducedMotion()
-    if (reducedMotion) {
-        LaunchedEffect(sequence) { onFinished(sequence) }
-        return
-    }
-
-    // the flight clock, 0..1 over the whole burst, restarted for every sequence
-    val clock = remember(sequence) { Animatable(0f) }
-    LaunchedEffect(sequence) {
-        clock.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = TOTAL_MILLIS, easing = LinearEasing)
-        )
-        onFinished(sequence)
     }
     val sprites = remember(sequence) { burst(sequence) }
 
@@ -136,7 +113,7 @@ fun ProSunglassesFlight(
             // decoration only: never announced, never a touch target
             .clearAndSetSemantics {}
     ) {
-        val seconds = clock.value * TOTAL_MILLIS / 1000f
+        val seconds = clock.progress * PRO_FLIGHT_TOTAL_MILLIS / 1000f
         for (sprite in sprites) {
             val local = (seconds - sprite.delaySeconds) / sprite.crossingSeconds
             if (local <= 0f || local >= 1f) {

@@ -84,6 +84,8 @@ import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.settings.DeveloperScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
 import com.bringyour.network.ui.components.ProSunglassesFlight
+import com.bringyour.network.ui.components.proFlightPixelation
+import com.bringyour.network.ui.components.rememberProFlightClock
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
 import com.bringyour.network.ui.components.referral.LocalReferralTerms
@@ -631,6 +633,21 @@ private fun MainNavHostContent(
         }
     }
 
+    // The Pro celebration flight clock. Everything under the flight (the nav
+    // content and the overlays) sits in one layer that pixelates while a
+    // flight is in the air; the flight itself draws above it, sharp.
+    val sunglassesFlightSequence by overlayViewModel.sunglassesFlightSequence.collectAsState()
+    val proFlightClock = rememberProFlightClock(
+        sequence = sunglassesFlightSequence,
+        onFinished = { overlayViewModel.finishSunglassesFlight(it) },
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .proFlightPixelation(proFlightClock)
+    ) {
+
     AnimatedContent(
         targetState = displayIntroFunnel,
         label = "intro-main-switch",
@@ -809,12 +826,10 @@ private fun MainNavHostContent(
         },
     )
 
-    // the Pro celebration flight, above every overlay; it clears itself
-    val sunglassesFlightSequence by overlayViewModel.sunglassesFlightSequence.collectAsState()
-    ProSunglassesFlight(
-        sequence = sunglassesFlightSequence,
-        onFinished = { overlayViewModel.finishSunglassesFlight(it) },
-    )
+    } // pixelation layer
+
+    // the Pro celebration flight, above every overlay, sharp
+    ProSunglassesFlight(clock = proFlightClock)
 
     /**
      * Referral celebrations: the first referral gets the full-screen crowning
