@@ -23,11 +23,14 @@ import com.bringyour.network.ui.components.referral.rememberReducedMotion
  * by an Animatable so every reader (the sprite canvas, the pixelation layer)
  * follows the same frame without recomposing the tree. `sequence` 0 is idle.
  */
-const val PRO_FLIGHT_TOTAL_MILLIS = 2500
-
-// the pixelation ramps in over the first part of the flight and back out
-// over the last part, so the screen is sharp again the moment the flight ends
-private const val PIXELATE_RAMP_FRACTION = 0.24f
+// The flight: confetti streams for the first 15 s; the pixelation fades in over
+// the first 5 s, holds while the confetti flies, and fades out over the 5 s
+// after the confetti has finished, so the screen is sharp again at 20 s.
+const val PRO_FLIGHT_TOTAL_MILLIS = 20_000
+const val PRO_FLIGHT_CONFETTI_SECONDS = 15f
+const val PRO_FLIGHT_PIXELATE_IN_SECONDS = 5f
+const val PRO_FLIGHT_PIXELATE_OUT_START_SECONDS = 15f
+const val PRO_FLIGHT_PIXELATE_OUT_SECONDS = 5f
 private val PIXELATE_MAX_CELL = 24.dp
 
 @Stable
@@ -73,11 +76,15 @@ fun rememberProFlightClock(
 
 /** The pixel cell size, in dp, at a point of the flight: ramp in, hold, ramp out. */
 internal fun pixelateCellDp(progress: Float): Float {
+    val seconds = progress * PRO_FLIGHT_TOTAL_MILLIS / 1000f
+    val outEnd = PRO_FLIGHT_PIXELATE_OUT_START_SECONDS + PRO_FLIGHT_PIXELATE_OUT_SECONDS
     val ramp = when {
-        progress < PIXELATE_RAMP_FRACTION ->
-            FastOutSlowInEasing.transform(progress / PIXELATE_RAMP_FRACTION)
-        progress > 1f - PIXELATE_RAMP_FRACTION ->
-            FastOutSlowInEasing.transform((1f - progress) / PIXELATE_RAMP_FRACTION)
+        seconds < PRO_FLIGHT_PIXELATE_IN_SECONDS ->
+            FastOutSlowInEasing.transform(seconds / PRO_FLIGHT_PIXELATE_IN_SECONDS)
+        seconds > PRO_FLIGHT_PIXELATE_OUT_START_SECONDS ->
+            FastOutSlowInEasing.transform(
+                ((outEnd - seconds) / PRO_FLIGHT_PIXELATE_OUT_SECONDS).coerceIn(0f, 1f)
+            )
         else -> 1f
     }
     return ramp * PIXELATE_MAX_CELL.value

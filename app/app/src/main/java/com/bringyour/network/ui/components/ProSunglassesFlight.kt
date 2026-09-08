@@ -24,9 +24,9 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * The Pro celebration: a confetti burst of pixel sunglasses, eye covers and
- * face discs racing from off the left edge to off the right edge, every one
- * on its own lane, at its own speed, size and bob, pitching with its
+ * The Pro celebration: a 15 s confetti stream of pixel sunglasses, eye covers
+ * and face discs racing from off the left edge to off the right edge, every
+ * one on its own lane, at its own speed, size and bob, pitching with its
  * vertical velocity and towing a light trail. Some fly behind (smaller,
  * dimmer), some in front. Everything is drawn in one Canvas from three
  * cached vector painters, so a flight of two dozen sprites costs one draw
@@ -37,12 +37,16 @@ import kotlin.random.Random
  * The flight follows a [ProFlightClock] (the same clock the pixelation layer
  * reads); its sequence seeds the mix, so a replay is a new burst.
  */
-private const val SPRITE_COUNT = 24
-// take-offs spread over the first part of the flight
-private const val MAX_DELAY_SECONDS = 0.6f
+// a steady stream: a new sprite about every 150 ms (with a little jitter)
+// until the last one can still leave the screen before the confetti ends
+private const val SPAWN_INTERVAL_SECONDS = 0.15f
+private const val SPAWN_JITTER_SECONDS = 0.03f
 // time to cross the screen, fast to slow
 private const val MIN_CROSSING_SECONDS = 1.2f
 private const val MAX_CROSSING_SECONDS = 1.9f
+// the most sprites in the air at once; the schedule skips a take-off that
+// would exceed it (the interval and crossing times keep it near a dozen)
+private const val MAX_LIVE_SPRITES = 30
 private const val PITCH_DEGREES = 20f
 private const val TRAIL_COUNT = 2
 
@@ -62,19 +66,28 @@ private class Sprite(
     val behind: Boolean,
 )
 
+// The whole take-off schedule of one flight, computed once at launch (no
+// allocation per spawn): sprites take off at a steady rate for the first
+// part of the confetti window so the last one has left the screen by
+// PRO_FLIGHT_CONFETTI_SECONDS, and nothing spawns after that.
 private fun burst(seed: Long): List<Sprite> {
     val random = Random(seed)
-    val sprites = List(SPRITE_COUNT) {
+    val sprites = ArrayList<Sprite>()
+    var takeOff = 0f
+    val lastTakeOff = PRO_FLIGHT_CONFETTI_SECONDS - MAX_CROSSING_SECONDS
+    while (takeOff <= lastTakeOff) {
+        val crossing = MIN_CROSSING_SECONDS +
+            random.nextFloat() * (MAX_CROSSING_SECONDS - MIN_CROSSING_SECONDS)
         val scale = 0.6f + random.nextFloat() * 0.6f
-        Sprite(
+        val live = sprites.count { it.delaySeconds + it.crossingSeconds > takeOff }
+        if (live < MAX_LIVE_SPRITES) sprites.add(Sprite(
             kind = when (random.nextInt(5)) {
                 0, 1 -> SpriteKind.Sunglasses
                 2, 3 -> SpriteKind.EyeCover
                 else -> SpriteKind.FaceCover
             },
-            delaySeconds = random.nextFloat() * MAX_DELAY_SECONDS,
-            crossingSeconds = MIN_CROSSING_SECONDS +
-                random.nextFloat() * (MAX_CROSSING_SECONDS - MIN_CROSSING_SECONDS),
+            delaySeconds = takeOff,
+            crossingSeconds = crossing,
             lane = 0.08f + random.nextFloat() * 0.84f,
             bobAmplitude = (12 + random.nextInt(29)).dp,
             bobCycles = 2f + random.nextFloat() * 2f,
@@ -82,7 +95,8 @@ private fun burst(seed: Long): List<Sprite> {
             scale = scale,
             // the small ones fly behind
             behind = scale < 0.85f,
-        )
+        ))
+        takeOff += SPAWN_INTERVAL_SECONDS + (random.nextFloat() * 2f - 1f) * SPAWN_JITTER_SECONDS
     }
     // behind first so the front layer draws over it
     return sprites.sortedBy { if (it.behind) 0 else 1 }
