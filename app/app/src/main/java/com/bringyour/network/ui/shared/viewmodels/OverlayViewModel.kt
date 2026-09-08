@@ -20,5 +20,21 @@ class OverlayViewModel @Inject constructor(
     val launch: (OverlayMode?) -> Unit = { mode ->
         _overlayModeState.value = mode
     }
+
+    // The Pro celebration flight (ProSunglassesFlight). Each launch bumps the
+    // sequence so a new flight starts even while one is in the air; the host
+    // clears it when the flight it rendered ends, never a later one.
+    private val _sunglassesFlightSequence = MutableStateFlow(0L)
+    val sunglassesFlightSequence: StateFlow<Long> = _sunglassesFlightSequence.asStateFlow()
+
+    fun launchSunglassesFlight() {
+        _sunglassesFlightSequence.value += 1
+    }
+
+    fun finishSunglassesFlight(sequence: Long) {
+        if (_sunglassesFlightSequence.value == sequence) {
+            _sunglassesFlightSequence.value = 0L
+        }
+    }
     
 }

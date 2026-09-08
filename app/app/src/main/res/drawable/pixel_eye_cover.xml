@@ -1,0 +1,13 @@
+<!-- A square eye cover: the pixel censor bar, in the 12-unit grid of
+     privacy_glasses.xml with the same stair-stepped corners. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="264dp"
+    android:height="96dp"
+    android:viewportWidth="264"
+    android:viewportHeight="96">
+  <path
+      android:pathData="M24,0H240V12H252V24H264V72H252V84H240V96H24V84H12V72H0V24H12V12H24Z"
+      android:fillColor="#101010"/>
+  <path android:pathData="M36,12h12v12h-12z" android:fillColor="#ED8FFF"/>
+  <path android:pathData="M216,72h12v12h-12z" android:fillColor="#ED8FFF"/>
+</vector>

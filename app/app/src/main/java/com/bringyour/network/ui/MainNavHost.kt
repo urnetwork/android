@@ -83,6 +83,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.settings.DeveloperScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
+import com.bringyour.network.ui.components.ProSunglassesFlight
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
 import com.bringyour.network.ui.components.referral.LocalReferralTerms
@@ -424,6 +425,8 @@ private fun MainNavHostContent(
                 return@collect
             }
 
+            // the celebration flight plays over the "Nicely done" overlay
+            overlayViewModel.launchSunglassesFlight()
             overlayViewModel.launch(OverlayMode.Upgrade)
             subscriptionBalanceViewModel.pollSubscriptionBalance()
 
@@ -806,6 +809,13 @@ private fun MainNavHostContent(
         },
     )
 
+    // the Pro celebration flight, above every overlay; it clears itself
+    val sunglassesFlightSequence by overlayViewModel.sunglassesFlightSequence.collectAsState()
+    ProSunglassesFlight(
+        sequence = sunglassesFlightSequence,
+        onFinished = { overlayViewModel.finishSunglassesFlight(it) },
+    )
+
     /**
      * Referral celebrations: the first referral gets the full-screen crowning
      * overlay; later ones get a passing gold toast. Detected by the referral
@@ -1168,10 +1178,12 @@ fun MainNavContent(
                 createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
                 onStripePaymentSuccess = {
                     subscriptionBalanceViewModel.pollSubscriptionBalance()
+                    overlayViewModel.launchSunglassesFlight()
                     overlayViewModel.launch(OverlayMode.Upgrade)
                     navController.popBackStack()
                 },
-                isCheckingSolanaTransaction = isCheckingSolanaTransaction
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction,
+                onTestAnimation = { overlayViewModel.launchSunglassesFlight() }
             )
         }
 

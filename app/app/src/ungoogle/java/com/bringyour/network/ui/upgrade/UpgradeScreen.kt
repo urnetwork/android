@@ -17,7 +17,9 @@ fun UpgradeScreen(
         onError: () -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
-    isCheckingSolanaTransaction: Boolean
+    isCheckingSolanaTransaction: Boolean,
+    // replays the Pro celebration flight; only the Play screen shows the debug button
+    onTestAnimation: () -> Unit = {},
 ) {
 
     /**

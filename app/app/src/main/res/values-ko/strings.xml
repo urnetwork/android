@@ -456,6 +456,7 @@
     <string name="sync_device_location_with_provider">기기 위치를 제공업체와 동기화</string>
     <string name="tap_to_connect">탭하여 연결</string>
     <string name="tap_to_refetch">위치를 가져오려면 탭하세요.</string>
+    <string name="test_animation">애니메이션 테스트</string>
     <string name="this_region">이 지역</string>
     <string name="tile_status_connected">연결됨</string>
     <string name="tile_status_disconnected">연결 끊김</string>

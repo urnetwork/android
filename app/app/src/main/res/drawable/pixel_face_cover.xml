@@ -1,0 +1,13 @@
+<!-- A circular face cover: a stepped pixel disc in the 12-unit grid of
+     privacy_glasses.xml, in the Pro gold accent. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="144dp"
+    android:height="144dp"
+    android:viewportWidth="144"
+    android:viewportHeight="144">
+  <path
+      android:pathData="M48,0H96V12H120V24H132V48H144V96H132V120H120V132H96V144H48V132H24V120H12V96H0V48H12V24H24V12H48Z"
+      android:fillColor="#FFC400"/>
+  <path android:pathData="M36,24h12v12h-12z" android:fillColor="#101010"/>
+  <path android:pathData="M24,36h12v12h-12z" android:fillColor="#101010"/>
+</vector>
