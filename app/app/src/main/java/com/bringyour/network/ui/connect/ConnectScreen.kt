@@ -21,6 +21,7 @@ import androidx.compose.material3.BottomSheetScaffold
 import com.bringyour.network.ui.components.isTabletWidth
 import com.bringyour.network.ui.components.tabletDrawerWidth
 import com.bringyour.network.ui.components.TabletLayout
+import com.bringyour.network.ui.components.TapSequenceGate
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -238,6 +239,7 @@ fun ConnectScreen(
                 displayInsufficientBalance = displayInsufficientBalance,
                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                 device = connectViewModel.device,
+                launchProCelebration = { overlayViewModel.launchSunglassesFlight() },
                 showProviderLocations = { navController.navigate(Route.ProviderLocations) },
                 promptReview = {
                     if (bundleStore == BundleStore.SOLANA_DAPP) {
@@ -433,8 +435,20 @@ fun ConnectMainContent(
     isPollingSubscriptionBalance: Boolean,
     device: DeviceLocal?, // fixme, we don't need to pass the entire device
     promptReview: () -> Unit,
-    showProviderLocations: () -> Unit
+    showProviderLocations: () -> Unit,
+    // the easter egg: five quick taps on the connected connector replay the
+    // Pro celebration
+    launchProCelebration: () -> Unit = {},
 ) {
+
+    // silent: no ripple change, no counter, no announcement; a 5 s gap or
+    // leaving the connected state starts the count over
+    val connectedTapGate = remember { TapSequenceGate(count = 5, windowMillis = 5_000L) }
+    LaunchedEffect(connectStatus) {
+        if (connectStatus != ConnectStatus.CONNECTED) {
+            connectedTapGate.reset()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -466,6 +480,10 @@ fun ConnectMainContent(
                             if (connectStatus == ConnectStatus.DISCONNECTED) {
                                 connect(selectedLocation)
 //                            checkTriggerPromptReview()
+                            } else if (connectStatus == ConnectStatus.CONNECTED) {
+                                if (connectedTapGate.tap(System.currentTimeMillis())) {
+                                    launchProCelebration()
+                                }
                             }
                         },
                         updatedStatus = connectStatus,
