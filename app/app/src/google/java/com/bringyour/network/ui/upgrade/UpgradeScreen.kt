@@ -3,10 +3,6 @@ package com.bringyour.network.ui.upgrade
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.R
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextButton
-import com.bringyour.network.ui.theme.TextMuted
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -33,9 +29,6 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 
-// Set to false to drop the "Test animation" debug button below the plan picker.
-const val SHOW_PRO_ANIMATION_TEST_BUTTON = true
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpgradeScreen(
@@ -49,9 +42,7 @@ fun UpgradeScreen(
         onError: () -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
-    isCheckingSolanaTransaction: Boolean,
-    // replays the Pro celebration flight (the debug button below the picker)
-    onTestAnimation: () -> Unit = {},
+    isCheckingSolanaTransaction: Boolean
 ) {
     // the store offers load at launch; repeat the query here when that one
     // failed, so the picker shows the yearly plan Play has for this account
@@ -105,21 +96,6 @@ fun UpgradeScreen(
                     isCheckingSolanaTransaction = isCheckingSolanaTransaction
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                if (SHOW_PRO_ANIMATION_TEST_BUTTON) {
-                    // debug: replay the Pro celebration; a quiet text button so the
-                    // CTA above stays the screen's one primary
-                    TextButton(
-                        onClick = onTestAnimation,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            stringResource(id = R.string.test_animation),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextMuted
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
             }
         }
     }

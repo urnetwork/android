@@ -1197,8 +1197,7 @@ fun MainNavContent(
                     overlayViewModel.launch(OverlayMode.Upgrade)
                     navController.popBackStack()
                 },
-                isCheckingSolanaTransaction = isCheckingSolanaTransaction,
-                onTestAnimation = { overlayViewModel.launchSunglassesFlight() }
+                isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
         }
 
