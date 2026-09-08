@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
-import com.bringyour.network.ui.theme.TextMuted
 
 @Composable
 fun UpgradeScreenHeader() {
@@ -25,14 +24,7 @@ fun UpgradeScreenHeader() {
             style = MaterialTheme.typography.headlineLarge
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // One line for now: the Pro capabilities keep expanding, so the screen
-        // states the promise instead of a list of benefits.
-        Text(
-            stringResource(id = R.string.pro_benefits_simple),
-            style = MaterialTheme.typography.bodyLarge,
-            color = TextMuted
-        )
+        // No explainer under the title: the screen is the title and the two
+        // plan options.
     }
 }

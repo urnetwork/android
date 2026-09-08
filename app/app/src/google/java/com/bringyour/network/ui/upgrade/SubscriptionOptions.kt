@@ -7,6 +7,7 @@ import com.bringyour.network.ui.theme.ProGoldLight
 import com.bringyour.network.ui.components.BestValuePill
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -110,23 +111,31 @@ fun SubscriptionOptions(
             isSelected = !yearlySelected,
             select = { setSelectedPlan(PlanType.MONTHLY) },
             content = {
-                Column {
+                // The monthly card has one line. Size it like the yearly card (an
+                // invisible copy of that card's two lines, not read aloud) so both
+                // cards are equal height at any font scale, and center the visible
+                // line in that space so it sits level with the radio button.
+                Box(contentAlignment = Alignment.CenterStart) {
+                    if (trialOffered) {
+                        Column(
+                            modifier = Modifier
+                                .alpha(0f)
+                                .clearAndSetSemantics {}
+                        ) {
+                            Text(
+                                stringResource(id = R.string.plan_price_per_year, yearlyCostFormatted),
+                                style = TopBarTitleTextStyle
+                            )
+                            Text(
+                                stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
                     Text(
                         stringResource(id = R.string.plan_price_per_month, monthlyCostFormatted),
                         style = TopBarTitleTextStyle
                     )
-                    if (trialOffered) {
-                        // The monthly card has no second line; reserve the same
-                        // line the yearly card draws so both cards are equal height
-                        // whatever the font scale. Invisible and not read aloud.
-                        Text(
-                            stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .alpha(0f)
-                                .clearAndSetSemantics {}
-                        )
-                    }
                 }
             }
         )
