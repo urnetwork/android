@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">Identité post-quantique du fournisseur</string>
     <string name="post_quantum_identity_explanation">Votre clé d\'identité de fournisseur est stockée localement sur cet appareil. Si la clé d\'un pair diffère de sa clé stockée localement, cela signifie que l\'opérateur du réseau n\'est pas digne de confiance.</string>
     <string name="private_network">Réseau privé</string>
+    <string name="pro_benefits_simple">La meilleure version d\'URnetwork.</string>
     <string name="processing_payment">Traitement du paiement</string>
     <string name="profile">Profil</string>
     <string name="promoted_locations">Emplacements promus</string>

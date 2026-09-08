@@ -27,16 +27,10 @@ fun UpgradeScreenHeader() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // One line for now: the Pro capabilities keep expanding, so the screen
+        // states the promise instead of a list of benefits.
         Text(
-            stringResource(id = R.string.support_us),
-            style = MaterialTheme.typography.bodyLarge,
-            color = TextMuted
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            stringResource(id = R.string.unlock_speed),
+            stringResource(id = R.string.pro_benefits_simple),
             style = MaterialTheme.typography.bodyLarge,
             color = TextMuted
         )

@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">هوية المزوّد ما بعد الكمومية</string>
     <string name="post_quantum_identity_explanation">يُخزَّن مفتاح هوية المزوّد الخاص بك محليًا على هذا الجهاز. إذا ظهر مفتاح أي قرين مختلفًا عن مفتاحه المخزَّن محليًا، فهذا يعني أنه لا يمكن الوثوق بمشغّل الشبكة.</string>
     <string name="private_network">شبكة خاصة</string>
+    <string name="pro_benefits_simple">أفضل نسخة من URnetwork.</string>
     <string name="processing_payment">جارٍ معالجة الدفع</string>
     <string name="profile">الملف الشخصي</string>
     <string name="promoted_locations">المواقع المميزة</string>

@@ -62,7 +62,8 @@ fun PlanOptionContainer(
                 .clickable {
                     select()
                 }
-                .padding(24.dp),
+                // taller than wide: the plan lines get room to breathe
+                .padding(horizontal = 24.dp, vertical = 36.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 

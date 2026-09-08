@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">Постквантовая идентификация провайдера</string>
     <string name="post_quantum_identity_explanation">Ваш ключ идентификации провайдера хранится локально на этом устройстве. Если ключ какого-либо узла отличается от сохранённого локально, это значит, что оператору сети нельзя доверять.</string>
     <string name="private_network">Частная сеть</string>
+    <string name="pro_benefits_simple">Лучшая версия URnetwork.</string>
     <string name="processing_payment">Обработка платежа</string>
     <string name="profile">Профиль</string>
     <string name="promoted_locations">Продвигаемые локации</string>

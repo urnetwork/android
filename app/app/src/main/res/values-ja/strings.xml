@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">ポスト量子プロバイダーID</string>
     <string name="post_quantum_identity_explanation">あなたのプロバイダーIDキーはこのデバイスにローカル保存されます。いずれかのピアのキーがローカルに保存されたキーと異なって表示される場合、そのネットワーク運営者は信頼できません。</string>
     <string name="private_network">プライベートネットワーク</string>
+    <string name="pro_benefits_simple">URnetworkの最高のバージョン。</string>
     <string name="processing_payment">支払いを処理中</string>
     <string name="profile">プロフィール</string>
     <string name="promoted_locations">プロモーションロケーション</string>

@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">포스트 양자 제공업체 신원</string>
     <string name="post_quantum_identity_explanation">제공업체 신원 키는 이 기기에 로컬로 저장됩니다. 어떤 피어의 키가 로컬에 저장된 키와 다르게 표시되면 네트워크 운영자를 신뢰할 수 없다는 뜻입니다.</string>
     <string name="private_network">프라이빗 네트워크</string>
+    <string name="pro_benefits_simple">URnetwork의 최고의 버전.</string>
     <string name="processing_payment">결제 처리 중</string>
     <string name="profile">프로필</string>
     <string name="promoted_locations">추천 위치</string>

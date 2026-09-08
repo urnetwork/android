@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">पोस्ट-क्वांटम प्रदाता पहचान</string>
     <string name="post_quantum_identity_explanation">आपकी प्रदाता पहचान कुंजी इस डिवाइस पर स्थानीय रूप से संग्रहीत होती है। अगर किसी पीयर की कुंजी स्थानीय रूप से संग्रहीत कुंजी से अलग दिखती है, तो इसका मतलब है कि नेटवर्क ऑपरेटर पर भरोसा नहीं किया जा सकता।</string>
     <string name="private_network">निजी नेटवर्क</string>
+    <string name="pro_benefits_simple">URnetwork का सबसे बेहतरीन संस्करण।</string>
     <string name="processing_payment">भुगतान संसाधित हो रहा है</string>
     <string name="profile">प्रोफ़ाइल</string>
     <string name="promoted_locations">प्रचारित स्थान</string>

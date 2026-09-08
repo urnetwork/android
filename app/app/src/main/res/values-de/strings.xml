@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">Post-Quanten-Anbieteridentität</string>
     <string name="post_quantum_identity_explanation">Dein Anbieter-Identitätsschlüssel wird lokal auf diesem Gerät gespeichert. Wenn der Schlüssel eines Peers von seinem lokal gespeicherten Schlüssel abweicht, bedeutet das, dass dem Netzwerkbetreiber nicht vertraut werden kann.</string>
     <string name="private_network">Privates Netzwerk</string>
+    <string name="pro_benefits_simple">Die beste Version von URnetwork.</string>
     <string name="processing_payment">Zahlung wird verarbeitet</string>
     <string name="profile">Profil</string>
     <string name="promoted_locations">Beworbene Standorte</string>

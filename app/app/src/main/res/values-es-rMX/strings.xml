@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">Identidad poscuántica del proveedor</string>
     <string name="post_quantum_identity_explanation">Tu clave de identidad de proveedor se guarda localmente en este dispositivo. Si la clave de algún par se ve diferente de la clave guardada localmente, significa que no se puede confiar en el operador de la red.</string>
     <string name="private_network">Red privada</string>
+    <string name="pro_benefits_simple">La mejor versión de URnetwork.</string>
     <string name="processing_payment">Procesando el pago</string>
     <string name="profile">Perfil</string>
     <string name="promoted_locations">Ubicaciones promocionadas</string>

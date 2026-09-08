@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -113,6 +115,18 @@ fun SubscriptionOptions(
                         stringResource(id = R.string.plan_price_per_month, monthlyCostFormatted),
                         style = TopBarTitleTextStyle
                     )
+                    if (trialOffered) {
+                        // The monthly card has no second line; reserve the same
+                        // line the yearly card draws so both cards are equal height
+                        // whatever the font scale. Invisible and not read aloud.
+                        Text(
+                            stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .alpha(0f)
+                                .clearAndSetSemantics {}
+                        )
+                    }
                 }
             }
         )

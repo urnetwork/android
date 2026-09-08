@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">Postkvantová identita poskytovatele</string>
     <string name="post_quantum_identity_explanation">Váš identitní klíč poskytovatele je uložen lokálně v tomto zařízení. Pokud se klíč některého uzlu liší od jeho lokálně uloženého klíče, znamená to, že provozovateli sítě nelze důvěřovat.</string>
     <string name="private_network">Soukromá síť</string>
+    <string name="pro_benefits_simple">Nejlepší verze URnetwork.</string>
     <string name="processing_payment">Zpracovává se platba</string>
     <string name="profile">Profil</string>
     <string name="promoted_locations">Propagované lokace</string>

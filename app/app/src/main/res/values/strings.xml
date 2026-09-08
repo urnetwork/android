@@ -546,6 +546,7 @@
     <string name="post_quantum_identity">Post Quantum Provider Identity</string>
     <string name="post_quantum_identity_explanation">Your provider identity key is stored locally on this device. If any peer\'s key appears different than their locally stored key, it means the network operator cannot be trusted.</string>
     <string name="private_network">Private Network</string>
+    <string name="pro_benefits_simple">The best version of URnetwork.</string>
     <string name="processing_payment">Processing payment</string>
     <string name="profile">Profile</string>
     <string name="promoted_locations">Promoted Locations</string>

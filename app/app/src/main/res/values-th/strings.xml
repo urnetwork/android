@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">ข้อมูลระบุตัวตนผู้ให้บริการแบบโพสต์ควอนตัม</string>
     <string name="post_quantum_identity_explanation">คีย์ระบุตัวตนผู้ให้บริการของคุณถูกเก็บไว้ในเครื่องนี้ หากคีย์ของเพียร์ใดแตกต่างจากคีย์ที่เก็บไว้ในเครื่อง แสดงว่าผู้ดำเนินการเครือข่ายไม่น่าเชื่อถือ</string>
     <string name="private_network">เครือข่ายส่วนตัว</string>
+    <string name="pro_benefits_simple">URnetwork เวอร์ชันที่ดีที่สุด</string>
     <string name="processing_payment">กำลังดำเนินการชำระเงิน</string>
     <string name="profile">โปรไฟล์</string>
     <string name="promoted_locations">พื้นที่ที่ได้รับการโปรโมท</string>

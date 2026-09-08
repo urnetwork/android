@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">后量子提供商身份</string>
     <string name="post_quantum_identity_explanation">你的提供商身份密钥存储在本设备本地。如果某个对等节点的密钥与本地存储的密钥不一致，说明网络运营方不可信。</string>
     <string name="private_network">私有网络</string>
+    <string name="pro_benefits_simple">URnetwork 的最佳版本。</string>
     <string name="processing_payment">正在处理付款</string>
     <string name="profile">个人资料</string>
     <string name="promoted_locations">推荐地点</string>

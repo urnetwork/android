@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">Post-quantum provideridentiteit</string>
     <string name="post_quantum_identity_explanation">Je provider-identiteitssleutel wordt lokaal op dit apparaat opgeslagen. Als de sleutel van een peer afwijkt van de lokaal opgeslagen sleutel, betekent dit dat de netwerkbeheerder niet te vertrouwen is.</string>
     <string name="private_network">Privénetwerk</string>
+    <string name="pro_benefits_simple">De beste versie van URnetwork.</string>
     <string name="processing_payment">Betaling wordt verwerkt</string>
     <string name="profile">Profiel</string>
     <string name="promoted_locations">Uitgelichte locaties</string>

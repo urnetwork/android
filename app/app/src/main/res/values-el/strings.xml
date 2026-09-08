@@ -328,6 +328,7 @@
     <string name="post_quantum_identity">Μετακβαντική ταυτότητα παρόχου</string>
     <string name="post_quantum_identity_explanation">Το κλειδί ταυτότητας παρόχου σας αποθηκεύεται τοπικά σε αυτή τη συσκευή. Αν το κλειδί κάποιου κόμβου εμφανίζεται διαφορετικό από το τοπικά αποθηκευμένο κλειδί του, σημαίνει ότι δεν μπορείτε να εμπιστευτείτε τον διαχειριστή του δικτύου.</string>
     <string name="private_network">Ιδιωτικό δίκτυο</string>
+    <string name="pro_benefits_simple">Η καλύτερη έκδοση του URnetwork.</string>
     <string name="processing_payment">Επεξεργασία πληρωμής</string>
     <string name="profile">Προφίλ</string>
     <string name="promoted_locations">Προωθούμενες τοποθεσίες</string>
