@@ -1,6 +1,9 @@
 package com.bringyour.network.ui.connect.providerlocations
 
 import com.bringyour.network.ui.components.tabletReadableColumn
+import com.bringyour.network.ui.components.isTabletWidth
+import com.bringyour.network.ui.components.TabletLayout
+import androidx.compose.foundation.layout.BoxWithConstraints
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -150,11 +153,20 @@ fun ProviderLocationsScreen(
         containerColor = Black,
     ) { innerPadding ->
         // The toggle and globe are fixed; only the list scrolls, in the space
-        // left below them.
-        Column(
+        // left below them. The container's size decides how big the globe may
+        // be (see providerGlobeWidth), so it never outgrows the sheet.
+        BoxWithConstraints(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+        ) {
+        val globeWidth = providerGlobeWidth(
+            maxWidth = maxWidth,
+            maxHeight = maxHeight,
+            contentWidth = if (isTabletWidth()) TabletLayout.contentWidth else null,
+        )
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
             mockLocationSection?.let {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -164,15 +176,19 @@ fun ProviderLocationsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // full bleed: the globe spans the screen width, outside the
-            // horizontal padding the rows use. The sphere is scaled to fit
-            // and centered inside that square, so it never overflows.
+            // On a phone the globe spans the screen width, outside the
+            // horizontal padding the rows use; on a tablet it is capped to the
+            // content column and to half the height, centered. The sphere is
+            // scaled to fit and centered inside that box, so it never overflows.
             ProviderGlobe(
                 rows = rows,
                 selectedClientId = selectedClientId,
                 onSelect = { viewModel.select(it) },
                 onStep = { viewModel.step(it) },
                 getLocationColor = getLocationColor,
+                modifier = Modifier
+                    .width(globeWidth)
+                    .align(Alignment.CenterHorizontally),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -219,6 +235,7 @@ fun ProviderLocationsScreen(
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
+        }
         }
     }
 }

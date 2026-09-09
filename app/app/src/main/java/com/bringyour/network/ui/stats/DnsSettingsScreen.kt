@@ -383,8 +383,12 @@ fun DnsSettingsScreen(
 
             }
 
+            // pinned below the scrolling content; on a tablet it is exactly as
+            // wide as the content column above it, never the whole screen
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .tabletReadableColumn()
+                    .padding(16.dp)
             ) {
                 URButton(
                     onClick = {

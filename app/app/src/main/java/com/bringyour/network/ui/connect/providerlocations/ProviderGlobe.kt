@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.OffWhite
@@ -78,6 +79,27 @@ private const val WHEEL_STEP_WIDTH_FRACTION = 0.18f
 // dimension (the height here) and centers, so it is never cropped
 private const val GLOBE_HEIGHT_FRACTION = 0.75f
 private const val GLOBE_ASPECT = 1f / GLOBE_HEIGHT_FRACTION
+
+/**
+ * The share of the available height the globe may take. The list below it
+ * needs the rest; on a phone the width always wins this comparison, so the
+ * phone globe is exactly the full-width globe it has always been.
+ */
+private const val GLOBE_MAX_HEIGHT_FRACTION = 0.5f
+
+/**
+ * Width of the globe box for a container [maxWidth] × [maxHeight] and an
+ * optional width cap [contentWidth] (the tablet content column). The globe is
+ * as wide as the container until either the cap or the height share binds, so
+ * on a tablet in portrait it stays inside the content column and on a tablet
+ * in landscape it leaves room for the rows, while a phone (or a tablet mini in
+ * portrait) still gets the full width.
+ */
+fun providerGlobeWidth(maxWidth: Dp, maxHeight: Dp, contentWidth: Dp? = null): Dp {
+    val byHeight = maxHeight * GLOBE_MAX_HEIGHT_FRACTION * GLOBE_ASPECT
+    val cap = contentWidth?.let { minOf(it, maxWidth) } ?: maxWidth
+    return minOf(cap, byHeight)
+}
 private const val WORLD_TOPOLOGY_ASSET = "world-110m.json"
 
 /**
