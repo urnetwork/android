@@ -30,7 +30,39 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedbackViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
 ): ViewModel(), DefaultLifecycleObserver {
+
+    /**
+     * The reason a campaign feedback link pre-selected ("what got in the way"
+     * buttons in the not-activated email); reported with the feedback event.
+     */
+    var prefillReason by mutableStateOf("")
+        private set
+
+    /**
+     * A campaign feedback link (ur.io/f/<token>?r=n|why=x) parked its values
+     * on the application; resolve the token with the server and pre-fill the
+     * rating or reason once, then drop the pending value.
+     */
+    fun consumeFeedbackPrefill() {
+        val app = appContext as? com.bringyour.network.MainApplication ?: return
+        val prefill = app.pendingFeedbackPrefill.value ?: return
+        app.pendingFeedbackPrefill.value = null
+        val api = deviceManager.device?.api ?: return
+        api.onboardingFeedbackToken(prefill.token, prefill.rating.toLong(), prefill.reason) { result, err ->
+            viewModelScope.launch {
+                if (err != null || result == null || !result.ok) {
+                    Log.i(TAG, "feedback prefill token not accepted: ${err?.message ?: result?.error}")
+                    return@launch
+                }
+                if (0 < result.rating) {
+                    setStarCount(result.rating.toInt())
+                }
+                prefillReason = result.reason ?: ""
+            }
+        }
+    }
 
     private var feedbackVc: FeedbackViewController? = null
     private var isSendingSub: Sub? = null
@@ -101,6 +133,14 @@ class FeedbackViewModel @Inject constructor(
                 return@sendFeedback
             }
             api.sendFeedback(feedbackArgs) { result, err ->
+
+                if (err == null) {
+                    com.bringyour.network.analytics.ClientEvents.feedbackSubmitted(
+                        rating = starCount,
+                        reason = prefillReason,
+                        text = feedbackMsg.text,
+                    )
+                }
 
                 if (err != null) {
                     Log.i(TAG, "error sending feedback: ${err.message}")
@@ -174,6 +214,7 @@ class FeedbackViewModel @Inject constructor(
 
     override fun onStart(owner: LifecycleOwner) {
         controllerOwner.setForeground(true)
+        consumeFeedbackPrefill()
     }
 
     override fun onStop(owner: LifecycleOwner) {

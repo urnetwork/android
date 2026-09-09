@@ -7,6 +7,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.updateAll
 import com.bringyour.network.MainApplication
+import com.bringyour.network.analytics.ClientEvents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -44,19 +45,19 @@ class GlanceWidgetRefresh(private val context: Context) : WidgetRefresh {
 /** Widget receivers: one per widget; adding or removing one re-evaluates what the writer tracks. */
 class DashboardWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = DashboardWidget()
-    override fun onEnabled(context: Context) { super.onEnabled(context); widgetsChanged(context) }
+    override fun onEnabled(context: Context) { super.onEnabled(context); ClientEvents.widgetAdded(ClientEvents.WIDGET_DASHBOARD); widgetsChanged(context) }
     override fun onDisabled(context: Context) { super.onDisabled(context); widgetsChanged(context) }
 }
 
 class ProviderGlobeWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = ProviderGlobeWidget()
-    override fun onEnabled(context: Context) { super.onEnabled(context); widgetsChanged(context) }
+    override fun onEnabled(context: Context) { super.onEnabled(context); ClientEvents.widgetAdded(ClientEvents.WIDGET_GLOBE); widgetsChanged(context) }
     override fun onDisabled(context: Context) { super.onDisabled(context); widgetsChanged(context) }
 }
 
 class ContractsWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = ContractsWidget()
-    override fun onEnabled(context: Context) { super.onEnabled(context); widgetsChanged(context) }
+    override fun onEnabled(context: Context) { super.onEnabled(context); ClientEvents.widgetAdded(ClientEvents.WIDGET_CONTRACTS); widgetsChanged(context) }
     override fun onDisabled(context: Context) { super.onDisabled(context); widgetsChanged(context) }
 }
 

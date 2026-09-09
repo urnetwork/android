@@ -356,8 +356,15 @@ constructor(
             vc.connectionStatus?.let { status ->
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
                     viewModelScope.launch {
+                        val wasConnected = _connectStatus.value == ConnectStatus.CONNECTED
                         _connectStatus.value = statusFromStr
                         updateDisplayReconnectTunnel()
+                        if (statusFromStr == ConnectStatus.CONNECTED && !wasConnected) {
+                            // the activation mark, once per network (the facade dedups)
+                            com.bringyour.network.analytics.ClientEvents.connectFirst(
+                                deviceManager.jwtFlow.value?.networkId?.toString()
+                            )
+                        }
                     }
                 }
             }

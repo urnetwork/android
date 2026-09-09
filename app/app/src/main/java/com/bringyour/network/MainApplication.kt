@@ -43,6 +43,10 @@ import kotlin.math.min
 class MainApplication : Application() {
     private companion object {
         const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
+        // a return to the foreground after this long starts a new product-event session
+        const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
+        // how long logout waits for the pending product events to send
+        const val CLIENT_EVENT_LOGOUT_DRAIN_MILLIS = 1500L
         // Match the iOS packet-tunnel process budget so Android physical runs
         // expose the same SDK pressure/failure boundary. DeviceManager already
         // passes the matching iOS per-device steady target (24 MiB).
@@ -343,6 +347,25 @@ class MainApplication : Application() {
      * tap or was already running.
      */
     val widgetRoute = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+
+    /**
+     * A campaign email link opened the app on the feedback screen with a
+     * pre-filled rating or reason (ur.io/f/<token>?r=n|why=x): the login
+     * activity parks the link's values here and the feedback screen consumes
+     * them once.
+     */
+    val pendingFeedbackPrefill = kotlinx.coroutines.flow.MutableStateFlow<com.bringyour.network.analytics.FeedbackPrefill?>(null)
+
+    /**
+     * The product-event queue for the active network space (one per process;
+     * see [com.bringyour.network.analytics.ClientEvents]). Recreated whenever
+     * the active network space changes, flushed when the app goes to the
+     * background and drained on logout.
+     */
+    @Volatile
+    var clientEventQueue: com.bringyour.sdk.ClientEventQueue? = null
+        private set
+    private var lastBackgroundedAtMillis = 0L
 //    val vcManager get() = deviceManager.vcManager
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
@@ -707,6 +730,18 @@ class MainApplication : Application() {
         processLifecycleObserver = object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
                 requestWakeHealthAudit("process-foreground")
+                // a return after a long pause is a new app session for the
+                // product events (the queue stamps the session on each event)
+                val backgroundedAt = lastBackgroundedAtMillis
+                if (0L < backgroundedAt && CLIENT_EVENT_SESSION_GAP_MILLIS < System.currentTimeMillis() - backgroundedAt) {
+                    clientEventQueue?.newSession()
+                }
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                lastBackgroundedAtMillis = System.currentTimeMillis()
+                // send what is pending before the process may be frozen
+                clientEventQueue?.flush()
             }
         }.also { ProcessLifecycleOwner.get().lifecycle.addObserver(it) }
     }
@@ -845,6 +880,17 @@ class MainApplication : Application() {
         stop()
 
         networkSpaceManagerProvider.setNetworkSpace(networkSpace)
+
+        // the product-event queue follows the active network space: its api sends
+        // and its local state dir persists the pending batch across process death
+        clientEventQueue?.close()
+        clientEventQueue = Sdk.newClientEventQueue(
+            networkSpace,
+            Sdk.EventPlatformAndroid,
+            BuildConfig.VERSION_NAME,
+            java.util.Locale.getDefault().toLanguageTag(),
+        )
+        com.bringyour.network.analytics.ClientEvents.install(this) { clientEventQueue }
 
         loginVc = Sdk.newLoginViewController(api)
 
@@ -1556,6 +1602,10 @@ class MainApplication : Application() {
     private fun logoutInternal() {
         stop()
         widgetSnapshotWriter?.clear()
+
+        // the pending product events can only be sent while the jwt is still
+        // set; give the queue a bounded moment to drain before it is cleared
+        clientEventQueue?.flushAndWait(CLIENT_EVENT_LOGOUT_DRAIN_MILLIS)
 
         // note this clears the clientJwt also
         asyncLocalState?.localState?.logout()

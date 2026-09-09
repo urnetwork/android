@@ -59,6 +59,7 @@ class QuickConnectTileService : TileService() {
     override fun onTileAdded() {
         super.onTileAdded()
         setAdded(this, true)
+        com.bringyour.network.analytics.ClientEvents.widgetAdded(com.bringyour.network.analytics.ClientEvents.WIDGET_QUICK_SETTINGS)
         // an active tile shows the manifest defaults until it is bound once
         requestUpdate(this)
     }
