@@ -81,6 +81,14 @@ class LoginCreateNetworkViewModel @Inject constructor(
     var termsAgreed by mutableStateOf(false)
         private set
 
+    /** The sign-up page's "Periodic product updates" line, on until the user turns it off. */
+    var productUpdates by mutableStateOf(true)
+        private set
+
+    val setProductUpdates: (Boolean) -> Unit = { on ->
+        productUpdates = on
+    }
+
     val setTermsAgreed:(Boolean) -> Unit = { ta ->
         termsAgreed = ta
     }
@@ -229,6 +237,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
         args.userName = ""
         args.networkName = networkName.text.trim()
         args.terms = termsAgreed
+        args.productUpdatesOptOut = !productUpdates
         args.verifyOtpNumeric = true
 
         if (isValidReferralCode && !isValidatingReferralCode && !_referralCodeIsCapped.value) {

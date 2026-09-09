@@ -58,6 +58,7 @@ class CreateNetworkInstantViewModel @Inject constructor(
 
     fun createNetwork(
         termsAgreed: Boolean,
+        productUpdates: Boolean = true,
         appLogin: (
             byJwt: String,
             newNetwork: Boolean,
@@ -82,6 +83,8 @@ class CreateNetworkInstantViewModel @Inject constructor(
         args.networkName = "guest-${UUID.randomUUID()}"
         args.guestMode = true
         args.terms = termsAgreed
+        // the sign-up page's "Periodic product updates" line; false here keeps the preference on
+        args.productUpdatesOptOut = !productUpdates
         // no userAuth, userName, password or walletAuth -- the server reads that
         // as the seedphrase path and returns a generated phrase with the network
 

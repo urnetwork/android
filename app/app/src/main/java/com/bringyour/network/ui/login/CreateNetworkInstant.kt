@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.TermsCheckbox
+import com.bringyour.network.ui.components.ProductUpdatesOptOutRow
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.referral.ReferralAppliedChip
@@ -71,6 +72,7 @@ fun CreateNetworkInstant(
     createNetworkInstantViewModel: CreateNetworkInstantViewModel = hiltViewModel(),
 ) {
     var termsAgreed by rememberSaveable { mutableStateOf(false) }
+    var productUpdates by rememberSaveable { mutableStateOf(true) }
     val inProgress by createNetworkInstantViewModel.inProgress.collectAsState()
     val error by createNetworkInstantViewModel.error.collectAsState()
     val presentBonusSheet by createNetworkInstantViewModel.presentBonusSheet.collectAsState()
@@ -79,10 +81,12 @@ fun CreateNetworkInstant(
     CreateNetworkInstantContent(
         termsAgreed = termsAgreed,
         onTermsAgreedChanged = { termsAgreed = it },
+        productUpdates = productUpdates,
+        onProductUpdatesChanged = { productUpdates = it },
         inProgress = inProgress,
         error = error,
         onCreate = {
-            createNetworkInstantViewModel.createNetwork(termsAgreed, appLogin)
+            createNetworkInstantViewModel.createNetwork(termsAgreed, productUpdates, appLogin)
         },
         onBack = onBack,
         referralCode = referralInput.code,
@@ -109,6 +113,8 @@ fun CreateNetworkInstant(
 internal fun CreateNetworkInstantContent(
     termsAgreed: Boolean,
     onTermsAgreedChanged: (Boolean) -> Unit,
+    productUpdates: Boolean = true,
+    onProductUpdatesChanged: (Boolean) -> Unit = {},
     inProgress: Boolean,
     error: String?,
     onCreate: () -> Unit,
@@ -179,6 +185,14 @@ internal fun CreateNetworkInstantContent(
                     onCheckChanged = onTermsAgreedChanged,
                     enabled = !inProgress,
                     checkboxModifier = Modifier.testTag(ACCEPTANCE_INSTANT_TERMS_TAG),
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                ProductUpdatesOptOutRow(
+                    checked = productUpdates,
+                    onCheckedChanged = onProductUpdatesChanged,
+                    enabled = !inProgress,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

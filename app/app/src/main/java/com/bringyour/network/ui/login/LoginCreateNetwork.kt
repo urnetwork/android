@@ -66,6 +66,7 @@ import com.bringyour.network.LoginClientCompletion
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.TermsCheckbox
+import com.bringyour.network.ui.components.ProductUpdatesOptOutRow
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
@@ -161,6 +162,8 @@ fun LoginCreateNetwork(
         setPassword = loginCreateNetworkViewModel.setPassword,
         termsAgreed = loginCreateNetworkViewModel.termsAgreed,
         setTermsAgreed = loginCreateNetworkViewModel.setTermsAgreed,
+        productUpdates = loginCreateNetworkViewModel.productUpdates,
+        setProductUpdates = loginCreateNetworkViewModel.setProductUpdates,
         createNetworkArgs = loginCreateNetworkViewModel.createNetworkArgs,
         networkNameIsValid = loginCreateNetworkViewModel.networkNameIsValid,
         networkNameSupportingText = loginCreateNetworkViewModel.networkNameSupportingText,
@@ -194,6 +197,8 @@ fun LoginCreateNetwork(
     networkNameErrorExists: Boolean,
     termsAgreed: Boolean,
     setTermsAgreed: (Boolean) -> Unit,
+    productUpdates: Boolean = true,
+    setProductUpdates: (Boolean) -> Unit = {},
     networkNameIsValid: Boolean,
     createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs,
     setNetworkNameSupportingText: (String) -> Unit,
@@ -451,6 +456,8 @@ fun LoginCreateNetwork(
                     setPassword = setPassword,
                     termsAgreed = termsAgreed,
                     setTermsAgreed = setTermsAgreed,
+                    productUpdates = productUpdates,
+                    setProductUpdates = setProductUpdates,
                     isBtnEnabled = isBtnEnabled,
                     onCreateNetwork = {
                         createNetwork()
@@ -510,6 +517,8 @@ private fun NetworkCreateForm(
     setPassword: (TextFieldValue) -> Unit,
     termsAgreed: Boolean,
     setTermsAgreed: (Boolean) -> Unit,
+    productUpdates: Boolean = true,
+    setProductUpdates: (Boolean) -> Unit = {},
     isBtnEnabled: Boolean,
     isInProgress: Boolean,
     onCreateNetwork: () -> Unit,
@@ -620,6 +629,14 @@ private fun NetworkCreateForm(
                 )
 
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ProductUpdatesOptOutRow(
+                checked = productUpdates,
+                onCheckedChanged = setProductUpdates,
+                enabled = !isInProgress,
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
