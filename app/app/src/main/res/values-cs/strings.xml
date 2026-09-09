@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">Začít zkušební období s %1$d měsíci zdarma</string>
     <string name="offer_first_year_price">%1$s za první rok</string>
     <string name="offer_months_free_headline">%1$d měsíce Pro zdarma</string>
-    <string name="offer_percent_off_first_year">%1$d % sleva na první rok</string>
+    <string name="offer_percent_off_first_year">%1$d %% sleva na první rok</string>
     <string name="offer_terms_first_year">%1$d dní zdarma, poté %2$s za první rok, poté %3$s/rok. Zrušit lze kdykoli.</string>
     <string name="offer_then_regular_price">poté %1$s/rok</string>
     <string name="offer_timeline_day">Den %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">Účtováno měsíčně · zrušit lze kdykoli</string>
     <string name="plan_billed_yearly_price_for_country">Účtováno jednou ročně · cena pro %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/měsíc · účtováno jednou ročně</string>
-    <string name="plan_save_percent">Ušetřete %1$d %</string>
+    <string name="plan_save_percent">Ušetřete %1$d %%</string>
     <string name="plan_terms_yearly">%1$d dní zdarma, poté %2$s/rok. Zrušit lze kdykoli.</string>
     <string name="please_try_again">Prosím, zkuste to znovu.</string>
     <string name="please_wait">Prosím, počkejte několik minut a zkuste to znovu.</string>

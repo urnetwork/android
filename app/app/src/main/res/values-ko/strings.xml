@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">무료 체험 시작 + %1$d개월 무료</string>
     <string name="offer_first_year_price">첫해 %1$s</string>
     <string name="offer_months_free_headline">Pro %1$d개월 무료</string>
-    <string name="offer_percent_off_first_year">첫해 %1$d% 할인</string>
+    <string name="offer_percent_off_first_year">첫해 %1$d%% 할인</string>
     <string name="offer_terms_first_year">%1$d일 무료, 첫해 %2$s, 이후 %3$s/년. 언제든 취소 가능.</string>
     <string name="offer_then_regular_price">이후 %1$s/년</string>
     <string name="offer_timeline_day">%1$d일 차</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">매월 청구 · 언제든 취소 가능</string>
     <string name="plan_billed_yearly_price_for_country">연 1회 청구 · %1$s 가격</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/월 · 연 1회 청구</string>
-    <string name="plan_save_percent">%1$d% 절약</string>
+    <string name="plan_save_percent">%1$d%% 절약</string>
     <string name="plan_terms_yearly">%1$d일 무료, 이후 %2$s/년. 언제든 취소 가능.</string>
     <string name="please_try_again">다시 시도해 주세요.</string>
     <string name="please_wait">잠시 후 다시 시도해 주세요.</string>

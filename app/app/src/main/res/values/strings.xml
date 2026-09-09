@@ -513,7 +513,7 @@
     <string name="offer_cta_start_trial_months_free">Start free trial with %1$d months free</string>
     <string name="offer_first_year_price">%1$s for your first year</string>
     <string name="offer_months_free_headline">%1$d months of Pro, free</string>
-    <string name="offer_percent_off_first_year">%1$d% off your first year</string>
+    <string name="offer_percent_off_first_year">%1$d%% off your first year</string>
     <string name="offer_terms_first_year">%1$d days free, then %2$s for your first year, then %3$s/year. Cancel anytime.</string>
     <string name="offer_then_regular_price">then %1$s/year</string>
     <string name="offer_timeline_day">Day %1$d</string>
@@ -551,7 +551,7 @@
     <string name="plan_monthly_equivalent_line">≈ %1$s/month · billed once a year</string>
     <string name="plan_price_per_month">%1$s/month</string>
     <string name="plan_price_per_year">%1$s/year</string>
-    <string name="plan_save_percent">Save %1$d%</string>
+    <string name="plan_save_percent">Save %1$d%%</string>
     <string name="plan_terms_yearly">%1$d days free, then %2$s/year. Cancel anytime.</string>
     <string name="please_try_again">Please try again.</string>
     <string name="please_wait">Please wait a few minutes and try again.</string>

@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">%1$d मुफ़्त महीनों के साथ ट्रायल शुरू करें</string>
     <string name="offer_first_year_price">पहले साल के लिए %1$s</string>
     <string name="offer_months_free_headline">Pro के %1$d महीने, मुफ़्त</string>
-    <string name="offer_percent_off_first_year">पहले साल पर %1$d% की छूट</string>
+    <string name="offer_percent_off_first_year">पहले साल पर %1$d%% की छूट</string>
     <string name="offer_terms_first_year">%1$d दिन मुफ़्त, फिर पहले साल %2$s, फिर %3$s/वर्ष। कभी भी रद्द करें।</string>
     <string name="offer_then_regular_price">फिर %1$s/वर्ष</string>
     <string name="offer_timeline_day">दिन %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">मासिक बिल · कभी भी रद्द करें</string>
     <string name="plan_billed_yearly_price_for_country">साल में एक बार बिल · %1$s के लिए कीमत</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/माह · साल में एक बार बिल</string>
-    <string name="plan_save_percent">%1$d% बचाएँ</string>
+    <string name="plan_save_percent">%1$d%% बचाएँ</string>
     <string name="plan_terms_yearly">%1$d दिन मुफ़्त, फिर %2$s/वर्ष। कभी भी रद्द करें।</string>
     <string name="please_try_again">कृपया पुनः प्रयास करें।</string>
     <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>

@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">Essai gratuit avec %1$d mois offerts</string>
     <string name="offer_first_year_price">%1$s la première année</string>
     <string name="offer_months_free_headline">%1$d mois de Pro offerts</string>
-    <string name="offer_percent_off_first_year">%1$d % de réduction sur votre première année</string>
+    <string name="offer_percent_off_first_year">%1$d %% de réduction sur votre première année</string>
     <string name="offer_terms_first_year">%1$d jours gratuits, puis %2$s la première année, puis %3$s/an. Annulable à tout moment.</string>
     <string name="offer_then_regular_price">puis %1$s/an</string>
     <string name="offer_timeline_day">Jour %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">Facturé chaque mois · annulable à tout moment</string>
     <string name="plan_billed_yearly_price_for_country">Facturé une fois par an · tarif pour %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/mois · facturé une fois par an</string>
-    <string name="plan_save_percent">Économisez %1$d %</string>
+    <string name="plan_save_percent">Économisez %1$d %%</string>
     <string name="plan_terms_yearly">%1$d jours gratuits, puis %2$s/an. Annulable à tout moment.</string>
     <string name="please_try_again">Veuillez réessayer.</string>
     <string name="please_wait">Veuillez patienter quelques minutes et réessayer.</string>

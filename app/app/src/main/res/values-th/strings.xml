@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">เริ่มทดลองใช้ฟรี พร้อมฟรี %1$d เดือน</string>
     <string name="offer_first_year_price">%1$s สำหรับปีแรก</string>
     <string name="offer_months_free_headline">Pro ฟรี %1$d เดือน</string>
-    <string name="offer_percent_off_first_year">ลด %1$d% สำหรับปีแรก</string>
+    <string name="offer_percent_off_first_year">ลด %1$d%% สำหรับปีแรก</string>
     <string name="offer_terms_first_year">ฟรี %1$d วัน จากนั้น %2$s สำหรับปีแรก แล้ว %3$s/ปี ยกเลิกได้ทุกเมื่อ</string>
     <string name="offer_then_regular_price">จากนั้น %1$s/ปี</string>
     <string name="offer_timeline_day">วันที่ %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">เรียกเก็บรายเดือน · ยกเลิกได้ทุกเมื่อ</string>
     <string name="plan_billed_yearly_price_for_country">เรียกเก็บปีละครั้ง · ราคาสำหรับ %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/เดือน · เรียกเก็บปีละครั้ง</string>
-    <string name="plan_save_percent">ประหยัด %1$d%</string>
+    <string name="plan_save_percent">ประหยัด %1$d%%</string>
     <string name="plan_terms_yearly">ฟรี %1$d วัน จากนั้น %2$s/ปี ยกเลิกได้ทุกเมื่อ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="please_wait">โปรดรอสักครู่ แล้วลองใหม่อีกครั้ง</string>

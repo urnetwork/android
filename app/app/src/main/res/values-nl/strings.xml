@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">Start gratis proefperiode met %1$d maanden gratis</string>
     <string name="offer_first_year_price">%1$s voor je eerste jaar</string>
     <string name="offer_months_free_headline">%1$d maanden Pro, gratis</string>
-    <string name="offer_percent_off_first_year">%1$d% korting op je eerste jaar</string>
+    <string name="offer_percent_off_first_year">%1$d%% korting op je eerste jaar</string>
     <string name="offer_terms_first_year">%1$d dagen gratis, daarna %2$s voor je eerste jaar, daarna %3$s/jaar. Altijd opzegbaar.</string>
     <string name="offer_then_regular_price">daarna %1$s/jaar</string>
     <string name="offer_timeline_day">Dag %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">Maandelijks gefactureerd · altijd opzegbaar</string>
     <string name="plan_billed_yearly_price_for_country">Eenmaal per jaar gefactureerd · prijs voor %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/maand · eenmaal per jaar gefactureerd</string>
-    <string name="plan_save_percent">Bespaar %1$d%</string>
+    <string name="plan_save_percent">Bespaar %1$d%%</string>
     <string name="plan_terms_yearly">%1$d dagen gratis, daarna %2$s/jaar. Altijd opzegbaar.</string>
     <string name="please_try_again">Probeer het alstublieft opnieuw.</string>
     <string name="please_wait">Wacht alstublieft een paar minuten en probeer het opnieuw.</string>

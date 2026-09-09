@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">开始免费试用，另享 %1$d 个月免费</string>
     <string name="offer_first_year_price">首年 %1$s</string>
     <string name="offer_months_free_headline">Pro 免费 %1$d 个月</string>
-    <string name="offer_percent_off_first_year">首年立减 %1$d%</string>
+    <string name="offer_percent_off_first_year">首年立减 %1$d%%</string>
     <string name="offer_terms_first_year">免费 %1$d 天，首年 %2$s，之后 %3$s/年。可随时取消。</string>
     <string name="offer_then_regular_price">之后 %1$s/年</string>
     <string name="offer_timeline_day">第 %1$d 天</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">按月扣费 · 可随时取消</string>
     <string name="plan_billed_yearly_price_for_country">每年扣费一次 · %1$s 价格</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/月 · 每年扣费一次</string>
-    <string name="plan_save_percent">省 %1$d%</string>
+    <string name="plan_save_percent">省 %1$d%%</string>
     <string name="plan_terms_yearly">免费 %1$d 天，之后 %2$s/年。可随时取消。</string>
     <string name="please_try_again">请再试一次。</string>
     <string name="please_wait">请稍等片刻，然后重试。</string>

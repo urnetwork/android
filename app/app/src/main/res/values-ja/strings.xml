@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">無料トライアルを開始（%1$dか月無料付き）</string>
     <string name="offer_first_year_price">初年度 %1$s</string>
     <string name="offer_months_free_headline">Proが%1$dか月無料</string>
-    <string name="offer_percent_off_first_year">初年度%1$d%オフ</string>
+    <string name="offer_percent_off_first_year">初年度%1$d%%オフ</string>
     <string name="offer_terms_first_year">%1$d日間無料、初年度 %2$s、その後 %3$s/年。いつでもキャンセル可。</string>
     <string name="offer_then_regular_price">その後 %1$s/年</string>
     <string name="offer_timeline_day">%1$d日目</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">月ごとに請求 · いつでもキャンセル可</string>
     <string name="plan_billed_yearly_price_for_country">年1回請求 · %1$s向け価格</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/月 · 年1回請求</string>
-    <string name="plan_save_percent">%1$d%お得</string>
+    <string name="plan_save_percent">%1$d%%お得</string>
     <string name="plan_terms_yearly">%1$d日間無料、その後 %2$s/年。いつでもキャンセル可。</string>
     <string name="please_try_again">もう一度お試しください。</string>
     <string name="please_wait">しばらく待ってから再試行してください。</string>

@@ -45,6 +45,8 @@ fun PlanCards(
     freeTrialDays: Int = FREE_TRIAL_DAYS,
     // the regional tier names the country its price is for
     countryName: String? = null,
+    // the final offer page shows the yearly (offer) card alone
+    showMonthly: Boolean = true,
 ) {
     val yearlySelected = selectedPlan == PlanType.YEARLY
     val trialOffered = 0 < freeTrialDays
@@ -62,6 +64,10 @@ fun PlanCards(
             },
             glow = true
         )
+
+        if (!showMonthly) {
+            return@Column
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

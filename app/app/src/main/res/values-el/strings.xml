@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">Ξεκίνα τη δωρεάν δοκιμή με %1$d μήνες δωρεάν</string>
     <string name="offer_first_year_price">%1$s για τον πρώτο χρόνο</string>
     <string name="offer_months_free_headline">%1$d μήνες Pro, δωρεάν</string>
-    <string name="offer_percent_off_first_year">%1$d% έκπτωση στον πρώτο χρόνο</string>
+    <string name="offer_percent_off_first_year">%1$d%% έκπτωση στον πρώτο χρόνο</string>
     <string name="offer_terms_first_year">%1$d ημέρες δωρεάν, έπειτα %2$s για τον πρώτο χρόνο, έπειτα %3$s/έτος. Ακύρωση οποτεδήποτε.</string>
     <string name="offer_then_regular_price">έπειτα %1$s/έτος</string>
     <string name="offer_timeline_day">Ημέρα %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">Μηνιαία χρέωση · ακύρωση οποτεδήποτε</string>
     <string name="plan_billed_yearly_price_for_country">Χρέωση μία φορά τον χρόνο · τιμή για %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/μήνα · χρέωση μία φορά τον χρόνο</string>
-    <string name="plan_save_percent">Εξοικονόμηση %1$d%</string>
+    <string name="plan_save_percent">Εξοικονόμηση %1$d%%</string>
     <string name="plan_terms_yearly">%1$d ημέρες δωρεάν, έπειτα %2$s/έτος. Ακύρωση οποτεδήποτε.</string>
     <string name="please_try_again">Παρακαλώ δοκιμάστε ξανά.</string>
     <string name="please_wait">Περιμένετε λίγα λεπτά και προσπαθήστε ξανά.</string>

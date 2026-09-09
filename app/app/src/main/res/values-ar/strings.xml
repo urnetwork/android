@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">ابدأ التجربة المجانية مع %1$d أشهر مجانًا</string>
     <string name="offer_first_year_price">%1$s لسنتك الأولى</string>
     <string name="offer_months_free_headline">%1$d أشهر من Pro مجانًا</string>
-    <string name="offer_percent_off_first_year">خصم %1$d% على سنتك الأولى</string>
+    <string name="offer_percent_off_first_year">خصم %1$d%% على سنتك الأولى</string>
     <string name="offer_terms_first_year">%1$d يومًا مجانًا، ثم %2$s لسنتك الأولى، ثم %3$s/سنة. يمكنك الإلغاء في أي وقت.</string>
     <string name="offer_then_regular_price">ثم %1$s/سنة</string>
     <string name="offer_timeline_day">اليوم %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">يُدفع شهريًا · يمكنك الإلغاء في أي وقت</string>
     <string name="plan_billed_yearly_price_for_country">يُدفع مرة واحدة سنويًا · السعر لـ %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/شهر · يُدفع مرة واحدة سنويًا</string>
-    <string name="plan_save_percent">وفّر %1$d%</string>
+    <string name="plan_save_percent">وفّر %1$d%%</string>
     <string name="plan_terms_yearly">%1$d يومًا مجانًا، ثم %2$s/سنة. يمكنك الإلغاء في أي وقت.</string>
     <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
     <string name="please_wait">يرجى الانتظار بضع دقائق وحاول مرة أخرى.</string>

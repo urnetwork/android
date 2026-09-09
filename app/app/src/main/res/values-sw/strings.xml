@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">Anza jaribio la bila malipo na miezi %1$d bila malipo</string>
     <string name="offer_first_year_price">%1$s kwa mwaka wako wa kwanza</string>
     <string name="offer_months_free_headline">Miezi %1$d ya Pro, bila malipo</string>
-    <string name="offer_percent_off_first_year">Punguzo la %1$d% kwa mwaka wako wa kwanza</string>
+    <string name="offer_percent_off_first_year">Punguzo la %1$d%% kwa mwaka wako wa kwanza</string>
     <string name="offer_terms_first_year">Siku %1$d bila malipo, kisha %2$s kwa mwaka wa kwanza, kisha %3$s/mwaka. Ghairi wakati wowote.</string>
     <string name="offer_then_regular_price">kisha %1$s/mwaka</string>
     <string name="offer_timeline_day">Siku ya %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">Hulipwa kila mwezi · ghairi wakati wowote</string>
     <string name="plan_billed_yearly_price_for_country">Hulipwa mara moja kwa mwaka · bei ya %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/mwezi · hulipwa mara moja kwa mwaka</string>
-    <string name="plan_save_percent">Okoa %1$d%</string>
+    <string name="plan_save_percent">Okoa %1$d%%</string>
     <string name="plan_terms_yearly">Siku %1$d bila malipo, kisha %2$s/mwaka. Ghairi wakati wowote.</string>
     <string name="please_try_again">Tafadhali jaribu tena.</string>
     <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>

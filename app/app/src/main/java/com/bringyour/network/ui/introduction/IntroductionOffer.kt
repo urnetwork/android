@@ -101,12 +101,14 @@ fun IntroductionOffer(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(
-                    stringResource(id = R.string.welcome_offer_eyebrow),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = ProGold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                if (offer != null) {
+                    Text(
+                        stringResource(id = R.string.welcome_offer_eyebrow),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ProGold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
                 Text(
                     if (offer != null) {
                         stringResource(id = R.string.offer_months_free_headline, offer.monthsFree)
@@ -134,6 +136,7 @@ fun IntroductionOffer(
                     presentation = presentation,
                     selectedPlan = PlanType.YEARLY,
                     setSelectedPlan = {},
+                    showMonthly = false,
                 )
             }
 

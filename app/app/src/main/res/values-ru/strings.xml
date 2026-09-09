@@ -305,7 +305,7 @@
     <string name="offer_cta_start_trial_months_free">Начать пробный период с %1$d бесплатными месяцами</string>
     <string name="offer_first_year_price">%1$s за первый год</string>
     <string name="offer_months_free_headline">%1$d месяца Pro бесплатно</string>
-    <string name="offer_percent_off_first_year">Скидка %1$d% на первый год</string>
+    <string name="offer_percent_off_first_year">Скидка %1$d%% на первый год</string>
     <string name="offer_terms_first_year">%1$d дней бесплатно, далее %2$s за первый год, затем %3$s/год. Отмена в любой момент.</string>
     <string name="offer_then_regular_price">далее %1$s/год</string>
     <string name="offer_timeline_day">День %1$d</string>
@@ -335,7 +335,7 @@
     <string name="plan_billed_monthly_cancel_anytime">Списание ежемесячно · отмена в любой момент</string>
     <string name="plan_billed_yearly_price_for_country">Списание раз в год · цена для %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/мес · списание раз в год</string>
-    <string name="plan_save_percent">Экономия %1$d%</string>
+    <string name="plan_save_percent">Экономия %1$d%%</string>
     <string name="plan_terms_yearly">%1$d дней бесплатно, далее %2$s/год. Отмена в любой момент.</string>
     <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
