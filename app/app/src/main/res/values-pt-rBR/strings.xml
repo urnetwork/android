@@ -205,6 +205,9 @@
     <string name="launch">Iniciar</string>
     <string name="leaderboard">Placar de Líderes</string>
     <string name="leaderboard_description">O placar de líderes é a soma dos últimos 4 pagamentos. Ele é atualizado a cada ciclo de pagamento.</string>
+    <string name="leaderboard_position_indicator">Posição no ranking</string>
+    <string name="leaderboard_tier_rest">Todos os outros</string>
+    <string name="leaderboard_tier_top">Top %1$s%%</string>
     <string name="learn_more">Saiba mais</string>
     <string name="learn_more_about_multiplier">Saiba mais sobre o multiplicador</string>
     <string name="learn_more_protocol_page">Saiba mais na página do protocolo</string>

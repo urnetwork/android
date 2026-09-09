@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -77,6 +78,13 @@ fun LeaderboardScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val leaderboardEntries = leaderboardViewModel.leaderboardEntries.collectAsState()
     var selectedTab by rememberSaveable { mutableIntStateOf(LEADERBOARD_TAB_DATA) }
+    // a tab tap, including a re-tap of the selected tab, scrolls that tab's
+    // list to the top (mmm/DESIGNSTYLE.md "Long ranked lists"). The Data list
+    // keeps its state here so the tap can reach it; the Points tab counts the
+    // taps and resets itself (it also reloads after a seek)
+    val dataListState = rememberLazyListState()
+    var pointsTabTaps by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
 
     val genericErrorMessage = stringResource(id = R.string.something_went_wrong)
     LaunchedEffect(leaderboardViewModel.displayErrorMsg) {
@@ -104,12 +112,30 @@ fun LeaderboardScreen(
 
             LeaderboardTabs(
                 selectedTab = selectedTab,
-                setSelectedTab = { selectedTab = it },
+                onTabTap = { tab ->
+                    val changed = tab != selectedTab
+                    selectedTab = tab
+                    when (tab) {
+                        LEADERBOARD_TAB_POINTS -> pointsTabTaps += 1
+                        else -> scope.launch {
+                            // the list is not composed yet right after a
+                            // switch, so it is placed rather than animated
+                            if (changed) {
+                                dataListState.scrollToItem(0)
+                            } else {
+                                dataListState.animateScrollToItem(0)
+                            }
+                        }
+                    }
+                },
             )
 
             when (selectedTab) {
                 LEADERBOARD_TAB_POINTS -> {
-                    PointsLeaderboardTab(snackbarHostState = snackbarHostState)
+                    PointsLeaderboardTab(
+                        snackbarHostState = snackbarHostState,
+                        resetToTop = pointsTabTaps,
+                    )
                 }
                 else -> {
                     if (leaderboardViewModel.isInitializing) {
@@ -137,6 +163,7 @@ fun LeaderboardScreen(
                         ) {
 
                             LazyColumn(
+                                state = dataListState,
                                 modifier = Modifier
                                     .tabletReadableColumn()
                                     .fillMaxSize()
@@ -192,7 +219,7 @@ fun LeaderboardScreen(
 @Composable
 private fun LeaderboardTabs(
     selectedTab: Int,
-    setSelectedTab: (Int) -> Unit,
+    onTabTap: (Int) -> Unit,
 ) {
     val tabs = listOf(
         LEADERBOARD_TAB_DATA to stringResource(id = R.string.data),
@@ -218,7 +245,9 @@ private fun LeaderboardTabs(
                         index = index,
                         count = tabs.size
                     ),
-                    onClick = { setSelectedTab(id) },
+                    // fires on a re-tap of the selected tab too: that is the
+                    // scroll-to-top gesture
+                    onClick = { onTabTap(id) },
                     selected = selectedTab == id,
                     label = {
                         Text(label, maxLines = 1)

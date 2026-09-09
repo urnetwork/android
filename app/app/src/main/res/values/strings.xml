@@ -411,6 +411,9 @@
     <string name="launch">Launch</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="leaderboard_description">The leaderboard is the sum of the last 4 payments. It is updated each payment cycle.</string>
+    <string name="leaderboard_position_indicator">Leaderboard position</string>
+    <string name="leaderboard_tier_rest">Everyone else</string>
+    <string name="leaderboard_tier_top">Top %1$s%%</string>
     <string name="learn_at_ur_xyz">Learn how it works at ur.xyz</string>
     <string name="learn_more">Learn more</string>
     <string name="learn_more_about_multiplier">Learn more about the multiplier</string>

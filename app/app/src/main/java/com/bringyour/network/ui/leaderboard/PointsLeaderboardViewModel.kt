@@ -36,6 +36,8 @@ import kotlin.coroutines.resume
  * the screen then shows its localized "Anonymous". `emojiTag` shows either way.
  */
 data class PointsLeaderboardRowUi(
+    /** 1-based position in the total order (no ties); the list's key */
+    val position: Long,
     val networkId: String,
     val displayName: String,
     val anonymous: Boolean,
@@ -47,6 +49,14 @@ data class PointsLeaderboardRowUi(
     val rankPointsText: String,
     val rankBlocksText: String,
     val rankStreakText: String,
+)
+
+/** A value copy of the sdk's scroll label parts for one rank. */
+data class PointsScrollLabel(
+    val rank: Long,
+    val total: Long,
+    val tier: Long,
+    val tierPercent: Long,
 )
 
 /** The caller's own row (always its own name) and its opt-in flag. */
@@ -96,6 +106,22 @@ class PointsLeaderboardViewModel @Inject constructor(
         private set
 
     var totalRanked by mutableLongStateOf(0L)
+        private set
+
+    /** position of the first loaded row (1 at the top of the order; 0 when empty) */
+    var firstLoadedPosition by mutableLongStateOf(0L)
+        private set
+
+    /** position of the last loaded row (0 when empty) */
+    var lastLoadedPosition by mutableLongStateOf(0L)
+        private set
+
+    /** rows exist before the loaded window (after a seek) */
+    var hasMoreBefore by mutableStateOf(false)
+        private set
+
+    /** rows exist after the loaded window */
+    var hasMoreAfter by mutableStateOf(false)
         private set
 
     var latestEpoch by mutableLongStateOf(0L)
@@ -171,6 +197,7 @@ class PointsLeaderboardViewModel @Inject constructor(
 
     private fun toUi(row: PointsLeaderboardRow): PointsLeaderboardRowUi {
         return PointsLeaderboardRowUi(
+            position = row.position,
             networkId = row.networkId?.toString() ?: "",
             displayName = row.displayName ?: "",
             anonymous = row.anonymous,
@@ -208,6 +235,10 @@ class PointsLeaderboardViewModel @Inject constructor(
         isEndReached = openVc.isEndReached
         errorMessage = openVc.errorMessage ?: ""
         totalRanked = openVc.totalRanked
+        firstLoadedPosition = openVc.firstLoadedPosition()
+        lastLoadedPosition = openVc.lastLoadedPosition()
+        hasMoreBefore = openVc.hasMoreBefore()
+        hasMoreAfter = openVc.hasMoreAfter()
         latestEpoch = openVc.latestEpoch
 
         val meSdk = openVc.me
@@ -234,6 +265,35 @@ class PointsLeaderboardViewModel @Inject constructor(
 
     fun loadMore() {
         vc?.loadMore()
+    }
+
+    /** Pages backward from the first loaded row (after a seek). */
+    fun loadMoreBefore() {
+        vc?.loadMoreBefore()
+    }
+
+    /** Jumps the loaded window so it starts at `rank` (1..totalRanked). */
+    fun seekToRank(rank: Long) {
+        vc?.seekToRank(rank)
+    }
+
+    /** Reloads the first page when the window no longer starts at the top. */
+    fun reloadFromTop() {
+        vc?.reloadFromTop()
+    }
+
+    /**
+     * The label the position indicator shows for a rank: the rank plus its
+     * tier (Sdk.PointsLeaderboardTierTop1..Top50, Rest, Unknown) and the
+     * tier's percent, from the sdk so every app agrees.
+     */
+    fun scrollLabel(rank: Long): PointsScrollLabel {
+        val parts = vc?.getScrollLabel(rank)
+        if (parts != null) {
+            return PointsScrollLabel(parts.rank, parts.total, parts.tier, parts.tierPercent)
+        }
+        val pure = Sdk.pointsLeaderboardScrollLabel(rank, totalRanked)
+        return PointsScrollLabel(pure.rank, pure.total, pure.tier, pure.tierPercent)
     }
 
     fun refresh() {

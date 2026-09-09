@@ -205,6 +205,9 @@
     <string name="launch">Starten</string>
     <string name="leaderboard">Scorebord</string>
     <string name="leaderboard_description">Het scorebord toont de som van de laatste 4 betalingen. Deze wordt elke betalingscyclus bijgewerkt.</string>
+    <string name="leaderboard_position_indicator">Positie op het klassement</string>
+    <string name="leaderboard_tier_rest">Alle anderen</string>
+    <string name="leaderboard_tier_top">Top %1$s%%</string>
     <string name="learn_more">Meer informatie</string>
     <string name="learn_more_about_multiplier">Meer informatie over de vermenigvuldiger</string>
     <string name="learn_more_protocol_page">Meer informatie op de protocolpagina</string>
