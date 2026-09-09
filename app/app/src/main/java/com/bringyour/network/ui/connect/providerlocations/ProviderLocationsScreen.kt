@@ -169,7 +169,8 @@ fun ProviderLocationsScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             mockLocationSection?.let {
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                // the toggle sits in the same column as the globe and the rows
+                Column(modifier = Modifier.tabletReadableColumn().padding(horizontal = 16.dp)) {
                     it()
                 }
             }

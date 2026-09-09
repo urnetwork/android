@@ -64,6 +64,7 @@ import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.utils.lighten
+import com.bringyour.network.ui.components.tabletReadableColumn
 
 /**
  * Walks the user through making URnetwork the Android mock location app.
@@ -144,8 +145,9 @@ fun MockLocationGuideScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
+                .tabletReadableColumn()
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
         ) {

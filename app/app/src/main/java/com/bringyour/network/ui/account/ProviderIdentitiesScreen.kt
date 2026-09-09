@@ -53,6 +53,7 @@ import com.bringyour.network.ui.shared.viewmodels.formatIdentityKeyHashForDispla
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.network.ui.components.tabletReadableColumn
 
 /**
  * Provider Identities: a live list with one row per provider with an
@@ -96,8 +97,9 @@ fun ProviderIdentitiesScreen(
 
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .tabletReadableColumn()
+                .fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             itemsIndexed(
