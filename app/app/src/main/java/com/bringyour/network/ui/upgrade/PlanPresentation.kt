@@ -52,7 +52,30 @@ data class OfferPresentation(
     val stripeCouponId: String,
 )
 
+/** The tier as plain values (the SDK's PriceTier, or a test's). */
+data class TierInput(val name: String, val yearlyUsd: Double, val monthlyUsd: Double, val currency: String)
+
+/** The welcome offer as plain values (the SDK's OnboardingOffer while active, or a test's). */
+data class OfferInput(
+    val firstYearUsd: Double,
+    val percentOff: Int,
+    val monthsFree: Int,
+    val expiresAtMillis: Long,
+    val playOfferTag: String = "",
+    val appleOfferCode: String = "",
+    val stripeCouponId: String = "",
+)
+
+/** The per-month equivalent rule's result (the SDK's PriceEquivalent, or the pure twin in tests). */
+data class EquivalentResult(val monthlyEquivalent: Double, val showEquivalent: Boolean, val savingPercent: Int)
+
 object PlanPresentations {
+
+    /** The SDK's rule: ceiling to the minor unit, saving rounded down, suppressed under one major unit. */
+    val sdkEquivalent: (yearly: Double, monthly: Double, digits: Int) -> EquivalentResult = { yearly, monthly, digits ->
+        val e = Sdk.computePriceEquivalent(yearly, monthly, digits.toLong())
+        EquivalentResult(e.monthlyEquivalent, e.showEquivalent, e.savingPercent.toInt())
+    }
 
     /**
      * @param tier the server's `price_tier` (null before the balance loads: USD standard)
@@ -66,32 +89,60 @@ object PlanPresentations {
         storeYearly: StorePrice? = null,
         storeMonthly: StorePrice? = null,
         locale: Locale = Locale.getDefault(),
+    ): PlanPresentation = build(
+        tier = tier?.let { TierInput(it.name ?: "", it.yearlyUsd, it.monthlyUsd, it.currency ?: "") },
+        offer = offer?.takeIf { it.isActive }?.let {
+            OfferInput(
+                firstYearUsd = it.firstYearUsd,
+                percentOff = it.percentOff.toInt(),
+                monthsFree = it.monthsFree.toInt(),
+                expiresAtMillis = it.expiresAtUnixMillis(),
+                playOfferTag = it.playOfferTag ?: "",
+                appleOfferCode = it.appleOfferCode ?: "",
+                stripeCouponId = it.stripeCouponId ?: "",
+            )
+        },
+        storeYearly = storeYearly,
+        storeMonthly = storeMonthly,
+        locale = locale,
+        equivalent = sdkEquivalent,
+    )
+
+    /** The pure builder: plain inputs, an injectable equivalent rule (the SDK's in the app). */
+    fun build(
+        tier: TierInput?,
+        offer: OfferInput?,
+        storeYearly: StorePrice? = null,
+        storeMonthly: StorePrice? = null,
+        locale: Locale = Locale.getDefault(),
+        equivalent: (yearly: Double, monthly: Double, digits: Int) -> EquivalentResult = sdkEquivalent,
     ): PlanPresentation {
         val currency = storeYearly?.currency ?: tier?.currency?.takeIf { it.isNotEmpty() } ?: "USD"
         val yearlyAmount = storeYearly?.amount ?: tier?.yearlyUsd?.takeIf { 0.0 < it } ?: FALLBACK_YEARLY_USD
         val monthlyAmount = storeMonthly?.amount ?: tier?.monthlyUsd?.takeIf { 0.0 < it } ?: FALLBACK_MONTHLY_USD
         val digits = minorUnitDigits(currency)
-        val equivalent = Sdk.computePriceEquivalent(yearlyAmount, monthlyAmount, digits.toLong())
+        val eq = equivalent(yearlyAmount, monthlyAmount, digits)
         val tierName = tier?.name ?: ""
         val regional = tierName == Sdk.PriceTierRegional
         val format = currencyFormat(currency, locale)
 
-        val offerPresentation = offer?.takeIf { it.isActive }?.let { o ->
-            // the offer's amounts are USD for the caller's tier; scale them to the
+        val offerPresentation = offer?.let { o ->
+            // the offer's amount is USD for the caller's tier; scale it to the
             // store's currency by the tier's yearly ratio so the card matches the
             // headline price the store prints
-            val ratio = if (0.0 < (tier?.yearlyUsd ?: 0.0)) yearlyAmount / tier!!.yearlyUsd else 1.0
+            val tierYearly = tier?.yearlyUsd ?: 0.0
+            val ratio = if (0.0 < tierYearly) yearlyAmount / tierYearly else 1.0
             val firstYear = roundTo(o.firstYearUsd * ratio, digits)
             OfferPresentation(
                 firstYearPrice = format.format(firstYear),
                 regularYearPrice = format.format(yearlyAmount),
                 firstYearAmount = firstYear,
-                percentOff = o.percentOff.toInt(),
-                monthsFree = o.monthsFree.toInt(),
-                expiresAtMillis = o.expiresAtUnixMillis(),
-                playOfferTag = o.playOfferTag ?: "",
-                appleOfferCode = o.appleOfferCode ?: "",
-                stripeCouponId = o.stripeCouponId ?: "",
+                percentOff = o.percentOff,
+                monthsFree = o.monthsFree,
+                expiresAtMillis = o.expiresAtMillis,
+                playOfferTag = o.playOfferTag,
+                appleOfferCode = o.appleOfferCode,
+                stripeCouponId = o.stripeCouponId,
             )
         }
 
@@ -99,8 +150,8 @@ object PlanPresentations {
             yearlyPrice = format.format(yearlyAmount),
             monthlyPrice = format.format(monthlyAmount),
             // the regional tier never prints a per-month line; elsewhere the SDK decides
-            monthlyEquivalent = if (!regional && equivalent.showEquivalent) format.format(equivalent.monthlyEquivalent) else null,
-            savingPercent = equivalent.savingPercent.toInt(),
+            monthlyEquivalent = if (!regional && eq.showEquivalent) format.format(eq.monthlyEquivalent) else null,
+            savingPercent = eq.savingPercent,
             tier = tierName,
             currency = currency,
             yearlyAmount = yearlyAmount,
@@ -110,7 +161,8 @@ object PlanPresentations {
     }
 
     /** The picker before anything loads: the standard USD tier, no offer. */
-    fun fallback(locale: Locale = Locale.getDefault()): PlanPresentation = build(null, null, locale = locale)
+    fun fallback(locale: Locale = Locale.getDefault()): PlanPresentation =
+        build(tier = null as TierInput?, offer = null, locale = locale)
 
     fun currencyFormat(currency: String, locale: Locale): NumberFormat {
         val format = NumberFormat.getCurrencyInstance(locale)

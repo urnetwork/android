@@ -294,6 +294,7 @@
     <string name="no_open_contracts">No hay contratos abiertos</string>
     <string name="no_providers_found">No hemos encontrado ningún proveedor.</string>
     <string name="no_redeemed_balance_codes_found">No se encontraron códigos de saldo canjeados</string>
+    <string name="no_solana_wallet_found">No se encontró ninguna app de billetera para el pago con Solana.</string>
     <string name="no_solana_wallets_found">No se encontraron billeteras de Solana</string>
     <string name="no_wallets_found_alert_content">No se encontraron billeteras de Solana instaladas en este dispositivo. Instale una billetera e intente nuevamente.</string>
     <string name="none">Ninguno</string>

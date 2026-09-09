@@ -294,6 +294,7 @@
     <string name="no_open_contracts">Geen open contracten</string>
     <string name="no_providers_found">We konden geen aanbieders vinden.</string>
     <string name="no_redeemed_balance_codes_found">Geen ingewisselde saldocodes gevonden</string>
+    <string name="no_solana_wallet_found">Geen wallet-app gevonden voor de Solana-betaling.</string>
     <string name="no_solana_wallets_found">Geen Solana wallets gevonden</string>
     <string name="no_wallets_found_alert_content">Er zijn geen Solana wallets geïnstalleerd op dit apparaat. Installeer een portemonnee en probeer het opnieuw.</string>
     <string name="none">Geen</string>

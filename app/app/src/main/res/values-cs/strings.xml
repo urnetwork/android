@@ -294,6 +294,7 @@
     <string name="no_open_contracts">Žádné otevřené kontrakty</string>
     <string name="no_providers_found">Nenalezen žádní poskytovatelé.</string>
     <string name="no_redeemed_balance_codes_found">Nenalezeny žádné uplatněné kódy zůstatku</string>
+    <string name="no_solana_wallet_found">Nebyla nalezena žádná aplikace peněženky pro platbu Solana.</string>
     <string name="no_solana_wallets_found">Nebyly nalezeny žádné peněženky Solana</string>
     <string name="no_wallets_found_alert_content">V tomto zařízení nebyly nalezeny žádné peněženky Solana. Nainstalujte prosím peněženku a zkuste to znovu.</string>
     <string name="none">Žádné</string>

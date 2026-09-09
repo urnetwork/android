@@ -294,6 +294,7 @@
     <string name="no_open_contracts">Hakuna mikataba wazi</string>
     <string name="no_providers_found">Hatukupata watoa huduma wowote.</string>
     <string name="no_redeemed_balance_codes_found">Hakuna msimbo wa salio uliokombolewa uliopatikana</string>
+    <string name="no_solana_wallet_found">Hakuna programu ya pochi iliyopatikana kwa malipo ya Solana.</string>
     <string name="no_solana_wallets_found">Hakuna pochi za Solana zilizopatikana</string>
     <string name="no_wallets_found_alert_content">Hakuna pochi za Solana zilizopatikana zimewekwa kwenye kifaa hiki. Tafadhali sakinisha pochi na ujaribu tena.</string>
     <string name="none">Hakuna</string>

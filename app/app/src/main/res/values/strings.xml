@@ -502,6 +502,7 @@
     <string name="no_points_yet">No epochs yet. Points appear after your first finalized epoch.</string>
     <string name="no_providers_found">We could not find any providers.</string>
     <string name="no_redeemed_balance_codes_found">No redeemed balance codes found</string>
+    <string name="no_solana_wallet_found">No wallet app found to handle the Solana payment.</string>
     <string name="no_solana_wallets_found">No Solana Wallets Found</string>
     <string name="no_wallets_found_alert_content">No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
     <string name="none">None</string>

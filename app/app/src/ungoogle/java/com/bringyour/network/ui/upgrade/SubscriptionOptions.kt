@@ -1,23 +1,23 @@
 package com.bringyour.network.ui.upgrade
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
-import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
-import com.bringyour.network.utils.SOLANA_PLAN_YEARLY
-import com.bringyour.network.utils.buildSolanaPaymentUrl
-import com.bringyour.network.utils.createPaymentReference
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 
+/**
+ * The plan picker on this flavor: the shared card picker over the server's
+ * tier and welcome offer (sold by this flavor's purchaser) and the Solana Pay
+ * alternative below it. The same signature as the Play flavor's picker, so
+ * the onboarding plan step and the Get Pro screen are shared.
+ */
 @Composable
 fun SubscriptionOptions(
     planViewModel: PlanViewModel,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
+    // OfferSurface* -- where this picker is shown, for the events
+    surface: String,
     createSolanaPaymentIntent: (
         reference: String,
         plan: String,
@@ -28,107 +28,22 @@ fun SubscriptionOptions(
     onStripePaymentSuccess: () -> Unit,
     isCheckingSolanaTransaction: Boolean
 ) {
+    val priceTier by subscriptionBalanceViewModel.priceTier.collectAsState()
+    val onboardingOffer by subscriptionBalanceViewModel.onboardingOffer.collectAsState()
+    val presentation = rememberPlanPresentation(planViewModel, priceTier, onboardingOffer)
+    val purchaser = rememberPlanPurchaser(planViewModel, subscriptionBalanceViewModel, onPurchaseSuccess = onStripePaymentSuccess)
+    val solanaLauncher = rememberSolanaPayLauncher()
 
-    val uriHandler = LocalUriHandler.current
-    val context = LocalContext.current
-
-    // networkId was init-only: stale after an account switch, null after a slow jwt
-    // parse. Re-derive it whenever this upgrade UI appears; the Stripe buttons stay
-    // disabled until it resolves.
-    LaunchedEffect(Unit) {
-        planViewModel.refreshNetworkId()
-    }
-
-    val promptWalletTransaction: (reference: String, amountUsd: Double) -> Unit = { reference, amountUsd ->
-
-        var uriOpened = false
-
-        try {
-            val url = buildSolanaPaymentUrl(reference, amountUsd, SOLANA_PLAN_YEARLY)
-            uriHandler.openUri(url)
-            uriOpened = true
-        } catch (e: IllegalArgumentException) {
-            // the sdk refused to build the url -- a bad amount, reference or address
-            Toast.makeText(context, "Could not start the payment. Please try again.", Toast.LENGTH_LONG).show()
-        } catch (e: Exception) {
-            Toast.makeText(context, "No wallet app found to handle Solana payment.", Toast.LENGTH_LONG).show()
-        }
-
-        if (uriOpened) {
-            onSolanaUriOpened(reference)
-        }
-
-    }
-
-    val upgradeWithSolana: () -> Unit = {
-
-        val reference = createPaymentReference()
-
-        createSolanaPaymentIntent(
-            reference,
-            SOLANA_PLAN_YEARLY,
-            { amountUsd ->
-                // on success -- amountUsd is what the SERVER quoted
-                promptWalletTransaction(reference, amountUsd)
-            },
-            {
-                // on error
-                Toast.makeText(context, "Error creating payment reference", Toast.LENGTH_SHORT).show()
-            }
-        )
-
-    }
-
-    SubscriptionOptions(
-        networkId = planViewModel.networkId,
-        monthlyCostFormatted = planViewModel.formattedMonthlySubscriptionPrice,
-        yearlyCostFormatted = planViewModel.formattedYearlySubscriptionPrice,
-        upgradeSolana = upgradeWithSolana,
-        onStripePaymentSuccess = onStripePaymentSuccess,
-        isCheckingSolanaTransaction = isCheckingSolanaTransaction
-    )
-
-
-}
-
-@Composable
-fun SubscriptionOptions(
-    networkId: String?,
-    monthlyCostFormatted: String,
-    yearlyCostFormatted: String,
-    upgradeSolana: () -> Unit,
-    onStripePaymentSuccess: () -> Unit,
-    isCheckingSolanaTransaction: Boolean
-) {
-
-    val uriHandler = LocalUriHandler.current
-    var isPromptingSolanaPayment by remember { mutableStateOf(false) }
-
-    LaunchedEffect(isCheckingSolanaTransaction) {
-        if (isPromptingSolanaPayment) {
-            isPromptingSolanaPayment = false
-        }
-    }
-
-    AltSubscriptionOptions(
-        monthlyCostFormatted = monthlyCostFormatted,
-        yearlyCostFormatted = yearlyCostFormatted,
-        upgradeSolana = upgradeSolana,
-        isPromptingSolanaPayment = isPromptingSolanaPayment,
-        setIsPromptingSolanaPayment = {
-            isPromptingSolanaPayment = it
-        },
-        upgradeStripeMonthly = {
-            if (networkId != null) {
-                uriHandler.openUri("https://pay.ur.io/b/3csaIs85tgIrh208wE?client_reference_id=${networkId}")
-            }
-        },
-        upgradeStripeYearly = {
-            if (networkId != null) {
-                uriHandler.openUri("https://pay.ur.io/b/28E3cvaUEbb3b9Og1u9ws09?client_reference_id=${networkId}")
-            }
-        },
-        stripeEnabled = networkId != null,
-        isCheckingSolanaTransaction = isCheckingSolanaTransaction
+    NonPlayPlanSurface(
+        presentation = presentation,
+        subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+        surface = surface,
+        purchaser = purchaser,
+        solanaLauncher = solanaLauncher,
+        upgradeInProgress = planViewModel.inProgress,
+        createSolanaPaymentIntent = createSolanaPaymentIntent,
+        onSolanaUriOpened = onSolanaUriOpened,
+        isCheckingSolanaTransaction = isCheckingSolanaTransaction,
+        freeTrialDays = planViewModel.freeTrialDays,
     )
 }

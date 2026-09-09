@@ -294,6 +294,7 @@
     <string name="no_open_contracts">Brak otwartych kontraktów</string>
     <string name="no_providers_found">Nie znaleziono żadnych dostawców.</string>
     <string name="no_redeemed_balance_codes_found">Nie znaleziono zrealizowanych kodów salda</string>
+    <string name="no_solana_wallet_found">Nie znaleziono aplikacji portfela do obsługi płatności Solana.</string>
     <string name="no_solana_wallets_found">Nie znaleziono portfeli Solana</string>
     <string name="no_wallets_found_alert_content">Nie znaleziono żadnych portfeli Solana zainstalowanych na tym urządzeniu. Zainstaluj portfel i spróbuj ponownie.</string>
     <string name="none">Brak</string>

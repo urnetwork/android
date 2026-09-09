@@ -294,6 +294,7 @@
     <string name="no_open_contracts">Нет открытых контрактов</string>
     <string name="no_providers_found">Нам не удалось найти провайдеров.</string>
     <string name="no_redeemed_balance_codes_found">Не найдено активированных кодов баланса</string>
+    <string name="no_solana_wallet_found">Не найдено приложение кошелька для оплаты через Solana.</string>
     <string name="no_solana_wallets_found">Кошельки Solana не найдены</string>
     <string name="no_wallets_found_alert_content">На этом устройстве не найдено установленных кошельков Solana. Пожалуйста, установите кошелек и попробуйте снова.</string>
     <string name="none">Нет</string>

@@ -294,6 +294,7 @@
     <string name="no_open_contracts">Δεν υπάρχουν ανοιχτά συμβόλαια</string>
     <string name="no_providers_found">Δεν βρέθηκαν πάροχοι.</string>
     <string name="no_redeemed_balance_codes_found">Δεν βρέθηκαν εξαργυρωμένοι κωδικοί υπολοίπου</string>
+    <string name="no_solana_wallet_found">Δεν βρέθηκε εφαρμογή πορτοφολιού για την πληρωμή Solana.</string>
     <string name="no_solana_wallets_found">Δεν βρέθηκαν πορτοφόλια Solana</string>
     <string name="no_wallets_found_alert_content">Δεν βρέθηκαν πορτοφόλια Solana εγκατεστημένα σε αυτήν τη συσκευή. Εγκαταστήστε ένα πορτοφόλι και δοκιμάστε ξανά.</string>
     <string name="none">Κανένα</string>

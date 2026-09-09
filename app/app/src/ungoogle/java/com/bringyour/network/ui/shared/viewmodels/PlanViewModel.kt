@@ -148,6 +148,24 @@ class PlanViewModel @Inject constructor(
     var inProgress by mutableStateOf(false)
         private set
 
+    val setInProgress: (Boolean) -> Unit = { ip ->
+        inProgress = ip
+    }
+
+    /** The api of the active network space (the purchase requests go through it). */
+    val api: com.bringyour.sdk.Api?
+        get() = networkSpaceManagerProvider.getNetworkSpace()?.api
+
+    /**
+     * This flavor has no store that localizes prices: the picker prints the
+     * server's tier figures (PlanPresentation), so these stay null.
+     */
+    val storeYearlyPrice: com.bringyour.network.ui.upgrade.StorePrice? = null
+    val storeMonthlyPrice: com.bringyour.network.ui.upgrade.StorePrice? = null
+
+    /** The yearly plan's free trial on Stripe, in days. */
+    val freeTrialDays: Int = com.bringyour.network.ui.upgrade.FREE_TRIAL_DAYS
+
     /**
      * The Stripe payment-link buttons attach `client_reference_id=networkId` -- a
      * payment made without it can never be credited. This used to be derived once at

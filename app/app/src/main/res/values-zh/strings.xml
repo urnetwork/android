@@ -294,6 +294,7 @@
     <string name="no_open_contracts">没有进行中的合约</string>
     <string name="no_providers_found">我们找不到任何提供商。</string>
     <string name="no_redeemed_balance_codes_found">未找到已兑换的余额码</string>
+    <string name="no_solana_wallet_found">未找到可处理 Solana 付款的钱包应用。</string>
     <string name="no_solana_wallets_found">未找到 Solana 钱包</string>
     <string name="no_wallets_found_alert_content">在此设备上未找到已安装的 Solana 钱包。请安装一个钱包，然后重试。</string>
     <string name="none">无</string>

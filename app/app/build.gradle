@@ -412,7 +412,11 @@ android {
         }
         github {
             java {
-                srcDirs += ['src/ungoogle/java']
+                // the F-Droid build sells through the ur.io pay page in a web
+                // view and Solana Pay: the Stripe SDK depends on Google Play
+                // Services (wallet, maps, identity), which F-Droid rejects.
+                // The dapp flavors add src/stripeSheet/java (the inline sheet).
+                srcDirs += ['src/ungoogle/java', 'src/webPay/java']
             }
         }
         play {
@@ -422,12 +426,12 @@ android {
         }
         solana_dapp {
             java {
-                srcDirs += ['src/solana_dapp/java']
+                srcDirs += ['src/solana_dapp/java', 'src/stripeSheet/java']
             }
         }
         ethos_dapp {
             java {
-                srcDirs += ['src/ethos_dapp/java']
+                srcDirs += ['src/ethos_dapp/java', 'src/stripeSheet/java']
             }
         }
     }

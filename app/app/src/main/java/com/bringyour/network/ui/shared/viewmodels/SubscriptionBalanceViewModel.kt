@@ -94,6 +94,14 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     private var issuingOffer = false
 
+    /** A Solana Pay purchase the wallet was opened for; completed when the poll sees Pro. */
+    @Volatile
+    private var pendingSolanaPurchase: Pair<String, Double>? = null
+
+    fun expectSolanaPurchase(plan: String, amountUsd: Double) {
+        pendingSolanaPurchase = Pair(plan, amountUsd)
+    }
+
     /**
      * Issues the welcome offer for a surface (idempotent on the server; the
      * existing record comes back when one exists) and publishes it. Not called
@@ -279,6 +287,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
                              */
                             val serverIsPro = result.currentSubscription != null
                             _hasActiveSubscription.value = serverIsPro
+                            if (serverIsPro) {
+                                pendingSolanaPurchase?.let { (plan, amountUsd) ->
+                                    pendingSolanaPurchase = null
+                                    com.bringyour.network.analytics.ClientEvents.purchaseCompleted(
+                                        Sdk.EventStoreSolana,
+                                        com.bringyour.network.analytics.ClientEvents.PRODUCT_SOLANA_PRO_YEARLY,
+                                        plan, false, amountUsd, "USD",
+                                    )
+                                }
+                            }
                             val jwtIsPro = jwtManager.jwtFlow.value?.pro == true
 
                             if (serverIsPro && !jwtIsPro) {

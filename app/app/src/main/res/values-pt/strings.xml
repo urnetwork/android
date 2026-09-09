@@ -294,6 +294,7 @@
     <string name="no_open_contracts">Nenhum contrato aberto</string>
     <string name="no_providers_found">Não encontramos nenhum provedor.</string>
     <string name="no_redeemed_balance_codes_found">Nenhum código de saldo resgatado encontrado</string>
+    <string name="no_solana_wallet_found">Nenhuma app de carteira encontrada para o pagamento Solana.</string>
     <string name="no_solana_wallets_found">Nenhuma carteira Solana encontrada</string>
     <string name="no_wallets_found_alert_content">Não foram encontradas carteiras Solana instaladas neste dispositivo. Instale uma carteira e tente novamente.</string>
     <string name="none">Nenhum</string>

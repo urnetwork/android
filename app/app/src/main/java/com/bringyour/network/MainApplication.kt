@@ -186,6 +186,10 @@ class MainApplication : Application() {
                     val args = com.bringyour.sdk.AuthNetworkClientArgs().apply {
                         deviceDescription = this@MainApplication.deviceDescription
                         deviceSpec = this@MainApplication.deviceSpec
+                        // the onboarding campaign sends in the user's local morning and
+                        // in their language: the zone and locale travel with every auth
+                        timeZone = java.util.TimeZone.getDefault().id
+                        locale = java.util.Locale.getDefault().toLanguageTag()
                     }
                     currentApi.authNetworkClient(args) { result, error ->
                         val resultError = result?.error

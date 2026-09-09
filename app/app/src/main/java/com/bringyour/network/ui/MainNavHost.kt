@@ -934,12 +934,15 @@ fun IntroNavHost(
     val introSteps = remember { IntroStepTimer() }
     val skipToOffer: () -> Unit = {
         val current = introEntry?.destination?.route ?: ""
-        val onOffer = current.contains(IntroRoute.IntroductionOffer::class.qualifiedName.toString())
-        if (offerHoldout || onOffer) {
-            dismiss()
-        } else {
-            introSteps.skipped(current)
-            introNavController.navigate(IntroRoute.IntroductionOffer)
+        when (com.bringyour.network.ui.introduction.IntroSkip.decide(current, offerHoldout)) {
+            com.bringyour.network.ui.introduction.IntroSkip.Action.DISMISS -> {
+                introSteps.skipped(current)
+                dismiss()
+            }
+            com.bringyour.network.ui.introduction.IntroSkip.Action.GO_TO_OFFER -> {
+                introSteps.skipped(current)
+                introNavController.navigate(IntroRoute.IntroductionOffer)
+            }
         }
     }
     // one shown / completed event per page, timed from when it appeared

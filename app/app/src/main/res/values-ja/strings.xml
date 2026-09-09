@@ -294,6 +294,7 @@
     <string name="no_open_contracts">有効な契約はありません</string>
     <string name="no_providers_found">プロバイダーが見つかりませんでした。</string>
     <string name="no_redeemed_balance_codes_found">引き換え済みの残高コードが見つかりません</string>
+    <string name="no_solana_wallet_found">Solana の支払いを処理できるウォレットアプリが見つかりません。</string>
     <string name="no_solana_wallets_found">Solanaウォレットが見つかりません</string>
     <string name="no_wallets_found_alert_content">このデバイスにSolanaウォレットがインストールされていません。ウォレットをインストールして、もう一度お試しください。</string>
     <string name="none">なし</string>

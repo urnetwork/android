@@ -294,6 +294,7 @@
     <string name="no_open_contracts">진행 중인 계약 없음</string>
     <string name="no_providers_found">제공자를 찾을 수 없습니다.</string>
     <string name="no_redeemed_balance_codes_found">사용된 잔액 코드가 없습니다</string>
+    <string name="no_solana_wallet_found">Solana 결제를 처리할 지갑 앱을 찾을 수 없습니다.</string>
     <string name="no_solana_wallets_found">Solana 지갑을 찾을 수 없습니다</string>
     <string name="no_wallets_found_alert_content">이 장치에 설치된 Solana 지갑이 없습니다. 지갑을 설치하고 다시 시도하십시오.</string>
     <string name="none">없음</string>

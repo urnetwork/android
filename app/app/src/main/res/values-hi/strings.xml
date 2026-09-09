@@ -294,6 +294,7 @@
     <string name="no_open_contracts">कोई खुला कॉन्ट्रैक्ट नहीं</string>
     <string name="no_providers_found">हमें कोई प्रदाता नहीं मिला।</string>
     <string name="no_redeemed_balance_codes_found">कोई रिडीम किए गए बैलेंस कोड नहीं मिले</string>
+    <string name="no_solana_wallet_found">Solana भुगतान के लिए कोई वॉलेट ऐप नहीं मिला।</string>
     <string name="no_solana_wallets_found">कोई Solana वॉलेट नहीं मिला</string>
     <string name="no_wallets_found_alert_content">इस डिवाइस पर कोई Solana वॉलेट इंस्टॉल नहीं मिला. कृपया एक वॉलेट इंस्टॉल करें और फिर से प्रयास करें.</string>
     <string name="none">कोई नहीं</string>

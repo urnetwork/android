@@ -294,6 +294,7 @@
     <string name="no_open_contracts">لا توجد عقود مفتوحة</string>
     <string name="no_providers_found">لم نعثر على أي مزود.</string>
     <string name="no_redeemed_balance_codes_found">لم يتم العثور على رموز رصيد مستردة</string>
+    <string name="no_solana_wallet_found">لم يتم العثور على تطبيق محفظة لمعالجة الدفع عبر Solana.</string>
     <string name="no_solana_wallets_found">لم يتم العثور على محافظ Solana</string>
     <string name="no_wallets_found_alert_content">لم يتم العثور على أي محافظ Solana مثبتة على هذا الجهاز. يرجى تثبيت محفظة والمحاولة مرة أخرى.</string>
     <string name="none">لا يوجد</string>

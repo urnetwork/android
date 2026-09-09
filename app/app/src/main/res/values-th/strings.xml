@@ -294,6 +294,7 @@
     <string name="no_open_contracts">ไม่มีสัญญาที่เปิดอยู่</string>
     <string name="no_providers_found">ไม่สามารถหาผู้ให้บริการที่ตรงกับคำค้นหา</string>
     <string name="no_redeemed_balance_codes_found">ไม่พบรหัสยอดเงินที่แลกแล้ว</string>
+    <string name="no_solana_wallet_found">ไม่พบแอปกระเป๋าเงินสำหรับการชำระเงินด้วย Solana</string>
     <string name="no_solana_wallets_found">ไม่พบกระเป๋า Solana</string>
     <string name="no_wallets_found_alert_content">ไม่พบการติดตั้งแอพกระเป๋า Solana บนเครื่องนี้ โปรดติดตั้ง</string>
     <string name="none">ไม่มี</string>
