@@ -47,8 +47,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.bringyour.network.R
 import com.bringyour.network.ui.Route
+import com.bringyour.network.ui.components.SkeletonGroup
+import com.bringyour.network.ui.components.SkeletonText
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
@@ -193,6 +196,21 @@ fun ConnectStatsSections(
             DnsStatusRow(stringResource(id = R.string.local_dns), settings.localDnsEnabled)
             Spacer(modifier = Modifier.height(8.dp))
             DnsStatusRow(stringResource(id = R.string.local_dns_fallback), settings.localDnsFallbackEnabled)
+        } else if (!dnsSettingsViewModel.reported) {
+            // the device has not reported its resolver settings yet: the four
+            // status rows as placeholders in their exact layout, so the card
+            // and the connect drawer measure their final height at first open
+            // (mmm/DESIGNSTYLE.md "Placeholders, not pop-in"). A device that
+            // reports no settings resolves to the unavailable line below.
+            SkeletonGroup {
+                DnsStatusRow(stringResource(id = R.string.dns_over_https), false, placeholder = true)
+                Spacer(modifier = Modifier.height(8.dp))
+                DnsStatusRow(stringResource(id = R.string.unencrypted_dns), false, placeholder = true)
+                Spacer(modifier = Modifier.height(8.dp))
+                DnsStatusRow(stringResource(id = R.string.local_dns), false, placeholder = true)
+                Spacer(modifier = Modifier.height(8.dp))
+                DnsStatusRow(stringResource(id = R.string.local_dns_fallback), false, placeholder = true)
+            }
         } else {
             Text(
                 stringResource(id = R.string.dns_settings_unavailable),
@@ -486,10 +504,16 @@ private fun countryColor(countryCode: String): Color {
     }
 }
 
+/**
+ * One dns status row: dot + label, and on / off at the end. As a placeholder
+ * the same layout renders skeleton bars sized by the same texts, so the row
+ * height is identical before and after the settings load.
+ */
 @Composable
 private fun DnsStatusRow(
     label: String,
     enabled: Boolean,
+    placeholder: Boolean = false,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -504,23 +528,38 @@ private fun DnsStatusRow(
                 modifier = Modifier
                     .size(6.dp)
                     .background(
-                        color = if (enabled) Green else TextFaint.copy(alpha = 0.4f),
+                        color = when {
+                            placeholder -> MainBorderBase
+                            enabled -> Green
+                            else -> TextFaint.copy(alpha = 0.4f)
+                        },
                         shape = CircleShape
                     )
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White
-            )
+            if (placeholder) {
+                SkeletonText(label, style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+            }
         }
 
-        Text(
-            stringResource(id = if (enabled) R.string.on else R.string.off),
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (enabled) Green else TextMuted
-        )
+        if (placeholder) {
+            SkeletonText(
+                stringResource(id = R.string.off),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        } else {
+            Text(
+                stringResource(id = if (enabled) R.string.on else R.string.off),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (enabled) Green else TextMuted
+            )
+        }
     }
 }
 

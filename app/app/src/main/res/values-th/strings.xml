@@ -208,6 +208,7 @@
     <string name="learn_more">เรียนรู้เพิ่มเติม</string>
     <string name="learn_more_about_multiplier">เรียนรู้เพิ่มเติมเกี่ยวกับตัวคูณ</string>
     <string name="learn_more_protocol_page">เรียนรู้เพิ่มเติมที่หน้าข้อมูลโปรโตคอล</string>
+    <string name="loading">กำลังโหลด...</string>
     <string name="local">ภายในเครื่อง</string>
     <string name="local_dns">DNS ภายในเครื่อง</string>
     <string name="local_dns_fallback">DNS สำรองภายในเครื่อง</string>

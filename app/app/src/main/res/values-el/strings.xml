@@ -208,6 +208,7 @@
     <string name="learn_more">Μάθετε περισσότερα</string>
     <string name="learn_more_about_multiplier">Μάθετε περισσότερα σχετικά με τον πολλαπλασιαστή</string>
     <string name="learn_more_protocol_page">Μάθετε περισσότερα στη σελίδα του πρωτοκόλλου</string>
+    <string name="loading">Φόρτωση...</string>
     <string name="local">Τοπικό</string>
     <string name="local_dns">Τοπικό DNS</string>
     <string name="local_dns_fallback">Εφεδρικό τοπικό DNS</string>

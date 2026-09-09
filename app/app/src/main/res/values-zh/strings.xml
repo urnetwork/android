@@ -208,6 +208,7 @@
     <string name="learn_more">了解更多</string>
     <string name="learn_more_about_multiplier">了解更多关于倍数的信息</string>
     <string name="learn_more_protocol_page">在协议页面了解更多信息</string>
+    <string name="loading">加载中...</string>
     <string name="local">本地</string>
     <string name="local_dns">本地 DNS</string>
     <string name="local_dns_fallback">本地 DNS 回退</string>

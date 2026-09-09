@@ -415,6 +415,7 @@
     <string name="learn_more">Learn more</string>
     <string name="learn_more_about_multiplier">Learn more about the multiplier</string>
     <string name="learn_more_protocol_page">Learn more at the protocol page</string>
+    <string name="loading">Loading...</string>
     <string name="local">Local</string>
     <string name="local_dns">Local DNS</string>
     <string name="local_dns_fallback">Local DNS fallback</string>

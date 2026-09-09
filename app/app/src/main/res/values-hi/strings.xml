@@ -208,6 +208,7 @@
     <string name="learn_more">और जानें</string>
     <string name="learn_more_about_multiplier">गुणक के बारे में और जानें</string>
     <string name="learn_more_protocol_page">प्रोटोकॉल पेज पर और जानें</string>
+    <string name="loading">लोड हो रहा है...</string>
     <string name="local">स्थानीय</string>
     <string name="local_dns">स्थानीय DNS</string>
     <string name="local_dns_fallback">स्थानीय DNS फ़ॉलबैक</string>

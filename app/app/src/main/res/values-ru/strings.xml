@@ -208,6 +208,7 @@
     <string name="learn_more">Подробнее</string>
     <string name="learn_more_about_multiplier">Узнать больше о множителе</string>
     <string name="learn_more_protocol_page">Подробнее на странице протокола</string>
+    <string name="loading">Загрузка...</string>
     <string name="local">Локально</string>
     <string name="local_dns">Локальный DNS</string>
     <string name="local_dns_fallback">Резервный локальный DNS</string>

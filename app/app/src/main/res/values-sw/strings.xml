@@ -208,6 +208,7 @@
     <string name="learn_more">Pata maelezo zaidi</string>
     <string name="learn_more_about_multiplier">Jifunze zaidi kuhusu kizidishi</string>
     <string name="learn_more_protocol_page">Jifunze zaidi kwenye ukurasa wa itifaki</string>
+    <string name="loading">Inapakia...</string>
     <string name="local">Ndani</string>
     <string name="local_dns">DNS ya ndani</string>
     <string name="local_dns_fallback">Mbadala wa DNS ya ndani</string>

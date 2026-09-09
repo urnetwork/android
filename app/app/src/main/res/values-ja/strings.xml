@@ -208,6 +208,7 @@
     <string name="learn_more">詳しく見る</string>
     <string name="learn_more_about_multiplier">倍率について詳しく見る</string>
     <string name="learn_more_protocol_page">プロトコルページでさらに詳しく</string>
+    <string name="loading">読み込み中...</string>
     <string name="local">ローカル</string>
     <string name="local_dns">ローカルDNS</string>
     <string name="local_dns_fallback">ローカルDNSフォールバック</string>

@@ -85,6 +85,16 @@ class DnsSettingsViewModel @Inject constructor(
     var settings by mutableStateOf<DnsSettingsUi?>(null)
         private set
 
+    /**
+     * whether the current device has reported its resolver settings since it
+     * was set. False while the first report is pending, so the connect sheet
+     * shows a placeholder rather than "unavailable"; a device that reports no
+     * settings (null) still counts as reported. True with no device at all,
+     * since nothing will ever report.
+     */
+    var reported by mutableStateOf(false)
+        private set
+
     var regionalServers by mutableStateOf<List<RegionalDnsSuggestionUi>>(listOf())
         private set
 
@@ -142,6 +152,7 @@ class DnsSettingsViewModel @Inject constructor(
         removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
             viewModelScope.launch {
                 settings = null
+                reported = device == null
                 subscriptionOwner.setDevice(device)
             }
         }
@@ -194,6 +205,7 @@ class DnsSettingsViewModel @Inject constructor(
 
     private fun update(device: DeviceLocal) {
         val sdkSettings = device.dnsResolverSettings
+        reported = true
         settings = if (sdkSettings != null) {
             DnsSettingsUi(
                 enableRemoteDoh = sdkSettings.enableRemoteDoh,

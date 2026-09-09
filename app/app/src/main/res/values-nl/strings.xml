@@ -208,6 +208,7 @@
     <string name="learn_more">Meer informatie</string>
     <string name="learn_more_about_multiplier">Meer informatie over de vermenigvuldiger</string>
     <string name="learn_more_protocol_page">Meer informatie op de protocolpagina</string>
+    <string name="loading">Laden...</string>
     <string name="local">Lokaal</string>
     <string name="local_dns">Lokale DNS</string>
     <string name="local_dns_fallback">Lokale DNS-fallback</string>

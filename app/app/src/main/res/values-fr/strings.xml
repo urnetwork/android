@@ -208,6 +208,7 @@
     <string name="learn_more">En savoir plus</string>
     <string name="learn_more_about_multiplier">En savoir plus sur le multiplicateur</string>
     <string name="learn_more_protocol_page">En savoir plus sur la page du protocole</string>
+    <string name="loading">Chargement...</string>
     <string name="local">Local</string>
     <string name="local_dns">DNS local</string>
     <string name="local_dns_fallback">DNS local de secours</string>

@@ -53,6 +53,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.SkeletonGroup
+import com.bringyour.network.ui.components.SkeletonText
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextFaint
@@ -199,6 +201,52 @@ fun TransportDistributionBar(
             exit = fadeOut(tween(TRANSPORT_TWEEN_MILLIS)),
         ) {
             UnusedRow(distribution.shares)
+        }
+
+        // before the sdk has reported the window there are no shares at all
+        // (a reported window lists every transport, zeros included). Stand in
+        // one footer-shaped placeholder row, the least a reported bar shows
+        // (an idle window lists every enabled transport as unused), so the
+        // card and the connect drawer measure their final height at first
+        // open instead of growing when the first snapshot lands
+        if (distribution.shares.isEmpty()) {
+            TransportPlaceholderRow()
+        }
+    }
+}
+
+/**
+ * The placeholder for the legend / unused footer: the "unused" label and
+ * three dot + name items in the footer's exact layout, as skeleton bars sized
+ * by the real 11sp style. See mmm/DESIGNSTYLE.md "Placeholders, not pop-in".
+ */
+@Composable
+private fun TransportPlaceholderRow() {
+    val style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium)
+    SkeletonGroup {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            SkeletonText(
+                stringResource(id = R.string.transport_unused),
+                style = style,
+                modifier = Modifier.padding(end = ITEM_SPACING)
+            )
+            for (transportType in listOf(TransportTypeUi.H3, TransportTypeUi.H1, TransportTypeUi.DNS)) {
+                Row(
+                    modifier = Modifier.padding(end = ITEM_SPACING),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(MainBorderBase, CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    SkeletonText(transportType.label(), style = style)
+                }
+            }
         }
     }
 }

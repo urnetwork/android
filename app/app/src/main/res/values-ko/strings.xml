@@ -208,6 +208,7 @@
     <string name="learn_more">자세히 알아보기</string>
     <string name="learn_more_about_multiplier">배수에 대해 자세히 알아보기</string>
     <string name="learn_more_protocol_page">프로토콜 페이지에서 자세히 알아보기</string>
+    <string name="loading">로딩 중...</string>
     <string name="local">로컬</string>
     <string name="local_dns">로컬 DNS</string>
     <string name="local_dns_fallback">로컬 DNS 폴백</string>
