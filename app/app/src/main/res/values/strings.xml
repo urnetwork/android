@@ -394,7 +394,7 @@
     <string name="intro_quick_connect_title">Connect in one tap</string>
     <string name="intro_quick_tile_added">Added to Quick Settings</string>
     <string name="intro_quick_tile_manual">Open Quick Settings, tap the pencil, and drag URnetwork into place.</string>
-    <string name="intro_verifiable_encryption">URnetwork gives you verifiable encryption for everyday use.</string>
+    <string name="intro_verifiable_encryption">Encryption for everyday use.</string>
     <string name="intro_widgets_manual">Long-press your home screen, choose Widgets, and pick URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Tap a widget to add it to your home screen.</string>
     <string name="invalid_referral_code">This code is not valid</string>
