@@ -18,6 +18,11 @@ import com.bringyour.network.ForegroundPollingSession
 import com.bringyour.network.JwtManager
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.sdk.ExperimentAssignmentList
+import com.bringyour.sdk.OnboardingOffer
+import com.bringyour.sdk.OnboardingOfferIssueArgs
+import com.bringyour.sdk.PriceTier
+import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.SubscriptionBalanceCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -35,13 +40,86 @@ import kotlinx.coroutines.isActive
 
 @HiltViewModel
 class SubscriptionBalanceViewModel @Inject constructor(
-    deviceManager: DeviceManager,
+    private val deviceManager: DeviceManager,
     jwtManager: JwtManager,
     @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
 ): ViewModel(), DefaultLifecycleObserver {
 
     private val _currentStore = MutableStateFlow<String?>(null)
     val currentStore: StateFlow<String?> get() = _currentStore
+
+    /**
+     * The onboarding plan data the balance response carries (mmm/onboarding/
+     * PLAN.md): the caller's price tier, the welcome offer when one was issued,
+     * and the experiment variants per surface. Every plan surface renders from
+     * these; the store's localized prices only refine the printed figures.
+     */
+    private val _priceTier = MutableStateFlow<PriceTier?>(null)
+    val priceTier: StateFlow<PriceTier?> = _priceTier.asStateFlow()
+
+    private val _onboardingOffer = MutableStateFlow<OnboardingOffer?>(null)
+    val onboardingOffer: StateFlow<OnboardingOffer?> = _onboardingOffer.asStateFlow()
+
+    private val _experiments = MutableStateFlow<ExperimentAssignmentList?>(null)
+    val experiments: StateFlow<ExperimentAssignmentList?> = _experiments.asStateFlow()
+
+    /**
+     * The store's storefront country (Play's billing country on the play
+     * flavor), sent with the balance request so the server resolves the tier
+     * from it instead of the IP estimate. Null where the app has no store.
+     */
+    @Volatile
+    var storefrontCountry: String? = null
+        private set
+
+    fun setStorefrontCountry(country: String?) {
+        val normalized = country?.trim()?.uppercase()?.takeIf { it.isNotEmpty() }
+        if (normalized != storefrontCountry) {
+            storefrontCountry = normalized
+            // re-resolve the tier for the store's country
+            fetchSubscriptionBalance()
+        }
+    }
+
+    /** The in-app offer holdout: the regular picker, no offer, no issue call. */
+    val isOfferHoldout: Boolean
+        get() = _experiments.value?.isHoldout(Sdk.ExperimentSurfaceOfferInApp) == true
+
+    /** The in-app experiment assignment, for the offer events. */
+    val offerExperiment: Pair<String, String>
+        get() {
+            val a = _experiments.value?.forSurface(Sdk.ExperimentSurfaceOfferInApp)
+            return Pair(a?.experimentId ?: "", a?.variant ?: "")
+        }
+
+    private var issuingOffer = false
+
+    /**
+     * Issues the welcome offer for a surface (idempotent on the server; the
+     * existing record comes back when one exists) and publishes it. Not called
+     * for the holdout.
+     */
+    fun issueOnboardingOffer(surface: String) {
+        if (issuingOffer || isOfferHoldout) {
+            return
+        }
+        val api = deviceManager.device?.api ?: return
+        issuingOffer = true
+        val args = OnboardingOfferIssueArgs()
+        args.surface = surface
+        args.storefrontCountry = storefrontCountry ?: ""
+        api.onboardingOfferIssue(args) { result, err ->
+            viewModelScope.launch {
+                issuingOffer = false
+                if (err != null) {
+                    Log.i(TAG, "offer issue error: ${err.message}")
+                    return@launch
+                }
+                result?.offer?.let { _onboardingOffer.value = it }
+                result?.error?.let { Log.i(TAG, "offer issue refused: ${it.message}") }
+            }
+        }
+    }
 
     private val _isInitialized = MutableStateFlow<Boolean>(false)
     val isInitialized: StateFlow<Boolean> get() = _isInitialized
@@ -168,7 +246,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                 isRefreshingSubscriptionBalance = false
             } else {
 
-                api.subscriptionBalance( SubscriptionBalanceCallback { result, err ->
+                api.subscriptionBalanceForStorefront(storefrontCountry ?: "", SubscriptionBalanceCallback { result, err ->
 
                     viewModelScope.launch {
                         if (err != null) {
@@ -216,6 +294,11 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             result.currentSubscription?.store.let { store ->
                                 _currentStore.value = store
                             }
+
+                            // the onboarding plan data: absent on an older server
+                            result.priceTier?.let { _priceTier.value = it }
+                            _onboardingOffer.value = result.onboardingOffer
+                            result.experiments?.let { _experiments.value = it }
 
                             _availableBalanceByteCount.value = result.balanceByteCount
                             pendingBalanceByteCount = result.openTransferByteCount

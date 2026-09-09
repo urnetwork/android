@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
+import com.bringyour.sdk.Sdk
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
 
@@ -34,6 +36,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun UpgradeScreen(
     navController: NavHostController,
     planViewModel: PlanViewModel,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     setPendingSolanaSubscriptionReference: (String) -> Unit,
     createSolanaPaymentIntent: (
         reference: String,
@@ -88,6 +91,8 @@ fun UpgradeScreen(
 
                 SubscriptionOptions(
                     planViewModel = planViewModel,
+                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                    surface = Sdk.OfferSurfaceAccount,
                     createSolanaPaymentIntent = createSolanaPaymentIntent,
                     onSolanaUriOpened = { reference ->
                         setPendingSolanaSubscriptionReference(reference)
@@ -110,12 +115,7 @@ private fun UpgradeScreenContentPreview() {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             UpgradeScreenHeader()
             Spacer(modifier = Modifier.height(32.dp))
-            SubscriptionOptions(
-                upgrade = {},
-                upgradeInProgress = false,
-                monthlyCostFormatted = FALLBACK_MONTHLY_PRICE,
-                yearlyCostFormatted = FALLBACK_YEARLY_PRICE
-            )
+            SubscriptionOptions(presentation = PlanPresentations.fallback())
         }
     }
 }

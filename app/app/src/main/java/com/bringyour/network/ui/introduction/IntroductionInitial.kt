@@ -32,6 +32,10 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.IntroRoute
 import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
+import com.bringyour.sdk.Sdk
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.NeueBitLargeTextStyle
 import com.bringyour.network.ui.theme.TextMuted
@@ -43,6 +47,7 @@ fun IntroductionInitial(
     navController: NavHostController,
     dismiss: () -> Unit,
     planViewModel: PlanViewModel,
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     createSolanaPaymentIntent: (
         reference: String,
         plan: String,
@@ -56,6 +61,15 @@ fun IntroductionInitial(
 ) {
 
     var isPresentingRedeemTransferBalanceSheet by remember { mutableStateOf(false) }
+
+    // the welcome offer is issued the moment this plan step renders (idempotent
+    // on the server; never for the in-app holdout), so the card can show it
+    val experiments by subscriptionBalanceViewModel.experiments.collectAsState()
+    LaunchedEffect(experiments) {
+        if (experiments != null && !subscriptionBalanceViewModel.isOfferHoldout) {
+            subscriptionBalanceViewModel.issueOnboardingOffer(Sdk.OfferSurfaceIntroStep)
+        }
+    }
     val redeemTransferBalanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
@@ -97,6 +111,8 @@ fun IntroductionInitial(
 
                 SubscriptionOptions(
                     planViewModel = planViewModel,
+                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                    surface = Sdk.OfferSurfaceIntroStep,
                     createSolanaPaymentIntent = createSolanaPaymentIntent,
                     onSolanaUriOpened = { reference ->
                         setPendingSolanaSubscriptionReference(reference)

@@ -334,7 +334,7 @@ class MainActivity: AppCompatActivity() {
         }
 
         // the offer for the plan the user picked (yearly by default)
-        val offer = offerForPlan(productDetails.subscriptionOfferDetails ?: emptyList(), planViewModel.selectedPlan)
+        val offer = offerForPlan(productDetails.subscriptionOfferDetails ?: emptyList(), planViewModel.selectedPlan, planViewModel.preferredOfferTag)
 
         if (offer == null) {
 
@@ -373,6 +373,15 @@ class MainActivity: AppCompatActivity() {
                 planViewModel.setChangePlanError(
                     "Billing flow error: ${billingResult?.responseCode} ${billingResult?.debugMessage}"
                 )
+                planViewModel.pendingPurchaseEvent?.let {
+                    planViewModel.pendingPurchaseEvent = null
+                    com.bringyour.network.analytics.ClientEvents.purchaseFailed(
+                        com.bringyour.sdk.Sdk.EventStorePlay,
+                        com.bringyour.network.analytics.ClientEvents.PRODUCT_PLAY_SUPPORTER,
+                        it.plan, it.trial, it.price, it.currency,
+                        "play_launch_${billingResult?.responseCode}",
+                    )
+                }
                 planViewModel.setInProgress(false)
             }
         }

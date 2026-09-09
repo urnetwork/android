@@ -162,6 +162,13 @@ class LoginActivity : AppCompatActivity() {
 
         defaultLocation = extractDefaultLocation(uri)
 
+        // a campaign email landing link: park the in-app destination (and the
+        // feedback pre-fill) for MainNavHost, then continue the normal entry
+        com.bringyour.network.analytics.OnboardingLink.parse(uri)?.let { link ->
+            app.widgetRoute.value = link.route
+            link.feedbackPrefill?.let { app.pendingFeedbackPrefill.value = it }
+        }
+
         if (defaultLocation != null) {
             defaultLocation = defaultLocation?.removeSuffix("=")
         }

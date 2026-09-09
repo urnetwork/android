@@ -12,6 +12,8 @@ data class PlanOffer(
     val index: Int,
     val periodDays: Int,
     val freeDays: Int,
+    /** the offer's tags as configured in the Play Console (e.g. the welcome offer's `onboarding25`) */
+    val tags: List<String> = emptyList(),
 )
 
 /**
@@ -26,9 +28,17 @@ data class PlanOffer(
  */
 object PlanOffers {
 
-    /** The yearly offer: the one with a free phase when there is one, else the first yearly one. */
-    fun yearly(offers: List<PlanOffer>): PlanOffer? {
+    /**
+     * The yearly offer: the one carrying `preferTag` when the caller's welcome
+     * offer is active and Play lists that offer (the developer-determined
+     * two-phase offer: trial, then the discounted first year), else the one
+     * with a free phase, else the first yearly one.
+     */
+    fun yearly(offers: List<PlanOffer>, preferTag: String? = null): PlanOffer? {
         val yearly = offers.filter { 360 <= it.periodDays }
+        if (!preferTag.isNullOrEmpty()) {
+            yearly.firstOrNull { preferTag in it.tags }?.let { return it }
+        }
         return yearly.firstOrNull { 0 < it.freeDays } ?: yearly.firstOrNull()
     }
 
@@ -43,8 +53,8 @@ object PlanOffers {
      * purchase surfaces the store's error rather than selling the other plan
      * behind the one the user picked.
      */
-    fun forPlan(offers: List<PlanOffer>, plan: PlanType): PlanOffer? = when (plan) {
-        PlanType.YEARLY -> yearly(offers)
+    fun forPlan(offers: List<PlanOffer>, plan: PlanType, preferTag: String? = null): PlanOffer? = when (plan) {
+        PlanType.YEARLY -> yearly(offers, preferTag)
         PlanType.MONTHLY -> monthly(offers)
     }
 }

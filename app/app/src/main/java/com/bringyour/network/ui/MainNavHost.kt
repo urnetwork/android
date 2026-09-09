@@ -5,6 +5,11 @@ import com.bringyour.network.ui.introduction.IntroConnectorState
 import com.bringyour.network.ui.introduction.FloatingIntroConnector
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.bringyour.network.ui.introduction.IntroductionQuickConnect
+import com.bringyour.network.ui.introduction.IntroductionOffer
+import com.bringyour.network.ui.introduction.IntroStepTimer
+import com.bringyour.network.ui.shared.enums.PlanType
+import com.bringyour.network.ui.upgrade.rememberPlanPresentation
+import com.bringyour.network.ui.upgrade.rememberPlanPurchaser
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.AlertDialog
@@ -369,9 +374,23 @@ private fun MainNavHostContent(
     LaunchedEffect(widgetRoute) {
         val route = widgetRoute ?: return@LaunchedEffect
         widgetApp?.widgetRoute?.value = null
-        if (route == com.bringyour.network.QuickConnectActivity.ROUTE_CONNECT) {
-            // the dashboard widget does exactly what a tap on the Connect tab does
+        if (route == com.bringyour.network.QuickConnectActivity.ROUTE_CONNECT ||
+            route == com.bringyour.network.analytics.OnboardingLink.ROUTE_PREFIX + com.bringyour.network.analytics.OnboardingLink.STEP_CONNECT
+        ) {
+            // the dashboard widget (and the "connect" email link) do exactly what a tap on the Connect tab does
             selectTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
+            return@LaunchedEffect
+        }
+        // the campaign email links land on Account screens: the widgets page, the
+        // Get Pro screen (which shows the welcome offer while it is active), or
+        // the feedback screen with the email's rating or reason pre-filled
+        com.bringyour.network.analytics.OnboardingLink.stepForRoute(route)?.let { step ->
+            selectTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
+            when (step) {
+                com.bringyour.network.analytics.OnboardingLink.STEP_WIDGETS -> navController.navigate(Route.Widgets)
+                com.bringyour.network.analytics.OnboardingLink.STEP_OFFER -> navController.navigate(Route.Upgrade)
+                com.bringyour.network.analytics.OnboardingLink.STEP_FEEDBACK -> navController.navigate(Route.Support)
+            }
             return@LaunchedEffect
         }
         navController.navigate(TopLevelScaffoldRoutes.CONNECT_CONTAINER.route) {
@@ -904,6 +923,31 @@ fun IntroNavHost(
         introConnector.inHeader = !route.contains(IntroRoute.IntroductionInitial::class.qualifiedName.toString())
     }
 
+    // The onboarding plan data: the tier, the welcome offer and the experiment
+    // variant. The final offer page is reached by everyone who is not in the
+    // in-app holdout -- Skip from any earlier page lands there once, and its
+    // free-plan link is the only way out (mmm/onboarding/PLAN.md).
+    val priceTier by subscriptionBalanceViewModel.priceTier.collectAsState()
+    val onboardingOffer by subscriptionBalanceViewModel.onboardingOffer.collectAsState()
+    val experiments by subscriptionBalanceViewModel.experiments.collectAsState()
+    val offerHoldout = experiments?.isHoldout(com.bringyour.sdk.Sdk.ExperimentSurfaceOfferInApp) == true
+    val introSteps = remember { IntroStepTimer() }
+    val skipToOffer: () -> Unit = {
+        val current = introEntry?.destination?.route ?: ""
+        val onOffer = current.contains(IntroRoute.IntroductionOffer::class.qualifiedName.toString())
+        if (offerHoldout || onOffer) {
+            dismiss()
+        } else {
+            introSteps.skipped(current)
+            introNavController.navigate(IntroRoute.IntroductionOffer)
+        }
+    }
+    // one shown / completed event per page, timed from when it appeared
+    LaunchedEffect(introEntry) {
+        val route = introEntry?.destination?.route ?: return@LaunchedEffect
+        introSteps.shown(route)
+    }
+
     CompositionLocalProvider(LocalIntroConnector provides introConnector) {
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -915,8 +959,9 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionInitial> {
             IntroductionInitial(
                 navController = introNavController,
-                dismiss = dismiss,
+                dismiss = skipToOffer,
                 planViewModel = planViewModel,
+                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                 createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
                 setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
                 onStripePaymentSuccess = {
@@ -939,7 +984,7 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionUsageBar> {
             IntroductionUsageBar(
                 navController = introNavController,
-                dismiss = dismiss,
+                dismiss = skipToOffer,
                 usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                 pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
                 availableBytes = subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState().value,
@@ -952,7 +997,7 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionSettings> {
             IntroductionSettings(
                 navController = introNavController,
-                dismiss = dismiss,
+                dismiss = skipToOffer,
                 provideControlMode = provideControlMode,
                 setProvideControlMode = setProvideControlMode,
                 provideIndicatorColor = provideIndicatorColor,
@@ -964,7 +1009,7 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionReferral> {
             IntroductionReferral(
                 navController = introNavController,
-                dismiss = dismiss,
+                dismiss = skipToOffer,
                 totalReferrals = totalReferralCount,
                 referralCode = referralCode
             )
@@ -973,7 +1018,37 @@ fun IntroNavHost(
         composable<IntroRoute.IntroductionQuickConnect> {
             IntroductionQuickConnect(
                 navController = introNavController,
-                dismiss = dismiss
+                dismiss = skipToOffer,
+                // the closing button continues to the offer page; the holdout leaves here
+                next = {
+                    introSteps.completed(IntroRoute.IntroductionQuickConnect::class.qualifiedName.toString())
+                    if (offerHoldout) dismiss() else introNavController.navigate(IntroRoute.IntroductionOffer)
+                }
+            )
+        }
+
+        composable<IntroRoute.IntroductionOffer> {
+            val presentation = rememberPlanPresentation(planViewModel, priceTier, onboardingOffer)
+            val purchaser = rememberPlanPurchaser(
+                planViewModel = planViewModel,
+                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                onPurchaseSuccess = {
+                    subscriptionBalanceViewModel.pollSubscriptionBalance()
+                    overlayViewModel.launchSunglassesFlight()
+                    overlayViewModel.launch(OverlayMode.Upgrade)
+                    dismiss()
+                },
+            )
+            IntroductionOffer(
+                presentation = presentation,
+                experiment = subscriptionBalanceViewModel.offerExperiment,
+                store = purchaser.store,
+                upgradeInProgress = planViewModel.inProgress,
+                startTrial = {
+                    purchaser.purchase(PlanType.YEARLY, presentation)
+                },
+                dismiss = dismiss,
+                onBack = { introNavController.popBackStack() }
             )
         }
 
@@ -1189,6 +1264,7 @@ fun MainNavContent(
             UpgradeScreen(
                 navController = navController,
                 planViewModel = planViewModel,
+                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                 setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
                 createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
                 onStripePaymentSuccess = {

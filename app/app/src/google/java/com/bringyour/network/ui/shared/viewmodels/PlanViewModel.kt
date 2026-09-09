@@ -21,6 +21,7 @@ import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.GetBillingConfigParams
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
@@ -121,6 +122,53 @@ class PlanViewModel @Inject constructor(
      */
     var formattedYearlySubscriptionPrice by mutableStateOf(FALLBACK_YEARLY_PRICE)
 
+    /**
+     * The store's localized amounts (major units + ISO currency) once its
+     * offers have loaded; null until then. PlanPresentation prints from these
+     * so the per-month equivalent and the offer card use the store's figure.
+     */
+    var storeYearlyPrice by mutableStateOf<com.bringyour.network.ui.upgrade.StorePrice?>(null)
+        private set
+    var storeMonthlyPrice by mutableStateOf<com.bringyour.network.ui.upgrade.StorePrice?>(null)
+        private set
+
+    /**
+     * Play's billing country for this account (the storefront), from
+     * `getBillingConfigAsync`; null until it answers. The balance request
+     * carries it so the server resolves the price tier from the storefront.
+     */
+    var billingCountry by mutableStateOf<String?>(null)
+        private set
+
+    /**
+     * The welcome offer's Play tag while the caller's offer is active (set by
+     * the plan surfaces from the balance); the purchase prefers the offer
+     * carrying it.
+     */
+    @Volatile
+    var preferredOfferTag: String? = null
+
+    /**
+     * What the purchase in flight is, for the purchase events: set by the
+     * purchaser when it starts the Play flow, consumed on the result.
+     */
+    @Volatile
+    var pendingPurchaseEvent: PendingPurchaseEvent? = null
+
+    data class PendingPurchaseEvent(val plan: String, val trial: Boolean, val price: Double, val currency: String)
+
+    private fun emitPurchaseEvent(outcome: String, errorClass: String = "") {
+        val pending = pendingPurchaseEvent ?: return
+        pendingPurchaseEvent = null
+        val product = com.bringyour.network.analytics.ClientEvents.PRODUCT_PLAY_SUPPORTER
+        val store = com.bringyour.sdk.Sdk.EventStorePlay
+        when (outcome) {
+            "completed" -> com.bringyour.network.analytics.ClientEvents.purchaseCompleted(store, product, pending.plan, pending.trial, pending.price, pending.currency)
+            "cancelled" -> com.bringyour.network.analytics.ClientEvents.purchaseCancelled(store, product, pending.plan, pending.trial, pending.price, pending.currency)
+            else -> com.bringyour.network.analytics.ClientEvents.purchaseFailed(store, product, pending.plan, pending.trial, pending.price, pending.currency, errorClass)
+        }
+    }
+
     /** The plan the next purchase buys: yearly is the highlighted default, monthly the quiet alternative. */
     var selectedPlan by mutableStateOf(PlanType.YEARLY)
 
@@ -181,6 +229,7 @@ class PlanViewModel @Inject constructor(
                 Log.i("Upgrade", "billing result ${billingResult.responseCode}")
 
                 if (billingResult.responseCode == BillingResponseCode.OK) {
+                    loadBillingCountry(client)
                     reconcileExistingSubscriptions(client, closeUpgradeUiForRecoveredPurchase) { recoveredPurchase ->
                         if (recoveredPurchase && !continueAfterRecoveredPurchase) {
                             setInProgress(false)
@@ -223,6 +272,7 @@ class PlanViewModel @Inject constructor(
 
             } else if (billingResult.responseCode == BillingResponseCode.USER_CANCELED) {
                 // Handle an error caused by a user cancelling the purchase flow.
+                emitPurchaseEvent("cancelled")
                 setInProgress(false)
                 Log.i("PlanViewModel", "purchases updated listener USER CANCELED")
             } else {
@@ -230,6 +280,7 @@ class PlanViewModel @Inject constructor(
                 // FIXME  show error message of billing error
 
                 val msg = "Billing error: ${billingResult.responseCode} ${billingResult.debugMessage}"
+                emitPurchaseEvent("failed", "play_${billingResult.responseCode}")
 
                 setChangePlanError(msg)
                 setInProgress(false)
@@ -506,6 +557,7 @@ class PlanViewModel @Inject constructor(
 
     private fun emitUpgradeSuccessIfNeeded(emitSuccess: Boolean) {
         if (emitSuccess) {
+            emitPurchaseEvent("completed")
             _upgradeSuccessSequence.update { it + 1L }
             viewModelScope.launch {
                 _onUpgradeSuccess.emit(Unit)
@@ -594,6 +646,8 @@ class PlanViewModel @Inject constructor(
 
     private fun applyStoreOffers(productDetails: ProductDetails) {
         val offers = productDetails.subscriptionOfferDetails ?: emptyList()
+        storeYearlyPrice = null
+        storeMonthlyPrice = null
         // what Play actually returned for this device and account, so a missing
         // plan can be told apart from a classification bug from a log alone
         Log.i(
@@ -611,17 +665,40 @@ class PlanViewModel @Inject constructor(
         val yearly = PlanOffers.yearly(planOffers)?.let { offers[it.index] }
         // the price is the first paid phase: a free trial phase comes first
         // in the list and reads "Free"
-        formattedMonthlySubscriptionPrice = monthly?.pricingPhases?.pricingPhaseList
-            ?.firstOrNull { 0L < it.priceAmountMicros }
-            ?.formattedPrice
-            ?: FALLBACK_MONTHLY_PRICE
+        val monthlyPaid = monthly?.pricingPhases?.pricingPhaseList?.firstOrNull { 0L < it.priceAmountMicros }
+        formattedMonthlySubscriptionPrice = monthlyPaid?.formattedPrice ?: FALLBACK_MONTHLY_PRICE
+        monthlyPaid?.let {
+            storeMonthlyPrice = com.bringyour.network.ui.upgrade.StorePrice(it.priceAmountMicros / 1_000_000.0, it.priceCurrencyCode)
+        }
         // a Play answer without a yearly base plan keeps the fallback price: the
         // yearly plan is assumed to exist, and a tap then surfaces the store's
         // error rather than a hidden plan
-        formattedYearlySubscriptionPrice = yearly?.pricingPhases?.pricingPhaseList
-            ?.firstOrNull { 0L < it.priceAmountMicros }
-            ?.formattedPrice
-            ?: FALLBACK_YEARLY_PRICE
+        // the regular yearly price is the LAST paid phase: the welcome offer's
+        // discounted first year sits in front of it
+        val yearlyPaid = yearly?.pricingPhases?.pricingPhaseList?.lastOrNull { 0L < it.priceAmountMicros }
+        formattedYearlySubscriptionPrice = yearlyPaid?.formattedPrice ?: FALLBACK_YEARLY_PRICE
+        yearlyPaid?.let {
+            storeYearlyPrice = com.bringyour.network.ui.upgrade.StorePrice(it.priceAmountMicros / 1_000_000.0, it.priceCurrencyCode)
+        }
+    }
+
+    /** Asks Play for the account's billing country once per connection; the app sends it as the storefront. */
+    private fun loadBillingCountry(client: BillingClient) {
+        if (billingCountry != null) {
+            return
+        }
+        runCatching {
+            client.getBillingConfigAsync(GetBillingConfigParams.newBuilder().build()) { result, config ->
+                if (result.responseCode == BillingResponseCode.OK && config != null) {
+                    val country = config.countryCode
+                    if (!country.isNullOrBlank()) {
+                        billingCountry = country.uppercase()
+                    }
+                } else {
+                    Log.i("PlanViewModel", "billing config unavailable: ${result.responseCode} ${result.debugMessage}")
+                }
+            }
+        }.onFailure { Log.i("PlanViewModel", "billing config query failed: ${it.message}") }
     }
 
     val setInProgress: (Boolean) -> Unit = { ip ->
@@ -684,7 +761,9 @@ internal fun offerFreeDays(offer: com.android.billingclient.api.ProductDetails.S
 
 /** Play's offers reduced to the picker's decision data, in Play's order. */
 internal fun List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>.toPlanOffers(): List<PlanOffer> =
-    mapIndexed { index, offer -> PlanOffer(index = index, periodDays = offerPeriodDays(offer), freeDays = offerFreeDays(offer)) }
+    mapIndexed { index, offer ->
+        PlanOffer(index = index, periodDays = offerPeriodDays(offer), freeDays = offerFreeDays(offer), tags = offer.offerTags)
+    }
 
 /**
  * Picks the offer to buy for a plan (see [PlanOffers.forPlan]): for the yearly
@@ -694,6 +773,7 @@ internal fun List<com.android.billingclient.api.ProductDetails.SubscriptionOffer
 internal fun offerForPlan(
     offers: List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>,
     plan: PlanType,
+    preferTag: String? = null,
 ): com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails? {
-    return PlanOffers.forPlan(offers.toPlanOffers(), plan)?.let { offers[it.index] }
+    return PlanOffers.forPlan(offers.toPlanOffers(), plan, preferTag)?.let { offers[it.index] }
 }

@@ -42,7 +42,7 @@ import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 
 /** The pages of the post-login onboarding flow, in order (welcome, data, providing, referral, quick connect). */
-const val INTRO_STEP_COUNT = 5
+const val INTRO_STEP_COUNT = 6
 
 /** The connector mark's size in the header; the mark itself is about two thirds of it (launcher safe zone). */
 private const val HEADER_CONNECTOR_SIZE_DP = 34

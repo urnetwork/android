@@ -103,6 +103,11 @@ fun AccountScreen(
 
     val networkUser by accountViewModel.networkUser.collectAsState()
     val currentStore by subscriptionBalanceViewModel.currentStore.collectAsState()
+    val priceTier by subscriptionBalanceViewModel.priceTier.collectAsState()
+    val onboardingOffer by subscriptionBalanceViewModel.onboardingOffer.collectAsState()
+    val accountOffer = androidx.compose.runtime.remember(priceTier, onboardingOffer) {
+        com.bringyour.network.ui.upgrade.PlanPresentations.build(priceTier, onboardingOffer).offer
+    }
     val availableBalanceByteCount by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
     val dailyBalanceBytes by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
 
@@ -146,6 +151,7 @@ fun AccountScreen(
                         accountPointsLoaded = accountPointsLoaded,
                         currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
                         currentStore = currentStore,
+                        accountOffer = accountOffer,
                         launchOverlay = overlayViewModel.launch,
                         onPlanLabelTap = { overlayViewModel.launchSunglassesFlight() },
                         isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
@@ -193,6 +199,8 @@ fun AccountScreenContent(
     accountPointsLoaded: Boolean,
     currentPlan: Plan,
     currentStore: String?,
+    // the welcome offer while it can be redeemed (read-only on this screen)
+    accountOffer: com.bringyour.network.ui.upgrade.OfferPresentation? = null,
     launchOverlay: (OverlayMode) -> Unit,
     // a Pro network's plan label replays the Pro celebration
     onPlanLabelTap: () -> Unit = {},
@@ -272,6 +280,13 @@ fun AccountScreenContent(
                     isCheckingSolanaTransaction = isCheckingSolanaTransaction,
                     navController = navController
                 )
+
+                if (currentPlan == Plan.Basic && accountOffer != null) {
+                    AccountOfferLine(
+                        offer = accountOffer,
+                        openGetPro = { navController.navigate(Route.Upgrade) }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 

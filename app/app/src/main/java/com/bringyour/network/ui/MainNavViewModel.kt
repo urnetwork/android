@@ -73,6 +73,7 @@ sealed class IntroRoute {
     @Serializable object IntroductionSettings: Route()
     @Serializable object IntroductionReferral: Route()
     @Serializable object IntroductionQuickConnect: Route()
+    @Serializable object IntroductionOffer: Route()
 
 }
 

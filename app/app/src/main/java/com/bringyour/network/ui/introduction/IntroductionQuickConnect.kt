@@ -33,6 +33,8 @@ import com.bringyour.network.widgets.WidgetEntry
 fun IntroductionQuickConnect(
     navController: NavController,
     dismiss: () -> Unit,
+    // the closing button: the offer page next (the holdout leaves the flow)
+    next: () -> Unit = dismiss,
 ) {
     Scaffold(
         topBar = {
@@ -65,7 +67,7 @@ fun IntroductionQuickConnect(
             }
 
             URButton(onClick = {
-                dismiss()
+                next()
             }) { btnStyle ->
                 Text(
                     stringResource(id = R.string.get_connected),
