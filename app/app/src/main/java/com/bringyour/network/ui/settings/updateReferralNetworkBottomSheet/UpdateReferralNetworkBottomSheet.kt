@@ -65,6 +65,9 @@ fun UpdateReferralNetworkBottomSheet(
         }
     }
 
+    // the store text for a request that never got a server verdict
+    val requestFailedMessage = stringResource(id = R.string.something_went_wrong)
+
     val updateReferralNetwork = {
         viewModel.updateReferralNetwork(
             {
@@ -74,7 +77,8 @@ fun UpdateReferralNetworkBottomSheet(
             },
             { errorMessage ->
                 onError(errorMessage)
-            }
+            },
+            requestFailedMessage
         )
     }
 

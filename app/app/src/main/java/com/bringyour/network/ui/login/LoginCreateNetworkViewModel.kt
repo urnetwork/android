@@ -105,6 +105,11 @@ class LoginCreateNetworkViewModel @Inject constructor(
     private val _referralCodeInputSupportingTextRes = MutableStateFlow<Int?>(null)
     val referralCodeInputSupportingTextRes: StateFlow<Int?> get() = _referralCodeInputSupportingTextRes
 
+    // the check itself did not run or did not answer (transport error, or the
+    // server refused the call): the code was never judged, so the form must
+    // not call it invalid
+    private var referralCheckFailed = false
+
     val validateReferralCode: (Api?, (Boolean) -> Unit) -> Unit = { api, onComplete ->
 
         if (!isValidatingReferralCode) {
@@ -123,8 +128,10 @@ class LoginCreateNetworkViewModel @Inject constructor(
                         if (err != null) {
                             Log.i(TAG, "validateReferralCode callback err: ${err.message}")
                             isValidReferralCode = false
+                            referralCheckFailed = true
                         } else {
                             isValidReferralCode = result?.isValid ?: false
+                            referralCheckFailed = false
                         }
 
                         isValidatingReferralCode = false
@@ -140,6 +147,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.i(TAG, "${e.message}")
                 isValidReferralCode = false
+                referralCheckFailed = true
                 isValidatingReferralCode = false
                 referralValidationComplete = true
                 setReferralCodeInputSupportingText()
@@ -162,7 +170,9 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
         if (!isValidatingNetworkName && referralValidationComplete)  {
 
-            if (!isValidReferralCode) {
+            if (referralCheckFailed) {
+                msgRes = R.string.something_went_wrong
+            } else if (!isValidReferralCode) {
                 msgRes = R.string.invalid_referral_code
             }
 

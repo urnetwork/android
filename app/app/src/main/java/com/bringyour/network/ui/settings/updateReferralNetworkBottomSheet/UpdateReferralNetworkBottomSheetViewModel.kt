@@ -38,7 +38,10 @@ class UpdateReferralNetworkBottomSheetViewModel @Inject constructor(
         displayUnlinkAlert = display
     }
 
-    val updateReferralNetwork: (() -> Unit, (String) -> Unit) -> Unit = { onSuccess, onFailure ->
+    // `requestFailedMessage` is the localized text for a call that never got a
+    // server verdict (transport error); the composable resolves it from the
+    // store, since a view model has no string resources of its own.
+    val updateReferralNetwork: (() -> Unit, (String) -> Unit, String) -> Unit = { onSuccess, onFailure, requestFailedMessage ->
 
         if (!_isUpdatingReferralNetwork.value) {
 
@@ -53,8 +56,8 @@ class UpdateReferralNetworkBottomSheetViewModel @Inject constructor(
                 if (error != null) {
                     Log.i(TAG, "error setting network referral: ${error.message}")
                     viewModelScope.launch {
-                        onFailure("Error setting referral network, please try again later.")
-                        codeInputSupportingText = "Error setting referral network, please try again later."
+                        onFailure(requestFailedMessage)
+                        codeInputSupportingText = requestFailedMessage
                         _isUpdatingReferralNetwork.value = false
                     }
                     return@setNetworkReferral

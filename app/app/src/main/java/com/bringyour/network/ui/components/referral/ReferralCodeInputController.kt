@@ -39,6 +39,12 @@ class ReferralCodeInputController(
     var isCapped by mutableStateOf(false)
         private set
 
+    // the check itself did not run or did not answer (no api, transport error,
+    // or the server refused the call): the code was never judged, so the form
+    // must not call it invalid
+    var checkFailed by mutableStateOf(false)
+        private set
+
     var supportingTextRes by mutableStateOf<Int?>(null)
         private set
 
@@ -53,6 +59,7 @@ class ReferralCodeInputController(
 
         if (api == null) {
             isValid = false
+            checkFailed = true
             validationComplete = true
             updateSupportingText()
             onComplete(false)
@@ -73,8 +80,10 @@ class ReferralCodeInputController(
                     if (err != null) {
                         Log.i(TAG, "validateReferralCode callback err: ${err.message}")
                         isValid = false
+                        checkFailed = true
                     } else {
                         isValid = result?.isValid ?: false
+                        checkFailed = false
                     }
 
                     isValidating = false
@@ -89,6 +98,7 @@ class ReferralCodeInputController(
         } catch (e: Exception) {
             Log.i(TAG, "${e.message}")
             isValid = false
+            checkFailed = true
             isValidating = false
             validationComplete = true
             updateSupportingText()
@@ -102,7 +112,9 @@ class ReferralCodeInputController(
 
         if (validationComplete) {
 
-            if (!isValid) {
+            if (checkFailed) {
+                msgRes = R.string.something_went_wrong
+            } else if (!isValid) {
                 msgRes = R.string.invalid_referral_code
             }
 
