@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
@@ -41,11 +42,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -334,6 +338,41 @@ fun ConnectActionsSheetScaffold(
             }
     }
 
+    // A flick that opens the drawer keeps going into its content. The Material
+    // sheet's own nested-scroll connection consumes the whole fling to settle at
+    // the expanded anchor, so a flick from the collapsed drawer stopped dead
+    // with the content at its top and a second flick was needed to read on.
+    // Pre-fling events reach the outermost connection first, so this one, on
+    // the scaffold's root, runs before the sheet's: for an upward flick it
+    // expands the sheet itself and then hands the content the velocity the
+    // fling would still have after travelling that far, so the momentum
+    // carries through as one scroll. Slower releases stay with the sheet's
+    // positional settle, and a sheet that is already expanded (or that does
+    // not move) leaves the fling untouched.
+    val sheetState = scaffoldState.bottomSheetState
+    val flingDecay = remember(density) { SplineBasedFloatDecayAnimationSpec(density) }
+    val flingVelocityThresholdPx = with(density) { SheetFlingVelocityThreshold.toPx() }
+    val carryFlingIntoContent = remember(sheetState, flingDecay, flingVelocityThresholdPx) {
+        object : NestedScrollConnection {
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                val velocity = available.y
+                if (velocity > -flingVelocityThresholdPx) {
+                    return Velocity.Zero
+                }
+                // the offset is undefined until the sheet has laid out once
+                val before = runCatching { sheetState.requireOffset() }.getOrNull()
+                    ?: return Velocity.Zero
+                sheetState.expand()
+                val travelled = before - sheetState.requireOffset()
+                if (travelled <= 0f) {
+                    return Velocity.Zero
+                }
+                val residual = residualFlingVelocity(flingDecay, velocity, travelled)
+                return Velocity(0f, velocity - residual)
+            }
+        }
+    }
+
     // tablet convention (mmm/DESIGNSTYLE.md "Tablet layouts"): the drawer wraps its
     // content in a centered panel of the readable width, rounded on every corner and
     // floating above the bar below it, instead of a full-width shelf; phones keep
@@ -344,6 +383,7 @@ fun ConnectActionsSheetScaffold(
         // so the sheet geometry above only adds the unconsumed remainder
         modifier = Modifier
             .onConsumedWindowInsetsChanged { consumedWindowInsets = it }
+            .nestedScroll(carryFlingIntoContent)
             .then(
                 if (floatingDrawer) Modifier.padding(bottom = TabletLayout.drawerFloatGap) else Modifier
             )
@@ -556,3 +596,10 @@ fun ConnectMainContent(
 //        }
 //    }
 //}
+
+/**
+ * The release speed above which a flick opens the drawer regardless of how far
+ * it was dragged. Mirrors the Material sheet's own velocity threshold, so the
+ * carry-over above decides "open" exactly when the sheet would.
+ */
+private val SheetFlingVelocityThreshold = 125.dp
