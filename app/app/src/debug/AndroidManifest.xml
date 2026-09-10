@@ -14,5 +14,19 @@
                 <action android:name="com.bringyour.network.debug.SAMPLE" />
             </intent-filter>
         </receiver>
+        <!-- Physical peer-to-peer rig hooks (connect/tools/flightgate-devices): sign in,
+             provide settings, connect to a network peer, disconnect, status. See
+             FlightGateDebugReceiver. -->
+        <receiver
+            android:name=".FlightGateDebugReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.bringyour.network.debug.FG_LOGIN" />
+                <action android:name="com.bringyour.network.debug.FG_PROVIDE" />
+                <action android:name="com.bringyour.network.debug.FG_CONNECT_PEER" />
+                <action android:name="com.bringyour.network.debug.FG_DISCONNECT" />
+                <action android:name="com.bringyour.network.debug.FG_STATUS" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
