@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.padding
@@ -339,7 +341,7 @@ fun ConnectActionsSheetScaffold(
     // floating above the bar below it, instead of a full-width shelf; phones keep
     // the edge-to-edge sheet
     val floatingDrawer = isTabletWidth()
-    Box(
+    BoxWithConstraints(
         // reports the insets ancestors already consumed (the tab bar scaffold),
         // so the sheet geometry above only adds the unconsumed remainder
         modifier = Modifier
@@ -348,6 +350,16 @@ fun ConnectActionsSheetScaffold(
                 if (floatingDrawer) Modifier.padding(bottom = TabletLayout.drawerFloatGap) else Modifier
             )
     ) {
+        // The expanded drawer stops part-way up the screen, leaving the
+        // connect graphic behind it partially exposed, instead of running to
+        // the status bar with the drag handle under it (iOS caps its sheet
+        // the same way). The sheet is measured from its content, so the
+        // scrolling content is capped to the expanded height less the drag
+        // handle; the content scrolls within it.
+        val sheetContentMaxHeight = with(density) {
+            (maxHeight * ConnectSheetExpandedFraction - dragHandleHeightPx.toDp())
+                .coerceAtLeast(baseSheetPeekHeight)
+        }
         BottomSheetScaffold(
             sheetPeekHeight = sheetPeekHeight,
             scaffoldState = scaffoldState,
@@ -375,6 +387,7 @@ fun ConnectActionsSheetScaffold(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(max = sheetContentMaxHeight)
                         .verticalScroll(scrollState)
                         .padding(horizontal = 16.dp)
                         // the same standard gap above the sheet's bottom edge
@@ -556,3 +569,10 @@ fun ConnectMainContent(
 //        }
 //    }
 //}
+
+/**
+ * How much of the connect screen the expanded drawer covers. Two thirds
+ * leaves the top of the connect graphic visible above the drawer on phones
+ * and keeps the drag handle clear of the status bar.
+ */
+private const val ConnectSheetExpandedFraction = 2f / 3f
