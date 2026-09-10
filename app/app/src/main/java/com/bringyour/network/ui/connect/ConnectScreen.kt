@@ -1,10 +1,7 @@
 package com.bringyour.network.ui.connect
 
-import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
-import androidx.compose.animation.core.FloatDecayAnimationSpec
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -41,18 +38,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -80,7 +73,6 @@ import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -342,62 +334,6 @@ fun ConnectActionsSheetScaffold(
             }
     }
 
-    // A flick that opens the drawer keeps going into its content. The Material
-    // sheet's own nested-scroll connection consumes the whole fling to settle at
-    // the expanded anchor, so a flick from the collapsed drawer stopped dead
-    // with the content at its top and a second flick was needed to read on.
-    // Pre-fling events reach the outermost connection first, so this one, on
-    // the scaffold's root, sees the release before the sheet does and records
-    // it; once the sheet has taken the fling, the content continues the same
-    // fling curve from the moment the fling would have covered the sheet's
-    // travel (or from the moment the sheet arrives, if that comes first), so
-    // the motion reads as one scroll rather than the sheet stopping and the
-    // content setting off on its own. Slower releases stay with the sheet's
-    // settle, and a sheet that is already expanded leaves the fling to the
-    // content as usual.
-    val sheetState = scaffoldState.bottomSheetState
-    val flingDecay = remember(density) { SplineBasedFloatDecayAnimationSpec(density) }
-    val flingVelocityThresholdPx = with(density) { SheetFlingVelocityThreshold.toPx() }
-    val carryScope = rememberCoroutineScope()
-    val carryFlingIntoContent = remember(sheetState, scrollState, flingDecay, flingVelocityThresholdPx, carryScope) {
-        object : NestedScrollConnection {
-            // the release the sheet is about to take, recorded before its
-            // connection consumes it
-            private var pendingVelocity = 0f
-            private var pendingTravelPx = 0f
-
-            override suspend fun onPreFling(available: Velocity): Velocity {
-                pendingVelocity = 0f
-                val velocity = available.y
-                if (velocity > -flingVelocityThresholdPx) {
-                    return Velocity.Zero
-                }
-                // the offset is undefined until the sheet has laid out once;
-                // at the expanded anchor the content flings on its own
-                val offset = runCatching { sheetState.requireOffset() }.getOrNull()
-                    ?: return Velocity.Zero
-                if (offset <= 0.5f) {
-                    return Velocity.Zero
-                }
-                pendingVelocity = velocity
-                pendingTravelPx = offset
-                return Velocity.Zero
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                val velocity = pendingVelocity
-                val travelPx = pendingTravelPx
-                pendingVelocity = 0f
-                if (velocity != 0f) {
-                    carryScope.launch {
-                        carrySheetFlingIntoContent(scrollState, sheetState, flingDecay, velocity, travelPx)
-                    }
-                }
-                return Velocity.Zero
-            }
-        }
-    }
-
     // tablet convention (mmm/DESIGNSTYLE.md "Tablet layouts"): the drawer wraps its
     // content in a centered panel of the readable width, rounded on every corner and
     // floating above the bar below it, instead of a full-width shelf; phones keep
@@ -408,7 +344,6 @@ fun ConnectActionsSheetScaffold(
         // so the sheet geometry above only adds the unconsumed remainder
         modifier = Modifier
             .onConsumedWindowInsetsChanged { consumedWindowInsets = it }
-            .nestedScroll(carryFlingIntoContent)
             .then(
                 if (floatingDrawer) Modifier.padding(bottom = TabletLayout.drawerFloatGap) else Modifier
             )
@@ -621,70 +556,3 @@ fun ConnectMainContent(
 //        }
 //    }
 //}
-
-/**
- * The release speed above which a flick opens the drawer regardless of how far
- * it was dragged. Mirrors the Material sheet's own velocity threshold, so the
- * carry-over above decides "open" exactly when the sheet would.
- */
-private val SheetFlingVelocityThreshold = 125.dp
-
-/**
- * Scrolls the drawer's content along the remainder of a fling the sheet has
- * taken: [velocity] is the release (negative upward) and [travelPx] the
- * distance the sheet still had to rise. The content starts on the fling's own
- * clock, at the moment the fling would have covered the sheet's travel, or as
- * soon as the sheet arrives if that comes first, and then follows the fling
- * curve from there. Any touch on the content, a scroll-to-top, the end of the
- * content or the sheet closing again ends it.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-private suspend fun carrySheetFlingIntoContent(
-    scrollState: ScrollState,
-    sheetState: SheetState,
-    decay: FloatDecayAnimationSpec,
-    velocity: Float,
-    travelPx: Float,
-) {
-    val durationNanos = decay.getDurationNanos(0f, velocity)
-    val travelTimeNanos = flingTravelTimeNanos(decay, velocity, travelPx)
-    if (travelTimeNanos >= durationNanos) {
-        return
-    }
-    scrollState.scroll {
-        val releaseNanos = withFrameNanos { it }
-        var startNanos = -1L
-        var scrolled = 0f
-        var previousOffset = Float.NaN
-        while (true) {
-            val now = withFrameNanos { it }
-            if (sheetState.targetValue != SheetValue.Expanded) {
-                return@scroll
-            }
-            val offset = runCatching { sheetState.requireOffset() }.getOrNull() ?: return@scroll
-            val arrived = offset <= 0.5f ||
-                (sheetState.currentValue == SheetValue.Expanded && !previousOffset.isNaN() && abs(offset - previousOffset) < 0.5f)
-            previousOffset = offset
-            if (startNanos < 0L && (arrived || now - releaseNanos >= travelTimeNanos)) {
-                startNanos = now
-            }
-            if (startNanos < 0L) {
-                continue
-            }
-            val elapsed = now - startNanos
-            val target = carriedContentDistancePx(decay, velocity, travelPx, elapsed)
-            val delta = target - scrolled
-            if (delta > 0f) {
-                val consumed = scrollBy(delta)
-                scrolled += consumed
-                if (consumed < delta - 0.5f) {
-                    // the content has no further to go
-                    return@scroll
-                }
-            }
-            if (travelTimeNanos + elapsed >= durationNanos) {
-                return@scroll
-            }
-        }
-    }
-}
