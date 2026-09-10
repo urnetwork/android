@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.connect
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -43,12 +45,19 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -351,6 +360,39 @@ fun ConnectActionsSheetScaffold(
             }
     }
 
+    // The drawer's open/close and its content's scroll are separate gestures
+    // that never hand off to each other (mmm/DESIGNSTYLE.md). The Material
+    // sheet would let a drag that opened the drawer run on into the content,
+    // and a content scroll that reached the top run on into closing the
+    // drawer. Each touch is classified at its down (ConnectSheetGesture), and
+    // this connection, between the content and the sheet's own connection,
+    // swallows whatever would cross over: in a drawer gesture the content
+    // never scrolls or flings; in a content gesture the sheet never moves.
+    val sheetState = scaffoldState.bottomSheetState
+    val sheetGesture = remember { ConnectSheetGesture() }
+    val separateSheetAndContentGestures = remember(sheetGesture, scrollState) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    sheetGesture.onFirstMovement(available.y, contentAtTop = scrollState.value == 0)
+                }
+                return Offset(0f, ConnectSheetGesture.preScrollConsumedY(sheetGesture.kind, available.y))
+            }
+
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                return Offset(0f, ConnectSheetGesture.postScrollConsumedY(sheetGesture.kind, available.y))
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                return Velocity(0f, ConnectSheetGesture.preFlingConsumedY(sheetGesture.kind, available.y))
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                return Velocity(0f, ConnectSheetGesture.postFlingConsumedY(sheetGesture.kind, available.y))
+            }
+        }
+    }
+
     // tablet convention (mmm/DESIGNSTYLE.md "Tablet layouts"): the drawer wraps its
     // content in a centered panel of the readable width, rounded on every corner and
     // floating above the bar below it, instead of a full-width shelf; phones keep
@@ -403,6 +445,19 @@ fun ConnectActionsSheetScaffold(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = sheetContentMaxHeight)
+                        // classifies each touch before anything else sees it:
+                        // a touch on the settled-open drawer waits for its
+                        // first movement, any other touch is a drawer gesture
+                        .pointerInput(sheetGesture, sheetState) {
+                            awaitEachGesture {
+                                awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                                sheetGesture.onDown(
+                                    sheetSettledOpen = sheetState.currentValue == SheetValue.Expanded &&
+                                        !sheetState.isAnimationRunning
+                                )
+                            }
+                        }
+                        .nestedScroll(separateSheetAndContentGestures)
                         .verticalScroll(scrollState)
                         .padding(horizontal = 16.dp)
                         // the same standard gap above the sheet's bottom edge
