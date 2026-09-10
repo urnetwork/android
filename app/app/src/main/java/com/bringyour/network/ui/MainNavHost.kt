@@ -47,7 +47,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
-import androidx.compose.material3.SheetState
+import com.bringyour.network.ui.connect.ConnectDrawerState
+import com.bringyour.network.ui.connect.rememberConnectDrawerState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -264,10 +265,7 @@ private fun MainNavHostContent(
     val scope = rememberCoroutineScope()
 
     // hoisted here so re-tapping the connect tab can collapse it
-    val connectActionsSheetState = rememberStandardBottomSheetState(
-        initialValue = SheetValue.PartiallyExpanded,
-        skipHiddenState = true
-    )
+    val connectActionsSheetState = rememberConnectDrawerState()
 
     val navSuiteLayoutType = with(adaptiveInfo) {
 
@@ -1083,7 +1081,7 @@ fun MainNavContent(
     solanaPaymentViewModel: SolanaPaymentViewModel,
     isCheckingSolanaTransaction: Boolean,
     isPro: Boolean,
-    connectActionsSheetState: SheetState,
+    connectActionsSheetState: ConnectDrawerState,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
     profileViewModel: ProfileViewModel = hiltViewModel<ProfileViewModel>(),
     accountPointsViewModel: AccountPointsViewModel = hiltViewModel<AccountPointsViewModel>(),

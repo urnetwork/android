@@ -1,6 +1,10 @@
 package com.bringyour.network.ui.connect
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.background
@@ -19,22 +23,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.BottomSheetScaffold
 import com.bringyour.network.ui.components.isTabletWidth
 import com.bringyour.network.ui.components.tabletDrawerWidth
 import com.bringyour.network.ui.components.TabletLayout
 import com.bringyour.network.ui.components.TapSequenceGate
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +59,11 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.semantics.collapse
+import androidx.compose.ui.semantics.expand
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -87,6 +94,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,7 +110,7 @@ fun ConnectScreen(
     meanReliabilityWeight: Double,
     totalReferrals: Long,
     isPro: Boolean,
-    connectActionsSheetState: SheetState,
+    connectActionsSheetState: ConnectDrawerState,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
     throughputViewModel: com.bringyour.network.ui.stats.ThroughputViewModel = hiltViewModel(),
     blockActionsViewModel: com.bringyour.network.ui.stats.BlockActionsViewModel = hiltViewModel(),
@@ -130,10 +139,6 @@ fun ConnectScreen(
     val reviewManagerRequest = rememberReviewManager()
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
-
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = connectActionsSheetState
-    )
 
     val promptReview = {
         val activity = context as? android.app.Activity
@@ -181,7 +186,7 @@ fun ConnectScreen(
     }
 
     ConnectActionsSheetScaffold(
-        scaffoldState = scaffoldState,
+        drawerState = connectActionsSheetState,
         sheetContent = { minSheetHeight, belowFoldGap, onFoldMarkerPositioned ->
             ConnectActions(
                 navController = navController,
@@ -282,7 +287,7 @@ fun ConnectScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectActionsSheetScaffold(
-    scaffoldState: BottomSheetScaffoldState,
+    drawerState: ConnectDrawerState,
     sheetContent: @Composable (peekHeight: Dp, belowFoldGap: Dp, onFoldMarkerPositioned: (Int) -> Unit) -> Unit,
     mainContent: @Composable () -> Unit,
     baseSheetPeekHeight: Dp = dimensionResource(id = R.dimen.connect_actions_sheet_peek_height),
@@ -290,6 +295,7 @@ fun ConnectActionsSheetScaffold(
 
     val scrollState = rememberScrollState()
     val density = LocalDensity.current
+    val scope = rememberCoroutineScope()
 
     // Only the part of the system bottom inset that nothing below the sheet
     // absorbs may be added to the sheet geometry. Above the bottom tab bar
@@ -337,16 +343,17 @@ fun ConnectActionsSheetScaffold(
     // drawer, and at 24dp on phones it matches the iOS expanded spacing
     val belowFoldGap = 24.dp + unconsumedBottomInset
 
-    // When the sheet heads back to the peek, reset the content to the top so
-    // the peek always shows the top of the actions (matches the iOS drawer).
-    // The target flips as soon as the collapse is under way. A one-shot
-    // animateScrollTo was lost whenever something held the content's scroll
-    // at that moment (a drag still in flight, a fling running out), so this
-    // keeps asking, one attempt per frame, until the content is at the top.
-    LaunchedEffect(scaffoldState.bottomSheetState) {
-        snapshotFlow { scaffoldState.bottomSheetState.targetValue }
+    // When the drawer heads back to the collapsed position, reset the content
+    // to the top so the peek always shows the top of the actions (matches the
+    // iOS drawer). The target flips as soon as the close is under way; a
+    // one-shot animateScrollTo was lost whenever something held the content's
+    // scroll at that moment (a drag still in flight, a fling running out), so
+    // this keeps asking, one attempt per frame, until the content is at the
+    // top.
+    LaunchedEffect(drawerState) {
+        snapshotFlow { drawerState.targetValue }
             .collect { target ->
-                if (target != SheetValue.PartiallyExpanded) {
+                if (target != ConnectDrawerValue.Collapsed) {
                     return@collect
                 }
                 while (scrollState.value > 0 && isActive) {
@@ -361,37 +368,55 @@ fun ConnectActionsSheetScaffold(
     }
 
     // The drawer's open/close and its content's scroll are separate gestures
-    // that never hand off to each other (mmm/DESIGNSTYLE.md). The Material
-    // sheet would let a drag that opened the drawer run on into the content,
-    // and a content scroll that reached the top run on into closing the
-    // drawer. Each touch is classified at its down (ConnectSheetGesture), and
-    // this connection, between the content and the sheet's own connection,
-    // swallows whatever would cross over: in a drawer gesture the content
-    // never scrolls or flings; in a content gesture the sheet never moves.
-    val sheetState = scaffoldState.bottomSheetState
+    // that never hand off to each other (mmm/DESIGNSTYLE.md). Each touch is
+    // classified at its down (ConnectSheetGesture): a touch on the open or
+    // opening drawer waits for its first movement, any other touch is a
+    // drawer gesture. This connection, under the content, then routes the
+    // whole gesture to one side: a drawer gesture moves the drawer by raw
+    // deltas and settles it on release, and never scrolls the content; a
+    // content gesture scrolls the content, stops at its top, and never moves
+    // the drawer. Only user input counts: the content's own flings and
+    // animations pass through untouched.
+    val velocityThresholdPx = with(density) { SheetFlingVelocityThreshold.toPx() }
+    val positionalThresholdPx = with(density) { SheetPullThreshold.toPx() }
     val sheetGesture = remember { ConnectSheetGesture() }
-    val separateSheetAndContentGestures = remember(sheetGesture, scrollState) {
+    val separateSheetAndContentGestures = remember(drawerState, scrollState, sheetGesture, scope, velocityThresholdPx, positionalThresholdPx) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (source == NestedScrollSource.UserInput) {
-                    sheetGesture.onFirstMovement(available.y, contentAtTop = scrollState.value == 0)
+                if (source != NestedScrollSource.UserInput) {
+                    return Offset.Zero
                 }
-                return Offset(0f, ConnectSheetGesture.preScrollConsumedY(sheetGesture.kind, available.y))
-            }
-
-            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-                return Offset(0f, ConnectSheetGesture.postScrollConsumedY(sheetGesture.kind, available.y))
+                val wasUndecided = sheetGesture.kind == ConnectSheetGesture.Kind.Undecided
+                sheetGesture.onFirstMovement(available.y, contentAtTop = !scrollState.canScrollBackward)
+                if (sheetGesture.kind != ConnectSheetGesture.Kind.Sheet) {
+                    return Offset.Zero
+                }
+                if (wasUndecided) {
+                    // a pull down on the open drawer while it still animates:
+                    // take over from the animation
+                    scope.launch { drawerState.interruptAnimation() }
+                }
+                if (!drawerState.draggable.offset.isNaN()) {
+                    drawerState.draggable.dispatchRawDelta(available.y)
+                }
+                // the drawer took what it could; none of it scrolls the content
+                return Offset(0f, available.y)
             }
 
             override suspend fun onPreFling(available: Velocity): Velocity {
-                return Velocity(0f, ConnectSheetGesture.preFlingConsumedY(sheetGesture.kind, available.y))
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                return Velocity(0f, ConnectSheetGesture.postFlingConsumedY(sheetGesture.kind, available.y))
+                if (sheetGesture.kind != ConnectSheetGesture.Kind.Sheet) {
+                    return Velocity.Zero
+                }
+                val velocity = available.y
+                scope.launch { drawerState.release(velocity, velocityThresholdPx, positionalThresholdPx) }
+                return Velocity(0f, velocity)
             }
         }
     }
+    val handleFlingBehavior = AnchoredDraggableDefaults.flingBehavior(
+        state = drawerState.draggable,
+        positionalThreshold = { positionalThresholdPx },
+    )
 
     // tablet convention (mmm/DESIGNSTYLE.md "Tablet layouts"): the drawer wraps its
     // content in a centered panel of the readable width, rounded on every corner and
@@ -407,54 +432,117 @@ fun ConnectActionsSheetScaffold(
                 if (floatingDrawer) Modifier.padding(bottom = TabletLayout.drawerFloatGap) else Modifier
             )
     ) {
+        val layoutHeightPx = constraints.maxHeight
+        val peekPx = with(density) { sheetPeekHeight.roundToPx() }
         // The expanded drawer stops part-way up the screen, leaving the
         // connect graphic behind it partially exposed, instead of running to
         // the status bar with the drag handle under it (iOS caps its sheet
-        // the same way). The sheet is measured from its content, so the
-        // scrolling content is capped to the expanded height less the drag
-        // handle; the content scrolls within it.
+        // the same way). The scrolling content is capped to the expanded
+        // height less the drag handle; the content scrolls within it.
         val sheetContentMaxHeight = with(density) {
             (maxHeight * ConnectSheetExpandedFraction - dragHandleHeightPx.toDp())
                 .coerceAtLeast(baseSheetPeekHeight)
         }
-        BottomSheetScaffold(
-            sheetPeekHeight = sheetPeekHeight,
-            scaffoldState = scaffoldState,
-            sheetContainerColor = SheetBlack,
-            sheetMaxWidth = if (floatingDrawer) tabletDrawerWidth() else BottomSheetDefaults.SheetMaxWidth,
-            sheetShape = if (floatingDrawer) {
+
+        // the drawer's two positions follow from the layout height, the peek
+        // and the measured sheet; the state snaps to its current target
+        // whenever they change
+        var sheetHeightPx by remember { mutableIntStateOf(0) }
+        if (sheetHeightPx > 0 && layoutHeightPx > 0) {
+            val anchors = remember(layoutHeightPx, sheetHeightPx, peekPx) {
+                DraggableAnchors {
+                    ConnectDrawerValue.Collapsed at (layoutHeightPx - peekPx).toFloat()
+                    ConnectDrawerValue.Expanded at (layoutHeightPx - sheetHeightPx).toFloat()
+                }
+            }
+            SideEffect {
+                drawerState.draggable.updateAnchors(anchors, drawerState.targetValue)
+            }
+        }
+        val restingOffsetPx = (layoutHeightPx - peekPx).toFloat()
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Black)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = sheetPeekHeight)
+            ) {
+                // Main screen content
+                mainContent()
+            }
+        }
+
+        Surface(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .then(if (floatingDrawer) Modifier.width(tabletDrawerWidth()) else Modifier.fillMaxWidth())
+                .offset {
+                    val offset = drawerState.draggable.offset
+                    IntOffset(0, (if (offset.isNaN()) restingOffsetPx else offset).roundToInt())
+                }
+                .onSizeChanged { sheetHeightPx = it.height }
+                .nestedScroll(separateSheetAndContentGestures),
+            shape = if (floatingDrawer) {
                 RoundedCornerShape(TabletLayout.drawerCornerRadius)
             } else {
                 BottomSheetDefaults.ExpandedShape
             },
-            sheetDragHandle = {
-                // Measure only the handle's local size. Moving the sheet does not
-                // change it.
+            color = SheetBlack,
+            shadowElevation = 1.dp,
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // the drag handle: the drawer's own drag target, grabbing the
+                // drawer even mid-animation, with the expand/collapse actions
+                // for assistive tech. Measure only its local size: moving the
+                // sheet does not change it.
                 Box(
-                    modifier = Modifier.onSizeChanged { dragHandleHeightPx = it.height }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onSizeChanged { dragHandleHeightPx = it.height }
+                        .anchoredDraggable(
+                            state = drawerState.draggable,
+                            orientation = Orientation.Vertical,
+                            flingBehavior = handleFlingBehavior,
+                        )
+                        .semantics(mergeDescendants = true) {
+                            if (drawerState.currentValue == ConnectDrawerValue.Collapsed) {
+                                expand {
+                                    scope.launch { drawerState.expand() }
+                                    true
+                                }
+                            } else {
+                                collapse {
+                                    scope.launch { drawerState.partialExpand() }
+                                    true
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.TopCenter,
                 ) {
                     BottomSheetDefaults.DragHandle()
                 }
-            },
-            sheetContent = {
-                // the sheet body scrolls when expanded. BottomSheetScaffold installs a
-                // nested scroll connection so a downward drag with the content at the
-                // top hands off to the sheet and collapses it instead of overscrolling,
-                // and an upward drag expands the sheet before the content scrolls
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = sheetContentMaxHeight)
                         // classifies each touch before anything else sees it:
-                        // a touch on the settled-open drawer waits for its
-                        // first movement, any other touch is a drawer gesture
-                        .pointerInput(sheetGesture, sheetState) {
+                        // a touch on the open (or opening) drawer waits for
+                        // its first movement, any other touch is a drawer
+                        // gesture, which takes over from a running animation
+                        .pointerInput(sheetGesture, drawerState) {
                             awaitEachGesture {
                                 awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                                 sheetGesture.onDown(
-                                    sheetSettledOpen = sheetState.currentValue == SheetValue.Expanded &&
-                                        !sheetState.isAnimationRunning
+                                    sheetSettledOpen = drawerState.targetValue == ConnectDrawerValue.Expanded
                                 )
+                                if (sheetGesture.kind == ConnectSheetGesture.Kind.Sheet) {
+                                    scope.launch { drawerState.interruptAnimation() }
+                                }
                             }
                         }
                         .nestedScroll(separateSheetAndContentGestures)
@@ -472,22 +560,6 @@ fun ConnectActionsSheetScaffold(
                         belowFoldGap,
                         { foldMarkerOffsetPx = it },
                     )
-                }
-            },
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Black)
-            ) {
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
-                    // Main screen content
-                    mainContent()
                 }
             }
         }
@@ -646,3 +718,17 @@ fun ConnectMainContent(
  * and keeps the drag handle clear of the status bar.
  */
 private const val ConnectSheetExpandedFraction = 2f / 3f
+
+/**
+ * The release speed above which a drawer gesture opens or closes the drawer
+ * regardless of how far it travelled: the same 125 dp/s the drag handle's
+ * fling behaviour uses, so both ways of moving the drawer decide alike.
+ */
+private val SheetFlingVelocityThreshold = 125.dp
+
+/**
+ * How far a slower drawer gesture must travel from where the drawer rested
+ * for its release to open or close it. The Material sheet's own positional
+ * threshold.
+ */
+private val SheetPullThreshold = 56.dp
