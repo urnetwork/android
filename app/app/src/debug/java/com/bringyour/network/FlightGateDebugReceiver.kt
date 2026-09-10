@@ -30,6 +30,8 @@ import java.io.File
  * - `com.bringyour.network.debug.FG_DISCONNECT`.
  * - `com.bringyour.network.debug.FG_STATUS`: logs one JSON line of the
  *   sign-in, connect and provide state and the peer list.
+ * - `com.bringyour.network.debug.FG_ALLOW_DIRECT` (string extra `mode` =
+ *   off|on|clear): the relay-only control, applied to the next connect.
  *
  * Every outcome is one `FlightGate` logcat line; nothing is returned to adb.
  */
@@ -51,6 +53,7 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             "com.bringyour.network.debug.FG_CONNECT_PEER" -> connectPeer(app, intent.getStringExtra("name"))
             "com.bringyour.network.debug.FG_DISCONNECT" -> disconnect(app)
             "com.bringyour.network.debug.FG_STATUS" -> status(app)
+            "com.bringyour.network.debug.FG_ALLOW_DIRECT" -> allowDirect(app, intent.getStringExtra("mode"))
             else -> Log.i(TAG, "result action=${intent.action} error=unknown-action")
         }
     }
@@ -156,6 +159,29 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             device.closeViewController(vc)
         }
         Log.i(TAG, "result action=disconnect ok=true")
+    }
+
+    /**
+     * Relay-only control: `mode` = off forces direct (p2p) mode off for the
+     * next window, on forces it on, clear restores the normal decision. Takes
+     * effect on the next connect.
+     */
+    private fun allowDirect(app: MainApplication, mode: String?) {
+        val device = app.device
+        if (device == null) {
+            Log.i(TAG, "result action=allow-direct error=no-device")
+            return
+        }
+        when (mode) {
+            "off" -> device.setTransferDiagAllowDirect(true, false)
+            "on" -> device.setTransferDiagAllowDirect(true, true)
+            "clear" -> device.setTransferDiagAllowDirect(false, false)
+            else -> {
+                Log.i(TAG, "result action=allow-direct ok=false error=bad-mode")
+                return
+            }
+        }
+        Log.i(TAG, "result action=allow-direct ok=true mode=$mode")
     }
 
     private fun status(app: MainApplication) {

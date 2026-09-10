@@ -26,6 +26,7 @@
                 <action android:name="com.bringyour.network.debug.FG_CONNECT_PEER" />
                 <action android:name="com.bringyour.network.debug.FG_DISCONNECT" />
                 <action android:name="com.bringyour.network.debug.FG_STATUS" />
+                <action android:name="com.bringyour.network.debug.FG_ALLOW_DIRECT" />
             </intent-filter>
         </receiver>
     </application>
