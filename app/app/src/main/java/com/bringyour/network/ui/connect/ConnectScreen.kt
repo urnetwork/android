@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,6 +75,8 @@ import com.bringyour.network.ui.theme.SheetBlack
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -325,13 +328,25 @@ fun ConnectActionsSheetScaffold(
     // drawer, and at 24dp on phones it matches the iOS expanded spacing
     val belowFoldGap = 24.dp + unconsumedBottomInset
 
-    // when the sheet settles back to the peek, reset the content to the top so
-    // the peek always shows the top of the actions (matches the iOS drawer)
+    // When the sheet heads back to the peek, reset the content to the top so
+    // the peek always shows the top of the actions (matches the iOS drawer).
+    // The target flips as soon as the collapse is under way. A one-shot
+    // animateScrollTo was lost whenever something held the content's scroll
+    // at that moment (a drag still in flight, a fling running out), so this
+    // keeps asking, one attempt per frame, until the content is at the top.
     LaunchedEffect(scaffoldState.bottomSheetState) {
-        snapshotFlow { scaffoldState.bottomSheetState.currentValue }
-            .collect { value ->
-                if (value == SheetValue.PartiallyExpanded) {
-                    scrollState.animateScrollTo(0)
+        snapshotFlow { scaffoldState.bottomSheetState.targetValue }
+            .collect { target ->
+                if (target != SheetValue.PartiallyExpanded) {
+                    return@collect
+                }
+                while (scrollState.value > 0 && isActive) {
+                    try {
+                        scrollState.animateScrollTo(0)
+                    } catch (e: CancellationException) {
+                        if (!isActive) throw e
+                        withFrameNanos { }
+                    }
                 }
             }
     }
