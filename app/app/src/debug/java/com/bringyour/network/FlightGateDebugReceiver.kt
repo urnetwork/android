@@ -7,7 +7,6 @@ import android.net.VpnService
 import android.util.Log
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationId
-import com.bringyour.sdk.Sdk
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import org.json.JSONArray
@@ -203,15 +202,23 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             Log.i(TAG, "result action=defer-timeout-resend error=no-device")
             return
         }
-        when (mode) {
-            "on" -> device.setTransferDiagDeferTimeoutResend(true)
-            "off" -> device.setTransferDiagDeferTimeoutResend(false)
+        val enabled = when (mode) {
+            "on" -> true
+            "off" -> false
             else -> {
                 Log.i(TAG, "result action=defer-timeout-resend ok=false error=bad-mode")
                 return
             }
         }
-        Log.i(TAG, "result action=defer-timeout-resend ok=true mode=$mode")
+        // reflective so this debug build also compiles against an SDK that
+        // predates the setting (the merged-tree control of the rig)
+        val applied = runCatching {
+            device.javaClass
+                .getMethod("setTransferDiagDeferTimeoutResend", java.lang.Boolean.TYPE)
+                .invoke(device, enabled)
+            true
+        }.getOrDefault(false)
+        Log.i(TAG, "result action=defer-timeout-resend ok=$applied mode=$mode")
     }
 
     /**
@@ -221,7 +228,11 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
      */
     private fun heapProfile(app: MainApplication, name: String?) {
         val file = java.io.File(app.filesDir, (name ?: "heap") + ".pprof")
-        val result = runCatching { Sdk.writeHeapProfileForDiag(file.absolutePath) }
+        val result = runCatching {
+            Class.forName("com.bringyour.sdk.Sdk")
+                .getMethod("writeHeapProfileForDiag", String::class.java)
+                .invoke(null, file.absolutePath) as String
+        }
         result.fold(
             onSuccess = { Log.i(TAG, "result action=heap-profile ok=true $it") },
             onFailure = { Log.i(TAG, "result action=heap-profile ok=false error=${it.message}") },
@@ -238,7 +249,12 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             json.put("provide_control_mode", device.provideControlMode)
             json.put("provide_network_mode", device.provideNetworkMode)
             json.put("needs_consent", VpnService.prepare(app) != null)
-            json.put("defer_timeout_resend", device.transferDiagDeferTimeoutResend())
+            json.put(
+                "defer_timeout_resend",
+                runCatching {
+                    device.javaClass.getMethod("transferDiagDeferTimeoutResend").invoke(device) as Boolean
+                }.getOrDefault(false),
+            )
             device.connectLocation?.let { location ->
                 json.put("location_name", location.name)
                 json.put("location_network_peer", location.networkPeer)
