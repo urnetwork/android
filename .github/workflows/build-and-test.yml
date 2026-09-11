@@ -290,10 +290,15 @@ jobs:
             :app:compilePlayReleaseKotlin \
             :app:compileSolana_dappReleaseKotlin
 
-      - name: Upload the unit test report
+      # Keep the XML alongside the HTML report. The XML lets the acceptance
+      # result normalizer identify the failing class and assertion without
+      # giving a debugging model the entire Gradle console log.
+      - name: Upload unit test reports and machine-readable results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
-          path: android/app/app/build/reports/tests
+          path: |
+            android/app/app/build/reports/tests
+            android/app/app/build/test-results
           if-no-files-found: warn

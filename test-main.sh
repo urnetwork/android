@@ -17,10 +17,13 @@
 #
 # Usage:
 #   ./test-main.sh                         all targets on every eligible device
+#   ./test-main.sh --profile=smoke         github only; no peer-to-peer phase
+#   ./test-main.sh --profile=flavor --flavor=play
+#                                          selected flavor(s); no peer-to-peer phase
 #   ./test-main.sh --repeat=5              five full passes per target
 #   ./test-main.sh --flavor=github         one target (repeatable/comma-separated)
-#   ./test-main.sh --smoke                  install and launch every compatible cell only
-#   ./test-main.sh --skip-build            reuse APKs and build-id sidecars
+#   ./test-main.sh --smoke                 install and launch every compatible cell only
+#   ./test-main.sh --skip-build            reuse APKs only when their inputs match
 #   ./test-main.sh --headless              start the AVD without a window
 #   ./test-main.sh --keep-emulator         leave an emulator started here running
 #   ./test-main.sh --keep-fixture          retain the recoverable account for another app
@@ -55,11 +58,14 @@ headless="${HEADLESS:-0}"
 keep_emulator=0
 keep_fixture="${UR_ACCEPT_KEEP_FIXTURE:-0}"
 result_matrix="${UR_ACCEPT_RESULT_FILE:-}"
+profile="${UR_ACCEPT_PROFILE:-full}"
 smoke_only=0
 targets="github play solana_dapp fdroid"
 selected_targets=""
 selected_flavor_value=""
 flavor_selector_count=0
+run_peer_to_peer=1
+main_test_scope="com.bringyour.network.acceptance.EgressProbeRequestTest,com.bringyour.network.acceptance.MainAcceptanceTest"
 diagnostic_device=""
 diagnostic_case=""
 diagnostic_device_seen=0
@@ -79,6 +85,7 @@ for arg in "$@"; do
       selected_flavor_value="${arg#*=}"
       selected_targets="$selected_targets $selected_flavor_value"
       ;;
+    --profile=*) profile="${arg#*=}" ;;
     --diagnostic-device=*)
       [ "$diagnostic_device_seen" -eq 0 ] || {
         echo "--diagnostic-device may be supplied only once" >&2
@@ -112,7 +119,28 @@ case "$repeat_count" in
   ''|*[!0-9]*) echo "--repeat must be a positive integer" >&2; exit 2 ;;
   0) echo "--repeat must be at least 1" >&2; exit 2 ;;
 esac
+
+case "$profile" in
+  full) ;;
+  smoke)
+    targets="github"
+    run_peer_to_peer=0
+    ;;
+  flavor)
+    [ -n "$selected_targets" ] || {
+      echo "--profile=flavor requires at least one --flavor" >&2
+      exit 2
+    }
+    targets="github"
+    run_peer_to_peer=0
+    ;;
+  *) echo "unknown profile: $profile (expected full, smoke, or flavor)" >&2; exit 2 ;;
+esac
 if [ "$execution_mode" = diagnostic ]; then
+  [ "$profile" = full ] || {
+    echo "diagnostic peer-to-peer requires --profile=full" >&2
+    exit 2
+  }
   android_acceptance_validate_diagnostic_request \
     "$diagnostic_device" "$diagnostic_case" \
     "$flavor_selector_count" "$selected_flavor_value" \
@@ -125,11 +153,17 @@ acceptance_timeout_seconds=$((900 + repeat_count * 900))
 if [ -n "$selected_targets" ]; then
   targets="$(printf '%s\n' "$selected_targets" | tr ',' ' ')"
 fi
+unique_targets=""
 for target in $targets; do
   case "$target" in github|play|solana_dapp|fdroid) ;; *) echo "unknown flavor: $target" >&2; exit 2 ;; esac
+  case " $unique_targets " in
+    *" $target "*) ;;
+    *) unique_targets="$unique_targets $target" ;;
+  esac
 done
+targets="${unique_targets# }"
 build_targets="$targets"
-if [ "$smoke_only" -ne 1 ]; then
+if [ "$smoke_only" -ne 1 ] && [ "$run_peer_to_peer" -eq 1 ]; then
   case " $targets " in
     *" play "*|*" solana_dapp "*)
       case " $targets " in
@@ -141,6 +175,9 @@ if [ "$smoke_only" -ne 1 ]; then
 fi
 
 die() { echo "[android acceptance] ERROR: $*" >&2; exit 1; }
+if [ -n "$result_matrix" ] && { [ "$profile" != full ] || [ -n "$selected_targets" ]; }; then
+  die "a partial profile or --flavor selection cannot write UR_ACCEPT_RESULT_FILE; use the full default matrix"
+fi
 network_test_gate="$root/tests/network-intensive-suite-lock.sh"
 if [ ! -x "$network_test_gate" ]; then
   echo "Android acceptance suite gate is missing or not executable: $network_test_gate" >&2
@@ -196,6 +233,11 @@ grep -Fxq "$avd_name" <<<"$available_avds" || \
 timestamp="$(date +%Y%m%d-%H%M%S)"
 artifacts="$here/tests/__acceptance__/$timestamp"
 mkdir -p "$artifacts" "$(dirname "$fixture")"
+results_ndjson="$artifacts/results.ndjson"
+result_summary_script="$here/scripts/acceptance-result.mjs"
+[ -f "$result_summary_script" ] || die "acceptance result summarizer is missing: $result_summary_script"
+: >"$results_ndjson"
+chmod 600 "$results_ndjson"
 run_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-acceptance.XXXXXX")"
 chmod 700 "$run_dir"
 serial=""
@@ -413,6 +455,13 @@ cleanup() {
     elif [ "$smoke_only" -eq 1 ]; then
       if ! android_acceptance_verify_device_flavor_smoke_results "$device_plan" "$smoke_results"; then
         echo "[android acceptance] device/flavor smoke result matrix is incomplete or failed" >&2
+        exit_status=1
+      fi
+    elif [ "$run_peer_to_peer" -eq 0 ]; then
+      if ! android_acceptance_verify_device_flavor_results \
+          "$device_plan" "$device_results" \
+          email phone instant password data-plane; then
+        echo "[android acceptance] partial device/flavor result matrix is incomplete or failed" >&2
         exit_status=1
       fi
     elif ! android_acceptance_verify_device_flavor_results "$device_plan" "$device_results"; then
@@ -740,6 +789,20 @@ gradle_flavor() {
   esac
 }
 
+acceptance_target_cache_dir() {
+  printf '%s/tests/__acceptance__/build/%s\n' "$here" "$1"
+}
+
+acceptance_target_input_fingerprint() {
+  local target="$1" flavor="$2"
+
+  android_acceptance_input_fingerprint \
+    "$here" \
+    "$sdk_output_dir/android/URnetworkSdk.aar" \
+    "$sdk_output_dir/android/URnetworkSdk-sources.jar" \
+    "$target" "$flavor"
+}
+
 prepare_fdroid_tree() {
   [ -n "$fdroid_tree" ] && return
   fdroid_tree="$run_dir/android-fdroid"
@@ -865,6 +928,52 @@ collect_physical_artifacts() {
   android_acceptance_verify_physical_startup_evidence \
     "$out/status.json" "$out/physical-startup-goroutines.txt" || artifact_status=1
   return "$artifact_status"
+}
+
+# Keep raw diagnostics in the artifact directory, but publish a compact JSON
+# event as the first context for a debugging model. A failure event records a
+# bounded, redacted log window and an index of the full artifacts; passing
+# events carry no log excerpt and therefore consume no model context.
+record_acceptance_result() {
+  local out="$1" target="$2" phase="$3" status="$4" exit_code="$5"
+  local repro_command="$6" build_id="$7" input_fingerprint="$8" log_file="${9:-}"
+  local test_scope="${10:-$main_test_scope}"
+  local result_file="$out/result-${phase}.json"
+
+  mkdir -p "$out" || return 1
+  if ! UR_ACCEPT_RESULT_RUN_ID="$timestamp" \
+    UR_ACCEPT_RESULT_PROFILE="$profile" \
+    UR_ACCEPT_RESULT_TARGET="$target" \
+    UR_ACCEPT_RESULT_PHASE="$phase" \
+    UR_ACCEPT_RESULT_STATUS="$status" \
+    UR_ACCEPT_RESULT_EXIT_CODE="$exit_code" \
+    UR_ACCEPT_RESULT_BUILD_ID="$build_id" \
+    UR_ACCEPT_RESULT_INPUT_FINGERPRINT="$input_fingerprint" \
+    UR_ACCEPT_RESULT_TEST_SCOPE="$test_scope" \
+    UR_ACCEPT_RESULT_REPRO_COMMAND="$repro_command" \
+    UR_ACCEPT_RESULT_ARTIFACT_ROOT="$out" \
+    UR_ACCEPT_RESULT_LOG="$log_file" \
+    node "$result_summary_script" "$result_file"; then
+    echo "[android acceptance] could not write result event for $target/$phase" >&2
+    return 1
+  fi
+  if ! cat "$result_file" >>"$results_ndjson"; then
+    echo "[android acceptance] could not append result event for $target/$phase" >&2
+    return 1
+  fi
+  chmod 600 "$result_file" "$results_ndjson" || return 1
+  if [ "$status" = failed ]; then
+    cp "$result_file" "$out/failure.json" || return 1
+    chmod 600 "$out/failure.json" || return 1
+  fi
+}
+
+write_target_diagnostic() {
+  local out="$1"
+  shift
+  mkdir -p "$out" || return 1
+  printf '%s\n' "$@" >"$out/runner-error.log"
+  chmod 600 "$out/runner-error.log"
 }
 
 boot_peer_emulator() {
@@ -1210,7 +1319,20 @@ record_smoke_result() {
   local device_id="$1" target_serial="$2" target="$3" status="$4" detail="$5"
   detail="$(printf '%s' "$detail" | tr '\t\r\n' '   ')"
   printf '%s\t%s\t%s\t%s\t%s\n' \
-    "$device_id" "$target_serial" "$target" "$status" "$detail" >>"$smoke_results"
+      "$device_id" "$target_serial" "$target" "$status" "$detail" >>"$smoke_results"
+}
+
+# Partial profiles still prove every auth/data-plane workflow, but deliberately
+# omit the expensive peer-to-peer proof. Keep their internal result rows honest
+# so the cleanup verifier can require exactly the work that was selected.
+record_full_cases() {
+  local device_id="$1" target_serial="$2" target="$3" status="$4" detail="$5"
+
+  record_device_cases "$device_id" "$target_serial" "$target" "$status" "$detail" \
+    email phone instant password data-plane
+  if [ "$run_peer_to_peer" -eq 1 ]; then
+    record_device_cases "$device_id" "$target_serial" "$target" "$status" "$detail" peer-to-peer
+  fi
 }
 
 record_target_failure() {
@@ -1223,8 +1345,7 @@ record_target_failure() {
     elif [ "$smoke_only" -eq 1 ]; then
       record_smoke_result "$device_id" "$target_serial" "$failed_target" FAIL "$detail"
     else
-      record_device_cases "$device_id" "$target_serial" "$failed_target" FAIL "$detail" \
-        email phone instant password data-plane peer-to-peer
+      record_full_cases "$device_id" "$target_serial" "$failed_target" FAIL "$detail"
     fi
   done 3<"$device_plan"
 }
@@ -1255,8 +1376,11 @@ for target in $build_targets; do
   source_target="$target"
   [ "$target" = fdroid ] && { prepare_fdroid_tree; tree="$fdroid_tree"; source_target=github; }
   flavor="$(gradle_flavor "$target")"
-  target_cache="$here/tests/__acceptance__/build/$target"
+  target_cache="$(acceptance_target_cache_dir "$target")"
   sidecar="$target_cache/build-id"
+  input_fingerprint=""
+  build_phase=build
+  [ "$skip_build" -eq 1 ] && build_phase=cache
   target_ready=1
 
   echo
@@ -1279,15 +1403,26 @@ for target in $build_targets; do
     elif ! locate_apks "$tree" "$source_target" "$flavor"; then
       echo "could not locate target and test APKs for $target" >&2
       target_ready=0
+    elif ! input_fingerprint="$(acceptance_target_input_fingerprint "$target" "$flavor")"; then
+      echo "could not fingerprint inputs for $target" >&2
+      target_ready=0
     elif ! android_acceptance_cache_apks "$target_apk" "$test_apk" "$target_cache"; then
       echo "could not cache target and test APKs for $target" >&2
       target_ready=0
-    else
-      printf '%s\n' "$build_id" >"$sidecar"
+    elif ! android_acceptance_write_cache_metadata \
+        "$target_cache" "$build_id" "$input_fingerprint"; then
+      echo "could not write cache metadata for $target" >&2
+      target_ready=0
     fi
   else
-    if [ ! -f "$sidecar" ]; then
-      echo "missing build-id sidecar $sidecar" >&2
+    if ! input_fingerprint="$(acceptance_target_input_fingerprint "$target" "$flavor")"; then
+      echo "could not fingerprint inputs for cached $target APKs" >&2
+      target_ready=0
+    elif ! android_acceptance_cache_is_current "$target_cache" "$input_fingerprint"; then
+      echo "cached APKs for $target do not match current inputs; run without --skip-build" >&2
+      target_ready=0
+    elif [ ! -s "$sidecar" ]; then
+      echo "missing validated build-id sidecar $sidecar" >&2
       target_ready=0
     else
       build_id="$(tr -d '\r\n' <"$sidecar")"
@@ -1295,6 +1430,15 @@ for target in $build_targets; do
   fi
   target_apk="$target_cache/app.apk"
   test_apk="$target_cache/test.apk"
+  if [ "$target_ready" -eq 1 ] && ! [[ "$build_id" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    echo "invalid build-id sidecar for $target" >&2
+    target_ready=0
+  fi
+  if [ "$target_ready" -eq 1 ] && \
+     ! android_acceptance_cache_is_current "$target_cache" "$input_fingerprint"; then
+    echo "APK cache for $target is incomplete" >&2
+    target_ready=0
+  fi
   if [ "$target_ready" -eq 1 ] && { [ ! -f "$target_apk" ] || [ ! -f "$test_apk" ]; }; then
     echo "missing cached target and test APKs for $target" >&2
     target_ready=0
@@ -1322,10 +1466,19 @@ for target in $build_targets; do
     fi
   fi
   if [ "$target_ready" -ne 1 ]; then
+    write_target_diagnostic "$build_out" "build, cache, or APK contract failed for $target"
+    record_acceptance_result \
+      "$build_out" "$target" "$build_phase" failed 1 \
+      "./test-main.sh --profile=$profile --flavor=$target" \
+      "$build_id" "$input_fingerprint" "$build_out/runner-error.log" || overall=1
     record_target_failure "$target" "build or APK contract failed"
     overall=1
     continue
   fi
+  record_acceptance_result \
+    "$build_out" "$target" "$build_phase" passed 0 \
+    "./test-main.sh --profile=$profile --flavor=$target" \
+    "$build_id" "$input_fingerprint" "$build_out/build.log" || overall=1
   expected_version="$(apk_version "$target_apk")"
 
   # A support-only GitHub build supplies the unrestricted peer app when a
@@ -1352,14 +1505,18 @@ for target in $build_targets; do
     echo "[android acceptance] ════════ $target on $serial ($device_id) ════════"
     if ! android_acceptance_adb_device_ready "$adb" "$serial"; then
       echo "selected Android device $serial is no longer available" >&2
+      write_target_diagnostic "$out" "selected Android device became unavailable"
+      record_acceptance_result \
+        "$out" "$target" device failed 1 \
+        "adb -s $serial get-state" \
+        "$build_id" "$input_fingerprint" "$out/runner-error.log" || overall=1
       if [ "$execution_mode" = diagnostic ]; then
         record_device_cases "$device_id" "$serial" "$target" FAIL "device became unavailable" \
           "$diagnostic_case"
       elif [ "$smoke_only" -eq 1 ]; then
         record_smoke_result "$device_id" "$serial" "$target" FAIL "device became unavailable"
       else
-        record_device_cases "$device_id" "$serial" "$target" FAIL "device became unavailable" \
-          email phone instant password data-plane peer-to-peer
+        record_full_cases "$device_id" "$serial" "$target" FAIL "device became unavailable"
       fi
       overall=1
       continue
@@ -1384,9 +1541,19 @@ for target in $build_targets; do
         p2p_status=1
       fi
       if [ "$p2p_status" -eq 0 ]; then
+        record_acceptance_result \
+          "$out/peer-to-peer" "$target" peer-to-peer passed 0 \
+          "./test-main.sh --diagnostic-device=$serial --diagnostic-case=peer-to-peer --flavor=$target" \
+          "$build_id" "$input_fingerprint" "$out/peer-to-peer/client-instrumentation.log" \
+          com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
         record_device_cases "$device_id" "$serial" "$target" PASS \
           "bidirectional peer proof and full cleanup completed" "$diagnostic_case"
       else
+        record_acceptance_result \
+          "$out/peer-to-peer" "$target" peer-to-peer failed 1 \
+          "./test-main.sh --diagnostic-device=$serial --diagnostic-case=peer-to-peer --flavor=$target" \
+          "$build_id" "$input_fingerprint" "$out/peer-to-peer/client-instrumentation.log" \
+          com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
         record_device_cases "$device_id" "$serial" "$target" FAIL \
           "peer-to-peer diagnostic or cleanup failed" "$diagnostic_case"
         overall=1
@@ -1395,11 +1562,15 @@ for target in $build_targets; do
     fi
     if ! uninstall_acceptance_packages "$serial" "$out/preinstall-cleanup"; then
       echo "stale acceptance package cleanup failed for $target on $serial" >&2
+      write_target_diagnostic "$out" "stale acceptance package cleanup failed"
+      record_acceptance_result \
+        "$out" "$target" cleanup failed 1 \
+        "adb -s $serial uninstall com.bringyour.network" \
+        "$build_id" "$input_fingerprint" "$out/runner-error.log" || overall=1
       if [ "$smoke_only" -eq 1 ]; then
         record_smoke_result "$device_id" "$serial" "$target" FAIL "stale package cleanup failed"
       else
-        record_device_cases "$device_id" "$serial" "$target" FAIL "stale package cleanup failed" \
-          email phone instant password data-plane peer-to-peer
+        record_full_cases "$device_id" "$serial" "$target" FAIL "stale package cleanup failed"
       fi
       overall=1
       continue
@@ -1410,11 +1581,15 @@ for target in $build_targets; do
         "$adb" "$serial" "$target_apk" "$test_apk" \
         "$out/install-app.log" "$out/install-test.log"; then
       echo "install failed for $target on $serial" >&2
+      cat "$out/install-app.log" "$out/install-test.log" >"$out/install.log" 2>&1 || true
+      record_acceptance_result \
+        "$out" "$target" install failed 1 \
+        "adb -s $serial install -r -t <app.apk>; adb -s $serial install -r -t <test.apk>" \
+        "$build_id" "$input_fingerprint" "$out/install.log" || overall=1
       if [ "$smoke_only" -eq 1 ]; then
         record_smoke_result "$device_id" "$serial" "$target" FAIL "APK install failed"
       else
-        record_device_cases "$device_id" "$serial" "$target" FAIL "APK install failed" \
-          email phone instant password data-plane peer-to-peer
+        record_full_cases "$device_id" "$serial" "$target" FAIL "APK install failed"
       fi
       overall=1
       if ! uninstall_acceptance_packages "$serial" "$out/install-failure-cleanup"; then
@@ -1428,6 +1603,12 @@ for target in $build_targets; do
     installed_version="$(timeout 30 "$adb" -s "$serial" shell dumpsys package com.bringyour.network | sed -n 's/.*versionName=//p' | sed -n '1p' | tr -d '\r')"
     if [ -z "$expected_version" ] || [ "$installed_version" != "$expected_version" ]; then
       echo "installed version mismatch on $serial: APK=$expected_version installed=$installed_version" >&2
+      write_target_diagnostic \
+        "$out" "installed version mismatch: APK=$expected_version installed=$installed_version"
+      record_acceptance_result \
+        "$out" "$target" validation failed 1 \
+        "adb -s $serial shell dumpsys package com.bringyour.network" \
+        "$build_id" "$input_fingerprint" "$out/runner-error.log" || overall=1
       test_status=1
     fi
     timeout 30 "$adb" -s "$serial" logcat -c || test_status=1
@@ -1447,9 +1628,17 @@ for target in $build_targets; do
         </dev/null >/dev/null 2>&1 || test_status=1
       uninstall_acceptance_packages "$serial" "$out/post-smoke-cleanup" || test_status=1
       if [ "$test_status" -eq 0 ]; then
+        record_acceptance_result \
+          "$out" "$target" smoke passed 0 \
+          "./test-main.sh --smoke --flavor=$target" \
+          "$build_id" "$input_fingerprint" "$out/launch.log" || overall=1
         record_smoke_result "$device_id" "$serial" "$target" PASS "local APK installed, launched, and remained alive"
         echo "[android acceptance] $target smoke accepted on $serial"
       else
+        record_acceptance_result \
+          "$out" "$target" smoke failed "$test_status" \
+          "./test-main.sh --smoke --flavor=$target" \
+          "$build_id" "$input_fingerprint" "$out/launch.log" || overall=1
         record_smoke_result "$device_id" "$serial" "$target" FAIL "install, launch, version, or cleanup failed"
         overall=1
       fi
@@ -1512,7 +1701,8 @@ for target in $build_targets; do
       test_status=1
     fi
 
-    if [ "$fixture_missing" -eq 0 ] && [ "$client_cleanup_failed" -eq 0 ]; then
+    if [ "$run_peer_to_peer" -eq 1 ] && \
+       [ "$fixture_missing" -eq 0 ] && [ "$client_cleanup_failed" -eq 0 ]; then
       echo "[android acceptance] peer-to-peer: $target on $serial"
       provider_target="$target"
       case "$target" in play|solana_dapp) provider_target=github ;; esac
@@ -1530,29 +1720,56 @@ for target in $build_targets; do
         client_cleanup_failed=1
         p2p_status=1
       fi
-    else
+    elif [ "$run_peer_to_peer" -eq 1 ]; then
       p2p_status=1
+    else
+      write_target_diagnostic "$out/peer-to-peer" "peer-to-peer skipped by profile=$profile"
+      record_acceptance_result \
+        "$out/peer-to-peer" "$target" peer-to-peer skipped 0 \
+        "./test-main.sh --profile=$profile --flavor=$target" \
+        "$build_id" "$input_fingerprint" "$out/peer-to-peer/runner-error.log" \
+        com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
     fi
     if ! uninstall_acceptance_packages "$serial" "$out/post-acceptance-cleanup"; then
       echo "could not clean acceptance packages from $serial" >&2
       test_status=1
-      p2p_status=1
+      [ "$run_peer_to_peer" -eq 0 ] || p2p_status=1
     fi
 
     if [ "$test_status" -eq 0 ]; then
+      record_acceptance_result \
+        "$out" "$target" instrumentation passed 0 \
+        "adb -s $serial shell am instrument -w -r -e class $main_test_scope com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner" \
+        "$build_id" "$input_fingerprint" "$out/instrumentation.log" || overall=1
       record_device_cases "$device_id" "$serial" "$target" PASS "instrumentation and cleanup completed" \
         email phone instant password data-plane
       echo "[android acceptance] $target accepted on $serial"
     else
+      record_acceptance_result \
+        "$out" "$target" instrumentation failed "$test_status" \
+        "adb -s $serial shell am instrument -w -r -e class $main_test_scope com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner" \
+        "$build_id" "$input_fingerprint" "$out/instrumentation.log" || overall=1
       record_device_cases "$device_id" "$serial" "$target" FAIL "instrumentation or cleanup failed" \
         email phone instant password data-plane
       overall=1
     fi
-    if [ "$p2p_status" -eq 0 ]; then
-      record_device_cases "$device_id" "$serial" "$target" PASS "bidirectional peer proof and cleanup completed" peer-to-peer
-    else
-      record_device_cases "$device_id" "$serial" "$target" FAIL "peer-to-peer or cleanup failed" peer-to-peer
-      overall=1
+    if [ "$run_peer_to_peer" -eq 1 ]; then
+      if [ "$p2p_status" -eq 0 ]; then
+        record_acceptance_result \
+          "$out/peer-to-peer" "$target" peer-to-peer passed 0 \
+          "adb -s <provider> shell am instrument -w -r -e class com.bringyour.network.acceptance.PhysicalLowbarSessionTest ..." \
+          "$build_id" "$input_fingerprint" "$out/peer-to-peer/client-instrumentation.log" \
+          com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
+        record_device_cases "$device_id" "$serial" "$target" PASS "bidirectional peer proof and cleanup completed" peer-to-peer
+      else
+        record_acceptance_result \
+          "$out/peer-to-peer" "$target" peer-to-peer failed 1 \
+          "adb -s <provider> shell am instrument -w -r -e class com.bringyour.network.acceptance.PhysicalLowbarSessionTest ..." \
+          "$build_id" "$input_fingerprint" "$out/peer-to-peer/client-instrumentation.log" \
+          com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
+        record_device_cases "$device_id" "$serial" "$target" FAIL "peer-to-peer or cleanup failed" peer-to-peer
+        overall=1
+      fi
     fi
     if [ "$fixture_missing" -eq 1 ] || [ "$client_cleanup_failed" -eq 1 ]; then
       echo "[android acceptance] stopping: continuing could leak or replace the shared account fixture" >&2

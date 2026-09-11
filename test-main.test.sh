@@ -947,6 +947,18 @@ rm -f "$apk_test_dir/build/app.apk" "$apk_test_dir/build/test.apk"
 [ "$(cat "$apk_test_dir/cache/test.apk")" = "test payload" ] || \
   fail "cached test APK did not survive removal of the build output"
 
+cache_fingerprint="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+android_acceptance_write_cache_metadata "$apk_test_dir/cache" acceptance-build "$cache_fingerprint" || \
+  fail "could not write cache metadata"
+android_acceptance_cache_is_current "$apk_test_dir/cache" "$cache_fingerprint" || \
+  fail "fresh APK cache was not accepted"
+printf '%s\n' "different" >"$apk_test_dir/cache/input.sha256"
+if android_acceptance_cache_is_current "$apk_test_dir/cache" "$cache_fingerprint"; then
+  fail "mismatched APK cache fingerprint was accepted"
+fi
+android_acceptance_write_cache_metadata "$apk_test_dir/cache" acceptance-build "$cache_fingerprint" || \
+  fail "could not restore cache metadata"
+
 install_calls="$apk_test_dir/install-calls"
 install_timeout_calls="$apk_test_dir/install-timeout-calls"
 install_app_log="$apk_test_dir/install-app.log"
@@ -1135,6 +1147,39 @@ fi
 [ "$(wc -l <"$install_calls" | tr -d ' ')" = 2 ] || \
   fail "full acceptance did not stop at the instrumentation APK failure"
 rm -rf "$apk_test_dir"
+
+fingerprint_tree="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-fingerprint.test.XXXXXX")"
+mkdir -p "$fingerprint_tree/app" "$fingerprint_tree/tests/__acceptance__/old-run"
+printf 'source one\n' >"$fingerprint_tree/app/Main.kt"
+printf 'gradle input\n' >"$fingerprint_tree/app/build.gradle"
+printf 'generated output\n' >"$fingerprint_tree/tests/__acceptance__/old-run/noise"
+printf 'sdk aar\n' >"$fingerprint_tree/sdk.aar"
+printf 'sdk sources\n' >"$fingerprint_tree/sdk-sources.jar"
+first_fingerprint="$(android_acceptance_input_fingerprint \
+  "$fingerprint_tree" "$fingerprint_tree/sdk.aar" "$fingerprint_tree/sdk-sources.jar" github Github)" || \
+  fail "could not fingerprint fallback source tree"
+second_fingerprint="$(android_acceptance_input_fingerprint \
+  "$fingerprint_tree" "$fingerprint_tree/sdk.aar" "$fingerprint_tree/sdk-sources.jar" github Github)" || \
+  fail "could not repeat fingerprint fallback source tree"
+[ "$first_fingerprint" = "$second_fingerprint" ] || \
+  fail "unchanged source tree received a different fingerprint"
+printf 'new generated output\n' >"$fingerprint_tree/tests/__acceptance__/old-run/noise"
+[ "$(android_acceptance_input_fingerprint \
+  "$fingerprint_tree" "$fingerprint_tree/sdk.aar" "$fingerprint_tree/sdk-sources.jar" github Github)" = "$first_fingerprint" ] || \
+  fail "generated acceptance artifacts changed the input fingerprint"
+printf 'source two\n' >"$fingerprint_tree/app/Main.kt"
+changed_fingerprint="$(android_acceptance_input_fingerprint \
+  "$fingerprint_tree" "$fingerprint_tree/sdk.aar" "$fingerprint_tree/sdk-sources.jar" github Github)" || \
+  fail "could not fingerprint changed source tree"
+[ "$changed_fingerprint" != "$first_fingerprint" ] || \
+  fail "source change did not invalidate the input fingerprint"
+printf 'warp.version=1\n' >"$fingerprint_tree/app/local.properties"
+local_properties_fingerprint="$(android_acceptance_input_fingerprint \
+  "$fingerprint_tree" "$fingerprint_tree/sdk.aar" "$fingerprint_tree/sdk-sources.jar" github Github)" || \
+  fail "could not fingerprint local.properties"
+[ "$local_properties_fingerprint" != "$changed_fingerprint" ] || \
+  fail "local.properties change did not invalidate the input fingerprint"
+rm -rf "$fingerprint_tree"
 
 timeout() {
   shift

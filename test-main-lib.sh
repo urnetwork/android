@@ -147,6 +147,147 @@ run_android_acceptance_shared_avd_emulator() {
   exec "$emulator" "$@" >"$log_file" 2>&1
 }
 
+# Hash a file or stdin using the platform's standard SHA-256 utility. macOS
+# ships shasum while Linux runners normally have sha256sum, so accept either
+# rather than making the fast cache host-specific.
+android_acceptance_sha256_file() {
+  local input="$1"
+
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$input" | awk '{ print $1 }'
+  elif command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$input" | awk '{ print $1 }'
+  else
+    echo "no SHA-256 utility is available (need shasum or sha256sum)" >&2
+    return 1
+  fi
+}
+
+android_acceptance_sha256_stdin() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 | awk '{ print $1 }'
+  elif command -v sha256sum >/dev/null 2>&1; then
+    sha256sum | awk '{ print $1 }'
+  else
+    echo "no SHA-256 utility is available (need shasum or sha256sum)" >&2
+    return 1
+  fi
+}
+
+# Returns the inputs that can change an APK pair without hashing the whole
+# checkout on every local iteration. A clean git HEAD represents all tracked
+# source inputs; a binary diff represents tracked edits; and untracked files
+# are hashed individually. local.properties is intentionally included even
+# though it is ignored because it can change BuildConfig at configuration time.
+#
+# The F-Droid transform is deterministic, so the target name is part of this
+# key instead of fingerprinting the temporary transformed tree. The SDK AAR
+# and sources jar are independent build inputs outside this checkout and must
+# be included explicitly.
+android_acceptance_input_fingerprint() {
+  local source_tree="$1" sdk_aar="$2" sdk_sources="$3" target="$4" flavor="$5"
+  local local_properties="$source_tree/app/local.properties" relative path
+
+  [ -d "$source_tree" ] && [ -f "$sdk_aar" ] && [ -f "$sdk_sources" ] || return 1
+  case "$target:$flavor" in
+    *[!A-Za-z0-9._:-]*) return 2 ;;
+  esac
+
+  (
+    set -e
+    printf 'android-acceptance-input-v1\n'
+    printf 'target=%s\nflavor=%s\n' "$target" "$flavor"
+    case "$target" in
+      fdroid) printf 'fdroid-transform=google-to-ungoogled-v1\n' ;;
+    esac
+
+    if git -C "$source_tree" rev-parse --verify HEAD >/dev/null 2>&1; then
+      printf 'git-head='
+      git -C "$source_tree" rev-parse HEAD
+      printf 'git-diff-begin\n'
+      git -C "$source_tree" diff --no-ext-diff --binary HEAD -- .
+      printf 'git-diff-end\n'
+      printf 'untracked-begin\n'
+      while IFS= read -r -d '' relative; do
+        # Generated acceptance artifacts and Gradle outputs are deliberately
+        # not APK inputs. They must not turn every prior test run into a cache
+        # miss.
+        case "$relative" in
+          app/**/build/*|app/.gradle/*|tests/__acceptance__/*) continue ;;
+        esac
+        path="$source_tree/$relative"
+        [ -f "$path" ] || continue
+        printf 'untracked-path=%s\n' "$relative"
+        android_acceptance_sha256_file "$path"
+      done < <(git -C "$source_tree" ls-files --others --exclude-standard -z)
+      printf 'untracked-end\n'
+    else
+      # Git is expected for normal development, but retain a conservative
+      # fallback for source archives. It is slower because every source file
+      # must be read, which is preferable to reusing an unverified APK.
+      printf 'tree-fallback-begin\n'
+      while IFS= read -r path; do
+        relative="${path#"$source_tree"/}"
+        case "$relative" in
+          app/**/build/*|app/.gradle/*|tests/__acceptance__/*) continue ;;
+        esac
+        printf 'tree-path=%s\n' "$relative"
+        android_acceptance_sha256_file "$path"
+      done < <(find "$source_tree" -type f -print | LC_ALL=C sort)
+      printf 'tree-fallback-end\n'
+    fi
+
+    if [ -f "$local_properties" ]; then
+      printf 'local-properties='
+      android_acceptance_sha256_file "$local_properties"
+    else
+      printf 'local-properties=absent\n'
+    fi
+    printf 'sdk-aar='
+    android_acceptance_sha256_file "$sdk_aar"
+    printf 'sdk-sources='
+    android_acceptance_sha256_file "$sdk_sources"
+  ) | android_acceptance_sha256_stdin
+}
+
+# Returns true only for a complete, input-matching APK cache. The input stamp
+# is written last, so an interrupted cache refresh cannot be mistaken for a
+# usable old build.
+android_acceptance_cache_is_current() {
+  local cache_dir="$1" expected_fingerprint="$2" actual_fingerprint line_count
+
+  [[ "$expected_fingerprint" =~ ^[0-9a-f]{64}$ ]] || return 1
+  [ -s "$cache_dir/app.apk" ] && [ -s "$cache_dir/test.apk" ] && \
+    [ -s "$cache_dir/build-id" ] && [ -s "$cache_dir/input.sha256" ] || return 1
+  line_count="$(awk 'END { print NR }' "$cache_dir/input.sha256")"
+  [ "$line_count" = 1 ] || return 1
+  IFS= read -r actual_fingerprint <"$cache_dir/input.sha256" || return 1
+  [ "$actual_fingerprint" = "$expected_fingerprint" ]
+}
+
+# Writes the two small cache metadata files atomically. Call this only after
+# android_acceptance_cache_apks has copied both APKs successfully.
+android_acceptance_write_cache_metadata() {
+  local cache_dir="$1" build_id="$2" input_fingerprint="$3"
+  local build_temporary fingerprint_temporary
+
+  [[ "$build_id" =~ ^[A-Za-z0-9._-]+$ ]] || return 1
+  [[ "$input_fingerprint" =~ ^[0-9a-f]{64}$ ]] || return 1
+  mkdir -p "$cache_dir" || return 1
+  build_temporary="$(mktemp "$cache_dir/.build-id.XXXXXX")" || return 1
+  fingerprint_temporary="$(mktemp "$cache_dir/.input.sha256.XXXXXX")" || {
+    rm -f "$build_temporary"
+    return 1
+  }
+  if ! printf '%s\n' "$build_id" >"$build_temporary" ||
+     ! printf '%s\n' "$input_fingerprint" >"$fingerprint_temporary" ||
+     ! mv "$build_temporary" "$cache_dir/build-id" ||
+     ! mv "$fingerprint_temporary" "$cache_dir/input.sha256"; then
+    rm -f "$build_temporary" "$fingerprint_temporary"
+    return 1
+  fi
+}
+
 # CPU, renderer, and focused-window evidence are classified into finite states
 # before any UI launch. Unknown and contradictory evidence is distinct from a
 # known bad state so diagnostics remain useful while every non-ready state
@@ -443,14 +584,25 @@ android_acceptance_preflight_device() {
 
 # Copy one build's app/test pair into the runner-owned cache before another
 # flavor is built. Gradle may replace its output directory on the next build;
-# peer-to-peer acceptance must never retain those ephemeral paths.
+# peer-to-peer acceptance must never retain those ephemeral paths. Removing the
+# input stamp first makes a half-refreshed cache invalid even if the process is
+# interrupted between the two APK moves.
 android_acceptance_cache_apks() {
-  local app_apk="$1" test_apk="$2" cache_dir="$3"
+  local app_apk="$1" test_apk="$2" cache_dir="$3" temporary
 
   [ -f "$app_apk" ] && [ -f "$test_apk" ] || return 1
   mkdir -p "$cache_dir" || return 1
-  cp "$app_apk" "$cache_dir/app.apk" || return 1
-  cp "$test_apk" "$cache_dir/test.apk" || return 1
+  rm -f "$cache_dir/build-id" "$cache_dir/input.sha256"
+  temporary="$(mktemp -d "$cache_dir/.apk-cache.XXXXXX")" || return 1
+  if ! cp "$app_apk" "$temporary/app.apk" ||
+     ! cp "$test_apk" "$temporary/test.apk" ||
+     ! mv "$temporary/app.apk" "$cache_dir/app.apk" ||
+     ! mv "$temporary/test.apk" "$cache_dir/test.apk"; then
+    rm -f "$temporary/app.apk" "$temporary/test.apk"
+    rmdir "$temporary" 2>/dev/null || true
+    return 1
+  fi
+  rmdir "$temporary" || return 1
   [ -s "$cache_dir/app.apk" ] && [ -s "$cache_dir/test.apk" ]
 }
 
@@ -1691,9 +1843,27 @@ android_acceptance_require_target_coverage() {
 # Android pass.
 android_acceptance_verify_device_flavor_results() {
   local plan_file="$1" results_file="$2"
-  awk -F '\t' '
+  shift 2
+  local required_cases="email phone instant password data-plane peer-to-peer"
+  local requested_case
+
+  if [ "$#" -gt 0 ]; then
+    required_cases=""
+    for requested_case in "$@"; do
+      case "$requested_case" in
+        email|phone|instant|password|data-plane|peer-to-peer) ;;
+        *) return 2 ;;
+      esac
+      case " $required_cases " in
+        *" $requested_case "*) return 2 ;;
+        *) required_cases="$required_cases $requested_case" ;;
+      esac
+    done
+    required_cases="${required_cases# }"
+  fi
+  awk -F '\t' -v required_cases="$required_cases" '
     BEGIN {
-      split("email phone instant password data-plane peer-to-peer", required, " ")
+      split(required_cases, required, " ")
       failed = 0
     }
     NR == FNR {
