@@ -230,6 +230,8 @@ fun ConnectScreen(
                 blockActionsViewModel = blockActionsViewModel,
                 dnsSettingsViewModel = dnsSettingsViewModel,
                 blockerViewModel = blockerViewModel,
+                ipFamilyPoints = connectViewModel.ipFamilyPoints,
+                gridWidth = connectViewModel.grid?.width?.toInt(),
                 onReferralClick = {
                     navController.navigate(Route.Referrals)
                 },

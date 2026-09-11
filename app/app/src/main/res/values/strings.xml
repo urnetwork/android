@@ -400,6 +400,10 @@
     <string name="invalid_referral_code">This code is not valid</string>
     <string name="invalid_ss58_address">That is not a valid Bittensor address.</string>
     <string name="ip_address">IP address</string>
+    <string name="ip_families">IP versions</string>
+    <string name="ip_family_both">Both</string>
+    <string name="ip_family_v4">v4</string>
+    <string name="ip_family_v6">v6</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="join_community_discord">Join the community on</string>

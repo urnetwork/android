@@ -22,6 +22,7 @@ import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.BlueLight
+import com.bringyour.network.ui.stats.IpFamilyPoint
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.Red
@@ -75,6 +76,12 @@ constructor(
         private set
 
     var providerGridPoints by mutableStateOf<Map<Id, ProviderGridPoint>>(mapOf())
+        private set
+
+    // the same providers as plain data for the connect drawer's IP version
+    // histogram (the sdk category and whether the provider is added), derived
+    // with the grid so the two views always describe one snapshot
+    var ipFamilyPoints by mutableStateOf<List<IpFamilyPoint>>(listOf())
         private set
 
     var grid by mutableStateOf<ConnectGrid?>(null)
@@ -313,8 +320,11 @@ constructor(
             }
             newProviderGridPoints = updateProviderGridPoints
             signature.append(newWindowCurrentSize).append(';')
+            // the family is in the signature: a local downgrade changes a
+            // provider's category without changing its state or position, and
+            // the histogram must follow it
             newProviderGridPoints.values
-                .map { "${it.clientId.idStr}:${it.state}:${it.x}:${it.y}" }
+                .map { "${it.clientId.idStr}:${it.state}:${it.x}:${it.y}:${it.ipFamily}" }
                 .sorted()
                 .forEach { signature.append(it).append('|') }
         } else {
@@ -333,10 +343,19 @@ constructor(
         }
         lastGridSignature = newSignature
 
+        val newIpFamilyPoints = newProviderGridPoints.values.map { point ->
+            IpFamilyPoint(
+                clientId = point.clientId.idStr,
+                ipFamily = point.ipFamily,
+                added = ProviderPointState.fromString(point.state) == ProviderPointState.ADDED,
+            )
+        }
+
         viewModelScope.launch {
             this@ConnectViewModel.grid = grid
             windowCurrentSize = newWindowCurrentSize
             providerGridPoints = newProviderGridPoints
+            ipFamilyPoints = newIpFamilyPoints
         }
     }
 

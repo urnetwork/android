@@ -21,17 +21,24 @@ internal data class VpnPacketFlowConfiguration(
     val excludedAppIds: Set<String>,
     val dnsIpv4s: List<String>,
     val clientIpv4: String?,
-    val ipv6Policy: VpnIpv6Policy = VpnIpv6Policy.BLOCK_UNSUPPORTED,
+    // the IPv6 half of the tunnel: its DNS servers and interface address, from
+    // the sdk device like the IPv4 ones. null when the sdk handed back no
+    // usable address; the builder then falls back to a documentation address
+    // so the family still fails closed rather than leaking
+    val dnsIpv6s: List<String>,
+    val clientIpv6: String?,
+    val ipv6Policy: VpnIpv6Policy = VpnIpv6Policy.CAPTURE,
 )
 
 /**
- * Remote providers do not forward IPv6. Do not advertise an IPv6 address,
- * route, DNS server, or allowFamily bypass while the VPN is active. Android
- * then marks the unsupported family unavailable instead of leaking it around
- * the tunnel.
+ * The tunnel is dual-stack: in the capture modes it advertises the IPv6
+ * address, the ::/0 route (minus link-local, unique-local, multicast and
+ * loopback) and the IPv6 DNS servers exactly as it does for IPv4, so IPv6
+ * traffic rides the tunnel and, with the kill switch, fails closed instead of
+ * leaking around it. Escape mode adds nothing for either family.
  */
 internal enum class VpnIpv6Policy {
-    BLOCK_UNSUPPORTED,
+    CAPTURE,
 }
 
 /**
@@ -90,26 +97,72 @@ internal fun vpnDnsServersForClient(
     deviceDnsIpv4s: List<String>,
     fallbackDnsIpv4s: List<String>,
 ): List<String> {
+    return usableDnsServers(clientIpv4, deviceDnsIpv4s, fallbackDnsIpv4s, ::isIpv4Literal)
+}
+
+/**
+ * vpnDnsServersForClient for the IPv6 half: only IPv6 literals, never the
+ * assigned IPv6 tunnel address.
+ */
+internal fun vpnDnsServersIpv6ForClient(
+    clientIpv6: String?,
+    deviceDnsIpv6s: List<String>,
+    fallbackDnsIpv6s: List<String>,
+): List<String> {
+    return usableDnsServers(clientIpv6, deviceDnsIpv6s, fallbackDnsIpv6s, ::isIpv6Literal)
+}
+
+private fun usableDnsServers(
+    clientAddress: String?,
+    deviceDnsServers: List<String>,
+    fallbackDnsServers: List<String>,
+    isLiteral: (String) -> Boolean,
+): List<String> {
     fun usable(addresses: List<String>): List<String> {
         return addresses
             .map(String::trim)
-            .filter { isIpv4Literal(it) && it != clientIpv4 }
+            .filter { isLiteral(it) && it != clientAddress }
             .distinct()
     }
 
-    return usable(deviceDnsIpv4s).ifEmpty {
-        usable(fallbackDnsIpv4s)
+    return usable(deviceDnsServers).ifEmpty {
+        usable(fallbackDnsServers)
     }
 }
 
 /**
- * The remote-provider tunnel is IPv4-only. Validate values at the platform
- * boundary so a malformed or future SDK value cannot make VpnService.Builder
- * advertise an IPv6 address or DNS transport.
+ * Validate the IPv4 tunnel address at the platform boundary so a malformed or
+ * future SDK value cannot make VpnService.Builder advertise the wrong family.
  */
 internal fun vpnTunnelIpv4Address(address: String?): String? {
     val normalized = address?.trim() ?: return null
     return normalized.takeIf(::isIpv4Literal)
+}
+
+/** vpnTunnelIpv4Address for the IPv6 tunnel address: an IPv6 literal, or null. */
+internal fun vpnTunnelIpv6Address(address: String?): String? {
+    val normalized = address?.trim() ?: return null
+    return normalized.takeIf(::isIpv6Literal)
+}
+
+/**
+ * A native IPv6 literal without a zone: hex groups and colons only, parsed by
+ * the platform without any name resolution, which the character check
+ * guarantees. An IPv4-mapped address (::ffff:a.b.c.d) parses as IPv4 and is
+ * rejected: it is not an address the IPv6 half of the tunnel can carry.
+ */
+private fun isIpv6Literal(address: String): Boolean {
+    if (!address.contains(':') || address.contains('%') || address.contains('[')) {
+        return false
+    }
+    if (!address.all { it == ':' || it == '.' || it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) {
+        return false
+    }
+    return try {
+        java.net.InetAddress.getByName(address) is java.net.Inet6Address
+    } catch (_: Exception) {
+        false
+    }
 }
 
 private fun isIpv4Literal(address: String): Boolean {

@@ -16,6 +16,8 @@ class VpnPacketFlowConfigurationTest {
         excludedAppIds: Set<String> = emptySet(),
         dnsIpv4s: List<String> = listOf("65.49.70.65"),
         clientIpv4: String? = "10.0.0.1",
+        dnsIpv6s: List<String> = listOf("2001:db8::65:49:70:65"),
+        clientIpv6: String? = "fd00:7572:6e65:1::1",
     ): VpnPacketFlowConfiguration {
         return VpnPacketFlowConfiguration(
             offline = offline,
@@ -26,6 +28,8 @@ class VpnPacketFlowConfigurationTest {
             excludedAppIds = excludedAppIds,
             dnsIpv4s = dnsIpv4s,
             clientIpv4 = clientIpv4,
+            dnsIpv6s = dnsIpv6s,
+            clientIpv6 = clientIpv6,
         )
     }
 
@@ -114,7 +118,7 @@ class VpnPacketFlowConfigurationTest {
     }
 
     @Test
-    fun tunnelDnsNeverAdvertisesIpv6() {
+    fun ipv4TunnelDnsNeverAdvertisesIpv6() {
         val servers = vpnDnsServersForClient(
             clientIpv4 = "169.254.2.1",
             deviceDnsIpv4s = listOf("fd00::53", "9.9.9.9"),
@@ -125,11 +129,55 @@ class VpnPacketFlowConfigurationTest {
     }
 
     @Test
-    fun unsupportedIpv6IsBlockedWithoutBeingAdvertisedOnTheTunnel() {
+    fun ipv6IsCapturedLikeIpv4() {
         assertEquals(
-            VpnIpv6Policy.BLOCK_UNSUPPORTED,
+            VpnIpv6Policy.CAPTURE,
             configuration().ipv6Policy,
         )
+    }
+
+    @Test
+    fun activePacketFlowRebuildsWhenTheIpv6HalfChanges() {
+        val applied = configuration()
+
+        assertTrue(vpnPacketFlowNeedsRebuild(true, applied, configuration(clientIpv6 = "fd00:7572:6e65:2::1")))
+        assertTrue(vpnPacketFlowNeedsRebuild(true, applied, configuration(dnsIpv6s = listOf("2606:4700:4700::1111"))))
+        assertFalse(vpnPacketFlowNeedsRebuild(true, applied, configuration()))
+    }
+
+    @Test
+    fun tunnelIpv6AddressAcceptsOnlyIpv6Literals() {
+        assertEquals("fd00:7572:6e65:1::1", vpnTunnelIpv6Address(" fd00:7572:6e65:1::1 "))
+        // an IPv4-mapped address is not a native IPv6 tunnel address
+        assertEquals(null, vpnTunnelIpv6Address("::ffff:10.0.0.1"))
+        assertEquals(null, vpnTunnelIpv6Address("10.0.0.1"))
+        assertEquals(null, vpnTunnelIpv6Address("fe80::1%wlan0"))
+        assertEquals(null, vpnTunnelIpv6Address("[fd00::1]"))
+        assertEquals(null, vpnTunnelIpv6Address("example.com"))
+        assertEquals(null, vpnTunnelIpv6Address("fd00::zz"))
+        assertEquals(null, vpnTunnelIpv6Address(null))
+    }
+
+    @Test
+    fun assignedIpv6TunnelAddressIsNeverUsedAsDns() {
+        val servers = vpnDnsServersIpv6ForClient(
+            clientIpv6 = "fd00:7572:6e65:1::1",
+            deviceDnsIpv6s = listOf("fd00:7572:6e65:1::1"),
+            fallbackDnsIpv6s = listOf("2001:db8::65:49:70:65"),
+        )
+
+        assertEquals(listOf("2001:db8::65:49:70:65"), servers)
+    }
+
+    @Test
+    fun ipv6DnsListKeepsOnlyDistinctIpv6Literals() {
+        val servers = vpnDnsServersIpv6ForClient(
+            clientIpv6 = "fd00:7572:6e65:1::1",
+            deviceDnsIpv6s = listOf("9.9.9.9", "2620:fe::fe", "2620:fe::fe", " 2606:4700:4700::1111 "),
+            fallbackDnsIpv6s = listOf("2001:db8::65:49:70:65"),
+        )
+
+        assertEquals(listOf("2620:fe::fe", "2606:4700:4700::1111"), servers)
     }
 
     @Test

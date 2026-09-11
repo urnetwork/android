@@ -231,7 +231,7 @@ private fun ConnectingButtonContent(
         }
 
         GridCanvas(
-            size = 248.dp, // slightly smaller than the parent so points don't rub against the mask edges
+            size = CONNECT_GRID_CANVAS_SIZE,
             providerGridPoints = providerGridPoints,
             grid = grid,
             updatedStatus = status,
@@ -242,6 +242,13 @@ private fun ConnectingButtonContent(
         )
     }
 }
+
+// The provider grid canvas side: slightly smaller than the widget so points
+// don't rub against the mask edges. Shared with the connect drawer's IP
+// version histogram, whose dots must be the size of the widget's points.
+val CONNECT_GRID_CANVAS_SIZE = 248.dp
+// the gap between adjacent points, in pixels
+const val CONNECT_GRID_POINT_PADDING_PX = 1f
 
 class AnimatedProviderGridPoint(
     val clientId: Id,
@@ -270,7 +277,7 @@ fun GridCanvas(
     val localDensityCurrent = LocalDensity.current
     val pointSize = grid?.width?.let { (size.value / it.toFloat()) * localDensityCurrent.density }
         ?: 2.toFloat()
-    val padding = 1f
+    val padding = CONNECT_GRID_POINT_PADDING_PX
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     val animatedPoints = remember { mutableStateMapOf<Id, AnimatedProviderGridPoint>() }
 

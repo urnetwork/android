@@ -71,6 +71,10 @@ fun ConnectStatsSections(
     blockActionsViewModel: BlockActionsViewModel,
     dnsSettingsViewModel: DnsSettingsViewModel,
     blockerViewModel: BlockerViewModel,
+    // the window's providers by IP version and the connect widget's live
+    // grid width, for the histogram under the transport bar
+    ipFamilyPoints: List<IpFamilyPoint> = listOf(),
+    gridWidth: Int? = null,
 ) {
 
     /**
@@ -103,6 +107,17 @@ fun ConnectStatsSections(
             onClick = {
                 navController.navigate(Route.TransportSettings(provider = false))
             }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        /**
+         * The window's providers by the IP version they carry, one dot per
+         * provider at the connect widget's dot size, under the transports.
+         */
+        IpFamilyHistogram(
+            points = ipFamilyPoints,
+            gridWidth = gridWidth,
         )
 
         Spacer(modifier = Modifier.height(12.dp))

@@ -31,6 +31,10 @@ data class ProviderLocationRow(
     val lat: Double?,
     val lon: Double?,
     val connectedSinceMillis: Long,
+    // the sdk's address-family category ("dualstack", "v4-only", "v6-only")
+    // and its short label ("both", "v4", "v6"); legacy reads as v4-only
+    val ipFamily: String = "",
+    val ipFamilyLabel: String = "",
 ) {
     val plottable: Boolean get() = lat != null && lon != null
 }
@@ -128,6 +132,8 @@ class ProviderLocationsViewModel @Inject constructor(
                         lat = lat,
                         lon = lon,
                         connectedSinceMillis = location.connectedSinceMillis,
+                        ipFamily = location.ipFamily,
+                        ipFamilyLabel = location.ipFamilyLabel,
                     )
                 )
             }
