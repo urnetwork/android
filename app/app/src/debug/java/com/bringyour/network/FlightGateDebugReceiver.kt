@@ -6,9 +6,8 @@ import android.content.Intent
 import android.net.VpnService
 import android.util.Log
 import com.bringyour.sdk.ConnectLocation
+import com.bringyour.sdk.ConnectLocationId
 import com.bringyour.sdk.Sdk
-import com.bringyour.sdk.ConnectLocation
-import com.bringyour.sdk.SdkId
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import org.json.JSONArray
