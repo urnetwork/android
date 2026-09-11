@@ -27,6 +27,7 @@
                 <action android:name="com.bringyour.network.debug.FG_DISCONNECT" />
                 <action android:name="com.bringyour.network.debug.FG_STATUS" />
                 <action android:name="com.bringyour.network.debug.FG_ALLOW_DIRECT" />
+                <action android:name="com.bringyour.network.debug.FG_DEFER_TIMEOUT_RESEND" />
             </intent-filter>
         </receiver>
     </application>

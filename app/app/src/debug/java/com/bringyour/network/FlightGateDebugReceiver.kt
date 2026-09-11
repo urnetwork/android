@@ -32,6 +32,9 @@ import java.io.File
  *   sign-in, connect and provide state and the peer list.
  * - `com.bringyour.network.debug.FG_ALLOW_DIRECT` (string extra `mode` =
  *   off|on|clear): the relay-only control, applied to the next connect.
+ * - `com.bringyour.network.debug.FG_DEFER_TIMEOUT_RESEND` (string extra
+ *   `mode` = on|off): FLIGHTGATEFIX 13.5's deferred whole-window timeout
+ *   resend, applied to clients built after the call.
  *
  * Every outcome is one `FlightGate` logcat line; nothing is returned to adb.
  */
@@ -54,6 +57,8 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             "com.bringyour.network.debug.FG_DISCONNECT" -> disconnect(app)
             "com.bringyour.network.debug.FG_STATUS" -> status(app)
             "com.bringyour.network.debug.FG_ALLOW_DIRECT" -> allowDirect(app, intent.getStringExtra("mode"))
+            "com.bringyour.network.debug.FG_DEFER_TIMEOUT_RESEND" ->
+                deferTimeoutResend(app, intent.getStringExtra("mode"))
             else -> Log.i(TAG, "result action=${intent.action} error=unknown-action")
         }
     }
@@ -184,6 +189,27 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
         Log.i(TAG, "result action=allow-direct ok=true mode=$mode")
     }
 
+    /**
+     * FLIGHTGATEFIX 13.5: turn the deferred whole-window timeout resend on or
+     * off for clients built after this call, so an A/B needs no rebuild.
+     */
+    private fun deferTimeoutResend(app: MainApplication, mode: String?) {
+        val device = app.device
+        if (device == null) {
+            Log.i(TAG, "result action=defer-timeout-resend error=no-device")
+            return
+        }
+        when (mode) {
+            "on" -> device.setTransferDiagDeferTimeoutResend(true)
+            "off" -> device.setTransferDiagDeferTimeoutResend(false)
+            else -> {
+                Log.i(TAG, "result action=defer-timeout-resend ok=false error=bad-mode")
+                return
+            }
+        }
+        Log.i(TAG, "result action=defer-timeout-resend ok=true mode=$mode")
+    }
+
     private fun status(app: MainApplication) {
         val json = JSONObject()
         val device = app.device
@@ -194,6 +220,7 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             json.put("provide_control_mode", device.provideControlMode)
             json.put("provide_network_mode", device.provideNetworkMode)
             json.put("needs_consent", VpnService.prepare(app) != null)
+            json.put("defer_timeout_resend", device.transferDiagDeferTimeoutResend())
             device.connectLocation?.let { location ->
                 json.put("location_name", location.name)
                 json.put("location_network_peer", location.networkPeer)
