@@ -6,7 +6,9 @@ import android.content.Intent
 import android.net.VpnService
 import android.util.Log
 import com.bringyour.sdk.ConnectLocation
-import com.bringyour.sdk.ConnectLocationId
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.ConnectLocation
+import com.bringyour.sdk.SdkId
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import org.json.JSONArray
@@ -32,6 +34,8 @@ import java.io.File
  *   sign-in, connect and provide state and the peer list.
  * - `com.bringyour.network.debug.FG_ALLOW_DIRECT` (string extra `mode` =
  *   off|on|clear): the relay-only control, applied to the next connect.
+ * - `com.bringyour.network.debug.FG_HEAP_PROFILE` (string extra `name`):
+ *   writes a Go heap profile into the app's files directory.
  * - `com.bringyour.network.debug.FG_DEFER_TIMEOUT_RESEND` (string extra
  *   `mode` = on|off): FLIGHTGATEFIX 13.5's deferred whole-window timeout
  *   resend, applied to clients built after the call.
@@ -59,6 +63,7 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             "com.bringyour.network.debug.FG_ALLOW_DIRECT" -> allowDirect(app, intent.getStringExtra("mode"))
             "com.bringyour.network.debug.FG_DEFER_TIMEOUT_RESEND" ->
                 deferTimeoutResend(app, intent.getStringExtra("mode"))
+            "com.bringyour.network.debug.FG_HEAP_PROFILE" -> heapProfile(app, intent.getStringExtra("name"))
             else -> Log.i(TAG, "result action=${intent.action} error=unknown-action")
         }
     }
@@ -208,6 +213,20 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             }
         }
         Log.i(TAG, "result action=defer-timeout-resend ok=true mode=$mode")
+    }
+
+    /**
+     * Writes a Go heap profile into the app's files directory, where adb can
+     * pull it. A forced collection runs first, so the sample after this is not
+     * an unperturbed recovery point.
+     */
+    private fun heapProfile(app: MainApplication, name: String?) {
+        val file = java.io.File(app.filesDir, (name ?: "heap") + ".pprof")
+        val result = runCatching { Sdk.writeHeapProfileForDiag(file.absolutePath) }
+        result.fold(
+            onSuccess = { Log.i(TAG, "result action=heap-profile ok=true $it") },
+            onFailure = { Log.i(TAG, "result action=heap-profile ok=false error=${it.message}") },
+        )
     }
 
     private fun status(app: MainApplication) {
