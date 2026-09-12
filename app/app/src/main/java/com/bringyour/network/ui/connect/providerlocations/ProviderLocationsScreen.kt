@@ -6,6 +6,12 @@ import com.bringyour.network.ui.components.TabletLayout
 import androidx.compose.foundation.layout.BoxWithConstraints
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import com.bringyour.network.ui.stats.IpFamilyRowKind
+import com.bringyour.network.ui.stats.labelResId
+import com.bringyour.network.ui.theme.MainBorderBase
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -313,12 +319,19 @@ private fun ProviderLocationRowItem(
 
             Spacer(modifier = Modifier.height(2.dp))
 
-            Text(
-                placeLabel(row).ifEmpty { stringResource(R.string.provider_location_unknown) },
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+            // the place, with the IP versions the provider carries as a small
+            // tag after it (both / v4 / v6)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    placeLabel(row).ifEmpty { stringResource(R.string.provider_location_unknown) },
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                IpFamilyTag(row)
+            }
 
             Spacer(modifier = Modifier.height(2.dp))
 
@@ -371,6 +384,27 @@ private fun ProviderDot(color: Color, selected: Boolean) {
         }
     }
 }
+
+/**
+ * The IP versions a provider carries, as a small muted tag: "both", "v4" or
+ * "v6" from the sdk's label, localized like the histogram rows.
+ */
+@Composable
+private fun IpFamilyTag(row: ProviderLocationRow) {
+    Text(
+        stringResource(ipFamilyTagResId(row)),
+        style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium),
+        color = TextMuted,
+        maxLines = 1,
+        modifier = Modifier
+            .background(MainBorderBase, RoundedCornerShape(4.dp))
+            .padding(horizontal = 5.dp, vertical = 1.dp),
+    )
+}
+
+/** The label resource for a row's IP family tag; legacy and unknown read as v4. */
+fun ipFamilyTagResId(row: ProviderLocationRow): Int =
+    IpFamilyRowKind.fromLabel(row.ipFamilyLabel).labelResId()
 
 /** "City, Region, Country" — omitting whichever parts the server does not know. */
 fun placeLabel(row: ProviderLocationRow): String =

@@ -37,7 +37,7 @@ import kotlin.concurrent.thread
         const val NOTIFICATION_CHANNEL_ID = "urnetwork"
         // The pre-unlock guard is a blackhole and never hands packets to the
         // SDK, so it must not load gomobile merely to ask for the normal data
-        // tunnel MTU. 1280 is conservative and valid for this IPv4 interface.
+        // tunnel MTU. 1280 is conservative for IPv4 and the IPv6 minimum.
         const val ALWAYS_ON_GUARD_MTU = 1280
         /**
          * IPv4 used to establish the tunnel when the SDK has not handed back a
@@ -46,6 +46,14 @@ import kotlin.concurrent.thread
          * is a blocking blackhole; with no routes (escape) it routes nothing.
          */
         const val ESCAPE_FALLBACK_ADDRESS = "192.0.2.1"
+        /**
+         * The IPv6 counterpart of ESCAPE_FALLBACK_ADDRESS: used when the SDK has
+         * not handed back an IPv6 tunnel address, so the IPv6 half is always
+         * built too. 2001:db8::/32 is reserved documentation space (RFC 3849).
+         * With the capture route it is a blocking blackhole for IPv6; in escape
+         * mode no IPv6 address is added at all.
+         */
+        const val ESCAPE_FALLBACK_ADDRESS_IPV6 = "2001:db8::1"
 
         fun defaultExcludedPackageNames(): List<String> {
             // TODO grass, spectrum, session, discord
@@ -92,6 +100,10 @@ import kotlin.concurrent.thread
     // 65.49.70.64/27 public subnet and stands in for the UpgradeMux; it is not
     // an upstream DNS resolver.
     val dnsIpv4s = listOf("65.49.70.65")
+    // The IPv6 counterpart of dnsIpv4s: the SDK's IPv6 upgrade-mask stand-in
+    // (Sdk.DefaultTunnelDnsAddressIpv6), which UpgradeMux claims on :53 exactly
+    // like the IPv4 mask. Not an upstream resolver either.
+    val dnsIpv6s = listOf("2001:db8::65:49:70:65")
 
     //    private var pfd: ParcelFileDescriptor? = null
     private var packetFlow: PacketFlow? = null
@@ -421,6 +433,10 @@ import kotlin.concurrent.thread
         // address: a DNS entry equal to the bound address is locally terminated.
         val boundIpv4 = clientIpv4 ?: ESCAPE_FALLBACK_ADDRESS
         val deviceDnsIpv4s = tunnelDnsServers()
+        // the IPv6 half, sourced and filtered the same way
+        val clientIpv6 = vpnTunnelIpv6Address(app.device?.tunnelLocalAddressIpv6())
+        val boundIpv6 = clientIpv6 ?: ESCAPE_FALLBACK_ADDRESS_IPV6
+        val deviceDnsIpv6s = tunnelDnsServersIpv6()
         return VpnPacketFlowConfiguration(
             offline = offline,
             connected = connected,
@@ -430,6 +446,8 @@ import kotlin.concurrent.thread
             excludedAppIds = excludedAppIds.toSet(),
             dnsIpv4s = vpnDnsServersForClient(boundIpv4, deviceDnsIpv4s, dnsIpv4s),
             clientIpv4 = clientIpv4,
+            dnsIpv6s = vpnDnsServersIpv6ForClient(boundIpv6, deviceDnsIpv6s, dnsIpv6s),
+            clientIpv6 = clientIpv6,
         )
     }
 
@@ -562,6 +580,7 @@ import kotlin.concurrent.thread
         val tunnelIncludedAppIds = configuration.includedAppIds
         val tunnelExcludedAppIds = configuration.excludedAppIds
         val tunnelDnsIpv4s = configuration.dnsIpv4s
+        val tunnelDnsIpv6s = configuration.dnsIpv6s
 
         // Routing mode is a pure decision so the fail-closed/escape path is
         // unit-testable without an Android runtime. Named args avoid a silent
@@ -613,12 +632,12 @@ import kotlin.concurrent.thread
         }
 
         when (configuration.ipv6Policy) {
-            VpnIpv6Policy.BLOCK_UNSUPPORTED -> {
-                // For CAPTURE modes (allowlist/denylist): omit IPv6 entirely.
-                // Remote providers are IPv4-only, so the tunnel cannot forward
-                // IPv6; blocking the unconfigured family is correct there.
-                // The ESCAPE path below separately calls allowFamily(AF_INET6)
-                // so the phone's other apps keep their own IPv6 connectivity.
+            VpnIpv6Policy.CAPTURE -> {
+                // For CAPTURE modes (allowlist/denylist): the IPv6 half is
+                // configured below exactly like the IPv4 half (address, ::/0
+                // minus the local scopes, DNS), so IPv6 rides the tunnel and
+                // fails closed with the kill switch. The ESCAPE path adds no
+                // IPv6 address or route: every app keeps its native IPv6.
             }
         }
 
@@ -633,18 +652,20 @@ import kotlin.concurrent.thread
         // fail-closed fallback: with capture routes it is a blocking blackhole;
         // with no routes (escape) it routes nothing.
         val tunnelAddress = clientIpv4 ?: ESCAPE_FALLBACK_ADDRESS
-        val ipv6Report = if (isEscape) "on" else "off"
+        val tunnelAddressIpv6 = configuration.clientIpv6 ?: ESCAPE_FALLBACK_ADDRESS_IPV6
+        val ipv6Report = if (isEscape) "bypass" else tunnelAddressIpv6
         if (isEscape) {
             // Escaping: allow BOTH families. With no app rules every app is in
             // scope, so without allowFamily(AF_INET6) the unconfigured IPv6
-            // family would be BLOCKED for every app (the exact bug this fix
-            // removes, on the v6 half). Address only, no routes, no DNS:
-            // Android routes nothing into it and every app keeps its native
-            // network and DNS.
+            // family would be BLOCKED for every app. IPv4 address only, no
+            // IPv6 address, no routes, no DNS: Android routes nothing into it
+            // and every app keeps its native network and DNS.
             builder.allowFamily(AF_INET)
             builder.allowFamily(AF_INET6)
         } else {
+            // Capturing: both families are configured on the tunnel below.
             builder.allowFamily(AF_INET)
+            builder.allowFamily(AF_INET6)
         }
         builder.addAddress(
             tunnelAddress,
@@ -657,6 +678,16 @@ import kotlin.concurrent.thread
                 // PacketFlow can hand them to UpgradeMux.
                 for (dnsIpv4 in tunnelDnsIpv4s) {
                     builder.addDnsServer(dnsIpv4)
+                }
+                // the IPv6 half: the SDK's ULA tunnel address on its /64, and
+                // the IPv6 DNS stand-in, distinct from the address for the same
+                // local-termination reason as IPv4
+                builder.addAddress(
+                    tunnelAddressIpv6,
+                    Sdk.getTunnelLocalPrefixLengthIpv6().toInt()
+                )
+                for (dnsIpv6 in tunnelDnsIpv6s) {
+                    builder.addDnsServer(dnsIpv6)
                 }
             if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
                 builder.addRoute("0.0.0.0", 0)
@@ -708,6 +739,20 @@ import kotlin.concurrent.thread
                 builder.addRoute("12.0.0.0", 6)
                 builder.addRoute("8.0.0.0", 7)
                 builder.addRoute("11.0.0.0", 8)
+            }
+            // IPv6: everything except the scopes that must stay on the native
+            // network (link-local, unique-local, multicast, loopback), as an
+            // exclusion list on T+ and as the equivalent split table before
+            // (see VpnRoutes.kt, which is checked against this v4 table too)
+            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
+                builder.addRoute("::", 0)
+                for (excluded in VPN_IPV6_EXCLUDED_PREFIXES) {
+                    builder.excludeRoute(IpPrefix(InetAddress.getByName(excluded.address), excluded.prefixLength))
+                }
+            } else {
+                for (route in vpnIpv6CaptureRoutes()) {
+                    builder.addRoute(route.address, route.prefixLength)
+                }
             }
             }
         app.device?.let { device ->
@@ -763,7 +808,7 @@ import kotlin.concurrent.thread
                     "[service]tunnel applied offline=${configuration.offline} connected=${configuration.connected} " +
                         "included=${configuration.includedAppIds.size} excluded=${configuration.excludedAppIds.size} " +
                         "dns=${configuration.dnsIpv4s} address=${configuration.clientIpv4} " +
-                        "tunnelIpv6=${ipv6Report}",
+                        "dnsIpv6=${configuration.dnsIpv6s} tunnelIpv6=${ipv6Report}",
                 )
                 if (app.service?.get() == this@MainService) {
                     device.tunnelStarted = true
@@ -790,8 +835,8 @@ import kotlin.concurrent.thread
 
     /**
      * Android can start an Always-on VPN before the user has authenticated (or
-     * keep it selected after logout). Hold a real IPv4 VPN interface so the OS
-     * does not enter a restart loop. Traffic is intentionally fail-closed until
+     * keep it selected after logout). Hold a real dual-stack VPN interface so
+     * the OS does not enter a restart loop. Traffic is intentionally fail-closed until
      * a DeviceLocal is restored; the VPN app itself is excluded so login and
      * provider discovery can recover the session.
      */
@@ -812,6 +857,11 @@ import kotlin.concurrent.thread
             .addAddress("192.0.2.1", 32)
             .addRoute("0.0.0.0", 0)
             .addDnsServer("192.0.2.2")
+            // the IPv6 half of the guard, so lockdown blackholes IPv6 too
+            // instead of leaving the family unconfigured and bypassing
+            .addAddress(ESCAPE_FALLBACK_ADDRESS_IPV6, 128)
+            .addRoute("::", 0)
+            .addDnsServer("2001:db8::2")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)
         }
@@ -1058,13 +1108,19 @@ import kotlin.concurrent.thread
 
     /**
      * The IPv4 DNS servers for the tunnel builder, from the SDK device like the
-     * tunnel address. The tunnel deliberately does not consume the SDK's IPv6
-     * DNS list until remote providers can forward IPv6.
+     * tunnel address.
      */
     private fun tunnelDnsServers(): List<String> {
         val app = application as MainApplication
         val device = app.device ?: return dnsIpv4s
         return sdkStringListToList(device.tunnelDnsAddressesIpv4()).ifEmpty { dnsIpv4s }
+    }
+
+    /** The IPv6 DNS servers for the tunnel builder, from the SDK device. */
+    private fun tunnelDnsServersIpv6(): List<String> {
+        val app = application as MainApplication
+        val device = app.device ?: return dnsIpv6s
+        return sdkStringListToList(device.tunnelDnsAddressesIpv6()).ifEmpty { dnsIpv6s }
     }
 
     private fun sdkStringListToSet(list: com.bringyour.sdk.StringList?): Set<String> {

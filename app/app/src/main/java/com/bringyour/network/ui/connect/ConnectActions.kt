@@ -49,6 +49,7 @@ import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.stats.BlockActionsViewModel
 import com.bringyour.network.ui.stats.BlockerViewModel
 import com.bringyour.network.ui.stats.ConnectStatsSections
+import com.bringyour.network.ui.stats.IpFamilyPoint
 import com.bringyour.network.ui.stats.DnsSettingsViewModel
 import com.bringyour.network.ui.stats.ThroughputViewModel
 import com.bringyour.network.ui.theme.Green
@@ -98,6 +99,10 @@ fun ConnectActions(
     blockActionsViewModel: BlockActionsViewModel,
     dnsSettingsViewModel: DnsSettingsViewModel,
     blockerViewModel: BlockerViewModel,
+    // the window's providers by IP version, and the connect widget's live
+    // grid width, for the histogram under the transport bar
+    ipFamilyPoints: List<IpFamilyPoint>,
+    gridWidth: Int?,
     // opens the referral flow from the usage bar referral row
     onReferralClick: () -> Unit,
     // Reports the local integer Y offset of the fold marker placed right after
@@ -407,6 +412,8 @@ fun ConnectActions(
             blockActionsViewModel = blockActionsViewModel,
             dnsSettingsViewModel = dnsSettingsViewModel,
             blockerViewModel = blockerViewModel,
+            ipFamilyPoints = ipFamilyPoints,
+            gridWidth = gridWidth,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
