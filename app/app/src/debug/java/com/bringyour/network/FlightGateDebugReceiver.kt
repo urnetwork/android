@@ -32,6 +32,9 @@ import java.io.File
  *   sign-in, connect and provide state and the peer list.
  * - `com.bringyour.network.debug.FG_ALLOW_DIRECT` (string extra `mode` =
  *   off|on|clear): the relay-only control, applied to the next connect.
+ * - `com.bringyour.network.debug.FG_LANE_RULE` (string extra `mode` =
+ *   on|off): the reliable-lane proven-recovery rule, applied to clients
+ *   built after the call.
  * - `com.bringyour.network.debug.FG_HEAP_PROFILE` (string extra `name`):
  *   writes a Go heap profile into the app's files directory.
  * - `com.bringyour.network.debug.FG_DEFER_TIMEOUT_RESEND` (string extra
@@ -62,6 +65,7 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             "com.bringyour.network.debug.FG_DEFER_TIMEOUT_RESEND" ->
                 deferTimeoutResend(app, intent.getStringExtra("mode"))
             "com.bringyour.network.debug.FG_HEAP_PROFILE" -> heapProfile(app, intent.getStringExtra("name"))
+            "com.bringyour.network.debug.FG_LANE_RULE" -> laneRule(app, intent.getStringExtra("mode"))
             else -> Log.i(TAG, "result action=${intent.action} error=unknown-action")
         }
     }
@@ -233,10 +237,42 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
                 .getMethod("writeHeapProfileForDiag", String::class.java)
                 .invoke(null, file.absolutePath) as String
         }
+        val classes = runCatching {
+            Class.forName("com.bringyour.sdk.Sdk")
+                .getMethod("memoryClassesJsonForDiag")
+                .invoke(null) as String
+        }.getOrDefault("{}")
         result.fold(
-            onSuccess = { Log.i(TAG, "result action=heap-profile ok=true $it") },
-            onFailure = { Log.i(TAG, "result action=heap-profile ok=false error=${it.message}") },
+            onSuccess = { Log.i(TAG, "result action=heap-profile ok=true $it classes=$classes") },
+            onFailure = { Log.i(TAG, "result action=heap-profile ok=false error=${it.message} classes=$classes") },
         )
+    }
+
+    /**
+     * The reliable-lane proven-recovery rule, applied to clients built after
+     * this call, so the rule is an arm of one build rather than a build.
+     */
+    private fun laneRule(app: MainApplication, mode: String?) {
+        val device = app.device
+        if (device == null) {
+            Log.i(TAG, "result action=lane-rule error=no-device")
+            return
+        }
+        val enabled = when (mode) {
+            "on" -> true
+            "off" -> false
+            else -> {
+                Log.i(TAG, "result action=lane-rule ok=false error=bad-mode")
+                return
+            }
+        }
+        val applied = runCatching {
+            device.javaClass
+                .getMethod("setTransferDiagLaneRule", java.lang.Boolean.TYPE)
+                .invoke(device, enabled)
+            true
+        }.getOrDefault(false)
+        Log.i(TAG, "result action=lane-rule ok=$applied mode=$mode")
     }
 
     private fun status(app: MainApplication) {
@@ -249,6 +285,12 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             json.put("provide_control_mode", device.provideControlMode)
             json.put("provide_network_mode", device.provideNetworkMode)
             json.put("needs_consent", VpnService.prepare(app) != null)
+            json.put(
+                "lane_rule",
+                runCatching {
+                    device.javaClass.getMethod("transferDiagLaneRule").invoke(device) as Boolean
+                }.getOrDefault(false),
+            )
             json.put(
                 "defer_timeout_resend",
                 runCatching {
