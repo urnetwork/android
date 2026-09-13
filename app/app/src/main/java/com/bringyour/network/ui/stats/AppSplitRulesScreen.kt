@@ -127,8 +127,8 @@ fun AppSplitRulesScreen(
 
     // inclusions take precedence: when any app is included the tunnel runs in
     // allowlist mode and the exclude rules have no distinct effect
-    val includeMode = blockActionsViewModel.tunnelIncludedAppIds.isNotEmpty()
-    val excludeMode = !includeMode && blockActionsViewModel.tunnelExcludedAppIds.isNotEmpty()
+    val includeMode = blockActionsViewModel.isIncludeMode
+    val excludeMode = blockActionsViewModel.isExcludeMode
 
     Scaffold(
         topBar = {
@@ -236,7 +236,7 @@ fun AppSplitRulesScreen(
                                 val app = appsByPackage[rule.appId]
                                 // an exclude rule has no effect while include
                                 // mode is active, so render it muted
-                                val ruleActive = rule.mode != AppRuleMode.EXCLUDED || !includeMode
+                                val ruleActive = blockActionsViewModel.isRuleActive(rule.mode)
                                 SwipeToRevealRow(
                                     onDelete = { blockActionsViewModel.removeAppRule(rule.id) }
                                 ) {

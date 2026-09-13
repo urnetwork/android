@@ -172,11 +172,24 @@ class BlockActionsViewModel @Inject constructor(
         private set
 
     /**
+     * The app rules partitioned by tunnel membership, recomputed each time
+     * [appRules] changes. Single source of truth for all three membership
+     * views and the include/exclude mode flags; see [AppRulePartition].
+     */
+    private var appRulePartition by mutableStateOf(
+        AppRulePartition(
+            includedAppIds = emptyList(),
+            excludedAppIds = emptyList(),
+            pinnedAppIds = emptyList(),
+        )
+    )
+
+    /**
      * apps forced through the vpn. when non-empty, they take
      * precedence and the tunnel runs in allowlist mode
      */
     val tunnelIncludedAppIds: List<String>
-        get() = appRules.filter { it.mode == AppRuleMode.INCLUDED }.map { it.appId }
+        get() = appRulePartition.includedAppIds
 
     /**
      * apps that bypass the vpn. PINNED apps are deliberately absent from both
@@ -185,11 +198,22 @@ class BlockActionsViewModel @Inject constructor(
      * bypass it
      */
     val tunnelExcludedAppIds: List<String>
-        get() = appRules.filter { it.mode == AppRuleMode.EXCLUDED }.map { it.appId }
+        get() = appRulePartition.excludedAppIds
 
     /** apps held to a single exit */
     val pinnedAppIds: List<String>
-        get() = appRules.filter { it.mode == AppRuleMode.PINNED }.map { it.appId }
+        get() = appRulePartition.pinnedAppIds
+
+    /** true when any app is INCLUDED, i.e. the tunnel is in allowlist mode */
+    val isIncludeMode: Boolean
+        get() = appRulePartition.isIncludeMode
+
+    /** true when no app is INCLUDED but at least one is EXCLUDED (denylist mode) */
+    val isExcludeMode: Boolean
+        get() = appRulePartition.isExcludeMode
+
+    /** whether a rule of [mode] has a distinct effect under the current partition */
+    fun isRuleActive(mode: AppRuleMode): Boolean = appRulePartition.isRuleActive(mode)
 
     init {
         updateOverrides()
@@ -399,6 +423,11 @@ class BlockActionsViewModel @Inject constructor(
         }
         splitRules = hostRules
         appRules = appSplitRules
+        appRulePartition = AppSplitRulePolicy.partition(
+            rules = appSplitRules,
+            appIdSelector = { it.appId },
+            modeSelector = { it.mode },
+        )
         // wherever an edit can land: the live device, or the persisted list,
         // which can exist before its first rule does
         canCreateRule = deviceManager.device != null ||

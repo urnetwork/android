@@ -186,13 +186,17 @@ class DeviceManager @Inject constructor(
 
     var blockerEnabled: Boolean
         get() = synchronized(deviceLock) {
-            device?.blockerEnabled ?: asyncLocalState?.localState?.blockerEnabled ?: false
+            SplitRulePersistencePolicy.resolveEffectiveBlocker(
+                liveBlocker = device?.blockerEnabled,
+                storedBlocker = asyncLocalState?.localState?.blockerEnabled,
+            )
         }
         set(it) = synchronized(deviceLock) {
-            val liveDevice = device
-            if (liveDevice != null) {
-                liveDevice.blockerEnabled = it
-            } else {
+            val plan = SplitRulePersistencePolicy.planWrite(isDeviceConnected = device != null)
+            if (plan.applyLive) {
+                device?.blockerEnabled = it
+            }
+            if (plan.persistToStorage) {
                 asyncLocalState?.localState?.let { localState ->
                     runCatching { localState.blockerEnabled = it }
                 }
@@ -230,12 +234,11 @@ class DeviceManager @Inject constructor(
      */
     val blockActionOverrides: BlockActionOverrideList?
         get() = synchronized(deviceLock) {
-            val liveDevice = device
-            if (liveDevice != null) {
-                liveDevice.blockActionOverrides
-            } else {
-                asyncLocalState?.localState?.blockActionOverrides
-            }
+            SplitRulePersistencePolicy.resolveEffective(
+                livePresent = device != null,
+                live = device?.blockActionOverrides,
+                stored = asyncLocalState?.localState?.blockActionOverrides,
+            )
         }
 
     /**
@@ -254,14 +257,19 @@ class DeviceManager @Inject constructor(
         persisted: (BlockActionOverrideList?) -> BlockActionOverrideList?,
     ): Boolean {
         synchronized(deviceLock) {
-            val liveDevice = device
-            if (liveDevice != null) {
-                live(liveDevice)
-                return true
+            val plan = SplitRulePersistencePolicy.planWrite(isDeviceConnected = device != null)
+            when {
+                plan.applyLive -> {
+                    val liveDevice = device ?: return false
+                    live(liveDevice)
+                    return true
+                }
+                else -> {
+                    val localState = asyncLocalState?.localState ?: return false
+                    val next = persisted(localState.blockActionOverrides) ?: return true
+                    return runCatching { localState.blockActionOverrides = next }.isSuccess
+                }
             }
-            val localState = asyncLocalState?.localState ?: return false
-            val next = persisted(localState.blockActionOverrides) ?: return true
-            return runCatching { localState.blockActionOverrides = next }.isSuccess
         }
     }
 
@@ -272,7 +280,11 @@ class DeviceManager @Inject constructor(
      */
     val dnsResolverSettings: DnsResolverSettings?
         get() = synchronized(deviceLock) {
-            device?.dnsResolverSettings ?: asyncLocalState?.localState?.dnsResolverSettings
+            SplitRulePersistencePolicy.resolveEffective(
+                livePresent = device?.dnsResolverSettings != null,
+                live = device?.dnsResolverSettings,
+                stored = asyncLocalState?.localState?.dnsResolverSettings,
+            )
         }
 
     /**
@@ -285,12 +297,18 @@ class DeviceManager @Inject constructor(
      */
     fun applyDnsResolverSettings(settings: DnsResolverSettings): Boolean {
         synchronized(deviceLock) {
-            val liveDevice = device
-            if (liveDevice != null) {
-                liveDevice.dnsResolverSettings = settings
-                if (liveDevice.dnsResolverSettings != null) {
-                    return true
+            val plan = SplitRulePersistencePolicy.planWrite(isDeviceConnected = device != null)
+            when {
+                plan.applyLive -> {
+                    val liveDevice = device ?: return false
+                    liveDevice.dnsResolverSettings = settings
+                    if (liveDevice.dnsResolverSettings != null) {
+                        return true
+                    }
+                    // device declined (e.g. dns upgrade mux disabled) — fall
+                    // through to persist for the next device
                 }
+                else -> {}
             }
             val localState = asyncLocalState?.localState ?: return false
             return runCatching { localState.dnsResolverSettings = settings }.isSuccess

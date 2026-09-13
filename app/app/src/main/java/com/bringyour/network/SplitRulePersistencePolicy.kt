@@ -1,4 +1,4 @@
-package com.bringyour.network.ui.stats
+package com.bringyour.network
 
 /**
  * Deterministic persistence policy for split-tunnel overrides and DNS settings.
@@ -13,6 +13,11 @@ package com.bringyour.network.ui.stats
  * 3. Fallback resolution: when reading active settings, the live device takes
  *    precedence; if the device is null or uninitialized, it falls back to
  *    persisted local storage, ensuring settings never appear wiped when offline.
+ *
+ * This object is the single source of truth for the two decisions
+ * (where a write lands, and which source an effective value is read from)
+ * that [DeviceManager] performs. Production goes through these functions so
+ * the behavior is covered by the unit tests in this package.
  */
 data class PersistenceWritePlan(
     val applyLive: Boolean,
@@ -34,45 +39,32 @@ object SplitRulePersistencePolicy {
     }
 
     /**
-     * Resolves effective overrides following the hierarchy:
-     * active viewController -> live device -> persisted local state -> empty fallback.
+     * Resolves the effective value of a setting from its two sources, honoring
+     * the caller's notion of "live source present":
+     *
+     * - when [livePresent] is true, the live device value is used even when it
+     *   is null or empty (an empty list is an answer, not a reason to fall
+     *   back; the live device's own state is authoritative);
+     * - when [livePresent] is false, the persisted local value is used, else
+     *   null.
+     *
+     * The [livePresent] flag lets each caller express its original precedence
+     * rule exactly: block action overrides key off "a device exists", while
+     * dns resolver settings key off "the device reported a value".
      */
-    fun <T> resolveEffectiveOverrides(
-        viewControllerOverrides: List<T>?,
-        deviceOverrides: List<T>?,
-        localStateOverrides: List<T>?,
-    ): List<T> {
-        return viewControllerOverrides
-            ?: deviceOverrides
-            ?: localStateOverrides
-            ?: emptyList()
-    }
+    fun <T> resolveEffective(
+        livePresent: Boolean,
+        live: T?,
+        stored: T?,
+    ): T? = if (livePresent) live else stored
 
     /**
-     * Resolves effective DNS settings following the hierarchy:
-     * live device -> persisted local state -> default settings.
-     */
-    fun <T> resolveEffectiveDns(
-        liveSettings: T?,
-        storedSettings: T?,
-        defaultSettings: T,
-    ): T {
-        return liveSettings
-            ?: storedSettings
-            ?: defaultSettings
-    }
-
-    /**
-     * Resolves effective ad/tracker blocker setting following the hierarchy:
-     * live device -> persisted local state -> default false.
+     * Resolves the effective ad/tracker blocker setting: live device ->
+     * persisted local state -> default (false).
      */
     fun resolveEffectiveBlocker(
         liveBlocker: Boolean?,
         storedBlocker: Boolean?,
         defaultBlocker: Boolean = false,
-    ): Boolean {
-        return liveBlocker
-            ?: storedBlocker
-            ?: defaultBlocker
-    }
+    ): Boolean = liveBlocker ?: storedBlocker ?: defaultBlocker
 }
