@@ -100,4 +100,23 @@ class IpFamilyHistogramTest {
     fun dotDiameterNeverCollapsesBelowOnePixel() {
         assertEquals(1f, ipFamilyDotDiameterPx(4f, 16, 1f), 1e-4f)
     }
+
+    @Test
+    fun extenderColorsStayWithTheirProviderInTheSortedRow() {
+        val rows = ipFamilyHistogramRows(
+            listOf(
+                IpFamilyPoint("b", "dualstack", true, extenderColorHexes = "dd4f3c"),
+                IpFamilyPoint("a", "dualstack", true, extenderColorHexes = "3cdd67,dd4f3c"),
+                IpFamilyPoint("c", "dualstack", true),
+            )
+        )
+
+        assertEquals(listOf("a", "b", "c"), rows[0].clientIds)
+        assertEquals(
+            listOf("3cdd67,dd4f3c", "dd4f3c", ""),
+            rows[0].extenderColorHexes,
+        )
+        // an empty row still pairs one color entry per client id
+        assertEquals(rows[1].clientIds.size, rows[1].extenderColorHexes.size)
+    }
 }

@@ -8,6 +8,7 @@
     <string name="add_emoji">絵文字を追加</string>
     <string name="add_referral_code">紹介コードを追加</string>
     <string name="add_referral_extra_rewards">紹介コードを追加して追加の特典を獲得</string>
+    <string name="advanced">詳細</string>
     <string name="allow_local_connections">ローカル接続を許可</string>
     <string name="allow_providing_cell">携帯ネットワークでの提供を許可する</string>
     <string name="allowed">許可</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">接続オプション</string>
     <string name="connect_seeker_wallet">Saga Genesisまたはシーカー事前予約トークンでウォレットを接続する</string>
     <string name="connect_to_location">%1$sに接続</string>
+    <string name="connected">接続済み</string>
     <string name="connecting_status_indicator">プロバイダーに接続中</string>
     <string name="connection_mode">接続モード</string>
     <string name="connections">接続</string>
@@ -128,6 +130,7 @@
     <string name="devices">デバイス</string>
     <string name="disable_ignore_battery_hint">無効にするには、システム設定のアプリのバッテリー使用状況に移動してください</string>
     <string name="disconnect">切断する</string>
+    <string name="disconnected">未接続</string>
     <string name="dismiss">閉じる</string>
     <string name="display_network_on_leaderboard">リーダーボードにネットワークを表示</string>
     <string name="dns_over_https">DNS over HTTPS</string>

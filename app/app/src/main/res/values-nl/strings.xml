@@ -8,6 +8,7 @@
     <string name="add_emoji">Emoji toevoegen</string>
     <string name="add_referral_code">Referentiecode toevoegen</string>
     <string name="add_referral_extra_rewards">Voeg een referentiecode toe en verdien extra beloningen</string>
+    <string name="advanced">Geavanceerd</string>
     <string name="allow_local_connections">Sta lokale verbindingen toe</string>
     <string name="allow_providing_cell">Toestaan op mobiel netwerk</string>
     <string name="allowed">Toegestaan</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">Verbindingsopties</string>
     <string name="connect_seeker_wallet">Koppel een wallet met het Saga Genesis- of Seeker Pre-Order Token</string>
     <string name="connect_to_location">Verbind met %1$s</string>
+    <string name="connected">Verbonden</string>
     <string name="connecting_status_indicator">Verbinden met providers</string>
     <string name="connection_mode">Verbindingsmodus</string>
     <string name="connections">Verbindingen</string>
@@ -128,6 +130,7 @@
     <string name="devices">Apparaten</string>
     <string name="disable_ignore_battery_hint">Om uit te schakelen, ga naar App-batterijgebruik in de systeeminstellingen</string>
     <string name="disconnect">Verbinding verbreken</string>
+    <string name="disconnected">Niet verbonden</string>
     <string name="dismiss">Sluiten</string>
     <string name="display_network_on_leaderboard">Toon netwerk op het scorebord</string>
     <string name="dns_over_https">DNS over HTTPS</string>

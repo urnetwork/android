@@ -8,6 +8,7 @@
     <string name="add_emoji">इमोजी जोड़ें</string>
     <string name="add_referral_code">रेफरल कोड जोड़ें</string>
     <string name="add_referral_extra_rewards">अतिरिक्त पुरस्कार पाने के लिए रेफरल कोड जोड़ें</string>
+    <string name="advanced">उन्नत</string>
     <string name="allow_local_connections">स्थानीय कनेक्शन की अनुमति दें</string>
     <string name="allow_providing_cell">सेलुलर नेटवर्क पर प्रदान करने की अनुमति दें</string>
     <string name="allowed">अनुमत</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">कनेक्शन विकल्प</string>
     <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
     <string name="connect_to_location">%1$s से कनेक्ट करें</string>
+    <string name="connected">कनेक्टेड</string>
     <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है</string>
     <string name="connection_mode">कनेक्शन मोड</string>
     <string name="connections">कनेक्शन</string>
@@ -128,6 +130,7 @@
     <string name="devices">डिवाइस</string>
     <string name="disable_ignore_battery_hint">अक्षम करने के लिए, कृपया सिस्टम सेटिंग्स में ऐप बैटरी उपयोग पर जाएँ</string>
     <string name="disconnect">डिस्कनेक्ट क</string>
+    <string name="disconnected">डिस्कनेक्टेड</string>
     <string name="dismiss">खारिज करें</string>
     <string name="display_network_on_leaderboard">लीडरबोर्ड पर नेटवर्क प्रदर्शित करें</string>
     <string name="dns_over_https">HTTPS पर DNS</string>

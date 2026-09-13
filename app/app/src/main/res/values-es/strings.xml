@@ -8,6 +8,7 @@
     <string name="add_emoji">Añadir emojis</string>
     <string name="add_referral_code">Añadir código de referencia</string>
     <string name="add_referral_extra_rewards">Añade un código de referencia para ganar recompensas adicionales</string>
+    <string name="advanced">Avanzado</string>
     <string name="allow_local_connections">Permitir conexiones locales</string>
     <string name="allow_providing_cell">Permitir proporcionar en la red celular</string>
     <string name="allowed">Permitidas</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">Opciones de conexión</string>
     <string name="connect_seeker_wallet">Conecta una billetera con el token Saga Genesis o el token de pre-pedido de Seeker</string>
     <string name="connect_to_location">Conectar a %1$s</string>
+    <string name="connected">Conectado</string>
     <string name="connecting_status_indicator">Conectando a proveedores</string>
     <string name="connection_mode">Modo de conexión</string>
     <string name="connections">Conexiones</string>
@@ -128,6 +130,7 @@
     <string name="devices">Dispositivos</string>
     <string name="disable_ignore_battery_hint">Para desactivar, ve a Uso de batería de la aplicación en Configuración del sistema</string>
     <string name="disconnect">Desconectar</string>
+    <string name="disconnected">Desconectado</string>
     <string name="dismiss">Descarta</string>
     <string name="display_network_on_leaderboard">Mostrar red en la tabla de clasificación</string>
     <string name="dns_over_https">DNS sobre HTTPS</string>

@@ -8,6 +8,7 @@
     <string name="add_emoji">添加表情</string>
     <string name="add_referral_code">添加推荐码</string>
     <string name="add_referral_extra_rewards">添加推荐码以获得额外奖励</string>
+    <string name="advanced">高级</string>
     <string name="allow_local_connections">允许本地连接</string>
     <string name="allow_providing_cell">允许在蜂窝网络上提供</string>
     <string name="allowed">已允许</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">连接选项</string>
     <string name="connect_seeker_wallet">连接带有 Saga Genesis 或 Seeker 预售代币的钱包</string>
     <string name="connect_to_location">连接到 %1$s</string>
+    <string name="connected">已连接</string>
     <string name="connecting_status_indicator">正在连接到提供商</string>
     <string name="connection_mode">连接模式</string>
     <string name="connections">连接</string>
@@ -128,6 +130,7 @@
     <string name="devices">设备</string>
     <string name="disable_ignore_battery_hint">若要禁用，请前往系统设置中的应用电池使用情况</string>
     <string name="disconnect">断开连接</string>
+    <string name="disconnected">已断开连接</string>
     <string name="dismiss">关闭</string>
     <string name="display_network_on_leaderboard">在排行榜上显示网络</string>
     <string name="dns_over_https">DNS over HTTPS</string>

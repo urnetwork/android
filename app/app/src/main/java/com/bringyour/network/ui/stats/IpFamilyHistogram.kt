@@ -1,8 +1,7 @@
 package com.bringyour.network.ui.stats
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -11,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -27,6 +26,10 @@ import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
 import com.bringyour.network.ui.connect.CONNECT_GRID_CANVAS_SIZE
 import com.bringyour.network.ui.connect.CONNECT_GRID_POINT_PADDING_PX
+import com.bringyour.network.ui.connect.EXTENDER_RING_GAP_DP
+import com.bringyour.network.ui.connect.EXTENDER_RING_STROKE_DP
+import com.bringyour.network.ui.connect.drawExtenderDot
+import com.bringyour.network.ui.connect.extenderRingArgbList
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
 
@@ -49,6 +52,9 @@ data class IpFamilyPoint(
     val clientId: String,
     val ipFamily: String,
     val added: Boolean,
+    // the colors of the extenders carrying this provider (K2, K3), comma
+    // separated in the sdk's order; empty for a provider reached directly
+    val extenderColorHexes: String = "",
 )
 
 /**
@@ -88,6 +94,8 @@ enum class IpFamilyRowKind(val sdkFamily: String, val sdkLabel: String) {
 data class IpFamilyRow(
     val kind: IpFamilyRowKind,
     val clientIds: List<String>,
+    // the extender colors of each client id above, in the same order (K2)
+    val extenderColorHexes: List<String> = clientIds.map { "" },
 )
 
 /**
@@ -99,9 +107,14 @@ data class IpFamilyRow(
 fun ipFamilyHistogramRows(points: Collection<IpFamilyPoint>): List<IpFamilyRow> {
     val byKind = points
         .filter { it.added }
-        .groupBy({ IpFamilyRowKind.fromFamily(it.ipFamily) }, { it.clientId })
+        .groupBy { IpFamilyRowKind.fromFamily(it.ipFamily) }
     return IpFamilyRowKind.entries.map { kind ->
-        IpFamilyRow(kind, (byKind[kind] ?: emptyList()).sorted())
+        val rowPoints = (byKind[kind] ?: emptyList()).sortedBy { it.clientId }
+        IpFamilyRow(
+            kind = kind,
+            clientIds = rowPoints.map { it.clientId },
+            extenderColorHexes = rowPoints.map { it.extenderColorHexes },
+        )
     }
 }
 
@@ -166,13 +179,23 @@ fun IpFamilyHistogram(
                     horizontalArrangement = Arrangement.spacedBy(DOT_SPACING),
                     verticalArrangement = Arrangement.spacedBy(DOT_SPACING),
                 ) {
-                    for (clientId in row.clientIds) {
+                    row.clientIds.forEachIndexed { index, clientId ->
                         key(clientId) {
-                            Box(
-                                modifier = Modifier
-                                    .size(dotDiameter)
-                                    .background(Green, CircleShape)
-                            )
+                            // the same dot the connect widget draws, rings
+                            // and all, at the histogram's dot size (K2)
+                            val ringArgb = remember(row.extenderColorHexes[index]) {
+                                extenderRingArgbList(row.extenderColorHexes[index])
+                            }
+                            Canvas(modifier = Modifier.size(dotDiameter)) {
+                                drawExtenderDot(
+                                    center = center,
+                                    cellSizePx = size.minDimension,
+                                    color = Green,
+                                    ringArgb = ringArgb,
+                                    strokePx = EXTENDER_RING_STROKE_DP.dp.toPx(),
+                                    gapPx = EXTENDER_RING_GAP_DP.dp.toPx(),
+                                )
+                            }
                         }
                     }
                 }

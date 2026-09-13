@@ -8,6 +8,7 @@
     <string name="add_emoji">Ajouter des emojis</string>
     <string name="add_referral_code">Ajouter un code de parrainage</string>
     <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
+    <string name="advanced">Avancé</string>
     <string name="allow_local_connections">Autoriser les connexions locales</string>
     <string name="allow_providing_cell">Autoriser la fourniture sur le réseau cellulaire</string>
     <string name="allowed">Autorisé</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">Options de connexion</string>
     <string name="connect_seeker_wallet">Connectez un portefeuille avec le jeton Saga Genesis ou le jeton de précommande Seeker</string>
     <string name="connect_to_location">Se connecter à %1$s</string>
+    <string name="connected">Connecté</string>
     <string name="connecting_status_indicator">Connexion aux fournisseurs</string>
     <string name="connection_mode">Mode de connexion</string>
     <string name="connections">Connexions</string>
@@ -128,6 +130,7 @@
     <string name="devices">Appareils</string>
     <string name="disable_ignore_battery_hint">Pour désactiver, veuillez aller dans Utilisation de la batterie de l’application dans les paramètres système</string>
     <string name="disconnect">Déconnecter</string>
+    <string name="disconnected">Déconnecté</string>
     <string name="dismiss">Fermer</string>
     <string name="display_network_on_leaderboard">Afficher le réseau dans le classement</string>
     <string name="dns_over_https">DNS via HTTPS</string>

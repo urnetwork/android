@@ -88,7 +88,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.settings.DeveloperScreen
+import com.bringyour.network.ui.account.ExtendersScreen
+import com.bringyour.network.ui.account.ImportExtendersScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
+import com.bringyour.network.ui.account.ShareExtendersScreen
 import com.bringyour.network.ui.components.ProSunglassesFlight
 import com.bringyour.network.ui.components.proFlightPixelation
 import com.bringyour.network.ui.components.rememberProFlightClock
@@ -1331,6 +1334,39 @@ fun MainNavContent(
                 popExitTransition = NavigationAnimations.popExitTransition()
             ) {
                 ProviderIdentitiesScreen(
+                    navController = navController,
+                )
+            }
+
+            composable<Route.Extenders>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                ExtendersScreen(
+                    navController = navController,
+                )
+            }
+
+            composable<Route.ShareExtenders>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                ShareExtendersScreen(
+                    navController = navController,
+                )
+            }
+
+            composable<Route.ImportExtenders>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                ImportExtendersScreen(
                     navController = navController,
                 )
             }

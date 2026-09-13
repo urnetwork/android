@@ -8,6 +8,7 @@
     <string name="add_emoji">เพิ่มอีโมจิ</string>
     <string name="add_referral_code">เพิ่มรหัสแนะนำ</string>
     <string name="add_referral_extra_rewards">เพิ่มรหัสการแนะนำเพื่อรับรางวัลเสริม</string>
+    <string name="advanced">ขั้นสูง</string>
     <string name="allow_local_connections">เปิดให้เชื่อมต่อจากอุปกรณ์ในเครือข่ายเดียวกัน</string>
     <string name="allow_providing_cell">อนุญาตให้ให้บริการบนเครือข่ายมือถือ</string>
     <string name="allowed">อนุญาต</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">ตัวเลือกการเชื่อมต่อ</string>
     <string name="connect_seeker_wallet">เชื่อมกระเป๋ากับ Saga Genesis หรือ Seeker Pre-Order Token</string>
     <string name="connect_to_location">เชื่อมต่อไปที่ %1$s</string>
+    <string name="connected">เชื่อมต่อแล้ว</string>
     <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ</string>
     <string name="connection_mode">โหมดการเชื่อมต่อ</string>
     <string name="connections">การเชื่อมต่อ</string>
@@ -128,6 +130,7 @@
     <string name="devices">อุปกรณ์</string>
     <string name="disable_ignore_battery_hint">หากต้องการปิดใช้งาน กรุณาไปที่การใช้แบตเตอรี่ของแอปในการตั้งค่าระบบ</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
+    <string name="disconnected">ตัดการเชื่อมต่อแล้ว</string>
     <string name="dismiss">ปิด</string>
     <string name="display_network_on_leaderboard">แสดงชื่อเครือข่ายบนกระดาน</string>
     <string name="dns_over_https">DNS ผ่าน HTTPS</string>

@@ -15,6 +15,16 @@
 <!--    <uses-permission android:name="android.permission.USE_BIOMETRIC" />-->
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- the extender share code scanner (EXTENDER.md K7, K8), requested at the
+         moment the user opens the scanner and never otherwise. The camera is
+         optional hardware: importing also reads a chosen photo and pasted
+         text, so a device without one still installs. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus"
+        android:required="false" />
 <!--    This is automatically added by the billing library -->
 <!--    <uses-permission android:name="com.android.vending.BILLING" />-->
 

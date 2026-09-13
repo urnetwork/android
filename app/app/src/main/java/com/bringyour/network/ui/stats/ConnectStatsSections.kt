@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +76,8 @@ fun ConnectStatsSections(
     // grid width, for the histogram under the transport bar
     ipFamilyPoints: List<IpFamilyPoint> = listOf(),
     gridWidth: Int? = null,
+    // the device's extender network, for the panel under the histogram
+    extenderStatusViewModel: ExtenderStatusViewModel = hiltViewModel(),
 ) {
 
     /**
@@ -121,6 +124,18 @@ fun ConnectStatsSections(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        /**
+         * The extenders carrying this client right now, the usable reserve
+         * behind them and the gossip network's state, under the families.
+         * Nothing to show until a space runs an extender network.
+         */
+        val extenderPanel = extenderStatusViewModel.panel
+        if (extenderPanel.present) {
+            ExtenderPanel(panel = extenderPanel)
+
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         TransferChart(
             points = throughputViewModel.clientPoints,

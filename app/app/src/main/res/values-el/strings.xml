@@ -8,6 +8,7 @@
     <string name="add_emoji">Προσθήκη emoji</string>
     <string name="add_referral_code">Προσθήκη κωδικού παραπομπής</string>
     <string name="add_referral_extra_rewards">Προσθέστε κωδικό παραπομπής για να κερδίσετε επιπλέον ανταμοιβές</string>
+    <string name="advanced">Για προχωρημένους</string>
     <string name="allow_local_connections">Να επιτρέπονται οι τοπικές συνδέσεις</string>
     <string name="allow_providing_cell">Να επιτρέπεται η παροχή στο κυψελοειδές δίκτυο</string>
     <string name="allowed">Επιτρεπόμενα</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">Επιλογές σύνδεσης</string>
     <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Saga Genesis ή το Seeker Pre-Order Token</string>
     <string name="connect_to_location">Σύνδεση με %1$s</string>
+    <string name="connected">Συνδεδεμένο</string>
     <string name="connecting_status_indicator">Σύνδεση με παρόχους</string>
     <string name="connection_mode">Λειτουργία σύνδεσης</string>
     <string name="connections">Συνδέσεις</string>
@@ -128,6 +130,7 @@
     <string name="devices">Συσκευές</string>
     <string name="disable_ignore_battery_hint">Για να το απενεργοποιήσετε, μεταβείτε στη Χρήση μπαταρίας εφαρμογής στις Ρυθμίσεις συστήματος</string>
     <string name="disconnect">Αποσύνδεση</string>
+    <string name="disconnected">Αποσυνδεδεμένο</string>
     <string name="dismiss">Ακύρωση</string>
     <string name="display_network_on_leaderboard">Εμφάνιση δικτύου στον πίνακα κατάταξης</string>
     <string name="dns_over_https">DNS μέσω HTTPS</string>
