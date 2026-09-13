@@ -85,6 +85,7 @@
     <string name="checking_payment">Checking payment</string>
     <string name="checking_solana_transactions">Checking for Solana Transactions</string>
     <string name="checking_wallet_address">Checking address…</string>
+    <string name="choose_file">Choose file</string>
     <string name="choose_image_file">Choose image file</string>
     <string name="choose_photo">Choose photo</string>
     <string name="cities">Cities</string>
@@ -377,6 +378,7 @@
     <string name="extender_settings_saved">Extender settings saved</string>
     <string name="extenders">Extenders</string>
     <string name="extenders_active_of_reserve">%1$d of %2$d</string>
+    <string name="extenders_no_session">Sign in and connect to manage extenders.</string>
     <string name="feedback_header">Get in touch</string>
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
     <string name="feedback_label">Feedback box</string>
@@ -720,7 +722,9 @@
     <string name="share">Share</string>
     <string name="share_extenders">Share extenders</string>
     <string name="share_extenders_hint">Scan this code with another URnetwork app to share these extenders.</string>
+    <string name="share_extenders_too_large">The share code is too large for a QR code. Copy the share text instead.</string>
     <string name="share_logs">Share logs</string>
+    <string name="share_text_copied">Share text copied</string>
     <string name="shortcut_connect_long">Connect to URnetwork</string>
     <string name="shortcut_disconnect_long">Disconnect from URnetwork</string>
     <string name="show_icon_when_connected">Show UR icon when connected</string>
