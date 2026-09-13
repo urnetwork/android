@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
@@ -384,6 +385,10 @@ private fun ExtenderQrPreview(
     val controller = remember { LifecycleCameraController(context) }
 
     DisposableEffect(controller, lifecycleOwner) {
+        // analysis only: the default controller also binds image and video
+        // capture, which this screen never uses and which would make the
+        // scanner depend on permissions it has no business asking for
+        controller.setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
         controller.setImageAnalysisAnalyzer(
             ContextCompat.getMainExecutor(context),
             ExtenderQrAnalyzer(onDecoded),
