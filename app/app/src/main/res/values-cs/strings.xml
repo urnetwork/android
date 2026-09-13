@@ -8,6 +8,7 @@
     <string name="add_emoji">Přidat emoji</string>
     <string name="add_referral_code">Přidání doporučujícího kódu</string>
     <string name="add_referral_extra_rewards">Přidáním kódu pro doporučení získáte další odměny</string>
+    <string name="advanced">Pokročilé</string>
     <string name="allow_local_connections">Povolit místní připojení</string>
     <string name="allow_providing_cell">Povolit poskytování na mobilní síti</string>
     <string name="allowed">Povoleno</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">Možnosti připojení</string>
     <string name="connect_seeker_wallet">Připojení peněženky s žetonem předobjednávky Saga Genesis nebo Seeker</string>
     <string name="connect_to_location">Připojit k %1$s</string>
+    <string name="connected">Připojeno</string>
     <string name="connecting_status_indicator">Připojení k poskytovatelům</string>
     <string name="connection_mode">Režim připojení</string>
     <string name="connections">Připojení</string>
@@ -128,6 +130,7 @@
     <string name="devices">Zařízení</string>
     <string name="disable_ignore_battery_hint">Chcete-li to zakázat, přejděte do Nastavení systému na Využití baterie aplikace</string>
     <string name="disconnect">Odpojení</string>
+    <string name="disconnected">Odpojeno</string>
     <string name="dismiss">Odmítnout</string>
     <string name="display_network_on_leaderboard">Zobrazení sítě na žebříčku</string>
     <string name="dns_over_https">DNS přes HTTPS</string>

@@ -8,6 +8,7 @@
     <string name="add_emoji">Добавить эмодзи</string>
     <string name="add_referral_code">Добавить реферальный код</string>
     <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные награды</string>
+    <string name="advanced">Дополнительно</string>
     <string name="allow_local_connections">Разрешить локальные подключения</string>
     <string name="allow_providing_cell">Разрешить предоставление в сотовой сети</string>
     <string name="allowed">Разрешено</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">Параметры подключения</string>
     <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или Seeker Pre-Order</string>
     <string name="connect_to_location">Подключиться к %1$s</string>
+    <string name="connected">Подключено</string>
     <string name="connecting_status_indicator">Подключение к провайдерам</string>
     <string name="connection_mode">Режим подключения</string>
     <string name="connections">Подключения</string>
@@ -128,6 +130,7 @@
     <string name="devices">Устройства</string>
     <string name="disable_ignore_battery_hint">Чтобы отключить, перейдите в Использование батареи приложением в системных настройках</string>
     <string name="disconnect">Отключить</string>
+    <string name="disconnected">Отключено</string>
     <string name="dismiss">Закрыть</string>
     <string name="display_network_on_leaderboard">Отображать сеть в таблице лидеров</string>
     <string name="dns_over_https">DNS через HTTPS</string>

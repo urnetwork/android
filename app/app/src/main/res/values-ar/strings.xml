@@ -8,6 +8,7 @@
     <string name="add_emoji">إضافة إيموجي</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
     <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
+    <string name="advanced">متقدم</string>
     <string name="allow_local_connections">السماح بالاتصالات المحلية</string>
     <string name="allow_providing_cell">السماح بالتوفير على شبكة الجوال</string>
     <string name="allowed">مسموح</string>
@@ -89,6 +90,7 @@
     <string name="connect_options">خيارات الاتصال</string>
     <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>
+    <string name="connected">متصل</string>
     <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة</string>
     <string name="connection_mode">وضع الاتصال</string>
     <string name="connections">الاتصالات</string>
@@ -128,6 +130,7 @@
     <string name="devices">الأجهزة</string>
     <string name="disable_ignore_battery_hint">لتعطيل ذلك، يرجى الانتقال إلى استخدام بطارية التطبيق في إعدادات النظام</string>
     <string name="disconnect">قطع الاتصال</string>
+    <string name="disconnected">غير متصل</string>
     <string name="dismiss">تجاهل</string>
     <string name="display_network_on_leaderboard">عرض الشبكة على لوحة الصدارة</string>
     <string name="dns_over_https">DNS عبر HTTPS</string>
