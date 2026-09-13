@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.account
 
+import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,6 +29,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,6 +57,8 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 // the drawn side of the share code
 private val QR_SIZE = 240.dp
@@ -87,8 +91,12 @@ fun ShareExtendersScreen(
     }
     val qrSizePx = with(density) { QR_SIZE.roundToPx() }
     val outlinePx = with(density) { QR_GLYPH_OUTLINE.toPx() }
-    val qr = remember(share.text, qrSizePx) {
-        extenderShareQrBitmap(context, share.text, qrSizePx, outlinePx)
+    // encoding and drawing a code of this size is hundreds of thousands of
+    // pixels, so it never runs on the composition's thread
+    val qr by produceState<Bitmap?>(initialValue = null, share.text, qrSizePx) {
+        value = withContext(Dispatchers.Default) {
+            extenderShareQrBitmap(context, share.text, qrSizePx, outlinePx)
+        }
     }
 
     Scaffold(
@@ -126,9 +134,9 @@ fun ShareExtendersScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            if (qr != null) {
+            qr?.let { bitmap ->
                 Image(
-                    bitmap = qr.asImageBitmap(),
+                    bitmap = bitmap.asImageBitmap(),
                     contentDescription = stringResource(id = R.string.share_extenders),
                     modifier = Modifier
                         .size(QR_SIZE)

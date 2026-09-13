@@ -51,12 +51,17 @@ fun extenderShareQrBitmap(
                 EncodeHintType.MARGIN to 1,
             ),
         )
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.RGB_565)
-        for (x in 0 until sizePx) {
-            for (y in 0 until sizePx) {
-                bitmap.setPixel(x, y, if (matrix.get(x, y)) Color.BLACK else Color.WHITE)
+        // one row at a time rather than a setPixel per module: this runs off
+        // the main thread, but a 700 px code is half a million pixels
+        val pixels = IntArray(sizePx * sizePx)
+        for (y in 0 until sizePx) {
+            val row = y * sizePx
+            for (x in 0 until sizePx) {
+                pixels[row + x] = if (matrix.get(x, y)) Color.BLACK else Color.WHITE
             }
         }
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.RGB_565)
+        bitmap.setPixels(pixels, 0, sizePx, 0, 0, sizePx, sizePx)
         drawConnectorGlyph(context, bitmap, outlinePx)
         bitmap
     }.getOrNull()
