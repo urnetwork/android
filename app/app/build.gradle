@@ -525,8 +525,16 @@ dependencies {
     // serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
-    // for QR Code generation
+    // for QR Code generation and the extender share code scanner
     implementation 'com.google.zxing:core:3.5.4'
+
+    // the extender share code scanner (EXTENDER.md K8): CameraX preview and
+    // frame analysis, decoded by zxing above. Never ML Kit, which the F-Droid
+    // build cannot carry.
+    implementation 'androidx.camera:camera-core:1.5.3'
+    implementation 'androidx.camera:camera-camera2:1.5.3'
+    implementation 'androidx.camera:camera-lifecycle:1.5.3'
+    implementation 'androidx.camera:camera-view:1.5.3'
     implementation 'androidx.biometric:biometric-ktx:1.4.0-alpha02'
 
     // hilt
