@@ -322,9 +322,14 @@ constructor(
             signature.append(newWindowCurrentSize).append(';')
             // the family is in the signature: a local downgrade changes a
             // provider's category without changing its state or position, and
-            // the histogram must follow it
+            // the histogram must follow it. the extender colors are in it for
+            // the same reason: a transport migration changes the rings on a
+            // dot that has not otherwise moved (K2)
             newProviderGridPoints.values
-                .map { "${it.clientId.idStr}:${it.state}:${it.x}:${it.y}:${it.ipFamily}" }
+                .map {
+                    "${it.clientId.idStr}:${it.state}:${it.x}:${it.y}:${it.ipFamily}" +
+                            ":${it.extenderColorHexes}"
+                }
                 .sorted()
                 .forEach { signature.append(it).append('|') }
         } else {
@@ -348,6 +353,7 @@ constructor(
                 clientId = point.clientId.idStr,
                 ipFamily = point.ipFamily,
                 added = ProviderPointState.fromString(point.state) == ProviderPointState.ADDED,
+                extenderColorHexes = point.extenderColorHexes,
             )
         }
 
