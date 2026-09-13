@@ -474,6 +474,20 @@ fun AccountScreenContent(
             }
         )
         HorizontalDivider()
+        // the extender settings of this network space, and the share and
+        // import of an extender list (EXTENDER.md K6, K7)
+        URNavListItem(
+            iconResourceId = R.drawable.main_nav_globe,
+            text = stringResource(id = R.string.extenders),
+            onClick = {
+                if (loginMode == LoginMode.Authenticated) {
+                    navController.navigate(Route.Extenders)
+                } else {
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                }
+            }
+        )
+        HorizontalDivider()
 
         /**
          * view IP

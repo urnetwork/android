@@ -118,6 +118,7 @@ sealed class Route {
     @Serializable object MockLocationGuide : Route()
     @Serializable object ProviderIdentities : Route()
 
+    @Serializable object Extenders : Route()
     @Serializable object ShareExtenders : Route()
     @Serializable object ImportExtenders : Route()
 }
