@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.NetworkSpaceManagerProvider
@@ -19,6 +20,7 @@ import com.bringyour.sdk.ExtenderViewController
 import com.bringyour.sdk.NetExtender
 import com.bringyour.sdk.NetworkSpace
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -66,8 +68,10 @@ class ExtendersViewModel @Inject constructor(
         // the device is (re)created asynchronously (login, network change) and
         // this view model can be created first, so wire per device every time
         removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
-            controllerOwner.setDevice(device)
-            loadPrivateExtender()
+            viewModelScope.launch {
+                controllerOwner.setDevice(device)
+                loadPrivateExtender()
+            }
         }
     }
 
