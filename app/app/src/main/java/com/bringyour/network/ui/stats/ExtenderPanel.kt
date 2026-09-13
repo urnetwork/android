@@ -45,6 +45,9 @@ import com.bringyour.network.ui.theme.Yellow
 private val RING_SIZE = 12.dp
 private val RING_SPACING = 4.dp
 private val STATUS_DOT_SIZE = 8.dp
+// the fixed width of the row labels, so both rows share one left edge as the
+// histogram's rows above do
+private val LABEL_WIDTH = 108.dp
 
 /** One known extender as the panel reads it, from the sdk's `ExtenderInfo`. */
 data class ExtenderUi(
@@ -145,10 +148,21 @@ fun ExtenderPanel(
             color = TextMuted
         )
 
+        /**
+         * The extenders carrying a connection right now, one ring each, and
+         * K4's "N of M": the active count and every usable entry behind it.
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Text(
+                stringResource(id = R.string.active_extenders),
+                style = labelStyle,
+                color = TextMuted,
+                modifier = Modifier.width(LABEL_WIDTH),
+            )
+
             FlowRow(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(RING_SPACING),
@@ -174,10 +188,21 @@ fun ExtenderPanel(
             )
         }
 
+        /**
+         * The gossip network: its state as a dot, and the records and
+         * revocations it applied in the trailing minute.
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Text(
+                stringResource(id = R.string.gossip_network),
+                style = labelStyle,
+                color = TextMuted,
+                modifier = Modifier.width(LABEL_WIDTH),
+            )
+
             Canvas(modifier = Modifier.size(STATUS_DOT_SIZE)) {
                 drawCircle(color = panel.gossip.dotColor(), radius = size.minDimension / 2f)
             }
@@ -188,9 +213,10 @@ fun ExtenderPanel(
                 stringResource(id = panel.gossip.labelResId()),
                 style = labelStyle,
                 color = TextMuted,
+                modifier = Modifier.weight(1f),
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 pluralStringResource(
