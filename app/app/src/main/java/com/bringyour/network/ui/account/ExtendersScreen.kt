@@ -139,7 +139,7 @@ fun ExtendersScreen(
                 label = stringResource(id = R.string.extender_dns_name),
                 value = dnsName,
                 onValueChange = { dnsName = it },
-                defaultValue = settings?.dnsName ?: "",
+                defaultValue = settings?.dnsNamePlaceholder ?: "",
                 enabled = viewModel.editable,
             )
 
@@ -149,7 +149,7 @@ fun ExtendersScreen(
                 label = stringResource(id = R.string.gossip_url),
                 value = gossipUrl,
                 onValueChange = { gossipUrl = it },
-                defaultValue = settings?.gossipUrl ?: "",
+                defaultValue = settings?.gossipUrlPlaceholder ?: "",
                 enabled = viewModel.editable,
             )
 

@@ -198,6 +198,31 @@ class ExtenderShareLogicTest {
     }
 
     @Test
+    fun onlyADefaultIsOfferedAsThePlaceholder() {
+        val defaults = ExtenderSettingsUi(
+            dnsName = "extender.bringyour.com",
+            dnsNameDefault = true,
+            gossipUrl = "wss://gossip.bringyour.com",
+            gossipUrlDefault = true,
+        )
+
+        assertEquals("extender.bringyour.com", defaults.dnsNamePlaceholder)
+        assertEquals("wss://gossip.bringyour.com", defaults.gossipUrlPlaceholder)
+
+        // an overridden field reports the override as its effective value, so
+        // there is no default to name until it is cleared and saved
+        val configured = defaults.copy(
+            dnsName = "extender.example",
+            dnsNameDefault = false,
+            gossipUrl = "wss://gossip.example",
+            gossipUrlDefault = false,
+        )
+
+        assertEquals("", configured.dnsNamePlaceholder)
+        assertEquals("", configured.gossipUrlPlaceholder)
+    }
+
+    @Test
     fun aPrivateExtenderIsConfiguredByItsAddress() {
         assertFalse(ExtenderPrivateUi().configured)
         assertFalse(ExtenderPrivateUi(secret = "s").configured)

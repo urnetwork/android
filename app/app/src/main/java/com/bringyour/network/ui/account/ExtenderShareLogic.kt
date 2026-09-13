@@ -33,6 +33,20 @@ data class ExtenderSettingsUi(
 
     val gossipUrlField: String
         get() = if (gossipUrlDefault) "" else gossipUrl
+
+    /**
+     * The derived default behind an empty field, which the box shows as its
+     * placeholder (K6). The sdk reports the EFFECTIVE value, so the default is
+     * known only while it is the one in force: a field carrying an override
+     * gets no placeholder rather than a placeholder that names the override
+     * and calls it the default. Clearing the box and saving brings the real
+     * default -- and this placeholder -- back.
+     */
+    val dnsNamePlaceholder: String
+        get() = if (dnsNameDefault) dnsName else ""
+
+    val gossipUrlPlaceholder: String
+        get() = if (gossipUrlDefault) gossipUrl else ""
 }
 
 /** The legacy single private extender with its secret (K6, advanced). */
