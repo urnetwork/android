@@ -112,9 +112,13 @@ android_acceptance_verify_sdk_build_owner() {
 # Android's emulator rejects a read-only peer when the first instance holds the
 # AVD writable, which otherwise prevents the peer-to-peer phase from starting.
 run_android_acceptance_shared_avd_emulator() {
-  local emulator="$1" log_file="$2" argument
-  local read_only=0 gpu_host=0 expects_gpu_value=0
-  shift 2
+  local emulator="$1" log_file="$2" owner_token="$3" argument
+  local read_only=0 gpu_host=0 port_set=0
+  local expects_gpu_value=0 expects_port_value=0
+  shift 3
+
+  case "$owner_token" in ''|*[!A-Za-z0-9._:-]*) return 2 ;; esac
+  [ "${#owner_token}" -le 92 ] || return 2
 
   for argument in "$@"; do
     if [ "$expects_gpu_value" -eq 1 ]; then
@@ -126,9 +130,36 @@ run_android_acceptance_shared_avd_emulator() {
       expects_gpu_value=0
       continue
     fi
+    if [ "$expects_port_value" -eq 1 ]; then
+      case "$argument" in ''|*[!0-9]*)
+        echo "refusing to start a shared acceptance AVD without an explicit console port" >&2
+        return 2
+        ;;
+      esac
+      port_set=1
+      expects_port_value=0
+      continue
+    fi
     [ "$argument" = -read-only ] && read_only=1
     case "$argument" in
       -gpu) expects_gpu_value=1 ;;
+      -port) expects_port_value=1 ;;
+      -port=*)
+        case "${argument#*=}" in ''|*[!0-9]*)
+          echo "refusing to start a shared acceptance AVD without an explicit console port" >&2
+          return 2
+          ;;
+        esac
+        port_set=1
+        ;;
+      -id|-id=*)
+        echo "refusing a caller-supplied shared acceptance AVD instance ID" >&2
+        return 2
+        ;;
+      -prop|-prop=*)
+        echo "refusing an unsupported shared acceptance AVD boot property" >&2
+        return 2
+        ;;
       -gpu=host) gpu_host=1 ;;
       -gpu=*|-cores|-cores=*)
         echo "refusing unsupported shared acceptance AVD resource override: $argument" >&2
@@ -144,7 +175,246 @@ run_android_acceptance_shared_avd_emulator() {
     echo "refusing to start a shared acceptance AVD without -gpu host" >&2
     return 2
   fi
-  exec "$emulator" "$@" >"$log_file" 2>&1
+  if [ "$expects_port_value" -eq 1 ] || [ "$port_set" -ne 1 ]; then
+    echo "refusing to start a shared acceptance AVD without an explicit console port" >&2
+    return 2
+  fi
+  exec "$emulator" "$@" -id "$owner_token" >"$log_file" 2>&1
+}
+
+# Returns success only when no already-running emulator can be the configured
+# acceptance AVD. An offline or otherwise unclassifiable emulator is unsafe:
+# the caller cannot distinguish it from the AVD whose writable lock it must
+# not inherit or replace.
+android_acceptance_no_running_avd() {
+  local adb="$1" expected_avd="$2" devices header candidate state actual_avd
+
+  case "$expected_avd" in ''|*$'\r'*|*$'\n'*) return 2 ;; esac
+  devices="$(timeout 15 "$adb" devices </dev/null 2>/dev/null)" || return 2
+  header="${devices%%$'\n'*}"
+  header="${header%$'\r'}"
+  [ "$header" = 'List of devices attached' ] || return 2
+  while read -r candidate state _; do
+    case "$candidate" in emulator-*) ;; *) continue ;; esac
+    [ "$state" = device ] || return 2
+    actual_avd="$(timeout 15 "$adb" -s "$candidate" emu avd name \
+      </dev/null 2>/dev/null)" || return 2
+    actual_avd="${actual_avd%%$'\n'*}"
+    actual_avd="${actual_avd%$'\r'}"
+    [ -n "$actual_avd" ] || return 2
+    [ "$actual_avd" != "$expected_avd" ] || return 1
+  done <<<"$devices"
+  return 0
+}
+
+# ADB command exit status is not a reliable acknowledgement of an emulator
+# shutdown: the transport can disappear while `adb emu kill` is still waiting
+# for its reply. Confirm the terminal state from a fresh, bounded inventory
+# instead. Any listing for the exact serial, including offline, remains pending;
+# a failed or malformed inventory is never treated as absence.
+android_acceptance_emulator_disconnect_poll_sleep() {
+  sleep 0.5
+}
+
+android_acceptance_wait_for_emulator_disconnect() {
+  local adb="$1" serial="$2" attempts="${3:-120}"
+  local attempt devices header candidate state present
+
+  case "$serial" in
+    emulator-*)
+      case "${serial#emulator-}" in ''|*[!0-9]*) return 2 ;; esac
+      ;;
+    *) return 2 ;;
+  esac
+  case "$attempts" in ''|*[!0-9]*|0) return 2 ;; esac
+
+  for attempt in $(seq 1 "$attempts"); do
+    devices="$(timeout 15 "$adb" devices </dev/null 2>/dev/null)" || return 1
+    header="${devices%%$'\n'*}"
+    header="${header%$'\r'}"
+    [ "$header" = 'List of devices attached' ] || return 1
+    present=0
+    while read -r candidate state _; do
+      [ "$candidate" != "$serial" ] || present=1
+    done <<<"$devices"
+    [ "$present" -eq 1 ] || return 0
+    [ "$attempt" -lt "$attempts" ] || break
+    android_acceptance_emulator_disconnect_poll_sleep
+  done
+  return 1
+}
+
+# The default acceptance AVD name is a harness-reserved resource. Before
+# per-launch instance IDs existed, setup could leave that AVD running writable
+# with the emulator's default ID equal to its AVD name. That exact legacy state
+# may therefore be retired once; custom names and per-launch-ID guests are
+# never stopped. Output is the finite state "none" or "retired".
+android_acceptance_retire_legacy_reserved_avd() {
+  local adb="$1" expected_avd="$2" devices header candidate state actual_avd owner
+  local disconnect_attempts="${3:-120}" retired=0
+
+  [ "$expected_avd" = urnetwork-acceptance ] || return 2
+  case "$disconnect_attempts" in ''|*[!0-9]*|0) return 2 ;; esac
+  devices="$(timeout 15 "$adb" devices </dev/null 2>/dev/null)" || return 1
+  header="${devices%%$'\n'*}"
+  header="${header%$'\r'}"
+  [ "$header" = 'List of devices attached' ] || return 1
+  while read -r candidate state _; do
+    case "$candidate" in emulator-*) ;; *) continue ;; esac
+    case "${candidate#emulator-}" in ''|*[!0-9]*) return 1 ;; esac
+    [ "$state" = device ] || return 1
+    actual_avd="$(timeout 15 "$adb" -s "$candidate" emu avd name \
+      </dev/null 2>/dev/null)" || return 1
+    actual_avd="${actual_avd%%$'\n'*}"
+    actual_avd="${actual_avd%$'\r'}"
+    [ -n "$actual_avd" ] || return 1
+    [ "$actual_avd" = "$expected_avd" ] || continue
+    owner="$(timeout 15 "$adb" -s "$candidate" emu avd id \
+      </dev/null 2>/dev/null)" || return 1
+    owner="${owner%%$'\n'*}"
+    owner="${owner%$'\r'}"
+    [ "$owner" = "$expected_avd" ] || return 1
+    # The emulator may terminate before adb receives the console reply, so the
+    # command status is only a delivery attempt. Exact inventory absence below
+    # is the authoritative completion condition.
+    timeout 15 "$adb" -s "$candidate" emu kill \
+      </dev/null >/dev/null 2>&1 || true
+    android_acceptance_wait_for_emulator_disconnect \
+      "$adb" "$candidate" "$disconnect_attempts" || return 1
+    retired=1
+  done <<<"$devices"
+  android_acceptance_no_running_avd "$adb" "$expected_avd" || return 1
+  if [ "$retired" -eq 1 ]; then
+    printf 'retired\n'
+  else
+    printf 'none\n'
+  fi
+}
+
+# The launch helper gives the emulator a per-launch instance ID and the caller
+# binds that console-reported ID to its exact child PID. A matching live PID or
+# AVD name alone is insufficient because an older guest can occupy the same adb
+# serial while a new emulator child is starting.
+android_acceptance_emulator_owner_token_matches() {
+  local adb="$1" serial="$2" expected_owner="$3" owner_pid="$4" actual_owner
+
+  case "$serial" in
+    emulator-*)
+      case "${serial#emulator-}" in ''|*[!0-9]*) return 2 ;; esac
+      ;;
+    *) return 2 ;;
+  esac
+  case "$expected_owner" in ''|*[!A-Za-z0-9._:-]*) return 2 ;; esac
+  [ "${#expected_owner}" -le 92 ] || return 2
+  case "$owner_pid" in ''|*[!0-9]*|0) return 2 ;; esac
+  kill -0 "$owner_pid" 2>/dev/null || return 1
+  actual_owner="$(timeout 15 "$adb" -s "$serial" emu avd id \
+    </dev/null 2>/dev/null)" || return 1
+  actual_owner="${actual_owner%%$'\n'*}"
+  actual_owner="${actual_owner%$'\r'}"
+  [ "$actual_owner" = "$expected_owner" ]
+}
+
+# Combines the live guest instance ID with the configured AVD identity.
+# Callers use this before every reuse, mutation, or adb-directed cleanup of a
+# runner-started emulator. Status 1 is unavailable/pending, 2 is invalid input,
+# and 3 is a conclusive nonempty instance-ID or AVD mismatch.
+android_acceptance_runner_owns_emulator() {
+  local adb="$1" serial="$2" expected_avd="$3" owner_pid="$4"
+  local owner_token="$5" actual_owner actual_avd
+
+  case "$serial" in
+    emulator-*)
+      case "${serial#emulator-}" in ''|*[!0-9]*) return 2 ;; esac
+      ;;
+    *) return 2 ;;
+  esac
+  case "$expected_avd" in ''|*$'\r'*|*$'\n'*) return 2 ;; esac
+  case "$owner_pid" in ''|*[!0-9]*|0) return 2 ;; esac
+  case "$owner_token" in ''|*[!A-Za-z0-9._:-]*) return 2 ;; esac
+  [ "${#owner_token}" -le 92 ] || return 2
+  kill -0 "$owner_pid" 2>/dev/null || return 1
+  android_acceptance_adb_device_ready "$adb" "$serial" || return 1
+  actual_owner="$(timeout 15 "$adb" -s "$serial" emu avd id \
+    </dev/null 2>/dev/null)" || return 1
+  actual_owner="${actual_owner%%$'\n'*}"
+  actual_owner="${actual_owner%$'\r'}"
+  [ -n "$actual_owner" ] || return 1
+  [ "$actual_owner" = "$owner_token" ] || return 3
+  actual_avd="$(timeout 15 "$adb" -s "$serial" emu avd name \
+    </dev/null 2>/dev/null)" || return 1
+  actual_avd="${actual_avd%%$'\n'*}"
+  actual_avd="${actual_avd%$'\r'}"
+  [ -n "$actual_avd" ] || return 1
+  [ "$actual_avd" = "$expected_avd" ] || return 3
+  kill -0 "$owner_pid" 2>/dev/null
+}
+
+# ADB exposes a newly launched emulator transport before every console query is
+# guaranteed to answer. Poll the combined instance-ID and AVD proof rather than
+# treating wait-for-device as ownership readiness. A definitive mismatch and a
+# dead exact child fail immediately; only unavailable/empty evidence is retried
+# to the finite bound.
+android_acceptance_emulator_ownership_poll_sleep() {
+  sleep 0.5
+}
+
+android_acceptance_wait_for_runner_owned_emulator() {
+  local adb="$1" serial="$2" expected_avd="$3" owner_pid="$4"
+  local owner_token="$5" attempts="${6:-120}" attempt ownership_status
+
+  case "$attempts" in ''|*[!0-9]*|0) return 2 ;; esac
+  for attempt in $(seq 1 "$attempts"); do
+    ownership_status=0
+    android_acceptance_runner_owns_emulator \
+      "$adb" "$serial" "$expected_avd" "$owner_pid" "$owner_token" || \
+      ownership_status=$?
+    case "$ownership_status" in
+      0) return 0 ;;
+      1) ;;
+      2) return 2 ;;
+      3) return 1 ;;
+      *) return 1 ;;
+    esac
+    kill -0 "$owner_pid" 2>/dev/null || return 1
+    [ "$attempt" -lt "$attempts" ] || break
+    android_acceptance_emulator_ownership_poll_sleep
+  done
+  return 1
+}
+
+# One bounded child-shutdown poll step, overridden by deterministic tests.
+android_acceptance_emulator_cleanup_poll_sleep() {
+  sleep 0.2
+}
+
+# Join only the exact emulator child captured by the caller. The first bound
+# lets a proven guest honor adb emu kill; callers that lost guest ownership use
+# zero and proceed directly to host PID termination. Requiring KILL is reported
+# as cleanup failure even though the process is still reaped.
+android_acceptance_stop_emulator_child() {
+  local owner_pid="$1" graceful_attempts="${2:-150}" term_attempts="${3:-50}"
+  local forced=0 attempt
+
+  case "$owner_pid" in ''|*[!0-9]*|0) return 2 ;; esac
+  case "$graceful_attempts:$term_attempts" in *[!0-9:]*) return 2 ;; esac
+  for attempt in $(seq 1 "$graceful_attempts"); do
+    kill -0 "$owner_pid" 2>/dev/null || break
+    android_acceptance_emulator_cleanup_poll_sleep
+  done
+  if kill -0 "$owner_pid" 2>/dev/null; then
+    kill -TERM "$owner_pid" 2>/dev/null || true
+  fi
+  for attempt in $(seq 1 "$term_attempts"); do
+    kill -0 "$owner_pid" 2>/dev/null || break
+    android_acceptance_emulator_cleanup_poll_sleep
+  done
+  if kill -0 "$owner_pid" 2>/dev/null; then
+    kill -KILL "$owner_pid" 2>/dev/null || true
+    forced=1
+  fi
+  wait "$owner_pid" 2>/dev/null || true
+  [ "$forced" -eq 0 ]
 }
 
 # Hash a file or stdin using the platform's standard SHA-256 utility. macOS
@@ -776,7 +1046,7 @@ android_acceptance_write_owned_emulator_interactive_diagnostics() {
   case "$diagnostic_file" in ''|*$'\r'*|*$'\n'*) return 2 ;; esac
   case "$attempt" in ''|*[!0-9]*) return 2 ;; esac
   case "$serial_state" in unchecked|valid|invalid) ;; *) return 2 ;; esac
-  case "$owner_state" in unchecked|live|not-live|invalid) ;; *) return 2 ;; esac
+  case "$owner_state" in unchecked|live|not-live|mismatch|invalid) ;; *) return 2 ;; esac
   case "$adb_state" in unchecked|ready|unavailable) ;; *) return 2 ;; esac
   case "$avd_state" in unchecked|match|mismatch|unavailable|invalid) ;; *) return 2 ;; esac
   case "$wake_state" in unchecked|complete|failed) ;; *) return 2 ;; esac
@@ -1070,6 +1340,7 @@ android_acceptance_prepare_device() {
 # non-secure interactive state, and then apply the shared network gate.
 android_acceptance_prepare_owned_emulator() {
   local adb="$1" serial="$2" expected_avd="$3" owner_pid="$4"
+  local owner_token="${ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN:-$owner_pid}"
   local state_dir="$5" status_file="$6" diagnostic_file="$7"
   local boot_attempts="${8:-180}" network_attempts="${9:-24}"
   local interactive_attempts="${10:-20}"
@@ -1077,7 +1348,8 @@ android_acceptance_prepare_owned_emulator() {
   mkdir -p "$state_dir" || return 1
   android_acceptance_validate_booted_device \
     "$adb" "$serial" "$status_file" "$boot_attempts" || return
-  if ! android_acceptance_runner_owned_emulator_interactive \
+  if ! ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$owner_token" \
+      android_acceptance_runner_owned_emulator_interactive \
       "$adb" "$serial" "$expected_avd" "$owner_pid" \
       "$diagnostic_file" "$interactive_attempts"; then
     android_acceptance_write_readiness_status \
@@ -1183,6 +1455,7 @@ android_acceptance_wake_device() {
 # lockscreen must agree before success; unknown state is polled, never accepted.
 android_acceptance_runner_owned_emulator_interactive() {
   local adb="$1" serial="$2" expected_avd="$3" owner_pid="$4"
+  local owner_token="${ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN:-$owner_pid}"
   local diagnostic_file="$5" attempts="${6:-20}"
   local port actual_avd lock_disabled raw_window_state state
   local attempt=0 serial_state=unchecked owner_state=unchecked adb_state=unchecked
@@ -1255,6 +1528,16 @@ android_acceptance_runner_owned_emulator_interactive() {
     return 1
   fi
   adb_state=ready
+  if ! android_acceptance_emulator_owner_token_matches \
+      "$adb" "$serial" "$owner_token" "$owner_pid"; then
+    owner_state=mismatch
+    result=failed
+    android_acceptance_write_owned_emulator_interactive_diagnostics \
+      "$diagnostic_file" "$attempt" "$serial_state" "$owner_state" \
+      "$adb_state" "$avd_state" "$wake_state" "$dismiss_state" \
+      "$credential_state" "$window_state" "$power_state" "$trust_state" "$result" || return
+    return 1
+  fi
   if ! actual_avd="$(timeout 15 "$adb" -s "$serial" emu avd name \
       </dev/null 2>/dev/null)"; then
     avd_state=unavailable
@@ -1527,12 +1810,15 @@ android_acceptance_run_after_unlock() {
 # boundary, then invoke one product command without an intervening wait.
 android_acceptance_run_after_owned_emulator_interactive() {
   local adb="$1" serial="$2" expected_avd="$3" owner_pid="$4"
+  local owner_token="${ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN:-$owner_pid}"
   local diagnostic_file="$5"
   shift 5
 
   [ "$#" -gt 0 ] || return 2
-  android_acceptance_runner_owned_emulator_interactive \
-    "$adb" "$serial" "$expected_avd" "$owner_pid" "$diagnostic_file" || return 1
+  ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$owner_token" \
+    android_acceptance_runner_owned_emulator_interactive \
+    "$adb" "$serial" "$expected_avd" "$owner_pid" \
+    "$diagnostic_file" || return 1
   "$@"
 }
 

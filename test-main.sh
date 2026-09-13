@@ -229,6 +229,21 @@ esac
 available_avds="$("$emulator" -list-avds)" || die "could not list Android virtual devices"
 grep -Fxq "$avd_name" <<<"$available_avds" || \
   die "AVD $avd_name is missing; run $root/build/all/android/setup.sh"
+if [ "$avd_name" = urnetwork-acceptance ]; then
+  legacy_avd_state="$(android_acceptance_retire_legacy_reserved_avd \
+    "$adb" "$avd_name")" || \
+    die "could not safely retire or classify the reserved acceptance AVD"
+  if [ "$legacy_avd_state" = retired ]; then
+    echo "[android acceptance] retired a default-ID legacy acceptance AVD instance"
+  fi
+fi
+running_avd_status=0
+android_acceptance_no_running_avd "$adb" "$avd_name" || running_avd_status=$?
+case "$running_avd_status" in
+  0) ;;
+  1) die "AVD $avd_name is already running outside this acceptance invocation; stop it explicitly before running acceptance" ;;
+  *) die "could not prove that AVD $avd_name has no pre-existing emulator instance" ;;
+esac
 
 timestamp="$(date +%Y%m%d-%H%M%S)"
 artifacts="$here/tests/__acceptance__/$timestamp"
@@ -242,10 +257,12 @@ run_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-acceptance.XXXXXX")"
 chmod 700 "$run_dir"
 serial=""
 emulator_pid=""
+emulator_owner_token=""
 started_emulator=0
 started_emulator_serial=""
 peer_serial=""
 peer_emulator_pid=""
+peer_emulator_owner_token=""
 provider_session_pid=""
 client_session_pid=""
 p2p_cleanup_failed=0
@@ -318,7 +335,8 @@ release_active_clients() {
 # shellcheck disable=SC2329
 cleanup() {
   exit_status=$?
-  local package_label
+  local package_label staging_owned=1
+  local peer_cleanup_grace=0 fallback_cleanup_grace=0
   local_device_count=0
   local_pair_count=0
   for session_pid in "$provider_session_pid" "$client_session_pid"; do
@@ -329,7 +347,25 @@ cleanup() {
     wait "$session_pid" 2>/dev/null || true
   done
   if [ -n "$private_staging_serial" ] && [ -n "$private_staging" ]; then
-    timeout 15 "$adb" -s "$private_staging_serial" shell rm -f "$private_staging" >/dev/null 2>&1 || true
+    if [ "$private_staging_serial" = "$started_emulator_serial" ] && \
+       [ -n "$emulator_pid" ]; then
+      android_acceptance_runner_owns_emulator \
+        "$adb" "$private_staging_serial" "$avd_name" "$emulator_pid" \
+        "$emulator_owner_token" || \
+        staging_owned=0
+    elif [ "$private_staging_serial" = "$peer_serial" ] && \
+         [ -n "$peer_emulator_pid" ]; then
+      android_acceptance_runner_owns_emulator \
+        "$adb" "$private_staging_serial" "$avd_name" "$peer_emulator_pid" \
+        "$peer_emulator_owner_token" || \
+        staging_owned=0
+    fi
+    if [ "$staging_owned" -eq 1 ]; then
+      timeout 15 "$adb" -s "$private_staging_serial" shell rm -f "$private_staging" >/dev/null 2>&1 || true
+    else
+      echo "[android acceptance] refused private staging cleanup after emulator ownership was lost" >&2
+      exit_status=1
+    fi
   fi
 
   mkdir -p "$artifacts/cleanup-clients"
@@ -341,6 +377,15 @@ cleanup() {
       device_cleanup="$artifacts/cleanup-clients/$device_id"
       state_file="$run_dir/devices/$device_id/animation-scales"
       mkdir -p "$device_cleanup"
+      if [ "$started_emulator" -eq 1 ] && \
+         [ "$serial" = "$started_emulator_serial" ] && \
+         ! android_acceptance_runner_owns_emulator \
+           "$adb" "$serial" "$avd_name" "$emulator_pid" \
+           "$emulator_owner_token"; then
+        echo "[android acceptance] refused fallback cleanup after emulator ownership was lost" >&2
+        exit_status=1
+        continue
+      fi
       if android_acceptance_adb_device_ready "$adb" "$serial"; then
         if [ "$smoke_only" -ne 1 ]; then
           if android_acceptance_manages_account_fixture "$execution_mode" "$smoke_only" && \
@@ -382,7 +427,10 @@ cleanup() {
   if [ -n "$peer_serial" ]; then
     peer_cleanup="$artifacts/cleanup-clients/peer"
     mkdir -p "$peer_cleanup"
-    if android_acceptance_adb_device_ready "$adb" "$peer_serial"; then
+    if android_acceptance_runner_owns_emulator \
+        "$adb" "$peer_serial" "$avd_name" "$peer_emulator_pid" \
+        "$peer_emulator_owner_token"; then
+      peer_cleanup_grace=150
       pull_android_acceptance_active_clients \
         "$adb" "$peer_serial" "$run_dir" "$peer_cleanup" || exit_status=1
       pull_android_acceptance_private_client_id \
@@ -400,7 +448,7 @@ cleanup() {
       done
       timeout 15 "$adb" -s "$peer_serial" emu kill >/dev/null 2>&1 || true
     else
-      echo "[android acceptance] peer emulator is unreachable during cleanup" >&2
+      echo "[android acceptance] refused peer cleanup after emulator ownership was lost" >&2
       exit_status=1
     fi
   fi
@@ -409,37 +457,25 @@ cleanup() {
     exit_status=1
   fi
   if [ -n "$peer_emulator_pid" ]; then
-    for _ in $(seq 1 150); do
-      kill -0 "$peer_emulator_pid" 2>/dev/null || break
-      sleep 0.2
-    done
-    if kill -0 "$peer_emulator_pid" 2>/dev/null; then
-      kill -KILL "$peer_emulator_pid" 2>/dev/null || true
+    if ! android_acceptance_stop_emulator_child \
+        "$peer_emulator_pid" "$peer_cleanup_grace" 50; then
+      echo "[android acceptance] peer emulator required forced host cleanup" >&2
       exit_status=1
     fi
-    wait "$peer_emulator_pid" 2>/dev/null || true
   fi
   if [ "$started_emulator" -eq 1 ] && [ "$keep_emulator" -ne 1 ] && [ -n "$emulator_pid" ]; then
-    if [ -n "$started_emulator_serial" ]; then
+    if [ -n "$started_emulator_serial" ] && \
+       android_acceptance_runner_owns_emulator \
+         "$adb" "$started_emulator_serial" "$avd_name" "$emulator_pid" \
+         "$emulator_owner_token"; then
+      fallback_cleanup_grace=150
       timeout 15 "$adb" -s "$started_emulator_serial" emu kill >/dev/null 2>&1 || true
     fi
-    for _ in $(seq 1 150); do
-      kill -0 "$emulator_pid" 2>/dev/null || break
-      sleep 0.2
-    done
-    if kill -0 "$emulator_pid" 2>/dev/null; then
-      echo "[android acceptance] emulator did not stop after adb emu kill" >&2
-      kill -TERM "$emulator_pid" 2>/dev/null || true
-      for _ in $(seq 1 50); do
-        kill -0 "$emulator_pid" 2>/dev/null || break
-        sleep 0.2
-      done
-      if kill -0 "$emulator_pid" 2>/dev/null; then
-        kill -KILL "$emulator_pid" 2>/dev/null || true
-      fi
+    if ! android_acceptance_stop_emulator_child \
+        "$emulator_pid" "$fallback_cleanup_grace" 50; then
+      echo "[android acceptance] fallback emulator required forced host cleanup" >&2
       exit_status=1
     fi
-    wait "$emulator_pid" 2>/dev/null || true
   elif [ -n "$emulator_pid" ] && ! kill -0 "$emulator_pid" 2>/dev/null; then
     wait "$emulator_pid" 2>/dev/null || true
   fi
@@ -553,15 +589,17 @@ if [ "$skip_build" -ne 1 ] &&
   die "fresh Android SDK output provenance does not match this acceptance run"
 fi
 
-find_avd_serial() {
-  local candidate name devices
+available_emulator_console_port() {
+  local first_port="$1" last_port="$2" candidate_port devices
+
+  case "$first_port:$last_port" in *[!0-9:]*) return 2 ;; esac
   devices="$(timeout 15 "$adb" devices)" || return 1
-  while read -r candidate state _; do
-    case "$candidate" in emulator-*) ;; *) continue ;; esac
-    [ "$state" = device ] || continue
-    name="$(timeout 10 "$adb" -s "$candidate" emu avd name 2>/dev/null | sed -n '1p' | tr -d '\r')"
-    [ "$name" = "$avd_name" ] && { printf '%s\n' "$candidate"; return 0; }
-  done <<<"$devices"
+  for candidate_port in $(seq "$first_port" 2 "$last_port"); do
+    if ! grep -q "^emulator-${candidate_port}[[:space:]]" <<<"$devices"; then
+      printf '%s\n' "$candidate_port"
+      return 0
+    fi
+  done
   return 1
 }
 
@@ -575,10 +613,9 @@ capture_device_fleet() {
     "$raw" "$selected_output" "$excluded_devices" "${reserved_device_serials[@]}"
 }
 
-# Only the exact fallback child started by this invocation uses the
-# credential-free AVD path. Attached hardware and arbitrary pre-existing
-# emulators retain the strict private-PIN contract.
-runner_owns_fallback_emulator() {
+# Dispatch a runner-started fallback only to the credential-free ownership
+# gate. A failed proof must never fall through to the physical-device PIN path.
+runner_started_fallback_emulator() {
   local target_serial="$1"
 
   [ "$started_emulator" -eq 1 ] && [ -n "$emulator_pid" ] && \
@@ -586,13 +623,21 @@ runner_owns_fallback_emulator() {
     [ "$target_serial" = "$started_emulator_serial" ]
 }
 
+runner_owns_peer_emulator() {
+  [ -n "$peer_serial" ] && [ -n "$peer_emulator_pid" ] && \
+    android_acceptance_runner_owns_emulator \
+      "$adb" "$peer_serial" "$avd_name" "$peer_emulator_pid" \
+      "$peer_emulator_owner_token"
+}
+
 prepare_selected_device() {
   local target_serial="$1" state_dir="$2" status_file="$3"
   local diagnostic_device_id="$4"
   local diagnostic_file="${status_file%.txt}-interactive.txt"
 
-  if runner_owns_fallback_emulator "$target_serial"; then
-    android_acceptance_prepare_owned_emulator \
+  if runner_started_fallback_emulator "$target_serial"; then
+    ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$emulator_owner_token" \
+      android_acceptance_prepare_owned_emulator \
       "$adb" "$target_serial" "$avd_name" "$emulator_pid" \
       "$state_dir" "$status_file" "$diagnostic_file"
   else
@@ -606,9 +651,11 @@ selected_device_interactive() {
   local target_serial="$1" diagnostic_device_id="$2" role="$3"
   local diagnostic_file="$4"
 
-  if runner_owns_fallback_emulator "$target_serial"; then
-    android_acceptance_runner_owned_emulator_interactive \
-      "$adb" "$target_serial" "$avd_name" "$emulator_pid" "$diagnostic_file"
+  if runner_started_fallback_emulator "$target_serial"; then
+    ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$emulator_owner_token" \
+      android_acceptance_runner_owned_emulator_interactive \
+      "$adb" "$target_serial" "$avd_name" "$emulator_pid" \
+      "$diagnostic_file"
   else
     android_acceptance_unlock_device \
       "$adb" "$target_serial" "$android_unlock_code" "$diagnostic_file" \
@@ -622,9 +669,10 @@ run_after_selected_device_interactive() {
   shift 5
 
   [ "$#" -gt 0 ] || return 2
-  if runner_owns_fallback_emulator "$target_serial"; then
+  if runner_started_fallback_emulator "$target_serial"; then
     renderer_evidence="$artifacts/emulator.log"
-    android_acceptance_run_after_owned_emulator_interactive \
+    ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$emulator_owner_token" \
+      android_acceptance_run_after_owned_emulator_interactive \
       "$adb" "$target_serial" "$avd_name" "$emulator_pid" \
       "$interactive_file" run_after_android_preflight \
       "$target_serial" "$diagnostic_device_id" "$role" "$preflight_file" \
@@ -666,18 +714,21 @@ if [ "$execution_mode" = diagnostic ]; then
   chmod 600 "$artifacts/diagnostic-captured-device-serials.txt"
 elif [ ! -s "$device_serials" ]; then
   echo "[android acceptance] no eligible attached device; starting fallback AVD $avd_name"
-  emulator_args=(-avd "$avd_name" -read-only -gpu host -no-snapshot -no-boot-anim -netdelay none -netspeed full)
+  port="$(available_emulator_console_port 5554 5584)" || \
+    die "no free Android emulator console port for fallback acceptance AVD"
+  started_emulator_serial="emulator-$port"
+  emulator_owner_token="fallback-${timestamp}-$$-$RANDOM"
+  emulator_args=(-avd "$avd_name" -read-only -gpu host -port "$port" -no-snapshot -no-boot-anim -netdelay none -netspeed full)
   [ "$headless" -eq 1 ] && emulator_args+=(-no-window)
   run_android_acceptance_shared_avd_emulator \
-    "$emulator" "$artifacts/emulator.log" "${emulator_args[@]}" &
+    "$emulator" "$artifacts/emulator.log" "$emulator_owner_token" \
+    "${emulator_args[@]}" &
   emulator_pid=$!
   started_emulator=1
-  for _ in $(seq 1 60); do
-    started_emulator_serial="$(find_avd_serial || true)"
-    [ -n "$started_emulator_serial" ] && break
-    sleep 1
-  done
-  [ -n "$started_emulator_serial" ] || die "could not find emulator for AVD $avd_name"
+  android_acceptance_wait_for_runner_owned_emulator \
+    "$adb" "$started_emulator_serial" "$avd_name" "$emulator_pid" \
+    "$emulator_owner_token" 120 || \
+    die "fallback Android emulator did not prove runner ownership"
   capture_device_fleet || die "could not capture the Android fleet after starting the fallback AVD"
 fi
 [ -s "$device_serials" ] || die "no eligible Android device is attached"
@@ -977,29 +1028,30 @@ write_target_diagnostic() {
 }
 
 boot_peer_emulator() {
-  local devices port=""
-  if [ -n "$peer_serial" ] && android_acceptance_adb_device_ready "$adb" "$peer_serial"; then
-    return 0
-  fi
-  devices="$(timeout 15 "$adb" devices)"
-  for candidate_port in $(seq 5556 2 5584); do
-    if ! grep -q "^emulator-${candidate_port}[[:space:]]" <<<"$devices"; then
-      port="$candidate_port"
-      break
+  local port=""
+  if [ -n "$peer_serial" ] || [ -n "$peer_emulator_pid" ]; then
+    if runner_owns_peer_emulator; then
+      return 0
     fi
-  done
+    echo "existing peer emulator no longer proves ownership by this acceptance invocation" >&2
+    return 1
+  fi
+  port="$(available_emulator_console_port 5556 5584 || true)"
   if [ -z "$port" ]; then
     echo "no free Android emulator console port for peer-to-peer acceptance" >&2
     return 1
   fi
   peer_serial="emulator-$port"
+  peer_emulator_owner_token="peer-${timestamp}-$$-$RANDOM"
   peer_args=(-avd "$avd_name" -read-only -gpu host -port "$port" -no-snapshot -no-boot-anim -netdelay none -netspeed full)
   [ "$headless" -eq 1 ] && peer_args+=(-no-window)
   mkdir -p "$artifacts/peer-emulator"
   run_android_acceptance_shared_avd_emulator \
-    "$emulator" "$artifacts/peer-emulator/emulator.log" "${peer_args[@]}" &
+    "$emulator" "$artifacts/peer-emulator/emulator.log" \
+    "$peer_emulator_owner_token" "${peer_args[@]}" &
   peer_emulator_pid=$!
-  if ! android_acceptance_prepare_owned_emulator \
+  if ! ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$peer_emulator_owner_token" \
+      android_acceptance_prepare_owned_emulator \
       "$adb" "$peer_serial" "$avd_name" "$peer_emulator_pid" \
       "$run_dir/peer-device" "$artifacts/peer-emulator/readiness.txt" \
       "$artifacts/peer-emulator/interactive.txt"; then
@@ -1058,30 +1110,30 @@ pull_physical_client() {
 }
 
 stop_peer_emulator() {
-  local peer_cleanup_status=0 package_label
+  local peer_cleanup_status=0 package_label cleanup_grace=0
   [ -n "$peer_serial" ] || return 0
   mkdir -p "$artifacts/cleanup-clients/peer"
-  for package_name in com.bringyour.network com.bringyour.network.test; do
-    package_label="${package_name##*.}"
-    android_acceptance_uninstall_package \
-      "$android_acceptance_timeout_executable" "$adb" "$peer_serial" "$package_name" \
-      "$artifacts/cleanup-clients/peer/uninstall-$package_label.log" || \
-      peer_cleanup_status=1
-  done
-  timeout 15 "$adb" -s "$peer_serial" emu kill >/dev/null 2>&1 || true
-  if [ -n "$peer_emulator_pid" ]; then
-    for _ in $(seq 1 150); do
-      kill -0 "$peer_emulator_pid" 2>/dev/null || break
-      sleep 0.2
+  if runner_owns_peer_emulator; then
+    cleanup_grace=150
+    for package_name in com.bringyour.network com.bringyour.network.test; do
+      package_label="${package_name##*.}"
+      android_acceptance_uninstall_package \
+        "$android_acceptance_timeout_executable" "$adb" "$peer_serial" "$package_name" \
+        "$artifacts/cleanup-clients/peer/uninstall-$package_label.log" || \
+        peer_cleanup_status=1
     done
-    if kill -0 "$peer_emulator_pid" 2>/dev/null; then
-      kill -KILL "$peer_emulator_pid" 2>/dev/null || true
-      return 1
-    fi
-    wait "$peer_emulator_pid" 2>/dev/null || true
+    timeout 15 "$adb" -s "$peer_serial" emu kill >/dev/null 2>&1 || true
+  else
+    echo "refusing adb cleanup for a peer emulator no longer owned by this invocation" >&2
+    peer_cleanup_status=1
+  fi
+  if [ -n "$peer_emulator_pid" ]; then
+    android_acceptance_stop_emulator_child \
+      "$peer_emulator_pid" "$cleanup_grace" 50 || peer_cleanup_status=1
   fi
   peer_serial=""
   peer_emulator_pid=""
+  peer_emulator_owner_token=""
   return "$peer_cleanup_status"
 }
 
@@ -1137,7 +1189,8 @@ run_android_peer_to_peer() {
   done
 
   if [ "$session_status" -eq 0 ]; then
-    if ! android_acceptance_runner_owned_emulator_interactive \
+    if ! ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$peer_emulator_owner_token" \
+        android_acceptance_runner_owned_emulator_interactive \
         "$adb" "$peer_serial" "$avd_name" "$peer_emulator_pid" \
         "$out/provider-interactive.txt"; then
       echo "Android peer provider did not reach credential-free interactive state" >&2

@@ -746,28 +746,78 @@ system_timeout_executable="$(type -P timeout)"
 [ -x "$system_timeout_executable" ] || fail "test requires an external GNU timeout"
 
 emulator_log="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-emulator.test.XXXXXX")"
+printf -v oversized_emulator_owner '%093d' 0
 if (run_android_acceptance_shared_avd_emulator \
-    /usr/bin/true "$emulator_log" -avd urnetwork-acceptance -gpu host) >/dev/null 2>&1; then
+    /usr/bin/true "$emulator_log" "$oversized_emulator_owner" \
+    -avd urnetwork-acceptance -read-only -gpu host -port 5610) \
+    >/dev/null 2>&1; then
+  fail "shared AVD launcher accepted an oversized instance ID"
+fi
+if (run_android_acceptance_shared_avd_emulator \
+    /usr/bin/true "$emulator_log" test-owner \
+    -avd urnetwork-acceptance -gpu host) >/dev/null 2>&1; then
   fail "shared AVD launcher accepted a writable emulator"
 fi
 (run_android_acceptance_shared_avd_emulator \
-  /usr/bin/true "$emulator_log" -avd urnetwork-acceptance -read-only -gpu host) || \
+  /usr/bin/true "$emulator_log" test-owner \
+  -avd urnetwork-acceptance -read-only -gpu host -port 5610) || \
   fail "shared AVD launcher rejected a read-only host-rendered emulator"
 if (run_android_acceptance_shared_avd_emulator \
-    /usr/bin/true "$emulator_log" -avd urnetwork-acceptance -read-only) \
+    /usr/bin/true "$emulator_log" test-owner \
+    -avd urnetwork-acceptance -read-only) \
     >/dev/null 2>&1; then
   fail "shared AVD launcher accepted an implicit renderer"
 fi
 if (run_android_acceptance_shared_avd_emulator \
-    /usr/bin/true "$emulator_log" -avd urnetwork-acceptance -read-only -gpu auto) \
+    /usr/bin/true "$emulator_log" test-owner \
+    -avd urnetwork-acceptance -read-only -gpu auto) \
     >/dev/null 2>&1; then
   fail "shared AVD launcher accepted a renderer that can select software"
 fi
 if (run_android_acceptance_shared_avd_emulator \
-    /usr/bin/true "$emulator_log" -avd urnetwork-acceptance -read-only -gpu host -cores 1) \
+    /usr/bin/true "$emulator_log" test-owner \
+    -avd urnetwork-acceptance -read-only -gpu host -cores 1) \
     >/dev/null 2>&1; then
   fail "shared AVD launcher accepted a guest CPU override"
 fi
+
+# The launcher stamps a per-launch ownership value into its exact guest. This
+# is what binds the captured child PID to the guest and distinguishes it from
+# an older same-name AVD at the same adb serial; a live PID or matching AVD name
+# alone does not establish that relationship.
+emulator_launch_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-emulator-owner.test.XXXXXX")"
+fake_emulator="$emulator_launch_dir/emulator"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'printf "%s\n" "$@"' \
+  >"$fake_emulator"
+chmod 700 "$fake_emulator"
+owned_emulator_log="$emulator_launch_dir/owned.log"
+run_android_acceptance_shared_avd_emulator \
+  "$fake_emulator" "$owned_emulator_log" synthetic-owner \
+  -avd synthetic-acceptance -read-only -gpu host -port 5610 &
+owned_emulator_pid=$!
+wait "$owned_emulator_pid" || fail "fake owned emulator launch failed"
+grep -Fxq -- '-id' "$owned_emulator_log" || \
+  fail "shared AVD launcher omitted its guest instance ID"
+grep -Fxq -- 'synthetic-owner' "$owned_emulator_log" || \
+  fail "shared AVD launcher instance ID did not identify its exact child"
+if grep -Fxq -- '-prop' "$owned_emulator_log"; then
+  fail "shared AVD launcher still injects an unreadable custom boot property"
+fi
+if (run_android_acceptance_shared_avd_emulator \
+    /usr/bin/true "$emulator_log" test-owner \
+    -avd synthetic-acceptance -read-only -gpu host -port 5610 \
+    -id foreign) >/dev/null 2>&1; then
+  fail "shared AVD launcher accepted a caller-supplied instance ID"
+fi
+if (run_android_acceptance_shared_avd_emulator \
+    /usr/bin/true "$emulator_log" test-owner \
+    -avd synthetic-acceptance -read-only -gpu host -port 5610 \
+    -prop qemu.unrelated=value) >/dev/null 2>&1; then
+  fail "shared AVD launcher accepted an unsupported boot property"
+fi
+rm -rf "$emulator_launch_dir"
 rm -f "$emulator_log"
 
 preflight_fixture_dir="$here/tests/fixtures/android-preflight"
@@ -867,6 +917,486 @@ timeout() {
   shift
   "$@"
 }
+
+# Ownership is a live guest-to-child proof, not an inference from a matching
+# adb serial, matching AVD name, or independently live process. Force each
+# predicate so the historical same-name stale-AVD substitution is exact.
+FAKE_EMULATOR_OWNER_TOKEN=test-owner
+FAKE_EMULATOR_OWNER_AVD=synthetic-acceptance
+FAKE_EMULATOR_OWNER_STATE=device
+FAKE_EMULATOR_INVENTORY=none
+fake_emulator_owner_adb() {
+  if [ "$1" = devices ]; then
+    if [ "$FAKE_EMULATOR_INVENTORY" = malformed ]; then
+      printf 'not an adb inventory\n'
+      return 0
+    fi
+    printf 'List of devices attached\n'
+    case "$FAKE_EMULATOR_INVENTORY" in
+      none) ;;
+      expected|unrelated) printf 'emulator-5610\tdevice\n' ;;
+      offline) printf 'emulator-5610\toffline\n' ;;
+      *) return 90 ;;
+    esac
+    return 0
+  fi
+  [ "$1" = -s ] && [ "$2" = emulator-5610 ] || return 91
+  shift 2
+  case "$*" in
+    get-state) printf '%s\n' "$FAKE_EMULATOR_OWNER_STATE" ;;
+    'shell getprop qemu.urnetwork.acceptance_owner') printf '\n' ;;
+    'emu avd id') printf '%s\nOK\n' "$FAKE_EMULATOR_OWNER_TOKEN" ;;
+    'emu avd name')
+      if [ "$FAKE_EMULATOR_INVENTORY" = unrelated ]; then
+        printf 'other-avd\nOK\n'
+      else
+        printf '%s\nOK\n' "$FAKE_EMULATOR_OWNER_AVD"
+      fi
+      ;;
+    *) return 92 ;;
+  esac
+}
+
+# The live emulator accepts the custom -prop argument but exposes no value in
+# Android. This fake keeps that property empty while its supported console ID
+# is exact, so the successful proof regresses the observed API/emulator failure.
+android_acceptance_runner_owns_emulator \
+  fake_emulator_owner_adb emulator-5610 synthetic-acceptance "$$" test-owner || \
+  fail "an exact live guest/child ownership proof was rejected"
+FAKE_EMULATOR_OWNER_TOKEN=foreign
+if android_acceptance_runner_owns_emulator \
+    fake_emulator_owner_adb emulator-5610 synthetic-acceptance "$$" test-owner; then
+  fail "a stale same-name AVD was accepted using only an unrelated live PID"
+else
+  [ "$?" -eq 3 ] || fail "a nonempty instance-ID mismatch was not conclusive"
+fi
+FAKE_EMULATOR_OWNER_TOKEN=test-owner
+FAKE_EMULATOR_OWNER_AVD=other-avd
+if android_acceptance_runner_owns_emulator \
+    fake_emulator_owner_adb emulator-5610 synthetic-acceptance "$$" test-owner; then
+  fail "a guest with a different AVD identity was accepted as owned"
+else
+  [ "$?" -eq 3 ] || fail "a nonempty AVD mismatch was not conclusive"
+fi
+FAKE_EMULATOR_OWNER_AVD=synthetic-acceptance
+
+# wait-for-device can finish before a new guest's emulator instance ID or AVD
+# identity is queryable. The ownership barrier retries only missing evidence
+# while the exact child lives; definitive mismatches and dead children must
+# fail without consuming the full bound or touching another transport.
+ownership_barrier_calls="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-owner-barrier.test.XXXXXX")"
+ownership_barrier_adb_calls="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-adb-count.test.XXXXXX")"
+ownership_barrier_owner_calls="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-owner-count.test.XXXXXX")"
+ownership_barrier_avd_calls="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-avd-count.test.XXXXXX")"
+FAKE_OWNERSHIP_BARRIER_ADB_DELAY=0
+FAKE_OWNERSHIP_BARRIER_OWNER_DELAY=0
+FAKE_OWNERSHIP_BARRIER_AVD_DELAY=0
+FAKE_OWNERSHIP_BARRIER_OWNER=test-owner
+FAKE_OWNERSHIP_BARRIER_AVD=synthetic-acceptance
+ownership_barrier_kill_on_sleep=''
+reset_ownership_barrier() {
+  : >"$ownership_barrier_calls"
+  printf '0\n' >"$ownership_barrier_adb_calls"
+  printf '0\n' >"$ownership_barrier_owner_calls"
+  printf '0\n' >"$ownership_barrier_avd_calls"
+}
+fake_ownership_barrier_adb() {
+  local call_count
+
+  printf '%s\n' "$*" >>"$ownership_barrier_calls"
+  [ "$1" = -s ] && [ "$2" = emulator-5614 ] || return 90
+  shift 2
+  case "$*" in
+    get-state)
+      call_count="$(cat "$ownership_barrier_adb_calls")"
+      call_count=$((call_count + 1))
+      printf '%s\n' "$call_count" >"$ownership_barrier_adb_calls"
+      [ "$call_count" -gt "$FAKE_OWNERSHIP_BARRIER_ADB_DELAY" ] || return 1
+      printf 'device\n'
+      ;;
+    'shell getprop qemu.urnetwork.acceptance_owner') printf '\n' ;;
+    'emu avd id')
+      call_count="$(cat "$ownership_barrier_owner_calls")"
+      call_count=$((call_count + 1))
+      printf '%s\n' "$call_count" >"$ownership_barrier_owner_calls"
+      if [ "$call_count" -le "$FAKE_OWNERSHIP_BARRIER_OWNER_DELAY" ]; then
+        printf '\nOK\n'
+      else
+        printf '%s\nOK\n' "$FAKE_OWNERSHIP_BARRIER_OWNER"
+      fi
+      ;;
+    'emu avd name')
+      call_count="$(cat "$ownership_barrier_avd_calls")"
+      call_count=$((call_count + 1))
+      printf '%s\n' "$call_count" >"$ownership_barrier_avd_calls"
+      if [ "$call_count" -le "$FAKE_OWNERSHIP_BARRIER_AVD_DELAY" ]; then
+        printf '\nOK\n'
+      else
+        printf '%s\nOK\n' "$FAKE_OWNERSHIP_BARRIER_AVD"
+      fi
+      ;;
+    *) return 91 ;;
+  esac
+}
+android_acceptance_emulator_ownership_poll_sleep() {
+  if [ -n "$ownership_barrier_kill_on_sleep" ]; then
+    kill -TERM "$ownership_barrier_kill_on_sleep"
+    wait "$ownership_barrier_kill_on_sleep" 2>/dev/null || true
+    ownership_barrier_kill_on_sleep=''
+  fi
+}
+sleep 300 &
+ownership_barrier_pid=$!
+
+reset_ownership_barrier
+FAKE_OWNERSHIP_BARRIER_ADB_DELAY=1
+FAKE_OWNERSHIP_BARRIER_OWNER_DELAY=2
+FAKE_OWNERSHIP_BARRIER_AVD_DELAY=1
+android_acceptance_wait_for_runner_owned_emulator \
+  fake_ownership_barrier_adb emulator-5614 synthetic-acceptance \
+  "$ownership_barrier_pid" test-owner 5 || \
+  fail "delayed guest ownership evidence did not become ready within its bound"
+[ "$(cat "$ownership_barrier_adb_calls")" -eq 5 ] || \
+  fail "ownership barrier did not retry the delayed adb transport"
+[ "$(cat "$ownership_barrier_owner_calls")" -eq 4 ] || \
+  fail "ownership barrier did not retry the delayed instance ID"
+[ "$(cat "$ownership_barrier_avd_calls")" -eq 2 ] || \
+  fail "ownership barrier did not retry the delayed AVD identity"
+grep -Fq -- 'emu avd id' "$ownership_barrier_calls" || \
+  fail "ownership barrier did not query the emulator's supported instance ID"
+if grep -Fq 'qemu.urnetwork.acceptance_owner' "$ownership_barrier_calls"; then
+  fail "ownership barrier still queries the ignored custom boot property"
+fi
+
+sleep 300 &
+dying_ownership_barrier_pid=$!
+reset_ownership_barrier
+FAKE_OWNERSHIP_BARRIER_OWNER_DELAY=5
+ownership_barrier_kill_on_sleep="$dying_ownership_barrier_pid"
+if android_acceptance_wait_for_runner_owned_emulator \
+    fake_ownership_barrier_adb emulator-5614 synthetic-acceptance \
+    "$dying_ownership_barrier_pid" test-owner 5; then
+  fail "ownership barrier accepted a child that died while evidence was pending"
+fi
+[ "$(cat "$ownership_barrier_adb_calls")" -eq 1 ] || \
+  fail "ownership barrier kept polling adb after its exact child died"
+
+reset_ownership_barrier
+FAKE_OWNERSHIP_BARRIER_ADB_DELAY=0
+FAKE_OWNERSHIP_BARRIER_OWNER_DELAY=0
+FAKE_OWNERSHIP_BARRIER_AVD_DELAY=0
+FAKE_OWNERSHIP_BARRIER_OWNER=foreign
+if android_acceptance_wait_for_runner_owned_emulator \
+    fake_ownership_barrier_adb emulator-5614 synthetic-acceptance \
+    "$ownership_barrier_pid" test-owner 5; then
+  fail "ownership barrier accepted a mismatched nonempty guest token"
+fi
+[ "$(cat "$ownership_barrier_owner_calls")" -eq 1 ] || \
+  fail "ownership barrier retried a conclusive guest-token mismatch"
+[ "$(cat "$ownership_barrier_avd_calls")" -eq 0 ] || \
+  fail "ownership barrier queried AVD identity after a token mismatch"
+
+reset_ownership_barrier
+FAKE_OWNERSHIP_BARRIER_OWNER=test-owner
+FAKE_OWNERSHIP_BARRIER_AVD=other-avd
+if android_acceptance_wait_for_runner_owned_emulator \
+    fake_ownership_barrier_adb emulator-5614 synthetic-acceptance \
+    "$ownership_barrier_pid" test-owner 5; then
+  fail "ownership barrier accepted a mismatched nonempty AVD identity"
+fi
+[ "$(cat "$ownership_barrier_avd_calls")" -eq 1 ] || \
+  fail "ownership barrier retried a conclusive AVD mismatch"
+
+(exit 0) & completed_emulator_pid=$!
+wait "$completed_emulator_pid"
+reset_ownership_barrier
+if android_acceptance_wait_for_runner_owned_emulator \
+    fake_ownership_barrier_adb emulator-5614 synthetic-acceptance \
+    "$completed_emulator_pid" test-owner 5; then
+  fail "ownership barrier accepted an already-dead exact child"
+fi
+[ ! -s "$ownership_barrier_calls" ] || \
+  fail "ownership barrier reached adb after its exact child had died"
+
+kill -TERM "$ownership_barrier_pid"
+wait "$ownership_barrier_pid" 2>/dev/null || true
+android_acceptance_emulator_ownership_poll_sleep() { sleep 0.5; }
+rm -f \
+  "$ownership_barrier_calls" \
+  "$ownership_barrier_adb_calls" \
+  "$ownership_barrier_owner_calls" \
+  "$ownership_barrier_avd_calls"
+
+emulator_signal_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-emulator-signal.test.XXXXXX")"
+(
+  trap 'printf "term\n" >"$emulator_signal_dir/term"; exit 0' TERM
+  printf 'ready\n' >"$emulator_signal_dir/term-ready"
+  while :; do sleep 1; done
+) &
+term_emulator_pid=$!
+for _ in $(seq 1 1000); do
+  [ -s "$emulator_signal_dir/term-ready" ] && break
+  sleep 0.01
+done
+[ -s "$emulator_signal_dir/term-ready" ] || fail "TERM test child did not reach its barrier"
+android_acceptance_emulator_cleanup_poll_sleep() { sleep 0.01; }
+android_acceptance_stop_emulator_child "$term_emulator_pid" 0 100 || \
+  fail "TERM-responsive emulator child required forced cleanup"
+[ "$(cat "$emulator_signal_dir/term" 2>/dev/null || true)" = term ] || \
+  fail "emulator cleanup did not deliver TERM to the exact child"
+(
+  trap '' TERM
+  printf 'ready\n' >"$emulator_signal_dir/stuck-ready"
+  while :; do sleep 1; done
+) &
+stuck_emulator_pid=$!
+for _ in $(seq 1 1000); do
+  [ -s "$emulator_signal_dir/stuck-ready" ] && break
+  sleep 0.01
+done
+[ -s "$emulator_signal_dir/stuck-ready" ] || fail "stuck test child did not reach its barrier"
+if android_acceptance_stop_emulator_child "$stuck_emulator_pid" 0 2; then
+  fail "an emulator child that ignored TERM was not reported as forced cleanup"
+fi
+if kill -0 "$stuck_emulator_pid" 2>/dev/null; then
+  fail "forced emulator cleanup left its exact child alive"
+fi
+android_acceptance_emulator_cleanup_poll_sleep() { sleep 0.2; }
+rm -rf "$emulator_signal_dir"
+
+android_acceptance_no_running_avd \
+  fake_emulator_owner_adb synthetic-acceptance || \
+  fail "an empty emulator inventory was rejected"
+FAKE_EMULATOR_INVENTORY=unrelated
+android_acceptance_no_running_avd \
+  fake_emulator_owner_adb synthetic-acceptance || \
+  fail "an unrelated running AVD was rejected"
+FAKE_EMULATOR_INVENTORY=expected
+if android_acceptance_no_running_avd \
+    fake_emulator_owner_adb synthetic-acceptance; then
+  fail "a pre-existing same-name AVD was available for implicit reuse"
+else
+  [ "$?" -eq 1 ] || fail "a same-name AVD conflict returned the wrong status"
+fi
+FAKE_EMULATOR_INVENTORY=offline
+if android_acceptance_no_running_avd \
+    fake_emulator_owner_adb synthetic-acceptance; then
+  fail "an unclassifiable emulator inventory was treated as ownership-safe"
+else
+  [ "$?" -eq 2 ] || fail "an unclassifiable emulator returned the wrong status"
+fi
+FAKE_EMULATOR_INVENTORY=malformed
+if android_acceptance_no_running_avd \
+    fake_emulator_owner_adb synthetic-acceptance; then
+  fail "a malformed emulator inventory was treated as an empty inventory"
+else
+  [ "$?" -eq 2 ] || fail "a malformed emulator inventory returned the wrong status"
+fi
+FAKE_EMULATOR_INVENTORY=none
+
+# The exact default AVD is a reserved harness resource, so a legacy guest whose
+# instance ID defaulted to its AVD name may be retired once. A per-launch-ID or
+# unrelated guest must remain untouched, and completion requires observed
+# inventory absence rather than a successful intermediate adb command status.
+legacy_retirement_calls="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-legacy-avd.test.XXXXXX")"
+legacy_retirement_state="$(mktemp "${TMPDIR:-/tmp}/urnetwork-android-legacy-state.test.XXXXXX")"
+FAKE_LEGACY_AVD=urnetwork-acceptance
+FAKE_LEGACY_OWNER=urnetwork-acceptance
+FAKE_LEGACY_ID_AVAILABLE=1
+FAKE_LEGACY_AFTER_KILL=absent
+FAKE_LEGACY_KILL_STATUS=0
+legacy_set_state() {
+  printf '%s\n' "$1" >"$legacy_retirement_state"
+}
+fake_legacy_avd_adb() {
+  local inventory_state remaining
+
+  printf '%s\n' "$*" >>"$legacy_retirement_calls"
+  if [ "$1" = devices ]; then
+    inventory_state="$(cat "$legacy_retirement_state")"
+    printf 'inventory-state=%s\n' "$inventory_state" >>"$legacy_retirement_calls"
+    [ "$inventory_state" != inventory-error ] || return 93
+    if [ "$inventory_state" = malformed ]; then
+      printf 'not an adb inventory\n'
+      return 0
+    fi
+    printf 'List of devices attached\n'
+    case "$inventory_state" in
+      initial|retained) printf 'emulator-5612\tdevice\n' ;;
+      offline:*)
+        printf 'emulator-5612\toffline\n'
+        remaining="${inventory_state#offline:}"
+        if [ "$remaining" -gt 1 ]; then
+          legacy_set_state "offline:$((remaining - 1))"
+        else
+          legacy_set_state absent
+        fi
+        ;;
+      absent) ;;
+      *) return 94 ;;
+    esac
+    return 0
+  fi
+  [ "$1" = -s ] && [ "$2" = emulator-5612 ] || return 90
+  shift 2
+  case "$*" in
+    'emu avd name') printf '%s\nOK\n' "$FAKE_LEGACY_AVD" ;;
+    'shell getprop qemu.urnetwork.acceptance_owner') printf '\n' ;;
+    'emu avd id')
+      [ "$FAKE_LEGACY_ID_AVAILABLE" -eq 1 ] || return 1
+      printf '%s\nOK\n' "$FAKE_LEGACY_OWNER"
+      ;;
+    'emu kill')
+      case "$FAKE_LEGACY_AFTER_KILL" in
+        absent|retained|inventory-error|malformed)
+          legacy_set_state "$FAKE_LEGACY_AFTER_KILL"
+          ;;
+        transient-offline) legacy_set_state offline:2 ;;
+        *) return 95 ;;
+      esac
+      return "$FAKE_LEGACY_KILL_STATUS"
+      ;;
+    wait-for-disconnect) return 96 ;;
+    *) return 91 ;;
+  esac
+}
+android_acceptance_emulator_disconnect_poll_sleep() { :; }
+
+# This is the live migration boundary: the kill request performs its side
+# effect, then reports timeout/failure because its transport disappeared before
+# the console reply completed. Confirmed absence must still retire the guest.
+legacy_set_state initial
+FAKE_LEGACY_AFTER_KILL=absent
+FAKE_LEGACY_KILL_STATUS=124
+[ "$(android_acceptance_retire_legacy_reserved_avd \
+  fake_legacy_avd_adb urnetwork-acceptance 3)" = retired ] || \
+  fail "a completed legacy retirement inherited adb kill's failure status"
+grep -Fxq -- '-s emulator-5612 emu kill' "$legacy_retirement_calls" || \
+  fail "legacy reserved AVD retirement did not issue one bounded kill"
+grep -Fxq -- '-s emulator-5612 emu avd id' "$legacy_retirement_calls" || \
+  fail "legacy retirement did not classify the emulator's default instance ID"
+if grep -Fq 'qemu.urnetwork.acceptance_owner' "$legacy_retirement_calls"; then
+  fail "legacy retirement still depends on the ignored custom boot property"
+fi
+grep -Fxq -- 'inventory-state=absent' "$legacy_retirement_calls" || \
+  fail "legacy reserved AVD retirement did not confirm immediate absence"
+if grep -Fq 'wait-for-disconnect' "$legacy_retirement_calls"; then
+  fail "legacy retirement still trusts serial-targeted disconnect exit status"
+fi
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_AFTER_KILL=transient-offline
+FAKE_LEGACY_KILL_STATUS=0
+[ "$(android_acceptance_retire_legacy_reserved_avd \
+  fake_legacy_avd_adb urnetwork-acceptance 4)" = retired ] || \
+  fail "a transient offline transport was not polled through exact absence"
+grep -Fxq -- 'inventory-state=offline:2' "$legacy_retirement_calls" || \
+  fail "legacy retirement did not observe the first offline terminal transition"
+grep -Fxq -- 'inventory-state=offline:1' "$legacy_retirement_calls" || \
+  fail "legacy retirement did not keep polling an offline transport"
+grep -Fxq -- 'inventory-state=absent' "$legacy_retirement_calls" || \
+  fail "legacy retirement did not observe absence after transient offline state"
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_AFTER_KILL=retained
+FAKE_LEGACY_KILL_STATUS=1
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb urnetwork-acceptance 3 >/dev/null; then
+  fail "legacy retirement passed while the exact transport remained listed"
+fi
+[ "$(grep -Fc 'inventory-state=retained' "$legacy_retirement_calls")" -eq 3 ] || \
+  fail "retained legacy transport was not checked for the exact poll bound"
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_AFTER_KILL=inventory-error
+FAKE_LEGACY_KILL_STATUS=0
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb urnetwork-acceptance 3 >/dev/null; then
+  fail "legacy retirement treated an inventory error as transport absence"
+fi
+grep -Fxq -- 'inventory-state=inventory-error' "$legacy_retirement_calls" || \
+  fail "legacy retirement did not reach its failed inventory boundary"
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_AFTER_KILL=malformed
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb urnetwork-acceptance 3 >/dev/null; then
+  fail "legacy retirement treated malformed inventory as transport absence"
+fi
+grep -Fxq -- 'inventory-state=malformed' "$legacy_retirement_calls" || \
+  fail "legacy retirement did not inspect the malformed inventory"
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb urnetwork-acceptance 0 >/dev/null; then
+  fail "legacy retirement accepted an invalid disconnect poll bound"
+else
+  [ "$?" -eq 2 ] || fail "invalid legacy disconnect bound returned the wrong status"
+fi
+[ ! -s "$legacy_retirement_calls" ] || \
+  fail "invalid legacy disconnect bound reached adb before validation"
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_OWNER=''
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb urnetwork-acceptance 3 >/dev/null; then
+  fail "legacy retirement accepted an empty emulator instance ID"
+fi
+if grep -Fq 'emu kill' "$legacy_retirement_calls"; then
+  fail "legacy migration killed an emulator with an unclassifiable instance ID"
+fi
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_OWNER=urnetwork-acceptance
+FAKE_LEGACY_ID_AVAILABLE=0
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb urnetwork-acceptance 3 >/dev/null; then
+  fail "legacy retirement accepted an unavailable emulator instance ID"
+fi
+if grep -Fq 'emu kill' "$legacy_retirement_calls"; then
+  fail "legacy migration killed an emulator whose instance ID query failed"
+fi
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_AFTER_KILL=absent
+FAKE_LEGACY_KILL_STATUS=0
+FAKE_LEGACY_ID_AVAILABLE=1
+FAKE_LEGACY_OWNER="$$"
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb urnetwork-acceptance 3 >/dev/null; then
+  fail "a per-launch-ID reserved AVD was retired as legacy"
+fi
+if grep -Fq 'emu kill' "$legacy_retirement_calls"; then
+  fail "legacy migration killed a per-launch-ID AVD"
+fi
+
+: >"$legacy_retirement_calls"
+legacy_set_state initial
+FAKE_LEGACY_OWNER=urnetwork-acceptance
+FAKE_LEGACY_AVD=other-avd
+[ "$(android_acceptance_retire_legacy_reserved_avd \
+  fake_legacy_avd_adb urnetwork-acceptance 3)" = none ] || \
+  fail "an unrelated AVD was classified as legacy acceptance state"
+if grep -Fq 'emu kill' "$legacy_retirement_calls"; then
+  fail "legacy migration killed an unrelated AVD"
+fi
+if android_acceptance_retire_legacy_reserved_avd \
+    fake_legacy_avd_adb custom-acceptance >/dev/null; then
+  fail "legacy retirement accepted a non-reserved custom AVD name"
+else
+  [ "$?" -eq 2 ] || fail "custom legacy AVD retirement returned the wrong status"
+fi
+android_acceptance_emulator_disconnect_poll_sleep() { sleep 0.5; }
+rm -f "$legacy_retirement_calls" "$legacy_retirement_state"
+
 preflight_test_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-preflight.test.XXXXXX")"
 preflight_diagnostic="$preflight_test_dir/provider-preflight.txt"
 FAKE_PREFLIGHT_CPU="$preflight_fixture_dir/clean-cpu.txt"
@@ -1214,6 +1744,7 @@ reset_readiness_fake() {
   FAKE_READY_ABI=arm64-v8a,armeabi-v7a
   FAKE_READY_ABI_AVAILABLE=1
   FAKE_READY_AVD=urnetwork-acceptance
+  FAKE_READY_OWNER_PID="$$"
   FAKE_READY_LOCK_DISABLED=true
   FAKE_READY_DREAMING_LOCKSCREEN=false
   FAKE_READY_WINDOW_AVAILABLE=1
@@ -1246,6 +1777,7 @@ fake_readiness_adb() {
     'emu avd name')
       printf '%s\nOK\n' "$FAKE_READY_AVD"
       ;;
+    'emu avd id') printf '%s\nOK\n' "$FAKE_READY_OWNER_PID" ;;
     'shell getprop sys.boot_completed')
       printf '%s\n' "$FAKE_READY_BOOT"
       ;;
@@ -1465,6 +1997,15 @@ if grep -Eq 'shell wm size|shell input swipe|KEYCODE_[0-9]' "$readiness_calls"; 
 fi
 
 reset_readiness_fake
+FAKE_READY_OWNER_PID=test-owner
+ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN=test-owner \
+  android_acceptance_prepare_owned_emulator \
+    fake_readiness_adb emulator-5558 urnetwork-acceptance "$$" \
+    "$readiness_dir/state" "$readiness_status" "$readiness_interactive" 1 1 1 || \
+  fail "an explicit non-PID guest ownership token was not propagated"
+readiness_status_is ready
+
+reset_readiness_fake
 FAKE_READY_DREAMING_LOCKSCREEN=absent
 android_acceptance_prepare_owned_emulator \
   fake_readiness_adb emulator-5558 urnetwork-acceptance "$$" \
@@ -1475,8 +2016,23 @@ owned_diagnostic_field_is "$readiness_interactive" window absent
 owned_diagnostic_field_is "$readiness_interactive" result ready
 
 # Ownership is an explicit gate, not an inference from an emulator-* serial.
-# A dead child, a different AVD name, or permanently unknown trust state must
-# fail without attempting a credential or reaching the network probe.
+# A stale instance ID, dead child, different AVD name, or permanently unknown
+# trust state must fail without mutation or a network probe.
+reset_readiness_fake
+FAKE_READY_OWNER_PID=foreign
+if android_acceptance_prepare_owned_emulator \
+    fake_readiness_adb emulator-5558 urnetwork-acceptance "$$" \
+    "$readiness_dir/state" "$readiness_status" "$readiness_interactive" 1 1 1; then
+  fail "a stale guest at the expected serial and AVD name was accepted as owned"
+fi
+readiness_status_is owned-emulator-interactive-failed
+owned_diagnostic_field_is "$readiness_interactive" owner mismatch
+owned_diagnostic_field_is "$readiness_interactive" wake unchecked
+owned_diagnostic_field_is "$readiness_interactive" result failed
+if grep -Eq 'shell wm dismiss-keyguard|shell toybox nc' "$readiness_calls"; then
+  fail "a guest with a mismatched instance ID was mutated or network-probed"
+fi
+
 reset_readiness_fake
 FAKE_READY_AVD=foreign-avd
 if android_acceptance_prepare_owned_emulator \
@@ -2075,7 +2631,7 @@ fi
 # setup step may sit between that boundary and its UI/instrumentation launch.
 runner_source="$here/test-main.sh"
 owned_selection_source="$(sed -n \
-  '/^runner_owns_fallback_emulator()/,/^capture_device_fleet ||/p' "$runner_source")"
+  '/^runner_started_fallback_emulator()/,/^capture_device_fleet ||/p' "$runner_source")"
 # This intentionally asserts the literal runner ownership expression.
 # shellcheck disable=SC2016
 grep -Fq '[ "$target_serial" = "$started_emulator_serial" ]' \
@@ -2863,15 +3419,65 @@ fi
 
 setup_source="$here/../build/all/android/setup.sh"
 [ -f "$setup_source" ] || fail "Android setup source is missing"
-# This intentionally asserts the literal setup launch expression.
+# Setup must launch and clean only its own read-only guest. Reusing an already
+# running same-name AVD was the source of the writable lock that rejected the
+# acceptance runner's peer.
 # shellcheck disable=SC2016
-grep -Fq 'args=(-avd "$avd_name" -gpu host ' "$setup_source" || \
-  fail "Android setup smoke does not launch with host rendering"
+grep -Fq 'android_acceptance_retire_legacy_reserved_avd' \
+  "$setup_source" || \
+  fail "Android setup cannot retire the default-ID legacy reserved AVD"
+# shellcheck disable=SC2016
+grep -Fq 'android_acceptance_no_running_avd "$adb" "$avd_name"' \
+  "$setup_source" || \
+  fail "Android setup does not reject a pre-existing same-name AVD"
+# shellcheck disable=SC2016
+if grep -Fq 'reusing running $avd_name' "$setup_source"; then
+  fail "Android setup still reuses an unowned same-name AVD"
+fi
+# shellcheck disable=SC2016
+grep -Fq 'args=(-avd "$avd_name" -read-only -gpu host ' "$setup_source" || \
+  fail "Android setup smoke does not launch read-only with host rendering"
+grep -Fq 'run_android_acceptance_shared_avd_emulator' "$setup_source" || \
+  fail "Android setup bypasses the shared AVD launch ownership gate"
+grep -Fq 'exec "$emulator" "$@" -id "$owner_token"' \
+  "$here/test-main-lib.sh" || \
+  fail "shared AVD launch does not inject a console-reported instance ID"
+if rg -n 'qemu\.urnetwork\.acceptance_owner' \
+    "$here/test-main-lib.sh" "$runner_source" "$setup_source" >/dev/null; then
+  fail "live Android launch or ownership still depends on the ignored boot property"
+fi
+grep -Fq 'android_acceptance_wait_for_runner_owned_emulator' "$setup_source" || \
+  fail "Android setup does not wait for its exact guest proof before smoke checks"
+if grep -Fq 'wait-for-device' "$setup_source"; then
+  fail "Android setup still treats transport readiness as guest ownership readiness"
+fi
+grep -Fq 'android_acceptance_stop_emulator_child' "$setup_source" || \
+  fail "Android setup signals cleanup through the adb serial instead of its exact child"
 setup_preflight_line="$(grep -n -m1 'android_acceptance_preflight_device' \
   "$setup_source" | cut -d: -f1)"
 setup_success_line="$(grep -n -m1 'SMOKE TEST PASSED' "$setup_source" | cut -d: -f1)"
 [ -n "$setup_preflight_line" ] && [ -n "$setup_success_line" ] && \
   [ "$setup_preflight_line" -lt "$setup_success_line" ] || \
   fail "Android setup can claim smoke success before resource/dialog preflight"
+
+# The live acceptance runner also starts from a no-reuse boundary and binds
+# its fallback serial to the explicit port given to the exact child.
+grep -Fq 'android_acceptance_retire_legacy_reserved_avd' \
+  "$runner_source" || \
+  fail "Android acceptance cannot retire the default-ID legacy reserved AVD"
+# shellcheck disable=SC2016
+grep -Fq 'android_acceptance_no_running_avd "$adb" "$avd_name"' \
+  "$runner_source" || \
+  fail "Android acceptance does not reject a pre-existing same-name AVD"
+if grep -Fq 'find_avd_serial' "$runner_source"; then
+  fail "fallback AVD ownership is still inferred by searching for its name"
+fi
+# shellcheck disable=SC2016
+grep -Fq 'started_emulator_serial="emulator-$port"' "$runner_source" || \
+  fail "fallback AVD serial is not bound to its explicit launch port"
+grep -Fq 'android_acceptance_wait_for_runner_owned_emulator' "$runner_source" || \
+  fail "fallback AVD does not wait for its exact guest ownership evidence"
+[ "$(grep -Fc 'android_acceptance_stop_emulator_child' "$runner_source")" -eq 3 ] || \
+  fail "fallback, early peer, and normal peer cleanup do not join exact children"
 
 echo "android/test-main.sh runner tests passed"
