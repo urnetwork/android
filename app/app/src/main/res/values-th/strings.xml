@@ -90,6 +90,7 @@
     <string name="connect_options">ตัวเลือกการเชื่อมต่อ</string>
     <string name="connect_seeker_wallet">เชื่อมกระเป๋ากับ Saga Genesis หรือ Seeker Pre-Order Token</string>
     <string name="connect_to_location">เชื่อมต่อไปที่ %1$s</string>
+    <string name="connect_wallet">เชื่อมต่อกระเป๋าเงิน</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
     <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ</string>
     <string name="connection_mode">โหมดการเชื่อมต่อ</string>
@@ -119,6 +120,7 @@
     <string name="data">ข้อมูล</string>
     <string name="data_bar_explanation">แถบนี้ในแอปจะแสดงให้คุณเห็นว่าคุณได้รับข้อมูลฟรีจากผู้ให้บริการมากแค่ไหน คุณสามารถตรวจสอบได้ทุกเมื่อและปรับการตั้งค่าเพื่อเพิ่มรายได้สูงสุด</string>
     <string name="data_usage">การใช้ข้อมูล</string>
+    <string name="default_wallet">ค่าเริ่มต้น</string>
     <string name="delete">ลบ</string>
     <string name="delete_account">ลบบัญชี</string>
     <string name="device">อุปกรณ์</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">แนะนำอันอื่น</string>
     <string name="enjoying_urnetwork">สนุกกับการใช้ URnetwork ไหม?</string>
     <string name="enter">เข้า</string>
+    <string name="enter_a_solana_usdc_wallet_address">ป้อนที่อยู่กระเป๋าเงิน USDC บน Solana</string>
     <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
     <string name="enter_network_referral_code">กรอกรหัสการแนะนำเครือข่าย</string>
+    <string name="error_connecting_wallet_with_reason">เกิดข้อผิดพลาดในการเชื่อมต่อกระเป๋าเงินของคุณ: %1$s</string>
     <string name="error_loading_account_plan">เกิดข้อผิดพลาดในการโหลดแผนบัญชีของคุณ</string>
     <string name="error_redeeming_transfer_balance_code">เกิดข้อผิดพลาดในการแลกรหัสยอดเงินโอน</string>
+    <string name="error_setting_default_wallet_with_reason">เกิดข้อผิดพลาดในการตั้งค่ากระเป๋าเงินเริ่มต้น: %1$s</string>
     <string name="exclude_app">ยกเว้นจาก VPN</string>
     <string name="exclude_app_description">แอปนี้จะไม่ผ่านอุโมงค์</string>
     <string name="excluded">ยกเว้น</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">บอกเราหน่อยสิว่านี้คือคุณจริงๆ กรอกโค้ดทางเรา\nส่งให้เพื่อยืนยันตัวตน</string>
     <string name="login_verify_header">คุณได้รับอีเมลใหม่</string>
     <string name="longest_streak">ต่อเนื่องยาวนานที่สุด</string>
+    <string name="make_default">ตั้งเป็นกระเป๋ารับยอด</string>
     <string name="manage_subscription">จัดการระบบรายเดือน</string>
     <string name="member">รูปแบบสมาชิก</string>
     <string name="mock_location_active">กำลังซิงค์กับ %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">ชำระเงินด้วยกระเป๋าเงิน Solana</string>
     <string name="pay_with_stripe">เข้าร่วมด้วย Stripe</string>
     <string name="payment_problem">ปัญหาการชำระเงิน</string>
+    <string name="payout_wallet_updated">อัปเดตกระเป๋ารับยอดจ่ายแล้ว</string>
     <string name="peer_count_one">1 เพียร์</string>
     <string name="peer_count_other">%d เพียร์</string>
     <string name="pending_data_key">รอดำเนินการ</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">ระยะไกล</string>
     <string name="remove">ลบ</string>
     <string name="remove_rule">ลบกฎ</string>
+    <string name="remove_wallet">ลบกระเป๋าเงิน</string>
     <string name="resend_reset_link">ส่งลิงก์ใหม่อีกครั้ง</string>
     <string name="resend_verify_code">ส่งโค้ดใหม่</string>
     <string name="reset_it">ตั้งใหม่เลยสิ</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">อัพเดตรหัสการแนะนำเครือข่าย</string>
     <string name="upgrade_now">อัพเกรดเดี๋ยวนี้</string>
     <string name="upgrade_subscription">อัพเกรดเป็นสมัครรายเดือน</string>
+    <string name="usdc_wallet_address">ที่อยู่กระเป๋าเงิน USDC</string>
     <string name="use_most_stable_provider">ใช้ผู้ให้บริการที่เสถียรที่สุด</string>
     <string name="use_recommended_settings">ใช้การตั้งค่าที่แนะนำ</string>
     <string name="used_data_key">ใช้แล้ว</string>

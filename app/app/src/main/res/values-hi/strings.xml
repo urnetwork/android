@@ -90,6 +90,7 @@
     <string name="connect_options">कनेक्शन विकल्प</string>
     <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
     <string name="connect_to_location">%1$s से कनेक्ट करें</string>
+    <string name="connect_wallet">वॉलेट कनेक्ट करें</string>
     <string name="connected">कनेक्टेड</string>
     <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है</string>
     <string name="connection_mode">कनेक्शन मोड</string>
@@ -119,6 +120,7 @@
     <string name="data">डेटा</string>
     <string name="data_bar_explanation">ऐप में यह बार आपको दिखाता है कि आप अपने प्रदाता से कितने मुफ्त डेटा कमा रहे हैं। आप कभी भी जांच सकते हैं और अपनी सेटिंग्स समायोजित कर सकते हैं ताकि अपनी कमाई अधिकतम कर सकें।</string>
     <string name="data_usage">डेटा उपयोग</string>
+    <string name="default_wallet">डिफ़ॉल्ट</string>
     <string name="delete">डिलीट करें</string>
     <string name="delete_account">अकाउंट डिलीट करें</string>
     <string name="device">डिवाइस</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">दूसरा सुझाव</string>
     <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
     <string name="enter">दर्ज</string>
+    <string name="enter_a_solana_usdc_wallet_address">Solana USDC वॉलेट पता दर्ज करें</string>
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
     <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
+    <string name="error_connecting_wallet_with_reason">आपका वॉलेट कनेक्ट करते समय त्रुटि हुई: %1$s</string>
     <string name="error_loading_account_plan">आपके अकाउंट प्लान को लोड करने में त्रुटि हुई।</string>
     <string name="error_redeeming_transfer_balance_code">ट्रांसफर बैलेंस कोड रिडीम करने में त्रुटि।</string>
+    <string name="error_setting_default_wallet_with_reason">डिफ़ॉल्ट वॉलेट सेट करने में त्रुटि: %1$s</string>
     <string name="exclude_app">VPN से बाहर रखें</string>
     <string name="exclude_app_description">यह ऐप टनल को बायपास करता है।</string>
     <string name="excluded">बाहर रखे गए</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
     <string name="longest_streak">सबसे लंबी स्ट्रीक</string>
+    <string name="make_default">डिफ़ॉल्ट बनाएं</string>
     <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
     <string name="member">सदस्य</string>
     <string name="mock_location_active">%1$s के साथ सिंक हो रहा है</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Solana वॉलेट से भुगतान करें</string>
     <string name="pay_with_stripe">Stripe के साथ जुड़ें</string>
     <string name="payment_problem">भुगतान में समस्या</string>
+    <string name="payout_wallet_updated">पेआउट वॉलेट अपडेट किया गया</string>
     <string name="peer_count_one">1 पीयर</string>
     <string name="peer_count_other">%d पीयर</string>
     <string name="pending_data_key">लंबित</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">रिमोट</string>
     <string name="remove">हटाएं</string>
     <string name="remove_rule">नियम हटाएं</string>
+    <string name="remove_wallet">वॉलेट हटाएं</string>
     <string name="resend_reset_link">लिंक फिर से भेजें</string>
     <string name="resend_verify_code">कोड फिर से भेजें</string>
     <string name="reset_it">इसे रीसेट करें</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
     <string name="upgrade_now">अभी अपग्रेड करें</string>
     <string name="upgrade_subscription">सदस्यता अपग्रेड करें</string>
+    <string name="usdc_wallet_address">USDC वॉलेट पता</string>
     <string name="use_most_stable_provider">सबसे स्थिर प्रदाता का उपयोग करता है</string>
     <string name="use_recommended_settings">अनुशंसित सेटिंग्स का उपयोग करें</string>
     <string name="used_data_key">उपयोग किया गया</string>

@@ -90,6 +90,7 @@
     <string name="connect_options">Verbindingsopties</string>
     <string name="connect_seeker_wallet">Koppel een wallet met het Saga Genesis- of Seeker Pre-Order Token</string>
     <string name="connect_to_location">Verbind met %1$s</string>
+    <string name="connect_wallet">Verbind Wallet</string>
     <string name="connected">Verbonden</string>
     <string name="connecting_status_indicator">Verbinden met providers</string>
     <string name="connection_mode">Verbindingsmodus</string>
@@ -119,6 +120,7 @@
     <string name="data">Data</string>
     <string name="data_bar_explanation">Deze balk in de app laat zien hoeveel gratis data je van je provider verdient. Je kunt op elk moment kijken en je instellingen aanpassen om je verdiensten te maximaliseren.</string>
     <string name="data_usage">Dataverbruik</string>
+    <string name="default_wallet">Standaard</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_account">Verwijder Account</string>
     <string name="device">Apparaat</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Andere suggestie</string>
     <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
     <string name="enter">Enter</string>
+    <string name="enter_a_solana_usdc_wallet_address">Voer een Solana USDC-walletadres in</string>
     <string name="enter_balance_code">Voer saldo-code in</string>
     <string name="enter_network_referral_code">Referentiecode ingeven</string>
+    <string name="error_connecting_wallet_with_reason">Er is een fout opgetreden bij het verbinden van je wallet: %1$s</string>
     <string name="error_loading_account_plan">Fout bij het laden van uw accountplan.</string>
     <string name="error_redeeming_transfer_balance_code">Fout bij het inwisselen van overdrachts-saldocode.</string>
+    <string name="error_setting_default_wallet_with_reason">Fout bij het instellen van de standaardwallet: %1$s</string>
     <string name="exclude_app">Uitsluiten van VPN</string>
     <string name="exclude_app_description">Deze app omzeilt de tunnel.</string>
     <string name="excluded">Uitgesloten</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
     <string name="login_verify_header">Je hebt mail</string>
     <string name="longest_streak">Langste reeks</string>
+    <string name="make_default">Als standaard instellen</string>
     <string name="manage_subscription">Abonnement beheren</string>
     <string name="member">Lid</string>
     <string name="mock_location_active">Synchroniseren met %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Betalen met Solana Wallet</string>
     <string name="pay_with_stripe">Lid worden met Stripe</string>
     <string name="payment_problem">Betalingsprobleem</string>
+    <string name="payout_wallet_updated">Uitbetalingswallet bijgewerkt</string>
     <string name="peer_count_one">1 peer</string>
     <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">In behandeling</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">extern</string>
     <string name="remove">Verwijderen</string>
     <string name="remove_rule">Regel verwijderen</string>
+    <string name="remove_wallet">Verwijder wallet</string>
     <string name="resend_reset_link">Link opnieuw versturen</string>
     <string name="resend_verify_code">Code opnieuw versturen</string>
     <string name="reset_it">Reset het</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Referentienetwerk bijwerken</string>
     <string name="upgrade_now">Upgrade nu</string>
     <string name="upgrade_subscription">Abonnement upgraden</string>
+    <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_most_stable_provider">Gebruikt de stabielste provider</string>
     <string name="use_recommended_settings">Aanbevolen instellingen gebruiken</string>
     <string name="used_data_key">Gebruikt</string>

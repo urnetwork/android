@@ -90,6 +90,7 @@
     <string name="connect_options">Verbindungsoptionen</string>
     <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Saga Genesis oder Seeker Vorbestellungs-Token</string>
     <string name="connect_to_location">Mit %1$s verbinden</string>
+    <string name="connect_wallet">Wallet verbinden</string>
     <string name="connected">Verbunden</string>
     <string name="connecting_status_indicator">Verbindung zu Anbietern wird hergestellt</string>
     <string name="connection_mode">Verbindungsmodus</string>
@@ -119,6 +120,7 @@
     <string name="data">Daten</string>
     <string name="data_bar_explanation">Dieser Balken in der App zeigt dir, wie viel kostenlose Daten du von deinem Anbieter erhältst. Du kannst jederzeit nachsehen und deine Einstellungen anpassen, um deine Einnahmen zu maximieren.</string>
     <string name="data_usage">Datennutzung</string>
+    <string name="default_wallet">Standard</string>
     <string name="delete">Löschen</string>
     <string name="delete_account">Konto löschen</string>
     <string name="device">Gerät</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Anderen Vorschlag</string>
     <string name="enjoying_urnetwork">Gefällt dir URnetwork?</string>
     <string name="enter">Rein</string>
+    <string name="enter_a_solana_usdc_wallet_address">Gib eine Solana USDC-Wallet-Adresse ein</string>
     <string name="enter_balance_code">Guthabencode eingeben</string>
     <string name="enter_network_referral_code">Netzwerbe-Empfehlungscode eingeben</string>
+    <string name="error_connecting_wallet_with_reason">Beim Verbinden deiner Wallet ist ein Fehler aufgetreten: %1$s</string>
     <string name="error_loading_account_plan">Fehler beim Laden deines Kontoplans.</string>
     <string name="error_redeeming_transfer_balance_code">Fehler beim Einlösen des Übertragungsguthabencodes.</string>
+    <string name="error_setting_default_wallet_with_reason">Fehler beim Festlegen der Standard-Wallet: %1$s</string>
     <string name="exclude_app">Vom VPN ausschließen</string>
     <string name="exclude_app_description">Diese App umgeht den Tunnel.</string>
     <string name="excluded">Ausgeschlossen</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Sag uns, wer du wirklich bist. Gib den Code ein, den wir dir\ngesendet haben, um deine Identität zu überprüfen.</string>
     <string name="login_verify_header">Du hast eine E-Mail</string>
     <string name="longest_streak">Längste Serie</string>
+    <string name="make_default">Als Standard festlegen</string>
     <string name="manage_subscription">Abonnement verwalten</string>
     <string name="member">Mitglied</string>
     <string name="mock_location_active">Wird mit %1$s synchronisiert</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Mit Solana Wallet bezahlen</string>
     <string name="pay_with_stripe">Mit Stripe beitreten</string>
     <string name="payment_problem">Zahlungsproblem</string>
+    <string name="payout_wallet_updated">Auszahlungs-Wallet aktualisiert</string>
     <string name="peer_count_one">1 Peer</string>
     <string name="peer_count_other">%d Peers</string>
     <string name="pending_data_key">Ausstehend</string>
@@ -417,6 +424,7 @@
     <string name="remote_lowercase">extern</string>
     <string name="remove">Entferne</string>
     <string name="remove_rule">Regel entfernen</string>
+    <string name="remove_wallet">Wallet entfernen</string>
     <string name="resend_reset_link">Link erneut senden</string>
     <string name="resend_verify_code">Code erneut senden</string>
     <string name="reset_it">Zurücksetzen</string>
@@ -517,6 +525,7 @@
     <string name="update_referral_network">Empfehlungsnetzwerk aktualisieren</string>
     <string name="upgrade_now">Jetzt upgraden</string>
     <string name="upgrade_subscription">Abonnement upgraden</string>
+    <string name="usdc_wallet_address">USDC-Wallet-Adresse</string>
     <string name="use_most_stable_provider">Verwendet den stabilsten Anbieter</string>
     <string name="use_recommended_settings">Empfohlene Einstellungen verwenden</string>
     <string name="used_data_key">Verbraucht</string>

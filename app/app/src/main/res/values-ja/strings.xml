@@ -90,6 +90,7 @@
     <string name="connect_options">接続オプション</string>
     <string name="connect_seeker_wallet">Saga Genesisまたはシーカー事前予約トークンでウォレットを接続する</string>
     <string name="connect_to_location">%1$sに接続</string>
+    <string name="connect_wallet">ウォレットを接続</string>
     <string name="connected">接続済み</string>
     <string name="connecting_status_indicator">プロバイダーに接続中</string>
     <string name="connection_mode">接続モード</string>
@@ -119,6 +120,7 @@
     <string name="data">データ</string>
     <string name="data_bar_explanation">アプリ内のこのバーは、プロバイダーからどれだけ無料データを獲得しているかを表示します。いつでも確認でき、設定を調整して獲得量を最大化できます</string>
     <string name="data_usage">データ使用量</string>
+    <string name="default_wallet">デフォルト</string>
     <string name="delete">削除</string>
     <string name="delete_account">アカウントを削除</string>
     <string name="device">デバイス</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">別の候補</string>
     <string name="enjoying_urnetwork">URnetworkを楽しんでいますか？</string>
     <string name="enter">ゴー！</string>
+    <string name="enter_a_solana_usdc_wallet_address">Solana USDCウォレットアドレスを入力してください</string>
     <string name="enter_balance_code">残高コードを入力</string>
     <string name="enter_network_referral_code">ネットワーク紹介コードを入力してください</string>
+    <string name="error_connecting_wallet_with_reason">ウォレットの接続中にエラーが発生しました：%1$s</string>
     <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
     <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
+    <string name="error_setting_default_wallet_with_reason">デフォルトウォレットの設定中にエラーが発生しました：%1$s</string>
     <string name="exclude_app">VPNから除外</string>
     <string name="exclude_app_description">このアプリはトンネルを迂回します。</string>
     <string name="excluded">除外</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">本人確認のために、送信したコードを入力してください。</string>
     <string name="login_verify_header">メールが届いています</string>
     <string name="longest_streak">最長連続</string>
+    <string name="make_default">デフォルトに設定</string>
     <string name="manage_subscription">サブスクリプションを管理</string>
     <string name="member">メンバー</string>
     <string name="mock_location_active">%1$s と同期中</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Solanaウォレットで支払う</string>
     <string name="pay_with_stripe">Stripeで参加する</string>
     <string name="payment_problem">支払いの問題</string>
+    <string name="payout_wallet_updated">支払いウォレットを更新しました</string>
     <string name="peer_count_one">1 ピア</string>
     <string name="peer_count_other">%d ピア</string>
     <string name="pending_data_key">保留中</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">リモート</string>
     <string name="remove">削除</string>
     <string name="remove_rule">ルールを削除</string>
+    <string name="remove_wallet">ウォレットを削除</string>
     <string name="resend_reset_link">リンクを再送信</string>
     <string name="resend_verify_code">コードを再送信</string>
     <string name="reset_it">リセットする</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">紹介ネットワークを更新する</string>
     <string name="upgrade_now">今すぐアップグレード</string>
     <string name="upgrade_subscription">サブスクリプションをアップグレード</string>
+    <string name="usdc_wallet_address">USDCウォレットアドレス</string>
     <string name="use_most_stable_provider">最も安定したプロバイダーを使用します</string>
     <string name="use_recommended_settings">推奨設定を使用</string>
     <string name="used_data_key">使用済み</string>

@@ -1348,4 +1348,32 @@ private fun EarningsSampleDataSettings() {
             toggle = { EarningsDebugFlags.setSampleStartDisconnected(!EarningsDebugFlags.sampleStartDisconnected) },
         )
     }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("Sample starts with a Solana payout wallet", style = MaterialTheme.typography.bodyMedium)
+        URSwitch(
+            checked = EarningsDebugFlags.sampleSolanaWallet,
+            enabled = EarningsDebugFlags.useSampleData,
+            toggle = { EarningsDebugFlags.setSampleSolanaWallet(!EarningsDebugFlags.sampleSolanaWallet) },
+        )
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("Sample has 3.87 USDC waiting", style = MaterialTheme.typography.bodyMedium)
+        URSwitch(
+            checked = EarningsDebugFlags.sampleUsdcWaiting,
+            enabled = EarningsDebugFlags.useSampleData,
+            toggle = { EarningsDebugFlags.setSampleUsdcWaiting(!EarningsDebugFlags.sampleUsdcWaiting) },
+        )
+    }
 }

@@ -90,6 +90,7 @@
     <string name="connect_options">Параметры подключения</string>
     <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или Seeker Pre-Order</string>
     <string name="connect_to_location">Подключиться к %1$s</string>
+    <string name="connect_wallet">Подключить кошелек</string>
     <string name="connected">Подключено</string>
     <string name="connecting_status_indicator">Подключение к провайдерам</string>
     <string name="connection_mode">Режим подключения</string>
@@ -119,6 +120,7 @@
     <string name="data">Данные</string>
     <string name="data_bar_explanation">Эта шкала в приложении показывает, сколько бесплатных данных вы получаете от своего провайдера. Вы можете проверить это в любое время и настроить параметры для максимизации заработка.</string>
     <string name="data_usage">Использование данных</string>
+    <string name="default_wallet">По умолчанию</string>
     <string name="delete">Удалить</string>
     <string name="delete_account">Удалить аккаунт</string>
     <string name="device">Устройство</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Предложить другой</string>
     <string name="enjoying_urnetwork">Вам нравится URnetwork?</string>
     <string name="enter">Войти</string>
+    <string name="enter_a_solana_usdc_wallet_address">Введите адрес кошелька USDC в сети Solana</string>
     <string name="enter_balance_code">Введите код баланса</string>
     <string name="enter_network_referral_code">Введите реферальный код сети</string>
+    <string name="error_connecting_wallet_with_reason">Произошла ошибка при подключении кошелька: %1$s</string>
     <string name="error_loading_account_plan">Ошибка загрузки вашего тарифного плана.</string>
     <string name="error_redeeming_transfer_balance_code">Ошибка при активации кода перевода баланса.</string>
+    <string name="error_setting_default_wallet_with_reason">Ошибка при установке кошелька по умолчанию: %1$s</string>
     <string name="exclude_app">Исключить из VPN</string>
     <string name="exclude_app_description">Это приложение обходит туннель.</string>
     <string name="excluded">Исключённые</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Подтвердите, что это вы. Введите код,\nкоторый мы отправили, для проверки вашей личности.</string>
     <string name="login_verify_header">Вам письмо</string>
     <string name="longest_streak">Самая длинная серия</string>
+    <string name="make_default">Сделать по умолчанию</string>
     <string name="manage_subscription">Управление подпиской</string>
     <string name="member">Участник</string>
     <string name="mock_location_active">Синхронизация: %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Оплатить через кошелек Solana</string>
     <string name="pay_with_stripe">Присоединиться через Stripe</string>
     <string name="payment_problem">Проблема с оплатой</string>
+    <string name="payout_wallet_updated">Кошелек для выплат обновлен</string>
     <string name="peer_count_one">1 узел</string>
     <string name="peer_count_other">%d узлов</string>
     <string name="pending_data_key">В ожидании</string>
@@ -417,6 +424,7 @@
     <string name="remote_lowercase">удалённо</string>
     <string name="remove">Удалить</string>
     <string name="remove_rule">Удалить правило</string>
+    <string name="remove_wallet">Удалить кошелек</string>
     <string name="resend_reset_link">Отправить ссылку повторно</string>
     <string name="resend_verify_code">Отправить код повторно</string>
     <string name="reset_it">Восстановить</string>
@@ -517,6 +525,7 @@
     <string name="update_referral_network">Обновить реферальную сеть</string>
     <string name="upgrade_now">Улучшить сейчас</string>
     <string name="upgrade_subscription">Улучшить подписку</string>
+    <string name="usdc_wallet_address">Адрес кошелька USDC</string>
     <string name="use_most_stable_provider">Используется самый стабильный провайдер</string>
     <string name="use_recommended_settings">Использовать рекомендованные настройки</string>
     <string name="used_data_key">Использовано</string>

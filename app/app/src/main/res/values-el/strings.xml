@@ -90,6 +90,7 @@
     <string name="connect_options">Επιλογές σύνδεσης</string>
     <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Saga Genesis ή το Seeker Pre-Order Token</string>
     <string name="connect_to_location">Σύνδεση με %1$s</string>
+    <string name="connect_wallet">Σύνδεση πορτοφολιού</string>
     <string name="connected">Συνδεδεμένο</string>
     <string name="connecting_status_indicator">Σύνδεση με παρόχους</string>
     <string name="connection_mode">Λειτουργία σύνδεσης</string>
@@ -119,6 +120,7 @@
     <string name="data">Δεδομένα</string>
     <string name="data_bar_explanation">Αυτή η γραμμή στην εφαρμογή σας δείχνει πόσα δωρεάν δεδομένα κερδίζετε από τον πάροχό σας. Μπορείτε να ελέγχετε οποιαδήποτε στιγμή και να προσαρμόζετε τις ρυθμίσεις σας για να μεγιστοποιήσετε τα κέρδη σας.</string>
     <string name="data_usage">Χρήση δεδομένων</string>
+    <string name="default_wallet">Προεπιλογή</string>
     <string name="delete">Διαγραφή</string>
     <string name="delete_account">Διαγραφή λογαριασμού</string>
     <string name="device">Συσκευή</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Άλλη πρόταση</string>
     <string name="enjoying_urnetwork">Απολαμβάνετε το URnetwork;</string>
     <string name="enter">Εισαγωγή</string>
+    <string name="enter_a_solana_usdc_wallet_address">Εισαγάγετε μια διεύθυνση πορτοφολιού USDC στο Solana</string>
     <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>
     <string name="enter_network_referral_code">Εισαγάγετε τον κωδικό παραπομπής δικτύου</string>
+    <string name="error_connecting_wallet_with_reason">Παρουσιάστηκε σφάλμα κατά τη σύνδεση του πορτοφολιού σας: %1$s</string>
     <string name="error_loading_account_plan">Σφάλμα κατά τη φόρτωση του προγράμματος λογαριασμού σας.</string>
     <string name="error_redeeming_transfer_balance_code">Σφάλμα κατά την εξαργύρωση του κωδικού μεταφοράς υπολοίπου.</string>
+    <string name="error_setting_default_wallet_with_reason">Σφάλμα κατά τον ορισμό του προεπιλεγμένου πορτοφολιού: %1$s</string>
     <string name="exclude_app">Εξαίρεση από το VPN</string>
     <string name="exclude_app_description">Αυτή η εφαρμογή παρακάμπτει το τούνελ.</string>
     <string name="excluded">Εξαίρεση</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
     <string name="login_verify_header">Έχετε ένα email</string>
     <string name="longest_streak">Μεγαλύτερο σερί</string>
+    <string name="make_default">Ορισμός ως προεπιλογή</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="member">Μέλος</string>
     <string name="mock_location_active">Συγχρονισμός με %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Πληρώστε με το πορτοφόλι Solana</string>
     <string name="pay_with_stripe">Εγγραφείτε με Stripe</string>
     <string name="payment_problem">Πρόβλημα πληρωμής</string>
+    <string name="payout_wallet_updated">Το πορτοφόλι πληρωμής ενημερώθηκε</string>
     <string name="peer_count_one">1 κόμβος</string>
     <string name="peer_count_other">%d κόμβοι</string>
     <string name="pending_data_key">Σε εκκρεμότητα</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">απομακρυσμένο</string>
     <string name="remove">Αφαίρεση</string>
     <string name="remove_rule">Αφαίρεση κανόνα</string>
+    <string name="remove_wallet">Αφαίρεση πορτοφολιού</string>
     <string name="resend_reset_link">Επανάληψη αποστολής συνδέσμου</string>
     <string name="resend_verify_code">Επανάληψη αποστολής κωδικού</string>
     <string name="reset_it">Επαναφορά</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Ενημέρωση δικτύου παραπομπών</string>
     <string name="upgrade_now">Αναβάθμιση τώρα</string>
     <string name="upgrade_subscription">Αναβάθμιση Συνδρομής</string>
+    <string name="usdc_wallet_address">Διεύθυνση πορτοφολιού USDC</string>
     <string name="use_most_stable_provider">Χρησιμοποιεί τον πιο σταθερό πάροχο</string>
     <string name="use_recommended_settings">Χρήση προτεινόμενων ρυθμίσεων</string>
     <string name="used_data_key">Χρησιμοποιημένα</string>

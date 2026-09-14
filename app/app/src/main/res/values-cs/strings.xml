@@ -90,6 +90,7 @@
     <string name="connect_options">Možnosti připojení</string>
     <string name="connect_seeker_wallet">Připojení peněženky s žetonem předobjednávky Saga Genesis nebo Seeker</string>
     <string name="connect_to_location">Připojit k %1$s</string>
+    <string name="connect_wallet">Připojit peněženku</string>
     <string name="connected">Připojeno</string>
     <string name="connecting_status_indicator">Připojení k poskytovatelům</string>
     <string name="connection_mode">Režim připojení</string>
@@ -119,6 +120,7 @@
     <string name="data">Data</string>
     <string name="data_bar_explanation">Tento pruh v aplikaci ukazuje, kolik bezplatných dat získáváte od svého poskytovatele. Můžete se kdykoli podívat a upravit nastavení, abyste maximalizovali své výdělky.</string>
     <string name="data_usage">Využití dat</string>
+    <string name="default_wallet">Výchozí</string>
     <string name="delete">Odstranit</string>
     <string name="delete_account">Odstranit účet</string>
     <string name="device">Zařízení</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Navrhnout jiné</string>
     <string name="enjoying_urnetwork">Užíváte si URnetwork?</string>
     <string name="enter">Enter</string>
+    <string name="enter_a_solana_usdc_wallet_address">Zadejte adresu peněženky USDC v síti Solana</string>
     <string name="enter_balance_code">Zadejte kód zůstatku</string>
     <string name="enter_network_referral_code">Zadejte síťový referenční kód</string>
+    <string name="error_connecting_wallet_with_reason">Při připojování peněženky došlo k chybě: %1$s</string>
     <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
     <string name="error_redeeming_transfer_balance_code">Chyba při uplatnění kódu převodu zůstatku.</string>
+    <string name="error_setting_default_wallet_with_reason">Chyba při nastavování výchozí peněženky: %1$s</string>
     <string name="exclude_app">Vyloučit z VPN</string>
     <string name="exclude_app_description">Tato aplikace obchází tunel.</string>
     <string name="excluded">Vyloučeno</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">"Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost."</string>
     <string name="login_verify_header">Máš poštu</string>
     <string name="longest_streak">Nejdelší série</string>
+    <string name="make_default">Udělat výchozí</string>
     <string name="manage_subscription">Správa předplatného</string>
     <string name="member">Člen</string>
     <string name="mock_location_active">Synchronizace: %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Zaplaťte pomocí peněženky Solana</string>
     <string name="pay_with_stripe">Připojit se pomocí Stripe</string>
     <string name="payment_problem">Problém s platbou</string>
+    <string name="payout_wallet_updated">Výplatní peněženka byla aktualizována</string>
     <string name="peer_count_one">1 uzel</string>
     <string name="peer_count_other">%d uzlů</string>
     <string name="pending_data_key">Čekající</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">vzdáleně</string>
     <string name="remove">Odstranit</string>
     <string name="remove_rule">Odstranit pravidlo</string>
+    <string name="remove_wallet">Odstranit peněženku</string>
     <string name="resend_reset_link">Znovu odeslat odkaz</string>
     <string name="resend_verify_code">Odeslat kód znovu</string>
     <string name="reset_it">Resetujte si ho</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Aktualizace referenční sítě</string>
     <string name="upgrade_now">Upgradujte nyní</string>
     <string name="upgrade_subscription">Upgradovat předplatné</string>
+    <string name="usdc_wallet_address">Adresa peněženky USDC</string>
     <string name="use_most_stable_provider">Používá nejstabilnějšího poskytovatele</string>
     <string name="use_recommended_settings">Použít doporučené nastavení</string>
     <string name="used_data_key">Použité</string>

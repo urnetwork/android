@@ -90,6 +90,7 @@
     <string name="connect_options">연결 옵션</string>
     <string name="connect_seeker_wallet">Saga Genesis 또는 Seeker 선주문 토큰으로 지갑을 연결하세요</string>
     <string name="connect_to_location">%1$s에 연결</string>
+    <string name="connect_wallet">지갑 연결</string>
     <string name="connected">연결됨</string>
     <string name="connecting_status_indicator">제공업체에 연결 중</string>
     <string name="connection_mode">연결 모드</string>
@@ -119,6 +120,7 @@
     <string name="data">데이터</string>
     <string name="data_bar_explanation">앱의 이 막대는 제공자로부터 얼마나 많은 무료 데이터를 얻고 있는지 보여줍니다. 언제든지 확인하고 설정을 조정하여 수익을 극대화할 수 있습니다.</string>
     <string name="data_usage">데이터 사용량</string>
+    <string name="default_wallet">기본값</string>
     <string name="delete">삭제</string>
     <string name="delete_account">계정 삭제</string>
     <string name="device">기기</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">다른 추천</string>
     <string name="enjoying_urnetwork">URnetwork가 마음에 드시나요?</string>
     <string name="enter">들어가기</string>
+    <string name="enter_a_solana_usdc_wallet_address">Solana USDC 지갑 주소를 입력하세요</string>
     <string name="enter_balance_code">잔액 코드를 입력하세요</string>
     <string name="enter_network_referral_code">네트워크 추천 코드를 입력하세요</string>
+    <string name="error_connecting_wallet_with_reason">지갑을 연결하는 중 오류가 발생했습니다: %1$s</string>
     <string name="error_loading_account_plan">계정 플랜을 불러오는 중 오류가 발생했습니다.</string>
     <string name="error_redeeming_transfer_balance_code">이체 잔액 코드 사용 중 오류가 발생했습니다.</string>
+    <string name="error_setting_default_wallet_with_reason">기본 지갑을 설정하는 중 오류가 발생했습니다: %1$s</string>
     <string name="exclude_app">VPN에서 제외</string>
     <string name="exclude_app_description">이 앱은 터널을 우회합니다.</string>
     <string name="excluded">제외</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
     <string name="longest_streak">최장 연속</string>
+    <string name="make_default">기본값으로 설정</string>
     <string name="manage_subscription">구독 관리</string>
     <string name="member">회원</string>
     <string name="mock_location_active">%1$s와(과) 동기화 중</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Solana 지갑으로 결제</string>
     <string name="pay_with_stripe">Stripe로 가입하기</string>
     <string name="payment_problem">결제 문제</string>
+    <string name="payout_wallet_updated">지급 지갑이 업데이트되었습니다</string>
     <string name="peer_count_one">피어 1개</string>
     <string name="peer_count_other">피어 %d개</string>
     <string name="pending_data_key">대기 중</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">원격</string>
     <string name="remove">제거</string>
     <string name="remove_rule">규칙 제거</string>
+    <string name="remove_wallet">지갑 제거</string>
     <string name="resend_reset_link">링크 재전송</string>
     <string name="resend_verify_code">코드 재전송</string>
     <string name="reset_it">재설정</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">추천 네트워크 업데이트</string>
     <string name="upgrade_now">지금 업그레이드하세요</string>
     <string name="upgrade_subscription">구독 업그레이드</string>
+    <string name="usdc_wallet_address">USDC 월렛 주소</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
     <string name="use_recommended_settings">권장 설정 사용</string>
     <string name="used_data_key">사용됨</string>

@@ -90,6 +90,7 @@
     <string name="connect_options">Options de connexion</string>
     <string name="connect_seeker_wallet">Connectez un portefeuille avec le jeton Saga Genesis ou le jeton de précommande Seeker</string>
     <string name="connect_to_location">Se connecter à %1$s</string>
+    <string name="connect_wallet">Connecter le portefeuille</string>
     <string name="connected">Connecté</string>
     <string name="connecting_status_indicator">Connexion aux fournisseurs</string>
     <string name="connection_mode">Mode de connexion</string>
@@ -119,6 +120,7 @@
     <string name="data">Données</string>
     <string name="data_bar_explanation">Cette barre dans l’application vous montre combien de données gratuites vous gagnez auprès de votre fournisseur. Vous pouvez vérifier à tout moment et ajuster vos paramètres pour maximiser vos gains.</string>
     <string name="data_usage">Utilisation des données</string>
+    <string name="default_wallet">Par défaut</string>
     <string name="delete">Supprimer</string>
     <string name="delete_account">Supprimer le compte</string>
     <string name="device">Appareil</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Autre suggestion</string>
     <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
     <string name="enter">Entrée</string>
+    <string name="enter_a_solana_usdc_wallet_address">Saisissez une adresse de portefeuille USDC sur Solana</string>
     <string name="enter_balance_code">Entrez le code de solde</string>
     <string name="enter_network_referral_code">Entrez le code de parrainage réseau</string>
+    <string name="error_connecting_wallet_with_reason">Une erreur s\'est produite lors de la connexion de votre portefeuille : %1$s</string>
     <string name="error_loading_account_plan">Erreur lors du chargement de votre formule de compte.</string>
     <string name="error_redeeming_transfer_balance_code">Erreur lors de l’utilisation du code de transfert de solde.</string>
+    <string name="error_setting_default_wallet_with_reason">Erreur lors de la définition du portefeuille par défaut : %1$s</string>
     <string name="exclude_app">Exclure du VPN</string>
     <string name="exclude_app_description">Cette application contourne le tunnel.</string>
     <string name="excluded">Exclue</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Dites-nous qui vous êtes vraiment. Entrez le code que nous\nvous avons envoyé pour vérifier votre identité.</string>
     <string name="login_verify_header">Vous avez un courriel</string>
     <string name="longest_streak">Plus longue série</string>
+    <string name="make_default">Définir par défaut</string>
     <string name="manage_subscription">Gérer l\'abonnement</string>
     <string name="member">Membre</string>
     <string name="mock_location_active">Synchronisation avec %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Payer avec le portefeuille Solana</string>
     <string name="pay_with_stripe">Rejoindre avec Stripe</string>
     <string name="payment_problem">Problème de paiement</string>
+    <string name="payout_wallet_updated">Portefeuille de paiement mis à jour</string>
     <string name="peer_count_one">1 pair</string>
     <string name="peer_count_other">%d pairs</string>
     <string name="pending_data_key">En attente</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">distant</string>
     <string name="remove">Supprimer</string>
     <string name="remove_rule">Supprimer la règle</string>
+    <string name="remove_wallet">Supprimer le portefeuille</string>
     <string name="resend_reset_link">Renvoyer le lien</string>
     <string name="resend_verify_code">Renvoyer le code</string>
     <string name="reset_it">Réinitialiser</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Mettre à jour le réseau de parrainage</string>
     <string name="upgrade_now">Mettre à niveau maintenant</string>
     <string name="upgrade_subscription">Mettre à niveau l\'abonnement</string>
+    <string name="usdc_wallet_address">Adresse du portefeuille USDC</string>
     <string name="use_most_stable_provider">Utilise le fournisseur le plus stable</string>
     <string name="use_recommended_settings">Utiliser les paramètres recommandés</string>
     <string name="used_data_key">Utilisé</string>

@@ -90,6 +90,7 @@
     <string name="connect_options">خيارات الاتصال</string>
     <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>
+    <string name="connect_wallet">ربط المحفظة</string>
     <string name="connected">متصل</string>
     <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة</string>
     <string name="connection_mode">وضع الاتصال</string>
@@ -119,6 +120,7 @@
     <string name="data">البيانات</string>
     <string name="data_bar_explanation">يوضح لك هذا الشريط في التطبيق مقدار البيانات المجانية التي تكسبها من مزود الخدمة الخاص بك. يمكنك التحقق في أي وقت وضبط إعداداتك لزيادة أرباحك إلى الحد الأقصى.</string>
     <string name="data_usage">استخدام البيانات</string>
+    <string name="default_wallet">الافتراضي</string>
     <string name="delete">حذف</string>
     <string name="delete_account">حذف الحساب</string>
     <string name="device">الجهاز</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">اقتراح آخر</string>
     <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
     <string name="enter">ادخل</string>
+    <string name="enter_a_solana_usdc_wallet_address">أدخل عنوان محفظة USDC على Solana</string>
     <string name="enter_balance_code">أدخل رمز الرصيد</string>
     <string name="enter_network_referral_code">أدخل رمز الإحالة للشبكة</string>
+    <string name="error_connecting_wallet_with_reason">حدث خطأ أثناء ربط محفظتك: %1$s</string>
     <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
     <string name="error_redeeming_transfer_balance_code">حدث خطأ أثناء استرداد رمز تحويل الرصيد.</string>
+    <string name="error_setting_default_wallet_with_reason">خطأ في تعيين المحفظة الافتراضية: %1$s</string>
     <string name="exclude_app">استثناء من VPN</string>
     <string name="exclude_app_description">يتجاوز هذا التطبيق النفق.</string>
     <string name="excluded">مستثنى</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="login_verify_header">لديك بريد إلكتروني</string>
     <string name="longest_streak">أطول سلسلة</string>
+    <string name="make_default">جعل الافتراضي</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="member">عضو</string>
     <string name="mock_location_active">تتم المزامنة مع %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">ادفع باستخدام محفظة Solana</string>
     <string name="pay_with_stripe">انضم باستخدام Stripe</string>
     <string name="payment_problem">مشكلة في الدفع</string>
+    <string name="payout_wallet_updated">تم تحديث محفظة الدفع</string>
     <string name="peer_count_one">قرين واحد</string>
     <string name="peer_count_other">%d قرين</string>
     <string name="pending_data_key">معلّق</string>
@@ -417,6 +424,7 @@
     <string name="remote_lowercase">بعيد</string>
     <string name="remove">أزل</string>
     <string name="remove_rule">إزالة القاعدة</string>
+    <string name="remove_wallet">إزالة المحفظة</string>
     <string name="resend_reset_link">إعادة إرسال الرابط</string>
     <string name="resend_verify_code">إعادة إرسال الرمز</string>
     <string name="reset_it">إعادة تعيينها</string>
@@ -517,6 +525,7 @@
     <string name="update_referral_network">تحديث شبكة الإحالة</string>
     <string name="upgrade_now">قم بالترقية الآن</string>
     <string name="upgrade_subscription">ترقية الاشتراك</string>
+    <string name="usdc_wallet_address">عنوان محفظة USDC</string>
     <string name="use_most_stable_provider">استخدام مزود الخدمة الأكثر استقرارًا</string>
     <string name="use_recommended_settings">استخدام الإعدادات الموصى بها</string>
     <string name="used_data_key">مستخدم</string>

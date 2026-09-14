@@ -118,7 +118,10 @@
     <string name="connect_bittensor_wallet">Connect Bittensor wallet</string>
     <string name="connect_options">Connect options</string>
     <string name="connect_seeker_wallet">Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
+    <string name="connect_solana_wallet">Connect Solana wallet</string>
+    <string name="connect_solana_wallet_note">Connect a Solana wallet app, or enter a Solana USDC address manually.</string>
     <string name="connect_to_location">Connect to %1$s</string>
+    <string name="connect_wallet">Connect Wallet</string>
     <string name="connect_wallet_first">Connect a Bittensor wallet first.</string>
     <string name="connected">Connected</string>
     <string name="connecting_status_indicator">Connecting to providers</string>
@@ -151,6 +154,7 @@
     <string name="data_bar_explanation">This bar in the app shows you how much free data you are earning from your provider. You can check in any time and adjust your settings to maximize your earnings.</string>
     <string name="data_usage">Data usage</string>
     <string name="default_daily_data">By default, you get %1$s every day.</string>
+    <string name="default_wallet">Default</string>
     <string name="delete">Delete</string>
     <string name="delete_account">Delete Account</string>
     <string name="dev_affinity_performance">Performance-aware affinity</string>
@@ -356,14 +360,17 @@
     <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
     <string name="enter">Enter</string>
+    <string name="enter_a_solana_usdc_wallet_address">Enter a Solana USDC wallet address</string>
     <string name="enter_address_manually">Enter address manually</string>
     <string name="enter_balance_code">Enter balance code</string>
     <string name="enter_network_referral_code">Enter network referral code</string>
     <string name="epoch_history">History</string>
     <string name="epoch_row_title">Epoch %1$d</string>
     <string name="epoch_share_of_block">%1$s of block</string>
+    <string name="error_connecting_wallet_with_reason">There was an error connecting your wallet: %1$s</string>
     <string name="error_loading_account_plan">Error loading your account plan.</string>
     <string name="error_redeeming_transfer_balance_code">Error redeeming transfer balance code</string>
+    <string name="error_setting_default_wallet_with_reason">Error setting default wallet: %1$s</string>
     <string name="exclude_app">Exclude from VPN</string>
     <string name="exclude_app_description">This app bypasses the tunnel.</string>
     <string name="excluded">Excluded</string>
@@ -425,6 +432,7 @@
     <string name="intro_widgets_manual">Long-press your home screen, choose Widgets, and pick URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Tap a widget to add it to your home screen.</string>
     <string name="invalid_referral_code">This code is not valid</string>
+    <string name="invalid_solana_address">That is not a valid Solana address.</string>
     <string name="invalid_ss58_address">That is not a valid Bittensor address.</string>
     <string name="ip_address">IP address</string>
     <string name="ip_families">IP versions</string>
@@ -468,6 +476,7 @@
     <string name="login_verify_details">Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
     <string name="login_verify_header">You\'ve got mail</string>
     <string name="longest_streak">Longest streak</string>
+    <string name="make_default">Make default</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="member">Member</string>
     <string name="mock_location_active">Syncing with %1$s</string>
@@ -574,6 +583,7 @@
     <string name="payment_not_completed">Your payment could not be completed.</string>
     <string name="payment_problem">Payment problem</string>
     <string name="payment_received_title">Payment received</string>
+    <string name="payout_wallet_updated">Payout wallet updated</string>
     <string name="peer_count_one">1 peer</string>
     <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">Pending</string>
@@ -677,6 +687,8 @@
     <string name="remote_lowercase">remote</string>
     <string name="remove">Remove</string>
     <string name="remove_rule">Remove rule</string>
+    <string name="remove_wallet">Remove wallet</string>
+    <string name="remove_wallet_holds_payouts">USDC payouts are held until another wallet is connected.</string>
     <string name="resend_reset_link">Resend link</string>
     <string name="resend_verify_code">Resend code</string>
     <string name="reset_it">Reset it.</string>
@@ -743,6 +755,7 @@
     <string name="solana" translatable="false">Solana</string>
     <string name="solana_one_time_payment">Paying with Solana is a one-time yearly payment, with no free trial.</string>
     <string name="solana_sign_in">Sign in with Solana</string>
+    <string name="solana_wallet">Solana wallet</string>
     <string name="something_went_wrong">Something went wrong.</string>
     <string name="sorry_to_see_you_go">We\'re sorry to see you go!</string>
     <string name="split_rule_description">Selected hosts are routed locally and bypass the tunnel.</string>
@@ -824,6 +837,9 @@
     <string name="update_referral_network">Update referral network</string>
     <string name="upgrade_now">Upgrade now</string>
     <string name="upgrade_subscription">Upgrade Subscription</string>
+    <string name="usdc_payouts_until_migration">USDC payouts continue to this wallet until the migration to Bittensor is complete.</string>
+    <string name="usdc_waiting">%1$s USDC waiting</string>
+    <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_extender_settings">Use extender settings</string>
     <string name="use_most_stable_provider">Use most stable provider</string>
     <string name="use_recommended_settings">Use recommended settings</string>
@@ -842,6 +858,7 @@
     <string name="wallet_connected_to_protocol">Connected to the UR protocol. Claims land here. Alpha accrues from the next epoch after connecting.</string>
     <string name="wallet_looks_new_warning">This address has no activity on the Bittensor chain yet. It looks like a new wallet. Make sure it is yours before continuing.</string>
     <string name="wallet_not_retroactive">Connect a wallet to earn SN25α from the next epoch. Earlier epochs are not settled retroactively.</string>
+    <string name="wallet_options">Wallet options</string>
     <string name="welcome_offer_eyebrow">Welcome offer</string>
     <string name="welcome_to_urnetwork">Welcome to URnetwork</string>
     <string name="when_you_refer_a_friend">When you refer a friend:</string>
