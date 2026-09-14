@@ -185,8 +185,12 @@ fun EarningsScreen(
         onDismissConnectState = { earningsViewModel.dismissConnectState() },
         legacy = legacy,
         legacyLoaded = legacyLoaded,
-        // the sheet shows its own states; the card's status line waits until it closes
-        solanaState = if (solanaWalletViewModel.isPresentedSheet) SolanaConnectState.Idle else solanaState,
+        // the sheet and the remove dialog show their own states; the card's line waits until they close
+        solanaState = if (solanaWalletViewModel.isPresentedSheet || solanaWalletViewModel.isPresentedRemoveDialog) {
+            SolanaConnectState.Idle
+        } else {
+            solanaState
+        },
         onConnectSolana = { solanaWalletViewModel.openSheet() },
         onRemoveSolana = { solanaWalletViewModel.openRemoveDialog() },
         onDismissSolanaState = { solanaWalletViewModel.dismissConnectState() },
