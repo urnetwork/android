@@ -11,10 +11,9 @@ class SolanaConnectStateTest {
     )
 
     @Test
-    fun `busy is true exactly while a wallet app, a validation, a link or a remove is in flight`() {
+    fun `busy is true exactly while a wallet app, a link or a remove is in flight`() {
         val busy = listOf(
             SolanaConnectState.ConnectingApp,
-            SolanaConnectState.Validating(wallet.address),
             SolanaConnectState.Linking(wallet.address),
             SolanaConnectState.Removing,
         )
@@ -24,7 +23,6 @@ class SolanaConnectStateTest {
             SolanaConnectState.NoWalletApp,
             SolanaConnectState.Failed(null),
             SolanaConnectState.Failed("boom"),
-            SolanaConnectState.Removed,
         )
 
         busy.forEach { assertTrue("$it", it.busy) }

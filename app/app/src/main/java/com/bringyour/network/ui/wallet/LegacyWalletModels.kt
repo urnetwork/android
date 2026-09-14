@@ -99,16 +99,14 @@ sealed class SolanaConnectState {
     object Idle : SolanaConnectState()
     // the wallet app (Mobile Wallet Adapter) is in front
     object ConnectingApp : SolanaConnectState()
-    data class Validating(val address: String) : SolanaConnectState()
     data class Linking(val address: String) : SolanaConnectState()
     data class Linked(val wallet: LegacyWallet) : SolanaConnectState()
     object NoWalletApp : SolanaConnectState()
     data class Failed(val detail: String?) : SolanaConnectState()
     object Removing : SolanaConnectState()
-    object Removed : SolanaConnectState()
 
     val busy: Boolean
-        get() = this is ConnectingApp || this is Validating || this is Linking || this is Removing
+        get() = this is ConnectingApp || this is Linking || this is Removing
 }
 
 enum class SolanaSheetStep {

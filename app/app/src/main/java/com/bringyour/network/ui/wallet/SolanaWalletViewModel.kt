@@ -347,7 +347,8 @@ class SolanaWalletViewModel @Inject constructor(
                     payoutWalletId = ui.payoutWalletId.takeIf { it != wallet.walletId },
                 )
             }
-            _connectState.value = SolanaConnectState.Removed
+            // the card is gone, so there is nothing left to report
+            _connectState.value = SolanaConnectState.Idle
             isPresentedRemoveDialog = false
 
             refreshAfterChange()
