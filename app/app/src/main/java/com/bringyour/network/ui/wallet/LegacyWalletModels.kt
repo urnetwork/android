@@ -196,6 +196,8 @@ object NoLegacyWalletSource : LegacyWalletSource {
 class SampleLegacyWalletSource(
     startConnected: Boolean,
     pendingUsd: Double,
+    // how long each call takes, like a round trip; tests pass 0
+    private val delayMillis: Long = 600,
 ) : LegacyWalletSource {
 
     private val lock = Any()
@@ -224,29 +226,29 @@ class SampleLegacyWalletSource(
     override val available: Boolean = true
 
     override suspend fun wallets(): Result<List<LegacyWallet>> {
-        delay(600)
+        delay(delayMillis)
         return Result.success(synchronized(lock) { walletList.toList() })
     }
 
     override suspend fun payoutWalletId(): Result<String?> {
-        delay(650)
+        delay(delayMillis)
         return Result.success(synchronized(lock) { payoutId })
     }
 
     override suspend fun payments(): Result<List<LegacyPayment>> {
-        delay(700)
+        delay(delayMillis)
         return Result.success(synchronized(lock) { paymentList.toList() })
     }
 
     override fun validateSolanaSyntax(address: String): Boolean = SolanaAddress.isValidSyntax(address)
 
     override suspend fun validateAddress(address: String): Result<Boolean> {
-        delay(600)
+        delay(delayMillis)
         return Result.success(isServerValid(address.trim()))
     }
 
     override suspend fun addSolanaWallet(address: String): Result<String> {
-        delay(900)
+        delay(delayMillis)
         val a = address.trim()
         if (!isServerValid(a)) {
             return Result.failure(IllegalArgumentException("invalid wallet address"))
@@ -265,7 +267,7 @@ class SampleLegacyWalletSource(
     }
 
     override suspend fun setPayoutWallet(walletId: String): Result<Unit> {
-        delay(600)
+        delay(delayMillis)
         return synchronized(lock) {
             if (walletList.none { it.walletId == walletId }) {
                 Result.failure(IllegalStateException("Wallet must be an active wallet owned by the network."))
@@ -277,7 +279,7 @@ class SampleLegacyWalletSource(
     }
 
     override suspend fun removeWallet(walletId: String): Result<Unit> {
-        delay(800)
+        delay(delayMillis)
         return synchronized(lock) {
             if (!walletList.removeAll { it.walletId == walletId }) {
                 Result.failure(IllegalStateException("The wallet was not removed."))
