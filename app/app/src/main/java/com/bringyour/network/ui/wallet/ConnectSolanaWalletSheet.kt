@@ -288,7 +288,7 @@ private fun ConnectSolanaWalletChooseIdlePreview() {
 private fun ConnectSolanaWalletChooseFailedPreview() {
     SheetPreviewFrame(
         SolanaSheetStep.CHOOSE,
-        SolanaConnectState.Failed("authorization request declined"),
+        SolanaConnectState.Failed("User did not authorize signing"),
         "",
         AddressValidation.Empty
     )

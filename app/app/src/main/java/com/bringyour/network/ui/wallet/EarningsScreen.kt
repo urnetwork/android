@@ -140,7 +140,7 @@ fun EarningsScreen(
                         SolanaWalletConnectResult.NoWalletFound ->
                             solanaWalletViewModel.onWalletAppNotFound()
                         is SolanaWalletConnectResult.Failure ->
-                            solanaWalletViewModel.onWalletAppFailed(result.error.message)
+                            solanaWalletViewModel.onWalletAppFailed(result.message)
                     }
                 } catch (e: CancellationException) {
                     // the screen left composition before the wallet app answered

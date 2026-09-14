@@ -11,7 +11,8 @@ import com.solana.publickey.SolanaPublicKey
 sealed class SolanaWalletConnectResult {
     data class Success(val address: String) : SolanaWalletConnectResult()
     object NoWalletFound : SolanaWalletConnectResult()
-    data class Failure(val error: Throwable) : SolanaWalletConnectResult()
+    // the library's own reason: a decline, a back-out before connecting, a timeout
+    data class Failure(val message: String, val error: Exception) : SolanaWalletConnectResult()
 }
 
 /**
@@ -36,12 +37,13 @@ suspend fun connectSolanaWalletAddress(activityResultSender: ActivityResultSende
         is TransactionResult.Success -> {
             val account = result.authResult.accounts.firstOrNull()
             if (account == null) {
-                SolanaWalletConnectResult.Failure(IllegalStateException("Wallet did not return an account"))
+                val reason = "Wallet did not return an account"
+                SolanaWalletConnectResult.Failure(reason, IllegalStateException(reason))
             } else {
                 SolanaWalletConnectResult.Success(SolanaPublicKey(account.publicKey).base58())
             }
         }
         is TransactionResult.NoWalletFound -> SolanaWalletConnectResult.NoWalletFound
-        is TransactionResult.Failure -> SolanaWalletConnectResult.Failure(result.e)
+        is TransactionResult.Failure -> SolanaWalletConnectResult.Failure(result.message, result.e)
     }
 }
