@@ -45,17 +45,23 @@ class SdkLegacyWalletSource(
                 err != null -> done(Result.failure(err))
                 result == null -> done(Result.failure(IllegalStateException("empty wallets")))
                 else -> {
-                    val list = result.wallets
-                    val n = list?.len() ?: 0
-                    val wallets = (0 until n).mapNotNull { i ->
-                        val w = list.get(i)
-                        LegacyWallet.fromRow(
-                            walletId = w.walletId?.string(),
-                            circleWalletId = w.circleWalletId,
-                            blockchain = w.blockchain ?: "",
-                            address = w.walletAddress ?: "",
-                            hasSeekerToken = w.hasSeekerToken,
-                        )
+                    // an exception thrown out of a gomobile callback would abort the process
+                    val wallets = runCatching {
+                        val list = result.wallets
+                        val n = list?.len() ?: 0
+                        (0 until n).mapNotNull { i ->
+                            val w = list.get(i)
+                            LegacyWallet.fromRow(
+                                walletId = w.walletId?.string(),
+                                circleWalletId = w.circleWalletId,
+                                blockchain = w.blockchain ?: "",
+                                address = w.walletAddress ?: "",
+                                hasSeekerToken = w.hasSeekerToken,
+                            )
+                        }
+                    }.getOrElse {
+                        done(Result.failure(it))
+                        return@getAccountWallets
                     }
                     done(Result.success(wallets))
                 }
@@ -82,19 +88,25 @@ class SdkLegacyWalletSource(
                 result == null -> done(Result.failure(IllegalStateException("empty payments")))
                 error != null -> done(Result.failure(LegacyWalletException(error.message)))
                 else -> {
-                    val list = result.accountPayments
-                    val n = list?.len() ?: 0
-                    val payments = (0 until n).map { i ->
-                        val p = list.get(i)
-                        LegacyPayment(
-                            paymentId = p.paymentId?.string() ?: "",
-                            walletId = p.walletId?.string()?.ifBlank { null },
-                            payoutUsd = Sdk.nanoCentsToUsd(p.payout),
-                            tokenAmount = p.tokenAmount,
-                            completed = p.completed,
-                            canceled = p.canceled,
-                            completeMillis = if (p.completed) p.completeTime?.unixMilli() else null,
-                        )
+                    // an exception thrown out of a gomobile callback would abort the process
+                    val payments = runCatching {
+                        val list = result.accountPayments
+                        val n = list?.len() ?: 0
+                        (0 until n).map { i ->
+                            val p = list.get(i)
+                            LegacyPayment(
+                                paymentId = p.paymentId?.string() ?: "",
+                                walletId = p.walletId?.string()?.ifBlank { null },
+                                payoutUsd = Sdk.nanoCentsToUsd(p.payout),
+                                tokenAmount = p.tokenAmount,
+                                completed = p.completed,
+                                canceled = p.canceled,
+                                completeMillis = if (p.completed) p.completeTime?.unixMilli() else null,
+                            )
+                        }
+                    }.getOrElse {
+                        done(Result.failure(it))
+                        return@getAccountPayments
                     }
                     done(Result.success(payments))
                 }
