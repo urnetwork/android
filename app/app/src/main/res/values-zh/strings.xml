@@ -90,6 +90,7 @@
     <string name="connect_options">连接选项</string>
     <string name="connect_seeker_wallet">连接带有 Saga Genesis 或 Seeker 预售代币的钱包</string>
     <string name="connect_to_location">连接到 %1$s</string>
+    <string name="connect_wallet">连接钱包</string>
     <string name="connected">已连接</string>
     <string name="connecting_status_indicator">正在连接到提供商</string>
     <string name="connection_mode">连接模式</string>
@@ -119,6 +120,7 @@
     <string name="data">数据</string>
     <string name="data_bar_explanation">应用中的此条形图显示您从提供者获得了多少免费数据。您可以随时查看并调整设置以最大化收益。</string>
     <string name="data_usage">数据使用量</string>
+    <string name="default_wallet">默认</string>
     <string name="delete">删除</string>
     <string name="delete_account">删除帐户</string>
     <string name="device">设备</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">换一个</string>
     <string name="enjoying_urnetwork">喜欢 URnetwork 吗？</string>
     <string name="enter">进入</string>
+    <string name="enter_a_solana_usdc_wallet_address">请输入 Solana USDC 钱包地址</string>
     <string name="enter_balance_code">输入余额码</string>
     <string name="enter_network_referral_code">输入网络推荐码</string>
+    <string name="error_connecting_wallet_with_reason">连接钱包时出错：%1$s</string>
     <string name="error_loading_account_plan">加载您的账户方案时出错。</string>
     <string name="error_redeeming_transfer_balance_code">兑换转账余额码时出错。</string>
+    <string name="error_setting_default_wallet_with_reason">设置默认钱包时出错：%1$s</string>
     <string name="exclude_app">从 VPN 排除</string>
     <string name="exclude_app_description">此应用将绕过隧道。</string>
     <string name="excluded">已排除</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">告诉我们您是谁。输入我们\n发送给您的代码以验证您的身份。</string>
     <string name="login_verify_header">您有邮件</string>
     <string name="longest_streak">最长连续</string>
+    <string name="make_default">设为默认</string>
     <string name="manage_subscription">管理订阅</string>
     <string name="member">会员</string>
     <string name="mock_location_active">正在与 %1$s 同步</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">使用 Solana 钱包支付</string>
     <string name="pay_with_stripe">使用 Stripe 加入</string>
     <string name="payment_problem">付款问题</string>
+    <string name="payout_wallet_updated">支付钱包已更新</string>
     <string name="peer_count_one">1 个对等节点</string>
     <string name="peer_count_other">%d 个对等节点</string>
     <string name="pending_data_key">待处理</string>
@@ -417,6 +424,7 @@
     <string name="remote_lowercase">远程</string>
     <string name="remove">移除</string>
     <string name="remove_rule">移除规则</string>
+    <string name="remove_wallet">移除钱包</string>
     <string name="resend_reset_link">重新发送链接</string>
     <string name="resend_verify_code">重新发送代码</string>
     <string name="reset_it">重置密码</string>
@@ -517,6 +525,7 @@
     <string name="update_referral_network">更新推荐网络</string>
     <string name="upgrade_now">立即升级</string>
     <string name="upgrade_subscription">升级订阅</string>
+    <string name="usdc_wallet_address">USDC 钱包地址</string>
     <string name="use_most_stable_provider">使用最稳定的提供商</string>
     <string name="use_recommended_settings">使用推荐设置</string>
     <string name="used_data_key">已用</string>

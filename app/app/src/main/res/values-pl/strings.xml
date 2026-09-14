@@ -90,6 +90,7 @@
     <string name="connect_options">Opcje połączenia</string>
     <string name="connect_seeker_wallet">Połącz portfel z tokenem Saga Genesis lub tokenem zamówienia przedpremierowego Seeker</string>
     <string name="connect_to_location">Połącz z %1$s</string>
+    <string name="connect_wallet">Połącz portfel</string>
     <string name="connected">Połączono</string>
     <string name="connecting_status_indicator">Łączenie z dostawcami</string>
     <string name="connection_mode">Tryb połączenia</string>
@@ -119,6 +120,7 @@
     <string name="data">Dane</string>
     <string name="data_bar_explanation">Ten pasek w aplikacji pokazuje, ile darmowych danych otrzymujesz od swojego dostawcy. Możesz sprawdzać to w dowolnym momencie i dostosować ustawienia, aby zmaksymalizować swoje zarobki.</string>
     <string name="data_usage">Zużycie danych</string>
+    <string name="default_wallet">Domyślny</string>
     <string name="delete">Usuń</string>
     <string name="delete_account">Usuń konto</string>
     <string name="device">Urządzenie</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Zaproponuj inne</string>
     <string name="enjoying_urnetwork">Czy podoba Ci się URnetwork?</string>
     <string name="enter">Wejdź</string>
+    <string name="enter_a_solana_usdc_wallet_address">Wprowadź adres portfela USDC w sieci Solana</string>
     <string name="enter_balance_code">Wpisz kod salda</string>
     <string name="enter_network_referral_code">Wprowadź kod polecenia sieci</string>
+    <string name="error_connecting_wallet_with_reason">Wystąpił błąd podczas łączenia portfela: %1$s</string>
     <string name="error_loading_account_plan">Błąd podczas ładowania planu konta.</string>
     <string name="error_redeeming_transfer_balance_code">Błąd podczas realizacji kodu transferu salda.</string>
+    <string name="error_setting_default_wallet_with_reason">Błąd podczas ustawiania domyślnego portfela: %1$s</string>
     <string name="exclude_app">Wyklucz z VPN</string>
     <string name="exclude_app_description">Ta aplikacja omija tunel.</string>
     <string name="excluded">Wykluczone</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Powiedz nam, kim naprawdę jesteś. Wprowadź kod,\nktóry wysłaliśmy, aby zweryfikować twoją tożsamość.</string>
     <string name="login_verify_header">Masz wiadomość</string>
     <string name="longest_streak">Najdłuższa seria</string>
+    <string name="make_default">Ustaw jako domyślny</string>
     <string name="manage_subscription">Zarządzaj subskrypcją</string>
     <string name="member">Członek</string>
     <string name="mock_location_active">Synchronizacja z: %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Zapłać portfelem Solana</string>
     <string name="pay_with_stripe">Dołącz za pomocą Stripe</string>
     <string name="payment_problem">Problem z płatnością</string>
+    <string name="payout_wallet_updated">Zaktualizowano portfel wypłat</string>
     <string name="peer_count_one">1 węzeł</string>
     <string name="peer_count_other">%d węzłów</string>
     <string name="pending_data_key">Oczekujące</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">zdalnie</string>
     <string name="remove">Usuń</string>
     <string name="remove_rule">Usuń regułę</string>
+    <string name="remove_wallet">Usuń portfel</string>
     <string name="resend_reset_link">Wyślij link ponownie</string>
     <string name="resend_verify_code">Wyślij kod ponownie</string>
     <string name="reset_it">Zresetuj je</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Zaktualizuj sieć poleceń</string>
     <string name="upgrade_now">Uaktualnij teraz</string>
     <string name="upgrade_subscription">Ulepsz subskrypcję</string>
+    <string name="usdc_wallet_address">Adres portfela USDC</string>
     <string name="use_most_stable_provider">Używa najstabilniejszego dostawcy</string>
     <string name="use_recommended_settings">Użyj zalecanych ustawień</string>
     <string name="used_data_key">Wykorzystane</string>

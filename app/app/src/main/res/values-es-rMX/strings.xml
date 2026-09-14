@@ -90,6 +90,7 @@
     <string name="connect_options">Opciones de conexión</string>
     <string name="connect_seeker_wallet">Conecta una billetera con el token Saga Genesis o el token de pre-pedido de Seeker</string>
     <string name="connect_to_location">Conectar a %1$s</string>
+    <string name="connect_wallet">Conectar cartera</string>
     <string name="connected">Conectado</string>
     <string name="connecting_status_indicator">Conectando a proveedores</string>
     <string name="connection_mode">Modo de conexión</string>
@@ -119,6 +120,7 @@
     <string name="data">Datos</string>
     <string name="data_bar_explanation">Esta barra en la app te muestra cuántos datos gratis estás ganando de tu proveedor. Puedes revisar en cualquier momento y ajustar tus configuraciones para maximizar tus ganancias.</string>
     <string name="data_usage">Uso de datos</string>
+    <string name="default_wallet">Predeterminado</string>
     <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar cuenta</string>
     <string name="device">Dispositivo</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Sugerir otro</string>
     <string name="enjoying_urnetwork">¿Disfrutas de URnetwork?</string>
     <string name="enter">Entra</string>
+    <string name="enter_a_solana_usdc_wallet_address">Ingresa una dirección de cartera USDC en Solana</string>
     <string name="enter_balance_code">Ingresa el código de saldo</string>
     <string name="enter_network_referral_code">Ingresa el código de referido de la red</string>
+    <string name="error_connecting_wallet_with_reason">Se produjo un error al conectar tu cartera: %1$s</string>
     <string name="error_loading_account_plan">Error al cargar el plan de tu cuenta.</string>
     <string name="error_redeeming_transfer_balance_code">Error al canjear el código de transferencia de saldo.</string>
+    <string name="error_setting_default_wallet_with_reason">Error al establecer la cartera predeterminada: %1$s</string>
     <string name="exclude_app">Excluir de la VPN</string>
     <string name="exclude_app_description">Esta app evita el túnel.</string>
     <string name="excluded">Excluidas</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Dinos quién eres en realidad. Introduce el código que te\nenviamos para verificar tu identidad.</string>
     <string name="login_verify_header">Tienes un correo</string>
     <string name="longest_streak">Racha más larga</string>
+    <string name="make_default">Establecer como predeterminada</string>
     <string name="manage_subscription">Administrar suscripción</string>
     <string name="member">Miembro</string>
     <string name="mock_location_active">Sincronizando con %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Pagar con la billetera Solana</string>
     <string name="pay_with_stripe">Unirse con Stripe</string>
     <string name="payment_problem">Problema con el pago</string>
+    <string name="payout_wallet_updated">Cartera de pago actualizada</string>
     <string name="peer_count_one">1 par</string>
     <string name="peer_count_other">%d pares</string>
     <string name="pending_data_key">Pendiente</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">remoto</string>
     <string name="remove">Elimina</string>
     <string name="remove_rule">Eliminar regla</string>
+    <string name="remove_wallet">Eliminar cartera</string>
     <string name="resend_reset_link">Reenviar enlace</string>
     <string name="resend_verify_code">Reenviar código</string>
     <string name="reset_it">Restablecerla</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Actualizar red de referidos</string>
     <string name="upgrade_now">Actualizar ahora</string>
     <string name="upgrade_subscription">Actualizar suscripción</string>
+    <string name="usdc_wallet_address">Dirección de la cartera USDC</string>
     <string name="use_most_stable_provider">Usa el proveedor más estable</string>
     <string name="use_recommended_settings">Usar la configuración recomendada</string>
     <string name="used_data_key">Usado</string>

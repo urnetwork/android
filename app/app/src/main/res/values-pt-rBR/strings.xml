@@ -90,6 +90,7 @@
     <string name="connect_options">Opções de conexão</string>
     <string name="connect_seeker_wallet">Conecte uma carteira com o token Saga Genesis ou o token de pré-venda Seeker</string>
     <string name="connect_to_location">Conectar a %1$s</string>
+    <string name="connect_wallet">Conectar carteira</string>
     <string name="connected">Conectado</string>
     <string name="connecting_status_indicator">Conectando aos provedores</string>
     <string name="connection_mode">Modo de conexão</string>
@@ -119,6 +120,7 @@
     <string name="data">Dados</string>
     <string name="data_bar_explanation">Esta barra no aplicativo mostra quanto dado gratuito você está ganhando do seu provedor. Você pode verificar a qualquer momento e ajustar suas configurações para maximizar seus ganhos.</string>
     <string name="data_usage">Uso de dados</string>
+    <string name="default_wallet">Padrão</string>
     <string name="delete">Excluir</string>
     <string name="delete_account">Excluir conta</string>
     <string name="device">Dispositivo</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Sugerir outro</string>
     <string name="enjoying_urnetwork">Está gostando do URnetwork?</string>
     <string name="enter">Entra</string>
+    <string name="enter_a_solana_usdc_wallet_address">Digite um endereço de carteira USDC na Solana</string>
     <string name="enter_balance_code">Insira o código de saldo</string>
     <string name="enter_network_referral_code">Insira o código de indicação da rede</string>
+    <string name="error_connecting_wallet_with_reason">Ocorreu um erro ao conectar sua carteira: %1$s</string>
     <string name="error_loading_account_plan">Erro ao carregar seu plano de conta.</string>
     <string name="error_redeeming_transfer_balance_code">Erro ao resgatar o código de transferência de saldo.</string>
+    <string name="error_setting_default_wallet_with_reason">Erro ao definir a carteira padrão: %1$s</string>
     <string name="exclude_app">Excluir da VPN</string>
     <string name="exclude_app_description">Este app contorna o túnel.</string>
     <string name="excluded">Excluídos</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Diga-nos quem você realmente é. Digite o código que\nenviamos para você verificar sua identidade.</string>
     <string name="login_verify_header">Você tem um e-mail</string>
     <string name="longest_streak">Maior sequência</string>
+    <string name="make_default">Tornar padrão</string>
     <string name="manage_subscription">Gerenciar assinatura</string>
     <string name="member">Membro</string>
     <string name="mock_location_active">Sincronizando com %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Pagar com a carteira Solana</string>
     <string name="pay_with_stripe">Junte-se com Stripe</string>
     <string name="payment_problem">Problema no pagamento</string>
+    <string name="payout_wallet_updated">Carteira de pagamento atualizada</string>
     <string name="peer_count_one">1 par</string>
     <string name="peer_count_other">%d pares</string>
     <string name="pending_data_key">Pendente</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">remoto</string>
     <string name="remove">Remover</string>
     <string name="remove_rule">Remover regra</string>
+    <string name="remove_wallet">Remover carteira</string>
     <string name="resend_reset_link">Reenviar link</string>
     <string name="resend_verify_code">Reenviar código</string>
     <string name="reset_it">Redefini-la</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Atualizar rede de indicações</string>
     <string name="upgrade_now">Atualize agora</string>
     <string name="upgrade_subscription">Atualizar assinatura</string>
+    <string name="usdc_wallet_address">Endereço da carteira USDC</string>
     <string name="use_most_stable_provider">Usa o provedor mais estável</string>
     <string name="use_recommended_settings">Usar configurações recomendadas</string>
     <string name="used_data_key">Utilizado</string>

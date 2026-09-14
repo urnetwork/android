@@ -90,6 +90,7 @@
     <string name="connect_options">Chaguo za kuunganisha</string>
     <string name="connect_seeker_wallet">Unganisha pochi na Saga Genesis au Tokeni ya Agizo la Mapema la Seeker</string>
     <string name="connect_to_location">Unganisha kwa %1$s</string>
+    <string name="connect_wallet">Unganisha pochi</string>
     <string name="connected">Imeunganishwa</string>
     <string name="connecting_status_indicator">Inaunganisha kwa watoa huduma</string>
     <string name="connection_mode">Hali ya muunganisho</string>
@@ -119,6 +120,7 @@
     <string name="data">Data</string>
     <string name="data_bar_explanation">Upau huu kwenye programu unaonyesha ni kiasi gani cha data ya bure unachopata kutoka kwa mtoa huduma wako. Unaweza kukagua wakati wowote na kurekebisha mipangilio yako ili kuongeza mapato yako.</string>
     <string name="data_usage">Matumizi ya data</string>
+    <string name="default_wallet">Chaguo msingi</string>
     <string name="delete">Futa</string>
     <string name="delete_account">Futa akaunti</string>
     <string name="device">Kifaa</string>
@@ -160,10 +162,13 @@
     <string name="emoji_tag_shuffle">Pendekeza nyingine</string>
     <string name="enjoying_urnetwork">Unafurahia URnetwork?</string>
     <string name="enter">Ingia</string>
+    <string name="enter_a_solana_usdc_wallet_address">Weka anwani ya pochi ya USDC kwenye Solana</string>
     <string name="enter_balance_code">Weka msimbo wa salio</string>
     <string name="enter_network_referral_code">Weka msimbo wa rufaa wa mtandao</string>
+    <string name="error_connecting_wallet_with_reason">Hitilafu imetokea wakati wa kuunganisha pochi yako: %1$s</string>
     <string name="error_loading_account_plan">Hitilafu katika kupakia mpango wa akaunti yako.</string>
     <string name="error_redeeming_transfer_balance_code">Hitilafu katika kukomboa msimbo wa uhamisho wa salio.</string>
+    <string name="error_setting_default_wallet_with_reason">Hitilafu wakati wa kuweka pochi chaguomsingi: %1$s</string>
     <string name="exclude_app">Tenga kutoka VPN</string>
     <string name="exclude_app_description">Programu hii inaepuka tuneli.</string>
     <string name="excluded">Imetengwa</string>
@@ -233,6 +238,7 @@
     <string name="login_verify_details">Tuambie wewe ni nani hasa. Weka msimbo ambao tume\nkutumia ili kuthibitisha utambulisho wako.</string>
     <string name="login_verify_header">Umepata barua</string>
     <string name="longest_streak">Mfululizo mrefu zaidi</string>
+    <string name="make_default">Fanya chaguo-msingi</string>
     <string name="manage_subscription">Dhibiti usajili</string>
     <string name="member">Mwanachama</string>
     <string name="mock_location_active">Inasawazisha na %1$s</string>
@@ -331,6 +337,7 @@
     <string name="pay_with_solana_wallet">Lipa kwa pochi ya Solana</string>
     <string name="pay_with_stripe">Jiunge na Stripe</string>
     <string name="payment_problem">Tatizo la malipo</string>
+    <string name="payout_wallet_updated">Pochi ya malipo imesasishwa</string>
     <string name="peer_count_one">Mshirika 1</string>
     <string name="peer_count_other">Washirika %d</string>
     <string name="pending_data_key">Inasubiri</string>
@@ -414,6 +421,7 @@
     <string name="remote_lowercase">ya mbali</string>
     <string name="remove">Ondoa</string>
     <string name="remove_rule">Ondoa sheria</string>
+    <string name="remove_wallet">Ondoa pochi</string>
     <string name="resend_reset_link">Tuma tena kiungo</string>
     <string name="resend_verify_code">Tuma tena msimbo</string>
     <string name="reset_it">Weka upya</string>
@@ -512,6 +520,7 @@
     <string name="update_referral_network">Sasisha mtandao wa rufaa</string>
     <string name="upgrade_now">Boresha sasa</string>
     <string name="upgrade_subscription">Boresha Usajili</string>
+    <string name="usdc_wallet_address">Anwani ya pochi ya USDC</string>
     <string name="use_most_stable_provider">Hutumia mtoa huduma thabiti zaidi</string>
     <string name="use_recommended_settings">Tumia mipangilio inayopendekezwa</string>
     <string name="used_data_key">Imetumika</string>
