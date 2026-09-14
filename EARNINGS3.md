@@ -37,6 +37,8 @@ claim that never passes through URnetwork.
 4. **No USDC anywhere in the apps.** The single exception is the Solana
    subscription payment note "Paid in USDC on Solana." Past USDC payout history
    is not shown; support@ur.io answers requests for it.
+   Exception to 3 and 4 since 2026-09-14: Android connects a Solana USDC payout
+   wallet again (see the note under "Audit: what left the apps").
 5. **Claims are direct.** The claim is the user's own transaction from the SDK
    on their device to the settlement vault contract. No URnetwork API is in the
    claim path, no relayer submits on a user's behalf, and no URnetwork key ever
@@ -114,7 +116,8 @@ Bittensor wallet" (and on the connected Bittensor wallet) carries "Connect Solan
 wallet". It opens the pre-Bittensor flow, a Solana wallet app through Mobile
 Wallet Adapter (authorize only) or a manual address checked locally and by
 `POST /wallet/validate-address`, then `POST /account/wallet` (SOL, USDC) and the
-new wallet is made the payout wallet. A card under the Bittensor wallet shows the
+app makes it the payout wallet when the server did not
+(`POST /account/payout-wallet`). A card under the Bittensor wallet shows the
 payout wallet, the USDC waiting and Remove. Payout history, Polygon entry and the
 Saga label stay removed. USDC payouts continue until the migration completes.
 
