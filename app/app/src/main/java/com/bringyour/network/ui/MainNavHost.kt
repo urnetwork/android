@@ -1420,7 +1420,8 @@ fun MainNavContent(
                     multiplierPoints = accountPointsViewModel.multiplierPoints.collectAsState().value,
                     reliabilityPoints = accountPointsViewModel.reliabilityPoints.collectAsState().value,
                     fetchAccountPoints = { accountPointsViewModel.fetchAccountPoints() },
-                    reliabilityWindow = reliabilityWindow
+                    reliabilityWindow = reliabilityWindow,
+                    activityResultSender = activityResultSender
                 )
             }
 
