@@ -284,7 +284,7 @@ fun SolanaWalletCard(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 status,
-                modifier = Modifier.clickable(onClickLabel = stringResource(id = R.string.cancel)) { onDismissState() },
+                modifier = Modifier.clickable(onClickLabel = stringResource(id = R.string.dismiss)) { onDismissState() },
                 style = MaterialTheme.typography.bodyMedium,
                 color = color
             )

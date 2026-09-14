@@ -232,7 +232,7 @@ fun ConnectSolanaWalletSheetContent(
                 solanaFailureText(state),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(onClickLabel = stringResource(id = R.string.cancel)) { onDismissState() }
+                    .clickable(onClickLabel = stringResource(id = R.string.dismiss)) { onDismissState() }
                     .testTag(SOLANA_CONNECT_ERROR_TAG),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Red
