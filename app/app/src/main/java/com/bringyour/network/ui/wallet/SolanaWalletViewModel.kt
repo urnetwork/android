@@ -269,32 +269,18 @@ class SolanaWalletViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Create (or re-activate) the Solana wallet, then make it the payout wallet. The
-     * server sets the payout wallet on create only when the network has none, and a
-     * network can already hold another payout wallet, or a Seeker verification row.
-     */
+    /** [linkSolanaWallet], then show the new payout wallet at once and refresh. */
     private suspend fun link(address: String) {
         val s = source
         val a = address.trim()
         _connectState.value = SolanaConnectState.Linking(a)
 
-        val walletId = s.addSolanaWallet(a).getOrElse { e ->
-            Log.i(TAG, "add solana wallet: ${e.message}")
+        val walletId = linkSolanaWallet(s, a).getOrElse { e ->
+            Log.i(TAG, "link solana wallet: ${e.message}")
             if (source === s) {
                 _connectState.value = SolanaConnectState.Failed(e.message)
             }
             return
-        }
-        // a failed read sets it anyway; setting the payout wallet is idempotent
-        if (s.payoutWalletId().getOrNull() != walletId) {
-            s.setPayoutWallet(walletId).onFailure { e ->
-                Log.i(TAG, "set payout wallet: ${e.message}")
-                if (source === s) {
-                    _connectState.value = SolanaConnectState.Failed(e.message)
-                }
-                return
-            }
         }
         if (source !== s) {
             return

@@ -156,6 +156,20 @@ interface LegacyWalletSource {
     suspend fun removeWallet(walletId: String): Result<Unit>
 }
 
+/**
+ * Create (or re-activate) the Solana wallet, then make it the payout wallet unless the
+ * server already did. The server sets the payout wallet on create only when the network
+ * has none, and a network can hold another payout wallet or a Seeker verification row;
+ * a payout wallet that cannot be read is set anyway, which the server accepts again.
+ */
+suspend fun linkSolanaWallet(source: LegacyWalletSource, address: String): Result<String> {
+    val walletId = source.addSolanaWallet(address).getOrElse { return Result.failure(it) }
+    if (source.payoutWalletId().getOrNull() != walletId) {
+        source.setPayoutWallet(walletId).onFailure { return Result.failure(it) }
+    }
+    return Result.success(walletId)
+}
+
 /** No device (signed out): nothing legacy. */
 object NoLegacyWalletSource : LegacyWalletSource {
     override val available: Boolean = false
