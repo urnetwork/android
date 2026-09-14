@@ -390,20 +390,22 @@ class MainApplication : Application() {
         }
 
 
-//    override fun onTrimMemory(level: Int) {
-//        super.onTrimMemory(level)
-//
-//        if (TRIM_MEMORY_BACKGROUND <= level) {
-//            Sdk.freeMemory()
-//        }
-//    }
+    // The lambda defers touching the gomobile class until a report is relayed.
+    private val memoryTrimRelay = MemoryTrimRelay(
+        sdkReady = { applicationStateInitialized },
+        report = { level -> Sdk.reportMemoryTrimLevel(level) },
+    )
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        memoryTrimRelay.onTrimMemory(level)
+    }
 
     override fun onLowMemory() {
         super.onLowMemory()
-
         // A cold VPN-service process deliberately has not loaded gomobile yet;
         // a memory callback must not defeat the early-promotion startup path.
-        if (applicationStateInitialized) Sdk.freeMemory()
+        memoryTrimRelay.onLowMemory()
     }
 
 
