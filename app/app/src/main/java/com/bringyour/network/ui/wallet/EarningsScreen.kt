@@ -539,7 +539,7 @@ private fun PointsBreakdownColumn(label: String, points: Double) {
 
 
 @Composable
-private fun WalletSection(
+internal fun WalletSection(
     protocolAvailable: Boolean,
     wallet: SnWalletState?,
     walletLoaded: Boolean,
