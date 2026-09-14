@@ -178,6 +178,16 @@ fun UsdcWaitingLine(
     )
 }
 
+/**
+ * A failed connect, link or remove, worded the same on every platform: the reason when
+ * there is one, otherwise "Something went wrong."
+ */
+@Composable
+fun solanaFailureText(state: SolanaConnectState.Failed): String =
+    state.detail?.takeIf { it.isNotBlank() }
+        ?.let { stringResource(R.string.error_connecting_wallet_with_reason, it) }
+        ?: stringResource(R.string.something_went_wrong)
+
 /** The payout wallet, so always the default one. */
 @Composable
 fun SolanaWalletCard(
@@ -267,7 +277,7 @@ fun SolanaWalletCard(
 
         val (status, color) = when (state) {
             is SolanaConnectState.Linked -> stringResource(id = R.string.payout_wallet_updated) to Green
-            is SolanaConnectState.Failed -> stringResource(id = R.string.something_went_wrong) to Red
+            is SolanaConnectState.Failed -> solanaFailureText(state) to Red
             else -> null to TextMuted
         }
         if (status != null) {

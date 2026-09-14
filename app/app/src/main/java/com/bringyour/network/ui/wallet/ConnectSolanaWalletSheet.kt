@@ -227,14 +227,9 @@ fun ConnectSolanaWalletSheetContent(
         }
 
         if (state is SolanaConnectState.Failed) {
-            val detail = state.detail?.takeIf { it.isNotBlank() }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                if (detail != null) {
-                    stringResource(R.string.error_connecting_wallet_with_reason, detail)
-                } else {
-                    stringResource(id = R.string.something_went_wrong)
-                },
+                solanaFailureText(state),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClickLabel = stringResource(id = R.string.cancel)) { onDismissState() }

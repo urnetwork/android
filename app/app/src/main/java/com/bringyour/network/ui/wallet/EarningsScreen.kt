@@ -249,7 +249,7 @@ fun EarningsScreen(
     RemoveSolanaWalletDialog(
         visible = solanaWalletViewModel.isPresentedRemoveDialog,
         removing = solanaState is SolanaConnectState.Removing,
-        error = if (solanaState is SolanaConnectState.Failed) stringResource(id = R.string.something_went_wrong) else null,
+        error = (solanaState as? SolanaConnectState.Failed)?.let { solanaFailureText(it) },
         onConfirm = { solanaWalletViewModel.removePayoutWallet() },
         onDismiss = { solanaWalletViewModel.closeRemoveDialog() },
     )

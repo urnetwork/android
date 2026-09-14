@@ -38,7 +38,12 @@ class EarningsScreenLegacyWalletTest {
 
     private val held = LegacyPayment("held", null, SampleLegacyWalletSource.SAMPLE_USDC_WAITING, 0.0, false, false, null)
 
-    private fun show(legacy: LegacyWalletUi, showWaitingLine: Boolean = false, onRemove: () -> Unit = {}) {
+    private fun show(
+        legacy: LegacyWalletUi,
+        showWaitingLine: Boolean = false,
+        state: SolanaConnectState = SolanaConnectState.Idle,
+        onRemove: () -> Unit = {},
+    ) {
         compose.setContent {
             URNetworkTheme {
                 Column {
@@ -46,7 +51,7 @@ class EarningsScreenLegacyWalletTest {
                         legacy = legacy,
                         legacyLoaded = true,
                         showWaitingLine = showWaitingLine,
-                        state = SolanaConnectState.Idle,
+                        state = state,
                         onRemove = onRemove,
                         onDismissState = {},
                     )
@@ -87,5 +92,20 @@ class EarningsScreenLegacyWalletTest {
             .performClick()
 
         compose.runOnIdle { assertEquals(1, removes) }
+    }
+
+    @Test
+    fun aFailedRemoveShowsTheReason() {
+        show(LegacyWalletUi(listOf(wallet), wallet.walletId), state = SolanaConnectState.Failed("boom"))
+
+        compose.onNodeWithText(context.getString(R.string.error_connecting_wallet_with_reason, "boom"))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun aFailureWithoutAReasonSaysSomethingWentWrong() {
+        show(LegacyWalletUi(listOf(wallet), wallet.walletId), state = SolanaConnectState.Failed(null))
+
+        compose.onNodeWithText(context.getString(R.string.something_went_wrong)).assertIsDisplayed()
     }
 }
