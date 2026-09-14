@@ -382,6 +382,14 @@ object EarningsDebugFlags {
     @Volatile var sampleStartDisconnected: Boolean = false
         private set
 
+    // start the sample with a Solana payout wallet (legacy USDC payouts)
+    @Volatile var sampleSolanaWallet: Boolean = false
+        private set
+
+    // the sample network has USDC held for want of a payout wallet
+    @Volatile var sampleUsdcWaiting: Boolean = false
+        private set
+
     fun setUseSampleData(value: Boolean) {
         useSampleData = value
         version.value += 1
@@ -394,6 +402,16 @@ object EarningsDebugFlags {
 
     fun setSampleStartDisconnected(value: Boolean) {
         sampleStartDisconnected = value
+        version.value += 1
+    }
+
+    fun setSampleSolanaWallet(value: Boolean) {
+        sampleSolanaWallet = value
+        version.value += 1
+    }
+
+    fun setSampleUsdcWaiting(value: Boolean) {
+        sampleUsdcWaiting = value
         version.value += 1
     }
 }
