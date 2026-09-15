@@ -741,18 +741,11 @@ import kotlin.concurrent.thread
                 builder.addRoute("11.0.0.0", 8)
             }
             // IPv6: everything except the scopes that must stay on the native
-            // network (link-local, unique-local, multicast, loopback), as an
-            // exclusion list on T+ and as the equivalent split table before
+            // network (link-local, unique-local, multicast, loopback). Use the
+            // split table on every API: excludeRoute also rejects ::1/128.
             // (see VpnRoutes.kt, which is checked against this v4 table too)
-            if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
-                builder.addRoute("::", 0)
-                for (excluded in VPN_IPV6_EXCLUDED_PREFIXES) {
-                    builder.excludeRoute(IpPrefix(InetAddress.getByName(excluded.address), excluded.prefixLength))
-                }
-            } else {
-                for (route in vpnIpv6CaptureRoutes()) {
-                    builder.addRoute(route.address, route.prefixLength)
-                }
+            vpnSubmitIpv6Routes { route ->
+                builder.addRoute(route.address, route.prefixLength)
             }
             }
         app.device?.let { device ->

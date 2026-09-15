@@ -9,6 +9,30 @@ import androidx.test.uiautomator.Until
 private const val VPN_CONSENT_WAIT_MILLIS = 8_000L
 private const val AUTOFILL_DISMISS_WAIT_MILLIS = 2_000L
 
+/** Auth can decline only the exact save sheet, never a VPN consent action. */
+internal fun <T> UiDevice.withVerifiedAutofillSaveDismissed(action: () -> T): T {
+    val candidates = buildList {
+        addAll(findObjects(By.res(AUTOFILL_SAVE_DECLINE_RESOURCE)))
+        addAll(findObjects(By.res(AUTOFILL_SAVE_ACCEPT_RESOURCE)))
+    }
+    return performAutofillReadyAction(
+        controls = candidates.map { it.identity() },
+        dismissVerifiedNegative = { index ->
+            candidates.getValue(index).click()
+            check(
+                wait(
+                    Until.gone(By.res(AUTOFILL_SAVE_DECLINE_RESOURCE)),
+                    AUTOFILL_DISMISS_WAIT_MILLIS,
+                ) && wait(
+                    Until.gone(By.res(AUTOFILL_SAVE_ACCEPT_RESOURCE)),
+                    AUTOFILL_DISMISS_WAIT_MILLIS,
+                ),
+            ) { "verified autofill save sheet did not close" }
+        },
+        action = action,
+    )
+}
+
 /**
  * Dismisses the exact Android autofill save sheet when it obscures VPN consent,
  * then clicks only a verified stock or OPlus VPN action. Every other matching

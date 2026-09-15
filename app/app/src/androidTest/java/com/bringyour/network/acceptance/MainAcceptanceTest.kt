@@ -95,22 +95,40 @@ class MainAcceptanceTest {
             .isNotEmpty()
 
     private fun waitForTag(tag: String, timeoutMillis: Long = UI_TIMEOUT_MILLIS) {
-        waitFor("UI tag $tag", timeoutMillis) { tagExists(tag) }
+        waitFor("UI tag $tag", timeoutMillis) {
+            withPasswordTagReady(tag) { tagExists(tag) }
+        }
+    }
+
+    private fun <T> withPasswordTagReady(tag: String, action: () -> T): T =
+        if (tag.startsWith("acceptance.password.")) {
+            device.withVerifiedAutofillSaveDismissed(action)
+        } else {
+            action()
+        }
+
+    private fun clickPasswordTag(tag: String) {
+        withPasswordTagReady(tag) {
+            compose.performEnabledSemanticsClick(tag, AUTH_TIMEOUT_MILLIS)
+        }
     }
 
     private fun waitForEitherTag(first: String, second: String, timeoutMillis: Long = AUTH_TIMEOUT_MILLIS): String {
         var result = ""
+        val passwordTag = if (first.startsWith("acceptance.password.")) first else second
         waitFor("UI tag $first or $second", timeoutMillis) {
-            when {
-                tagExists(first) -> {
-                    result = first
-                    true
+            withPasswordTagReady(passwordTag) {
+                when {
+                    tagExists(first) -> {
+                        result = first
+                        true
+                    }
+                    tagExists(second) -> {
+                        result = second
+                        true
+                    }
+                    else -> false
                 }
-                tagExists(second) -> {
-                    result = second
-                    true
-                }
-                else -> false
             }
         }
         return result
@@ -145,9 +163,11 @@ class MainAcceptanceTest {
 
     private fun replaceTagText(tag: String, value: String) {
         waitForTag(tag)
-        compose.onNodeWithTag(tag, useUnmergedTree = true)
-            .assertExists()
-            .performTextReplacement(value)
+        withPasswordTagReady(tag) {
+            compose.onNodeWithTag(tag, useUnmergedTree = true)
+                .assertExists()
+                .performTextReplacement(value)
+        }
     }
 
     private fun launchLoggedOutApp() {
@@ -274,7 +294,7 @@ class MainAcceptanceTest {
     ) {
         waitForTag("acceptance.password.input", AUTH_TIMEOUT_MILLIS)
         replaceTagText("acceptance.password.input", password)
-        compose.performEnabledSemanticsClick("acceptance.password.submit", AUTH_TIMEOUT_MILLIS)
+        clickPasswordTag("acceptance.password.submit")
         if (verificationCode != null) {
             val destination = waitForEitherTag("acceptance.nav.connect", "acceptance.verify.code")
             if (destination == "acceptance.verify.code") {
@@ -293,7 +313,7 @@ class MainAcceptanceTest {
     ) {
         log("sign in with acceptance account through local UI")
         replaceTagText("acceptance.password.user", user)
-        compose.performEnabledSemanticsClick("acceptance.password.next", AUTH_TIMEOUT_MILLIS)
+        clickPasswordTag("acceptance.password.next")
         completePasswordPrompt(password, verificationCode, retainClient)
     }
 
@@ -343,7 +363,7 @@ class MainAcceptanceTest {
     ) {
         repeat(2) { attempt ->
             replaceTagText("acceptance.password.user", userAuth)
-            compose.performEnabledSemanticsClick("acceptance.password.next", AUTH_TIMEOUT_MILLIS)
+            clickPasswordTag("acceptance.password.next")
             when (waitForEitherTag("acceptance.create.network", "acceptance.password.input")) {
                 "acceptance.create.network" -> return
                 else -> {

@@ -4,8 +4,7 @@ import java.math.BigInteger
 import java.net.InetAddress
 
 /**
- * Route-table arithmetic for the VPN builder on Android versions before
- * Builder.excludeRoute (API 33): a capture-everything route minus the
+ * Route-table arithmetic for the VPN builder: a capture-everything route minus the
  * prefixes that must stay on the native network, expressed as the list of
  * routes that exactly tiles the remainder.
  *
@@ -35,9 +34,16 @@ internal val VPN_IPV4_EXCLUDED_PREFIXES = listOf(
     VpnRoute("192.168.0.0", 16),
 )
 
-/** `::/0` minus the v6 exclusions, for builders without excludeRoute. */
+/** `::/0` minus the v6 exclusions, on every Android version. */
 internal fun vpnIpv6CaptureRoutes(): List<VpnRoute> =
     vpnCaptureRoutes(VpnRoute("::", 0), VPN_IPV6_EXCLUDED_PREFIXES, 128)
+
+/** Submits capture routes; Android rejects loopback even with excludeRoute. */
+internal fun vpnSubmitIpv6Routes(submitRoute: (VpnRoute) -> Unit) {
+    for (route in vpnIpv6CaptureRoutes()) {
+        submitRoute(route)
+    }
+}
 
 /** `0.0.0.0/0` minus the v4 exclusions, for builders without excludeRoute. */
 internal fun vpnIpv4CaptureRoutes(): List<VpnRoute> =
