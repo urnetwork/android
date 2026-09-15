@@ -11,26 +11,40 @@ private const val AUTOFILL_DISMISS_WAIT_MILLIS = 2_000L
 
 /** Auth can decline only the exact save sheet, never a VPN consent action. */
 internal fun <T> UiDevice.withVerifiedAutofillSaveDismissed(action: () -> T): T {
-    val candidates = buildList {
-        addAll(findObjects(By.res(AUTOFILL_SAVE_DECLINE_RESOURCE)))
-        addAll(findObjects(By.res(AUTOFILL_SAVE_ACCEPT_RESOURCE)))
-    }
+    val candidates = autofillSaveCandidates()
     return performAutofillReadyAction(
         controls = candidates.map { it.identity() },
-        dismissVerifiedNegative = { index ->
-            candidates.getValue(index).click()
-            check(
-                wait(
-                    Until.gone(By.res(AUTOFILL_SAVE_DECLINE_RESOURCE)),
-                    AUTOFILL_DISMISS_WAIT_MILLIS,
-                ) && wait(
-                    Until.gone(By.res(AUTOFILL_SAVE_ACCEPT_RESOURCE)),
-                    AUTOFILL_DISMISS_WAIT_MILLIS,
-                ),
-            ) { "verified autofill save sheet did not close" }
-        },
+        dismissVerifiedNegative = { index -> dismissVerifiedAutofillSave(candidates, index) },
         action = action,
     )
+}
+
+/** Wait polls tolerate only the transient framework-positive-only snapshot. */
+internal fun UiDevice.pollWithVerifiedAutofillSaveDismissed(condition: () -> Boolean): Boolean {
+    val candidates = autofillSaveCandidates()
+    return pollAutofillReadyCondition(
+        controls = candidates.map { it.identity() },
+        dismissVerifiedNegative = { index -> dismissVerifiedAutofillSave(candidates, index) },
+        condition = condition,
+    )
+}
+
+private fun UiDevice.autofillSaveCandidates(): List<UiObject2> = buildList {
+    addAll(findObjects(By.res(AUTOFILL_SAVE_DECLINE_RESOURCE)))
+    addAll(findObjects(By.res(AUTOFILL_SAVE_ACCEPT_RESOURCE)))
+}
+
+private fun UiDevice.dismissVerifiedAutofillSave(candidates: List<UiObject2>, index: Int) {
+    candidates.getValue(index).click()
+    check(
+        wait(
+            Until.gone(By.res(AUTOFILL_SAVE_DECLINE_RESOURCE)),
+            AUTOFILL_DISMISS_WAIT_MILLIS,
+        ) && wait(
+            Until.gone(By.res(AUTOFILL_SAVE_ACCEPT_RESOURCE)),
+            AUTOFILL_DISMISS_WAIT_MILLIS,
+        ),
+    ) { "verified autofill save sheet did not close" }
 }
 
 /**

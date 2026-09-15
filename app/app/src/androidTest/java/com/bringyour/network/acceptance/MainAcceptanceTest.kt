@@ -96,9 +96,16 @@ class MainAcceptanceTest {
 
     private fun waitForTag(tag: String, timeoutMillis: Long = UI_TIMEOUT_MILLIS) {
         waitFor("UI tag $tag", timeoutMillis) {
-            withPasswordTagReady(tag) { tagExists(tag) }
+            pollWithPasswordTagReady(tag) { tagExists(tag) }
         }
     }
+
+    private fun pollWithPasswordTagReady(tag: String, condition: () -> Boolean): Boolean =
+        if (tag.startsWith("acceptance.password.")) {
+            device.pollWithVerifiedAutofillSaveDismissed(condition)
+        } else {
+            condition()
+        }
 
     private fun <T> withPasswordTagReady(tag: String, action: () -> T): T =
         if (tag.startsWith("acceptance.password.")) {
@@ -117,7 +124,7 @@ class MainAcceptanceTest {
         var result = ""
         val passwordTag = if (first.startsWith("acceptance.password.")) first else second
         waitFor("UI tag $first or $second", timeoutMillis) {
-            withPasswordTagReady(passwordTag) {
+            pollWithPasswordTagReady(passwordTag) {
                 when {
                     tagExists(first) -> {
                         result = first

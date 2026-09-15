@@ -191,6 +191,17 @@ if ! "$network_test_gate" --verify-held main-acceptance; then
   echo "Android acceptance inherited an invalid network-intensive lock" >&2
   exit 70
 fi
+if [ -n "${URNETWORK_ANDROID_SDK_OUTPUT_LOCK_HELD:-}" ] ||
+   [ -n "${URNETWORK_ANDROID_SDK_OUTPUT_LOCK_DIR:-}" ] ||
+   [ -n "${URNETWORK_ANDROID_SDK_OUTPUT_LOCK_PATH:-}" ] ||
+   [ -n "${URNETWORK_ANDROID_SDK_OUTPUT_LOCK_FD:-}" ] ||
+   [ -n "${URNETWORK_ANDROID_SDK_OUTPUT_LOCK_TOKEN:-}" ] ||
+   [ -n "${URNETWORK_ANDROID_SDK_OUTPUT_LOCK_ROLE:-}" ]; then
+  echo "Android acceptance must not inherit URNETWORK_ANDROID_SDK_OUTPUT_LOCK_*;" \
+    "launch test-main.sh without an outer SDK-output gate because its build" \
+    "and consumer phases acquire that gate internally" >&2
+  exit 70
+fi
 
 command -v timeout >/dev/null 2>&1 || die "GNU timeout is required (brew install coreutils)"
 android_acceptance_timeout_executable="$(type -P timeout)"
@@ -565,9 +576,10 @@ if [ "$skip_build" -ne 1 ]; then
   ) 2>&1 | tee "$artifacts/sdk-build.log"
 fi
 
-# Retain descriptor 8 until this runner exits. The canonical suite's outer
-# network-intensive lock owns descriptor 9; the two ownership domains must
-# remain independently kernel-held. A writer that wins the small interval
+# Retain the SDK gate's dynamically selected descriptor until this runner
+# exits. The canonical suite's outer network-intensive lock owns descriptor 9;
+# the two ownership domains must remain independently kernel-held. A writer
+# that wins the small interval
 # after Gradle's SDK task either remains busy here or leaves a different owner
 # sidecar, both of which fail before fleet capture or device mutation.
 sdk_previous_directory="$(pwd -P)"

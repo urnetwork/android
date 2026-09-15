@@ -40,6 +40,20 @@ class AutofillSaveControlTest {
     }
 
     @Test
+    fun positiveOnlySnapshotWaitsForVerifiedNegativeBeforePolling() {
+        val ui = ExternalSaveWindow(listOf(positiveControl()))
+        ui.nextTagVisible = true
+
+        assertFalse(ui.pollNextTag())
+        assertEquals(emptyList<String>(), ui.operations)
+
+        ui.controls = saveControls()
+
+        assertTrue(ui.pollNextTag())
+        assertEquals(listOf("decline:1", "poll"), ui.operations)
+    }
+
+    @Test
     fun absentSheetLeavesNormalAuthActionUntouched() {
         val ui = ExternalSaveWindow(emptyList())
 
@@ -151,13 +165,14 @@ class AutofillSaveControlTest {
             nextTagVisible = true
         }
 
-        fun pollNextTag(): Boolean = performAutofillReadyAction(
+        fun pollNextTag(): Boolean = pollAutofillReadyCondition(
             controls = controls,
             dismissVerifiedNegative = ::decline,
-        ) {
-            operations += "poll"
-            controls.isEmpty() && nextTagVisible
-        }
+            condition = {
+                operations += "poll"
+                controls.isEmpty() && nextTagVisible
+            },
+        )
 
         /** The fake is strict: even an attempted positive click is a failure. */
         private fun decline(index: Int) {

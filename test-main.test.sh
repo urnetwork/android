@@ -604,6 +604,41 @@ env -u URNETWORK_NETWORK_TEST_LOCK_HELD \
 [ "$(cat "$network_gate_node_marker")" = android-p2p-diagnostic ] || \
   fail "Android replaced the explicit outer diagnostic ownership role"
 rm -f "$network_gate_node_marker"
+
+sdk_lock_markers=(
+  URNETWORK_ANDROID_SDK_OUTPUT_LOCK_HELD
+  URNETWORK_ANDROID_SDK_OUTPUT_LOCK_DIR
+  URNETWORK_ANDROID_SDK_OUTPUT_LOCK_PATH
+  URNETWORK_ANDROID_SDK_OUTPUT_LOCK_FD
+  URNETWORK_ANDROID_SDK_OUTPUT_LOCK_TOKEN
+  URNETWORK_ANDROID_SDK_OUTPUT_LOCK_ROLE
+)
+for sdk_lock_marker in "${sdk_lock_markers[@]}"; do
+  android_sdk_marker_status=0
+  env -u URNETWORK_ANDROID_SDK_OUTPUT_LOCK_HELD \
+    -u URNETWORK_ANDROID_SDK_OUTPUT_LOCK_DIR \
+    -u URNETWORK_ANDROID_SDK_OUTPUT_LOCK_PATH \
+    -u URNETWORK_ANDROID_SDK_OUTPUT_LOCK_FD \
+    -u URNETWORK_ANDROID_SDK_OUTPUT_LOCK_TOKEN \
+    -u URNETWORK_ANDROID_SDK_OUTPUT_LOCK_ROLE \
+    PATH="$network_gate_fake_bin:$PATH" \
+    ANDROID_GATE_NODE_MARKER="$network_gate_node_marker" \
+    URNETWORK_ROOT="$here/.." \
+    URNETWORK_NETWORK_TESTING=1 \
+    URNETWORK_NETWORK_TEST_LOCK_PATH="$network_gate_lock" \
+    "$network_gate" main-acceptance android-sdk-marker-test -- \
+      env "$sdk_lock_marker=synthetic" "$here/test-main.sh" --headless \
+      >"$network_gate_dir/$sdk_lock_marker.log" 2>&1 || \
+    android_sdk_marker_status=$?
+  [ "$android_sdk_marker_status" -eq 70 ] || \
+    fail "Android accepted inherited SDK-output marker $sdk_lock_marker"
+  [ ! -e "$network_gate_node_marker" ] || \
+    fail "inherited SDK-output marker $sdk_lock_marker reached Node preflight"
+  grep -Fq \
+    'must not inherit URNETWORK_ANDROID_SDK_OUTPUT_LOCK_*' \
+    "$network_gate_dir/$sdk_lock_marker.log" || \
+    fail "inherited SDK-output marker $sdk_lock_marker lacked the self-gating error"
+done
 trap - EXIT
 
 grep -Fq 'reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)' "$here/test-main.sh" || \
@@ -654,6 +689,9 @@ network_gate_line="$(grep -n -m1 \
 # shellcheck disable=SC2016
 network_verify_line="$(grep -n -m1 '"$network_test_gate" --verify-held main-acceptance' \
   "$here/test-main.sh" | cut -d: -f1)"
+sdk_marker_reject_line="$(grep -n -m1 \
+  'must not inherit URNETWORK_ANDROID_SDK_OUTPUT_LOCK_' \
+  "$here/test-main.sh" | cut -d: -f1)"
 # shellcheck disable=SC2016
 preflight_line="$(grep -n -m1 'node "$root/build/all/acceptance/preflight-main.mjs"' \
   "$here/test-main.sh" | cut -d: -f1)"
@@ -668,9 +706,12 @@ sdk_owner_line="$(grep -n -m1 'android_acceptance_verify_sdk_build_owner' \
 fleet_capture_line="$(grep -n -m1 '^capture_device_fleet ||' \
   "$here/test-main.sh" | cut -d: -f1)"
 if [ -z "$network_gate_line" ] || [ -z "$network_verify_line" ] ||
+   [ -z "$sdk_marker_reject_line" ] ||
    [ -z "$preflight_line" ] || [ -z "$artifact_mutation_line" ] ||
    [ "$network_gate_line" -ge "$preflight_line" ] ||
    [ "$network_verify_line" -ge "$preflight_line" ] ||
+   [ "$network_verify_line" -ge "$sdk_marker_reject_line" ] ||
+   [ "$sdk_marker_reject_line" -ge "$preflight_line" ] ||
    [ "$network_gate_line" -ge "$artifact_mutation_line" ] ||
    [ "$network_verify_line" -ge "$artifact_mutation_line" ] ||
    [ "$network_gate_line" -ge "$sdk_build_line" ] ||
