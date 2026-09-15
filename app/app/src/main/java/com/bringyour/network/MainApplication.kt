@@ -41,16 +41,18 @@ import kotlin.math.min
 
 @HiltAndroidApp
 class MainApplication : Application() {
-    private companion object {
+    internal companion object {
         const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
         // a return to the foreground after this long starts a new product-event session
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
         const val CLIENT_EVENT_LOGOUT_DRAIN_MILLIS = 1500L
-        // Match the iOS packet-tunnel process budget so Android physical runs
-        // expose the same SDK pressure/failure boundary. DeviceManager already
-        // passes the matching iOS per-device steady target (24 MiB).
-        const val SDK_PROCESS_MEMORY_LIMIT_MIB = 32L
+        // The go soft limit: an emergency GC boundary above the per-device
+        // target DeviceManager passes (28 MiB), not permission to retain this
+        // much. Raised with that target from the 32 MiB iOS stand-in; the
+        // worst runtime sample on the peer rig at 28 MiB was 25.4 MiB, so this
+        // keeps the GC out of its emergency regime with ~14 MiB to spare.
+        const val SDK_PROCESS_MEMORY_LIMIT_MIB = 40L
         // Stable platform capability id since API 30. The framework exposes it
         // to system code only, but public hasCapability(Int) reports it to VPN
         // apps as part of ordinary NetworkCapabilities callbacks.

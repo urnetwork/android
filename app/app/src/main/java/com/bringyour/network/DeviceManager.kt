@@ -77,7 +77,14 @@ class DeviceManager @Inject constructor(
         // provider share backing the client pair while providing is off. The
         // process-level Sdk.setMemoryLimit (MainApplication) sizes the
         // shared message pools and go soft limit separately.
-        const val DEVICE_MEMORY_TARGET_BYTE_COUNT = 24L * 1024 * 1024
+        //
+        // 28 MiB, up from the 24 MiB iOS stand-in, measured on the peer rig
+        // with the idle reclaimer working: client quiet p50/p95 20.8/21.0 and
+        // 21.4/23.4 MiB across two blocks at this target, unchanged from
+        // 20.8/21.1 at 24 MiB. The sdk sizes its mobile caps from this value
+        // (7/6 of the 24-MiB calibration) and keeps its reclaim floor at the
+        // 24-MiB steady target regardless.
+        const val DEVICE_MEMORY_TARGET_BYTE_COUNT = 28L * 1024 * 1024
     }
 
     private val deviceLock = Any()
