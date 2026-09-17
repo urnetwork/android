@@ -17,8 +17,13 @@ import android.os.Handler
 import android.os.PowerManager
 import android.os.SystemClock
 import android.os.ext.SdkExtensions
+import android.telephony.SignalStrength
+import android.telephony.TelephonyCallback
+import android.telephony.TelephonyDisplayInfo
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -37,6 +42,29 @@ import java.io.File
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlin.math.min
+
+@RequiresApi(Build.VERSION_CODES.S)
+private class DefaultNetworkTelephonyCallback(
+    private val tracker: DefaultCellularQualityTracker,
+    private val onChanged: () -> Unit,
+) : TelephonyCallback(),
+    TelephonyCallback.SignalStrengthsListener,
+    TelephonyCallback.DisplayInfoListener {
+    override fun onSignalStrengthsChanged(signalStrength: SignalStrength) {
+        if (tracker.onSignalLevel(signalStrength.level)) onChanged()
+    }
+
+    override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) {
+        if (
+            tracker.onNetworkType(
+                telephonyDisplayInfo.networkType,
+                telephonyDisplayInfo.overrideNetworkType,
+            )
+        ) {
+            onChanged()
+        }
+    }
+}
 
 
 @HiltAndroidApp
@@ -150,6 +178,7 @@ class MainApplication : Application() {
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
     var defaultNetworkCallback: ConnectivityManager.NetworkCallback? = null
+    private var defaultNetworkTelephonyCallback: Any? = null
     var powerSaveReceiver: BroadcastReceiver? = null
     var networkPolicyReceiver: BroadcastReceiver? = null
     private var thermalStatusRegistration: ThermalStatusRegistration? = null
@@ -1149,12 +1178,37 @@ class MainApplication : Application() {
         updatePerformanceDegraded()
     }
 
+    private fun defaultNetworkQuality(
+        capabilities: NetworkCapabilities,
+    ): DefaultNetworkQuality {
+        val wifiSignalStrength = if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        ) {
+            capabilities.signalStrength
+        } else {
+            Int.MIN_VALUE
+        }
+        return DefaultNetworkQuality(
+            wifiSignalLevel = defaultNetworkSignalLevel(wifiSignalStrength),
+            downstreamBandwidthKbps = defaultNetworkBandwidthBucket(
+                capabilities.linkDownstreamBandwidthKbps,
+            ),
+            upstreamBandwidthKbps = defaultNetworkBandwidthBucket(
+                capabilities.linkUpstreamBandwidthKbps,
+            ),
+        )
+    }
+
     private fun addDefaultNetworkCallback() {
         removeDefaultNetworkCallback()
 
         val callbackDevice = device
         val tracker = DefaultNetworkTracker<Network>()
         val pressureTracker = DefaultNetworkPressureTracker<Network>()
+        val qualityTracker = DefaultNetworkQualityTracker<Network>()
+        val cellularQualityTracker = DefaultCellularQualityTracker()
+        var defaultNetworkIsCellular = false
         defaultNetworkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 if (defaultNetworkCallback !== this || device !== callbackDevice) {
@@ -1162,6 +1216,9 @@ class MainApplication : Application() {
                 }
                 if (pressureTracker.onAvailable(network)) {
                     setDefaultNetworkDegraded(pressureTracker.degraded)
+                }
+                if (qualityTracker.onAvailable(network)) {
+                    defaultNetworkIsCellular = false
                 }
                 if (tracker.onAvailable(network)) {
                     Log.i(TAG, "network default changed to $network")
@@ -1183,6 +1240,16 @@ class MainApplication : Application() {
                 ) {
                     setDefaultNetworkDegraded(pressureTracker.degraded)
                 }
+                if (
+                    qualityTracker.onCapabilitiesChanged(
+                        network,
+                        defaultNetworkQuality(networkCapabilities),
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR),
+                    )
+                ) {
+                    notifyNetworkQualityChanged(callbackDevice, "Wi-Fi or link estimate")
+                }
+                defaultNetworkIsCellular = qualityTracker.currentIsCellular()
                 // Meteredness can change with capabilities without a Data Saver
                 // preference broadcast (for example Wi-Fi policy changes).
                 updateDataSaverDegraded()
@@ -1195,6 +1262,9 @@ class MainApplication : Application() {
                 // A loss->replacement with the same Network identity is still
                 // a dead-path crossing and is detected by the tracker.
                 tracker.onLost(network)
+                if (qualityTracker.onLost(network)) {
+                    defaultNetworkIsCellular = false
+                }
                 if (pressureTracker.onLost(network)) {
                     setDefaultNetworkDegraded(pressureTracker.degraded)
                 }
@@ -1208,6 +1278,53 @@ class MainApplication : Application() {
             defaultNetworkCallback!!,
             Handler(mainLooper),
         )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            defaultNetworkTelephonyCallback = addDefaultNetworkTelephonyCallback(
+                cellularQualityTracker,
+            ) {
+                if (
+                    defaultNetworkIsCellular &&
+                    defaultNetworkCallback != null &&
+                    device === callbackDevice
+                ) {
+                    notifyNetworkQualityChanged(callbackDevice, "cell bar or type")
+                }
+            }
+        }
+    }
+
+    private fun notifyNetworkQualityChanged(callbackDevice: DeviceLocal?, source: String) {
+        Log.i(TAG, "default network $source changed")
+        runCatching { callbackDevice?.networkQualityChanged() }
+            .onFailure { Log.e(TAG, "network quality update failed: ${it.message}", it) }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun addDefaultNetworkTelephonyCallback(
+        tracker: DefaultCellularQualityTracker,
+        onChanged: () -> Unit,
+    ): Any? {
+        val callback = DefaultNetworkTelephonyCallback(tracker, onChanged)
+        return runCatching {
+            getSystemService(TelephonyManager::class.java).registerTelephonyCallback(
+                ContextCompat.getMainExecutor(this),
+                callback,
+            )
+            callback
+        }.onFailure {
+            Log.w(TAG, "cell quality callbacks unavailable: ${it.message}")
+        }.getOrNull()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun removeDefaultNetworkTelephonyCallback(callback: Any) {
+        runCatching {
+            getSystemService(TelephonyManager::class.java).unregisterTelephonyCallback(
+                callback as DefaultNetworkTelephonyCallback,
+            )
+        }.onFailure {
+            Log.w(TAG, "cell quality callback removal failed: ${it.message}")
+        }
     }
 
     fun removeDefaultNetworkCallback() {
@@ -1220,6 +1337,12 @@ class MainApplication : Application() {
             }
         }
         defaultNetworkCallback = null
+        defaultNetworkTelephonyCallback?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                removeDefaultNetworkTelephonyCallback(it)
+            }
+        }
+        defaultNetworkTelephonyCallback = null
         setDefaultNetworkDegraded(false)
     }
 
