@@ -21,6 +21,12 @@ import com.bringyour.network.ui.theme.TextMuted
  * one year of Pro for a one-time USDC payment (the welcome offer's 75% while
  * it is active, quoted by the server), as a secondary button -- the screen's
  * one primary button is the card picker's.
+ *
+ * The chain is named on the button, in the price note and again on its own
+ * line: USDC is issued on a dozen chains, and a buyer paying by hand from an
+ * exchange is asked to pick one on the withdrawal screen. Sent on anything but
+ * Solana it does not arrive and cannot be recovered, so the answer is stated
+ * before the payment starts rather than left to the wallet to imply.
  */
 @Composable
 fun SolanaPaySection(
@@ -54,6 +60,11 @@ fun SolanaPaySection(
         )
         Text(
             stringResource(id = R.string.paid_in_usdc_on_solana),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted
+        )
+        Text(
+            stringResource(id = R.string.usdc_solana_network_only),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted
         )

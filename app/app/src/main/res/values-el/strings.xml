@@ -520,6 +520,7 @@
     <string name="update_referral_network">Ενημέρωση δικτύου παραπομπών</string>
     <string name="upgrade_now">Αναβάθμιση τώρα</string>
     <string name="upgrade_subscription">Αναβάθμιση Συνδρομής</string>
+    <string name="usdc_solana_network_only">Στείλτε USDC μόνο στο δίκτυο Solana. Τα USDC που στέλνονται σε άλλο δίκτυο δεν θα φτάσουν.</string>
     <string name="usdc_wallet_address">Διεύθυνση πορτοφολιού USDC</string>
     <string name="use_most_stable_provider">Χρησιμοποιεί τον πιο σταθερό πάροχο</string>
     <string name="use_recommended_settings">Χρήση προτεινόμενων ρυθμίσεων</string>

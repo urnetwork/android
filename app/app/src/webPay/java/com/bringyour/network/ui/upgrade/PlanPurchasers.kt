@@ -239,6 +239,14 @@ private fun SolanaPaySheet(url: String, onDismiss: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            // Scanning the QR picks the chain for you; paying by hand from an
+            // exchange does not, and that is the transfer that gets lost.
+            Text(
+                stringResource(id = R.string.usdc_solana_network_only),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
             Spacer(modifier = Modifier.height(16.dp))
             URButton(onClick = {
                 try {

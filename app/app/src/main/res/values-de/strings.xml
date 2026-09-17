@@ -525,6 +525,7 @@
     <string name="update_referral_network">Empfehlungsnetzwerk aktualisieren</string>
     <string name="upgrade_now">Jetzt upgraden</string>
     <string name="upgrade_subscription">Abonnement upgraden</string>
+    <string name="usdc_solana_network_only">Senden Sie USDC nur über das Solana-Netzwerk. USDC, die über ein anderes Netzwerk gesendet werden, kommen nicht an.</string>
     <string name="usdc_wallet_address">USDC-Wallet-Adresse</string>
     <string name="use_most_stable_provider">Verwendet den stabilsten Anbieter</string>
     <string name="use_recommended_settings">Empfohlene Einstellungen verwenden</string>

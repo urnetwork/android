@@ -753,7 +753,7 @@
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>
     <string name="sn_protocol_note">SN25α are your earnings on the UR protocol. The UR protocol is an open source protocol from URnetwork. Connect a Bittensor wallet to settle them as SN25α through the UR protocol.</string>
     <string name="solana" translatable="false">Solana</string>
-    <string name="solana_one_time_payment">Paying with Solana is a one-time yearly payment, with no free trial.</string>
+    <string name="solana_one_time_payment">Paying with USDC on Solana is a one-time yearly payment, with no free trial.</string>
     <string name="solana_sign_in">Sign in with Solana</string>
     <string name="solana_wallet">Solana wallet</string>
     <string name="something_went_wrong">Something went wrong.</string>
@@ -838,6 +838,7 @@
     <string name="upgrade_now">Upgrade now</string>
     <string name="upgrade_subscription">Upgrade Subscription</string>
     <string name="usdc_payouts_until_migration">USDC payouts continue to this wallet until the migration to Bittensor is complete.</string>
+    <string name="usdc_solana_network_only">Send USDC on the Solana network only. USDC sent on any other network will not arrive.</string>
     <string name="usdc_waiting">%1$s USDC waiting</string>
     <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_extender_settings">Use extender settings</string>

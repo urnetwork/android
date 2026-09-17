@@ -525,6 +525,7 @@
     <string name="update_referral_network">تحديث شبكة الإحالة</string>
     <string name="upgrade_now">قم بالترقية الآن</string>
     <string name="upgrade_subscription">ترقية الاشتراك</string>
+    <string name="usdc_solana_network_only">أرسل USDC على شبكة Solana فقط. لن تصل عملات USDC المُرسَلة عبر أي شبكة أخرى.</string>
     <string name="usdc_wallet_address">عنوان محفظة USDC</string>
     <string name="use_most_stable_provider">استخدام مزود الخدمة الأكثر استقرارًا</string>
     <string name="use_recommended_settings">استخدام الإعدادات الموصى بها</string>

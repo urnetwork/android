@@ -525,6 +525,7 @@
     <string name="update_referral_network">更新推荐网络</string>
     <string name="upgrade_now">立即升级</string>
     <string name="upgrade_subscription">升级订阅</string>
+    <string name="usdc_solana_network_only">请仅在 Solana 网络上发送 USDC。通过其他网络发送的 USDC 将无法到账。</string>
     <string name="usdc_wallet_address">USDC 钱包地址</string>
     <string name="use_most_stable_provider">使用最稳定的提供商</string>
     <string name="use_recommended_settings">使用推荐设置</string>

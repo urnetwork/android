@@ -525,6 +525,7 @@
     <string name="update_referral_network">Actualizar red de referidos</string>
     <string name="upgrade_now">Actualizar ahora</string>
     <string name="upgrade_subscription">Actualizar suscripción</string>
+    <string name="usdc_solana_network_only">Envía USDC solo por la red Solana. Los USDC enviados por cualquier otra red no llegarán.</string>
     <string name="usdc_wallet_address">Dirección del monedero USDC</string>
     <string name="use_most_stable_provider">Usa el proveedor más estable</string>
     <string name="use_recommended_settings">Usar los ajustes recomendados</string>

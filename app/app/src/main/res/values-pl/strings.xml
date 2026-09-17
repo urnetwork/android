@@ -520,6 +520,7 @@
     <string name="update_referral_network">Zaktualizuj sieć poleceń</string>
     <string name="upgrade_now">Uaktualnij teraz</string>
     <string name="upgrade_subscription">Ulepsz subskrypcję</string>
+    <string name="usdc_solana_network_only">Wysyłaj USDC wyłącznie w sieci Solana. USDC wysłane w innej sieci nie dotrą.</string>
     <string name="usdc_wallet_address">Adres portfela USDC</string>
     <string name="use_most_stable_provider">Używa najstabilniejszego dostawcy</string>
     <string name="use_recommended_settings">Użyj zalecanych ustawień</string>

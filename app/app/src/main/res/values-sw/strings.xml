@@ -520,6 +520,7 @@
     <string name="update_referral_network">Sasisha mtandao wa rufaa</string>
     <string name="upgrade_now">Boresha sasa</string>
     <string name="upgrade_subscription">Boresha Usajili</string>
+    <string name="usdc_solana_network_only">Tuma USDC kwenye mtandao wa Solana pekee. USDC zilizotumwa kwenye mtandao mwingine hazitafika.</string>
     <string name="usdc_wallet_address">Anwani ya pochi ya USDC</string>
     <string name="use_most_stable_provider">Hutumia mtoa huduma thabiti zaidi</string>
     <string name="use_recommended_settings">Tumia mipangilio inayopendekezwa</string>

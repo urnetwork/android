@@ -520,6 +520,7 @@
     <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
     <string name="upgrade_now">अभी अपग्रेड करें</string>
     <string name="upgrade_subscription">सदस्यता अपग्रेड करें</string>
+    <string name="usdc_solana_network_only">USDC केवल Solana नेटवर्क पर भेजें। किसी अन्य नेटवर्क पर भेजे गए USDC नहीं पहुंचेंगे।</string>
     <string name="usdc_wallet_address">USDC वॉलेट पता</string>
     <string name="use_most_stable_provider">सबसे स्थिर प्रदाता का उपयोग करता है</string>
     <string name="use_recommended_settings">अनुशंसित सेटिंग्स का उपयोग करें</string>

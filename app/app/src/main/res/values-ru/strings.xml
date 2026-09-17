@@ -525,6 +525,7 @@
     <string name="update_referral_network">Обновить реферальную сеть</string>
     <string name="upgrade_now">Улучшить сейчас</string>
     <string name="upgrade_subscription">Улучшить подписку</string>
+    <string name="usdc_solana_network_only">Отправляйте USDC только в сети Solana. USDC, отправленные в другой сети, не дойдут.</string>
     <string name="usdc_wallet_address">Адрес кошелька USDC</string>
     <string name="use_most_stable_provider">Используется самый стабильный провайдер</string>
     <string name="use_recommended_settings">Использовать рекомендованные настройки</string>

@@ -520,6 +520,7 @@
     <string name="update_referral_network">추천 네트워크 업데이트</string>
     <string name="upgrade_now">지금 업그레이드하세요</string>
     <string name="upgrade_subscription">구독 업그레이드</string>
+    <string name="usdc_solana_network_only">USDC는 Solana 네트워크로만 보내세요. 다른 네트워크로 보낸 USDC는 도착하지 않습니다.</string>
     <string name="usdc_wallet_address">USDC 월렛 주소</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
     <string name="use_recommended_settings">권장 설정 사용</string>

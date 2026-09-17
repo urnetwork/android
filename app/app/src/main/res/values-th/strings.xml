@@ -520,6 +520,7 @@
     <string name="update_referral_network">อัพเดตรหัสการแนะนำเครือข่าย</string>
     <string name="upgrade_now">อัพเกรดเดี๋ยวนี้</string>
     <string name="upgrade_subscription">อัพเกรดเป็นสมัครรายเดือน</string>
+    <string name="usdc_solana_network_only">ส่ง USDC บนเครือข่าย Solana เท่านั้น USDC ที่ส่งบนเครือข่ายอื่นจะไม่เข้าบัญชี</string>
     <string name="usdc_wallet_address">ที่อยู่กระเป๋าเงิน USDC</string>
     <string name="use_most_stable_provider">ใช้ผู้ให้บริการที่เสถียรที่สุด</string>
     <string name="use_recommended_settings">ใช้การตั้งค่าที่แนะนำ</string>

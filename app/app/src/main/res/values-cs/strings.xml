@@ -520,6 +520,7 @@
     <string name="update_referral_network">Aktualizace referenční sítě</string>
     <string name="upgrade_now">Upgradujte nyní</string>
     <string name="upgrade_subscription">Upgradovat předplatné</string>
+    <string name="usdc_solana_network_only">USDC posílejte pouze v síti Solana. USDC odeslané v jiné síti nedorazí.</string>
     <string name="usdc_wallet_address">Adresa peněženky USDC</string>
     <string name="use_most_stable_provider">Používá nejstabilnějšího poskytovatele</string>
     <string name="use_recommended_settings">Použít doporučené nastavení</string>
