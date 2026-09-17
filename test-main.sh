@@ -66,6 +66,10 @@ selected_flavor_value=""
 flavor_selector_count=0
 run_peer_to_peer=1
 main_test_scope="com.bringyour.network.acceptance.EgressProbeRequestTest,com.bringyour.network.acceptance.MainAcceptanceTest"
+# The USDC quote case runs on its own so it is measured on its own. Folded into
+# the main scope, a payment-construction regression would be reported as five
+# unrelated auth failures.
+usdc_test_scope="com.bringyour.network.acceptance.SolanaPayQuoteAcceptanceTest"
 diagnostic_device=""
 diagnostic_case=""
 diagnostic_device_seen=0
@@ -507,7 +511,7 @@ cleanup() {
     elif [ "$run_peer_to_peer" -eq 0 ]; then
       if ! android_acceptance_verify_device_flavor_results \
           "$device_plan" "$device_results" \
-          email phone instant password data-plane; then
+          email phone instant password data-plane usdc-quote; then
         echo "[android acceptance] partial device/flavor result matrix is incomplete or failed" >&2
         exit_status=1
       fi
@@ -528,7 +532,7 @@ cleanup() {
       matrix_status=FAIL
       matrix_detail="Android device/flavor acceptance failed; see $device_results"
     fi
-    for matrix_case in email phone instant password data-plane peer-to-peer; do
+    for matrix_case in email phone instant password data-plane peer-to-peer usdc-quote; do
       printf 'android\t%s\t%s\t%s\n' "$matrix_case" "$matrix_status" "$matrix_detail" >>"$result_matrix"
     done
     chmod 600 "$result_matrix"
@@ -1394,7 +1398,7 @@ record_full_cases() {
   local device_id="$1" target_serial="$2" target="$3" status="$4" detail="$5"
 
   record_device_cases "$device_id" "$target_serial" "$target" "$status" "$detail" \
-    email phone instant password data-plane
+    email phone instant password data-plane usdc-quote
   if [ "$run_peer_to_peer" -eq 1 ]; then
     record_device_cases "$device_id" "$target_serial" "$target" "$status" "$detail" peer-to-peer
   fi
@@ -1736,6 +1740,24 @@ for target in $build_targets; do
     else
       : >"$out/instrumentation.log"
     fi
+
+    # The payment the client builds. It spends nothing and talks to nothing --
+    # the quote is injected -- so it runs even when the main lifecycle failed,
+    # and reports separately.
+    usdc_status=0
+    set +e
+    timeout 600 \
+      "$adb" -s "$serial" shell am instrument -w -r \
+        -e class "$usdc_test_scope" \
+        -e acceptanceBuildId "$build_id" \
+        com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner \
+        2>&1 | tee "$out/usdc-instrumentation.log"
+    usdc_status=${PIPESTATUS[0]}
+    set -e
+    if grep -Eq 'FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed|shortMsg=' "$out/usdc-instrumentation.log"; then
+      usdc_status=1
+    fi
+
     collect_target_artifacts "$out" || test_status=1
     if [ "$test_status" -eq 0 ] && \
        ! android_acceptance_verify_workflow_artifacts "$out" "$repeat_count"; then
@@ -1816,6 +1838,14 @@ for target in $build_targets; do
         "$build_id" "$input_fingerprint" "$out/instrumentation.log" || overall=1
       record_device_cases "$device_id" "$serial" "$target" FAIL "instrumentation or cleanup failed" \
         email phone instant password data-plane
+      overall=1
+    fi
+    if [ "$usdc_status" -eq 0 ]; then
+      record_device_cases "$device_id" "$serial" "$target" PASS \
+        "the client built the payment the server quoted" usdc-quote
+    else
+      record_device_cases "$device_id" "$serial" "$target" FAIL \
+        "the client built a payment that disagrees with the quote; see usdc-instrumentation.log" usdc-quote
       overall=1
     fi
     if [ "$run_peer_to_peer" -eq 1 ]; then

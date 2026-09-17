@@ -2130,14 +2130,14 @@ android_acceptance_require_target_coverage() {
 android_acceptance_verify_device_flavor_results() {
   local plan_file="$1" results_file="$2"
   shift 2
-  local required_cases="email phone instant password data-plane peer-to-peer"
+  local required_cases="email phone instant password data-plane peer-to-peer usdc-quote"
   local requested_case
 
   if [ "$#" -gt 0 ]; then
     required_cases=""
     for requested_case in "$@"; do
       case "$requested_case" in
-        email|phone|instant|password|data-plane|peer-to-peer) ;;
+        email|phone|instant|password|data-plane|peer-to-peer|usdc-quote) ;;
         *) return 2 ;;
       esac
       case " $required_cases " in

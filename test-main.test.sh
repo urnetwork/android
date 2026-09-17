@@ -270,7 +270,7 @@ if android_acceptance_validate_diagnostic_request \
   fail "a removed Android acceptance target was accepted for diagnostics"
 fi
 while IFS=$'\t' read -r device_id device_serial flavor; do
-  for result_case in email phone instant password data-plane peer-to-peer; do
+  for result_case in email phone instant password data-plane peer-to-peer usdc-quote; do
     printf '%s\t%s\t%s\t%s\tPASS\tcovered\n' \
       "$device_id" "$device_serial" "$flavor" "$result_case" >>"$fleet_results"
   done
