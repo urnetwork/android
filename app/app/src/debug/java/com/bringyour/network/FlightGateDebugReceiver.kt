@@ -24,9 +24,9 @@ import java.io.File
  * - `com.bringyour.network.debug.FG_PROVIDE` (string extras `control` =
  *   never|network|always, `network` = wifi|all): provide settings, persisted
  *   through DeviceManager exactly like the settings screen.
- * - `com.bringyour.network.debug.FG_CONNECT_PEER` (string extra `name`, a
- *   case-insensitive substring of the peer's device name): connects to that
- *   network peer as a trusted same-network destination.
+ * - `com.bringyour.network.debug.FG_CONNECT_PEER` (exact `client_id` preferred;
+ *   legacy `name` is an unambiguous case-insensitive substring): connects to
+ *   that providing network peer as a trusted same-network destination.
  * - `com.bringyour.network.debug.FG_DISCONNECT`.
  * - `com.bringyour.network.debug.FG_STATUS`: logs one JSON line of the
  *   sign-in, connect and provide state and the peer list.
@@ -58,7 +58,9 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
                 intent.getStringExtra("control"),
                 intent.getStringExtra("network"),
             )
-            "com.bringyour.network.debug.FG_CONNECT_PEER" -> connectPeer(app, intent.getStringExtra("name"))
+            "com.bringyour.network.debug.FG_CONNECT_PEER" -> connectPeer(
+                app, intent.getStringExtra("name"), intent.getStringExtra("client_id"),
+            )
             "com.bringyour.network.debug.FG_DISCONNECT" -> disconnect(app)
             "com.bringyour.network.debug.FG_STATUS" -> status(app)
             "com.bringyour.network.debug.FG_ALLOW_DIRECT" -> allowDirect(app, intent.getStringExtra("mode"))
@@ -111,21 +113,25 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
         )
     }
 
-    private fun connectPeer(app: MainApplication, name: String?) {
+    private fun connectPeer(app: MainApplication, name: String?, expectedClientId: String?) {
         val device = app.device
-        if (device == null || name.isNullOrBlank()) {
+        if (device == null || (name.isNullOrBlank() && expectedClientId.isNullOrBlank())) {
             Log.i(TAG, "result action=connect-peer error=no-device-or-name")
             return
         }
         val peers = device.networkPeers?.connected
         var location: ConnectLocation? = null
+        var matches = 0
         if (peers != null) {
             for (i in 0 until peers.len()) {
                 val peer = peers.get(i) ?: continue
                 val clientId = peer.clientId ?: continue
-                if (!peer.deviceName.contains(name, ignoreCase = true)) {
+                if (!peer.provideEnabled ||
+                    (!expectedClientId.isNullOrBlank() && clientId.string() != expectedClientId) ||
+                    (expectedClientId.isNullOrBlank() && !peer.deviceName.contains(name.orEmpty(), ignoreCase = true))) {
                     continue
                 }
+                matches += 1
                 location = ConnectLocation().also { l ->
                     l.connectLocationId = ConnectLocationId().also { id -> id.clientId = clientId }
                     l.name = peer.deviceName
@@ -133,10 +139,9 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
                     // peer, egressing under Network provide mode
                     l.networkPeer = true
                 }
-                break
             }
         }
-        if (location == null) {
+        if (location == null || matches != 1) {
             Log.i(TAG, "result action=connect-peer ok=false error=peer-not-found")
             return
         }
@@ -279,7 +284,12 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
         val json = JSONObject()
         val device = app.device
         json.put("signed_in", device != null)
+        json.put("memory_profile", MainApplication.MEMORY_PROFILE_NAME)
+        json.put("device_memory_target_bytes", DeviceManager.DEVICE_MEMORY_TARGET_BYTE_COUNT)
+        json.put("process_memory_limit_bytes", MainApplication.SDK_PROCESS_MEMORY_LIMIT_MIB * 1024 * 1024)
+        json.put("acceptance_build_id", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
         if (device != null) {
+            json.put("client_id", device.clientId?.string())
             json.put("connect_enabled", device.connectEnabled)
             json.put("provide_mode", device.provideMode)
             json.put("provide_control_mode", device.provideControlMode)
@@ -300,6 +310,7 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             device.connectLocation?.let { location ->
                 json.put("location_name", location.name)
                 json.put("location_network_peer", location.networkPeer)
+                json.put("location_client_id", location.connectLocationId?.clientId?.string())
             }
             val peers = JSONArray()
             device.networkPeers?.connected?.let { list ->
@@ -308,6 +319,7 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
                     peers.put(
                         JSONObject()
                             .put("device_name", peer.deviceName)
+                            .put("client_id", peer.clientId?.string())
                             .put("provide_enabled", peer.provideEnabled),
                     )
                 }

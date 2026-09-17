@@ -75,12 +75,19 @@ class MainApplication : Application() {
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
         const val CLIENT_EVENT_LOGOUT_DRAIN_MILLIS = 1500L
-        // The go soft limit: an emergency GC boundary above the per-device
-        // target DeviceManager passes (28 MiB), not permission to retain this
-        // much. Raised with that target from the 32 MiB iOS stand-in; the
-        // worst runtime sample on the peer rig at 28 MiB was 25.4 MiB, so this
-        // keeps the GC out of its emergency regime with ~14 MiB to spare.
-        const val SDK_PROCESS_MEMORY_LIMIT_MIB = 40L
+        // Android retains its normal larger profile. Only a debug audit APK
+        // explicitly selects the iOS extension's 20/32-MiB admission/GC inputs.
+        const val IOS_MEMORY_AUDIT_PROFILE = "ios-memory-audit-v1"
+        val MEMORY_PROFILE_NAME: String
+            get() = if (BuildConfig.DEBUG && BuildConfig.URNETWORK_MEMORY_PROFILE == IOS_MEMORY_AUDIT_PROFILE) {
+                IOS_MEMORY_AUDIT_PROFILE
+            } else {
+                "android"
+            }
+        internal fun processMemoryLimitMib(profile: String): Long =
+            if (profile == IOS_MEMORY_AUDIT_PROFILE) 32L else 40L
+        val SDK_PROCESS_MEMORY_LIMIT_MIB: Long
+            get() = processMemoryLimitMib(MEMORY_PROFILE_NAME)
         // Stable platform capability id since API 30. The framework exposes it
         // to system code only, but public hasCapability(Int) reports it to VPN
         // apps as part of ordinary NetworkCapabilities callbacks.
@@ -647,7 +654,7 @@ class MainApplication : Application() {
 
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
         val maxMemoryMib = activityManager?.memoryClass?.toLong() ?: 32
-        // Target 3/4 of the app heap, capped to the iOS packet-tunnel budget.
+        // Bound emergency GC pacing independently of device admission targets.
         val sdkMemoryMib = min((3 * maxMemoryMib) / 4, SDK_PROCESS_MEMORY_LIMIT_MIB)
         Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
 

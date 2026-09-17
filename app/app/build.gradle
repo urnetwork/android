@@ -45,6 +45,13 @@ if (!(urnetworkMemoryProfileRateBytes ==~ /[0-9]+/)) {
     throw new GradleException('urnetworkMemoryProfileRateBytes must be a non-negative integer')
 }
 
+// Explicit acceptance-only profile; production defaults keep Android's budget.
+def urnetworkMemoryProfile =
+        (project.findProperty('urnetworkMemoryProfile') ?: 'android').toString()
+if (!(urnetworkMemoryProfile in ['android', 'ios-memory-audit-v1'])) {
+    throw new GradleException('urnetworkMemoryProfile must be android or ios-memory-audit-v1')
+}
+
 ext.signingSecret = { key ->
     def signingPropertiesFile = file("${warpHomeDir}/release/android/signing/app.properties")
     if (signingPropertiesFile.exists()) {
@@ -177,6 +184,7 @@ android {
         // Optional diagnostic-only Go heap sampling density. Ordinary release
         // AARs start with profiling disabled at native-runtime initialization.
         buildConfigField "long", "URNETWORK_MEMORY_PROFILE_RATE_BYTES", "${urnetworkMemoryProfileRateBytes}L"
+        buildConfigField "String", "URNETWORK_MEMORY_PROFILE", "\"${urnetworkMemoryProfile}\""
 
         // see https://developer.android.com/build/shrink-code
         ndk {
