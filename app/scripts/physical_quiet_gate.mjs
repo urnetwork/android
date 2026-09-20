@@ -81,6 +81,14 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     firstStatus?.elapsedMs <= record.elapsedMs && record.elapsedMs <= lastStatus?.elapsedMs);
   if (inWindow.some((record) => record.type !== "sample")) fail("quiet-sampler-error");
   const samples = inWindow.filter((record) => record.type === "sample");
+  // Keep attribution separate from the absolute whole-run gate above. Offline
+  // teardown re-evaluates the same boundaries; it is not a second quiet arm.
+  const quietPeakGoRuntimeBytes = samples.reduce((peak, record) =>
+    Number.isFinite(record.goRuntimeBytes) ? Math.max(peak, record.goRuntimeBytes) : peak, 0);
+  const goRuntimeBreachSampleCount = allSamples.filter((record) =>
+    record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
+  const quietGoRuntimeBreachSampleCount = samples.filter((record) =>
+    record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
   if (samples.some((record) => record.phase !== phase)) fail("quiet-phase-interrupted");
   if (samples.some((record) => record.samplerDropped !== 0)) fail("quiet-samples-dropped-or-unknown");
   const sampleDurationMs = samples.length > 1
@@ -145,6 +153,9 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     telemetrySampleCount: covered.length,
     workloadTelemetrySampleCount: workloadCoverage.sampleCount,
     peakGoRuntimeBytes,
+    quietPeakGoRuntimeBytes,
+    goRuntimeBreachSampleCount,
+    quietGoRuntimeBreachSampleCount,
     goRuntimeLimitBytes: GO_RUNTIME_LIMIT_BYTES,
     reasons: [...reasons],
   };

@@ -285,6 +285,7 @@ export async function runVideoProbe(options, dependencies = {}) {
     });
 
     const deadline = now() + options.timeoutMs;
+    let navigationCommitted = !(options.reload || options.navigateUrl);
     if (options.reload || options.navigateUrl) {
       await session.send("Network.enable");
       await session.send("Network.setCacheDisabled", { cacheDisabled: true });
@@ -298,11 +299,16 @@ export async function runVideoProbe(options, dependencies = {}) {
       }
       while (now() < deadline) {
         const result = await session.send("Runtime.evaluate", {
-          expression:
-            "typeof window.__urnetworkVideoProbeReloadMarker === 'undefined' && document.readyState === 'complete'",
+          // A video may already play while an unrelated ad/telemetry resource
+          // holds document.readyState at interactive. Wait only for the new
+          // document, then observe media throughout the remaining deadline.
+          expression: "typeof window.__urnetworkVideoProbeReloadMarker === 'undefined'",
           returnByValue: true,
         });
-        if (result.result?.value === true) break;
+        if (result.result?.value === true) {
+          navigationCommitted = true;
+          break;
+        }
         await pause(Math.min(options.intervalMs, 250));
       }
     }
@@ -334,6 +340,8 @@ export async function runVideoProbe(options, dependencies = {}) {
       targetId: lease.target.id,
       reload: options.reload,
       navigated: Boolean(options.navigateUrl),
+      navigationCommitted,
+      observationStatus: !navigationCommitted ? "navigation-timeout" : sampleCount ? "observed" : "observation-timeout",
       playbackProgressed,
       sampleCount,
       maximumReadyState,

@@ -1,13 +1,21 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { evaluateWorkloadCoverage, ownWorkloads, parseArgs, recordChild, requireCompletedWorkloads, requireLiveCollector } from "./physical_workload_receipt.mjs";
+import { evaluateWorkloadCoverage, ownWorkloads, parseArgs, recordChild, requireCompletedWorkloads, requireLiveCollector,
+  requireRetainedWorkloadForeground, runCommand, workloadOwnerProcess } from "./physical_workload_receipt.mjs";
 
 const script = new URL("./physical_workload_receipt.mjs", import.meta.url).pathname;
 const closed = (pid = 500, exitCode = 0) => ({ closed: true, pid, exitCode, signal: null, interrupted: false });
+const ownerProcessRow = (pid, change = {}) => ({ status: 0,
+  stdout: `${pid} ${change.status ?? "S"} 700 ${change.foreground ?? 700} ${change.tty ?? "ttys-fixture"} Mon Sep 21 10:11:${change.seconds ?? "12"} 2026\n` });
+const quoted = (value) => `'${value.replaceAll("'", "'\\''")}'`;
+function retainedPty(args) {
+  return process.platform === "darwin" ? ["/usr/bin/script", ["-q", "/dev/null", ...args]]
+    : ["script", ["-q", "-e", "-c", args.map(quoted).join(" "), "/dev/null"]];
+}
 function telemetry(path, label, end = 10_000, first = end - 2000) {
   const records = [{ type: "environment", label }];
   for (let start = first; start < end; start += 1000) records.push({ type: "sample",
@@ -27,8 +35,10 @@ function fixture(t) {
   let ownerPath;
   const calls = [];
   const f = { directory, options, calls, collectorLive: true, live: new Set(),
+    hostProcess: (pid) => ownerProcessRow(pid),
     childRun: async () => closed(), ownerResult: closed(501),
-    deps: { wallNow: () => ++now, isLive: (pid) => pid === 900 ? f.collectorLive : f.live.has(pid),
+    deps: { terminal: () => ({ inputTTY: true, outputTTY: true }), hostProcess: (pid) => f.hostProcess(pid),
+      wallNow: () => ++now, isLive: (pid) => pid === 900 ? f.collectorLive : f.live.has(pid),
       adb: (args) => { calls.push(args); return { status: args.includes("pidof") ? 1 : 0, stdout: "", stderr: "" }; } },
     get ownerPath() { return ownerPath; },
     async child(name) { return recordChild({ ownerPath, name, command: ["fake-probe"] }, { ...f.deps, run: f.childRun }); },
@@ -52,6 +62,73 @@ test("owner predeclares unique ordered children and requires explicit collector 
     ["owner", "--label", "cell", "--output", "out", "--children", "pages", "--", "true"]]) assert.throws(() => parseArgs(args));
 });
 
+test("invalid TTY, redirected, background or missing owner rejects before collector/artifacts/child spawn", async (t) => {
+  for (const change of ["stdin", "stdout", "background", "no-terminal", "dead", "stopped"]) {
+    const f = fixture(t);
+    f.deps.terminal = () => ({ inputTTY: change !== "stdin", outputTTY: change !== "stdout" });
+    f.deps.hostProcess = (pid) => change === "dead" ? { status: 1, stdout: "private-ps-diagnostic" } : ownerProcessRow(pid,
+      change === "background" ? { foreground: 701 } : change === "no-terminal" ? { tty: "??" } :
+        change === "stopped" ? { status: "T" } : {});
+    f.deps.isLive = () => assert.fail("invalid owner precedes collector access");
+    await assert.rejects(f.run(() => assert.fail("invalid owner must not launch any child")),
+      /retained-workload-foreground-pty-required|workload-owner-not-(?:foreground|live)/);
+    assert.deepEqual(readdirSync(f.directory), ["telemetry.ndjson"]);
+    assert.equal(f.calls.length, 0);
+  }
+});
+
+test("owner process proof is bounded and retains no raw terminal name, date or command", () => {
+  const proof = workloadOwnerProcess(ownerProcessRow(123), 123);
+  assert.deepEqual(Object.keys(proof).sort(), ["foregroundGroup", "identity", "processGroup"]);
+  assert.equal(/^[a-f0-9]{64}$/.test(proof.identity), true);
+  assert.equal(JSON.stringify(proof).includes("ttys-fixture"), false);
+  assert.notEqual(workloadOwnerProcess(ownerProcessRow(123, { seconds: "13" }), 123).identity, proof.identity);
+  assert.notEqual(workloadOwnerProcess(ownerProcessRow(123, { tty: "ttys-other" }), 123).identity, proof.identity);
+  for (const result of [{ status: 0, stdout: "x".repeat(2049) }, { status: 0, stdout: "partial" },
+    { ...ownerProcessRow(123), error: { code: "ETIMEDOUT" } }, { ...ownerProcessRow(123), signal: "SIGTERM" }]) {
+    assert.throws(() => workloadOwnerProcess(result, 123), /workload-owner-not-live/);
+  }
+  assert.throws(() => workloadOwnerProcess(ownerProcessRow(123), 124), /workload-owner-not-live/);
+  assert.throws(() => requireRetainedWorkloadForeground({ inputTTY: true, outputTTY: true, processGroup: 700, foregroundGroup: 701 }),
+    /retained-workload-foreground-pty-required/);
+});
+
+test("dead, replaced or background owner cannot start another child or browser cleanup", async (t) => {
+  for (const change of ["dead", "reused-pid", "background"]) {
+    const f = fixture(t); let ran = 0;
+    await assert.rejects(f.run(async () => {
+      f.hostProcess = (pid) => change === "dead" ? { status: 1 } :
+        ownerProcessRow(pid, change === "reused-pid" ? { seconds: "13" } : { foreground: 701 });
+      f.childRun = () => { ran++; return closed(); };
+      await f.child("pages");
+    }), /workload-owner-(?:not-live|replaced|not-foreground)/);
+    assert.equal(ran, 0); assert.equal(f.calls.length, 0);
+    assert.equal(existsSync(f.options.output), false);
+    await assert.rejects(f.cleanup(), /workload-owner-(?:not-live|replaced|not-foreground)/);
+  }
+});
+
+test("owner loss during a child cannot publish child or terminal success", async (t) => {
+  const f = fixture(t);
+  f.childRun = async () => { f.hostProcess = () => ({ status: 1 }); return closed(); };
+  await assert.rejects(f.run(), /workload-owner-not-live/);
+  assert.equal(existsSync(f.options.output), false);
+  assert.equal(readdirSync(f.directory).some(name => name.includes(".owner-")), true, "partial ownership evidence is retained");
+  assert.equal(readdirSync(join(f.ownerPath, "..")).includes("pages.complete.json"), false);
+});
+
+test("empty or bare-Node foreground commands are rejected before an interactive process can start", async () => {
+  await assert.rejects(runCommand(["node"]), /foreground-command-required/);
+  await assert.rejects(runCommand(["", "workload.sh"]), /foreground-command-required/);
+});
+
+test("3HECGG root: a missing receipt helper fails in the shell before Node can enter its REPL", () => {
+  const result = spawnSync("sh", ["-c", ': "${RECEIPT:?workload receipt helper required}"; node "$RECEIPT"'],
+    { encoding: "utf8", env: { ...process.env, RECEIPT: "" } });
+  assert.notEqual(result.status, 0);
+  assert.doesNotMatch(`${result.stdout}${result.stderr}`, /Welcome to Node/);
+});
+
 test("owner receipt is exclusive, private, device-bound and published only after children plus cleanup", async (t) => {
   const f = fixture(t);
   const receipt = await f.run();
@@ -65,6 +142,15 @@ test("owner receipt is exclusive, private, device-bound and published only after
   assert.throws(() => requireCompletedWorkloads(f.options.output, "different-cell", "fake-device", f.deps));
   assert.throws(() => requireCompletedWorkloads(f.options.output, f.options.label, "different-device", f.deps));
   await assert.rejects(f.run(), /output-already-exists/);
+});
+
+test("terminal receipts without a retained owner proof cannot authorize quiet", async (t) => {
+  const f = fixture(t); const receipt = await f.run();
+  for (const proof of [undefined, { ...receipt.retainedOwner, identity: "invalid" },
+    { ...receipt.retainedOwner, foreground: { ...receipt.retainedOwner.foreground, outputTTY: false } }]) {
+    writeFileSync(f.options.output, JSON.stringify({ ...receipt, retainedOwner: proof }), { mode: 0o600 });
+    assert.throws(() => f.check(), /terminal-owner-receipt-required/);
+  }
 });
 
 test("gShVxc: executor yield while child is held never creates a completion receipt", async (t) => {
@@ -177,7 +263,19 @@ test("terminated collector cannot pass the final live check", async (t) => {
   assert.throws(() => f.check(), /collector-owner-not-live/);
 });
 
-test("real CLI joins actual child processes and fake browser cleanup without adb/devices", (t) => {
+test("real nonretained CLI rejects before command/collector access or artifact creation", (t) => {
+  const f = fixture(t); const marker = join(f.directory, "must-not-start");
+  const result = spawnSync(process.execPath, [script, "owner", "--serial", f.options.serial, "--label", f.options.label,
+    "--output", f.options.output, "--children", "pages", "--collector-pid", "1", "--telemetry", "missing-telemetry",
+    "--", process.execPath, "-e", `require('node:fs').writeFileSync(${JSON.stringify(marker)},'started')`],
+  { encoding: "utf8", timeout: 3000 });
+  assert.equal(result.status, 2); assert.equal(result.stdout, "");
+  assert.equal(result.stderr, "workload receipt failed: retained-workload-foreground-pty-required\n");
+  assert.equal(existsSync(marker), false);
+  assert.deepEqual(readdirSync(f.directory), ["telemetry.ndjson"]);
+});
+
+test("real retained PTY CLI joins actual children and fake browser cleanup without adb/devices", (t) => {
   const f = fixture(t);
   telemetry(f.options.telemetry, f.options.label, Date.now());
   writeFileSync(join(f.directory, "adb"), `#!${process.execPath}\n` +
@@ -187,27 +285,37 @@ test("real CLI joins actual child processes and fake browser cleanup without adb
   writeFileSync(ownerScript, `import {spawnSync} from 'node:child_process';\n` +
     `for(const name of ['pages','fast-1']){const r=spawnSync(${JSON.stringify(process.execPath)},[${JSON.stringify(script)},'child','--name',name,'--',${JSON.stringify(process.execPath)},'-e','process.exit(0)'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status??2);}\n` +
     `const r=spawnSync(${JSON.stringify(process.execPath)},[${JSON.stringify(script)},'cleanup','--serial','fake-device'],{stdio:'inherit'});process.exitCode=r.status??2;\n`);
-  const result = spawnSync(process.execPath, [script, "owner", "--serial", f.options.serial, "--label", f.options.label,
+  const [pty, args] = retainedPty([process.execPath, script, "owner", "--serial", f.options.serial, "--label", f.options.label,
     "--output", f.options.output, "--children", "pages,fast-1", "--collector-pid", `${process.pid}`,
-    "--telemetry", f.options.telemetry, "--", process.execPath, ownerScript],
-  { encoding: "utf8", timeout: 10_000, env: { ...process.env, PATH: f.directory } });
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout, "");
+    "--telemetry", f.options.telemetry, "--", process.execPath, ownerScript]);
+  const result = spawnSync(pty, args,
+  { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 10_000,
+    env: { ...process.env, PATH: `${f.directory}:${process.env.PATH}` } });
+  assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
+  assert.doesNotMatch(`${result.stdout}${result.stderr}`, /workload receipt failed/);
   const receipt = requireCompletedWorkloads(f.options.output, f.options.label, f.options.serial);
   assert.equal(receipt.childReceipts.length, 3);
+  assert.equal(receipt.retainedOwner.foreground.inputTTY, true);
+  assert.equal(receipt.retainedOwner.foreground.outputTTY, true);
+  assert.equal(receipt.retainedOwner.foreground.processGroup, receipt.retainedOwner.foreground.foregroundGroup);
   assert.ok(receipt.childReceipts.every((r) => r.wrapperPid !== process.pid));
 });
 
-test("real owner interruption never publishes a receipt", { timeout: 10_000 }, async (t) => {
+test("real retained owner interruption never publishes a terminal success receipt", { timeout: 10_000 }, async (t) => {
   const f = fixture(t); telemetry(f.options.telemetry, f.options.label, Date.now());
-  const child = spawn(process.execPath, [script, "owner", "--serial", f.options.serial, "--label", f.options.label,
+  const [pty, args] = retainedPty([process.execPath, script, "owner", "--serial", f.options.serial, "--label", f.options.label,
     "--output", f.options.output, "--children", "pages", "--collector-pid", `${process.pid}`,
-    "--telemetry", f.options.telemetry, "--", process.execPath, "-e", "process.stdout.write('ready\\n');setInterval(()=>{},1000)"],
-  { stdio: ["ignore", "pipe", "pipe"] });
+    "--telemetry", f.options.telemetry, "--", process.execPath, "-e", "process.stdout.write('probe-ready\\n');setInterval(()=>{},1000)"]);
+  const child = spawn(pty, args, { stdio: ["ignore", "pipe", "pipe"] });
   t.after(() => { if (child.exitCode === null && child.signalCode === null) child.kill("SIGTERM"); });
   const terminal = new Promise((resolve) => child.once("close", (code) => resolve(code)));
-  await new Promise((resolve) => child.stdout.once("data", resolve));
-  child.kill("SIGTERM");
+  let output = "";
+  await Promise.race([terminal.then(() => assert.fail(`PTY owner exited before probe readiness: ${output}`)),
+    new Promise((resolve) => child.stdout.on("data", (chunk) => { output += chunk; if (output.includes("probe-ready")) resolve(); }))]);
+  const ownerDirectory = readdirSync(f.directory).find(name => name.startsWith("workloads.json.owner-"));
+  const owner = JSON.parse(readFileSync(join(f.directory, ownerDirectory, "owner.json"), "utf8"));
+  process.kill(owner.ownerPid, "SIGTERM");
   assert.equal(await terminal, 2);
   assert.equal(existsSync(f.options.output), false);
+  assert.match(output, /owner-not-joined-or-interrupted/);
 });

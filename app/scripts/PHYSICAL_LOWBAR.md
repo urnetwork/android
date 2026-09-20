@@ -68,6 +68,15 @@ and encoded-byte fields are diagnostic only because Chrome may move the bulk
 downloads to worker or child targets. Bracket the run with the SDK's H1 ingress
 counter when exact tunnel bytes are required. The harness never emits request
 URLs, response headers, or Fast.com's ephemeral signed download tokens.
+Only exit 0 with `valid=true` and `completed=true` is a speed measurement.
+Exit 2 preserves the same aggregate JSON with `failureReason` when the display
+is empty/nonpositive or its units are invalid, the deadline passes before a
+stop/stable result, or no nonempty page response completed. A transient number
+followed by an empty display cannot pass. The existing stable-display fallback
+is recorded separately from a stopped indicator in `completionReason`; this is
+not an added minimum speed or worker-byte threshold. Retain unsuccessful runs
+in the failure denominator instead of turning them into zero Mbps, dropping
+them, or substituting a retry.
 
 For a video failure, attach to the already-open page target and prove whether
 the media clock advances:
@@ -85,6 +94,14 @@ document/video readiness, clock/buffer/error state, response hostname/status,
 protocol and Chrome connection metadata. It never emits request paths, headers,
 cookies, manifests or signed tokens. Exit code 0 means the first video advanced
 by at least one second at readiness 2 or higher; exit code 2 means it did not.
+Observation starts as soon as navigation commits, without waiting for every
+ad/telemetry subresource to finish loading the document. Check
+`navigationCommitted`, `observationStatus`, and `sampleCount` before interpreting
+readiness: `navigation-timeout` or `observation-timeout` with zero samples is
+incomplete observation, not a sampled readyState-zero player or a transport
+verdict. An observed robot challenge with no video is an application denial.
+The probe observes playback; it does not click a play/consent button or bypass
+browser autoplay policy.
 
 Interpret `rejectedConnections` at the transport boundary. A later response
 with the same Chrome `connectionId` is another HTTP request multiplexed on the
@@ -111,7 +128,8 @@ record failures and readiness time rather than retrying them out of the sample.
 Use `--require-wifi` for Wi-Fi-underlay cells (it is mutually exclusive with
 `--require-cellular`), and use `--require-no-vpn` for Direct controls.
 Production Android Chrome does not support DevTools
-`Target.createBrowserContext`; restart Chrome before each candidate and omit
+`Target.createBrowserContext`; restart Chrome before each candidate, **after
+the bracket's role and retained collector readiness gates below**, and omit
 `--fresh-context` there. The benchmark still disables and clears the browser
 cache before every measured run. After the caller's force-stop/restart and
 forward setup, use the executable readiness gate before warm-up or workloads:
@@ -153,7 +171,8 @@ For iOS-profile memory work, build the app and Android-test APK with both
 `-PurnetworkAcceptanceBuildId=LABEL`; the Gradle default is Android's 40-MiB
 profile and is invalid for this campaign. Run
 `PhysicalLowbarSessionTest` with the same `acceptanceBuildId` instrumentation
-argument. The test keeps one authenticated process alive and drains the SDK's
+argument, after the credential-staging gate below has passed. The test keeps
+one authenticated process alive and drains the SDK's
 fixed primitive ring every five seconds. The Go sampler records every 15
 seconds without constructing gomobile exit/status/list graphs; the faster host
 drain only publishes newly available records. The test accepts private
@@ -162,7 +181,9 @@ are `phase`, `connect` (`h1`, `h3`, or `auto`),
 `provide`, `peer-connect` (same-network P2P) and `peer-platform-connect`
 (fixed provider over the selected platform carrier), both with optional `h1`,
 `h3`, or `auto`, `disconnect`, `stop-provide`, `snapshot`,
-`heap-profile`, `trim-memory`, and `finish`. `finish` is required: it joins the
+`heap-profile`, `owner-census`, `goroutine-stacks`, `trim-memory`, and `finish`.
+The three diagnostic file commands are explicitly opt-in and cannot qualify a
+performance/memory acceptance arm. `finish` is required: it joins the
 sampler, writes `physical-summary.json`, disconnects both roles, and logs out.
 The host must own this instrumentation command for the entire session: launch
 it in a retained PTY/session or supervised process and join it after `finish`.
@@ -173,6 +194,156 @@ com.bringyour.network cat files/acceptance/physical-status`; an absent file
 after the retained owner exits is a readiness failure, not an empty successful
 session. On that failure, preserve the owner exit output and remove the private
 credential and command files before a persistent-owner retry.
+
+Native provenance is a separate pre-traffic gate. A fresh acceptance build ID
+only proves the app/test wrapper; `assembleGithubDebug` does not rebuild the
+native SDK dependency. Freeze SDK/Connect/replacement-module revisions and
+dirty-input hashes, explicitly run `:app:buildSdkAcceptance` with a unique
+`URNETWORK_ANDROID_SDK_BUILD_OWNER` and the intended
+`urnetworkMemoryProfileRateBytes`, then assemble both APKs. Use the SDK output
+consumer-lock plus `.build-owner` verification in `android/test-main.sh` to
+exclude an intervening writer and retain private AAR/app/test copies and
+SHA-256 digests before releasing the lock. Record the packaged ABI's native
+library digest in AAR and APK, prove their linkage through any stripping step,
+verify the installed APK against the retained copy, and recheck source-input
+hashes. A missing native build/identity chain is `INVALID_NATIVE_PROVENANCE`
+for candidate attribution, even when the profile passes and Kotlin tasks ran.
+The lBOYKS diagnostic arm had up-to-date JNI merge tasks without retained native
+artifacts; its 29,900,832-byte runtime peak cannot be attributed to the current
+ClientStrategy candidate. Its memory breach still counts as observed failure.
+
+Use `physical_native_provenance.mjs` for the source-input half of this gate;
+manual revision lists are insufficient. Follow the exact before-build,
+after-build and verify/check commands in `tests/RUN-PERF.md` (native provenance).
+Before the explicit SDK build, freeze `URNETWORK_ANDROID_SDK_BUILD_OWNER`,
+`ACCEPTANCE_BUILD_ID`, `NATIVE_PROFILE_RATE` (0 normally; 65536 only for approved
+owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
+`NATIVE_INPUTS_BEFORE`, `NATIVE_INPUTS_AFTER`, `NATIVE_INPUTS_PROOF` and
+`NATIVE_WRITER_RECEIPT` paths. Capture `before`, then launch
+`physical_native_writer.sh` with explicit build ID, rate,
+`--memory-profile ios-memory-audit-v1`, bounded `--max-workers`, and private
+receipt/stdout/stderr paths using RUN-PERF's exact standalone retained call.
+The Bash entry point supervises the fixed `:app:buildSdkAcceptance` task and
+atomically writes its own terminal receipt after child outcome/join. Do not
+assign an outer-shell `status` or manually write the receipt: zsh reserves that
+name, which caused `terra_proof_arm` to lose its writer evidence. Failed or
+interrupted writer receipts never authorize consumption; absent terminal
+evidence is incomplete setup. Raw child logs and receipt remain private 0600.
+The default executor is zsh, including commands **before** `exec bash`.
+Restore a saved arm using RUN-PERF's exact `NATIVE-CONTEXT` scalar-read block
+before **each** retained writer and consumer call. Its private `arm-identifiers`
+record has exactly `LABEL\nBUILD_ID\n`. Freeze/restore the explicit profile rate,
+worker limit and tool environment too. Never use `readarray`, `mapfile`, arrays,
+`eval`, or source artifact text; a Bash-only outer restore caused the fresh
+`xRWdea` arm to fail before writer spawn. No caller `bash -lc` override is
+required. The regression suite executes those exact documented blocks under
+zsh, through the actual writer and consumer with a temporary fixture lock.
+After successful writer join, use **only**
+`physical_native_consumer.sh --root ... --before ... --after ... --proof ...
+--writer-receipt ... -- <assembly/copy/ABI-linkage command>` for the post-writer consumer phase.
+It acquires the existing consumer output lock itself, automatically captures
+`after` and verifies/publishes the proof before invoking that command, and
+holds the lock through command join and APK/AAR retention/linkage. Do not
+assemble first and manually remember after/verify later (the CXAusf failure).
+The consumer command must not rebuild the SDK, install, stage credentials or
+perform any device work. Use the exact retained/private-log invocation in
+RUN-PERF; the wrapper forwards argv without eval and preserves the caller cwd.
+Missing/stale source evidence, missing after/proof, or invalid/lost lock ownership
+fails with a fixed `…-no-consumer-spawn` reason; never continue or reuse partial
+artifacts. The consumer also rejects missing/nonzero/altered writer receipts;
+it binds the zero exit and joined outcome to the original before manifest,
+explicit profile/task arguments and current helper/private-log hashes.
+Run `check --proof ... --build-id ...` immediately before first device
+install/launch; the retained AM supervisor requires `--native-inputs` and
+rechecks current source linkage itself before spawning adb.
+
+The owned mode-0600 manifests contain separate SHA-256s for actual ABI-selected
+Connect/SDK/dependency Go/embed/native code, plus gomobile JNI/runtime packages
+and copied Go/C/header/Java support templates; resolved `go.mod` and local
+`go.sum` inputs; the **`sdk/build/go.mod`** main module and complete per-ABI
+`go list -m all` replacement graph used by gomobile's generated module;
+explicit workspace none/off or `go.work`/optional `go.work.sum` and resolution;
+build/tool support hashes; and repository revisions plus selected-input dirty
+hashes. Missing optional sum files are explicit states, never omitted fields.
+Metadata lookup is offline/read-only and fails if dependencies/tools are not
+already set up. Tests/generated output are excluded from the source closure.
+`verify` rejects missing fields, any before/after/current drift, or stale
+`.build-owner`; its proof must be in `ARTIFACT_DIR`. Keep manifests private and
+report only fixed reasons/booleans, never paths/raw subprocess output.
+This does not attest binaries, strip steps, installed APKs or locks; retain the
+separate full native chain above and do not retrofit missing historical hashes.
+
+### Retained instrumentation owner
+
+After the attested APK pair is installed and private credential staging has
+passed, full H1/Direct arms must use the dedicated AM supervisor below. This is
+a standalone retained foreground PTY call (`tty:true`); keep/resume its exact
+executor session through normal `finish` and terminal join. Do not append `&`,
+redirect the supervisor terminal, substitute a one-shot shell, or discard the
+session on tool yield. The helper owns the private child stdout/stderr itself.
+
+```sh
+# INSTRUMENTATION executor call: retained PTY; no later commands in this call.
+: "${ROOT:?workspace root required}" "${RUN_DIR:?owned mode-0700 arm root required}"
+: "${ARTIFACT_DIR:?restore the frozen run-root/private path from staging}"
+: "${SERIAL:?pinned serial required}" "${LABEL:?frozen arm label required}"
+: "${ACCEPTANCE_BUILD_ID:?exact attested APK build ID required}"
+: "${NATIVE_INPUTS_PROOF:?verified private native input proof required}"
+# Freeze this exact path across all later executor calls, even if a workload
+# uses a different PRIVATE_DIR. Do not manufacture the receipt yourself.
+umask 077
+node "$ROOT/android/app/scripts/physical_artifact_directory.mjs" check \
+  --directory "$ARTIFACT_DIR" >"$RUN_DIR/$LABEL.directory-before-instrumentation.json" || exit 2
+INSTRUMENTATION_OWNER="$ARTIFACT_DIR/$LABEL.instrumentation-owner.json"
+exec node "$ROOT/android/app/scripts/physical_collector_session.mjs" run-instrumentation \
+  --artifact-dir "$ARTIFACT_DIR" \
+  --native-inputs "$NATIVE_INPUTS_PROOF" \
+  --owner "$INSTRUMENTATION_OWNER" \
+  --stdout "$ARTIFACT_DIR/$LABEL.instrumentation.stdout" --stderr "$ARTIFACT_DIR/$LABEL.instrumentation.stderr" \
+  --serial "$SERIAL" --label "$LABEL" --build-id "$ACCEPTANCE_BUILD_ID"
+```
+
+The fixed class is `PhysicalLowbarSessionTest`; the default component is the
+normal `AndroidJUnitRunner`. This is the same instrumentation workflow, not an
+auth/readiness bypass. Its private mode-0600 `instrumentation-session` receipt
+is created only after the retained supervisor and spawned adb child are live.
+Before any host owner inspection/stream open/adb spawn, it verifies the artifact
+directory is an owned mode-0700 directory (no symlink). Owner, ready,
+terminal and child-log paths must be direct children of that same directory.
+It rechecks directory identity before opening and immediately before spawning;
+removal/replacement/mode changes produce a fixed
+`artifact-directory-…-no-spawn` reason, and mismatched paths produce
+`artifact-path-outside-directory-no-spawn`. It never recreates missing evidence.
+Keep the check result in the run root so an absent `private/` cannot destroy its
+own failure record. Preserve supervisor exit/status under the same run root;
+this is `INVALID_SETUP`, not an instrumentation/auth failure.
+It binds their process-start/command identities, foreground state, arm label,
+serial hash, runner component/class and target package. No raw host command line
+is retained. After child join, `.terminal.json` records the real exit/signal and
+interruption; even a clean exit disqualifies subsequent role/collector startup.
+
+Once the existing readiness wait observes the same live session's `ready`
+status, bind its target PID exactly once from another executor. A yielded
+launcher is not readiness. This read-only binding does not wait for login or
+retry a failed session; missing/not-ready status remains failed setup.
+
+```sh
+umask 077
+: "${INSTRUMENTATION_OWNER:?restore the exact supervisor owner path}"
+node "$ROOT/android/app/scripts/physical_collector_session.mjs" bind-instrumentation-ready \
+  --owner "$INSTRUMENTATION_OWNER" --serial "$SERIAL" \
+  >"$ARTIFACT_DIR/$LABEL.instrumentation-ready-proof.json" || exit 2
+```
+
+The helper creates `.ready.json` (0600) only while both host processes retain
+their original identities and `adb shell pidof com.bringyour.network` contains
+the PID read from target `run-as ... cat physical-status`, before and after
+that read. The PID stays private in the ready receipt. Guard output contains
+only sanitized primitives; publish booleans/reasons, never raw PIDs, serials,
+command lines or receipt fingerprints. Do not manufacture/rebind an owner to
+rescue an old arm. The test APK executes in the target app; a separate
+`com.bringyour.network.test` process is **not required**. `run-as kill -0` is
+not used: signal permission is not the ownership contract.
 
 Before connecting or driving public traffic, capture the retained owner's
 fresh ready status and require the **offline** profile gate to exit 0. The
@@ -198,16 +369,156 @@ and every primitive sample's soft limit, including active and teardown samples.
 A profile mismatch never suppresses a measured >24-MiB failure; it additionally
 disqualifies baseline comparison. Neither gate changes the app's budgets.
 
+### H1 and Direct startup order
+
+For **H1**, the order is retained instrumentation ready/bound → profile gate →
+completed `connect|h1` → retained `--require-unmetered-vpn` collector ready →
+fresh Chrome/forward/readiness → receipt-owned workloads → connected quiet.
+Do not start a VPN-required collector while waiting to issue `connect`: its
+readiness correctly requires the VPN that has not been established yet.
+The in-app primitive sampler is already running during connection setup; retain
+those startup samples separately. A post-connect host collector does not prove
+host telemetry coverage of connection setup, but must cover **all** Chrome and
+public workloads, drain and quiet without gaps.
+
+For **Direct**, leave both VPN roles off, prove the disconnected session, then
+start/check `--require-no-vpn` collection **before** fresh Chrome/readiness or
+any workload. Do not connect H1 to make Direct readiness pass. Use separate fresh
+collector/receipt artifacts per bracket; never change a live collector's policy.
+
+After the profile gate, use this prerequisite block in a normal retained/joined
+executor call. `SESSION_MODE` is exactly `h1` or `direct`. For H1, freeze a fresh
+safe `CONNECT_ID` (for example `h1-` plus a UUID) and retain its exact value for
+the collector call. The instrumentation command stream must have one owner and
+be idle before publication. The existing `connect` verb uses best-available
+exit selection: a completed H1 command proves carrier policy/tunnel, **not** US
+egress; retain the separate location/egress evidence required by the campaign.
+
+```sh
+umask 077
+: "${ROOT:?workspace root required}" "${PRIVATE_DIR:?fresh private arm directory required}"
+: "${SERIAL:?pinned serial required}" "${SESSION_MODE:?h1 or direct required}"
+: "${INSTRUMENTATION_OWNER:?restore the exact supervisor owner path}"
+case "$SESSION_MODE" in
+  h1)
+    : "${CONNECT_ID:?fresh frozen H1 command ID required}"
+    case "$CONNECT_ID" in *[!A-Za-z0-9._-]*) exit 2 ;; esac
+    printf '%s|connect|h1\n' "$CONNECT_ID" |
+      adb -s "$SERIAL" shell run-as com.bringyour.network tee \
+        "files/acceptance/physical-command.$CONNECT_ID" >/dev/null || exit 2
+    adb -s "$SERIAL" shell run-as com.bringyour.network mv \
+      "files/acceptance/physical-command.$CONNECT_ID" files/acceptance/physical-command || exit 2
+    node "$ROOT/android/app/scripts/physical_collector_session.mjs" check-role \
+      --serial "$SERIAL" --session-mode h1 --connect-command-id "$CONNECT_ID" \
+      --instrumentation-owner "$INSTRUMENTATION_OWNER" \
+      >"$PRIVATE_DIR/role-ready.json" || exit 2
+    ;;
+  direct)
+    node "$ROOT/android/app/scripts/physical_collector_session.mjs" check-role \
+      --serial "$SERIAL" --session-mode direct \
+      --instrumentation-owner "$INSTRUMENTATION_OWNER" \
+      >"$PRIVATE_DIR/role-ready.json" || exit 2
+    ;;
+  *) exit 2 ;;
+esac
+```
+
+Join `check-role` to exit 0 **before** the collector call. It performs bounded
+read-only host-owner/target-`pidof`/target-`run-as cat` checks, waits for that exact
+command's complete status in the original ready-bound target process, and checks H1 mode, connected
+tunnel and disabled provider. It neither connects nor starts a collector.
+Its 150-second prerequisite deadline accommodates the existing 120-second app
+connect wait plus command polling; no telemetry/coverage timeout is extended.
+Error, malformed/missing status, process replacement or a competing command
+fails setup. Direct is an immediate disconnected-role check, not a VPN wait.
+
 ### Mandatory quiet-window evidence gate
 
-Before any workload, start the collector in a retained owner, retain its exact
+After the H1/Direct prerequisite above and before Chrome or any workload, start
+the collector in a retained owner, retain its exact
 PID, and wait for at least one fresh eligible telemetry sample. Keep it alive
 through the final quiet gate. Starting it after Wikipedia/fast.com is
 `INCOMPLETE_ACTIVE_COVERAGE`, even if all five quiet minutes are captured.
 
+Use `physical_collector_session.mjs` for the retained launch. Start `run` below
+as its own foreground PTY/session (`exec_command` with `tty:true` and a short
+yield); keep the returned session ID until it terminates. Do not append `&`,
+use a one-shot background shell, or redirect the owner itself. The helper
+requires a foreground terminal and creates the child's private output files.
+It never detaches/restarts a collector or changes a coverage threshold.
+
+```sh
+# COLLECTOR executor call: only after check-role exited 0; retained PTY only.
+# This command remains running throughout Chrome, workload and quiet coverage.
+# Use fresh paths in an existing mode-0700 arm directory. Set the same frozen
+# variables again in later executor calls; shell assignments are not global.
+: "${ROOT:?workspace root required}" "${PRIVATE_DIR:?private arm directory required}"
+: "${SERIAL:?pinned serial required}" "${LABEL:?frozen cell label required}"
+: "${TELEMETRY:?fresh telemetry path required}"
+: "${INSTRUMENTATION_OWNER:?restore the exact supervisor owner path}"
+: "${UNDERLAY_FLAG:?underlay eligibility required}" "${SESSION_MODE:?h1 or direct required}"
+set -- --session-mode "$SESSION_MODE"
+case "$SESSION_MODE" in
+  h1) VPN_FLAG=--require-unmetered-vpn
+    set -- "$@" --connect-command-id "${CONNECT_ID:?same acknowledged H1 command ID required}" ;;
+  direct) VPN_FLAG=--require-no-vpn ;;
+  *) exit 2 ;;
+esac
+exec node "$ROOT/android/app/scripts/physical_collector_session.mjs" run \
+  --owner "$PRIVATE_DIR/collector-owner.json" \
+  --instrumentation-owner "$INSTRUMENTATION_OWNER" \
+  --stdout "$PRIVATE_DIR/collector.stdout" --stderr "$PRIVATE_DIR/collector.stderr" "$@" -- \
+  --serial "$SERIAL" --label "$LABEL" --duration-seconds 1800 --interval-ms 1000 \
+  "$UNDERLAY_FLAG" "$VPN_FLAG" --output "$TELEMETRY" --stop-file "$PRIVATE_DIR/collector.stop"
+```
+
+The public H1/Direct block requires `--session-mode`; `run` rechecks the current
+live supervisor, adb child, ready-bound target PID and role immediately before spawning, so a stale saved prerequisite cannot
+start a pre-connect collector. Omitting this optional argument is only for the
+existing general-purpose collector protocol (e.g. separately specified provider
+roles), not permission to skip this public-block guard.
+
+After that call **yields a still-live session**, check from another executor:
+
+```sh
+collector_pid=$(node "$ROOT/android/app/scripts/physical_collector_session.mjs" check \
+  --owner "$PRIVATE_DIR/collector-owner.json" --timeout-ms 15000) || exit 2
+```
+
+The check returns a PID only while both recorded owner and collector are live
+and the unchanged existing telemetry eligibility/freshness check passes.
+Only then force-stop/start Chrome, establish its fresh forward, and join the
+two-response `chrome_readiness.mjs` gate. Do not open/restore public pages before
+collector readiness, or issue another connection command between these checks.
+Repeat this check immediately before the workload-owner command after Chrome
+readiness. The `LqIam9` failure emitted seven eligible samples before its
+one-shot launcher died: that prefix is not coverage and cannot qualify. An
+owner failure takes the common failed-arm cleanup; no restart into the same
+artifact paths is allowed. A PTY is not durable if the caller discards its
+session, so retain it through finish/stop-file cleanup and join its terminal
+result. Preserve `collector-owner.json.terminal.json` (mode 0600). A clean
+collector exit does not override memory, network, or workload failures.
+
 Run the frozen probes through `physical_workload_receipt.mjs`: it predeclares
 their order, owns the foreground command, and emits a mode-0600 receipt only
 after every named child is joined and explicit browser cleanup is verified.
+The owner itself must be a **standalone retained foreground PTY session**. It
+checks input/output TTYs plus live, non-stopped foreground process/terminal
+identity before collector reads, owner publication or any workload launch.
+One-shot/piped/redirected owners fail `retained-workload-foreground-pty-required`;
+background/no-terminal or dead owners fail `workload-owner-not-foreground` or
+`workload-owner-not-live`. Treat these as `INVALID_WORKLOAD_OWNER` before traffic,
+retain the fixed reason/exit status, and take common cleanup without retrying
+that row. Do not wrap the owner in a new one-shot pseudo-terminal as a workaround.
+
+Its private `retainedOwner` proof contains a hash of process-start/terminal
+identity and foreground state, not raw `ps` output, terminal names or commands.
+Each child/cleanup wrapper rechecks the same live/foreground owner before launch
+and before its completion receipt. Dead/reused PID, changed terminal or lost
+foreground invalidates progress. Keep IDs/hashes private; no missing proof may
+be fabricated. This is current ownership, not a promise that the caller will
+keep the executor: discarding it or SIGKILL can still strand in-flight work.
+Missing/failed terminal evidence remains invalid and cannot authorize quiet.
 It checks collector PID, same file/first sample, fresh eligible tail, and gaps
 before and after every child. Do not pass a shell/executor session ID as a PID.
 The receipt is bound to the block label and serial hash. A yielded executor,
@@ -245,14 +556,32 @@ that page on success or failure. It must not select an arbitrary existing tab.
 An explicit `--target-id` preserves the existing manual-probe behavior and
 leaves that caller-owned page open. A CLI/setup exit 1 is a harness failure,
 not a playback result; retain it and do not count the site as tested.
+Likewise, exit 2 with zero observations must remain incomplete media evidence,
+even if unrelated telemetry received HTTP responses. Keep an observed document
+403/challenge distinct from media transport errors.
 
-After profile/Chrome/collector readiness, launch and retain the owner:
+After profile → H1/Direct role → collector → Chrome readiness, launch the workload
+owner as a **new standalone retained PTY call** (`tty:true`), not a continuation
+of the readiness executor. Restore the exact arm variables; keep input/output
+attached, use `exec`, and retain/resume its exact session through terminal join.
+No `&`, owner redirection/piping, one-shot shell or later commands in this call.
+Per-child redirection in `traffic-workload.sh` remains unchanged:
 
 ```sh
+# WORKLOAD executor call: retained foreground PTY; no later commands in this call.
+: "${ROOT:?workspace root required}" "${SERIAL:?pinned serial required}" "${LABEL:?frozen arm label required}"
 export SERIAL CDP_PORT PRIVATE_DIR CNN_URL BLOOMBERG_URL
 export SCRIPTS="$ROOT/android/app/scripts"
 export RECEIPT="$SCRIPTS/physical_workload_receipt.mjs"
-node "$RECEIPT" owner --serial "$SERIAL" --label "$LABEL" \
+# Do not combine this assignment with the `node "$RECEIPT"` command: shell
+# expansion happens before an inline assignment takes effect and can otherwise
+# start Node's interactive REPL. These guards must execute before any workload.
+: "${PRIVATE_DIR:?private workload directory required}"
+: "${SCRIPTS:?Android script directory required}"
+: "${RECEIPT:?workload receipt helper required}"
+collector_pid=$(node "$SCRIPTS/physical_collector_session.mjs" check \
+  --owner "$PRIVATE_DIR/collector-owner.json" --timeout-ms 15000) || exit 2
+exec node "$RECEIPT" owner --serial "$SERIAL" --label "$LABEL" \
   --collector-pid "$collector_pid" --telemetry "$TELEMETRY" \
   --children wiki,fast-1,fast-2,fast-3,cnn,bloomberg \
   --output "$PRIVATE_DIR/workloads.json" -- sh "$PRIVATE_DIR/traffic-workload.sh"
@@ -348,10 +677,314 @@ as the private `files/acceptance/physical-expected-peer-id` file before issuing
 either peer-connect command. The harness then waits for that peer instead of
 silently choosing a stale cached provider. Never print or retain that ID in
 benchmark output, and remove the pin with the other private acceptance files.
-Install the two-line user/password file through `run-as` standard input with a
-private umask; never put credentials or the retained acceptance client ID in a
-command line or checked-in artifact. Release that client with
-`build/all/acceptance/client-cleanup.mjs`, then remove the host/device files.
+Before launching the retained instrumentation owner, use the host credential
+staging helper; do not construct the file with an inline YAML/JSON parser,
+quoted shell expansion or `echo`. From the Android repository:
+
+Before touching the real configuration, run this **no-config/no-device parser
+preflight** in the same host environment that will perform staging. First
+freeze a single artifact directory for parser/staging/retained AM evidence:
+
+```sh
+umask 077
+: "${RUN_DIR:?fresh owned mode-0700 arm root required}"
+ARTIFACT_DIR="$RUN_DIR/private"
+node app/scripts/physical_artifact_directory.mjs create \
+  --directory "$ARTIFACT_DIR" >"$RUN_DIR/$LABEL.directory-created.json" || exit 2
+```
+
+Use `create` only during initial fresh setup: it creates a missing **leaf** under
+an already-owned mode-0700 parent, never ancestors, and verifies existing paths
+without repairing wrong owner/mode or following symlinks. Later calls must use
+`check`. If evidence disappears, abort the arm; do not recreate it to hide an
+external cleanup. Keep the fixed directory outcomes mode 0600 in the run root,
+outside the leaf under test. Freeze/restore `ARTIFACT_DIR` across executor calls;
+a workload's later `PRIVATE_DIR` must not redirect parser/staging/AM artifacts.
+
+```sh
+umask 077
+node app/scripts/physical_artifact_directory.mjs check \
+  --directory "$ARTIFACT_DIR" >"$RUN_DIR/$LABEL.directory-before-parser.json" || exit 2
+node app/scripts/physical_credentials_preflight.mjs \
+  --artifact-dir "$ARTIFACT_DIR" \
+  --output "$ARTIFACT_DIR/$LABEL.credential-parser-preflight.json"
+```
+
+Join it and require exit 0 / `CREDENTIAL_PARSER_READY`. It verifies current
+Node version, both helper files' syntax, an actual helper import/framing check,
+shared-reader shell syntax, and the selected parser's exact raw scalar contract
+for both schemas using only generated private synthetic fixtures. No config or
+serial option is accepted and no adb operation occurs. Temporary fixtures are
+removed on completion; the exclusive mode-0600 receipt retains private
+source/tool hashes, tool versions and fixed outcomes, never raw command output.
+These are **source/executable hashes, not credential or configuration hashes**;
+do not publish the provenance receipt. A missing, failed or incomplete receipt
+blocks a physical arm. The staging `--preflight` contract rechecks source/tool
+identity before inspecting the real config; changed source, cached reader or
+Node/Go executable requires a new passing preflight. Keep both receipts and
+terminal exit statuses, including failures. No current passing check can recover
+the cause of a prior parser-failed arm that retained neither output category nor
+source identity.
+
+```sh
+umask 077
+node app/scripts/physical_artifact_directory.mjs check \
+  --directory "$ARTIFACT_DIR" >"$RUN_DIR/$LABEL.directory-before-staging.json" || exit 2
+node app/scripts/physical_credentials.mjs \
+  --serial "$SERIAL" --schema user-pass --config "$HOME/urnetwork/.tests.yml" \
+  --artifact-dir "$ARTIFACT_DIR" \
+  --preflight "$ARTIFACT_DIR/$LABEL.credential-parser-preflight.json" \
+  --output "$ARTIFACT_DIR/$LABEL.credential-staging.json"
+```
+
+Require exit 0 and `eligible=true` before instrumentation. The user-provided
+`$HOME/urnetwork/.tests.yml` uses `user`/`pass`, so the helper invokes the canonical
+`tests/read-tests-config.sh` with exactly `--schema user-pass get user` and
+`--schema user-pass get pass`, capturing raw stdout privately. For the versioned
+repository vault, use this **alternative** with the workspace `$ROOT`:
+
+```sh
+umask 077
+node app/scripts/physical_artifact_directory.mjs check \
+  --directory "$ARTIFACT_DIR" >"$RUN_DIR/$LABEL.directory-before-staging.json" || exit 2
+node app/scripts/physical_credentials.mjs \
+  --serial "$SERIAL" --schema data-plane-account \
+  --config "$ROOT/vault/main/tests.yml" \
+  --artifact-dir "$ARTIFACT_DIR" \
+  --preflight "$ARTIFACT_DIR/$LABEL.credential-parser-preflight.json" \
+  --output "$ARTIFACT_DIR/$LABEL.credential-staging.json"
+```
+
+That selects exactly `data_plane_account.email` and `data_plane_account.password`.
+Schema selection is mandatory and never inferred from a path or failed key;
+wrong schemas fail before device staging. The shared reader's default remains
+the versioned acceptance vault. Its explicit `user-pass` mode is get-only,
+single-document and bounded to 128KiB, accepting only `user` and `pass` with
+nonblank string values; it cannot validate/provision acceptance fixtures.
+Rebuild any `UR_ACCEPT_TEST_CONFIG_READER` override from current
+`build/all/acceptance/cmd/test-config` before use. Do not work around an old
+reader by dropping `--schema` or falling back to other keys.
+
+Both schemas preserve spaces, quotes and punctuation literally. The helper
+forms exactly `email` + LF + `password`, with **no trailing LF**. Blank values and embedded CR,
+LF or NUL fail before any device call. No JSON quotes, YAML labels, escaping
+or extra blank lines belong in `files/acceptance/credentials`.
+
+The config must be an owned regular mode-0600 file and `$ARTIFACT_DIR` an owned
+mode-0700 directory. Use a fresh output path and a cleaned, stopped prior
+session. Staging binds its output and parser receipt to that directory before
+inspecting the real configuration, and rechecks it before device staging. A
+missing, changed or untrusted directory never triggers automatic recreation.
+Use the same explicit directory on all setup helpers. Staging is through
+`adb shell -T run-as com.bringyour.network`
+standard input with umask 077, never `exec-out` stdin, command-line values or
+world-readable device staging. Both temporary and final app-private files are
+verified in `run-as`: two logical records (including the unterminated final
+record), zero blank records, mode 0600, exact byte length
+and SHA-256 equality. Exclusive publication refuses existing credentials.
+Schema-3 JSON contains only structural counts/mode/length and fixed substep
+outcomes/exit codes. SHA-256 equality is still checked internally, but no digest,
+value, serial, path, token or raw subprocess output is persisted. Keep this
+mode-0600 diagnosis private; older schema-1 reports contained credential-derived
+digests and must not be made public.
+Reader failures additionally retain only
+`parserOutcome={exitCode,timedOut,stderrCategory}` with fixed categories and no
+raw stderr/stdout, exception text, path or partial scalar. Successful staging
+leaves it null. Syntax/module-loader/toolchain/reader-schema/timeout and other
+fixed categories improve diagnosis without asserting an auth cause. Failed
+preflight or staging is `INVALID_SETUP`: stop and retain it, never fall back to
+inline parsing, drop schema selection, or retry it into the same cohort.
+
+Android sandbox hardlinks are not assumed supported. Publication uses
+`set -C; exec 3> ...` to create the final regular file exclusively, then copies
+the verified temporary file through that descriptor. There is no overwriting
+rename or device hardlink. The final path exists during the bounded copy:
+**join the helper and require exit 0 / eligible=true before starting any
+instrumentation/consumer**. A yielded executor is not a completed helper.
+Publication must not overlap another instrumentation or cleanup owner.
+
+Diagnostics distinguish `steps.create` (exclusive open), `steps.copy`,
+`steps.inspect` (final structural/hash inspection), and `steps.publish` (whole
+remote command). The shell keeps the destination descriptor open through
+verification and failed/caught-interruption rollback. Rollback compares the
+current regular non-symlink path with that live descriptor's device/inode before
+removing it; an observed substituted file/symlink/directory is preserved.
+Identity uses the owning shell's builtin `test -ef`, never an external stat
+child's `/proc/self/fd/3`: a child's descriptor table may differ. Normal finish,
+checked copy/inspection failures and caught signals release explicitly before
+shell exit. EXIT is a fallback that still refuses deletion if the FD is gone;
+the normal success path must not depend on an EXIT trap retaining descriptors.
+`destinationOwned` means the exclusive-open marker was observed, not that a
+later host process may remove the path. `steps.destinationCleanup` is the
+same-shell rollback/release; `steps.cleanup` is temporary-source cleanup.
+Successful credentials persist, with destinationCleanup `not-run`. Lost/invalid
+results are `unavailable`, never inferred success. A host-side verification
+failure after the FD closes, lost result, or SIGKILL can leave the destination:
+abort setup and preserve it for explicit stopped-session cleanup, never guess
+ownership from a reusable inode, overwrite it or silently retry. These shell
+checks assume the protocol's single session owner; they are not an atomic
+compare-and-unlink defense against a concurrent same-UID path mutator.
+
+To test only the run-as filesystem publication primitive, with no credential
+file/config read and no authentication, use a fresh private output path:
+
+```sh
+node app/scripts/physical_credentials.mjs --sentinel-only \
+  --serial "$SERIAL" --output "$PRIVATE_DIR/$LABEL.publication-sentinel.json"
+```
+
+Do not supply config/schema/inspect-only flags and do not overlap instrumentation
+or a session-cleanup owner. The helper exclusively creates a separately named
+`.publication-sentinel-*` directory with a zero-byte source, exclusively creates
+and copies to another name, verifies FD/path identity, mode 600, zero bytes and
+one link, and proves a second noclobber open is refused
+(`observed.exclusiveCollisionRefused=true`). It then releases the destination **while holding its FD** and removes
+only the source/directory. No command references the credentials
+destination; existing credentials and other sentinel owners are preserved.
+Require exit 0 / eligible=true / destinationOwned=true and all step exitCode=0,
+including destinationCleanup and cleanup; the sentinel report is schema 2.
+Validate this sentinel on the allowlisted device before any new credential
+attempt after changing the publication primitive. Failure never
+authorizes a credential or login retry. If cleanup fails, retain the outcome;
+do not use broad acceptance-directory cleanup to remove a diagnostic namespace.
+Report only the fixed outcomes/codes and zero-byte primitive measurements, never
+command output, names, paths or tokens. This is not an authentication test and
+does not require an APK/native rebuild or device traffic.
+
+For a credential-readiness failure, inspect the **exact** app-private file
+immediately before instrumentation and again after failure, before cleanup,
+using distinct evidence filenames:
+
+```sh
+node app/scripts/physical_credentials.mjs --inspect-only \
+  --serial "$SERIAL" --output "$PRIVATE_DIR/$LABEL.credential-lines-before.json"
+```
+
+This read-only command captures the run-as file internally and emits/persists
+only its capture time, logical line count, nonblank count, total bytes and
+**LF-byte count** (`newlineCount`), plus the structural verdict. It emits no
+values, IDs or digest and never stores the raw bytes. Correlate these records
+with the staging result and the exact instrumentation failure; counts do not
+prove authentication success. Kotlin `File.readLines()` accepts two nonblank
+records with **either no final LF or one final LF**. An additional blank record
+or third value fails. Thus one trailing LF alone is not a demonstrated login
+root cause, and `wc -l` is not the logical record count: our canonical file has
+one LF byte but two records. Do not use `String.split`'s terminal empty element
+as a proxy for the file reader. Staging still requires its exact canonical
+bytes/digest; a noncanonical but structurally valid file is not a staging pass.
+
+For an unexplained missing file after successful staging, use a **readiness-only
+diagnostic**, not another traffic arm or a credential-restoration workaround:
+
+1. Rebuild the matched app/test APK pair with the same acceptance build ID and
+   existing provenance/profile rules, then select the **separate diagnostic
+   runner component** below with `-e acceptanceCredentialDiagnostics true`.
+   Verify the built/installed test manifest contains both
+   `androidx.test.runner.AndroidJUnitRunner` and
+   `com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner`, each
+   targeting `com.bringyour.network`. The source manifest must keep the default
+   runner first: AGP injects its runner setting into the first instrumentation
+   element and would silently rename a lone diagnostic declaration. This is
+   also checked by `physical_credential_runner_test.mjs`.
+
+   The ordinary runner/commands remain unchanged. Even when the diagnostic
+   component is explicitly selected, an absent/false flag delegates normally
+   without any credential metadata reads or checkpoint output. With the exact
+   flag `true`, it records runner-on-create entry before calling the base
+   runner and return after successful base initialization. The physical test
+   also records method entry before its build assertions and setup, then the
+   existing before-launch, after-launch and before-read checkpoints. Leave
+   logout/login ordering unchanged; do not move, restore or re-stage inputs to
+   conceal a missing-file observation.
+   Fields are fixed stage/time, exists/type, owner-match (not UID), permission
+   mode and byte count only; no file bytes, hash, path, ID or exception text.
+2. Start this command in a separate **retained foreground host session** and
+   verify its initial metadata sample and live owner before starting
+   instrumentation. Do not use `&` inside a one-shot executor:
+
+   ```sh
+   node app/scripts/physical_credential_watch.mjs \
+     --serial "$SERIAL" --output "$PRIVATE_DIR/$LABEL.credential-watch.ndjson" \
+     --stop-file "$PRIVATE_DIR/$LABEL.credential-watch.stop" --timeout-ms 120000
+   ```
+
+   This read-only witness runs bounded `run-as` stat/type checks about every
+   250ms and persists mode-0600 metadata. It never opens the credential file for
+   content. Unavailable/permission-failed probes are not evidence of absence.
+   Before instrumentation, require its first sample to show a regular present
+   file, owner-match true, mode 600 and the staged byte count; otherwise preserve
+   invalid setup and do not start authentication.
+3. Run this **readiness-only** instrumentation in another retained session,
+   capturing its output privately under the existing owner protocol:
+
+   ```sh
+   adb -s "$SERIAL" shell am instrument -w -r \
+     -e class com.bringyour.network.acceptance.PhysicalLowbarSessionTest \
+     -e acceptanceBuildId "$ACCEPTANCE_BUILD_ID" \
+     -e acceptanceCredentialDiagnostics true \
+     com.bringyour.network.test/com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner
+   ```
+
+   Do not issue connect, browser, media or performance commands. On readiness,
+   finish the retained session through its normal private command protocol;
+   on failure, retain the original failure without retry. On readiness/failure, create
+   the empty stop file and join the watcher to obtain its terminal summary.
+   Until then, do not reinstall, clear app data or run credential/session
+   cleanup. Keep complete private AM stdout/stderr and the metadata-only
+   `PhysicalCredential` logcat tag.
+4. Before common cleanup, capture the test's checkpoint stream privately:
+
+   ```sh
+   umask 077
+   adb -s "$SERIAL" shell -T run-as com.bringyour.network \
+     cat cache/acceptance/physical-credential-checkpoints.ndjson \
+     > "$PRIVATE_DIR/$LABEL.credential-checkpoints.ndjson"
+   ```
+
+   The checkpoint file lives under cache, outside `filesDir`, and appends bounded
+   fixed-schema records (serialized appends enforce a 16KiB total bound).
+   The sink uses `dataDir` to stat the credential path without recreating a
+   deleted files directory. Cache writes are owned mode-0600, no-follow and
+   nonblocking; missing/invalid persistence emits only a fixed warning.
+   Correlate all timestamped records with the external watcher. Retain
+   evidence before explicitly cleaning this test-owned cache file. An absent
+   checkpoint, dead watcher or deadline preceding the failure is incomplete
+   attribution, not proof of which actor deleted the file. Current SDK logout
+   removes `filesDir/network_spaces/<host>/<env>/.by`, not sibling acceptance
+   inputs; direct-storage-home LocalState likewise owns only its `.by` child.
+
+Interpret the new checkpoints as bounded intervals, not identification of the
+deleting actor:
+
+- Missing at `runner-on-create-entry`: loss predates the first argument-aware
+  runner hook. Android Application construction/content-provider setup and
+  framework/host work can occur earlier.
+- Present at entry, missing at `runner-on-create-return`: loss occurred during
+  base runner initialization or concurrent work in that interval.
+- Present at runner return, missing at `test-method-entry`: inspect subsequent
+  application startup, JUnit/rule setup and concurrent owners before the method.
+- Present at method entry, missing at later test checkpoints: the existing
+  launch/read discriminator now identifies the narrower test-setup interval.
+
+The return checkpoint does not mean all asynchronous application/test setup is
+complete. A thrown base-runner exception is propagated unchanged and has no
+false return record. Missing early records while using the ordinary runner or
+without complete observer coverage are incomplete attribution, not evidence
+of a missing credential. This setup-only run is not a memory/performance arm.
+
+Host helper success cleanup removes only its temporary source file. Deterministic
+tests cover helper exit, inspect-only exit, a separate login reader and SDK
+logout storage isolation. None justifies blaming helper cleanup or logout for
+a device `ENOENT` without the lifecycle timeline above. Diagnostic observation
+does not restore credentials, retry authentication or change acceptance gates.
+
+No gate bypass or manual retry is allowed after a staging failure. Take the
+common cleanup path; a disconnected/interrupted host can leave private files
+that require cleanup before a fresh session. Never put credentials or the
+retained acceptance client ID in a command line or checked-in artifact.
+Release the retained client with `build/all/acceptance/client-cleanup.mjs`,
+then remove the host/device private files on every exit. The staging helper
+does not change app authentication semantics or start an instrumentation run.
 
 `physical-memory.ndjson` separates Go live/allocated/in-use/idle/released heap,
 runtime overhead, object/allocation/free counts, GC/forced-GC/pause counters,
@@ -393,6 +1026,73 @@ still retaining a burst high-water until the quiet-period rebuild runs. The
 mobile reclaimer waits for payload quiet and bounded outstanding ownership,
 then performs at most one pass per cooldown; use its deferred, below-target,
 cooldown, and before/after counters to distinguish policy from a leak.
+
+### Opt-in retained-owner diagnosis
+
+The attested H1 memory failure needs owner evidence, not another threshold
+change. Build the native SDK **and** both APKs with
+`-PurnetworkMemoryProfile=ios-memory-audit-v1`,
+`-PurnetworkMemoryProfileRateBytes=65536`, and the same unique acceptance build
+ID, using the native build-owner/consumer-lock procedure above. Preserve the
+AAR/native/APK/source-input hash chain. No APK-only rebuild or reused native
+output qualifies. Before public traffic, issue an `owner-census` command with
+a fresh `preflight` label and require a matching `complete` status and a
+nonempty schema-1 private file. An old SDK binding fails closed; compiling the
+test APK alone does not demonstrate availability. Verify its reported sampling
+rate is 65536 in addition to the normal iOS-profile gate.
+
+The exact private command protocol is `UNIQUE_ID|owner-census|LABEL`, for
+example `diag-idle-owners|owner-census|idle-before-gc`. Write to a fresh temporary
+command file with `adb -s "$SERIAL" shell run-as com.bringyour.network tee
+files/acceptance/physical-command.UNIQUE_ID`, then rename it to
+`files/acceptance/physical-command` through the same `shell run-as` context.
+Do not use `exec-out` for command stdin. Wait for that exact command ID to
+reach `complete` before issuing another command; `running`, process exit, or
+an old status is not completion. Census labels must be 1–64 characters, start
+with an ASCII letter/digit, and otherwise use letters/digits/`._-`. Never reuse
+a label: the writer exclusively creates a mode-0600 file named
+`physical-owners-LABEL.json` and refuses existing evidence.
+
+For a separately approved diagnostic arm, retain the ordinary continuous
+collector and workload-owner proof. At matched idle, joined post-traffic, and
+180-second connected-quiet boundaries, collect in this order:
+
+1. `owner-census` with `BOUNDARY-before-gc` (no forced GC or shedding).
+2. `heap-profile` with `BOUNDARY` (explicitly forces GC; record the intervention).
+3. `owner-census` with `BOUNDARY-after-gc`.
+4. `goroutine-stacks` with `BOUNDARY` (allocates its own private scratch buffer;
+   collect last so it cannot contaminate the preceding heap profile).
+
+Only the existing private acceptance command interface triggers these reads;
+there is no new periodic sample, packet hook, owner registry, or retained
+device reference. Do not run them during a qualifying five-minute quiet gate.
+The census reports current workers separately from routing indexes (a removed
+index can still own a draining worker), channel capacities, pacing services,
+flow/canceled-flow counts, API connection state, DNS/association caches, pool
+objects, and admission claims by class. It reads existing owning locks one at
+a time. Known structure/slice-slot bytes exclude allocator rounding, map
+buckets, backing object graphs, sockets, and TLS; reservations are **not**
+physical-memory measurements. Its before/after runtime and size-class values
+identify sampling/GC changes but cannot assign span slack to an owner by
+themselves. A topology larger than 64 unique sampled clients reports omitted
+entries explicitly and is incomplete, not silently complete.
+Scope is the current device's indexed windows/provider/shared API strategy;
+already-unlinked client generations or other NetworkSpaces need private heap
+and goroutine evidence. Zero current-owner counts do not prove process-wide
+absence of leaked generations. No diagnostic registry is added to retain them.
+
+Retain census JSON, pprof, and `physical-stacks-LABEL.txt` only under the
+mode-0700 host artifact's private directory, with files mode 0600. Census JSON
+contains aggregate scalars only. Raw goroutine stacks are **not sanitized**:
+they can contain arguments/addresses and must never appear in logs, reports,
+tool output, or chat. Command status exposes only bounded filenames/sizes;
+offline reporting may expose aggregate function/state counts only, never raw
+frames, paths, IDs, endpoints, or tokens. Heap profiles are likewise private.
+Correlate aggregate heap allocation owners with owner-count/capacity deltas and
+a deterministic owner release test before proposing a lifecycle fix. Confirm
+any fix in a fresh unprofiled, fully attested arm with **every** runtime sample
+at or below 25,165,824 bytes and unchanged page/Fast.com performance gates.
+
 `packetPressureDropCount` is a cumulative overload counter, not a pool leak:
 the <=24-MiB mobile profile samples exact packet-root bytes every fourth ingress
 call below pressure, admits the largest ordered prefix that fits below 1 MiB,
@@ -535,6 +1235,7 @@ Parser and eligibility tests are dependency-free:
 
 ```sh
 node --test app/scripts/physical_lowbar_capture_test.mjs \
+  app/scripts/physical_collector_session_test.mjs \
   app/scripts/chrome_readiness_test.mjs \
   app/scripts/physical_memory_profile_test.mjs \
   app/scripts/physical_workload_receipt_test.mjs \

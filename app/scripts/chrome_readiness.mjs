@@ -156,13 +156,21 @@ export async function waitForChromeReady(options, dependencies = {}) {
       const pidAfter = await chromePid();
       const after = await checkForward();
       if (after === "mismatch") return result(false, "forward-target-mismatch");
+      const replaced = pidBefore && pidAfter && pidBefore !== pidAfter;
       if (after === "active" && pidBefore && pidBefore === pidAfter) {
         parsed = parseVersionResponse(body, options.port);
         if (parsed) parsed.identity = `${pidBefore}|${parsed.identity}`;
-      } else if (pidBefore && pidAfter && pidBefore !== pidAfter) counters.browserReplacements += 1;
+      } else if (replaced) counters.browserReplacements += 1;
+      // Exhausting the budget prevented this check; it did not observe a
+      // missing forward. Preserve completed evidence, including an actual
+      // process replacement if its PID read consumed the remaining budget.
+      if (after === "deadline") {
+        if (replaced) lastReason = "chrome-process-unavailable-or-replaced";
+        break;
+      }
       lastReason = after !== "active" ? "forward-unavailable" : !pidBefore || pidBefore !== pidAfter
         ? "chrome-process-unavailable-or-replaced" : "invalid-or-incomplete-version-response";
-    } else lastReason = "forward-unavailable";
+    } else if (before === "unavailable") lastReason = "forward-unavailable";
     if (now() >= deadline) break;
     if (!parsed) {
       counters.rejectedResponses += 1;

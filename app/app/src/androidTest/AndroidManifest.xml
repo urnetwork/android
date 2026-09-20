@@ -2,6 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- AGP injects runner settings into the FIRST instrumentation element.
+         Keep that slot on the default runner; the opt-in component is second. -->
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.bringyour.network" />
+    <instrumentation
+        android:name="com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner"
+        android:targetPackage="com.bringyour.network"
+        android:functionalTest="false"
+        android:handleProfiling="false" />
+
     <application>
         <!--
           The product excludes its own UID from the VPN.  Run the acceptance

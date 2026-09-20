@@ -20,6 +20,45 @@ const timeValid = (time) => Number.isFinite(time) && time >= 0;
 const serialHash = (serial) => createHash("sha256").update(serial).digest("hex");
 const exitedNormally = (code) => Number.isInteger(code) && code >= 0 && code < 128;
 const MAX_COLLECTOR_GAP_MS = 5_000;
+const digest = (value) => createHash("sha256").update(value).digest("hex");
+
+export function requireRetainedWorkloadForeground(state) {
+  if (state?.inputTTY !== true || state.outputTTY !== true || !pidValid(state.processGroup) ||
+      state.processGroup !== state.foregroundGroup) fail("retained-workload-foreground-pty-required");
+}
+
+// No command arguments are queried: only the owner's lifetime, controlling
+// terminal and foreground process group. Raw ps/terminal names stay in memory.
+export function workloadOwnerProcess(result, pid) {
+  if (result?.status !== 0 || result.error || result.signal || typeof result.stdout !== "string" || result.stdout.length > 2048) {
+    fail("workload-owner-not-live");
+  }
+  const fields = result.stdout.match(/^\s*(\d+)\s+(\S+)\s+(-?\d+)\s+(-?\d+)\s+(\S+)\s+(\S+\s+\S+\s+\d+\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s*$/);
+  if (!fields || Number(fields[1]) !== pid || /[TXZ]/i.test(fields[2])) fail("workload-owner-not-live");
+  const processGroup = Number(fields[3]); const foregroundGroup = Number(fields[4]);
+  if (!pidValid(processGroup) || processGroup !== foregroundGroup || ["?", "??", "-"].includes(fields[5])) {
+    fail("workload-owner-not-foreground");
+  }
+  return { processGroup, foregroundGroup, identity: digest(`${pid}\n${processGroup}\n${fields[5]}\n${fields[6]}`) };
+}
+
+function currentWorkloadOwner(pid, dependencies) {
+  return workloadOwnerProcess((dependencies.hostProcess ?? ((value) => spawnSync("ps",
+    ["-p", String(value), "-o", "pid=,stat=,pgid=,tpgid=,tty=,lstart="],
+    { encoding: "utf8", timeout: 2000, maxBuffer: 2048 })))(pid), pid);
+}
+
+function retainedOwnerValid(proof) {
+  try { requireRetainedWorkloadForeground(proof?.foreground); } catch { return false; }
+  return proof.schema === 1 && /^[a-f0-9]{64}$/.test(proof.identity ?? "");
+}
+
+function requireLiveWorkloadOwner(owner, dependencies) {
+  if (!retainedOwnerValid(owner.retainedOwner)) fail("retained-workload-owner-proof-required");
+  const current = currentWorkloadOwner(owner.ownerPid, dependencies);
+  if (current.identity !== owner.retainedOwner.identity || current.processGroup !== owner.retainedOwner.foreground.processGroup ||
+      current.foregroundGroup !== owner.retainedOwner.foreground.foregroundGroup) fail("workload-owner-replaced");
+}
 
 export function evaluateWorkloadCoverage(records, start, end, label) {
   const reasons = [];
@@ -88,7 +127,7 @@ function ownerValid(owner) {
     /^[a-f0-9]{64}$/.test(owner.serialHash ?? "") &&
     Array.isArray(owner.children) && owner.children.length > 0 && owner.children.length <= 32 &&
     owner.children.every((name) => NAME.test(name) && name !== "cleanup") &&
-    new Set(owner.children).size === owner.children.length;
+    new Set(owner.children).size === owner.children.length && retainedOwnerValid(owner.retainedOwner);
 }
 
 function validateChild(child, owner, name, previousEnd, isLive) {
@@ -138,7 +177,12 @@ export function requireCompletedWorkloads(path, label, serial, dependencies = {}
 }
 
 export async function runCommand(command, env = process.env) {
-  if (!Array.isArray(command) || !command.length) fail("foreground-command-required");
+  if (!Array.isArray(command) || !command.length || command.some((value) => typeof value !== "string" || !value)) {
+    fail("foreground-command-required");
+  }
+  // A missing script after `node --` is an interactive process, which cannot be
+  // a bounded workload owner/child. Normal probes always pass a script or -e.
+  if ((command[0] === "node" || command[0].endsWith("/node")) && command.length === 1) fail("foreground-command-required");
   let interrupted = false;
   const child = spawn(command[0], command.slice(1), { env, stdio: "inherit", detached: true });
   const handlers = new Map(["SIGINT", "SIGTERM", "SIGHUP"].map((signal) => [signal, () => {
@@ -164,28 +208,41 @@ function completeResult(result, isLive, requireSuccess = true) {
 }
 
 export async function ownWorkloads(options, dependencies = {}) {
+  // Pipes, redirected/background owners and one-shot executors fail before
+  // collector inspection, owner publication or the first workload process.
+  const terminal = (dependencies.terminal ?? (() => ({ inputTTY: process.stdin.isTTY === true,
+    outputTTY: process.stdout.isTTY === true })))();
+  if (terminal.inputTTY !== true || terminal.outputTTY !== true) fail("retained-workload-foreground-pty-required");
+  const launch = currentWorkloadOwner(process.pid, dependencies);
+  const foreground = { ...terminal, processGroup: launch.processGroup, foregroundGroup: launch.foregroundGroup };
+  requireRetainedWorkloadForeground(foreground);
   const wallNow = dependencies.wallNow ?? Date.now;
   const isLive = dependencies.isLive ?? processIsLive;
   if (!options.serial) fail("explicit-owner-serial-required");
   const owner = { schema: SCHEMA, type: "workload-owner", ownerId: randomUUID(), label: options.label,
-    serialHash: serialHash(options.serial), ownerPid: process.pid, startedHostTimeUnixMs: wallNow(), children: options.children };
+    serialHash: serialHash(options.serial), ownerPid: process.pid, startedHostTimeUnixMs: wallNow(), children: options.children,
+    retainedOwner: { schema: 1, foreground, identity: launch.identity } };
   if (!ownerValid(owner)) fail("unique-predeclared-children-and-label-required");
   owner.collector = requireLiveCollector({ pid: Number(options["collector-pid"]), path: options.telemetry },
     owner.label, owner.startedHostTimeUnixMs, dependencies);
+  requireLiveWorkloadOwner(owner, dependencies);
   if (existsSync(options.output)) fail("output-already-exists");
   const directory = `${resolve(options.output)}.owner-${owner.ownerId}`;
   mkdirSync(directory, { mode: 0o700 });
   const ownerPath = join(directory, "owner.json");
   publish(ownerPath, owner);
+  requireLiveWorkloadOwner(owner, dependencies);
   const result = await (dependencies.run ?? runCommand)(options.command,
     { ...process.env, [OWNER_ENV]: ownerPath });
   if (!completeResult(result, isLive)) fail("owner-not-joined-or-interrupted");
+  requireLiveWorkloadOwner(owner, dependencies);
   const childReceipts = childrenFromDisk(owner, ownerPath, [...owner.children, "cleanup"], isLive);
   requireLiveCollector(owner.collector, owner.label, owner.startedHostTimeUnixMs, dependencies);
   const receipt = { ...owner, state: "complete", exitCode: 0, signal: null, interrupted: false,
     processGroup: result.pid, completedHostTimeUnixMs: wallNow(), childReceipts,
     failedChildCount: childReceipts.filter((child) => child.exitCode !== 0).length };
   if (receipt.completedHostTimeUnixMs < childReceipts.at(-1).completedHostTimeUnixMs) fail("host-clock-regressed");
+  requireLiveWorkloadOwner(owner, dependencies);
   publish(options.output, receipt);
   return receipt;
 }
@@ -195,6 +252,7 @@ export async function recordChild(options, dependencies = {}) {
   if (!ownerPath) fail("workload-owner-required");
   const owner = read(ownerPath);
   if (!ownerValid(owner)) fail("valid-workload-owner-required");
+  requireLiveWorkloadOwner(owner, dependencies);
   requireLiveCollector(owner.collector, owner.label, owner.startedHostTimeUnixMs, dependencies);
   const name = options.cleanup ? "cleanup" : options.name;
   const index = [...owner.children, "cleanup"].indexOf(name);
@@ -208,6 +266,7 @@ export async function recordChild(options, dependencies = {}) {
   // neither overwrite it nor retry a failed measurement under the same owner.
   publish(join(dirname(ownerPath), `${name}.started.json`), { wrapperPid: process.pid, startedHostTimeUnixMs: started });
   let result;
+  requireLiveWorkloadOwner(owner, dependencies);
   if (options.cleanup) {
     if (!options.serial || serialHash(options.serial) !== owner.serialHash) fail("matching-browser-cleanup-serial-required");
     const adb = dependencies.adb ?? ((args) => spawnSync("adb", args,
@@ -227,6 +286,7 @@ export async function recordChild(options, dependencies = {}) {
   }
   const completed = wallNow();
   if (completed < started) fail("host-clock-regressed");
+  requireLiveWorkloadOwner(owner, dependencies);
   requireLiveCollector(owner.collector, owner.label, owner.startedHostTimeUnixMs, dependencies);
   const receipt = { schema: SCHEMA, type: "workload-child", ownerId: owner.ownerId, name,
     wrapperPid: process.pid, state: "complete", exitCode: 0, signal: null, interrupted: false,

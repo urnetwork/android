@@ -36,6 +36,8 @@ function fixture(t, base = 1_000_000) {
     startedHostTimeUnixMs: base - 900, completedHostTimeUnixMs: base - 800 };
   writeFileSync(workloadsPath, JSON.stringify({ schema: 1, type: "workload-owner", ownerId: "fixture-owner",
     label: "run-01", serialHash: createHash("sha256").update("fake-device").digest("hex"), ownerPid: 10_000_002,
+    retainedOwner: { schema: 1, identity: "a".repeat(64), foreground: {
+      inputTTY: true, outputTTY: true, processGroup: 10_000_002, foregroundGroup: 10_000_002 } },
     state: "complete", exitCode: 0, signal: null, interrupted: false, processGroup: 10_000_003,
     children: ["pages"], startedHostTimeUnixMs: base - 1000, completedHostTimeUnixMs: base - 500, failedChildCount: 0,
     collector: { pid: process.pid, path: telemetryPath },

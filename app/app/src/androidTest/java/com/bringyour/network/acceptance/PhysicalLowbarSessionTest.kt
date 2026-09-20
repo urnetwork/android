@@ -65,6 +65,7 @@ class PhysicalLowbarSessionTest {
     private val activeClientLedger = ActiveClientLedger(File(acceptanceDir, "active-client-ids"))
     private val expectedPeerFile = File(acceptanceDir, "physical-expected-peer-id")
     private val startupGoroutinesFile = File(acceptanceDir, "physical-startup-goroutines.txt")
+    private var credentialDiagnostics = false
 
     @Volatile
     private var phase = "startup"
@@ -99,6 +100,11 @@ class PhysicalLowbarSessionTest {
                 },
             )
         }
+    }
+
+    private fun credentialCheckpoint(stage: PhysicalCredentialStage) {
+        if (!credentialDiagnostics) return
+        PhysicalCredentialDiagnosticRecorder.checkpoint(context, stage)
     }
 
     private fun loginWithPassword(
@@ -936,6 +942,34 @@ class PhysicalLowbarSessionTest {
                 )
                 return false
             }
+            "owner-census" -> {
+                val owners = writeMemoryOwnerDiagnostic(device, acceptanceDir, argument)
+                status(
+                    id,
+                    "complete",
+                    application,
+                    startElapsedMs,
+                    JSONObject().put("censusName", owners.name).put("censusBytes", owners.length()),
+                )
+                return false
+            }
+            "goroutine-stacks" -> {
+                require(argument.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,63}"))) {
+                    "a bounded diagnostic label is required"
+                }
+                val stacks = File(acceptanceDir, "physical-stacks-$argument.txt")
+                check(!stacks.exists()) { "diagnostic evidence already exists" }
+                Sdk.writeGoroutineStacks(stacks.absolutePath)
+                check(stacks.isFile && stacks.length() > 0) { "goroutine evidence is empty" }
+                status(
+                    id,
+                    "complete",
+                    application,
+                    startElapsedMs,
+                    JSONObject().put("stacksName", stacks.name).put("stacksBytes", stacks.length()),
+                )
+                return false
+            }
             "heap-profile" -> {
                 require(argument.isNotEmpty()) { "heap profile label is required" }
                 val profile = File(acceptanceDir, "physical-heap-$argument.pprof")
@@ -971,6 +1005,8 @@ class PhysicalLowbarSessionTest {
     @Test(timeout = 10_800_000)
     fun physicalLowbarSession() {
         val arguments = InstrumentationRegistry.getArguments()
+        credentialDiagnostics = physicalCredentialDiagnosticsEnabled(arguments.getString(PHYSICAL_CREDENTIAL_DIAGNOSTICS_ARGUMENT))
+        credentialCheckpoint(PhysicalCredentialStage.TEST_METHOD_ENTRY)
         val expectedBuildId = arguments.getString("acceptanceBuildId").orEmpty()
         assertTrue("acceptanceBuildId argument is required", expectedBuildId.isNotBlank())
         assertEquals(
@@ -1006,8 +1042,11 @@ class PhysicalLowbarSessionTest {
         var activeCommandId = "0"
 
         try {
-            launchLoggedOutApp(application)
-            loginWithPassword(application, ledgerFailure)
+            withPhysicalCredentialCheckpoints(
+                checkpoint = ::credentialCheckpoint,
+                launchLoggedOut = { launchLoggedOutApp(application) },
+                login = { loginWithPassword(application, ledgerFailure) },
+            )
             val device = checkNotNull(application.device)
             connectVc = device.openConnectViewController().also { it.start() }
             peerVc = device.openPeerViewController().also { it.start() }

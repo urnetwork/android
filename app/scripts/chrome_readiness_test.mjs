@@ -165,6 +165,95 @@ test("one valid response near deadline cannot extend the budget or count as stab
   assert.equal(result.stableGapMs, null);
 });
 
+test("deadline exhaustion preserves the last observed failure, not an unperformed forward check", async () => {
+  for (const boundary of ["before-forward", "after-forward", "after-probe"]) {
+    const f = fixture(); let forwardChecks = 0; let probes = 0;
+    f.forward = () => {
+      forwardChecks += 1;
+      if (boundary === "after-forward" && forwardChecks === 3) f.advance(250);
+      return active();
+    };
+    f.deps.probe = async () => {
+      probes += 1;
+      f.advance(probes === 1 ? READINESS_TIMEOUT_MS - 500 : 250);
+      return "";
+    };
+    if (boundary === "before-forward") {
+      let expireAfterLoopCheck = false;
+      f.deps.sleep = async (ms) => { f.advance(ms); expireAfterLoopCheck = true; };
+      f.deps.now = () => {
+        const time = f.time;
+        if (expireAfterLoopCheck) {
+          expireAfterLoopCheck = false;
+          f.advance(READINESS_TIMEOUT_MS - time);
+        }
+        return time;
+      };
+    }
+    const result = await waitForChromeReady(f.options, f.deps);
+    assert.equal(result.eligible, false, boundary);
+    assert.equal(result.reason, "deadline-expired:invalid-or-incomplete-version-response", boundary);
+    assert.equal(result.elapsedMs, READINESS_TIMEOUT_MS, boundary);
+    assert.equal(result.attempts, 2, boundary);
+    assert.equal(result.rejectedResponses, 1, "unfinished deadline attempt is not a completed rejection");
+    assert.equal(result.validResponses, 0, boundary);
+    assert.equal(result.unavailableForwardChecks, 0, boundary);
+    assert.equal(result.browserReplacements, 0, boundary);
+    assert.equal(forwardChecks, boundary === "before-forward" ? 2 : 3, boundary);
+    assert.equal(probes, boundary === "after-probe" ? 2 : 1, boundary);
+  }
+});
+
+test("an actually observed unavailable forward at the deadline retains its reason and counter", async () => {
+  for (const boundary of ["before-probe", "after-probe"]) {
+    const f = fixture(); let forwardChecks = 0; let probes = 0;
+    f.forward = () => {
+      forwardChecks += 1;
+      if (forwardChecks === (boundary === "before-probe" ? 3 : 4)) {
+        f.advance(250);
+        return { status: 1, stdout: "private adb failure" };
+      }
+      return active();
+    };
+    f.deps.probe = async () => {
+      if (probes++ === 0) f.advance(READINESS_TIMEOUT_MS - 500);
+      return "";
+    };
+    const result = await waitForChromeReady(f.options, f.deps);
+    assert.equal(result.eligible, false, boundary);
+    assert.equal(result.reason, "deadline-expired:forward-unavailable", boundary);
+    assert.equal(result.elapsedMs, READINESS_TIMEOUT_MS, boundary);
+    assert.equal(result.attempts, 2, boundary);
+    assert.equal(result.rejectedResponses, 1, boundary);
+    assert.equal(result.validResponses, 0, boundary);
+    assert.equal(result.unavailableForwardChecks, 1, boundary);
+    assert.equal(result.browserReplacements, 0, boundary);
+    assert.equal(JSON.stringify(result).includes("private"), false, boundary);
+  }
+});
+
+test("a browser replacement actually observed at deadline is retained without inventing a forward failure", async () => {
+  const f = fixture(); let identities = 0; let probes = 0;
+  f.processIdentity = () => {
+    if (++identities === 4) { f.advance(250); return { status: 0, stdout: "9876\n" }; }
+    return { status: 0, stdout: "4321\n" };
+  };
+  f.deps.probe = async () => {
+    if (probes++ === 0) f.advance(READINESS_TIMEOUT_MS - 500);
+    return "";
+  };
+  const result = await waitForChromeReady(f.options, f.deps);
+  assert.equal(result.eligible, false);
+  assert.equal(result.reason, "deadline-expired:chrome-process-unavailable-or-replaced");
+  assert.equal(result.elapsedMs, READINESS_TIMEOUT_MS);
+  assert.equal(result.attempts, 2);
+  assert.equal(result.rejectedResponses, 1);
+  assert.equal(result.validResponses, 0);
+  assert.equal(result.browserReplacements, 1);
+  assert.equal(result.unavailableForwardChecks, 0);
+  assert.equal(JSON.stringify(result).includes("9876"), false);
+});
+
 test("HTTP adapter accepts complete split JSON and rejects truncated, oversized, non-200 and hung responses", async () => {
   for (const mode of ["valid", "truncated", "oversized", "http-error", "aborted", "socket-error", "timeout"]) {
     const request = new EventEmitter();

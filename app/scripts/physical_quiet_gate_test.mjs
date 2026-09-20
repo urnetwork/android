@@ -201,6 +201,34 @@ test("24MiB is absolute, including an active sample outside the quiet window", (
   assert.equal(rejects(input, "go-runtime-above-24-mib").classification, "FAILED_MEMORY_LIMIT");
 });
 
+test("kqVGmc: global burst peak must fail without being mislabeled as a quiet-window breach", () => {
+  const input = evidence();
+  input.memory.forEach((sample) => { sample.goRuntimeBytes = 22_904_864; });
+  input.memory[1].goRuntimeBytes = 24_723_488;
+  for (const [index, bytes] of [25_509_920, 26_050_592, 26_353_696].entries()) {
+    input.memory.unshift({ type: "sample", elapsedMs: -15_000 * (index + 1), phase: "traffic",
+      goMemoryLimitBytes: 32 * 1024 * 1024, goRuntimeBytes: bytes });
+  }
+  const first = evaluateQuietWindow(input);
+  assert.equal(first.classification, "FAILED_MEMORY_LIMIT");
+  assert.equal(first.eligible, false);
+  assert.deepEqual(first.reasons, ["go-runtime-above-24-mib"]);
+  assert.equal(first.peakGoRuntimeBytes, 26_353_696);
+  assert.equal(first.quietPeakGoRuntimeBytes, 24_723_488);
+  assert.equal(first.goRuntimeBreachSampleCount, 3);
+  assert.equal(first.quietGoRuntimeBreachSampleCount, 0);
+  // A later offline/teardown evaluation remains the same interval and global
+  // failure, even if all appended samples have settled below the cap.
+  input.memory.push({ ...input.memory.at(-1), elapsedMs: REQUIRED_QUIET_MS + 15_000, goRuntimeBytes: 23_019_552 });
+  const later = evaluateQuietWindow(input);
+  for (const key of ["classification", "eligible", "sampleCount", "sampleDurationMs", "peakGoRuntimeBytes",
+    "quietPeakGoRuntimeBytes", "goRuntimeBreachSampleCount", "quietGoRuntimeBreachSampleCount"]) {
+    assert.equal(later[key], first[key]);
+  }
+  input.memory[10].goRuntimeBytes = GO_RUNTIME_LIMIT_BYTES + 1;
+  assert.equal(evaluateQuietWindow(input).quietGoRuntimeBreachSampleCount, 1);
+});
+
 test("status capture is read-only, private, fresh and never overwrites prior evidence", () => {
   const directory = mkdtempSync(join(tmpdir(), "physical-quiet-capture-test-"));
   try {
