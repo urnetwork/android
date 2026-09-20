@@ -167,6 +167,11 @@ class BlockActionsViewModel @Inject constructor(
     // the exit-attribution re-poll (see openLiveUpdates); canceled with the
     // rest of the live updates
     private var exitAttributionJob: Job? = null
+    private val actionProjection = BlockActionsProjection(
+        readRows = { readBlockActions() },
+        readExits = { readDestinationExits() },
+        collapseHosts = { collapseHosts(it) },
+    )
 
     /**
      * newest first
@@ -233,6 +238,7 @@ class BlockActionsViewModel @Inject constructor(
      * foreground app.
      */
     private fun setupDevice(device: DeviceLocal?) {
+        actionProjection.clear()
         blockActions = listOf()
         splitRules = listOf()
         appRules = listOf()
@@ -280,7 +286,9 @@ class BlockActionsViewModel @Inject constructor(
             while (true) {
                 delay(5_000L)
                 if (blockActions.isNotEmpty()) {
-                    updateBlockActions()
+                    // Only the live join changes on this timer; do not fetch all
+                    // SDK rows or run per-row hostname collapse through JNI.
+                    blockActions = actionProjection.refreshExits()
                 }
             }
         }
@@ -303,8 +311,11 @@ class BlockActionsViewModel @Inject constructor(
     }
 
     private fun updateBlockActions() {
-        val vc = blockActionVc ?: return
+        if (blockActionVc == null) return
+        blockActions = actionProjection.refreshRows()
+    }
 
+    private fun readDestinationExits(): Map<String, Set<String>> {
         // the live destination->exit attribution, joined onto each cluster's
         // ips below. Pull-model: this reflects the exit CURRENTLY carrying
         // each ip, after any re-race or rebind -- so a row growing a second
@@ -318,7 +329,11 @@ class BlockActionsViewModel @Inject constructor(
                 exitsByIp.getOrPut(row.destinationIp) { mutableSetOf() }.add(shortId)
             }
         }
+        return exitsByIp
+    }
 
+    private fun readBlockActions(): List<BlockActionUi> {
+        val vc = blockActionVc ?: return emptyList()
         val items = mutableListOf<BlockActionUi>()
         val list = vc.blockActions
         if (list != null) {
@@ -336,23 +351,20 @@ class BlockActionsViewModel @Inject constructor(
                         ips = ips,
                         matchedHosts = sdkStringListToList(action.matchedHosts),
                         matchedIps = matchedIps,
-                        hostBaseNames = collapseHosts(unmatchedHosts),
+                        // Projection reuses these display names while hosts are unchanged.
+                        hostBaseNames = emptyList(),
                         block = action.block,
                         local = action.local,
                         hasBlockOverride = action.blockOverride != null,
                         hasRouteOverride = action.routeOverride != null,
                         overrideId = action.overrideId?.idStr,
                         byteCount = action.byteCount,
-                        exitShortIds = (matchedIps + ips)
-                            .flatMap { exitsByIp[it] ?: emptySet() }
-                            .distinct()
-                            .sorted(),
                     )
                 )
             }
         }
         // newest first
-        blockActions = items.reversed()
+        return items.reversed()
     }
 
     private fun updateBlockStats() {
