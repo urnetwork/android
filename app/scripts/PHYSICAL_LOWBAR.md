@@ -18,8 +18,14 @@ explicit allow-list is retained:
 
 Use wireless debugging for battery measurements. A USB-attached run is useful
 for functional validation but is invalid when `--require-unplugged` is set.
-The following gate accepts only a cellular, active, unmetered, IPv4-only VPN at
-Android signal level one or below:
+The following is an **IPv4-only capability** gate for a deliberately
+IPv4-only profile; it is not the standard H1/Auto performance bracket. The
+current production VPN capture configuration is dual-stack, so an ordinary H1
+or Auto run must use `--require-unmetered-vpn` without
+`--require-ipv4-only-vpn`; otherwise every dual-stack sample is correctly
+ineligible. Retain the IPv4-only flag only when the selected profile itself
+claims IPv4-only operation. This specialized gate accepts only a cellular,
+active, unmetered, IPv4-only VPN at Android signal level one or below:
 
 ```sh
 node app/scripts/physical_lowbar_capture.mjs \
@@ -39,6 +45,9 @@ Run the page workload concurrently after forwarding Chrome's DevTools socket:
 
 ```sh
 adb -s DEVICE forward tcp:9222 localabstract:chrome_devtools_remote
+node app/scripts/chrome_readiness.mjs --serial DEVICE --port 9222 \
+  --label page-control --output "$PRIVATE_DIR/chrome-readiness.json"
+# Only exit 0 permits the workload. Keep the same forward active.
 node app/scripts/chrome_page_benchmark.mjs \
   --port 9222 \
   --runs 5 \
@@ -104,13 +113,45 @@ Use `--require-wifi` for Wi-Fi-underlay cells (it is mutually exclusive with
 Production Android Chrome does not support DevTools
 `Target.createBrowserContext`; restart Chrome before each candidate and omit
 `--fresh-context` there. The benchmark still disables and clears the browser
-cache before every measured run. After a force-stop/restart, require two
-successful `/json/version` probes at least five seconds apart before starting
-the warm-up; current production Chrome can briefly publish its DevTools socket
-and replace that browser process during startup.
+cache before every measured run. After the caller's force-stop/restart and
+forward setup, use the executable readiness gate before warm-up or workloads:
 
-For memory work, build the app and Android-test APK with a unique
-`-PurnetworkAcceptanceBuildId=LABEL` and run
+```sh
+node "$ROOT/android/app/scripts/chrome_readiness.mjs" \
+  --serial "$SERIAL" --port "$CDP_PORT" --label "$LABEL" \
+  --output "$PRIVATE_DIR/chrome-readiness.json"
+# Only exit 0 permits traffic. Exit 2 takes the common failed-readiness
+# finish/join/credential cleanup path; preserve the JSON and exit status.
+```
+
+Do not substitute manual `curl` probes or a fixed sleep under `set -e`.
+Immediately after Chrome launch, `/json/version` can close with zero bytes
+(curl exit 52) even though a later response is valid. The helper retries
+within a fixed **30-second deadline**, then requires two complete valid Chrome
+JSON responses at least **5,000 ms apart**, identifying the same browser
+instance. An empty, failed, truncated or malformed response invalidates the
+pending pair; a replacement browser starts a fresh five-second pair within
+the same deadline. Neither one valid response nor matching version strings
+alone qualifies. A restart/replacement is recorded, not hidden.
+
+Before and after each bounded local HTTP request, the helper verifies the
+existing `tcp:$CDP_PORT` forward maps to this serial's
+`localabstract:chrome_devtools_remote`. A different device/socket fails closed.
+Read-only `pidof com.android.chrome` checks also require one unchanged browser
+process before/after each response and across the stable pair. This is needed
+because Android can return the tokenless `/devtools/browser` websocket path;
+that path alone is not process identity. Missing/multiple PIDs cannot qualify.
+The helper never discovers another device, recreates a forward, restarts Chrome, or
+requests a public website. Do not change that forward between readiness and
+the workload. Its exclusive mode-0600 result contains version/protocol and
+aggregate timing/rejection counters, never raw responses, user agents, serials,
+or debugger URLs/tokens. Failed results are retained too. A yielded host call
+still needs to be joined to terminal status; the deadline is not a success.
+
+For iOS-profile memory work, build the app and Android-test APK with both
+`-PurnetworkMemoryProfile=ios-memory-audit-v1` and a unique
+`-PurnetworkAcceptanceBuildId=LABEL`; the Gradle default is Android's 40-MiB
+profile and is invalid for this campaign. Run
 `PhysicalLowbarSessionTest` with the same `acceptanceBuildId` instrumentation
 argument. The test keeps one authenticated process alive and drains the SDK's
 fixed primitive ring every five seconds. The Go sampler records every 15
@@ -123,6 +164,185 @@ are `phase`, `connect` (`h1`, `h3`, or `auto`),
 `h3`, or `auto`, `disconnect`, `stop-provide`, `snapshot`,
 `heap-profile`, `trim-memory`, and `finish`. `finish` is required: it joins the
 sampler, writes `physical-summary.json`, disconnects both roles, and logs out.
+The host must own this instrumentation command for the entire session: launch
+it in a retained PTY/session or supervised process and join it after `finish`.
+Do not background `adb shell am instrument` from a one-shot shell, whose exit
+can terminate the test before it creates `files/acceptance/physical-status`.
+Poll status only through `adb -s <allowlisted-serial> shell run-as
+com.bringyour.network cat files/acceptance/physical-status`; an absent file
+after the retained owner exits is a readiness failure, not an empty successful
+session. On that failure, preserve the owner exit output and remove the private
+credential and command files before a persistent-owner retry.
+
+Before connecting or driving public traffic, capture the retained owner's
+fresh ready status and require the **offline** profile gate to exit 0. The
+effective values must be exactly 20-MiB device admission and 32-MiB Go soft
+limit; a smaller observed runtime is not a substitute. A missing build flag
+selects Android's 28/40-MiB policy and makes the cohort incomparable. A unique
+build ID by itself does not prove the memory profile.
+
+```sh
+umask 077
+node app/scripts/physical_quiet_gate.mjs --serial "$SERIAL" \
+  --capture-status "$PRIVATE_DIR/ready-profile-status.json"
+node app/scripts/physical_memory_profile.mjs \
+  --status "$PRIVATE_DIR/ready-profile-status.json" \
+  >"$PRIVATE_DIR/memory-profile-gate.json"
+# Only exit 0 permits connect/traffic; otherwise preserve INVALID_MEMORY_PROFILE
+# and take the common finish/credential-cleanup path. Do not retry into the row.
+```
+
+This read-only capture is preflight evidence, **not a quiet boundary**. The
+quiet gate independently rechecks both boundaries' admission/soft-limit inputs
+and every primitive sample's soft limit, including active and teardown samples.
+A profile mismatch never suppresses a measured >24-MiB failure; it additionally
+disqualifies baseline comparison. Neither gate changes the app's budgets.
+
+### Mandatory quiet-window evidence gate
+
+Before any workload, start the collector in a retained owner, retain its exact
+PID, and wait for at least one fresh eligible telemetry sample. Keep it alive
+through the final quiet gate. Starting it after Wikipedia/fast.com is
+`INCOMPLETE_ACTIVE_COVERAGE`, even if all five quiet minutes are captured.
+
+Run the frozen probes through `physical_workload_receipt.mjs`: it predeclares
+their order, owns the foreground command, and emits a mode-0600 receipt only
+after every named child is joined and explicit browser cleanup is verified.
+It checks collector PID, same file/first sample, fresh eligible tail, and gaps
+before and after every child. Do not pass a shell/executor session ID as a PID.
+The receipt is bound to the block label and serial hash. A yielded executor,
+live process group, omitted child, interruption, or missing cleanup cannot
+produce a qualifying receipt. Never synthesize that JSON or reuse another arm.
+
+The workload body is a private shell file, not a new benchmark runner. It wraps
+the existing commands unchanged. For the normal public block, use the exact
+child list `wiki,fast-1,fast-2,fast-3,cnn,bloomberg` and this pattern:
+
+```sh
+# Private traffic-workload.sh; inherited variables must be exported by owner.
+# Do not use set -e: ordinary probe failures remain in their child receipts,
+# while completing diagnostic quiet memory capture. Missing/interrupted child
+# receipts still reject the owner; they cannot be bypassed by the shell.
+set -u
+node "$RECEIPT" child --name wiki -- node "$SCRIPTS/chrome_page_benchmark.mjs" \
+  --port "$CDP_PORT" --runs 5 https://www.wikipedia.org/ >"$PRIVATE_DIR/wiki.jsonl" 2>"$PRIVATE_DIR/wiki.stderr"
+for n in 1 2 3; do
+  node "$RECEIPT" child --name "fast-$n" -- node "$SCRIPTS/chrome_fast_benchmark.mjs" \
+    --port "$CDP_PORT" --timeout-ms 90000 >"$PRIVATE_DIR/fast-$n.json" 2>"$PRIVATE_DIR/fast-$n.stderr"
+done
+node "$RECEIPT" child --name cnn -- node "$SCRIPTS/chrome_video_probe.mjs" \
+  --port "$CDP_PORT" --navigate "$CNN_URL" >"$PRIVATE_DIR/cnn.json" 2>"$PRIVATE_DIR/cnn.stderr"
+node "$RECEIPT" child --name bloomberg -- node "$SCRIPTS/chrome_video_probe.mjs" \
+  --port "$CDP_PORT" --navigate "$BLOOMBERG_URL" >"$PRIVATE_DIR/bloomberg.json" 2>"$PRIVATE_DIR/bloomberg.stderr"
+# Explicitly stop Chrome, including background targets; verify pidof is empty.
+# This does not stop/restart the VPN or instrumentation.
+node "$RECEIPT" cleanup --serial "$SERIAL"
+```
+
+For the video commands above, `--navigate` without `--target-id` creates an
+owned `about:blank` page, attaches the probe before navigating, and closes only
+that page on success or failure. It must not select an arbitrary existing tab.
+An explicit `--target-id` preserves the existing manual-probe behavior and
+leaves that caller-owned page open. A CLI/setup exit 1 is a harness failure,
+not a playback result; retain it and do not count the site as tested.
+
+After profile/Chrome/collector readiness, launch and retain the owner:
+
+```sh
+export SERIAL CDP_PORT PRIVATE_DIR CNN_URL BLOOMBERG_URL
+export SCRIPTS="$ROOT/android/app/scripts"
+export RECEIPT="$SCRIPTS/physical_workload_receipt.mjs"
+node "$RECEIPT" owner --serial "$SERIAL" --label "$LABEL" \
+  --collector-pid "$collector_pid" --telemetry "$TELEMETRY" \
+  --children wiki,fast-1,fast-2,fast-3,cnn,bloomberg \
+  --output "$PRIVATE_DIR/workloads.json" -- sh "$PRIVATE_DIR/traffic-workload.sh"
+# A tool yield means STILL RUNNING. Resume/join this exact owner to exit 0.
+# If it exits nonzero, finish/clean up the failed attempt; do not start quiet.
+```
+
+Ordinary completed probe exit codes (for example video exit 2) remain in the
+receipt and `failedChildCount`; they are not performance/correctness successes.
+They permit diagnostic quiet collection only after all work is joined. Keep
+every original result; no retry or baseline promotion hides those failures.
+
+Before normal completion, require that owner to terminate, then use
+`physical_quiet_phase.mjs` below to issue and acknowledge the quiet boundary.
+Do not manually send `phase|quiet`, save a raw status as the boundary, or use
+the older read-only `--capture-status` path for this protocol. The helper
+constructs `quiet-LABEL`, sends a unique command through `adb shell run-as
+... tee`, atomically publishes it, waits for its exact ID/phase/complete
+acknowledgment, and publishes a mode-0600 host-timestamp envelope. Keep the instrumentation and host
+collector alive, with the tested role and underlay unchanged. Do not disconnect,
+call `free-memory`/`trim-memory`, stop the collector, or send `finish` to create
+an apparently quiet result. Poll in bounded intervals, retaining ownership of
+the session.
+
+Any workload still live after the quiet boundary is `INVALID_WORKLOAD_OVERLAP`.
+The phase helper refuses missing/unjoined receipts before any adb command and
+requires the same collector live at both boundaries. Never restart traffic
+after receipt completion. The final gate checks uninterrupted telemetry from
+owner start through quiet end and the collector still live; it no longer
+certifies only the quiet tail.
+
+Require **300,000 ms of primitive memory samples inside the quiet phase**, not
+300 seconds of total session time or 20 samples. The 15-second Go sampler and
+five-second drain usually need 315–335 seconds after the phase command to
+produce 21 samples spanning five minutes. The gate, not a sleep or sample-count
+estimate, decides completion. The drain labels records with the current phase;
+explicit status-time boundaries prevent older ring records from counting.
+
+Use the same helper with `--start` for the end boundary. It inherits the exact
+phase and process from the saved start and generates a fresh command ID;
+`snapshot` changes the phase, so do not substitute it. Neither helper call
+connects/disconnects the app, starts traffic, waits the five-minute window, or
+finishes the session. Use one retained host owner for these commands. Failed
+acknowledgment or an existing output file exits 2 without publishing a valid
+new boundary. The fixed acknowledgment timeout is 30 seconds.
+
+```sh
+# LABEL is the frozen opaque block label; the helper adds the required prefix.
+QUIET_PHASE="quiet-$LABEL"
+node app/scripts/physical_quiet_phase.mjs --serial "$SERIAL" \
+  --label "$LABEL" --workloads "$PRIVATE_DIR/workloads.json" --output "$PRIVATE_DIR/quiet-start.json"
+# Keep role/collector alive for the full sampled window described above.
+# Only then issue the end boundary; it derives its phase from the start file.
+node app/scripts/physical_quiet_phase.mjs --serial "$SERIAL" \
+  --start "$PRIVATE_DIR/quiet-start.json" --output "$PRIVATE_DIR/quiet-end.json"
+# Allow the still-running collector to emit a sample after the end capture.
+# Pull the per-sample file; physical-summary.json is not a substitute.
+adb -s "$SERIAL" exec-out run-as com.bringyour.network \
+  cat files/acceptance/physical-memory.ndjson >"$PRIVATE_DIR/physical-memory.ndjson"
+node app/scripts/physical_quiet_gate.mjs \
+  --start "$PRIVATE_DIR/quiet-start.json" --end "$PRIVATE_DIR/quiet-end.json" \
+  --memory "$PRIVATE_DIR/physical-memory.ndjson" --telemetry "$TELEMETRY_FILE" \
+  --phase "$QUIET_PHASE" --role "$QUIET_ROLE" --underlay "$UNDERLAY" \
+  >"$PRIVATE_DIR/quiet-gate.json"
+```
+
+`QUIET_PHASE` is the exact `quiet-LABEL`; role is `client`, `provider`, or
+`direct`; underlay is `wifi` or `cellular`. Client requires connected/tunnel
+status and continuous VPN telemetry; Direct/provider require no client VPN,
+and provider requires provision enabled at both boundaries. All require
+unchanged phase, fresh same-process status, no dropped/error samples, and
+collector coverage bracketing the window. Host and device clocks are evaluated
+separately. A Direct quiet control **never qualifies connected client memory**.
+Provider role counters/identity and all other MEMSTEADY assertions remain
+separate gates; this helper covers workload telemetry and the quiet window,
+not overall website correctness or the full campaign.
+
+Exit 2 rejects missing/short/interrupted evidence as `INCOMPLETE_QUIET_WINDOW`;
+any retained runtime sample above 24 MiB is `FAILED_MEMORY_LIMIT`, including
+active samples before quiet. A below-threshold peak or instrumentation exit 0
+does not override either result. Only exit 0 allows normal `finish`/collector
+stop. On failure or safety timeout still finish and clean up, but preserve the
+failed attempt and per-sample file; never promote its baseline. Readiness-only
+sessions may finish early and do not qualify memory. Finally pull the joined
+sampler output again so teardown samples are retained and checked as well.
+The teardown recheck uses the same gate arguments plus
+`--live-gate "$PRIVATE_DIR/quiet-gate.json"`, writing a separate output. This
+requires the retained schema-2 live collector proof for the same workload
+owner; it never substitutes a late collector or claims one is currently live.
+
 For a controlled provider, install its exact client ID through standard input
 as the private `files/acceptance/physical-expected-peer-id` file before issuing
 either peer-connect command. The harness then waits for that peer instead of
@@ -314,5 +534,9 @@ that a second provider has clean destination-specific reputation.
 Parser and eligibility tests are dependency-free:
 
 ```sh
-node --test app/scripts/physical_lowbar_capture_test.mjs
+node --test app/scripts/physical_lowbar_capture_test.mjs \
+  app/scripts/chrome_readiness_test.mjs \
+  app/scripts/physical_memory_profile_test.mjs \
+  app/scripts/physical_workload_receipt_test.mjs \
+  app/scripts/physical_quiet_gate_test.mjs app/scripts/physical_quiet_phase_test.mjs
 ```

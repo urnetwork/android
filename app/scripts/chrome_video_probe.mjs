@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-// Verify that media really advances in an existing Android Chrome target.
+// Verify that media really advances in an Android Chrome target. Navigation
+// without --target-id owns a fresh blank target and closes it on every exit.
 // The output is deliberately limited to page/video state: it never records
 // request URLs, response headers, cookies, media manifests, or signed tokens.
 
@@ -51,11 +52,11 @@ export function parseArgs(argv) {
 
 function usage() {
   return [
-    "usage: chrome_video_probe.mjs --target-id ID [options]",
+    "usage: chrome_video_probe.mjs (--target-id ID | --navigate URL) [options]",
     "",
     "options:",
     "  --port PORT          adb-forwarded DevTools port (default 9222)",
-    "  --target-id ID       existing Chrome page target",
+    "  --target-id ID       existing Chrome page target (otherwise --navigate owns a new target)",
     "  --timeout-ms MS      playback deadline (default 45000)",
     "  --interval-ms MS     sampling interval (default 1000)",
     "  --reload             reload once with Chrome's cache disabled",
@@ -202,23 +203,62 @@ export function summarizeRejectedConnections(responses) {
   });
 }
 
-async function main() {
-  const options = parseArgs(process.argv.slice(2));
-  if (options.help) {
-    console.log(usage());
-    return;
-  }
-  if (!options.targetId) throw new Error("--target-id is required");
-
-  const targets = await fetchJson(`http://127.0.0.1:${options.port}/json/list`);
-  const target = targets.find((candidate) => candidate.id === options.targetId);
-  if (!target?.webSocketDebuggerUrl) {
-    throw new Error(`Chrome target ${options.targetId} is unavailable`);
-  }
-
-  const session = new CdpSession(target.webSocketDebuggerUrl);
-  await session.open(Math.min(options.timeoutMs, 10_000));
+// A caller-owned target remains caller-owned. With --navigate only, acquire
+// an explicit blank target, never an arbitrary existing tab. Opening the site
+// happens later, after the Network/Runtime observers have been installed.
+export async function acquireVideoTarget(options, dependencies = {}) {
+  if (!options.targetId && !options.navigateUrl) throw new Error("--target-id or --navigate is required");
+  const readJson = dependencies.fetchJson ?? fetchJson;
+  const createSession = dependencies.createSession ?? ((url) => new CdpSession(url));
+  const now = dependencies.now ?? Date.now;
+  const pause = dependencies.sleep ?? delay;
+  const baseUrl = `http://127.0.0.1:${options.port}`;
+  let browser;
+  let ownedTargetId;
+  let closed = false;
+  const close = async () => {
+    if (closed) return;
+    closed = true;
+    try {
+      if (ownedTargetId) {
+        const result = await browser.send("Target.closeTarget", { targetId: ownedTargetId });
+        if (result.success !== true) throw new Error("Chrome owned target cleanup failed");
+      }
+    } finally { browser?.close(); }
+  };
   try {
+    if (!options.targetId) {
+      const version = await readJson(`${baseUrl}/json/version`);
+      browser = createSession(version.webSocketDebuggerUrl);
+      await browser.open(Math.min(options.timeoutMs, 10_000));
+      const created = await browser.send("Target.createTarget", { url: "about:blank" });
+      if (typeof created.targetId !== "string" || !created.targetId) throw new Error("Chrome target unavailable");
+      ownedTargetId = created.targetId;
+    }
+    const deadline = now() + Math.min(options.timeoutMs, 5_000);
+    do {
+      const targets = await readJson(`${baseUrl}/json/list`);
+      const target = targets.find((candidate) => candidate.id === (ownedTargetId ?? options.targetId));
+      if (target?.webSocketDebuggerUrl && target.type === "page") return { target, close };
+      if (!ownedTargetId) break;
+      await pause(25);
+    } while (now() < deadline);
+    throw new Error("Chrome target unavailable");
+  } catch (error) {
+    await close();
+    throw error;
+  }
+}
+
+export async function runVideoProbe(options, dependencies = {}) {
+  const lease = await acquireVideoTarget(options, dependencies);
+  const createSession = dependencies.createSession ?? ((url) => new CdpSession(url));
+  const now = dependencies.now ?? Date.now;
+  const pause = dependencies.sleep ?? delay;
+  let session;
+  try {
+    session = createSession(lease.target.webSocketDebuggerUrl);
+    await session.open(Math.min(options.timeoutMs, 10_000));
     await session.send("Runtime.enable");
     const requests = new Map();
     const responses = [];
@@ -244,7 +284,7 @@ async function main() {
       });
     });
 
-    const deadline = Date.now() + options.timeoutMs;
+    const deadline = now() + options.timeoutMs;
     if (options.reload || options.navigateUrl) {
       await session.send("Network.enable");
       await session.send("Network.setCacheDisabled", { cacheDisabled: true });
@@ -256,14 +296,14 @@ async function main() {
       } else {
         await session.send("Page.reload", { ignoreCache: true });
       }
-      while (Date.now() < deadline) {
+      while (now() < deadline) {
         const result = await session.send("Runtime.evaluate", {
           expression:
             "typeof window.__urnetworkVideoProbeReloadMarker === 'undefined' && document.readyState === 'complete'",
           returnByValue: true,
         });
         if (result.result?.value === true) break;
-        await delay(Math.min(options.intervalMs, 250));
+        await pause(Math.min(options.intervalMs, 250));
       }
     }
 
@@ -272,7 +312,7 @@ async function main() {
     let maximumReadyState = 0;
     let playbackProgressed = false;
     let sampleCount = 0;
-    while (Date.now() < deadline) {
+    while (now() < deadline) {
       const result = await session.send("Runtime.evaluate", {
         expression: videoStateExpression,
         returnByValue: true,
@@ -287,11 +327,11 @@ async function main() {
           last.video.readyState >= 2;
       }
       if (playbackProgressed || last?.robotChallenge || last?.video?.errorCode) break;
-      await delay(options.intervalMs);
+      await pause(options.intervalMs);
     }
 
     const output = {
-      targetId: options.targetId,
+      targetId: lease.target.id,
       reload: options.reload,
       navigated: Boolean(options.navigateUrl),
       playbackProgressed,
@@ -301,11 +341,21 @@ async function main() {
       first,
       last,
     };
-    console.log(JSON.stringify(output, null, 2));
-    if (!playbackProgressed) process.exitCode = 2;
+    return output;
   } finally {
-    session.close();
+    try { session?.close(); } finally { await lease.close(); }
   }
+}
+
+async function main() {
+  const options = parseArgs(process.argv.slice(2));
+  if (options.help) {
+    console.log(usage());
+    return;
+  }
+  const output = await runVideoProbe(options);
+  console.log(JSON.stringify(output, null, 2));
+  if (!output.playbackProgressed) process.exitCode = 2;
 }
 
 if (
