@@ -17,6 +17,7 @@ for directory in . files files/acceptance; do
     printf '0 missing - - -\\n'
     exit 0
   fi
+  test ! -L "$directory"
   test -d "$directory"
   test -x "$directory"
 done
@@ -39,7 +40,8 @@ printf '1 %s %s %s %s\\n' "$kind" "$owner" "$2" "$3"
 
 const unavailable = () => ({ exists: null, fileType: "unavailable", ownerMatchesApp: null, mode: null, byteCount: null });
 export function parseCredentialMetadata(result) {
-  if (result?.status !== 0 || typeof result.stdout !== "string" || result.stdout.length > 256) return unavailable();
+  if (result?.status !== 0 || result.error || result.signal ||
+      typeof result.stdout !== "string" || result.stdout.length > 256) return unavailable();
   const fields = result.stdout.trim().split(/\s+/);
   if (fields.join(" ") === "0 missing - - -") {
     return { exists: false, fileType: "missing", ownerMatchesApp: null, mode: null, byteCount: null };
@@ -52,11 +54,24 @@ export function parseCredentialMetadata(result) {
 
 export function parseArgs(args) {
   const options = {};
-  for (let index = 0; index < args.length; index += 2) {
+  for (let index = 0; index < args.length;) {
     const flag = args[index]; const value = args[index + 1];
+    if (flag === "--preflight" && !Object.hasOwn(options, flag)) {
+      options[flag] = true;
+      index++;
+      continue;
+    }
     if (!["--serial", "--output", "--stop-file", "--timeout-ms"].includes(flag) || !value || value.startsWith("--") ||
         Object.hasOwn(options, flag)) throw new Error("invalid-watch-arguments");
     options[flag] = value;
+    index += 2;
+  }
+  if (options["--preflight"]) {
+    if (!options["--serial"] || !isAbsolute(options["--output"] ?? "") ||
+        options["--stop-file"] !== undefined || options["--timeout-ms"] !== undefined) {
+      throw new Error("credential-preflight-arguments-required");
+    }
+    return { serial: options["--serial"], output: options["--output"], preflight: true };
   }
   const timeoutMs = Number(options["--timeout-ms"] ?? "120000");
   if (!options["--serial"] || !isAbsolute(options["--output"] ?? "") || !isAbsolute(options["--stop-file"] ?? "") ||
@@ -70,6 +85,35 @@ function requirePrivateParent(path) {
       (typeof process.getuid === "function" && directory.uid !== process.getuid())) throw new Error("private-watch-directory-required");
 }
 
+function credentialProbe(serial, dependencies) {
+  // adb joins shell arguments into a second shell command. The script needs
+  // its own literal quote layer; host argv grouping alone does not preserve it.
+  const invoke = dependencies.adb ?? (args => spawnSync("adb", args,
+    { encoding: "utf8", timeout: 5000, maxBuffer: 1024 }));
+  return invoke(["-s", serial, "shell", "-T", "run-as", "com.bringyour.network", "sh", "-c", quote(credentialMetadataScript)]);
+}
+
+// One read-only pre-staging check, with the same remote quoting as the retained
+// watcher. APK reinstall preserves app data and is not proof of absence.
+export function preflightCredentialDestination(options, dependencies = {}) {
+  if (!options.preflight || !options.serial || !isAbsolute(options.output ?? "")) {
+    throw new Error("credential-preflight-arguments-required");
+  }
+  requirePrivateParent(options.output);
+  const descriptor = openSync(options.output, "wx", 0o600);
+  try {
+    let raw;
+    try { raw = credentialProbe(options.serial, dependencies); } catch { raw = undefined; }
+    const observed = parseCredentialMetadata(raw);
+    const report = { type: "physical-credential-destination-preflight", schemaVersion: 1,
+      eligible: observed.exists === false,
+      reason: observed.exists === false ? "credential-destination-absent" : observed.exists === true
+        ? "credential-destination-present" : "credential-destination-unavailable", ...observed };
+    writeSync(descriptor, `${JSON.stringify(report)}\n`);
+    return report;
+  } finally { closeSync(descriptor); }
+}
+
 export async function watchCredentialMetadata(options, dependencies = {}) {
   requirePrivateParent(options.output); requirePrivateParent(options.stopFile);
   if (options.output === options.stopFile || existsSync(options.stopFile)) throw new Error("fresh-watch-paths-required");
@@ -78,9 +122,7 @@ export async function watchCredentialMetadata(options, dependencies = {}) {
   const monotonic = dependencies.monotonic ?? (() => performance.now());
   const sleep = dependencies.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   const interrupted = dependencies.interrupted ?? (() => false);
-  const probe = dependencies.probe ?? (() => spawnSync("adb", ["-s", options.serial, "shell", "-T", "run-as",
-    "com.bringyour.network", "sh", "-c", quote(credentialMetadataScript)],
-  { encoding: "utf8", timeout: 5000, maxBuffer: 1024 }));
+  const probe = dependencies.probe ?? (() => credentialProbe(options.serial, dependencies));
   const started = monotonic(); let samples = 0;
   try {
     while (monotonic() - started < options.timeoutMs && !existsSync(options.stopFile) && !interrupted()) {
@@ -106,9 +148,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const stop = () => { interrupted = true; };
   process.on("SIGINT", stop); process.on("SIGTERM", stop);
   try {
-    const summary = await watchCredentialMetadata(parseArgs(process.argv.slice(2)), { interrupted: () => interrupted });
+    const options = parseArgs(process.argv.slice(2));
+    const summary = options.preflight ? preflightCredentialDestination(options)
+      : await watchCredentialMetadata(options, { interrupted: () => interrupted });
     process.stdout.write(`${JSON.stringify(summary)}\n`);
-    if (summary.reason === "interrupted") process.exitCode = 2;
+    if (summary.eligible === false || summary.reason === "interrupted") process.exitCode = 2;
   } catch {
     process.stderr.write("physical credential metadata watch unavailable\n");
     process.exitCode = 2;

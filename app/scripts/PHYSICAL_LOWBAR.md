@@ -839,6 +839,23 @@ external cleanup. Keep the fixed directory outcomes mode 0600 in the run root,
 outside the leaf under test. Freeze/restore `ARTIFACT_DIR` across executor calls;
 a workload's later `PRIVATE_DIR` must not redirect parser/staging/AM artifacts.
 
+After APK installation, prove the credential destination is absent with the
+metadata-only helper before parser/staging work:
+
+```sh
+node app/scripts/physical_credential_watch.mjs --preflight \
+  --serial "$SERIAL" --output "$ARTIFACT_DIR/$LABEL.credential-destination-preflight.json" || exit 2
+```
+
+Require exit 0 and `eligible=true` / `credential-destination-absent`. A reinstall
+preserves app data; it does not prove cleanup. Existing or unavailable metadata
+stops setup and never authorizes file removal. Do not use an inline `adb shell
+run-as ... sh -c 'test ...'` check: ADB joins argv for the device shell, losing
+the host's quote grouping. That form can execute `sh -c test` without operands
+and falsely report absence. The helper preserves a second, literal quote layer
+and returns only bounded metadata. Its host regression reproduces the false
+absence and confirms the corrected command preserves an existing file.
+
 ```sh
 umask 077
 node app/scripts/physical_artifact_directory.mjs check \
