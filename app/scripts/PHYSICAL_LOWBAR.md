@@ -1276,19 +1276,31 @@ not use shell redirection or `adb pull` to bypass this permission guard. This
 copy is evidence collection, not validation or rehabilitation of a failed arm.
 
 For all three diagnostic verbs, the app acknowledges with the exact phase
-`VERB-LABEL` in both `running` and `complete` statuses (for example,
-`owner-census-preflight`), not the bare verb. The publisher requires this full
-phase, the exact command ID, and `complete`; a different label, partial match,
-or matching phase from a different ID cannot qualify. A diagnostic rejected by
-the earlier bare-verb check remains an invalid arm even if its private output
-was written; do not reuse it after correcting the host contract.
+`VERB-WIRE_LABEL` in both `running` and `complete` statuses. The publisher
+requires this full phase, the exact wire command ID, and `complete`; a different
+label, partial match, or matching phase from a different ID cannot qualify. A
+diagnostic rejected by the earlier bare-verb check remains an invalid arm even
+if its private output was written; do not reuse it after correcting the host
+contract.
 
-The wire format remains `UNIQUE_ID|owner-census|LABEL`. IDs and labels must be
-1–64 characters, start with an ASCII letter/digit, and otherwise use
-letters/digits/`._-`. Never reuse either: the helper uses one exclusive
-mode-0600 temporary command write and an atomic rename, and rejects an existing
-diagnostic destination before publication. Census output is
-`physical-owners-LABEL.json`. Do not use `exec-out` for command stdin.
+CLI IDs and labels are logical names: each must be 1–64 characters, start with
+an ASCII letter/digit, and otherwise use letters/digits/`._-`. The publisher
+derives separate 64-character wire IDs and labels from the live instrumentation
+owner's session UUID and the logical name. The wire record is
+`WIRE_ID|owner-census|WIRE_LABEL`, and census output is
+`physical-owners-WIRE_LABEL.json`. Its private schema-2 command receipt records
+both names and the mapping. Always copy through that receipt; do not reconstruct
+an app filename from the CLI label.
+
+A fresh session may reuse logical `preflight` without colliding with an old
+`physical-owners-preflight.json` or another session's hashed artifact. Existing
+artifacts remain untouched. Within one session, IDs and diagnostic labels are
+one-shot: private attempt reservations survive success, failure and
+interruption, so changing a command ID does not permit retrying an attempted
+label. The helper uses one exclusive mode-0600 temporary command write and an
+atomic rename, and still rejects an existing destination for the current
+session. A collision is a failed arm; never delete unknown artifacts or retry
+under a new label. Do not use `exec-out` for command stdin.
 
 The failed `J49FvL` diagnostic stopped before census or traffic. Its unquoted
 remote `sh -c` was reparsed by ADB: only argumentless `umask` ran under `run-as`,
