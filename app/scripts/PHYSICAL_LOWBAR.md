@@ -233,12 +233,30 @@ Use `physical_apk_pair.mjs` for a normal, data-preserving `adb install -r -t`:
    catching an intervening upgrade. Continue to require native proof and
    installed-APK hash/build-ID verification. The helper does not install.
 
+Resolve the host's manifest tool before starting the native build, then run
+the same block at the start of the consumer script. This is host-only and
+works from any checkout directory. `physical_aapt.mjs` uses
+`ANDROID_SDK_ROOT`, then `ANDROID_HOME`, then Node's actual home directory
+(`Library/Android/sdk` on macOS or `Android/Sdk` on Linux). It selects the
+highest executable stable build-tools version numerically and returns its
+absolute path; an invalid explicit SDK root fails without falling back.
+Keep those SDK environment settings unchanged across the arm. Never derive
+the home directory from `$ROOT` or the working directory: the `IBNQ9U` arm
+resolved `/Users/builder/urnetwork/Library/...` and failed before installation
+because the installed SDK was under `/Users/builder/Library/...`.
+
+```sh
+# AAPT-CONTEXT: run before building and at consumer-script entry.
+AAPT="$(node "$ROOT/android/app/scripts/physical_aapt.mjs")" || exit 2
+export AAPT
+```
+
 ```sh
 # Before the native before-build capture:
 node "$ROOT/android/app/scripts/physical_apk_pair.mjs" observe \
   --output "$ARTIFACT_DIR/$LABEL.apk-devices.json" || exit 2
-# In the consumer script after assembly; AAPT is the explicit build-tools
-# executable, and both metadata paths are this invocation's Gradle outputs.
+# In the consumer script after assembly; AAPT was resolved by AAPT-CONTEXT,
+# and both metadata paths are this invocation's Gradle outputs.
 node "$ROOT/android/app/scripts/physical_apk_pair.mjs" select \
   --observed "$ARTIFACT_DIR/$LABEL.apk-devices.json" \
   --app-metadata "$APP_METADATA" --test-metadata "$TEST_METADATA" \
