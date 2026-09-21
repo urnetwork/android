@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync,
+import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync,
   statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -34,6 +34,7 @@ test("wrong mode/owner/type are rejected, never chmodded, adopted or followed", 
     if (kind === "file") writeFileSync(f.directory, "owned fixture", { mode: 0o600 });
     else if (kind === "symlink") symlinkSync(f.parent, f.directory);
     else mkdirSync(f.directory, { mode: kind === "mode" ? 0o755 : 0o700 });
+    if (kind === "mode") chmodSync(f.directory, 0o755); // Preserve the negative fixture under harness umask 077.
     const dependencies = kind === "owner" ? { uid: process.getuid() + 1 } : {};
     const before = lstatSync(f.directory);
     const report = artifactDirectoryPreflight({ directory: f.directory, create: true }, dependencies);
@@ -59,6 +60,22 @@ test("bound paths reject sibling destinations, directory removal and replacement
   assert.throws(() => requireArtifactPaths(binding, [join(f.directory, "owner.json")]), /artifact-directory-missing/);
   mkdirSync(f.directory, { mode: 0o700 });
   assert.throws(() => requireArtifactPaths(binding, [join(f.directory, "owner.json")]), /artifact-directory-replaced/);
+});
+
+test("canonical receipt paths retain the same bound directory through an ancestor alias", (t) => {
+  const f = fixture(t); mkdirSync(f.directory, { mode: 0o700 });
+  // Model macOS /tmp -> /private/tmp without relying on the host's tmp layout.
+  const alias = join(f.parent, "ancestor-alias"); symlinkSync(realpathSync(f.parent), alias);
+  const lexical = join(alias, "private"); const binding = prepareArtifactDirectory(lexical);
+  assert.notEqual(binding.directory, binding.canonical);
+  assert.equal(requireArtifactPaths(binding, [join(lexical, "writer.json"), join(binding.canonical, "writer.stdout")]), true);
+  assert.throws(() => requireArtifactPaths(binding, [join(f.parent, "outside.stdout")]), /artifact-path-outside-directory/);
+
+  // Canonical spelling must not bypass the original ancestor's identity check.
+  const replacement = join(f.parent, "replacement"); mkdirSync(replacement, { mode: 0o700 });
+  mkdirSync(join(replacement, "private"), { mode: 0o700 });
+  rmSync(alias); symlinkSync(replacement, alias);
+  assert.throws(() => requireArtifactPaths(binding, [join(binding.canonical, "writer.stdout")]), /artifact-directory-replaced/);
 });
 
 test("directory CLI is bounded, sanitized and reports missing setup without spawning any helper", (t) => {

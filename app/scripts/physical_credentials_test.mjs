@@ -6,8 +6,10 @@ import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSyn
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { credentialLineStructure, credentialPayload, credentialScripts, inspectPhysicalCredentialLines,
+import { credentialLineStructure, credentialPayload, credentialScripts, credentialStageDiagnostic, inspectPhysicalCredentialLines,
   diagnosePhysicalPublication, parseArgs, sentinelScripts, stagePhysicalCredentials } from "./physical_credentials.mjs";
+import { finishCredentialSession, handoffCredentialOwnership, rollbackCredentialSetup } from "./physical_credential_ownership.mjs";
+import { runInstrumentationSession } from "./physical_collector_session.mjs";
 
 const USER = "physical-fixture@example.invalid";
 const PASSWORD = "  p'\"$(touch INJECTED) `touch OTHER` \\ ; & Unicode-雪  ";
@@ -17,7 +19,7 @@ const shellQuote = (text) => `'${text.replaceAll("'", "'\\''")}'`;
 // its lifetime rather than manufacturing an identity result in fake stat.
 const HOST_SHELL = process.platform === "darwin" ? "/bin/ksh" : "/bin/sh";
 const hostFdPaths = (script) => process.platform === "darwin"
-  ? script.replaceAll("/proc/self/fd/3", "/dev/fd/3") : script;
+  ? script.replaceAll("/proc/self/fd/3", "/dev/fd/3").replaceAll("/proc/self/fd/4", "/dev/fd/4") : script;
 
 function fixture(t) {
   const directory = mkdtempSync(join(tmpdir(), "physical-credentials-test-"));
@@ -36,9 +38,13 @@ if (path.basename(process.argv[1]).startsWith('stat')) {
   if (fd !== null && process.env.TEST_METADATA_HIDES_FD === '1') process.exit(1);
   const stat = fd !== null ? fs.fstatSync(fd, {bigint:true}) : fs.statSync(file, {bigint:true});
   const format = args[args.indexOf('-c')+1];
+  if (format === '%a %h %u') { process.stdout.write((stat.mode & 511n).toString(8)+' '+stat.nlink+' '+stat.uid+'\\n'); process.exit(0); }
+  if (format === '%d %i %u %a %h %s %y %z') {
+    process.stdout.write(stat.dev+' '+stat.ino+' '+stat.uid+' '+(stat.mode & 511n).toString(8)+' '+stat.nlink+' '+stat.size+' '+stat.mtimeNs+' '+stat.ctimeNs+'\\n'); process.exit(0);
+  }
   process.stdout.write((format === '%d %i' ? stat.dev+' '+stat.ino : (stat.mode & 511n).toString(8)+(format === '%a %s %h' ? ' '+stat.size+' '+stat.nlink : ''))+'\\n');
 }
-else process.stdout.write(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')+'  '+file+'\\n');
+else process.stdout.write(crypto.createHash('sha256').update(fs.readFileSync(file ?? 0)).digest('hex')+'  '+(file ?? '-')+'\\n');
 `;
   for (const name of ["stat", "stat-real", "sha256sum"]) writeFileSync(join(bin, name), metadataTool, { mode: 0o700 });
   const options = { serial: "fake-device", schema: "data-plane-account",
@@ -71,6 +77,246 @@ exec '${join(bin, "stat-real")}' "$@"
   }, adb: (...args) => f.adb(...args) };
   return f;
 }
+
+function ownershipFixture(t) {
+  const f = fixture(t);
+  Object.assign(f.options, { ownership: join(f.directory, "credential-owner.json"),
+    "native-inputs": join(f.directory, "native-inputs.json"), label: "fixture-arm", "build-id": "fixture-build",
+    "session-id": "11111111-1111-4111-8111-111111111111", "instrumentation-owner": join(f.directory, "am-owner.json"),
+    "finish-command-id": "fixture-finish" });
+  f.native = { buildId: f.options["build-id"], inputHash: "a".repeat(64), buildOwner: "fixture-build-owner" };
+  f.deps.verifyNativeInputs = () => f.native;
+  f.deps.ownershipToken = () => "b".repeat(32);
+  f.destination = join(f.app, "files/acceptance/credentials");
+  f.marker = join(f.app, "files/acceptance/.credential-owner-" + "b".repeat(32));
+  f.deps.ownershipAdb = args => {
+    if (args[2] === "shell" && args[3] === "pidof") return f.targetResult ?? { status: 1, stdout: "", stderr: "" };
+    if (args.at(-1) === "files/acceptance/physical-status") return f.finishResult ?? { status: 0, stdout: JSON.stringify(f.finishStatus) };
+    return f.adb(args);
+  };
+  f.stage = () => { const report = stagePhysicalCredentials(f.options, f.deps); assert.equal(report.eligible, true, JSON.stringify(report)); };
+  f.completed = () => {
+    assert.equal(handoffCredentialOwnership(f.options, f.native, f.deps), true);
+    const handoff = JSON.parse(readFileSync(`${f.options.ownership}.handoff.json`));
+    const owner = { schema: 1, type: "instrumentation-session", state: "running", ownerId: f.options["session-id"],
+      serialHash: createHash("sha256").update(f.options.serial).digest("hex"), label: f.options.label,
+      nativeInputHash: f.native.inputHash, nativeBuildOwner: f.native.buildOwner, targetPackage: "com.bringyour.network",
+      className: "com.bringyour.network.acceptance.PhysicalLowbarSessionTest", supervisorPid: 700, adbPid: 701,
+      supervisorIdentity: "c".repeat(64), adbIdentity: "d".repeat(64), startedHostTimeUnixMs: handoff.hostTimeUnixMs + 1 };
+    const ready = { schema: 1, type: "instrumentation-session-ready", ownerId: owner.ownerId,
+      serialHash: owner.serialHash, targetPid: 1234, elapsedMs: 100 };
+    const terminal = { ...owner, state: "complete", exitCode: 0, signal: null, interrupted: false,
+      completedHostTimeUnixMs: owner.startedHostTimeUnixMs + 1000 };
+    for (const [suffix, value] of [["", owner], [".ready.json", ready], [".terminal.json", terminal]]) {
+      writeFileSync(`${f.options["instrumentation-owner"]}${suffix}`, JSON.stringify(value), { mode: 0o600 });
+    }
+    f.finishStatus = { type: "status", pid: ready.targetPid, commandId: f.options["finish-command-id"], phase: "finish", state: "complete",
+      elapsedMs: 200, connected: false, tunnelStarted: false, provideEnabled: false };
+    f.deps.hostProcessStopped = () => true;
+    return { owner, ready, terminal, handoff };
+  };
+  return f;
+}
+
+test("diag9: joined attested staging creates private prospective proof; owned rollback removes only that file and marker", t => {
+  const f = ownershipFixture(t); f.stage();
+  const owner = JSON.parse(readFileSync(f.options.ownership, "utf8"));
+  assert.equal(owner.nativeInputHash, f.native.inputHash);
+  assert.equal(statSync(f.options.ownership).mode & 0o777, 0o600);
+  assert.equal(statSync(f.marker).mode & 0o777, 0o600);
+  assertNoSecrets(owner);
+  assert.equal(JSON.stringify(owner).includes(createHash("sha256").update(`${USER}\n${PASSWORD}`).digest("hex")), false);
+  const unrelated = join(f.app, "files/acceptance/unrelated"); writeFileSync(unrelated, "preserved");
+  const result = rollbackCredentialSetup(f.options, f.deps);
+  assert.deepEqual(result, { type: "physical-credential-rollback", schemaVersion: 1, eligible: true,
+    reason: "owned-pre-instrumentation-credentials-removed", ownershipVerified: true, destinationRemoved: true });
+  assert.equal(existsSync(f.destination), false); assert.equal(existsSync(f.marker), false);
+  assert.equal(readFileSync(unrelated, "utf8"), "preserved");
+  assertNoSecrets(result); assert.doesNotMatch(JSON.stringify(result), /proof|hash|token|files\//i);
+  assert.equal(rollbackCredentialSetup(f.options, f.deps).eligible, false, "no repeat cleanup/retry");
+});
+
+test("diag9: unknown legacy credentials cannot be adopted or removed, even after staging refusal", t => {
+  const f = ownershipFixture(t);
+  mkdirSync(dirnameForTest(f.destination), { recursive: true, mode: 0o700 });
+  writeFileSync(f.destination, "legacy-unmarked", { mode: 0o600 });
+  const staged = stagePhysicalCredentials(f.options, f.deps);
+  assert.equal(staged.stageDiagnostic.reason, "credential-destination-present");
+  assert.equal(existsSync(f.options.ownership), false); assert.equal(existsSync(f.marker), false);
+  assert.equal(rollbackCredentialSetup(f.options, f.deps).eligible, false);
+  assert.equal(readFileSync(f.destination, "utf8"), "legacy-unmarked");
+});
+
+const dirnameForTest = path => join(path, "..");
+
+test("diag9: crash or missing/changed owner evidence never deletes staged credentials", t => {
+  for (const kind of ["missing-host", "missing-remote", "wrong-remote", "missing-staging", "changed-staging", "crashed-lock", "wrong-mode", "wrong-session"]) {
+    const f = ownershipFixture(t); f.stage();
+    if (kind === "missing-host") rmSync(f.options.ownership);
+    if (kind === "missing-remote") rmSync(f.marker);
+    if (kind === "wrong-remote") writeFileSync(f.marker, "other-owner\n");
+    if (kind === "missing-staging") rmSync(f.options.output);
+    if (kind === "changed-staging") writeFileSync(f.options.output, "{}\n");
+    if (kind === "crashed-lock") writeFileSync(`${f.options.ownership}.operation`, "interrupted", { mode: 0o600 });
+    if (kind === "wrong-mode") chmodSync(f.options.ownership, 0o644);
+    if (kind === "wrong-session") f.options.label = "another-arm";
+    const result = rollbackCredentialSetup(f.options, f.deps);
+    assert.equal(result.eligible, false, kind); assert.equal(result.destinationRemoved, false, kind);
+    assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values), kind); assertNoSecrets(result);
+  }
+});
+
+test("diag9: changed contents, replaced same-content file, symlink and marker substitution are not owned destinations", t => {
+  for (const kind of ["changed-bytes", "same-content-new-file", "symlink", "marker-symlink"]) {
+    const f = ownershipFixture(t); f.stage();
+    if (kind === "changed-bytes") writeFileSync(f.destination, "changed");
+    if (kind === "same-content-new-file") { rmSync(f.destination); writeFileSync(f.destination, credentialPayload(f.values), { mode: 0o600 }); }
+    if (kind === "symlink") { rmSync(f.destination); symlinkSync(f.options.config, f.destination); }
+    if (kind === "marker-symlink") { rmSync(f.marker); symlinkSync(f.options.config, f.marker); }
+    assert.equal(rollbackCredentialSetup(f.options, f.deps).eligible, false, kind);
+    assert.equal(existsSync(f.destination), true, kind);
+    assert.equal(readFileSync(f.options.config, "utf8"), "version: 1\n");
+  }
+});
+
+test("diag9: live/unknown target or native handoff mismatch preserves credentials", t => {
+  for (const result of [{ status: 0, stdout: "123\n" }, { status: 1, stdout: "", stderr: "transport failed" },
+    { status: null, stdout: "", error: { code: "ETIMEDOUT" } }]) {
+    const f = ownershipFixture(t); f.stage(); f.targetResult = result;
+    assert.equal(rollbackCredentialSetup(f.options, f.deps).eligible, false);
+    assert.equal(existsSync(f.destination), true);
+  }
+  const f = ownershipFixture(t); f.stage();
+  assert.throws(() => handoffCredentialOwnership(f.options, { ...f.native, inputHash: "c".repeat(64) }, f.deps), /native-context-mismatch/);
+  assert.equal(existsSync(f.destination), true);
+});
+
+test("instrumentation handoff irreversibly binds the prospective session and retains its marker for normal-finish cleanup", t => {
+  const f = ownershipFixture(t); f.stage();
+  assert.equal(handoffCredentialOwnership(f.options, f.native, f.deps), true);
+  assert.equal(existsSync(f.marker), true); assert.equal(existsSync(`${f.options.ownership}.handoff.json`), true);
+  const handoff = JSON.parse(readFileSync(`${f.options.ownership}.handoff.json`));
+  assert.equal(handoff.schemaVersion, 2);
+  assert.equal(handoff.sessionId, f.options["session-id"]);
+  assert.equal(handoff.instrumentationOwner, f.options["instrumentation-owner"]);
+  assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
+  assert.equal(rollbackCredentialSetup(f.options, f.deps).reason, "credential-already-handed-to-instrumentation");
+});
+
+test("normal finish plus exact prospective owner and terminal join removes only its credential and marker", t => {
+  const f = ownershipFixture(t); f.stage(); f.completed();
+  const legacy = join(f.app, "files/acceptance/physical-owners-preflight.json");
+  writeFileSync(legacy, "legacy-diagnostic-preserved", { mode: 0o600 });
+  const result = finishCredentialSession(f.options, f.deps);
+  assert.equal(result.eligible, true, JSON.stringify(result));
+  assert.equal(result.reason, "owned-finished-session-credentials-removed");
+  assert.equal(result.destinationRemoved, true);
+  assert.equal(existsSync(f.destination), false);
+  assert.equal(existsSync(f.marker), false);
+  assert.equal(readFileSync(legacy, "utf8"), "legacy-diagnostic-preserved");
+  assert.equal(statSync(`${f.options.ownership}.finish.json`).mode & 0o7777, 0o600);
+  assertNoSecrets(result);
+  assert.equal(finishCredentialSession(f.options, f.deps).eligible, false);
+});
+
+test("interrupted, unjoined, missing or mismatched terminal evidence cannot authorize post-session credential deletion", t => {
+  for (const kind of ["interrupted", "signal", "nonzero", "failed", "missing-terminal", "terminal-owner", "native-context", "handoff-session",
+    "handoff-path", "legacy-handoff", "supervisor-live", "adb-live", "finish-id", "finish-pid", "finish-phase", "finish-running", "finish-connected", "transport"]) {
+    const f = ownershipFixture(t); f.stage();
+    const e = f.completed();
+    const path = f.options["instrumentation-owner"];
+    if (kind === "interrupted") e.terminal.interrupted = true;
+    if (kind === "signal") e.terminal.signal = "SIGTERM";
+    if (kind === "nonzero") e.terminal.exitCode = 1;
+    if (kind === "failed") e.terminal.state = "failed";
+    if (kind === "terminal-owner") e.terminal.ownerId = "22222222-2222-4222-8222-222222222222";
+    if (kind === "native-context") e.owner.nativeInputHash = "e".repeat(64);
+    if (kind === "handoff-session") e.handoff.sessionId = "22222222-2222-4222-8222-222222222222";
+    if (kind === "handoff-path") e.handoff.instrumentationOwner = join(f.directory, "another-owner.json");
+    if (kind === "legacy-handoff") { e.handoff.schemaVersion = 1; rmSync(f.marker); }
+    if (kind === "supervisor-live") f.deps.hostProcessStopped = pid => pid !== e.owner.supervisorPid;
+    if (kind === "adb-live") f.deps.hostProcessStopped = pid => pid !== e.owner.adbPid;
+    if (kind === "finish-id") f.finishStatus.commandId = "other-finish";
+    if (kind === "finish-pid") f.finishStatus.pid++;
+    if (kind === "finish-phase") f.finishStatus.phase = "snapshot";
+    if (kind === "finish-running") f.finishStatus.state = "running";
+    if (kind === "finish-connected") f.finishStatus.connected = true;
+    if (kind === "transport") f.finishResult = { status: 1, stdout: "", stderr: "private-unavailable" };
+    writeFileSync(path, JSON.stringify(e.owner));
+    writeFileSync(`${path}.terminal.json`, JSON.stringify(e.terminal));
+    writeFileSync(`${f.options.ownership}.handoff.json`, JSON.stringify(e.handoff));
+    if (kind === "missing-terminal") rmSync(`${path}.terminal.json`);
+    const calls = f.calls.length;
+    const result = finishCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, false, kind);
+    assert.equal(result.destinationRemoved, false, kind);
+    assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values), kind);
+    assert.equal(f.calls.slice(calls).some(call => call.args.at(-1).includes("credential-owner-finish-complete")), false, kind);
+    assertNoSecrets(result);
+  }
+});
+
+test("normal terminal does not authorize a missing/replaced marker, changed file or changed finish state", t => {
+  for (const kind of ["missing-marker", "wrong-marker", "changed-bytes", "same-content-replacement", "symlink", "status-race"]) {
+    const f = ownershipFixture(t); f.stage(); f.completed();
+    if (kind === "missing-marker") rmSync(f.marker);
+    if (kind === "wrong-marker") writeFileSync(f.marker, "another-owner");
+    if (kind === "changed-bytes") writeFileSync(f.destination, "new-owner");
+    if (kind === "same-content-replacement") { rmSync(f.destination); writeFileSync(f.destination, credentialPayload(f.values), { mode: 0o600 }); }
+    if (kind === "symlink") { rmSync(f.destination); symlinkSync(f.options.config, f.destination); }
+    if (kind === "status-race") {
+      const invoke = f.deps.ownershipAdb; let reads = 0;
+      f.deps.ownershipAdb = args => {
+        if (args.at(-1) === "files/acceptance/physical-status" && ++reads === 2) f.finishStatus.phase = "connect-h1";
+        return invoke(args);
+      };
+    }
+    const result = finishCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, false, kind);
+    assert.equal(result.destinationRemoved, false, kind);
+    assert.equal(existsSync(f.destination), true, kind);
+    assert.equal(readFileSync(f.options.config, "utf8"), "version: 1\n");
+    assertNoSecrets(result);
+  }
+});
+
+test("normally cleaned credentials allow a new attested sequential session without adopting the old destination", t => {
+  const f = ownershipFixture(t); f.stage(); f.completed();
+  assert.equal(finishCredentialSession(f.options, f.deps).eligible, true);
+  const oldOwnership = f.options.ownership;
+  f.options.output = join(f.directory, "second-staging.json");
+  f.options.ownership = join(f.directory, "second-credential-owner.json");
+  f.options.label = "second-arm";
+  f.deps.ownershipToken = () => "c".repeat(32);
+  const second = stagePhysicalCredentials(f.options, f.deps);
+  assert.equal(second.eligible, true, JSON.stringify(second));
+  assert.equal(existsSync(join(f.app, "files/acceptance/.credential-owner-" + "c".repeat(32))), true);
+  assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
+  assert.equal(JSON.parse(readFileSync(`${oldOwnership}.finish.json`)).eligible, true);
+});
+
+test("diag9: retained AM pre-spawn failure automatically rolls back a proved owner without spawning", async t => {
+  const f = ownershipFixture(t); f.stage();
+  const options = { ...f.options, "credential-ownership": f.options.ownership,
+    owner: join(f.directory, "am-owner.json"), stdout: join(f.directory, "am.stdout"), stderr: join(f.directory, "am.stderr") };
+  let spawned = false; let cleanup;
+  await assert.rejects(runInstrumentationSession(options, { ...f.deps,
+    foreground: () => ({ inputTTY: false, outputTTY: false }),
+    spawn: () => { spawned = true; throw new Error("must not spawn"); }, onCredentialRollback: result => { cleanup = result; } }));
+  assert.equal(spawned, false); assert.equal(cleanup.eligible, true);
+  assert.equal(existsSync(f.destination), false); assert.equal(existsSync(options.owner), false);
+});
+
+test("diag9: no-spawn AM failure with unknown credentials never authorizes cleanup", async t => {
+  const f = ownershipFixture(t);
+  mkdirSync(dirnameForTest(f.destination), { recursive: true, mode: 0o700 });
+  writeFileSync(f.destination, "legacy-unmarked", { mode: 0o600 });
+  let cleanup;
+  await assert.rejects(runInstrumentationSession({ ...f.options, "credential-ownership": f.options.ownership,
+    owner: join(f.directory, "am-owner.json"), stdout: join(f.directory, "am.stdout"), stderr: join(f.directory, "am.stderr") },
+  { ...f.deps, foreground: () => ({ inputTTY: false, outputTTY: false }), onCredentialRollback: result => { cleanup = result; } }));
+  assert.equal(cleanup.eligible, false); assert.equal(readFileSync(f.destination, "utf8"), "legacy-unmarked");
+});
 
 function assertNoSecrets(report) {
   const text = JSON.stringify(report);
@@ -734,8 +980,91 @@ test("an existing credential file is never overwritten or removed on failure", (
   const report = stagePhysicalCredentials(f.options, f.deps);
   assert.equal(report.eligible, false);
   assert.equal(report.reason, "device-staging-failed");
+  assert.equal(report.stageDiagnostic.marker, "verified");
+  assert.equal(report.stageDiagnostic.phase, "destination-absent");
+  assert.equal(report.stageDiagnostic.reason, "credential-destination-present");
   assert.equal(readFileSync(file, "utf8"), "other-owner");
   assert.deepEqual(readdirSync(join(f.app, "files/acceptance")), ["credentials"]);
+});
+
+test("W83rhj remote stage phases distinguish namespace, copy and inspection failures without reading credentials", t => {
+  for (const [kind, phase, reason, setup] of [
+    ["files-symlink", "files-guard", "files-symlink-rejected", f => symlinkSync(f.directory, join(f.app, "files"))],
+    ["acceptance-symlink", "acceptance-guard", "acceptance-symlink-rejected", f => {
+      mkdirSync(join(f.app, "files"), { mode: 0o700 }); symlinkSync(f.directory, join(f.app, "files/acceptance"));
+    }],
+    ["directory-create", "directory-create", "acceptance-directory-create-failed", f => { f.shellPrelude = 'mkdir() { return 17; }\n'; }],
+    ["directory-mode", "directory-mode", "acceptance-directory-mode-failed", f => { f.shellPrelude = 'chmod() { return 18; }\n'; }],
+    ["dangling-destination", "destination-guard", "credential-destination-symlink-rejected", f => {
+      mkdirSync(join(f.app, "files/acceptance"), { recursive: true, mode: 0o700 });
+      symlinkSync(join(f.directory, "absent"), join(f.app, "files/acceptance/credentials"));
+    }],
+    ["temporary-collision", "temporary-create", "staging-exclusive-create-failed", f => {
+      mkdirSync(join(f.app, "files/acceptance"), { recursive: true, mode: 0o700 });
+      writeFileSync(join(f.app, "files/acceptance/credentials.pending-fixture-token"), "existing-owner", { mode: 0o600 });
+    }],
+    ["copy", "copy", "staging-copy-failed", f => { f.shellPrelude = 'cat() { return 19; }\n'; }],
+    ["temporary-mode", "temporary-mode", "staging-mode-failed", f => {
+      f.shellPrelude = 'chmod() { if [ "$1" = 600 ]; then return 20; fi; command chmod "$@"; }\n';
+    }],
+    ["inspect", "inspect", "staging-inspection-failed", f => f.failStat("%a", 21)],
+  ]) {
+    const f = fixture(t);
+    setup(f);
+    const report = stagePhysicalCredentials(f.options, f.deps);
+    assert.equal(report.eligible, false, kind);
+    assert.equal(report.reason, "device-staging-failed", kind);
+    assert.equal(report.stageDiagnostic.marker, "verified", kind);
+    assert.equal(report.stageDiagnostic.phase, phase, kind);
+    assert.equal(report.stageDiagnostic.reason, reason, kind);
+    assert.equal(report.stageDiagnostic.exitCode, report.steps.stage.exitCode, kind);
+    assert.equal(report.steps.publish.outcome, "not-run", kind);
+    assertPrivateOutcomesOnly(report);
+  }
+});
+
+test("stage diagnostics distinguish run-as and transport failures while absent or contradictory markers remain unattributed", () => {
+  const cases = [
+    [{ status: 1, stderr: "" }, "staging-failure-unattributed"],
+    [{ status: 1, stderr: `run-as: package ${USER} is not debuggable\n` }, "staging-run-as-denied"],
+    [{ status: 1, stderr: `run-as: unknown package: ${PASSWORD}\n` }, "staging-run-as-package-unavailable"],
+    [{ status: 1, stderr: `error: device '${USER}' not found\n` }, "staging-adb-device-unavailable"],
+    [{ status: null, error: { code: "ENOENT", message: PASSWORD }, stderr: USER }, "staging-executable-unavailable"],
+    [{ status: null, error: { code: "ETIMEDOUT", message: PASSWORD } }, "staging-timeout"],
+    [{ status: null, signal: "SIGTERM", stderr: "" }, "staging-terminated"],
+    [{ status: 1, stderr: "staging-step destination-absent 0\n" }, "staging-failure-unattributed"],
+    [{ status: 1, stderr: "staging-step destination-absent 1\nstaging-step files-guard 1\n" }, "staging-failure-unattributed"],
+    [{ status: 1, stderr: `staging-step ${PASSWORD} 1\n` }, "staging-failure-unattributed"],
+  ];
+  for (const [input, reason] of cases) {
+    const result = credentialStageDiagnostic(input);
+    assert.equal(result.reason, reason);
+    assert.equal(result.phase, null);
+    assertNoSecrets(result);
+    assert.doesNotMatch(JSON.stringify(result), /message|SIGTERM/);
+  }
+  const success = credentialStageDiagnostic({ status: 0, stderr: "staging-step complete 0\n" });
+  assert.equal(success.reason, "staging-complete");
+  assert.equal(success.phase, "complete");
+  assert.equal(success.marker, "verified");
+});
+
+test("even a zero stage exit and owned source cannot publish without its exact complete terminal marker", t => {
+  for (const stderr of ["", "staging-step copy 0\n", "staging-step complete 0\nstaging-step complete 0\n"]) {
+    const f = fixture(t); const original = f.adb;
+    f.adb = (...args) => {
+      const result = original(...args);
+      if (f.calls.length === 1) result.stderr = stderr;
+      return result;
+    };
+    const report = stagePhysicalCredentials(f.options, f.deps);
+    assert.equal(report.eligible, false);
+    assert.equal(report.reason, "device-staging-terminal-unproven");
+    assert.equal(report.steps.publish.outcome, "not-run");
+    assert.equal(report.steps.cleanup.outcome, "ok");
+    assert.equal(existsSync(join(f.app, "files/acceptance/credentials")), false);
+    assertPrivateOutcomesOnly(report);
+  }
 });
 
 test("exclusive staging failures do not clean another owner's file or follow a symlink", (t) => {

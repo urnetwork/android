@@ -47,8 +47,12 @@ export function requireArtifactPaths(binding, paths, dependencies = {}) {
   if (current.canonical !== binding.canonical || current.device !== binding.device || current.inode !== binding.inode) {
     fail("artifact-directory-replaced");
   }
+  // File hashes retain real paths. An ancestor alias (macOS /tmp, for example)
+  // can therefore give an intact receipt a different spelling of the same
+  // direct parent. Accept only the original or its bound canonical spelling;
+  // both still depend on the original directory's identity check above.
   if (!Array.isArray(paths) || !paths.length || paths.some((path) => typeof path !== "string" || !path ||
-      dirname(resolve(path)) !== binding.directory)) fail("artifact-path-outside-directory");
+      ![binding.directory, binding.canonical].includes(dirname(resolve(path))))) fail("artifact-path-outside-directory");
   return true;
 }
 

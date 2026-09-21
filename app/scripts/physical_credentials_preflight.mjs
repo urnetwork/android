@@ -15,6 +15,8 @@ const SELF = fileURLToPath(import.meta.url);
 const HELPER = fileURLToPath(new URL("./physical_credentials.mjs", import.meta.url));
 const READER = fileURLToPath(new URL("../../../tests/read-tests-config.sh", import.meta.url));
 const ARTIFACT_HELPER = fileURLToPath(new URL("./physical_artifact_directory.mjs", import.meta.url));
+const OWNERSHIP_HELPER = fileURLToPath(new URL("./physical_credential_ownership.mjs", import.meta.url));
+const NATIVE_HELPER = fileURLToPath(new URL("./physical_native_provenance.mjs", import.meta.url));
 const MAX_OUTPUT = 64 * 1024;
 class PreflightError extends Error {}
 const fail = (reason) => { throw new PreflightError(reason); };
@@ -84,7 +86,8 @@ export function credentialParserProvenance(env = process.env) {
   const root = env.URNETWORK_ROOT || resolve(dirname(READER), "..");
   const override = env.UR_ACCEPT_TEST_CONFIG_READER;
   const sources = { stagingHelper: fileHash(HELPER), preflightHelper: fileHash(SELF), sharedReader: fileHash(READER),
-    artifactDirectoryHelper: fileHash(ARTIFACT_HELPER), nodeExecutable: fileHash(process.execPath, true) };
+    artifactDirectoryHelper: fileHash(ARTIFACT_HELPER), credentialOwnershipHelper: fileHash(OWNERSHIP_HELPER),
+    nativeProvenanceHelper: fileHash(NATIVE_HELPER), nodeExecutable: fileHash(process.execPath, true) };
   const toolVersions = { node: process.version, parserMode: override ? "override" : "go-run" };
   if (override) sources.parserExecutable = fileHash(executablePath(override, env), true);
   else {

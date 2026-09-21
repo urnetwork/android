@@ -253,6 +253,14 @@ fails with a fixed `…-no-consumer-spawn` reason; never continue or reuse parti
 artifacts. The consumer also rejects missing/nonzero/altered writer receipts;
 it binds the zero exit and joined outcome to the original before manifest,
 explicit profile/task arguments and current helper/private-log hashes.
+Canonical log paths remain valid through an ancestor alias such as macOS
+`/tmp` -> `/private/tmp`; the guard accepts only the original or bound canonical
+direct parent and rechecks the original directory's device/inode/canonical
+identity. The `WhH7v8` consumer failure was this lexical-alias bug: the receipt,
+helper hashes and private logs were intact. It did not show source mutation.
+The directory helper is now a frozen manifest and writer-receipt input too.
+After any selected-source/helper change, use a fresh independent arm and before
+capture; never retry a failed arm by reusing its writer receipt or partial proof.
 Run `check --proof ... --build-id ...` immediately before first device
 install/launch; the retained AM supervisor requires `--native-inputs` and
 rechecks current source linkage itself before spawning adb.
@@ -298,6 +306,7 @@ INSTRUMENTATION_OWNER="$ARTIFACT_DIR/$LABEL.instrumentation-owner.json"
 exec node "$ROOT/android/app/scripts/physical_collector_session.mjs" run-instrumentation \
   --artifact-dir "$ARTIFACT_DIR" \
   --native-inputs "$NATIVE_INPUTS_PROOF" \
+  --credential-ownership "$ARTIFACT_DIR/$LABEL.credential-owner.json" \
   --owner "$INSTRUMENTATION_OWNER" \
   --stdout "$ARTIFACT_DIR/$LABEL.instrumentation.stdout" --stderr "$ARTIFACT_DIR/$LABEL.instrumentation.stderr" \
   --serial "$SERIAL" --label "$LABEL" --build-id "$ACCEPTANCE_BUILD_ID"
@@ -411,13 +420,13 @@ case "$SESSION_MODE" in
     node "$ROOT/android/app/scripts/physical_collector_session.mjs" check-role \
       --serial "$SERIAL" --session-mode h1 --connect-command-id "$CONNECT_ID" \
       --instrumentation-owner "$INSTRUMENTATION_OWNER" \
-      >"$PRIVATE_DIR/role-ready.json" || exit 2
+      >"$PRIVATE_DIR/role-ready.json" 2>"$PRIVATE_DIR/role-check.stderr" || exit 2
     ;;
   direct)
     node "$ROOT/android/app/scripts/physical_collector_session.mjs" check-role \
       --serial "$SERIAL" --session-mode direct \
       --instrumentation-owner "$INSTRUMENTATION_OWNER" \
-      >"$PRIVATE_DIR/role-ready.json" || exit 2
+      >"$PRIVATE_DIR/role-ready.json" 2>"$PRIVATE_DIR/role-check.stderr" || exit 2
     ;;
   *) exit 2 ;;
 esac
@@ -431,6 +440,20 @@ Its 150-second prerequisite deadline accommodates the existing 120-second app
 connect wait plus command polling; no telemetry/coverage timeout is extended.
 Error, malformed/missing status, process replacement or a competing command
 fails setup. Direct is an immediate disconnected-role check, not a VPN wait.
+
+Retain `role-check.stderr` under the same mode-0700 directory with mode 0600.
+A failed status read now emits one fixed-classification JSON record alongside
+the failure reason: transport/exit category, output byte counts, status-schema
+failure category, and ready-target continuity booleans. It never prints raw
+status, stderr, IDs, serials or paths, and never retries the failed read. A
+`status-path-missing` result means only that the read saw a missing path; even
+with the same live target before/after, it does **not** prove a publication race.
+The invalid `DQlHyJ` arm retained successful idle diagnostic receipts but not
+the failed read's underlying result, so its cause cannot be assigned between
+ADB/read failure, a status predicate failure, or the test writer's known
+delete-before-rename gap. Its H1 `tee` then `mv` command has no nested `sh -c`
+quoting contract. Do not patch over missing evidence by accepting stale status,
+retrying into the cohort, or changing the app based only on this hypothesis.
 
 ### Mandatory quiet-window evidence gate
 
@@ -529,6 +552,31 @@ The workload body is a private shell file, not a new benchmark runner. It wraps
 the existing commands unchanged. For the normal public block, use the exact
 child list `wiki,fast-1,fast-2,fast-3,cnn,bloomberg` and this pattern:
 
+Before writing the body or **any** label-local stdout/stderr/receipt, create the
+exact fresh label directory under the already validated mode-0700 private root.
+Do this during arm setup, before native build/instrumentation/traffic:
+
+```sh
+umask 077
+: "${PRIVATE_DIR:?exact private LABEL directory required}"
+node "$ROOT/android/app/scripts/physical_artifact_directory.mjs" create \
+  --directory "$PRIVATE_DIR" || exit 2
+# Only after the eligible directory result: write traffic-workload.sh there.
+```
+
+This helper creates only a missing leaf as 0700; it never adopts/repairs an
+existing 0755 directory or symlink. Do not let an editor/patch implicitly create
+the label directory with its default permissions. Keep the fixed directory
+result on the retained host output until the destination has been validated.
+
+The currently scoped iOS owner-diagnostic arm uses only
+`wiki,fast-1,fast-2,fast-3` plus cleanup: omit the CNN/Bloomberg commands below.
+Before any traffic, validate the exact cleanup invocation offline:
+`node "$RECEIPT" validate -- cleanup --serial "$SERIAL"`. This only parses
+arguments; it never connects to a device or stops a browser. The workload must
+later use `node "$RECEIPT" cleanup --serial "$SERIAL"` exactly. Cleanup is a
+built-in verified operation, **not** a wrapper accepting `-- adb ...`.
+
 ```sh
 # Private traffic-workload.sh; inherited variables must be exported by owner.
 # Do not use set -e: ordinary probe failures remain in their child receipts,
@@ -547,7 +595,7 @@ node "$RECEIPT" child --name bloomberg -- node "$SCRIPTS/chrome_video_probe.mjs"
   --port "$CDP_PORT" --navigate "$BLOOMBERG_URL" >"$PRIVATE_DIR/bloomberg.json" 2>"$PRIVATE_DIR/bloomberg.stderr"
 # Explicitly stop Chrome, including background targets; verify pidof is empty.
 # This does not stop/restart the VPN or instrumentation.
-node "$RECEIPT" cleanup --serial "$SERIAL"
+node "$RECEIPT" cleanup --serial "$SERIAL" >"$PRIVATE_DIR/chrome-cleanup.stdout" 2>"$PRIVATE_DIR/chrome-cleanup.stderr"
 ```
 
 For the video commands above, `--navigate` without `--target-id` creates an
@@ -569,6 +617,7 @@ Per-child redirection in `traffic-workload.sh` remains unchanged:
 
 ```sh
 # WORKLOAD executor call: retained foreground PTY; no later commands in this call.
+umask 077
 : "${ROOT:?workspace root required}" "${SERIAL:?pinned serial required}" "${LABEL:?frozen arm label required}"
 export SERIAL CDP_PORT PRIVATE_DIR CNN_URL BLOOMBERG_URL
 export SCRIPTS="$ROOT/android/app/scripts"
@@ -579,20 +628,109 @@ export RECEIPT="$SCRIPTS/physical_workload_receipt.mjs"
 : "${PRIVATE_DIR:?private workload directory required}"
 : "${SCRIPTS:?Android script directory required}"
 : "${RECEIPT:?workload receipt helper required}"
+node "$SCRIPTS/physical_artifact_directory.mjs" check \
+  --directory "$PRIVATE_DIR" || exit 2
+node "$RECEIPT" script-preflight --label "$LABEL" \
+  --output "$PRIVATE_DIR/workloads.json" \
+  >"$PRIVATE_DIR/script-preflight.stdout.json" \
+  2>"$PRIVATE_DIR/script-preflight.stderr" || exit 2
 collector_pid=$(node "$SCRIPTS/physical_collector_session.mjs" check \
   --owner "$PRIVATE_DIR/collector-owner.json" --timeout-ms 15000) || exit 2
-exec node "$RECEIPT" owner --serial "$SERIAL" --label "$LABEL" \
+exec node "$RECEIPT" owner-script --serial "$SERIAL" --label "$LABEL" \
   --collector-pid "$collector_pid" --telemetry "$TELEMETRY" \
   --children wiki,fast-1,fast-2,fast-3,cnn,bloomberg \
-  --output "$PRIVATE_DIR/workloads.json" -- sh "$PRIVATE_DIR/traffic-workload.sh"
+  --output "$PRIVATE_DIR/workloads.json"
 # A tool yield means STILL RUNNING. Resume/join this exact owner to exit 0.
 # If it exits nonzero, finish/clean up the failed attempt; do not start quiet.
 ```
+
+Use `owner-script` for physical arms: it derives `traffic-workload.sh` as the
+exact direct child of the frozen label directory instead of accepting a second
+handwritten path. For this layout `PRIVATE_DIR` must end in `LABEL` and the
+output must be `PRIVATE_DIR/workloads.json`. It also supports RUN-PERF's
+`private/LABEL.workloads.json` output, deriving `private/LABEL/traffic-workload.sh`.
+The private directory and its parent must already be owned mode 0700; the body
+must be an owned regular file, not a symlink or group/other-writable file.
+No missing path is created or repaired. The invalid `1eGmda` arm selected a
+different label's body path; this is now rejected before collector inspection
+or body launch, rather than becoming an outer shell error.
+
+The offline preflight exclusively writes `workloads.json.script-preflight.json`
+(0600), binding the directory, script inode/hash and actual final built-in
+cleanup line. Keep that line exactly as shown above, optionally with
+`>"$PRIVATE_DIR/chrome-cleanup.stdout" 2>"$PRIVATE_DIR/chrome-cleanup.stderr"`.
+It cannot be a comment, `cleanup -- adb ...`, or followed by `|| true`/another
+command. Preflight failure is `INVALID_WORKLOAD_SCRIPT`; untrusted/missing
+parents may prevent file publication and retain only the fixed CLI failure.
+The owner rechecks the same binding immediately before spawn, derives
+`PRIVATE_DIR`, `SERIAL`, `RECEIPT`, and `SCRIPTS` for the body, and does not accept
+a replacement script or failed preflight. Preserve
+`.script-preflight.failed.json` on recheck failure. These guards neither run
+the body nor validate arbitrary shell semantics. Legacy `owner -- sh ...`
+calls are also path-checked; they are not a bypass or the physical runbook form.
+
+Keep the producer's `|| exit 2` gate even if stdout is redirected: it publishes
+a private receipt for **both** success and failure, so existence is not success.
+`script-preflight.stdout.json` is a proof-free console summary, not the receipt;
+never redirect it to `workloads.json.script-preflight.json`. A successful private
+receipt has schema 1, type `workload-script-preflight`, `eligible: true`,
+classification `WORKLOAD_SCRIPT_READY`, reason
+`exact-label-script-and-cleanup-verified`, and the complete matching proof.
+The owner verifies all of these plus the exact label/hash/file identities.
+
+In invalid arm `7V4Dk3`, the final cleanup used different log redirections from
+the exact form above. Preflight correctly published `eligible: false` with
+`exact-final-cleanup-serial-required`; its call lacked the exit-status gate and
+the owner then correctly rejected it as `passing-script-preflight-required`.
+This was not a success-receipt schema mismatch or stdout overwriting the receipt.
+Use the exact body and gated launch on a fresh arm; do not edit/reuse the failed
+arm or convert its negative evidence into success.
+
+In invalid arm `FNr3Q9`, the producer did run: its fixed stderr was
+`artifact-directory-mode-not-0700`. The arm's private root was 0700, but its label
+directory was 0755 and the redirected stderr was 0644. A regular body and exact
+cleanup line cannot qualify that output parent. There was no successful receipt
+or eligible classification; do not infer a command-launch or schema failure.
+The producer/owner now check the private root and label directory first. If only
+the label directory is missing/untrusted, they retain an exclusive 0600
+`private/LABEL.workload-script-launch.failed.json` in the verified private root;
+the negative launch record is not a script proof and blocks both output layouts
+even after a later permission change. If the root itself is untrusted or failure
+publication is unavailable, preserve only the fixed CLI outcome; never write a
+fallback elsewhere, repair the directory, or reuse that arm. The directory
+guard above runs before shell redirection, so even the logs require a safe parent.
 
 Ordinary completed probe exit codes (for example video exit 2) remain in the
 receipt and `failedChildCount`; they are not performance/correctness successes.
 They permit diagnostic quiet collection only after all work is joined. Keep
 every original result; no retry or baseline promotion hides those failures.
+
+The invalid `8vdtZ8` arm actually had four nested child completion receipts,
+all exit 0 and uninterrupted. Its body then invoked
+`cleanup -- adb -s "$SERIAL" shell am force-stop com.android.chrome`; the
+parser rejected this before cleanup started. The outer shell exited nonzero,
+and the old owner omitted its failure receipt. Do not infer missing children
+from a top-level directory scan: child records live in
+`workloads.json.owner-OWNER_ID/`.
+
+After owner publication, handled owner failures now retain private
+`workloads.json.failed.json`; child/cleanup failures retain
+`NAME.failed.json` beside their started/completed records, including malformed
+cleanup arguments. These record fixed reason/stage, observed exit/signal or
+launch failure, and whether process-group join was actually observed. They
+never replace `workloads.json`, satisfy quiet-start, or permit a same-attempt
+retry. An ordinary completed nonzero probe retains its original complete
+receipt/exit code; an outer `set -e` abort is a failed owner. Pre-launch failures
+still need the retained executor's fixed reason/exit evidence.
+
+SIGKILL, executor loss, or unavailable storage cannot guarantee a final write.
+Retain the existing owner/started records and classify their missing terminal
+without inventing an exit, signal, or cleanup result. A read-only inspection is:
+`node "$RECEIPT" inspect --owner "$WORKLOAD_OWNER_JSON" --output "$PRIVATE_DIR/workloads.json"`.
+It reports only artifact counts, liveness verification and fixed classifications;
+`eligible` is always false and it is never a replacement for the completion
+gate. Even when an owner failure file exists, finish/join test-owned processes
+through the common cleanup path before starting a separate fresh arm.
 
 Before normal completion, require that owner to terminate, then use
 `physical_quiet_phase.mjs` below to issue and acknowledge the quiet boundary.
@@ -733,8 +871,10 @@ node app/scripts/physical_artifact_directory.mjs check \
 node app/scripts/physical_credentials.mjs \
   --serial "$SERIAL" --schema user-pass --config "$HOME/urnetwork/.tests.yml" \
   --artifact-dir "$ARTIFACT_DIR" \
+  --ownership "$ARTIFACT_DIR/$LABEL.credential-owner.json" \
+  --native-inputs "$NATIVE_INPUTS_PROOF" --label "$LABEL" --build-id "$ACCEPTANCE_BUILD_ID" \
   --preflight "$ARTIFACT_DIR/$LABEL.credential-parser-preflight.json" \
-  --output "$ARTIFACT_DIR/$LABEL.credential-staging.json"
+  --output "$ARTIFACT_DIR/$LABEL.credential-staging.json" || exit 2
 ```
 
 Require exit 0 and `eligible=true` before instrumentation. The user-provided
@@ -751,8 +891,10 @@ node app/scripts/physical_credentials.mjs \
   --serial "$SERIAL" --schema data-plane-account \
   --config "$ROOT/vault/main/tests.yml" \
   --artifact-dir "$ARTIFACT_DIR" \
+  --ownership "$ARTIFACT_DIR/$LABEL.credential-owner.json" \
+  --native-inputs "$NATIVE_INPUTS_PROOF" --label "$LABEL" --build-id "$ACCEPTANCE_BUILD_ID" \
   --preflight "$ARTIFACT_DIR/$LABEL.credential-parser-preflight.json" \
-  --output "$ARTIFACT_DIR/$LABEL.credential-staging.json"
+  --output "$ARTIFACT_DIR/$LABEL.credential-staging.json" || exit 2
 ```
 
 That selects exactly `data_plane_account.email` and `data_plane_account.password`.
@@ -803,6 +945,42 @@ rename or device hardlink. The final path exists during the bounded copy:
 instrumentation/consumer**. A yielded executor is not a completed helper.
 Publication must not overlap another instrumentation or cleanup owner.
 
+New physical arms must retain the separate `--ownership` capability from the
+commands above and pass it to the retained AM supervisor. It is published
+only after joined successful staging and binds the exact serial/label/attested
+build/input owner, staging receipt, random device marker and salted file
+fingerprint (contents plus inode/device and nanosecond modification/change
+identity). Keep it mode 0600/private: no capability token/fingerprint/native
+identity in public reports. It contains neither credential values nor an
+unsalted credential digest. Parser preflight hashes these new helper
+dependencies, so a pre-change preflight cannot authorize new staging.
+
+On a terminal setup failure **before instrumentation handoff**, run:
+
+```sh
+node app/scripts/physical_credential_ownership.mjs rollback \
+  --ownership "$ARTIFACT_DIR/$LABEL.credential-owner.json" \
+  --serial "$SERIAL" --label "$LABEL" --build-id "$ACCEPTANCE_BUILD_ID"
+```
+
+Remain `INVALID_SETUP`; this is cleanup, not a retry or an auth correction.
+The AM supervisor automatically calls this helper on pre-spawn exceptions.
+It requires a stopped target app, complete matching host/device proof, no
+handoff/terminal/crashed-operation marker, and unchanged files; it reopens and
+compares both files before removing only its credential and owner marker.
+Host operations are serialized, and the single-session/no-concurrent-same-UID
+mutation rule remains mandatory: this is not a hostile-writer atomic unlink.
+Missing/crashed/unknown/substituted ownership is preserved. Immediately before
+AM spawn, an irreversible private handoff disables rollback and removes only
+the marker, leaving credentials for normal login. Post-handoff failures use
+the joined session cleanup, never this setup rollback.
+
+The stale unmarked `diag9` credential predates this proof and **cannot be
+adopted or automatically deleted**. Request explicit user approval for that
+exact stopped-session file removal, or ask the user to clear app data.
+Never recursively clear acceptance storage or guess ownership from a recycled
+inode. Full contract: [prospective rollback](../../../tests/RUN-PERF.md#prospective-credential-setup-rollback).
+
 Diagnostics distinguish `steps.create` (exclusive open), `steps.copy`,
 `steps.inspect` (final structural/hash inspection), and `steps.publish` (whole
 remote command). The shell keeps the destination descriptor open through
@@ -824,6 +1002,29 @@ abort setup and preserve it for explicit stopped-session cleanup, never guess
 ownership from a reusable inode, overwrite it or silently retry. These shell
 checks assume the protocol's single session owner; they are not an atomic
 compare-and-unlink defense against a concurrent same-UID path mutator.
+
+For `device-staging-failed` **before** publication, retain the schema-3 report's
+additive `stageDiagnostic`. It contains only a fixed phase/reason, matched-marker
+status, numeric exit, timeout flag and classified transport/stderr category.
+The stage shell emits one fixed terminal marker: files/acceptance symlink
+guards, directory create/mode, destination absent/symlink guards, temporary
+exclusive create, copy, temporary mode, inspection, or complete. Only one marker
+matching the joined exit can attribute a phase; missing/conflicting markers stay
+unattributed. Run-as denial/package absence and ADB/tool/timeout categories are
+separate from remote filesystem failures. No raw stderr, credential values,
+hashes, package names or serials are retained. A zero exit additionally needs the
+exact `complete` marker before publication; ownership/byte/structure checks
+remain mandatory. Existing destinations are never overwritten/adopted/removed
+by a failed stage, and no failure authorizes retry.
+
+In `W83rhj`, parser preflight passed and the values passed local structural
+validation, but remote staging exited 1 before its ownership marker; every
+publication/cleanup substep was not-run. Its older receipt has no phase marker,
+so existing destination, directory guard and run-as/transport failures cannot
+be distinguished retrospectively. No authentication occurred: this is **not**
+evidence of an incorrect account/password. Preserve the invalid arm; use the
+classified evidence on a separately authorized fresh arm, not speculative
+credential changes or cleanup of a destination whose ownership is unknown.
 
 To test only the run-as filesystem publication primitive, with no credential
 file/config read and no authentication, use a fresh private output path:
@@ -980,10 +1181,11 @@ does not restore credentials, retry authentication or change acceptance gates.
 
 No gate bypass or manual retry is allowed after a staging failure. Take the
 common cleanup path; a disconnected/interrupted host can leave private files
-that require cleanup before a fresh session. Never put credentials or the
+that require explicitly authorized cleanup before a fresh session if ownership
+cannot be proved. Never put credentials or the
 retained acceptance client ID in a command line or checked-in artifact.
 Release the retained client with `build/all/acceptance/client-cleanup.mjs`,
-then remove the host/device private files on every exit. The staging helper
+then remove only owned host/device private files. The staging helper
 does not change app authentication semantics or start an instrumentation run.
 
 `physical-memory.ndjson` separates Go live/allocated/in-use/idle/released heap,
@@ -1041,17 +1243,63 @@ nonempty schema-1 private file. An old SDK binding fails closed; compiling the
 test APK alone does not demonstrate availability. Verify its reported sampling
 rate is 65536 in addition to the normal iOS-profile gate.
 
-The exact private command protocol is `UNIQUE_ID|owner-census|LABEL`, for
-example `diag-idle-owners|owner-census|idle-before-gc`. Write to a fresh temporary
-command file with `adb -s "$SERIAL" shell run-as com.bringyour.network tee
-files/acceptance/physical-command.UNIQUE_ID`, then rename it to
-`files/acceptance/physical-command` through the same `shell run-as` context.
-Do not use `exec-out` for command stdin. Wait for that exact command ID to
-reach `complete` before issuing another command; `running`, process exit, or
-an old status is not completion. Census labels must be 1–64 characters, start
-with an ASCII letter/digit, and otherwise use letters/digits/`._-`. Never reuse
-a label: the writer exclusively creates a mode-0600 file named
-`physical-owners-LABEL.json` and refuses existing evidence.
+Use the host diagnostic publisher, not an inline `adb ... sh -c` command:
+
+```sh
+node "$ROOT/android/app/scripts/physical_diagnostic_command.mjs" \
+  --serial "$SERIAL" --owner "$INSTRUMENTATION_OWNER" \
+  --command-id "$COMMAND_ID" --verb owner-census --label "$CENSUS_LABEL" \
+  --output "$ARTIFACT_DIR/$COMMAND_ID.command.json"
+# After successful exact completion, copy the receipt's fixed diagnostic file.
+node "$ROOT/android/app/scripts/physical_diagnostic_copy.mjs" \
+  --serial "$SERIAL" --receipt "$ARTIFACT_DIR/$COMMAND_ID.command.json" \
+  --output "$ARTIFACT_DIR/$COMMAND_ID.owners.json"
+```
+
+Set a fresh command ID and label first. Owner and output must be direct
+children of the same existing owned mode-0700 host artifact directory; the
+output must not exist. The helper supports only `owner-census`, `heap-profile`,
+and `goroutine-stacks`. It verifies the live retained AM supervisor/ADB child
+and ready-bound target before publication and through the exact `complete`
+acknowledgment, rejecting role/PID changes or competing commands. It does not
+create app storage, restart an app, change the VPN role, or read diagnostic
+contents. `running`, process exit, an old status, or a timeout is not success;
+there is no automatic retry. Use `physical_diagnostic_copy.mjs` for the private
+download, then validate its schema where applicable. The copy helper derives
+the exact app filename from a complete, private, serial-bound receipt. It
+streams raw bytes directly into an exclusively created mode-0600 file before
+publishing it, independently of the caller's umask, and refuses existing files,
+symlinks, untrusted directories, empty data or failed reads. Only byte counts
+and the fixed artifact kind are returned; raw profiles/stacks never enter its
+output. For heap/stacks choose a fresh `.pprof`/`.txt` host output instead. Do
+not use shell redirection or `adb pull` to bypass this permission guard. This
+copy is evidence collection, not validation or rehabilitation of a failed arm.
+
+For all three diagnostic verbs, the app acknowledges with the exact phase
+`VERB-LABEL` in both `running` and `complete` statuses (for example,
+`owner-census-preflight`), not the bare verb. The publisher requires this full
+phase, the exact command ID, and `complete`; a different label, partial match,
+or matching phase from a different ID cannot qualify. A diagnostic rejected by
+the earlier bare-verb check remains an invalid arm even if its private output
+was written; do not reuse it after correcting the host contract.
+
+The wire format remains `UNIQUE_ID|owner-census|LABEL`. IDs and labels must be
+1–64 characters, start with an ASCII letter/digit, and otherwise use
+letters/digits/`._-`. Never reuse either: the helper uses one exclusive
+mode-0600 temporary command write and an atomic rename, and rejects an existing
+diagnostic destination before publication. Census output is
+`physical-owners-LABEL.json`. Do not use `exec-out` for command stdin.
+
+The failed `J49FvL` diagnostic stopped before census or traffic. Its unquoted
+remote `sh -c` was reparsed by ADB: only argumentless `umask` ran under `run-as`,
+while redirections ran in the outer shell's working directory. The similarly
+unquoted follow-up `test` did not prove missing app storage. Precreating a
+temporary file before a second `set -C` redirect was a separate latent failure.
+The host fixture reproduces both with actual shell reparsing. The helper
+quotes the entire remote script and opens the temporary file only once. A
+genuinely absent acceptance directory or stale/stopped owner still fails
+closed; never repair it with `mkdir` or reuse the failed arm. Start a fresh
+fully attested arm after stopping/joining test-owned sessions.
 
 For a separately approved diagnostic arm, retain the ordinary continuous
 collector and workload-owner proof. At matched idle, joined post-traffic, and
@@ -1236,8 +1484,11 @@ Parser and eligibility tests are dependency-free:
 ```sh
 node --test app/scripts/physical_lowbar_capture_test.mjs \
   app/scripts/physical_collector_session_test.mjs \
+  app/scripts/physical_diagnostic_command_test.mjs \
+  app/scripts/physical_diagnostic_copy_test.mjs \
   app/scripts/chrome_readiness_test.mjs \
   app/scripts/physical_memory_profile_test.mjs \
   app/scripts/physical_workload_receipt_test.mjs \
+  app/scripts/physical_workload_script_test.mjs \
   app/scripts/physical_quiet_gate_test.mjs app/scripts/physical_quiet_phase_test.mjs
 ```

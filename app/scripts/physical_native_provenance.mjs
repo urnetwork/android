@@ -146,7 +146,7 @@ export function collectNativeInputs(options, dependencies = {}) {
   const tools = ["go", "gomobile", "gobind"].map(name => ({ name, ...inputFile((dependencies.toolPath ?? toolPath)(name, env)) }));
   for (const name of ["compile", "link", "asm", "cgo"]) tools.push({ name, ...inputFile(join(goEnv.GOTOOLDIR, name)) });
   const buildInputs = [join(cwd, "Makefile"), join(cwd, "sdk-android-output-lock.sh"), join(root, "sdk/build-android.sh"),
-    join(root, "android/app/app/build.gradle"), SELF].map(path => inputFile(path));
+    join(root, "android/app/app/build.gradle"), SELF, join(dirname(SELF), "physical_artifact_directory.mjs")].map(path => inputFile(path));
   const workspace = { mode: goEnv.GOWORK === "off" ? "off" : goEnv.GOWORK ? "active" : "none", file: null, sum: null, resolution: null };
   if (workspace.mode === "active") {
     workspace.file = inputFile(goEnv.GOWORK); workspace.sum = inputFile(`${goEnv.GOWORK}.sum`, true);
@@ -270,7 +270,8 @@ export function validateNativeManifest(manifest) {
       ![SDK, CONNECT, `${SDK}/build`, MOBILE].every(id => input.modules.some(module => module.path === id))) fail("complete-native-module-resolution-required");
   if (input.tools.length !== TOOL_NAMES.length || !TOOL_NAMES.every(name => input.tools.some(tool => tool.name === name)) ||
       ![join(input.workingDirectory, "Makefile"), join(input.workingDirectory, "sdk-android-output-lock.sh"),
-        join(manifest.root, "sdk/build-android.sh"), join(manifest.root, "android/app/app/build.gradle"), SELF]
+        join(manifest.root, "sdk/build-android.sh"), join(manifest.root, "android/app/app/build.gradle"), SELF,
+        join(dirname(SELF), "physical_artifact_directory.mjs")]
         .every(path => input.buildInputs.some(file => file.path === path))) fail("native-build-input-hashes-missing");
   for (const file of [...input.tools, ...input.buildInputs, ...input.bridgeInputs, ...input.moduleInputs, ...input.codeInputs]) {
     if (!isAbsolute(file.path ?? "") || typeof file.present !== "boolean" || !Number.isInteger(file.bytes) || file.bytes < 0 ||
@@ -388,7 +389,7 @@ export function nativeWriterArguments(buildId, profileRate, memoryProfile, maxWo
 }
 
 export function nativeWriterSourceHashes() {
-  return ["physical_native_writer.sh", "physical_native_writer.mjs", "physical_native_provenance.mjs"].map(name =>
+  return ["physical_native_writer.sh", "physical_native_writer.mjs", "physical_native_provenance.mjs", "physical_artifact_directory.mjs"].map(name =>
     ({ name, sha256: inputFile(join(dirname(SELF), name)).sha256 }));
 }
 

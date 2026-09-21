@@ -6,8 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import test, { after } from "node:test";
-import { bindInstrumentationReady, checkCollectorSession, checkSessionRole as actualCheckSessionRole,
-  instrumentationProcessIdentity, parseArgs, requireRetainedForeground,
+import { bindInstrumentationReady, checkCollectorSession, checkInstrumentationCommandSession, checkSessionRole as actualCheckSessionRole,
+  formatSessionFailure, statusReadFailureMetadata, instrumentationProcessIdentity, parseArgs, requireRetainedForeground,
   runCollectorSession as actualRunCollectorSession, runInstrumentationSession as actualRunInstrumentationSession } from "./physical_collector_session.mjs";
 
 const script = new URL("./physical_collector_session.mjs", import.meta.url).pathname;
@@ -314,6 +314,7 @@ test("MjXnWF: missing or incomplete native source linkage cannot launch instrume
     const f = instrumentationFixture(t);
     if (state !== "missing") writeFileSync(f.options["native-inputs"], JSON.stringify({ eligible: true }),
       { mode: state === "public" ? 0o644 : 0o600 });
+    if (state === "public") chmodSync(f.options["native-inputs"], 0o644); // A private harness umask must not repair this fixture.
     await assert.rejects(actualRunInstrumentationSession(f.options, { foreground: () => foreground,
       hostProcess: f.hostProcess,
       spawn: () => assert.fail("incomplete source evidence must not spawn any device command"),
@@ -379,6 +380,66 @@ test("host ps adapter recognizes the current supervisor without running a device
     spawn: () => { throw new Error("host-ps-adapter-verified"); },
   }), /host-ps-adapter-verified/);
   assert.equal(existsSync(f.options.owner), false);
+});
+
+test("diagnostic checks accept diagnostic phases only for a live ready-bound target and intact owner", async (t) => {
+  const f = instrumentationFixture(t);
+  await f.start();
+  const options = { owner: f.options.owner, serial: "fake-device" };
+  assert.throws(() => checkInstrumentationCommandSession(options, { hostProcess: f.hostProcess,
+    adb: () => assert.fail("unbound owner cannot query the target") }), /bound-ready/);
+  f.bind();
+  for (const state of ["running", "complete"]) {
+    const status = { ...connectedStatus, commandId: "census-fresh", state, phase: "owner-census-preflight" };
+    const report = checkInstrumentationCommandSession(options, { hostProcess: f.hostProcess, adb: roleAdb([status]) });
+    assert.equal(report.phase, "owner-census-preflight");
+    assert.equal(report.state, state);
+    assert.equal(report.transportMode, "h1");
+    assert.equal(report.sessionId, JSON.parse(readFileSync(f.options.owner, "utf8")).ownerId);
+  }
+  for (const delta of [{ elapsedMs: 99 }, { provideEnabled: undefined }]) {
+    assert.throws(() => checkInstrumentationCommandSession(options, { hostProcess: f.hostProcess,
+      adb: roleAdb([{ ...connectedStatus, ...delta }]) }), /target-process-changed|live-instrumentation-status-required/);
+  }
+  assert.throws(() => checkInstrumentationCommandSession(options, { hostProcess: f.hostProcess,
+    adb: args => args[3] === "pidof" ? { status: 0, stdout: "5678\n" }
+      : { status: 0, stdout: JSON.stringify({ ...connectedStatus, pid: 5678 }) } }), /target-process-changed/);
+  for (const deadPid of [process.pid, f.child.pid]) {
+    assert.throws(() => checkInstrumentationCommandSession(options, {
+      hostProcess: pid => pid === deadPid ? { status: 1, stdout: "" } : f.hostProcess(pid),
+      adb: () => assert.fail("dead host owner cannot query the target"),
+    }), /not-live/);
+  }
+  f.stop();
+  assert.equal(await f.result, 0);
+  assert.throws(() => checkInstrumentationCommandSession(options, {
+    adb: () => assert.fail("terminal owner cannot query the target"),
+  }), /already-finished/);
+});
+
+test("diagnostic status reads cannot hide host-owner death or receipt replacement during the read", async (t) => {
+  for (const changed of ["owner", "supervisor", "adb"]) {
+    const f = instrumentationFixture(t);
+    await f.start();
+    f.bind();
+    let observed = false;
+    const adb = roleAdb([connectedStatus]);
+    assert.throws(() => checkInstrumentationCommandSession({ owner: f.options.owner, serial: "fake-device" }, {
+      hostProcess: pid => observed && (changed === "supervisor" ? pid === process.pid : changed === "adb" && pid === f.child.pid)
+        ? { status: 1, stdout: "" } : f.hostProcess(pid),
+      adb: args => {
+        const result = adb(args);
+        if (args.at(-1) === "files/acceptance/physical-status") {
+          observed = true;
+          if (changed === "owner") {
+            const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+            writeFileSync(f.options.owner, JSON.stringify({ ...owner, label: "replaced" }));
+          }
+        }
+        return result;
+      },
+    }), /receipt-replaced|not-live/);
+  }
 });
 
 test("VaUc1l: live retained AM owner and target PID pass with no test-package PID and denied run-as signals", async () => {
@@ -475,6 +536,97 @@ test("private running and ready receipts are exclusive and cannot be replaced or
   reset();
   writeFileSync(`${path}.terminal.json`, "{}", { mode: 0o600 });
   await assert.rejects(checkSessionRole(options, { adb: () => assert.fail("finished owner must reject before device reads") }), /already-finished/);
+});
+
+test("DQlHyJ diagnostic: missing-path publication gap is distinct from ADB failure and never retried into success", async (t) => {
+  const f = fixture(t);
+  const statusFile = join(f.directory, "physical-status");
+  const pending = `${statusFile}.tmp`;
+  writeFileSync(statusFile, JSON.stringify(disconnectedStatus));
+  writeFileSync(pending, JSON.stringify(connectedStatus));
+  // Deterministically pause a delete-then-rename publisher in its gap. This
+  // proves how the read classifies that condition, not what the lost arm saw.
+  rmSync(statusFile);
+  let reads = 0;
+  let pidReads = 0;
+  await assert.rejects(checkSessionRole(h1Role, { adb: args => {
+    if (args[3] === "pidof") { pidReads++; return { status: 0, stdout: "1234\n" }; }
+    reads++;
+    assert.equal(existsSync(statusFile), false);
+    renameSync(pending, statusFile); // Recovery cannot make the failed read valid.
+    return { status: 1, stdout: "", stderr: "cat: files/acceptance/physical-status: No such file or directory\n" };
+  }, sleep: () => assert.fail("do not retry a missing status") }), error => {
+    const metadata = statusReadFailureMetadata(error);
+    assert.equal(metadata.outcome, "status-path-missing");
+    assert.equal(metadata.targetPresentBefore, true);
+    assert.equal(metadata.targetPresentAfter, true);
+    assert.equal(metadata.targetSetUnchanged, true);
+    assert.equal(metadata.transportError, null);
+    assert.equal(metadata.exitCode, 1);
+    assert.equal(metadata.stdoutBytes, 0);
+    const lines = formatSessionFailure(error).trim().split("\n");
+    assert.equal(lines[0], "collector session failed: live-instrumentation-status-required");
+    assert.deepEqual(JSON.parse(lines[1]), metadata);
+    assert.doesNotMatch(lines[1], /1234|fake-device|files\/acceptance|No such file|physical-status"/);
+    return true;
+  });
+  assert.equal(reads, 1);
+  assert.equal(pidReads, 2);
+  assert.equal(existsSync(statusFile), true);
+});
+
+test("failed-read metadata distinguishes bounded transport, JSON and schema outcomes without raw diagnostics", async () => {
+  const cases = [
+    [{ status: null, error: { code: "ETIMEDOUT", message: "private-raw" }, stderr: "private-raw" }, "adb-transport-error", "timeout"],
+    [{ status: null, error: { code: "ENOBUFS" } }, "adb-transport-error", "output-limit"],
+    [{ status: null, error: { code: "ENOENT" } }, "adb-transport-error", "spawn-unavailable"],
+    [{ status: null, error: { code: "EPIPE" } }, "adb-transport-error", "pipe-closed"],
+    [{ status: null, error: { code: "private-raw" } }, "adb-transport-error", "other"],
+    [{ status: null, error: { code: "constructor" } }, "adb-transport-error", "other"],
+    [{ status: null, signal: "SIGTERM" }, "adb-signalled", null],
+    [{ status: 1, stdout: "private-raw", stderr: "device private-raw unavailable" }, "adb-nonzero-exit", null],
+    [{ status: 1, stderr: "cat: files/acceptance/physical-status: Permission denied\n" }, "status-read-denied", null],
+    [{ status: 0, stdout: "\n" }, "empty-status-output", null],
+    [{ status: 0, stdout: "{private-raw" }, "malformed-status-json", null],
+    ...[[{ type: "sample" }, "invalid-status-type"], [{ pid: 0 }, "invalid-status-pid"],
+      [{ commandId: "private raw" }, "invalid-status-command-id"], [{ elapsedMs: -1 }, "invalid-status-elapsed"],
+      [{ elapsedMs: 99 }, "status-elapsed-regressed"],
+      [{ state: "private-raw" }, "invalid-status-state"], [{ phase: "finish" }, "finished-status"]]
+      .map(([delta, outcome]) => [{ status: 0, stdout: JSON.stringify({ ...connectedStatus, ...delta }) }, outcome, null]),
+  ];
+  for (const [result, outcome, transportError] of cases) {
+    let reads = 0;
+    await assert.rejects(checkSessionRole(h1Role, { adb: args => {
+      if (args[3] === "pidof") return { status: 0, stdout: "1234\n" };
+      reads++;
+      return result;
+    }, sleep: () => assert.fail("failed reads are not retried") }), error => {
+      const metadata = statusReadFailureMetadata(error);
+      assert.equal(metadata.outcome, outcome);
+      assert.equal(metadata.transportError, transportError);
+      assert.equal(metadata.classification, "INVALID_SETUP");
+      assert.equal(metadata.targetPresentAfter, true);
+      assert.doesNotMatch(formatSessionFailure(error), /private-raw|private raw|fake-device|1234|files\/acceptance/);
+      return true;
+    });
+    assert.equal(reads, 1);
+  }
+  assert.equal(formatSessionFailure(new Error("private-raw")), "collector session failed: evidence-unavailable\n");
+});
+
+test("failed-read metadata never calls a disappeared or unobservable target continuously live", async () => {
+  for (const after of [{ status: 0, stdout: "5678\n" }, { status: 1, stdout: "" }]) {
+    let probes = 0;
+    await assert.rejects(checkSessionRole(h1Role, { adb: args => args[3] === "pidof"
+      ? ++probes === 1 ? { status: 0, stdout: "1234\n" } : after
+      : { status: 0, stdout: "" } }), error => {
+      const metadata = statusReadFailureMetadata(error);
+      assert.equal(metadata.targetPresentBefore, true);
+      assert.equal(metadata.targetPresentAfter, after.status === 0 ? false : null);
+      assert.equal(metadata.targetSetUnchanged, after.status === 0 ? false : null);
+      return true;
+    });
+  }
 });
 
 test("H1 prerequisite waits for the exact complete connect command, never starts or mutates anything", async () => {

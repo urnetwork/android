@@ -9,6 +9,7 @@ import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parserOutcome, requireCredentialParserPreflight } from "./physical_credentials_preflight.mjs";
 import { artifactDirectoryReason, prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
+import { credentialOwnershipPublication, prepareCredentialOwnership, recordCredentialOwnership } from "./physical_credential_ownership.mjs";
 
 const PACKAGE = "com.bringyour.network";
 const DESTINATION = "files/acceptance/credentials";
@@ -38,17 +39,22 @@ export function parseArgs(argv) {
       continue;
     }
     const key = argv[i]?.slice(2);
-    if (!argv[i]?.startsWith("--") || !["serial", "config", "schema", "output", "preflight", "artifact-dir"].includes(key) ||
+    if (!argv[i]?.startsWith("--") || !["serial", "config", "schema", "output", "preflight", "artifact-dir",
+      "ownership", "native-inputs", "label", "build-id"].includes(key) ||
         !argv[i + 1] || argv[i + 1].startsWith("--") || options[key] !== undefined) fail("invalid-arguments");
     options[key] = argv[i + 1];
     i += 1;
   }
   if (!options.serial || !options.output || (options.inspectOnly || options.sentinelOnly
     ? options.config !== undefined || options.schema !== undefined || options.preflight !== undefined ||
-      options["artifact-dir"] !== undefined : !options.config)) {
+      options["artifact-dir"] !== undefined || ["ownership", "native-inputs", "label", "build-id"].some(key => options[key] !== undefined) : !options.config)) {
     fail("serial-config-output-required-or-diagnostic-mode");
   }
   if (!options.inspectOnly && !options.sentinelOnly) selectedKeys(options.schema);
+  const ownershipKeys = ["ownership", "native-inputs", "label", "build-id"];
+  if (ownershipKeys.some(key => options[key] !== undefined) && ownershipKeys.some(key => !options[key])) {
+    fail("explicit-credential-ownership-context-required");
+  }
   return options;
 }
 
@@ -112,6 +118,45 @@ function invokeStep(steps, name, invoke) {
   const result = invoke();
   steps[name] = exitOutcome(result?.status);
   return result;
+}
+
+const STAGING_FAILURES = Object.freeze({
+  "files-guard": "files-symlink-rejected",
+  "acceptance-guard": "acceptance-symlink-rejected",
+  "directory-create": "acceptance-directory-create-failed",
+  "directory-mode": "acceptance-directory-mode-failed",
+  "destination-absent": "credential-destination-present",
+  "destination-guard": "credential-destination-symlink-rejected",
+  "temporary-create": "staging-exclusive-create-failed",
+  copy: "staging-copy-failed",
+  "temporary-mode": "staging-mode-failed",
+  inspect: "staging-inspection-failed",
+  complete: "staging-terminal-failed",
+});
+
+// Never persist stderr, paths, package/serial strings, or payload bytes. A
+// phase is attributed only to one exact terminal marker matching the joined
+// shell exit. Old/absent/conflicting markers remain explicitly unattributed.
+export function credentialStageDiagnostic(result) {
+  const stderr = typeof result?.stderr === "string" && result.stderr.length <= 4096 ? result.stderr : "";
+  const markers = stderr.split("\n").filter(line => line.startsWith("staging-step "));
+  const match = markers.length === 1 ? /^staging-step ([a-z-]+) ([0-9]{1,3})$/.exec(markers[0]) : null;
+  const verified = !!match && Object.hasOwn(STAGING_FAILURES, match[1]) && Number(match[2]) <= 255 &&
+    result?.status === Number(match[2]) && (result.status !== 0 || match[1] === "complete") && !result?.error && !result?.signal;
+  const remainder = stderr.split("\n").filter(line => !line.startsWith("staging-step ")).join("\n");
+  const outcome = parserOutcome({ ...result, stderr: remainder });
+  if (!result?.error && !result?.signal) {
+    if (/^run-as:.*(?:not debuggable|permission denied|operation not permitted)/im.test(remainder)) outcome.stderrCategory = "run-as-denied";
+    else if (/^run-as:.*(?:unknown package|package.*not found)/im.test(remainder)) outcome.stderrCategory = "run-as-package-unavailable";
+    else if (/^(?:adb: )?error:.*(?:unauthorized|offline|no devices|device .*not found|device not found)/im.test(remainder)) {
+      outcome.stderrCategory = "adb-device-unavailable";
+    }
+  }
+  const reason = verified ? result.status === 0 && match[1] === "complete" ? "staging-complete" : STAGING_FAILURES[match[1]] :
+    outcome.stderrCategory !== "none" && outcome.stderrCategory !== "other-stderr" ? `staging-${outcome.stderrCategory}` :
+      result?.status === 0 ? "staging-terminal-unproven" : "staging-failure-unattributed";
+  return { ...outcome, marker: verified ? "verified" : markers.length ? "invalid" : "missing",
+    phase: verified ? match[1] : null, reason };
 }
 
 // Android app sandboxes may prohibit hard links. Noclobber creates the final
@@ -189,13 +234,15 @@ function publicationMetadata(result, steps) {
   steps.destinationCleanup = unavailable();
   if (typeof result?.stdout !== "string" || result.stdout.length > 2048) return { metadata: "", owned: false };
   const markers = Object.fromEntries(PUBLICATION_PHASES.map((phase) => [phase, []]));
-  let owners = 0; const releases = []; const metadata = [];
+  let owners = 0; const releases = []; const metadata = []; const ownershipProofs = [];
   for (const line of result.stdout.split("\n")) {
     const match = /^publication-step (create|copy|inspect) ([0-9]{1,3})$/.exec(line);
     const release = /^publication-release ([0-9]{1,3})$/.exec(line);
+    const ownership = /^publication-ownership ([0-9a-f]{64})$/.exec(line);
     if (match && Number(match[2]) <= 255) markers[match[1]].push(Number(match[2]));
     else if (line === "publication-owned") owners++;
     else if (release && Number(release[1]) <= 255) releases.push(Number(release[1]));
+    else if (ownership) ownershipProofs.push(ownership[1]);
     else metadata.push(line);
   }
   let precedingFailure = false;
@@ -209,7 +256,8 @@ function publicationMetadata(result, steps) {
     owners === 0 && steps.create.outcome === "failed" && steps.create.exitCode === result.status);
   steps.destinationCleanup = releases.length === 1 ? exitOutcome(releases[0])
     : releases.length || !completedWithoutRelease ? unavailable() : notRun();
-  return { metadata: metadata.join("\n"), owned: owners === 1 };
+  return { metadata: metadata.join("\n"), owned: owners === 1,
+    ownershipProof: ownershipProofs.length === 1 ? ownershipProofs[0] : undefined };
 }
 
 // Staged input has already excluded CR and blank scalar values. sed counts
@@ -263,26 +311,51 @@ export function inspectPhysicalCredentialLines(options, dependencies = {}) {
 }
 
 // Exported only so fake-ADB tests can execute the exact remote shell protocol.
-export function credentialScripts(token) {
+export function credentialScripts(token, ownership) {
   if (!/^[A-Za-z0-9-]+$/.test(token)) fail("invalid-staging-token");
   const temporary = `${DESTINATION}.pending-${token}`;
   return {
     stage: `set -eu
 umask 077
 export LC_ALL=C
-test ! -L files
-test ! -L files/acceptance
-mkdir -p files/acceptance
-chmod 700 files/acceptance
-test ! -e ${DESTINATION}
-test ! -L ${DESTINATION}
+staging_step=files-guard
+staging_complete=0
+staging_finish() {
+  staging_status=$1
+  trap - 0 HUP INT TERM
+  set +e
+  if [ "$staging_status" = 0 ] && [ "$staging_complete" != 1 ]; then staging_status=71; fi
+  printf 'staging-step %s %s\\n' "$staging_step" "$staging_status" >&2
+  exit "$staging_status"
+}
+staging_require() { "$@" || staging_finish "$?"; }
+trap 'staging_finish "$?"' 0
+trap 'staging_finish 125' HUP INT TERM
+staging_require test ! -L files
+staging_step=acceptance-guard
+staging_require test ! -L files/acceptance
+staging_step=directory-create
+staging_require mkdir -p files/acceptance
+staging_step=directory-mode
+staging_require chmod 700 files/acceptance
+staging_step=destination-absent
+staging_require test ! -e ${DESTINATION}
+staging_step=destination-guard
+staging_require test ! -L ${DESTINATION}
+staging_step=temporary-create
 set -C
 exec 3> ${temporary}
 printf 'staging-owned\\n'
-cat >&3
+staging_step=copy
+cat >&3 || staging_finish "$?"
 exec 3>&-
-chmod 600 ${temporary}
-${inspect(temporary)}`,
+staging_step=temporary-mode
+staging_require chmod 600 ${temporary}
+staging_step=inspect
+${inspect(temporary, ' || staging_finish "$?"')}
+staging_step=complete
+staging_complete=1
+staging_finish 0`,
     publish: publishScript(temporary, DESTINATION, `source_digest=$(sha256sum ${temporary}) || publication_finish "$?"
 source_digest=\${source_digest%% *}
 source_bytes=$(wc -c < ${temporary}) || publication_finish "$?"
@@ -292,6 +365,7 @@ publication_require test "$blanks" = 0
 publication_require test "$mode" = 600
 publication_require test "$bytes" = "$source_bytes"
 publication_require test "$digest" = "$source_digest"
+${credentialOwnershipPublication(ownership)}
 `),
     cleanup: `set -eu
 rm -f ${temporary}
@@ -309,11 +383,12 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
     try { requireCredentialParserPreflight(options.preflight); }
     catch { fail("credential-parser-preflight-invalid"); }
   }
+  const ownership = prepareCredentialOwnership(options, dependencies);
   const config = lstatSync(options.config);
   if (!config.isFile() || (config.mode & 0o777) !== 0o600 ||
       (typeof process.getuid === "function" && config.uid !== process.getuid())) fail("private-owned-config-required");
   const token = (dependencies.uuid ?? randomUUID)();
-  const scripts = credentialScripts(token);
+  const scripts = credentialScripts(token, ownership);
   const pendingOutput = `${options.output}.pending-${token}`;
   const descriptor = openSync(pendingOutput, "wx", 0o600);
   const invokeReader = dependencies.reader ?? ((key, schema) => spawnSync(READER, ["--schema", schema, "get", key], {
@@ -327,9 +402,10 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
   const report = { type: "physical-credential-staging", schemaVersion: 3, eligible: false,
     sourceSchema: options.schema, classification: "FAILED_CREDENTIAL_STAGING",
     reason: "credential-staging-unavailable", destinationOwned: false, expected: null, observed: null,
-    parserOutcome: null, steps: publicationSteps() };
+    parserOutcome: null, stageDiagnostic: null, steps: publicationSteps() };
   let payload;
   let temporaryOwned = false;
+  let ownershipProof;
   try {
     const values = keys.map((key) => {
       let value;
@@ -346,12 +422,18 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
     report.expected = reportStructure(expected);
     try { requireArtifactPaths(directoryBinding, [options.output]); }
     catch (error) { fail(artifactDirectoryReason(error)); }
-    const written = invokeStep(report.steps, "stage", () => adb(scripts.stage, payload));
+    let written;
+    try { written = invokeStep(report.steps, "stage", () => adb(scripts.stage, payload)); }
+    catch (error) { report.stageDiagnostic = credentialStageDiagnostic({ error }); throw error; }
+    report.stageDiagnostic = credentialStageDiagnostic(written);
     // Only an exclusive open grants cleanup ownership. A failed guard/open
     // must not delete a pre-existing staging file belonging to another run.
     temporaryOwned = typeof written?.stdout === "string" && written.stdout.startsWith("staging-owned\n");
     if (written?.status !== 0) fail("device-staging-failed");
     if (!temporaryOwned) fail("device-staging-ownership-unproven");
+    if (report.stageDiagnostic.marker !== "verified" || report.stageDiagnostic.phase !== "complete") {
+      fail("device-staging-terminal-unproven");
+    }
     let observed = parseStructure(written.stdout.slice("staging-owned\n".length)) ?? null;
     report.observed = reportStructure(observed);
     if (!observed || Object.keys(expected).some((key) => observed[key] !== expected[key])) {
@@ -359,6 +441,7 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
     }
     const published = invokeStep(report.steps, "publish", () => adb(scripts.publish));
     const publication = publicationMetadata(published, report.steps);
+    ownershipProof = publication.ownershipProof;
     report.destinationOwned = publication.owned;
     if (published?.status !== 0) fail("device-publication-failed");
     if (!publication.owned || PUBLICATION_PHASES.some((phase) => report.steps[phase].exitCode !== 0)) {
@@ -392,10 +475,14 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
     linkSync(pendingOutput, options.output);
   } finally {
     // No evidence means failure, never permission to start instrumentation.
-    // Common session cleanup must remove private credentials on every exit,
-    // including a host artifact-publication failure after successful staging.
+    // A host artifact-publication failure does not authorize later deletion.
+    // Without the joined staging/ownership proof, preserve the destination for
+    // explicit user-authorized stopped-session cleanup, never adopt it.
     unlinkSync(pendingOutput);
   }
+  // The separate private capability is published only after a joined successful
+  // staging report. A crash/lost report cannot later adopt the destination.
+  if (ownership && report.eligible) recordCredentialOwnership(ownership, ownershipProof);
   return report;
 }
 

@@ -13,9 +13,18 @@ import { parseArgs as parseCaptureArgs } from "./physical_lowbar_capture.mjs";
 import { processIsLive, requireLiveCollector } from "./physical_workload_receipt.mjs";
 import { artifactDirectoryReason, prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 import { nativeProvenanceReason, requireVerifiedNativeInputs } from "./physical_native_provenance.mjs";
+import { handoffCredentialOwnership, rollbackCredentialSetup } from "./physical_credential_ownership.mjs";
 
-class SessionError extends Error {}
-const fail = (reason) => { throw new SessionError(reason); };
+class SessionError extends Error {
+  constructor(reason, statusRead) { super(reason); this.statusRead = statusRead; }
+}
+const fail = (reason, statusRead) => { throw new SessionError(reason, statusRead); };
+export const statusReadFailureMetadata = error => error instanceof SessionError ? error.statusRead : undefined;
+export function formatSessionFailure(error) {
+  const metadata = statusReadFailureMetadata(error);
+  return `collector session failed: ${error instanceof SessionError ? error.message : "evidence-unavailable"}\n` +
+    (metadata ? `${JSON.stringify(metadata)}\n` : "");
+}
 const pidValid = (pid) => Number.isInteger(pid) && pid > 0;
 const captureScript = fileURLToPath(new URL("./physical_lowbar_capture.mjs", import.meta.url));
 const packageName = "com.bringyour.network";
@@ -67,7 +76,7 @@ function deviceInvoker(serial, dependencies) {
   return (args) => invoke(["-s", serial, "shell", ...args]);
 }
 
-function readTargetStatus(adb) {
+function readTargetStatus(adb, expectedPid, minimumElapsedMs = 0) {
   // pidof runs as the adb shell, not run-as: app-domain signal permission is
   // neither needed nor used as a proxy for target-process liveness.
   const targetPids = () => {
@@ -83,11 +92,40 @@ function readTargetStatus(adb) {
   const before = targetPids();
   const result = adb(["run-as", packageName, "cat", statusPath]);
   let status;
-  try { if (result.status === 0 && !result.error && !result.signal) status = JSON.parse(result.stdout); } catch { /* fail closed below */ }
-  if (status?.type !== "status" || !pidValid(status.pid) || !commandIdValid(status.commandId) ||
-      !Number.isFinite(status.elapsedMs) || status.elapsedMs < 0 ||
-      !["ready", "running", "complete", "error"].includes(status.state) || status.phase === "finish") {
-    fail("live-instrumentation-status-required");
+  const stdout = typeof result?.stdout === "string" ? result.stdout : "";
+  const stderr = typeof result?.stderr === "string" ? result.stderr : "";
+  const transportCodes = { ETIMEDOUT: "timeout", ENOBUFS: "output-limit", ENOENT: "spawn-unavailable", EPIPE: "pipe-closed" };
+  const transportError = result?.error ? (Object.hasOwn(transportCodes, result.error.code)
+    ? transportCodes[result.error.code] : "other") : null;
+  let outcome;
+  if (result?.status !== 0 || result.error || result.signal) {
+    // Classify only the known cat target's diagnostics; never publish the raw
+    // error, serial, private paths, status fields or process identifiers.
+    outcome = transportError ? "adb-transport-error" : result?.signal ? "adb-signalled" :
+      /(?:^|\n)(?:\/system\/bin\/)?cat: files\/acceptance\/physical-status: No such file or directory\r?(?:\n|$)/.test(stderr)
+        ? "status-path-missing" : /(?:^|\n)(?:\/system\/bin\/)?cat: files\/acceptance\/physical-status: Permission denied\r?(?:\n|$)/.test(stderr)
+          ? "status-read-denied" : "adb-nonzero-exit";
+  } else if (!stdout.trim()) outcome = "empty-status-output";
+  else {
+    try { status = JSON.parse(stdout); } catch { outcome = "malformed-status-json"; }
+    if (!outcome) outcome = status?.type !== "status" ? "invalid-status-type" : !pidValid(status.pid) ? "invalid-status-pid" :
+      !commandIdValid(status.commandId) ? "invalid-status-command-id" :
+      !Number.isFinite(status.elapsedMs) || status.elapsedMs < 0 ? "invalid-status-elapsed" :
+      status.elapsedMs < minimumElapsedMs ? "status-elapsed-regressed" :
+      !["ready", "running", "complete", "error"].includes(status.state) ? "invalid-status-state" :
+      status.phase === "finish" ? "finished-status" : undefined;
+  }
+  if (outcome) {
+    let after;
+    try { after = targetPids(); } catch { /* record unavailable continuity, never retry the failed status read */ }
+    const hasExpected = pidValid(expectedPid);
+    fail("live-instrumentation-status-required", { type: "physical-status-read-failure", schema: 1,
+      classification: "INVALID_SETUP", outcome, transportError,
+      exitCode: Number.isInteger(result?.status) && result.status >= 0 && result.status <= 255 ? result.status : null,
+      signalled: Boolean(result?.signal), stdoutBytes: Buffer.byteLength(stdout), stderrBytes: Buffer.byteLength(stderr),
+      readyTargetBound: hasExpected, targetPresentBefore: hasExpected ? before.has(expectedPid) : null,
+      targetPresentAfter: hasExpected && after ? after.has(expectedPid) : null,
+      targetSetUnchanged: after ? before.size === after.size && [...before].every(pid => after.has(pid)) : null });
   }
   if (!before.has(status.pid) || !targetPids().has(status.pid)) fail("target-app-process-changed");
   return status;
@@ -146,7 +184,7 @@ export function bindInstrumentationReady(options, dependencies = {}) {
   if (existsSync(`${options.owner}.ready.json`)) fail("instrumentation-ready-already-bound");
   const owner = readInstrumentationOwner(options.owner, options.serial, false);
   requireLiveInstrumentation(owner, options.serial, dependencies);
-  const status = readTargetStatus(deviceInvoker(options.serial, dependencies));
+  const status = readTargetStatus(deviceInvoker(options.serial, dependencies), owner.targetPid);
   if (status.state !== "ready" || status.phase !== "ready") fail("ready-session-before-owner-binding-required");
   requireLiveInstrumentation(owner, options.serial, dependencies);
   const current = readInstrumentationOwner(options.owner, options.serial, false);
@@ -154,6 +192,26 @@ export function bindInstrumentationReady(options, dependencies = {}) {
   publish(`${options.owner}.ready.json`, { schema: 1, type: "instrumentation-session-ready", ownerId: owner.ownerId,
     serialHash: owner.serialHash, targetPid: status.pid, elapsedMs: status.elapsedMs, hostTimeUnixMs: Date.now() });
   return { retainedOwnerLive: true, adbChildLive: true, targetProcessMatchesStatus: true, readyStatusReadable: true };
+}
+
+// Diagnostic commands change the phase without changing the VPN role. Reuse
+// the existing retained owner / ready-bound target checks without demanding
+// that the most recent command still be connect-h1. No command is issued here.
+export function checkInstrumentationCommandSession(options, dependencies = {}) {
+  if (!options.owner || !options.serial) fail("instrumentation-owner-and-serial-required");
+  const owner = readInstrumentationOwner(options.owner, options.serial);
+  requireLiveInstrumentation(owner, options.serial, dependencies);
+  const status = readTargetStatus(deviceInvoker(options.serial, dependencies), owner.targetPid);
+  if (status.pid !== owner.targetPid || status.elapsedMs < owner.readyElapsedMs) fail("instrumentation-target-process-changed");
+  if (["connected", "tunnelStarted", "provideEnabled"].some(key => typeof status[key] !== "boolean") ||
+      typeof status.transportMode !== "string" || !status.transportMode) fail("live-instrumentation-status-required");
+  requireLiveInstrumentation(owner, options.serial, dependencies);
+  if (JSON.stringify(readInstrumentationOwner(options.owner, options.serial)) !== JSON.stringify(owner)) {
+    fail("instrumentation-owner-receipt-replaced");
+  }
+  return { sessionId: owner.ownerId, pid: status.pid, commandId: status.commandId, state: status.state, phase: status.phase,
+    elapsedMs: status.elapsedMs, connected: status.connected, tunnelStarted: status.tunnelStarted,
+    provideEnabled: status.provideEnabled, transportMode: status.transportMode };
 }
 
 function validateRoleOptions(options, capture) {
@@ -188,8 +246,7 @@ export async function checkSessionRole(options, dependencies = {}, wait = true) 
   let previousElapsedMs = -1;
   for (;;) {
     checkOwner();
-    const status = readTargetStatus(adb);
-    if (status.elapsedMs < Math.max(previousElapsedMs, retained.readyElapsedMs)) fail("live-instrumentation-status-required");
+    const status = readTargetStatus(adb, retained.targetPid, Math.max(previousElapsedMs, retained.readyElapsedMs));
     if (status.pid !== retained.targetPid) fail("instrumentation-target-process-changed");
     checkOwner();
     initial ??= status;
@@ -258,6 +315,19 @@ function readOwner(path, isLive) {
 // bind/check-role are read-only. Normal exit/handled signals join the child;
 // liveness checks reject an abruptly lost supervisor even before terminal JSON.
 export async function runInstrumentationSession(options, dependencies = {}) {
+  try { return await runInstrumentationSessionOwned(options, dependencies); }
+  catch (error) {
+    if (options["credential-ownership"]) {
+      // This rollback is prospective and pre-handoff only. Missing proof,
+      // crashes, live targets and any AM handoff leave credentials untouched.
+      const result = rollbackCredentialSetup({ ...options, ownership: options["credential-ownership"] }, dependencies);
+      dependencies.onCredentialRollback?.(result);
+    }
+    throw error;
+  }
+}
+
+async function runInstrumentationSessionOwned(options, dependencies = {}) {
   const component = options.component ?? runnerComponents[0];
   if (!options.serial || !commandIdValid(options.label) || !commandIdValid(options["build-id"]) ||
       !runnerComponents.includes(component) || !options.owner || !options.stdout || !options.stderr) {
@@ -275,6 +345,10 @@ export async function runInstrumentationSession(options, dependencies = {}) {
   // This check deliberately precedes foreground/ps/open/spawn. A missing leaf
   // is failed setup, never an invitation to recreate or silently redirect it.
   checkDirectory();
+  if (options["credential-ownership"]) {
+    try { requireArtifactPaths(directoryBinding, [options["credential-ownership"]], dependencies.directory); }
+    catch (error) { fail(`${artifactDirectoryReason(error)}-no-spawn`); }
+  }
   if (!options["native-inputs"]) fail("verified-native-input-proof-required-no-spawn");
   try { requireArtifactPaths(directoryBinding, [options["native-inputs"]], dependencies.directory); }
   catch (error) { fail(`${artifactDirectoryReason(error)}-no-spawn`); }
@@ -291,6 +365,7 @@ export async function runInstrumentationSession(options, dependencies = {}) {
   let spawnAttempted = false;
   let closed;
   let interrupted = false;
+  const instrumentationOwnerId = randomUUID();
   const signals = dependencies.signals ?? process;
   const handlers = new Map(["SIGINT", "SIGTERM", "SIGHUP"].map((signal) => [signal, () => {
     interrupted = true;
@@ -301,6 +376,10 @@ export async function runInstrumentationSession(options, dependencies = {}) {
     output = openSync(options.stdout, "wx", 0o600);
     errors = openSync(options.stderr, "wx", 0o600);
     checkDirectory();
+    if (options["credential-ownership"]) {
+      handoffCredentialOwnership({ ...options, ownership: options["credential-ownership"],
+        "instrumentation-owner": options.owner, "session-id": instrumentationOwnerId }, nativeInputs, dependencies);
+    }
     spawnAttempted = true;
     child = (dependencies.spawn ?? spawn)("adb", ["-s", options.serial, "shell", "am", "instrument", "-w", "-r",
       "-e", "class", physicalClass, "-e", "acceptanceBuildId", options["build-id"], component],
@@ -315,7 +394,7 @@ export async function runInstrumentationSession(options, dependencies = {}) {
       child.once("error", () => finish(false));
     });
     if (!spawned || !pidValid(child.pid)) fail("instrumentation-adb-not-started");
-    const owner = { schema: 1, type: "instrumentation-session", state: "running", ownerId: randomUUID(),
+    const owner = { schema: 1, type: "instrumentation-session", state: "running", ownerId: instrumentationOwnerId,
       label: options.label, serialHash: digest(options.serial), component, className: physicalClass, targetPackage: packageName,
       nativeInputHash: nativeInputs.inputHash, nativeBuildOwner: nativeInputs.buildOwner,
       supervisorPid: process.pid, supervisorIdentity, adbPid: child.pid,
@@ -436,7 +515,7 @@ export function parseArgs(argv) {
   const roleArguments = ["session-mode", "connect-command-id", "instrumentation-owner"];
   const allowed = mode === "run" ? ["owner", "stdout", "stderr", ...roleArguments] :
     mode === "check" ? ["owner", "timeout-ms"] : mode === "check-role" ? ["serial", ...roleArguments] :
-      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs"] :
+      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership"] :
         mode === "bind-instrumentation-ready" ? ["owner", "serial"] : [];
   if (!allowed.length) fail("run-check-or-check-role-required");
   const options = { mode, captureArgs: separator < 0 ? [] : rest.slice(separator + 1) };
@@ -478,7 +557,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     else process.stdout.write(`${await checkCollectorSession(options)}\n`);
   } catch (error) {
     // No serials, command arguments, paths or raw device diagnostics in errors.
-    process.stderr.write(`collector session failed: ${error instanceof SessionError ? error.message : "evidence-unavailable"}\n`);
+    process.stderr.write(formatSessionFailure(error));
     process.exitCode = 2;
   }
 }

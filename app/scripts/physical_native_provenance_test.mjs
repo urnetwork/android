@@ -151,6 +151,7 @@ test("MjXnWF: recomputing summary SHA cannot hide omitted Go/module/replacement/
     m => delete m.inputs.mainResolution.Replace, m => delete m.inputs.repositories[0].dirtyInputHash,
     m => delete m.inputs.modules[0].replacement, m => delete m.inputs.goEnvironment.GOWORK,
     m => { m.inputs.tools.pop(); }, m => { m.inputs.buildInputs.pop(); }, m => { m.inputs.bridgeInputs.pop(); },
+    m => { m.inputs.buildInputs = m.inputs.buildInputs.filter(file => !file.path.endsWith("/physical_artifact_directory.mjs")); },
     m => { m.inputs.repositories = m.inputs.repositories.slice(1); },
     m => { m.inputs.moduleInputs = m.inputs.moduleInputs.filter(file => file.kind !== "go.sum"); },
     m => { m.inputs.moduleInputs = m.inputs.moduleInputs.filter(file => file.module !== CONNECT); },
@@ -401,13 +402,15 @@ test("actual consumer entry point refuses missing, nonzero and forged receipts b
   const args = [new URL("./physical_native_consumer.sh", import.meta.url).pathname, "--root", f.root,
     "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output, "--writer-receipt", f.paths["writer-receipt"],
     "--", process.execPath, "-e", "require('node:fs').writeFileSync(process.argv[1],'consumer')", marker];
-  for (const kind of ["missing", "nonzero", "forged", "arguments", "source", "before"]) {
+  for (const kind of ["missing", "nonzero", "forged", "arguments", "source", "artifact-helper", "before"]) {
     json(f.paths["writer-receipt"], receipt);
     if (kind === "missing") rmSync(f.paths["writer-receipt"]);
     else if (kind === "nonzero") json(f.paths["writer-receipt"], { ...receipt, childExitCode: 7 });
     else if (kind === "forged") json(f.paths["writer-receipt"], { eligible: true, childExitCode: 0 });
     else if (kind === "arguments") json(f.paths["writer-receipt"], { ...receipt, arguments: [":app:assembleGithubDebug"] });
     else if (kind === "source") json(f.paths["writer-receipt"], { ...receipt, sourceHashes: [] });
+    else if (kind === "artifact-helper") json(f.paths["writer-receipt"], { ...receipt,
+      sourceHashes: receipt.sourceHashes.filter(source => source.name !== "physical_artifact_directory.mjs") });
     else json(f.paths["writer-receipt"], { ...receipt, beforeSha256: "0".repeat(64) });
     const rejected = spawnSync("bash", args, { cwd: f.root, env: f.env, encoding: "utf8", timeout: 10000 });
     assert.equal(rejected.status, 2, kind); assert.equal(existsSync(marker), false, kind);
@@ -483,6 +486,33 @@ test("exact documented scalar restore, writer and consumer run from separate def
     `printf '%s' assembled-after-proof > ${JSON.stringify(marker)}\n`);
   // No variables from the first zsh invocation survive this separate process.
   const consumed = f.runBlock(f.consumer, { NATIVE_CONSUMER_SCRIPT: consumerScript });
+  assert.equal(consumed.status, 0, consumed.stderr);
+  assert.equal(readFileSync(marker, "utf8"), "assembled-after-proof");
+  assert.equal(requireVerifiedNativeInputs(f.paths.output, "fixture-build", f.dependencies).buildOwner, "fixture-owner");
+});
+
+test("WhH7v8: documented writer and consumer accept intact canonical log bindings through a tmp-style ancestor alias", t => {
+  const f = documentedWriterFixture(t); const alias = join(f.root, "tmp-alias"); symlinkSync(f.root, alias);
+  const built = f.runBlock(f.writer, { RUN_DIR: alias }); assert.equal(built.status, 0, built.stderr);
+  const receipt = JSON.parse(readFileSync(f.paths["writer-receipt"]));
+  assert.equal(dirname(receipt.stdout.path), f.privateDir, "writer hashes retain canonical log paths");
+  assert.notEqual(dirname(receipt.stdout.path), join(alias, "private"));
+  const options = { before: join(alias, "private", `${f.label}.native-inputs-before.json`),
+    "writer-receipt": join(alias, "private", `${f.label}.native-writer.json`) };
+  const before = JSON.parse(readFileSync(f.paths.before)); const output = readFileSync(receipt.stdout.path);
+  write(receipt.stdout.path, Buffer.concat([output, Buffer.from("changed\n")]));
+  assert.throws(() => requireNativeWriterReceipt(options, before), /native-writer-log-binding-mismatch/);
+  write(receipt.stdout.path, output); chmodSync(receipt.stdout.path, 0o644);
+  assert.throws(() => requireNativeWriterReceipt(options, before), /native-writer-log-binding-mismatch/);
+  chmodSync(receipt.stdout.path, 0o600);
+  const preserved = `${receipt.stdout.path}.preserved`; renameSync(receipt.stdout.path, preserved); symlinkSync(preserved, receipt.stdout.path);
+  assert.throws(() => requireNativeWriterReceipt(options, before), /native-writer-log-binding-mismatch/);
+  rmSync(receipt.stdout.path); renameSync(preserved, receipt.stdout.path);
+  const marker = join(f.privateDir, "consumer-marker"); const consumerScript = join(f.root, "alias-consumer.sh");
+  write(consumerScript, `#!/bin/bash\nset -Eeuo pipefail\n` +
+    `test -s ${JSON.stringify(f.paths.after)}\ntest -s ${JSON.stringify(f.paths.output)}\n` +
+    `printf '%s' assembled-after-proof > ${JSON.stringify(marker)}\n`);
+  const consumed = f.runBlock(f.consumer, { RUN_DIR: alias, NATIVE_CONSUMER_SCRIPT: consumerScript });
   assert.equal(consumed.status, 0, consumed.stderr);
   assert.equal(readFileSync(marker, "utf8"), "assembled-after-proof");
   assert.equal(requireVerifiedNativeInputs(f.paths.output, "fixture-build", f.dependencies).buildOwner, "fixture-owner");
