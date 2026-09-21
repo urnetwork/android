@@ -251,8 +251,12 @@ export function ptyCommand(command, args, platform = process.platform) {
 // owners receive TERM first so their own join/receipt handlers run. A deadline
 // remains failure even if the child handles the signal and subsequently exits 0.
 export function launchPrivate(step, context, { spawnImpl = spawn, timer = setTimeout, clear = clearTimeout, ptyInput = "inherit" } = {}) {
-  const outputPath = step.stdout ?? join(context.directory, `${step.id}.stdout`);
-  const errorPath = join(context.directory, `${step.id}.stderr`);
+  // A retained helper exclusively creates its own child-output files. The
+  // PTY transcript belongs to this launcher and must use a separate namespace;
+  // precreating collector.stdout here prevents the helper from publishing.
+  const logName = step.retained ? `${step.id}.pty` : step.id;
+  const outputPath = step.stdout ?? join(context.directory, `${logName}.stdout`);
+  const errorPath = join(context.directory, `${logName}.stderr`);
   const binding = prepareArtifactDirectory(context.directory);
   requireArtifactPaths(binding, [outputPath, errorPath]);
   const output = openSync(outputPath, "wx", 0o600); const errors = openSync(errorPath, "wx", 0o600);
@@ -287,7 +291,7 @@ export function launchPrivate(step, context, { spawnImpl = spawn, timer = setTim
     child.once("close", (exitCode, childSignal) => finish({ exitCode, signal: childSignal }));
     deadline = timer(() => { timedOut = true; signal("SIGTERM"); killer = timer(() => signal("SIGKILL"), LIMITS.kill); }, step.timeoutMs ?? LIMITS.command);
   } catch { finish({ exitCode: null, signal: null }); }
-  return { id: step.id, done, get live() { return !settled; }, outputPath,
+  return { id: step.id, done, get live() { return !settled; }, outputPath, errorPath,
     interrupt() { timedOut = true; signal("SIGTERM"); killer ??= timer(() => signal("SIGKILL"), LIMITS.kill); } };
 }
 

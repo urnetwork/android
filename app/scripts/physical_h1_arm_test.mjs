@@ -6,6 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { armContext, h1Steps, LIMITS, launchPrivate, orchestrateH1, parseArgs, prepareArm, ptyCommand } from "./physical_h1_arm.mjs";
+import { checkCollectorSession } from "./physical_collector_session.mjs";
 import { captureWorkloadScriptPreflight } from "./physical_workload_script.mjs";
 
 const scripts = dirname(fileURLToPath(import.meta.url));
@@ -152,9 +153,114 @@ test("actual retained PTY satisfies the existing foreground guard and propagates
   const handle = launchPrivate({ id: "pty-proof", command: process.execPath, args: ["--input-type=module", "-e", code],
     retained: true, timeoutMs: 5000 }, c, process.stdin.isTTY ? {} : { ptyInput: "ignore" });
   const result = await handle.done;
-  assert.equal(result.exitCode, 7, readFileSync(handle.outputPath, "utf8") + readFileSync(join(dir, "pty-proof.stderr"), "utf8"));
+  assert.equal(result.exitCode, 7, readFileSync(handle.outputPath, "utf8") + readFileSync(handle.errorPath, "utf8"));
   assert.equal(result.eligible, false); assert.equal(result.timedOut, false);
   assert.match(readFileSync(handle.outputPath, "utf8"), /foreground-verified/);
+});
+
+// Keep the production collector argument vector, foreground guard, artifact
+// checks, role gate, owner publication and child join. Only the instrumentation
+// observations and telemetry child are synthetic; no ADB command is launched.
+function collectorLaunchFixture(t) {
+  const dir = fixture(t);
+  const c = armContext(parseArgs(args(dir), 14), "fixture-native-owner");
+  mkdirSync(c.artifacts, { mode: 0o700 }); mkdirSync(c.directory, { mode: 0o700 });
+  const step = h1Steps(c).collector;
+  const helper = join(dir, "collector-fixture.mjs");
+  const module = new URL("./physical_collector_session.mjs", import.meta.url).href;
+  const captureCode = `
+    const fs = require('node:fs');
+    const [output,label,stop] = process.argv.slice(1);
+    const emit = row => fs.appendFileSync(output, JSON.stringify(row)+'\\n', {mode:0o600});
+    process.stdout.write('capture-stdout\\n'); process.stderr.write('capture-stderr\\n');
+    emit({type:'environment',label});
+    const tick = setInterval(() => {
+      if (fs.existsSync(stop)) { emit({type:'summary'}); clearInterval(tick); return; }
+      const now = Date.now();
+      emit({type:'sample',startTimeUnixMs:now-2,endTimeUnixMs:now,eligibility:{eligible:true},telemetryErrors:[]});
+    },20);
+    setTimeout(()=>process.exit(99),10000).unref();`;
+  writeFileSync(helper, `
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {writeFileSync} from 'node:fs';
+import {parseArgs,runCollectorSession,formatSessionFailure} from ${JSON.stringify(module)};
+const options = parseArgs(process.argv.slice(2));
+const value = key => options.captureArgs[options.captureArgs.indexOf(key)+1];
+const serial = value('--serial'); const app = 'com.bringyour.network';
+const supervisorPid = 912345; const adbPid = 912346;
+const started = 'Mon Sep 21 10:11:12 2026';
+const command = pid => pid === supervisorPid ? '/node fixture-owner' :
+  '/sdk/platform-tools/adb -s '+serial+' shell am instrument -w -e class '+app+'.acceptance.PhysicalLowbarSessionTest '+app+'.test/androidx.test.runner.AndroidJUnitRunner';
+const hash = text => createHash('sha256').update(text).digest('hex');
+const identity = pid => hash(pid+'\\n'+started+'\\n'+command(pid));
+const ownerId = '11111111-2222-3333-4444-555555555555';
+writeFileSync(options['instrumentation-owner'], JSON.stringify({schema:1,type:'instrumentation-session',state:'running',
+  ownerId,supervisorPid,adbPid,supervisorIdentity:identity(supervisorPid),adbIdentity:identity(adbPid),serialHash:hash(serial),
+  label:value('--label'),className:app+'.acceptance.PhysicalLowbarSessionTest',targetPackage:app,
+  component:app+'.test/androidx.test.runner.AndroidJUnitRunner',startedHostTimeUnixMs:Date.now(),
+  foreground:{inputTTY:true,outputTTY:true,processGroup:supervisorPid,foregroundGroup:supervisorPid}}), {flag:'wx',mode:0o600});
+writeFileSync(options['instrumentation-owner']+'.ready.json',JSON.stringify({schema:1,type:'instrumentation-session-ready',
+  ownerId,serialHash:hash(serial),targetPid:1234,elapsedMs:100}), {flag:'wx',mode:0o600});
+try {
+  process.stdout.write('fixture-owner-start\\n');
+  process.exitCode = await runCollectorSession(options, {
+    hostProcess: pid => ({status:0,stdout:pid+' S '+started+' '+command(pid)+'\\n'}),
+    adb: args => {
+      assert.deepEqual(args.slice(0,3),['-s',serial,'shell']);
+      if (args[3] === 'pidof') { assert.deepEqual(args.slice(3),['pidof',app]); return {status:0,stdout:'1234\\n'}; }
+      assert.deepEqual(args.slice(3),['run-as',app,'cat','files/acceptance/physical-status']);
+      return {status:0,stdout:JSON.stringify({type:'status',pid:1234,commandId:options['connect-command-id'],
+        state:'complete',phase:'connect-h1',elapsedMs:200,transportMode:'h1',connected:true,tunnelStarted:true,provideEnabled:false})};
+    },
+    spawn: (exe,argv,settings) => {
+      assert.equal(exe,process.execPath); assert.ok(argv[0].endsWith('/physical_lowbar_capture.mjs'));
+      assert.deepEqual(argv.slice(1),options.captureArgs);
+      return spawn(process.execPath,['-e',${JSON.stringify(captureCode)},value('--output'),value('--label'),value('--stop-file')],settings);
+    }
+  });
+  process.stdout.write('fixture-owner-done\\n');
+} catch (error) { process.stderr.write(formatSessionFailure(error)); process.exitCode = 2; }
+`, { flag: "wx", mode: 0o600 });
+  return { c, step: { ...step, command: process.execPath, args: [helper, "run", ...step.args.slice(2)], timeoutMs: 10_000 } };
+}
+
+test("canonical collector PTY publishes readiness with distinct owner and capture output streams", async t => {
+  const { c, step } = collectorLaunchFixture(t);
+  const handle = launchPrivate(step, c, process.stdin.isTTY ? {} : { ptyInput: "ignore" });
+  try {
+    const deadline = Date.now() + 5000;
+    while (!existsSync(c.collector) && handle.live && Date.now() < deadline) await new Promise(done => setTimeout(done, 10));
+    assert.equal(existsSync(c.collector), true, readFileSync(handle.outputPath, "utf8"));
+    const pid = await checkCollectorSession({ owner: c.collector, timeoutMs: 2000 });
+    assert.ok(pid > 0); assert.equal(handle.live, true);
+    writeFileSync(join(c.directory, "collector.stop"), "", { flag: "wx", mode: 0o600 });
+    assert.deepEqual(await handle.done, { exitCode: 0, signal: null, timedOut: false, eligible: true });
+    const terminal = JSON.parse(readFileSync(`${c.collector}.terminal.json`, "utf8"));
+    assert.equal(terminal.state, "complete"); assert.equal(terminal.collectorPid, pid);
+    assert.equal(terminal.interrupted, false);
+    const output = step.args[step.args.indexOf("--stdout") + 1];
+    const errors = step.args[step.args.indexOf("--stderr") + 1];
+    assert.equal(readFileSync(output, "utf8"), "capture-stdout\n");
+    assert.equal(readFileSync(errors, "utf8"), "capture-stderr\n");
+    assert.match(readFileSync(handle.outputPath, "utf8"), /fixture-owner-start[\r\n]+fixture-owner-done/);
+    for (const path of [handle.outputPath, handle.errorPath, output, errors, c.collector, `${c.collector}.terminal.json`]) {
+      assert.equal(lstatSync(path).mode & 0o777, 0o600);
+    }
+  } finally {
+    if (handle.live) { handle.interrupt(); await handle.done; }
+  }
+});
+
+test("collector still refuses a real capture-output collision before owner publication", async t => {
+  const { c, step } = collectorLaunchFixture(t);
+  const output = step.args[step.args.indexOf("--stdout") + 1];
+  const handle = launchPrivate({ ...step, stdout: output }, c, process.stdin.isTTY ? {} : { ptyInput: "ignore" });
+  const result = await handle.done;
+  assert.equal(result.exitCode, 2); assert.equal(result.eligible, false); assert.equal(result.timedOut, false);
+  assert.match(readFileSync(handle.outputPath, "utf8"), /fresh-collector-artifacts-required/);
+  assert.equal(existsSync(c.collector), false); assert.equal(existsSync(c.telemetry), false);
 });
 
 test("process deadline cannot be rescued by a zero exit from its TERM handler", async t => {

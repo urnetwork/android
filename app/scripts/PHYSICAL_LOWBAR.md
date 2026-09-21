@@ -49,6 +49,17 @@ finish/join, final-memory gate, retained-client/owned-credential cleanup and
 removal of its own Chrome forward. Failed gates preserve that arm and its logs;
 no failed child is retried and no diagnostic profiling is enabled.
 
+Retained process transcripts use `<id>.pty.stdout` and `<id>.pty.stderr` in
+the label directory. The collector creates its own `collector.stdout` and
+`collector.stderr`; those files must still be absent at launch. The PTY merges
+the retained helper's stderr into its stdout, so a pre-publication failure is
+reported in `collector.pty.stdout` even when `collector.pty.stderr` is empty.
+Do not precreate the collector-owned files or relax its freshness check. The
+host regression test runs the production argument vector and collector gates
+inside a real PTY with synthetic device observations/telemetry, proves owner
+publication and readiness through normal join, and retains a negative test for
+an actual output collision.
+
 Native linkage can be direct: `binary-native-proof.json` records
 `stripped:false, stripHash:null` when the extracted AAR and APK library digests
 already match. This is eligible without another strip operation. If they differ,
