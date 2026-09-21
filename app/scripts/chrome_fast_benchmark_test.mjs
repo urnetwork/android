@@ -281,3 +281,50 @@ test(`actual CLI exits with the correct aggregate despite ${mode} and a retained
   assert.equal(result.totalElapsedMs, valid ? 1000 : 2000);
   assert.equal(result.timeoutPhase, { incomplete: "display-poll", "evaluate-hang": "display-evaluate", "cleanup-hang": "target-cleanup" }[mode] ?? null);
 });
+
+for (const mode of ["browser-open", "target-create", "navigation"])
+test(`actual CLI preserves sanitized ${mode} websocket failure without inventing a speed sample`, () => {
+  const preload = `
+    const mode = ${JSON.stringify(mode)};
+    globalThis.fetch = async url => {
+      if (url === 'http://127.0.0.1:9223/json/version') return { ok: true, json: async () => ({ webSocketDebuggerUrl: 'ws://fake/browser' }) };
+      if (url === 'http://127.0.0.1:9223/json/list') return { ok: true, json: async () => [{ id: 'owned', webSocketDebuggerUrl: 'ws://fake/page' }] };
+      throw new Error('unexpected request');
+    };
+    globalThis.WebSocket = class extends EventTarget {
+      constructor(url) {
+        super();
+        if (!['ws://fake/browser', 'ws://fake/page'].includes(url)) throw new Error('unexpected socket');
+        setInterval(() => {}, 1000);
+        queueMicrotask(() => mode === 'browser-open' ? this.fail() : this.dispatchEvent(new Event('open')));
+      }
+      fail() { this.dispatchEvent(Object.assign(new Event('close'), { code: 1006, reason: 'private-close-reason' })); }
+      send(data) {
+        const { id, method } = JSON.parse(data);
+        if ((mode === 'target-create' && method === 'Target.createTarget') || (mode === 'navigation' && method === 'Page.navigate')) {
+          queueMicrotask(() => this.fail());
+          return;
+        }
+        const response = method === 'Target.closeTarget'
+          ? { id, error: { code: -32000, message: 'private-cleanup-error' } }
+          : { id, result: method === 'Target.createTarget' ? { targetId: 'owned' } : {} };
+        queueMicrotask(() => this.dispatchEvent(new MessageEvent('message', { data: JSON.stringify(response) })));
+      }
+      close() {}
+    };
+  `;
+  const child = spawnSync(process.execPath, ["--import", `data:text/javascript,${encodeURIComponent(preload)}`,
+    fileURLToPath(new URL("./chrome_fast_benchmark.mjs", import.meta.url)), "--port", "9223", "--timeout-ms", "2000"],
+  { encoding: "utf8", timeout: 5000 });
+  assert.equal(child.error, undefined);
+  assert.equal(child.signal, null);
+  assert.equal(child.status, 1);
+  assert.equal(child.stdout, "", "control failure must never become a fast-result");
+  assert.deepEqual(JSON.parse(child.stderr), {
+    type: "fast-error", reason: "websocket-closed",
+    ...(mode === "target-create" ? { operation: "Target.createTarget" } : {}),
+    ...(mode === "navigation" ? { operation: "Page.navigate" } : {}),
+    websocketCloseCode: 1006, phase: mode,
+  });
+  assert.doesNotMatch(child.stderr, /private|fake|Node\.js|stack|url|expression/);
+});

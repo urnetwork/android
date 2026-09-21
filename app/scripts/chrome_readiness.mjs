@@ -8,6 +8,7 @@ import { existsSync, linkSync, unlinkSync, writeFileSync } from "node:fs";
 import { get as httpGet } from "node:http";
 import { setTimeout as sleep } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
+import { CdpSession, cdpFailureDetails } from "./chrome_cdp.mjs";
 
 export const READINESS_TIMEOUT_MS = 30_000;
 export const STABLE_RESPONSE_GAP_MS = 5_000;
@@ -80,12 +81,45 @@ export function parseVersionResponse(body, port) {
     if (socket.protocol !== "ws:" || !["127.0.0.1", "localhost", "[::1]"].includes(socket.hostname) ||
         Number(socket.port) !== port || socket.username || socket.password || socket.search || socket.hash ||
         !/^\/devtools\/browser(?:\/[A-Za-z0-9_-]{1,128})?$/.test(socket.pathname)) return undefined;
-    return { browser: version.Browser, protocol: version["Protocol-Version"],
+    return { browser: version.Browser, protocol: version["Protocol-Version"], webSocketUrl: socket.href,
       // Android may expose the tokenless /devtools/browser endpoint. The
       // caller also brackets each response with Chrome process identity.
       // Optional browser target tokens are compared only in memory.
       identity: `${version.Browser}|${version["Protocol-Version"]}|${socket.pathname}` };
   } catch { return undefined; }
+}
+
+// A healthy HTTP version endpoint does not prove that Chrome's control socket
+// can accept the workload. Ask one read-only command through that exact local
+// endpoint; never create a target or navigate during readiness. One deadline
+// covers the handshake and command, including a close without an error event.
+export async function readDevtoolsControl(version, timeoutMs, dependencies = {}) {
+  const createSession = dependencies.createSession ?? (url => new CdpSession(url));
+  const setTimer = dependencies.setTimer ?? setTimeout;
+  const clearTimer = dependencies.clearTimer ?? clearTimeout;
+  let session;
+  let timer;
+  let finished = false;
+  try {
+    return await Promise.race([
+      new Promise(resolve => { timer = setTimer(() => resolve({ eligible: false, reason: "control-probe-timeout" }), timeoutMs); }),
+      (async () => {
+        session = createSession(version.webSocketUrl);
+        await session.open(timeoutMs);
+        if (finished) return { eligible: false, reason: "control-probe-timeout" };
+        const result = await session.send("Browser.getVersion");
+        return result?.product === version.browser && result?.protocolVersion === version.protocol
+          ? { eligible: true }
+          : { eligible: false, reason: "control-version-mismatch" };
+      })(),
+    ]);
+  } catch (error) {
+    return { eligible: false, ...cdpFailureDetails(error) };
+  } finally {
+    finished = true;
+    clearTimer(timer);
+    try { session?.close(); } catch { /* The probe result remains authoritative. */ }
+  }
 }
 
 function forwardState(result, serial, port) {
@@ -107,11 +141,14 @@ export async function waitForChromeReady(options, dependencies = {}) {
     ["-s", options.serial, "shell", "pidof", "com.android.chrome"],
     { encoding: "utf8", timeout, maxBuffer: 4096 }));
   const probe = dependencies.probe ?? readDevtoolsVersion;
+  const control = dependencies.control ?? readDevtoolsControl;
   const start = now();
   const deadline = start + READINESS_TIMEOUT_MS;
-  const counters = { attempts: 0, validResponses: 0, rejectedResponses: 0, browserReplacements: 0, unavailableForwardChecks: 0 };
+  const counters = { attempts: 0, validResponses: 0, rejectedResponses: 0, browserReplacements: 0, unavailableForwardChecks: 0,
+    controlAttempts: 0, controlFailures: 0 };
   let first;
   let lastReason = "deadline-expired";
+  let lastControlFailure;
   const result = (eligible, reason, second) => ({
     type: "chrome-readiness", schemaVersion: 1, label: options.label,
     eligible, classification: eligible ? "CHROME_READY" : "FAILED_CHROME_READINESS",
@@ -120,7 +157,8 @@ export async function waitForChromeReady(options, dependencies = {}) {
     firstStableResponseHostTimeUnixMs: eligible ? first.wallTime : null,
     readyHostTimeUnixMs: eligible ? second.wallTime : null,
     browser: eligible ? second.browser : null, protocol: eligible ? second.protocol : null,
-    sameForward: eligible, sameBrowserInstance: eligible, ...counters,
+    sameForward: eligible, sameBrowserInstance: eligible, controlReady: eligible,
+    ...(lastControlFailure ? { lastControlFailure } : {}), ...counters,
   });
   const checkForward = async () => {
     if (now() >= deadline) return "deadline";
@@ -149,16 +187,42 @@ export async function waitForChromeReady(options, dependencies = {}) {
     if (before === "active" && now() < deadline) {
       const pidBefore = await chromePid();
       let body;
+      let candidate;
+      let controlFailed = false;
       if (pidBefore && now() < deadline) {
         try { body = await probe(options.port, Math.max(1, Math.min(PROBE_TIMEOUT_MS, Math.floor(deadline - now())))); }
         catch { body = undefined; }
+        candidate = parseVersionResponse(body, options.port);
+        if (candidate && now() < deadline) {
+          counters.controlAttempts += 1;
+          let response;
+          try { response = await control(candidate, Math.max(1, Math.min(PROBE_TIMEOUT_MS, Math.floor(deadline - now())))); }
+          catch { response = { eligible: false, reason: "benchmark-operation-failed" }; }
+          if (response?.eligible !== true) {
+            counters.controlFailures += 1;
+            controlFailed = true;
+            candidate = undefined;
+            // The real adapter only returns fixed fields; explicitly select
+            // them so a future adapter cannot accidentally publish Chrome data.
+            lastControlFailure = {
+              reason: ["control-probe-timeout", "control-version-mismatch", "websocket-closed", "websocket-error",
+                "websocket-open-timeout", "invalid-cdp-response", "command-failed", "session-closed",
+                "websocket-send-failed", "websocket-not-open"].includes(response?.reason)
+                ? response.reason : "control-probe-failed",
+              ...(response?.operation === "Browser.getVersion" ? { operation: response.operation } : {}),
+              ...(Number.isInteger(response?.websocketCloseCode) && response.websocketCloseCode >= 1000 && response.websocketCloseCode <= 4999
+                ? { websocketCloseCode: response.websocketCloseCode } : {}),
+              ...(Number.isSafeInteger(response?.protocolCode) ? { protocolCode: response.protocolCode } : {}),
+            };
+          }
+        } else candidate = undefined;
       }
       const pidAfter = await chromePid();
       const after = await checkForward();
       if (after === "mismatch") return result(false, "forward-target-mismatch");
       const replaced = pidBefore && pidAfter && pidBefore !== pidAfter;
       if (after === "active" && pidBefore && pidBefore === pidAfter) {
-        parsed = parseVersionResponse(body, options.port);
+        parsed = candidate;
         if (parsed) parsed.identity = `${pidBefore}|${parsed.identity}`;
       } else if (replaced) counters.browserReplacements += 1;
       // Exhausting the budget prevented this check; it did not observe a
@@ -166,10 +230,12 @@ export async function waitForChromeReady(options, dependencies = {}) {
       // process replacement if its PID read consumed the remaining budget.
       if (after === "deadline") {
         if (replaced) lastReason = "chrome-process-unavailable-or-replaced";
+        else if (controlFailed) lastReason = "devtools-control-unavailable";
         break;
       }
       lastReason = after !== "active" ? "forward-unavailable" : !pidBefore || pidBefore !== pidAfter
-        ? "chrome-process-unavailable-or-replaced" : "invalid-or-incomplete-version-response";
+        ? "chrome-process-unavailable-or-replaced" : controlFailed
+          ? "devtools-control-unavailable" : "invalid-or-incomplete-version-response";
     } else if (before === "unavailable") lastReason = "forward-unavailable";
     if (now() >= deadline) break;
     if (!parsed) {
@@ -207,9 +273,10 @@ export async function captureChromeReadiness(options, dependencies = {}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const result = await captureChromeReadiness(parseArgs(process.argv.slice(2)));
-    if (!result.eligible) process.exitCode = 2;
+    // The receipt is already written synchronously. End any lingering native
+    // WebSocket close handshake rather than extending the readiness deadline.
+    process.exit(result.eligible ? 0 : 2);
   } catch {
-    process.stderr.write("Chrome readiness evidence unavailable or arguments invalid\n");
-    process.exitCode = 2;
+    process.stderr.write("Chrome readiness evidence unavailable or arguments invalid\n", () => process.exit(2));
   }
 }

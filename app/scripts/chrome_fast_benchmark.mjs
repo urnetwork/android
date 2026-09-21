@@ -7,6 +7,7 @@
 
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { CdpSession, cdpFailureDetails } from "./chrome_cdp.mjs";
 
 export function parseArgs(argv) {
   const options = { port: 9222, timeoutMs: 90_000, stableMs: 5_000 };
@@ -55,6 +56,7 @@ class Deadline {
   remaining() { return Math.max(0, this.end - this.now()); }
 
   async wait(phase, operation, maximumMs = Infinity) {
+    this.phase = phase;
     const remaining = Math.min(this.remaining(), maximumMs);
     if (remaining <= 0) throw new DeadlineError(phase);
     return new Promise((resolve, reject) => {
@@ -76,88 +78,6 @@ class Deadline {
         );
       } catch (error) { finish(error); }
     });
-  }
-}
-
-class CdpSession {
-  constructor(webSocketUrl) {
-    this.nextId = 1;
-    this.pending = new Map();
-    this.listeners = new Map();
-    this.socket = new WebSocket(webSocketUrl);
-    this.failure = null;
-    this.socket.addEventListener("close", () => this.fail(new Error("DevTools websocket closed")));
-    this.socket.addEventListener("error", () => this.fail(new Error("DevTools websocket failed")));
-  }
-
-  fail(error) {
-    this.failure ??= error;
-    for (const pending of this.pending.values()) pending.reject(this.failure);
-    this.pending.clear();
-  }
-
-  async open(timeoutMs) {
-    await new Promise((resolve, reject) => {
-      const timer = setTimeout(
-        () => reject(new Error("DevTools websocket open timeout")),
-        timeoutMs,
-      );
-      this.socket.addEventListener(
-        "open",
-        () => {
-          clearTimeout(timer);
-          resolve();
-        },
-        { once: true },
-      );
-      this.socket.addEventListener(
-        "error",
-        () => {
-          clearTimeout(timer);
-          reject(new Error("DevTools websocket open failed"));
-        },
-        { once: true },
-      );
-      this.socket.addEventListener("message", (event) => {
-        let message;
-        try { message = JSON.parse(event.data); }
-        catch { this.fail(new Error("Invalid DevTools response")); return; }
-        if (message.id !== undefined) {
-          const pending = this.pending.get(message.id);
-          if (!pending) return;
-          this.pending.delete(message.id);
-          if (message.error) pending.reject(new Error(message.error.message));
-          else pending.resolve(message.result ?? {});
-          return;
-        }
-        const listeners = this.listeners.get(message.method);
-        if (listeners) {
-          for (const listener of listeners) listener(message.params ?? {});
-        }
-      });
-    });
-  }
-
-  send(method, params = {}) {
-    if (this.failure) return Promise.reject(this.failure);
-    const id = this.nextId++;
-    return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
-      try { this.socket.send(JSON.stringify({ id, method, params })); }
-      catch (error) { this.pending.delete(id); reject(error); }
-    });
-  }
-
-  on(method, listener) {
-    const listeners = this.listeners.get(method) ?? new Set();
-    listeners.add(listener);
-    this.listeners.set(method, listeners);
-  }
-
-  close() {
-    this.fail(new Error("DevTools session closed"));
-    this.listeners.clear();
-    this.socket.close();
   }
 }
 
@@ -309,6 +229,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
     if (completionReason === null) throw new DeadlineError("display-poll");
   } catch (error) {
     failure = error;
+    if (failure instanceof Error && failure.phase === undefined) failure.phase = deadline.phase;
   } finally {
     measuredAt = now();
     try { session?.close(); } catch { cleanupComplete = false; }
@@ -321,7 +242,10 @@ export async function runFastBenchmark(options, dependencies = {}) {
         await deadline.wait("target-cleanup", () => closing, 1_000);
       } catch (error) {
         cleanupComplete = false;
-        failure ??= error;
+        if (!failure) {
+          failure = error;
+          if (failure instanceof Error && failure.phase === undefined) failure.phase = "target-cleanup";
+        }
       }
     }
     try { browser?.close(); } catch { cleanupComplete = false; }
@@ -370,7 +294,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   // close(). The owned target has already had its bounded cleanup attempt;
   // flush the aggregate before ending the CLI, even if Chrome never replies.
   main(process.argv.slice(2), { emit: value => new Promise(resolve => process.stdout.write(`${value}\n`, resolve)) })
-    .then(code => process.exit(code)).catch(() => {
-      process.stderr.write("Fast.com benchmark failed\n", () => process.exit(1));
+    .then(code => process.exit(code)).catch(error => {
+      const phases = new Set(["browser-discovery", "browser-open", "target-create", "target-discovery", "page-open",
+        "page-enable", "cache-disable", "cache-clear", "navigation", "display-poll", "display-evaluate", "target-cleanup"]);
+      process.stderr.write(`${JSON.stringify({ type: "fast-error", ...cdpFailureDetails(error),
+        ...(phases.has(error?.phase) ? { phase: error.phase } : {}) })}\n`, () => process.exit(1));
     });
 }

@@ -6,7 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { captureChromeReadiness, parseArgs, parseVersionResponse, readDevtoolsVersion,
-  READINESS_TIMEOUT_MS, STABLE_RESPONSE_GAP_MS, waitForChromeReady } from "./chrome_readiness.mjs";
+  readDevtoolsControl, READINESS_TIMEOUT_MS, STABLE_RESPONSE_GAP_MS, waitForChromeReady } from "./chrome_readiness.mjs";
+import { CdpError } from "./chrome_cdp.mjs";
 
 const PORT = 9223;
 const version = (token = "private-browser-A") => JSON.stringify({ "Android-Package": "com.android.chrome",
@@ -20,6 +21,7 @@ function fixture() {
   const waits = [];
   const f = { options: { serial: "fake-device", port: PORT, label: "cell-01" }, probeTimes, waits,
     responses: [version()], forward: active, processIdentity: () => ({ status: 0, stdout: "4321\n" }),
+    control: async () => ({ eligible: true }),
     get time() { return time; }, advance(ms) { time += ms; },
     deps: { now: () => time, wallNow: () => 1_000_000 + time,
       sleep: async (ms) => { assert.ok(ms > 0); waits.push(ms); time += ms; },
@@ -27,6 +29,8 @@ function fixture() {
       processIdentity: async (timeout) => { assert.ok(timeout > 0 && timeout <= 2000); return f.processIdentity(); },
       probe: async (port, timeout) => { assert.equal(port, PORT); assert.ok(timeout > 0 && timeout <= 2000);
         probeTimes.push(time); return f.responses.length > 1 ? f.responses.shift() : f.responses[0]; },
+      control: async (value, timeout) => { assert.ok(timeout > 0 && timeout <= 2000);
+        assert.match(value.webSocketUrl, /^ws:\/\/localhost:9223\/devtools\/browser/); return f.control(value, timeout); },
     },
   };
   return f;
@@ -53,6 +57,85 @@ test("cbI1op root: initial zero-byte/connection-reset response is not readiness 
   assert.equal(result.rejectedResponses, 2);
   assert.equal(result.sameBrowserInstance, true);
   assert.equal(result.elapsedMs, 5500);
+});
+
+test("eoAtPH readiness gap: stable HTTP version and browser PID cannot qualify a closing control websocket", async () => {
+  const f = fixture();
+  f.control = async () => ({ eligible: false, reason: "websocket-closed", operation: "Browser.getVersion",
+    websocketCloseCode: 1006, message: "private token", webSocketUrl: "ws://private" });
+  const result = await waitForChromeReady(f.options, f.deps);
+  assert.equal(result.eligible, false);
+  assert.equal(result.classification, "FAILED_CHROME_READINESS");
+  assert.equal(result.reason, "deadline-expired:devtools-control-unavailable");
+  assert.equal(result.controlReady, false);
+  assert.equal(result.elapsedMs, READINESS_TIMEOUT_MS);
+  assert.equal(result.validResponses, 0);
+  assert.ok(result.controlAttempts > 1);
+  assert.equal(result.controlFailures, result.controlAttempts);
+  assert.deepEqual(result.lastControlFailure, {
+    reason: "websocket-closed", operation: "Browser.getVersion", websocketCloseCode: 1006,
+  });
+  assert.doesNotMatch(JSON.stringify(result), /private|4321|ws:\/\//);
+});
+
+test("a failed control probe discards the first HTTP pair before fresh five-second readiness", async () => {
+  const f = fixture(); let calls = 0;
+  f.control = async () => ++calls === 2 ? { eligible: false, reason: "control-probe-timeout" } : { eligible: true };
+  const result = await waitForChromeReady(f.options, f.deps);
+  assert.equal(result.eligible, true);
+  assert.equal(result.controlReady, true);
+  assert.equal(result.controlAttempts, 4);
+  assert.equal(result.controlFailures, 1);
+  assert.equal(result.firstStableResponseHostTimeUnixMs, 1_005_250);
+  assert.equal(result.stableGapMs, STABLE_RESPONSE_GAP_MS);
+});
+
+test("control adapter uses only the same websocket's read-only version command and exact version", async () => {
+  for (const variant of ["pass", "wrong-version", "wrong-protocol", "closed"]) {
+    const calls = [];
+    const parsed = parseVersionResponse(version(), PORT);
+    const result = await readDevtoolsControl(parsed, 1000, { createSession: url => {
+      assert.equal(url, parsed.webSocketUrl);
+      return {
+        open: async ms => { assert.equal(ms, 1000); calls.push("open"); },
+        send: async method => {
+          calls.push(method);
+          if (variant === "closed") throw new CdpError("websocket-closed", method, 1001);
+          return { product: variant === "wrong-version" ? "Chrome/999.0" : parsed.browser,
+            protocolVersion: variant === "wrong-protocol" ? "9.0" : parsed.protocol, userAgent: "private user agent" };
+        },
+        close: () => calls.push("close"),
+      };
+    } });
+    assert.equal(result.eligible, variant === "pass");
+    assert.deepEqual(calls, ["open", "Browser.getVersion", "close"]);
+    if (variant.startsWith("wrong")) assert.equal(result.reason, "control-version-mismatch");
+    if (variant === "closed") assert.deepEqual(result, {
+      eligible: false, reason: "websocket-closed", operation: "Browser.getVersion", websocketCloseCode: 1001,
+    });
+    assert.doesNotMatch(JSON.stringify(result), /private|ws:\/\//);
+  }
+});
+
+test("one control deadline covers handshake plus command and prevents late-open commands", async () => {
+  for (const phase of ["open", "command"]) {
+    let release;
+    const held = new Promise(resolve => { release = resolve; });
+    const calls = [];
+    const result = await readDevtoolsControl(parseVersionResponse(version(), PORT), 2000, {
+      setTimer: callback => setImmediate(callback), clearTimer: clearImmediate,
+      createSession: () => ({
+        open: async () => { calls.push("open"); if (phase === "open") await held; },
+        send: async method => { calls.push(method); return held; },
+        close: () => calls.push("close"),
+      }),
+    });
+    assert.deepEqual(result, { eligible: false, reason: "control-probe-timeout" });
+    assert.deepEqual(calls, phase === "open" ? ["open", "close"] : ["open", "Browser.getVersion", "close"]);
+    release({ product: "private late response" });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(calls.at(-1), "close", "a delayed handshake cannot send after the probe finished");
+  }
 });
 
 test("an invalid second response discards the first and requires a new five-second pair", async () => {

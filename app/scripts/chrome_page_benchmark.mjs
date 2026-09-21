@@ -13,6 +13,7 @@
 // browser DNS/connection sample is required.
 
 import process from "node:process";
+import { CdpSession, cdpFailureDetails } from "./chrome_cdp.mjs";
 
 function parseArgs(argv) {
   const options = {
@@ -81,148 +82,6 @@ function usage() {
     "  --target-id ID       navigate and close an existing target (one sample only)",
     "  --waterfall          emit every cross-origin request timing",
   ].join("\n");
-}
-
-class CdpSession {
-  constructor(webSocketUrl) {
-    this.nextId = 1;
-    this.pending = new Map();
-    this.waiters = new Map();
-    this.listeners = new Map();
-    this.socket = new WebSocket(webSocketUrl);
-  }
-
-  async open(timeoutMs) {
-    await new Promise((resolve, reject) => {
-      const timer = setTimeout(
-        () => reject(new Error("DevTools websocket open timeout")),
-        timeoutMs,
-      );
-      this.socket.addEventListener(
-        "open",
-        () => {
-          clearTimeout(timer);
-          resolve();
-        },
-        { once: true },
-      );
-      this.socket.addEventListener(
-        "error",
-        () => {
-          clearTimeout(timer);
-          reject(new Error("DevTools websocket open failed"));
-        },
-        { once: true },
-      );
-      this.socket.addEventListener("message", (event) => {
-        this.handleMessage(event.data);
-      });
-      this.socket.addEventListener("close", () => {
-        const error = new Error("DevTools websocket closed");
-        for (const { reject: rejectPending } of this.pending.values()) {
-          rejectPending(error);
-        }
-        this.pending.clear();
-        for (const eventWaiters of this.waiters.values()) {
-          for (const waiter of eventWaiters) {
-            clearTimeout(waiter.timer);
-            waiter.reject(error);
-          }
-        }
-        this.waiters.clear();
-      });
-    });
-  }
-
-  handleMessage(data) {
-    const message = JSON.parse(data);
-    if (message.id !== undefined) {
-      const pending = this.pending.get(message.id);
-      if (!pending) {
-        return;
-      }
-      this.pending.delete(message.id);
-      if (message.error) {
-        pending.reject(
-          new Error(
-            `${pending.method}: ${message.error.message ?? JSON.stringify(message.error)}`,
-          ),
-        );
-      } else {
-        pending.resolve(message.result ?? {});
-      }
-      return;
-    }
-    if (!message.method) {
-      return;
-    }
-    const eventListeners = this.listeners.get(message.method);
-    if (eventListeners) {
-      for (const listener of [...eventListeners]) {
-        listener(message.params ?? {});
-      }
-    }
-    const eventWaiters = this.waiters.get(message.method);
-    if (!eventWaiters) {
-      return;
-    }
-    for (const waiter of [...eventWaiters]) {
-      if (!waiter.predicate(message.params ?? {})) {
-        continue;
-      }
-      clearTimeout(waiter.timer);
-      eventWaiters.delete(waiter);
-      waiter.resolve(message.params ?? {});
-    }
-    if (eventWaiters.size === 0) {
-      this.waiters.delete(message.method);
-    }
-  }
-
-  send(method, params = {}) {
-    const id = this.nextId++;
-    return new Promise((resolve, reject) => {
-      this.pending.set(id, { method, resolve, reject });
-      this.socket.send(JSON.stringify({ id, method, params }));
-    });
-  }
-
-  waitFor(method, predicate, timeoutMs) {
-    return new Promise((resolve, reject) => {
-      const eventWaiters = this.waiters.get(method) ?? new Set();
-      const waiter = {
-        predicate,
-        resolve,
-        reject,
-        timer: undefined,
-      };
-      waiter.timer = setTimeout(() => {
-        eventWaiters.delete(waiter);
-        if (eventWaiters.size === 0) {
-          this.waiters.delete(method);
-        }
-        reject(new Error(`${method} timeout after ${timeoutMs} ms`));
-      }, timeoutMs);
-      eventWaiters.add(waiter);
-      this.waiters.set(method, eventWaiters);
-    });
-  }
-
-  on(method, listener) {
-    const eventListeners = this.listeners.get(method) ?? new Set();
-    eventListeners.add(listener);
-    this.listeners.set(method, eventListeners);
-    return () => {
-      eventListeners.delete(listener);
-      if (eventListeners.size === 0) {
-        this.listeners.delete(method);
-      }
-    };
-  }
-
-  close() {
-    this.socket.close();
-  }
 }
 
 async function fetchJson(url, options = {}) {
@@ -602,17 +461,16 @@ async function measureNavigation(
       activeRequests.delete(event.requestId);
     });
 
-    const load = session.waitFor("Page.loadEventFired", () => true, timeoutMs);
+    // Chrome can close before Page.navigate replies. Observe the event wait's
+    // rejection immediately so it cannot become an unhandled rejection while
+    // the navigation command and owned-target cleanup are still being joined.
+    const load = session.waitFor("Page.loadEventFired", () => true, timeoutMs)
+      .then(() => undefined, error => error);
     const navigation = await session.send("Page.navigate", { url });
     if (navigation.errorText) {
       throw new Error(`navigation failed: ${navigation.errorText}`);
     }
-    let loadError;
-    try {
-      await load;
-    } catch (error) {
-      loadError = error;
-    }
+    const loadError = await load;
     if (settleMs > 0) {
       await new Promise((resolve) => setTimeout(resolve, settleMs));
     }
@@ -956,6 +814,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.stack ?? String(error));
-  process.exitCode = 1;
+  // A websocket close handshake may leave a host handle alive after cleanup.
+  // Preserve one bounded, secret-free setup/control failure and terminate.
+  process.stderr.write(`${JSON.stringify({ type: "page-error", ...cdpFailureDetails(error) })}\n`, () => process.exit(1));
 });

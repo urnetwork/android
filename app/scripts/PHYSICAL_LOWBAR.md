@@ -158,12 +158,16 @@ Immediately after Chrome launch, `/json/version` can close with zero bytes
 (curl exit 52) even though a later response is valid. The helper retries
 within a fixed **30-second deadline**, then requires two complete valid Chrome
 JSON responses at least **5,000 ms apart**, identifying the same browser
-instance. An empty, failed, truncated or malformed response invalidates the
+instance. Each response must also complete `Browser.getVersion` through its
+exact WebSocket endpoint with the same product/protocol. A single two-second
+budget covers that read-only handshake and command inside the overall deadline.
+An empty, failed, truncated or malformed response, closed control socket, or
+mismatched control version invalidates the
 pending pair; a replacement browser starts a fresh five-second pair within
 the same deadline. Neither one valid response nor matching version strings
 alone qualifies. A restart/replacement is recorded, not hidden.
 
-Before and after each bounded local HTTP request, the helper verifies the
+Before and after each bounded local HTTP plus WebSocket probe, the helper verifies the
 existing `tcp:$CDP_PORT` forward maps to this serial's
 `localabstract:chrome_devtools_remote`. A different device/socket fails closed.
 Read-only `pidof com.android.chrome` checks also require one unchanged browser
@@ -173,9 +177,24 @@ that path alone is not process identity. Missing/multiple PIDs cannot qualify.
 The helper never discovers another device, recreates a forward, restarts Chrome, or
 requests a public website. Do not change that forward between readiness and
 the workload. Its exclusive mode-0600 result contains version/protocol and
-aggregate timing/rejection counters, never raw responses, user agents, serials,
+aggregate timing/rejection counters plus fixed control failure categories and
+numeric protocol/close codes, never raw responses, user agents, serials,
 or debugger URLs/tokens. Failed results are retained too. A yielded host call
 still needs to be joined to terminal status; the deadline is not a success.
+
+In arm `eoAtPH`, that HTTP-only gate passed but the Wikipedia and all three
+Fast.com children exited 1 in 533–849 ms without a page/speed sample. The page
+runner lost the original operation when its unobserved load-event promise
+rejected during navigation; Fast.com discarded the entire error. The shared
+CDP client now rejects closed sockets promptly, preserves the operation and
+numeric close code, and the page runner observes its load rejection immediately.
+CLI failures emit one sanitized `page-error`/`fast-error` to private stderr;
+Fast.com also retains the fixed lifecycle phase. They remain setup/control
+failures, never zero-speed results or a completed memory qualification.
+Preserve them and finish the same arm normally; do not retry those children.
+The new readiness check catches unavailable browser control before traffic.
+It does not prove the cause of the original physical socket closure, or rule
+out a later closure after readiness. No keyguard/crash cause has been established.
 
 For iOS-profile memory work, build the app and Android-test APK with both
 `-PurnetworkMemoryProfile=ios-memory-audit-v1` and a unique
@@ -1677,6 +1696,8 @@ node --test app/scripts/physical_lowbar_capture_test.mjs \
   app/scripts/physical_host_launch_test.mjs \
   app/scripts/physical_diagnostic_command_test.mjs \
   app/scripts/physical_diagnostic_copy_test.mjs \
+  app/scripts/chrome_cdp_test.mjs app/scripts/chrome_page_benchmark_test.mjs \
+  app/scripts/chrome_fast_benchmark_test.mjs app/scripts/chrome_video_probe_test.mjs \
   app/scripts/chrome_readiness_test.mjs \
   app/scripts/physical_memory_profile_test.mjs \
   app/scripts/physical_workload_receipt_test.mjs \
