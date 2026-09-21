@@ -15,6 +15,7 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
     hostTimeUnixMs: base + elapsedMs,
     workloads,
     status: { type: "status", state: "complete", phase, pid: 42, commandId,
+      goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 20 * 1024 * 1024 },
       elapsedMs, connected: role === "client", tunnelStarted: role === "client",
       provideEnabled: role === "provider" },
@@ -22,6 +23,7 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
   return {
     role, phase, underlay: "wifi", start: status(0, "quiet-start"), end: status(durationMs, "quiet-end"),
     memory: Array.from({ length: 21 }, (_, i) => ({ type: "sample", phase,
+      goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024,
       elapsedMs: durationMs * i / 20, samplerDropped: 0, goRuntimeBytes: 20 * 1024 * 1024 })),
     telemetry: [{ type: "environment", label: "post-traffic" }, ...Array.from({ length: Math.ceil(durationMs / 1000) + 1 }, (_, i) => ({
@@ -47,6 +49,41 @@ test("five minutes is a fixed floor, not sample count or rounded elapsed time", 
   assert.throws(() => parseArgs(["--duration-seconds", "240"]), /invalid/);
 });
 
+test("paZ8U8: profiling overhead cannot pass as release memory, even with valid iOS budgets", () => {
+  const input = evidence();
+  for (const boundary of [input.start, input.end]) boundary.status.goMemoryProfileRateBytes = 65_536;
+  for (const sample of input.memory) sample.goMemoryProfileRateBytes = 65_536;
+  const result = rejects(input, "ios-memory-profile-rate-not-zero");
+  assert.equal(result.classification, "INVALID_RATE_ZERO");
+  assert.ok(result.reasons.includes("sampler-memory-profile-rate-not-zero"));
+  // Bucket accounting is explanatory only. Never subtract it from the gate.
+  input.memory[10].goRuntimeBytes = 25_442_584;
+  input.memory[10].goProfilingBucketBytes = 1_850_363;
+  const breached = rejects(input, "go-runtime-above-24-mib");
+  assert.equal(breached.classification, "FAILED_MEMORY_LIMIT");
+  assert.equal(breached.goRuntimeBreachSampleCount, 1);
+  assert.ok(breached.reasons.includes("sampler-memory-profile-rate-not-zero"));
+});
+
+test("rate zero must be proved at both boundaries and every active, quiet, and teardown sample", () => {
+  for (const rate of [65_536, undefined, null, "0", false, -1]) {
+    for (const phase of ["start", "end", "traffic", "quiet", "finish"]) {
+      const input = evidence();
+      if (["start", "end"].includes(phase)) {
+        input[phase].status.goMemoryProfileRateBytes = rate;
+      } else if (phase === "quiet") {
+        input.memory[10].goMemoryProfileRateBytes = rate;
+      } else {
+        input.memory.push({ ...input.memory[0], phase, elapsedMs: phase === "traffic" ? -1 : REQUIRED_QUIET_MS + 1,
+          goMemoryProfileRateBytes: rate });
+      }
+      const result = evaluateQuietWindow(input);
+      assert.equal(result.classification, "INVALID_RATE_ZERO", `${phase}, ${rate}`);
+      assert.equal(result.eligible, false);
+    }
+  }
+});
+
 test("lY1fH2 regression: correct quiet duration/network never qualifies the larger Android profile", () => {
   const input = evidence();
   for (const boundary of [input.start, input.end]) {
@@ -68,7 +105,7 @@ test("profile must match both boundaries and every primitive sample, including a
     (input) => { input.memory[10].goMemoryLimitBytes = 40 * 1024 * 1024; },
     (input) => { delete input.memory[10].goMemoryLimitBytes; },
     (input) => { input.memory.unshift({ type: "sample", elapsedMs: -1, phase: "traffic", goRuntimeBytes: 20 * 1024 * 1024,
-      goMemoryLimitBytes: 40 * 1024 * 1024 }); },
+      goMemoryLimitBytes: 40 * 1024 * 1024, goMemoryProfileRateBytes: 0 }); },
   ]) {
     const input = evidence(); mutate(input);
     assert.equal(evaluateQuietWindow(input).classification, "INVALID_MEMORY_PROFILE");
@@ -207,7 +244,7 @@ test("kqVGmc: global burst peak must fail without being mislabeled as a quiet-wi
   input.memory[1].goRuntimeBytes = 24_723_488;
   for (const [index, bytes] of [25_509_920, 26_050_592, 26_353_696].entries()) {
     input.memory.unshift({ type: "sample", elapsedMs: -15_000 * (index + 1), phase: "traffic",
-      goMemoryLimitBytes: 32 * 1024 * 1024, goRuntimeBytes: bytes });
+      goMemoryLimitBytes: 32 * 1024 * 1024, goMemoryProfileRateBytes: 0, goRuntimeBytes: bytes });
   }
   const first = evaluateQuietWindow(input);
   assert.equal(first.classification, "FAILED_MEMORY_LIMIT");

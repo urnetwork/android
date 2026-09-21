@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { evaluateEligibility } from "./physical_lowbar_capture.mjs";
-import { evaluateMemoryProfile, GO_MEMORY_LIMIT_BYTES } from "./physical_memory_profile.mjs";
+import { evaluateMemoryProfile, GO_MEMORY_LIMIT_BYTES, QUALIFICATION_PROFILE_RATE_BYTES } from "./physical_memory_profile.mjs";
 import { evaluateWorkloadCoverage, requireLiveCollector } from "./physical_workload_receipt.mjs";
 
 export const REQUIRED_QUIET_MS = 300_000;
@@ -43,7 +43,13 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
       fail("completed-quiet-boundaries-required");
     }
     if (!status || !roleMatches(status, role)) fail("quiet-role-not-preserved");
-    if (!evaluateMemoryProfile(status).eligible) fail("ios-memory-audit-profile-mismatch");
+    const profile = evaluateMemoryProfile(status);
+    if (profile.reasons.some((reason) => reason !== "go-memory-profile-rate-not-zero")) {
+      fail("ios-memory-audit-profile-mismatch");
+    }
+    if (status?.goMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES) {
+      fail("ios-memory-profile-rate-not-zero");
+    }
   }
   const firstStatus = start?.status;
   const lastStatus = end?.status;
@@ -59,6 +65,9 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   let peakGoRuntimeBytes = 0;
   for (const record of allSamples) {
     if (record.goMemoryLimitBytes !== GO_MEMORY_LIMIT_BYTES) fail("sampler-go-memory-limit-not-32-mib");
+    if (record.goMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES) {
+      fail("sampler-memory-profile-rate-not-zero");
+    }
     if (!Number.isFinite(record.goRuntimeBytes) || record.goRuntimeBytes <= 0) {
       fail("memory-measurement-missing");
     } else {
@@ -138,6 +147,8 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     schemaVersion: 2,
     eligible: reasons.size === 0,
     classification: reasons.has("go-runtime-above-24-mib") ? "FAILED_MEMORY_LIMIT" :
+      reasons.has("ios-memory-profile-rate-not-zero") || reasons.has("sampler-memory-profile-rate-not-zero") ?
+        "INVALID_RATE_ZERO" :
       reasons.has("ios-memory-audit-profile-mismatch") || reasons.has("sampler-go-memory-limit-not-32-mib") ?
         "INVALID_MEMORY_PROFILE" :
       reasons.has("workload-collector-evidence-required") || reasons.has("workload-collector-coverage-incomplete") ?
@@ -157,6 +168,7 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     goRuntimeBreachSampleCount,
     quietGoRuntimeBreachSampleCount,
     goRuntimeLimitBytes: GO_RUNTIME_LIMIT_BYTES,
+    requiredGoMemoryProfileRateBytes: QUALIFICATION_PROFILE_RATE_BYTES,
     reasons: [...reasons],
   };
 }
@@ -230,7 +242,7 @@ function main() {
     result.eligible = false;
     result.connectedClientEvidence = false;
     result.reasons.push("collector-not-live-at-final-gate");
-    if (!["FAILED_MEMORY_LIMIT", "INVALID_MEMORY_PROFILE"].includes(result.classification)) {
+    if (!["FAILED_MEMORY_LIMIT", "INVALID_MEMORY_PROFILE", "INVALID_RATE_ZERO"].includes(result.classification)) {
       result.classification = "INCOMPLETE_ACTIVE_COVERAGE";
     }
   }

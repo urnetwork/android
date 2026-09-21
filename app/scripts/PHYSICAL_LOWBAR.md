@@ -427,24 +427,29 @@ not used: signal permission is not the ownership contract.
 Before connecting or driving public traffic, capture the retained owner's
 fresh ready status and require the **offline** profile gate to exit 0. The
 effective values must be exactly 20-MiB device admission and 32-MiB Go soft
-limit; a smaller observed runtime is not a substitute. A missing build flag
+limit, with live `goMemoryProfileRateBytes=0`; a smaller observed runtime is not
+a substitute. A missing build flag
 selects Android's 28/40-MiB policy and makes the cohort incomparable. A unique
 build ID by itself does not prove the memory profile.
 
 ```sh
 umask 077
 node app/scripts/physical_quiet_gate.mjs --serial "$SERIAL" \
-  --capture-status "$PRIVATE_DIR/ready-profile-status.json"
+  --capture-status "$PRIVATE_DIR/ready-profile-status.json" || exit 2
 node app/scripts/physical_memory_profile.mjs \
+  --mode qualification \
   --status "$PRIVATE_DIR/ready-profile-status.json" \
-  >"$PRIVATE_DIR/memory-profile-gate.json"
-# Only exit 0 permits connect/traffic; otherwise preserve INVALID_MEMORY_PROFILE
+  >"$PRIVATE_DIR/memory-profile-gate.json" || exit 2
+# Only exit 0 permits connect/traffic; preserve INVALID_MEMORY_PROFILE/INVALID_RATE_ZERO
 # and take the common finish/credential-cleanup path. Do not retry into the row.
 ```
 
 This read-only capture is preflight evidence, **not a quiet boundary**. The
 quiet gate independently rechecks both boundaries' admission/soft-limit inputs
-and every primitive sample's soft limit, including active and teardown samples.
+and every primitive sample's soft limit and zero profile rate, including active
+and teardown samples. Missing or nonnumeric rates also fail. Both native and
+app/test builds must use `-PurnetworkMemoryProfileRateBytes=0` for qualification;
+do not reuse a diagnostic AAR or disable profiling after it has initialized.
 A profile mismatch never suppresses a measured >24-MiB failure; it additionally
 disqualifies baseline comparison. Neither gate changes the app's budgets.
 
@@ -1344,6 +1349,15 @@ a fresh `preflight` label and require a matching `complete` status and a
 nonempty schema-1 private file. An old SDK binding fails closed; compiling the
 test APK alone does not demonstrate availability. Verify its reported sampling
 rate is 65536 in addition to the normal iOS-profile gate.
+
+For this diagnostic only, pass explicit `--mode diagnostic` to
+`physical_memory_profile.mjs`. Its default (and `--mode qualification`) requires
+rate zero. Diagnostic mode still checks the same 20/32-MiB policy, requires
+exactly 65536 live sampling, and returns `DIAGNOSTIC_PROFILE_READY` with
+`qualificationEligible=false`. This opt-in never enables quiet qualification:
+the absolute gate continues to require rate zero in both status boundaries and
+every sample. Keep any measured breach, including profiling overhead, in the
+diagnostic results. Do not subtract profiling buckets to claim a memory pass.
 
 Use the host diagnostic publisher, not an inline `adb ... sh -c` command:
 

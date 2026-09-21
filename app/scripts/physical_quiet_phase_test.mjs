@@ -17,6 +17,7 @@ function fixture(t, base = 1_000_000) {
   let published = false;
   let reads = 0;
   let current = { type: "status", state: "complete", commandId: "traffic-end", phase: "traffic",
+    goMemoryProfileRateBytes: 0,
     goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 20 * 1024 * 1024 },
     pid: 17, elapsedMs: 1000, connected: true, tunnelStarted: true, provideEnabled: false };
   const calls = [];
@@ -138,6 +139,7 @@ test("end inherits exact phase/process and uses a fresh command ID; gate accepts
   assert.notEqual(end.status.commandId, start.status.commandId);
   const result = evaluateQuietWindow({ start, end, phase: start.status.phase, role: "client", underlay: "wifi",
     memory: Array.from({ length: 21 }, (_, i) => ({ type: "sample", phase: start.status.phase,
+      goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024,
       elapsedMs: start.status.elapsedMs + (i + 1) * 15000, samplerDropped: 0, goRuntimeBytes: 20 * 1024 * 1024 })),
     telemetry: [{ type: "environment", label: "run-01" }, ...Array.from({ length: 332 }, (_, i) => ({ type: "sample",
