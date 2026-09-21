@@ -549,19 +549,31 @@ PID, and wait for at least one fresh eligible telemetry sample. Keep it alive
 through the final quiet gate. Starting it after Wikipedia/fast.com is
 `INCOMPLETE_ACTIVE_COVERAGE`, even if all five quiet minutes are captured.
 
-Use `physical_collector_session.mjs` for the retained launch. Start `run` below
+Use `physical_host_launch.sh collector` for the retained launch. It resolves
+`physical_collector_session.mjs` beside itself and execs its unchanged `run`
+command. Start the command below
 as its own foreground PTY/session (`exec_command` with `tty:true` and a short
 yield); keep the returned session ID until it terminates. Do not append `&`,
 use a one-shot background shell, or redirect the owner itself. The helper
 requires a foreground terminal and creates the child's private output files.
 It never detaches/restarts a collector or changes a coverage threshold.
 
+Invoke the launcher's literal absolute checkout path in each executor call
+(the examples use this host's `/Users/builder/urnetwork`). It derives helper
+paths from its own file, independently of `ROOT`, `SCRIPTS`, `RECEIPT` and the
+working directory. A prior `ROOT=... mkdir ...` sets `ROOT` only for `mkdir`;
+the next `node "$ROOT/..."` expands an unset value before Node can check it.
+Shell variables also do not survive executor calls. Restore the frozen arm
+arguments in each call, and never prefix a setup command with assignments
+intended for a later launch. The launcher preserves argv and the retained PID;
+its real helpers still reject missing arguments and non-foreground owners.
+
 ```sh
 # COLLECTOR executor call: only after check-role exited 0; retained PTY only.
 # This command remains running throughout Chrome, workload and quiet coverage.
 # Use fresh paths in an existing mode-0700 arm directory. Set the same frozen
 # variables again in later executor calls; shell assignments are not global.
-: "${ROOT:?workspace root required}" "${PRIVATE_DIR:?private arm directory required}"
+: "${PRIVATE_DIR:?private arm directory required}"
 : "${SERIAL:?pinned serial required}" "${LABEL:?frozen cell label required}"
 : "${TELEMETRY:?fresh telemetry path required}"
 : "${INSTRUMENTATION_OWNER:?restore the exact supervisor owner path}"
@@ -573,7 +585,7 @@ case "$SESSION_MODE" in
   direct) VPN_FLAG=--require-no-vpn ;;
   *) exit 2 ;;
 esac
-exec node "$ROOT/android/app/scripts/physical_collector_session.mjs" run \
+exec bash /Users/builder/urnetwork/android/app/scripts/physical_host_launch.sh collector \
   --owner "$PRIVATE_DIR/collector-owner.json" \
   --instrumentation-owner "$INSTRUMENTATION_OWNER" \
   --stdout "$PRIVATE_DIR/collector.stdout" --stderr "$PRIVATE_DIR/collector.stderr" "$@" -- \
@@ -590,7 +602,7 @@ roles), not permission to skip this public-block guard.
 After that call **yields a still-live session**, check from another executor:
 
 ```sh
-collector_pid=$(node "$ROOT/android/app/scripts/physical_collector_session.mjs" check \
+collector_pid=$(bash /Users/builder/urnetwork/android/app/scripts/physical_host_launch.sh collector-check \
   --owner "$PRIVATE_DIR/collector-owner.json" --timeout-ms 15000) || exit 2
 ```
 
@@ -715,25 +727,20 @@ Per-child redirection in `traffic-workload.sh` remains unchanged:
 ```sh
 # WORKLOAD executor call: retained foreground PTY; no later commands in this call.
 umask 077
-: "${ROOT:?workspace root required}" "${SERIAL:?pinned serial required}" "${LABEL:?frozen arm label required}"
-export SERIAL CDP_PORT PRIVATE_DIR CNN_URL BLOOMBERG_URL
-export SCRIPTS="$ROOT/android/app/scripts"
-export RECEIPT="$SCRIPTS/physical_workload_receipt.mjs"
-# Do not combine this assignment with the `node "$RECEIPT"` command: shell
-# expansion happens before an inline assignment takes effect and can otherwise
-# start Node's interactive REPL. These guards must execute before any workload.
+: "${SERIAL:?pinned serial required}" "${LABEL:?frozen arm label required}"
 : "${PRIVATE_DIR:?private workload directory required}"
-: "${SCRIPTS:?Android script directory required}"
-: "${RECEIPT:?workload receipt helper required}"
-node "$SCRIPTS/physical_artifact_directory.mjs" check \
+: "${CDP_PORT:?frozen Chrome port required}" "${TELEMETRY:?fresh telemetry path required}"
+export CDP_PORT CNN_URL BLOOMBERG_URL
+# owner-script derives SERIAL, PRIVATE_DIR, SCRIPTS and RECEIPT for its body.
+node /Users/builder/urnetwork/android/app/scripts/physical_artifact_directory.mjs check \
   --directory "$PRIVATE_DIR" || exit 2
-node "$RECEIPT" script-preflight --label "$LABEL" \
+bash /Users/builder/urnetwork/android/app/scripts/physical_host_launch.sh workload-preflight --label "$LABEL" \
   --output "$PRIVATE_DIR/workloads.json" \
   >"$PRIVATE_DIR/script-preflight.stdout.json" \
   2>"$PRIVATE_DIR/script-preflight.stderr" || exit 2
-collector_pid=$(node "$SCRIPTS/physical_collector_session.mjs" check \
+collector_pid=$(bash /Users/builder/urnetwork/android/app/scripts/physical_host_launch.sh collector-check \
   --owner "$PRIVATE_DIR/collector-owner.json" --timeout-ms 15000) || exit 2
-exec node "$RECEIPT" owner-script --serial "$SERIAL" --label "$LABEL" \
+exec bash /Users/builder/urnetwork/android/app/scripts/physical_host_launch.sh workload --serial "$SERIAL" --label "$LABEL" \
   --collector-pid "$collector_pid" --telemetry "$TELEMETRY" \
   --children wiki,fast-1,fast-2,fast-3,cnn,bloomberg \
   --output "$PRIVATE_DIR/workloads.json"
@@ -1667,6 +1674,7 @@ Parser and eligibility tests are dependency-free:
 node --test app/scripts/physical_lowbar_capture_test.mjs \
   app/scripts/physical_apk_pair_test.mjs \
   app/scripts/physical_collector_session_test.mjs \
+  app/scripts/physical_host_launch_test.mjs \
   app/scripts/physical_diagnostic_command_test.mjs \
   app/scripts/physical_diagnostic_copy_test.mjs \
   app/scripts/chrome_readiness_test.mjs \
