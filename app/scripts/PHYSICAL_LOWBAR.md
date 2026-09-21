@@ -212,6 +212,58 @@ The lBOYKS diagnostic arm had up-to-date JNI merge tasks without retained native
 artifacts; its 29,900,832-byte runtime peak cannot be attributed to the current
 ClientStrategy candidate. Its memory breach still counts as observed failure.
 
+APK selection must also preserve the installed version floor. The observed
+`INSTALL_FAILED_VERSION_DOWNGRADE` was caused by selecting the universal APK
+at `1034210530` when the phone had the **same build's ARM64 APK** at
+`1034210533`. `app/app/build.gradle` adds the ABI suffix to split version codes.
+Neither filenames nor a universal-first search identify the correct artifact.
+Use `physical_apk_pair.mjs` for a normal, data-preserving `adb install -r -t`:
+
+1. Before building, run `observe` to retain read-only version/ABI observations
+   from only `3B161FDJG001KT` and `R5CX21FY6ND`. Other ADB devices are ignored.
+2. Inside the native consumer lock, after assembling app **and** test APKs with
+   the same immutable acceptance build ID, run `select`. It reads Gradle output
+   metadata, prefers the compatible ARM64 split, checks both package version
+   floors across the two phones, verifies the actual APK manifests with `aapt`,
+   and exclusively retains mode-0600 app/test copies plus hashes. It makes no
+   device calls and does not rebuild. Use these retained APKs for the existing
+   AAR/strip/packaged-ABI linkage checks before releasing the lock.
+3. Immediately before installation, run `check` with a fresh receipt filename.
+   It verifies the retained hashes and re-reads both installed version floors,
+   catching an intervening upgrade. Continue to require native proof and
+   installed-APK hash/build-ID verification. The helper does not install.
+
+```sh
+# Before the native before-build capture:
+node "$ROOT/android/app/scripts/physical_apk_pair.mjs" observe \
+  --output "$ARTIFACT_DIR/$LABEL.apk-devices.json" || exit 2
+# In the consumer script after assembly; AAPT is the explicit build-tools
+# executable, and both metadata paths are this invocation's Gradle outputs.
+node "$ROOT/android/app/scripts/physical_apk_pair.mjs" select \
+  --observed "$ARTIFACT_DIR/$LABEL.apk-devices.json" \
+  --app-metadata "$APP_METADATA" --test-metadata "$TEST_METADATA" \
+  --build-id "$ACCEPTANCE_BUILD_ID" --aapt "$AAPT" \
+  --app-output "$ARTIFACT_DIR/$LABEL.app.apk" \
+  --test-output "$ARTIFACT_DIR/$LABEL.test.apk" \
+  --output "$ARTIFACT_DIR/$LABEL.apk-pair.json" || exit 2
+# Immediately before each phone's install, after the native proof check:
+node "$ROOT/android/app/scripts/physical_apk_pair.mjs" check \
+  --selection "$ARTIFACT_DIR/$LABEL.apk-pair.json" \
+  --output "$ARTIFACT_DIR/$LABEL.$SERIAL.apk-install-preflight.json" || exit 2
+adb -s "$SERIAL" install -r -t "$ARTIFACT_DIR/$LABEL.app.apk" || exit 2
+adb -s "$SERIAL" install -r -t "$ARTIFACT_DIR/$LABEL.test.apk" || exit 2
+```
+
+An equal version is a valid normal replacement; source identity remains the
+unique acceptance build ID plus retained binary/native provenance. The test
+package has its own floor (currently its generated manifest uses code `0`),
+not the app's code. A genuinely newer installed app or test fails preflight;
+prepare a compatible newer build rather than adding `-d` or changing release
+version semantics. Failed selection/preflight artifacts do not qualify an arm.
+The helper has deterministic regression coverage for the `.530`/`.533` case,
+actual manifest disagreement, both package floors, device selection, private
+retention, and an upgrade between initial observation and installation.
+
 Use `physical_native_provenance.mjs` for the source-input half of this gate;
 manual revision lists are insufficient. Follow the exact before-build,
 after-build and verify/check commands in `tests/RUN-PERF.md` (native provenance).
@@ -1512,6 +1564,7 @@ Parser and eligibility tests are dependency-free:
 
 ```sh
 node --test app/scripts/physical_lowbar_capture_test.mjs \
+  app/scripts/physical_apk_pair_test.mjs \
   app/scripts/physical_collector_session_test.mjs \
   app/scripts/physical_diagnostic_command_test.mjs \
   app/scripts/physical_diagnostic_copy_test.mjs \
