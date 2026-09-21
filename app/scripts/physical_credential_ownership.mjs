@@ -191,7 +191,9 @@ function adbInvocation(dependencies, maxBuffer = 4096) {
 // Share the same ordinary-shell proof at staging, handoff and cleanup. A
 // package-replacement broadcast can start the normal app after installation;
 // a missing credential destination does not imply a stopped app.
-export function requireCredentialTargetStopped(serial, invoke) {
+// Standalone callers use the same bounded ADB implementation as the ownership
+// transactions; dependency injection remains available for their unit fixtures.
+export function requireCredentialTargetStopped(serial, invoke = adbInvocation({})) {
   const result = invoke(["-s", serial, "shell", "pidof", PACKAGE]);
   // Exit 1 plus exactly empty output is the pidof no-match contract. Transport
   // errors, timeouts, arbitrary nonzero exits or a live normal app are not it.

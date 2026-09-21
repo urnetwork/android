@@ -49,6 +49,15 @@ finish/join, final-memory gate, retained-client/owned-credential cleanup and
 removal of its own Chrome forward. Failed gates preserve that arm and its logs;
 no failed child is retried and no diagnostic profiling is enabled.
 
+Native linkage can be direct: `binary-native-proof.json` records
+`stripped:false, stripHash:null` when the extracted AAR and APK library digests
+already match. This is eligible without another strip operation. If they differ,
+the pinned NDK strip tool must reproduce the packaged bytes exactly. Installed
+APK digests and the stopped-app probe are separate gates; the probe uses the
+shared bounded ADB implementation when called directly by the runner, including
+during client cleanup. Host fixtures exercise those real driver paths with a
+fake ADB executable, rather than only accepting a fake schedule step.
+
 `result.json` separates `memoryQualified`, website measurements and cleanup.
 Every runtime sample, including teardown, must remain at or below 24 MiB.
 An arm's successful memory result is not a full campaign verdict or statistical

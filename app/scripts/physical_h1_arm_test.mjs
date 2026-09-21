@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, lstatSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, lstatSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -163,4 +164,92 @@ test("process deadline cannot be rescued by a zero exit from its TERM handler", 
   const result = await handle.done;
   assert.equal(result.timedOut, true); assert.equal(result.eligible, false); assert.equal(result.exitCode, 0);
   assert.equal(handle.live, false); assert.equal(LIMITS.kill, 5000);
+});
+
+function stoppedTargetFixture(t, mode, operation = "installedCheck") {
+  const dir = fixture(t); const output = join(dir, "output"); const bin = join(dir, "bin");
+  mkdirSync(output, { mode: 0o700 }); mkdirSync(bin, { mode: 0o700 });
+  const c = { ...context(), directory: output, app: join(dir, "app.apk"), test: join(dir, "test.apk"),
+    directoryBindings: [], orchestrationSources: [] };
+  writeFileSync(c.app, "synthetic-app-apk", { mode: 0o600 });
+  writeFileSync(c.test, "synthetic-test-apk", { mode: 0o600 });
+  // Exercise the production HostArmDriver and the helper's default ADB path.
+  // Only this subprocess sees the fake PATH; no physical command is forwarded.
+  writeFileSync(join(bin, "adb"), `#!${process.execPath}
+const {appendFileSync,readFileSync} = require('node:fs');
+const {join} = require('node:path');
+const args = process.argv.slice(2); const dir = process.env.H1_TARGET_FIXTURE;
+appendFileSync(join(dir,'calls.jsonl'),JSON.stringify(args)+'\\n',{mode:0o600});
+if (args[0] !== '-s' || args[1] !== '3B161FDJG001KT') process.exit(97);
+const command = args.slice(2); const app = 'com.bringyour.network';
+if (command[0] === 'shell' && command[1] === 'pm' && command[2] === 'path' &&
+    [app,app+'.test'].includes(command[3]) && command.length === 4) {
+  process.stdout.write('package:/data/app/'+(command[3] === app ? 'app' : 'test')+'/base.apk\\n');
+} else if (command[0] === 'exec-out' && command[1] === 'cat' && command.length === 3 &&
+    ['/data/app/app/base.apk','/data/app/test/base.apk'].includes(command[2])) {
+  const key = command[2].includes('/test/') ? 'test' : 'app';
+  process.stdout.write(process.env.H1_TARGET_MODE === 'mismatched-apk' && key === 'app'
+    ? 'different-app-apk' : readFileSync(join(dir,key+'.apk')));
+} else if (JSON.stringify(command) === JSON.stringify(['shell','pidof',app])) {
+  if (process.env.H1_TARGET_MODE === 'live') { process.stdout.write('1234\\n'); process.exit(0); }
+  if (process.env.H1_TARGET_MODE === 'transport-error') { process.stderr.write('synthetic transport error\\n'); process.exit(1); }
+  if (process.env.H1_TARGET_MODE === 'wrong-status') process.exit(2);
+  if (process.env.H1_TARGET_MODE === 'empty-success') process.exit(0);
+  process.exit(1);
+} else if (JSON.stringify(command) === JSON.stringify(['exec-out','run-as',app,'cat','files/acceptance/active-client-ids'])) {
+  // Stop cleanup before config/account access, after the real stopped-app gate.
+  process.exit(2);
+} else process.exit(97);
+`, { mode: 0o700 });
+  const module = new URL("./physical_h1_arm.mjs", import.meta.url).href;
+  const code = `import {HostArmDriver} from ${JSON.stringify(module)};
+const driver = new HostArmDriver(JSON.parse(process.env.H1_TARGET_CONTEXT));
+try { await driver[process.env.H1_TARGET_OPERATION](); process.stdout.write(JSON.stringify({passed:true})); }
+catch(error) { process.stdout.write(JSON.stringify({passed:false,reason:error.message})); }`;
+  const child = spawnSync(process.execPath, ["--input-type=module", "-e", code], {
+    encoding: "utf8", timeout: 15_000, env: { ...process.env, PATH: `${bin}:${process.env.PATH}`,
+      H1_TARGET_FIXTURE: dir, H1_TARGET_MODE: mode, H1_TARGET_CONTEXT: JSON.stringify(c), H1_TARGET_OPERATION: operation },
+  });
+  assert.equal(child.status, 0, child.stderr); assert.equal(child.error, undefined);
+  const calls = existsSync(join(dir, "calls.jsonl"))
+    ? readFileSync(join(dir, "calls.jsonl"), "utf8").trim().split("\n").map(line => JSON.parse(line)) : [];
+  return { c, result: JSON.parse(child.stdout), calls };
+}
+
+test("installed-check verifies the retained APKs then proves the stopped app through default ADB", t => {
+  const { c, result, calls } = stoppedTargetFixture(t, "stopped");
+  assert.deepEqual(result, { passed: true });
+  assert.deepEqual(calls.at(-1), ["-s", c.serial, "shell", "pidof", "com.bringyour.network"]);
+  assert.equal(calls.length, 5);
+  const proof = join(c.directory, "installed-apk-proof.json");
+  assert.deepEqual(JSON.parse(readFileSync(proof)), { eligible: true, appMatches: true, testMatches: true });
+  assert.equal(lstatSync(proof).mode & 0o777, 0o600);
+});
+
+test("installed-check rejects a live app and uncertain pidof results without publishing eligibility", async t => {
+  for (const mode of ["live", "transport-error", "wrong-status", "empty-success"]) await t.test(mode, t => {
+    const { c, result, calls } = stoppedTargetFixture(t, mode);
+    assert.deepEqual(result, { passed: false, reason: "credential-target-not-proven-stopped" });
+    assert.equal(calls.length, 5);
+    assert.equal(existsSync(join(c.directory, "installed-apk-proof.json")), false);
+  });
+});
+
+test("installed-check still rejects a replaced installed APK before accepting stopped state", t => {
+  const { c, result, calls } = stoppedTargetFixture(t, "mismatched-apk");
+  assert.deepEqual(result, { passed: false, reason: "installed-apk-hash-mismatch" });
+  assert.equal(calls.some(args => args.includes("pidof")), false);
+  assert.equal(existsSync(join(c.directory, "installed-apk-proof.json")), false);
+});
+
+test("client cleanup also uses the default stopped-app probe before reading its owned ledger", t => {
+  const stopped = stoppedTargetFixture(t, "stopped", "cleanupClients");
+  assert.deepEqual(stopped.result, { passed: false, reason: "active-client-ledger-failed" });
+  assert.deepEqual(stopped.calls.map(args => args.slice(2)), [
+    ["shell", "pidof", "com.bringyour.network"],
+    ["exec-out", "run-as", "com.bringyour.network", "cat", "files/acceptance/active-client-ids"],
+  ]);
+  const live = stoppedTargetFixture(t, "live", "cleanupClients");
+  assert.deepEqual(live.result, { passed: false, reason: "credential-target-not-proven-stopped" });
+  assert.equal(live.calls.length, 1);
 });
