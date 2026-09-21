@@ -284,7 +284,7 @@ retention, and an upgrade between initial observation and installation.
 
 Use `physical_native_provenance.mjs` for the source-input half of this gate;
 manual revision lists are insufficient. Follow the exact before-build,
-after-build and verify/check commands in `tests/RUN-PERF.md` (native provenance).
+after-build and verify/check commands in `tests/TEST-PERF.md` (native provenance).
 Before the explicit SDK build, freeze `URNETWORK_ANDROID_SDK_BUILD_OWNER`,
 `ACCEPTANCE_BUILD_ID`, `NATIVE_PROFILE_RATE` (0 normally; 65536 only for approved
 owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
@@ -292,7 +292,7 @@ owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
 `NATIVE_WRITER_RECEIPT` paths. Capture `before`, then launch
 `physical_native_writer.sh` with explicit build ID, rate,
 `--memory-profile ios-memory-audit-v1`, bounded `--max-workers`, and private
-receipt/stdout/stderr paths using RUN-PERF's exact standalone retained call.
+receipt/stdout/stderr paths using TEST-PERF's exact standalone retained call.
 The Bash entry point supervises the fixed `:app:buildSdkAcceptance` task and
 atomically writes its own terminal receipt after child outcome/join. Do not
 assign an outer-shell `status` or manually write the receipt: zsh reserves that
@@ -300,7 +300,7 @@ name, which caused `terra_proof_arm` to lose its writer evidence. Failed or
 interrupted writer receipts never authorize consumption; absent terminal
 evidence is incomplete setup. Raw child logs and receipt remain private 0600.
 The default executor is zsh, including commands **before** `exec bash`.
-Restore a saved arm using RUN-PERF's exact `NATIVE-CONTEXT` scalar-read block
+Restore a saved arm using TEST-PERF's exact `NATIVE-CONTEXT` scalar-read block
 before **each** retained writer and consumer call. Its private `arm-identifiers`
 record has exactly `LABEL\nBUILD_ID\n`. Freeze/restore the explicit profile rate,
 worker limit and tool environment too. Never use `readarray`, `mapfile`, arrays,
@@ -317,7 +317,7 @@ holds the lock through command join and APK/AAR retention/linkage. Do not
 assemble first and manually remember after/verify later (the CXAusf failure).
 The consumer command must not rebuild the SDK, install, stage credentials or
 perform any device work. Use the exact retained/private-log invocation in
-RUN-PERF; the wrapper forwards argv without eval and preserves the caller cwd.
+TEST-PERF; the wrapper forwards argv without eval and preserves the caller cwd.
 Missing/stale source evidence, missing after/proof, or invalid/lost lock ownership
 fails with a fixed `…-no-consumer-spawn` reason; never continue or reuse partial
 artifacts. The consumer also rejects missing/nonzero/altered writer receipts;
