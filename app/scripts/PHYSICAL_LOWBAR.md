@@ -1,5 +1,65 @@
 # Physical Android low-bar capture
 
+## Canonical scoped H1 iOS-profile arm
+
+For the scoped Wikipedia/Fast.com qualification, Terra should use
+`physical_h1_arm.mjs` as one retained foreground PTY invocation (`tty:true`).
+It composes the helpers documented below, preserving one set of identifiers,
+private paths and owners from the native build through teardown. Keep/resume
+that exact executor until it exits; the runner owns the separate instrumentation,
+collector and workload PTYs and joins them itself. Do not launch those helpers
+again manually while this arm runs.
+
+Use an otherwise idle allowlisted phone whose previous session has been
+cleaned up, with the requested underlay already selected. The runner preserves
+radio settings and requires the selected Wi-Fi/cellular telemetry. It performs
+normal APK replacement, followed by the mandatory target force-stop after the
+last install. It does not uninstall, clear app data, overwrite existing
+credentials, or adopt another session. Existing cleanup/reinstall authorization
+can be applied before this invocation when a previous session needs clearing.
+
+```sh
+# One executor call, tty:true. Freeze the SDK/PATH/Go environment before this.
+umask 077
+RUN_DIR=$(mktemp -d /tmp/urnetwork-h1.XXXXXX)
+LABEL="h1-$(date -u +%Y%m%dT%H%M%SZ)"
+exec node /Users/builder/urnetwork/android/app/scripts/physical_h1_arm.mjs run \
+  --root /Users/builder/urnetwork --run-dir "$RUN_DIR" \
+  --serial 3B161FDJG001KT --label "$LABEL" --build-id "$LABEL" \
+  --underlay wifi --config /Users/builder/urnetwork/.tests.yml \
+  --cdp-port 19322 --gomaxprocs 10 --max-workers 4
+```
+
+Select `R5CX21FY6ND` explicitly for the other allowed phone. `--underlay` is
+`wifi` or `cellular`; `--cdp-port` must be unused. The supplied run directory
+must be empty, owned, mode 0700 and outside the workspace. The runner creates
+only its private leaves and stores its frozen context in `arm.json`. Core
+limits are checked against `ceil(0.70 * logical_cpus)`; Gradle is capped at four.
+Use mode `dry-run` with the same arguments to print the exact schedule without
+reading credentials, building, contacting a device, or writing artifacts.
+
+The schedule resolves AAPT, observes/selects the correct APK pair, runs the
+Bash native writer and locked consumer, verifies native ARM64 stripping/linkage
+and installed APK hashes, force-stops and stages through the existing credential
+helpers, then gates retained AM readiness/profile and completed H1 before
+starting the collector. It runs five Wikipedia loads and exactly three
+Fast.com children (90-second probe, 95-second process watchdog), verified Chrome
+cleanup, the unchanged sampled five-minute quiet helper, live memory gate,
+finish/join, final-memory gate, retained-client/owned-credential cleanup and
+removal of its own Chrome forward. Failed gates preserve that arm and its logs;
+no failed child is retried and no diagnostic profiling is enabled.
+
+`result.json` separates `memoryQualified`, website measurements and cleanup.
+Every runtime sample, including teardown, must remain at or below 24 MiB.
+An arm's successful memory result is not a full campaign verdict or statistical
+baseline promotion; retain its Fast.com 40-Mbit/s goal result separately and
+follow RUN-PERF's paired sampling requirements. A failed setup/owner/quiet gate
+cannot be rescued by low observed memory. Host-only regression coverage:
+
+```sh
+node --test app/scripts/physical_h1_arm_test.mjs
+```
+
 `physical_lowbar_capture.mjs` records a timestamped, privacy-safe NDJSON
 telemetry stream beside a real-device workload. It is intended to correlate the
 existing `chrome_page_benchmark.mjs` samples with the actual radio and VPN
@@ -314,7 +374,7 @@ retention, and an upgrade between initial observation and installation.
 
 Use `physical_native_provenance.mjs` for the source-input half of this gate;
 manual revision lists are insufficient. Follow the exact before-build,
-after-build and verify/check commands in `tests/TEST-PERF.md` (native provenance).
+after-build and verify/check commands in `tests/RUN-PERF.md` (native provenance).
 Before the explicit SDK build, freeze `URNETWORK_ANDROID_SDK_BUILD_OWNER`,
 `ACCEPTANCE_BUILD_ID`, `NATIVE_PROFILE_RATE` (0 normally; 65536 only for approved
 owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
@@ -322,7 +382,7 @@ owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
 `NATIVE_WRITER_RECEIPT` paths. Capture `before`, then launch
 `physical_native_writer.sh` with explicit build ID, rate,
 `--memory-profile ios-memory-audit-v1`, bounded `--max-workers`, and private
-receipt/stdout/stderr paths using TEST-PERF's exact standalone retained call.
+receipt/stdout/stderr paths using RUN-PERF's exact standalone retained call.
 The Bash entry point supervises the fixed `:app:buildSdkAcceptance` task and
 atomically writes its own terminal receipt after child outcome/join. Do not
 assign an outer-shell `status` or manually write the receipt: zsh reserves that
@@ -330,7 +390,7 @@ name, which caused `terra_proof_arm` to lose its writer evidence. Failed or
 interrupted writer receipts never authorize consumption; absent terminal
 evidence is incomplete setup. Raw child logs and receipt remain private 0600.
 The default executor is zsh, including commands **before** `exec bash`.
-Restore a saved arm using TEST-PERF's exact `NATIVE-CONTEXT` scalar-read block
+Restore a saved arm using RUN-PERF's exact `NATIVE-CONTEXT` scalar-read block
 before **each** retained writer and consumer call. Its private `arm-identifiers`
 record has exactly `LABEL\nBUILD_ID\n`. Freeze/restore the explicit profile rate,
 worker limit and tool environment too. Never use `readarray`, `mapfile`, arrays,
@@ -347,7 +407,7 @@ holds the lock through command join and APK/AAR retention/linkage. Do not
 assemble first and manually remember after/verify later (the CXAusf failure).
 The consumer command must not rebuild the SDK, install, stage credentials or
 perform any device work. Use the exact retained/private-log invocation in
-TEST-PERF; the wrapper forwards argv without eval and preserves the caller cwd.
+RUN-PERF; the wrapper forwards argv without eval and preserves the caller cwd.
 Missing/stale source evidence, missing after/proof, or invalid/lost lock ownership
 fails with a fixed `…-no-consumer-spawn` reason; never continue or reuse partial
 artifacts. The consumer also rejects missing/nonzero/altered writer receipts;
