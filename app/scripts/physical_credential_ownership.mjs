@@ -265,9 +265,13 @@ function requireFinishStatus(options, ready, invoke) {
       result.stdout.length > 64 * 1024) fail("exact-finished-status-required");
   let status;
   try { status = JSON.parse(result.stdout); } catch { fail("exact-finished-status-required"); }
+  // PhysicalLowbarSessionTest records finish after disconnecting both roles,
+  // before finally/logout tears down the VPN service. tunnelStarted is a
+  // snapshot from that earlier point, not proof of current target liveness.
+  // Require its schema here; finishCredentialSession proves target exit too.
   if (status?.type !== "status" || status.pid !== ready.targetPid || status.state !== "complete" || status.phase !== "finish" ||
       status.commandId !== options["finish-command-id"] || !Number.isFinite(status.elapsedMs) || status.elapsedMs < ready.elapsedMs ||
-      status.connected !== false || status.tunnelStarted !== false || status.provideEnabled !== false) fail("exact-finished-status-required");
+      status.connected !== false || typeof status.tunnelStarted !== "boolean" || status.provideEnabled !== false) fail("exact-finished-status-required");
 }
 
 // Only a prospective v2 handoff with its original retained marker can authorize
@@ -283,6 +287,7 @@ export function finishCredentialSession(options, dependencies = {}) {
       const finished = requireFinishedInstrumentation(options, owner, dependencies);
       evidenceOwned = true;
       const invoke = adbInvocation(dependencies, 64 * 1024);
+      stoppedTarget(options.serial, invoke);
       requireFinishStatus(options, finished.ready, invoke);
       remote(owner, "check", options.serial, invoke);
       report.ownershipVerified = true;
@@ -291,6 +296,7 @@ export function finishCredentialSession(options, dependencies = {}) {
       if (requireFinishedInstrumentation(options, current, dependencies).evidence !== finished.evidence) {
         fail("finished-credential-session-evidence-changed");
       }
+      stoppedTarget(options.serial, invoke);
       remote(owner, "finish", options.serial, invoke);
       report.destinationRemoved = true;
       report.eligible = true;

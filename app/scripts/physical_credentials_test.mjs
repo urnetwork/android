@@ -219,9 +219,58 @@ test("normal finish plus exact prospective owner and terminal join removes only 
   assert.equal(finishCredentialSession(f.options, f.deps).eligible, false);
 });
 
+test("normal finish permits the pre-logout tunnel snapshot only after the owned target has exited", t => {
+  const f = ownershipFixture(t); f.stage(); f.completed();
+  // PhysicalLowbarSessionTest publishes finish after stopClient/stopProvider,
+  // before finally logs out and tears down the Android VPN service. Its last
+  // status can therefore retain tunnelStarted=true even after AM has joined.
+  f.finishStatus.tunnelStarted = true;
+  const result = finishCredentialSession(f.options, f.deps);
+  assert.equal(result.eligible, true, JSON.stringify(result));
+  assert.equal(result.destinationRemoved, true);
+  assert.equal(existsSync(f.destination), false);
+  assert.equal(existsSync(f.marker), false);
+});
+
+test("joined finish cannot delete credentials while the target is live or its exit is unproven", t => {
+  for (const target of [{ status: 0, stdout: "1234\n", stderr: "" },
+    { status: 0, stdout: "5678\n", stderr: "" },
+    { status: 1, stdout: "", stderr: "transport failed" },
+    { status: null, stdout: "", error: { code: "ETIMEDOUT" } }]) {
+    const f = ownershipFixture(t); f.stage(); f.completed();
+    f.targetResult = target;
+    const result = finishCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, false, JSON.stringify(target));
+    assert.equal(result.reason, "credential-target-not-proven-stopped");
+    assert.equal(result.destinationRemoved, false);
+    assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
+    assert.equal(existsSync(f.marker), true);
+  }
+});
+
+test("target restart during finished-session inspection preserves the owned credential", t => {
+  const f = ownershipFixture(t); f.stage(); f.completed();
+  const invoke = f.deps.ownershipAdb;
+  let stoppedChecks = 0;
+  f.deps.ownershipAdb = args => {
+    if (args[2] === "shell" && args[3] === "pidof" && ++stoppedChecks === 2) {
+      return { status: 0, stdout: "5678\n", stderr: "" };
+    }
+    return invoke(args);
+  };
+  const result = finishCredentialSession(f.options, f.deps);
+  assert.equal(result.eligible, false);
+  assert.equal(result.reason, "credential-target-not-proven-stopped");
+  assert.equal(stoppedChecks, 2);
+  assert.equal(result.destinationRemoved, false);
+  assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
+  assert.equal(existsSync(f.marker), true);
+});
+
 test("interrupted, unjoined, missing or mismatched terminal evidence cannot authorize post-session credential deletion", t => {
   for (const kind of ["interrupted", "signal", "nonzero", "failed", "missing-terminal", "terminal-owner", "native-context", "handoff-session",
-    "handoff-path", "legacy-handoff", "supervisor-live", "adb-live", "finish-id", "finish-pid", "finish-phase", "finish-running", "finish-connected", "transport"]) {
+    "handoff-path", "legacy-handoff", "supervisor-live", "adb-live", "finish-id", "finish-pid", "finish-phase", "finish-running", "finish-connected",
+    "finish-providing", "finish-tunnel-missing", "finish-tunnel-invalid", "transport"]) {
     const f = ownershipFixture(t); f.stage();
     const e = f.completed();
     const path = f.options["instrumentation-owner"];
@@ -241,6 +290,9 @@ test("interrupted, unjoined, missing or mismatched terminal evidence cannot auth
     if (kind === "finish-phase") f.finishStatus.phase = "snapshot";
     if (kind === "finish-running") f.finishStatus.state = "running";
     if (kind === "finish-connected") f.finishStatus.connected = true;
+    if (kind === "finish-providing") f.finishStatus.provideEnabled = true;
+    if (kind === "finish-tunnel-missing") delete f.finishStatus.tunnelStarted;
+    if (kind === "finish-tunnel-invalid") f.finishStatus.tunnelStarted = "false";
     if (kind === "transport") f.finishResult = { status: 1, stdout: "", stderr: "private-unavailable" };
     writeFileSync(path, JSON.stringify(e.owner));
     writeFileSync(`${path}.terminal.json`, JSON.stringify(e.terminal));

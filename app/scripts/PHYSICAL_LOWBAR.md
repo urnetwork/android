@@ -1058,9 +1058,24 @@ compares both files before removing only its credential and owner marker.
 Host operations are serialized, and the single-session/no-concurrent-same-UID
 mutation rule remains mandatory: this is not a hostile-writer atomic unlink.
 Missing/crashed/unknown/substituted ownership is preserved. Immediately before
-AM spawn, an irreversible private handoff disables rollback and removes only
-the marker, leaving credentials for normal login. Post-handoff failures use
-the joined session cleanup, never this setup rollback.
+AM spawn, an irreversible schema-2 private handoff binds the prospective
+instrumentation session and disables rollback. It retains the marker and
+credentials for normal login and joined-session cleanup.
+
+After sending `finish` with an empty argument, join the retained supervisor
+and run the [normal-session credential cleanup](../../../tests/RUN-PERF.md#owned-credentials-after-normal-session-completion)
+with the original ownership, instrumentation-owner and exact finish-command
+ID. The helper requires matching ready/terminal evidence, uninterrupted exit
+0, joined host processes, the original credential/marker proof, and a matching
+completed finish status with client/provider roles off. It proves the target
+app is absent using `pidof` both before inspection and immediately before
+removal. Android writes its final status before `finally`/logout tears down
+the VPN service, so `tunnelStarted=true` can be a valid final snapshot; it
+does not substitute for those current stopped-target checks. Live, restarted
+or unknown targets preserve credentials and fail cleanup. Require exit 0 and
+`owned-finished-session-credentials-removed` before new staging. Failed or
+interrupted handoffs do not authorize setup rollback or adoption of stale
+credentials.
 
 The stale unmarked `diag9` credential predates this proof and **cannot be
 adopted or automatically deleted**. Request explicit user approval for that
