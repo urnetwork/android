@@ -188,7 +188,10 @@ function adbInvocation(dependencies, maxBuffer = 4096) {
   return dependencies.ownershipAdb ?? ((args) => spawnSync("adb", args, { encoding: "utf8", timeout: 10_000, maxBuffer }));
 }
 
-function stoppedTarget(serial, invoke) {
+// Share the same ordinary-shell proof at staging, handoff and cleanup. A
+// package-replacement broadcast can start the normal app after installation;
+// a missing credential destination does not imply a stopped app.
+export function requireCredentialTargetStopped(serial, invoke) {
   const result = invoke(["-s", serial, "shell", "pidof", PACKAGE]);
   // Exit 1 plus exactly empty output is the pidof no-match contract. Transport
   // errors, timeouts, arbitrary nonzero exits or a live normal app are not it.
@@ -212,8 +215,9 @@ export function handoffCredentialOwnership(options, native, dependencies = {}) {
     requireArtifactPaths(binding, [options.ownership, options["instrumentation-owner"]]);
     if (existsSync(options["instrumentation-owner"])) fail("fresh-credential-instrumentation-owner-required");
     const invoke = adbInvocation(dependencies);
-    stoppedTarget(options.serial, invoke);
+    requireCredentialTargetStopped(options.serial, invoke);
     remote(owner, "check", options.serial, invoke);
+    requireCredentialTargetStopped(options.serial, invoke);
     // Irreversible before AM spawn. A crash or lost remote result after this
     // point must not authorize setup rollback of a possible consumer's input.
     publish(`${options.ownership}.handoff.json`, { type: "physical-credential-handoff", schemaVersion: 2,
@@ -287,7 +291,7 @@ export function finishCredentialSession(options, dependencies = {}) {
       const finished = requireFinishedInstrumentation(options, owner, dependencies);
       evidenceOwned = true;
       const invoke = adbInvocation(dependencies, 64 * 1024);
-      stoppedTarget(options.serial, invoke);
+      requireCredentialTargetStopped(options.serial, invoke);
       requireFinishStatus(options, finished.ready, invoke);
       remote(owner, "check", options.serial, invoke);
       report.ownershipVerified = true;
@@ -296,7 +300,7 @@ export function finishCredentialSession(options, dependencies = {}) {
       if (requireFinishedInstrumentation(options, current, dependencies).evidence !== finished.evidence) {
         fail("finished-credential-session-evidence-changed");
       }
-      stoppedTarget(options.serial, invoke);
+      requireCredentialTargetStopped(options.serial, invoke);
       remote(owner, "finish", options.serial, invoke);
       report.destinationRemoved = true;
       report.eligible = true;
@@ -320,7 +324,7 @@ export function rollbackCredentialSetup(options, dependencies = {}) {
       const owner = requireCredentialOwnership(options);
       evidenceOwned = true;
       const invoke = adbInvocation(dependencies);
-      stoppedTarget(options.serial, invoke);
+      requireCredentialTargetStopped(options.serial, invoke);
       remote(owner, "check", options.serial, invoke);
       report.ownershipVerified = true;
       remote(owner, "rollback", options.serial, invoke);

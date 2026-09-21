@@ -13,7 +13,7 @@ import { parseArgs as parseCaptureArgs } from "./physical_lowbar_capture.mjs";
 import { processIsLive, requireLiveCollector } from "./physical_workload_receipt.mjs";
 import { artifactDirectoryReason, prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 import { nativeProvenanceReason, requireVerifiedNativeInputs } from "./physical_native_provenance.mjs";
-import { handoffCredentialOwnership, rollbackCredentialSetup } from "./physical_credential_ownership.mjs";
+import { credentialOwnershipReason, handoffCredentialOwnership, rollbackCredentialSetup } from "./physical_credential_ownership.mjs";
 
 class SessionError extends Error {
   constructor(reason, statusRead) { super(reason); this.statusRead = statusRead; }
@@ -377,8 +377,14 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
     errors = openSync(options.stderr, "wx", 0o600);
     checkDirectory();
     if (options["credential-ownership"]) {
-      handoffCredentialOwnership({ ...options, ownership: options["credential-ownership"],
-        "instrumentation-owner": options.owner, "session-id": instrumentationOwnerId }, nativeInputs, dependencies);
+      try {
+        handoffCredentialOwnership({ ...options, ownership: options["credential-ownership"],
+          "instrumentation-owner": options.owner, "session-id": instrumentationOwnerId }, nativeInputs, dependencies);
+      } catch (error) {
+        // Handoff failures are not stream-open failures. Preserve the bounded
+        // ownership reason without exposing raw device output or credentials.
+        fail(`${credentialOwnershipReason(error)}-no-spawn`);
+      }
     }
     spawnAttempted = true;
     child = (dependencies.spawn ?? spawn)("adb", ["-s", options.serial, "shell", "am", "instrument", "-w", "-r",

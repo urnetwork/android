@@ -9,7 +9,8 @@ import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parserOutcome, requireCredentialParserPreflight } from "./physical_credentials_preflight.mjs";
 import { artifactDirectoryReason, prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
-import { credentialOwnershipPublication, prepareCredentialOwnership, recordCredentialOwnership } from "./physical_credential_ownership.mjs";
+import { credentialOwnershipPublication, prepareCredentialOwnership, recordCredentialOwnership,
+  requireCredentialTargetStopped } from "./physical_credential_ownership.mjs";
 
 const PACKAGE = "com.bringyour.network";
 const DESTINATION = "files/acceptance/credentials";
@@ -399,6 +400,10 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
   }));
   const adb = (script, input) => invokeAdb(["-s", options.serial, "shell", "-T", "run-as", PACKAGE,
     "sh", "-c", quote(script)], input);
+  const requireStopped = () => {
+    try { requireCredentialTargetStopped(options.serial, dependencies.ownershipAdb ?? invokeAdb); }
+    catch { fail("credential-target-not-proven-stopped"); }
+  };
   const report = { type: "physical-credential-staging", schemaVersion: 3, eligible: false,
     sourceSchema: options.schema, classification: "FAILED_CREDENTIAL_STAGING",
     reason: "credential-staging-unavailable", destinationOwned: false, expected: null, observed: null,
@@ -407,6 +412,10 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
   let temporaryOwned = false;
   let ownershipProof;
   try {
+    // Installation can wake StartReceiver through MY_PACKAGE_REPLACED. Reject
+    // that normal app before reading secrets, not after publishing credentials
+    // when the instrumentation handoff would already be too late.
+    requireStopped();
     const values = keys.map((key) => {
       let value;
       try { value = invokeReader(key, options.schema); }
@@ -422,6 +431,9 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
     report.expected = reportStructure(expected);
     try { requireArtifactPaths(directoryBinding, [options.output]); }
     catch (error) { fail(artifactDirectoryReason(error)); }
+    // The parser may compile or block. Recheck immediately before either
+    // device write so an app launch during parsing/staging cannot be ignored.
+    requireStopped();
     let written;
     try { written = invokeStep(report.steps, "stage", () => adb(scripts.stage, payload)); }
     catch (error) { report.stageDiagnostic = credentialStageDiagnostic({ error }); throw error; }
@@ -439,6 +451,7 @@ export function stagePhysicalCredentials(options, dependencies = {}) {
     if (!observed || Object.keys(expected).some((key) => observed[key] !== expected[key])) {
       fail("device-credential-structure-mismatch");
     }
+    requireStopped();
     const published = invokeStep(report.steps, "publish", () => adb(scripts.publish));
     const publication = publicationMetadata(published, report.steps);
     ownershipProof = publication.ownershipProof;

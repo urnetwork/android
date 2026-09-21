@@ -192,7 +192,12 @@ const keys = args[3] === 'user-pass' ? ['user','pass'] : ['data_plane_account.em
 if (values.length !== 2 || !keys.includes(args[5])) process.exit(8);
 process.stdout.write(values[keys.indexOf(args[5])]);
 `, { mode: 0o700 });
-  const env = { ...process.env, UR_ACCEPT_VAULT: f.env.UR_ACCEPT_VAULT, UR_ACCEPT_TEST_CONFIG_READER: reader };
+  writeFileSync(join(f.directory, "adb"), `#!${process.execPath}
+const args = process.argv.slice(2);
+process.exit(JSON.stringify(args) === JSON.stringify(['-s','unused-fake-device','shell','pidof','com.bringyour.network']) ? 1 : 7);
+`, { mode: 0o700 });
+  const env = { ...process.env, PATH: `${f.directory}:${process.env.PATH}`,
+    UR_ACCEPT_VAULT: f.env.UR_ACCEPT_VAULT, UR_ACCEPT_TEST_CONFIG_READER: reader };
   const preflight = spawnSync(process.execPath, [CLI, "--output", f.options.output], { env, encoding: "utf8", timeout: 15_000 });
   assert.equal(preflight.status, 0, preflight.stderr);
   assert.equal(preflight.stdout, ""); assert.equal(preflight.stderr, "");

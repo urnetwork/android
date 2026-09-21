@@ -74,7 +74,10 @@ exec '${join(bin, "stat-real")}' "$@"
     const index = selected.indexOf(key);
     return schema !== f.sourceSchema || index < 0 ? { status: 1, stdout: "", stderr: "wrong schema" }
       : { status: 0, stdout: f.values[index] };
-  }, adb: (...args) => f.adb(...args) };
+  }, adb: (...args) => f.adb(...args), ownershipAdb: args => {
+    assert.deepEqual(args, ["-s", "fake-device", "shell", "pidof", "com.bringyour.network"]);
+    return f.targetResult ?? { status: 1, stdout: "", stderr: "" };
+  } };
   return f;
 }
 
@@ -117,6 +120,65 @@ function ownershipFixture(t) {
   };
   return f;
 }
+
+test("package-replacement startup is rejected before credentials are read or staged", t => {
+  for (const targetResult of [
+    { status: 0, stdout: "1234\n", stderr: "" },
+    { status: 1, stdout: "", stderr: "adb transport failed" },
+    { status: 2, stdout: "", stderr: "" },
+    { status: 1, stdout: "unexpected", stderr: "" },
+    { status: null, stdout: "", stderr: "", error: { code: "ETIMEDOUT" } },
+  ]) {
+    const f = ownershipFixture(t);
+    // Replacement install starts StartReceiver even with no acceptance file.
+    f.targetResult = targetResult;
+    const report = stagePhysicalCredentials(f.options, f.deps);
+    assert.equal(report.eligible, false);
+    assert.equal(report.reason, "credential-target-not-proven-stopped");
+    assert.deepEqual(f.keys, [], "the credential parser must not run");
+    assert.deepEqual(f.calls, [], "no app-private file may be written");
+    assert.equal(existsSync(f.destination), false);
+    assert.equal(existsSync(f.options.ownership), false);
+    assertPrivateOutcomesOnly(report);
+  }
+});
+
+test("an app launch during credential parsing is caught before the first device write", t => {
+  const f = ownershipFixture(t);
+  const reader = f.deps.reader;
+  f.deps.reader = (...args) => {
+    const result = reader(...args);
+    f.targetResult = { status: 0, stdout: "1234\n", stderr: "" };
+    return result;
+  };
+  const report = stagePhysicalCredentials(f.options, f.deps);
+  assert.equal(report.reason, "credential-target-not-proven-stopped");
+  assert.equal(report.eligible, false);
+  assert.equal(f.keys.length, 2);
+  assert.deepEqual(f.calls, []);
+  assert.equal(existsSync(f.destination), false);
+  assertPrivateOutcomesOnly(report);
+});
+
+test("an app launch during temporary staging prevents publication and cleans only the owned temporary", t => {
+  const f = ownershipFixture(t);
+  const adb = f.adb;
+  f.adb = (...args) => {
+    const result = adb(...args);
+    if (args[1] !== undefined) f.targetResult = { status: 0, stdout: "1234\n", stderr: "" };
+    return result;
+  };
+  const report = stagePhysicalCredentials(f.options, f.deps);
+  assert.equal(report.reason, "credential-target-not-proven-stopped");
+  assert.equal(report.eligible, false);
+  assert.equal(report.steps.stage.outcome, "ok");
+  assert.equal(report.steps.publish.outcome, "not-run");
+  assert.equal(report.steps.cleanup.outcome, "ok");
+  assert.equal(existsSync(f.destination), false);
+  assert.equal(existsSync(`${f.destination}.pending-fixture-token`), false);
+  assert.equal(existsSync(f.options.ownership), false);
+  assertPrivateOutcomesOnly(report);
+});
 
 test("diag9: joined attested staging creates private prospective proof; owned rollback removes only that file and marker", t => {
   const f = ownershipFixture(t); f.stage();
@@ -201,6 +263,20 @@ test("instrumentation handoff irreversibly binds the prospective session and ret
   assert.equal(handoff.instrumentationOwner, f.options["instrumentation-owner"]);
   assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
   assert.equal(rollbackCredentialSetup(f.options, f.deps).reason, "credential-already-handed-to-instrumentation");
+});
+
+test("an app launch during ownership verification prevents irreversible instrumentation handoff", t => {
+  const f = ownershipFixture(t); f.stage();
+  const invoke = f.deps.ownershipAdb;
+  f.deps.ownershipAdb = args => {
+    const result = invoke(args);
+    if (args[3] === "-T") f.targetResult = { status: 0, stdout: "1234\n", stderr: "" };
+    return result;
+  };
+  assert.throws(() => handoffCredentialOwnership(f.options, f.native, f.deps),
+    /credential-target-not-proven-stopped/);
+  assert.equal(existsSync(`${f.options.ownership}.handoff.json`), false);
+  assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
 });
 
 test("normal finish plus exact prospective owner and terminal join removes only its credential and marker", t => {
@@ -359,6 +435,31 @@ test("diag9: retained AM pre-spawn failure automatically rolls back a proved own
   assert.equal(existsSync(f.destination), false); assert.equal(existsSync(options.owner), false);
 });
 
+test("an app becoming live after staging reports its handoff cause and never retries terminal rollback", async t => {
+  const f = ownershipFixture(t); f.stage();
+  f.targetResult = { status: 0, stdout: "1234\n", stderr: "" };
+  const options = { ...f.options, "credential-ownership": f.options.ownership,
+    owner: join(f.directory, "am-owner.json"), stdout: join(f.directory, "am.stdout"), stderr: join(f.directory, "am.stderr") };
+  let spawned = false; let rollback;
+  await assert.rejects(runInstrumentationSession(options, { ...f.deps,
+    foreground: () => ({ inputTTY: true, outputTTY: true, processGroup: 100, foregroundGroup: 100 }),
+    hostProcess: pid => ({ status: 0, stdout: `${pid} S Mon Sep 21 10:11:12 2026 /node /fixture/supervisor.mjs\n` }),
+    spawn: () => { spawned = true; throw new Error("must not spawn"); },
+    onCredentialRollback: result => { rollback = result; },
+  }), { message: "credential-target-not-proven-stopped-no-spawn" });
+  assert.equal(spawned, false);
+  assert.equal(rollback.reason, "credential-target-not-proven-stopped");
+  assert.equal(rollback.destinationRemoved, false);
+  assert.equal(existsSync(`${f.options.ownership}.handoff.json`), false);
+  assert.equal(existsSync(options.owner), false);
+  assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
+  // Stopping later must not repurpose the invalid arm or erase its refusal.
+  f.targetResult = { status: 1, stdout: "", stderr: "" };
+  assert.equal(rollbackCredentialSetup(f.options, f.deps).reason, "credential-setup-already-terminal");
+  assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
+  assertPrivateOutcomesOnly(JSON.parse(readFileSync(f.options.output)));
+});
+
 test("diag9: no-spawn AM failure with unknown credentials never authorizes cleanup", async t => {
   const f = ownershipFixture(t);
   mkdirSync(dirnameForTest(f.destination), { recursive: true, mode: 0o700 });
@@ -483,7 +584,7 @@ test("each explicit schema invokes only its exact reader keys and records the se
   }
 });
 
-test("wrong schema fails without alternate-key fallback or any device call", (t) => {
+test("wrong schema fails without alternate-key fallback or any device write", (t) => {
   for (const schema of ["user-pass", "data-plane-account"]) {
     const f = fixture(t); f.options.schema = schema;
     f.sourceSchema = schema === "user-pass" ? "data-plane-account" : "user-pass";
@@ -676,7 +777,7 @@ test("read-only inspection reports counts from the exact app file without values
   }
 });
 
-test("blank/multiline configuration and reader failures never issue a device command", (t) => {
+test("blank/multiline configuration and reader failures never write to the device", (t) => {
   for (const kind of ["blank", "multiline", "reader-failed"]) {
     const f = fixture(t);
     f.values[1] = kind === "blank" ? " \t" : "one\ntwo";
@@ -1171,6 +1272,7 @@ else process.exit(4);
 `, { mode: 0o700 });
   writeFileSync(join(f.bin, "adb"), `#!${process.execPath}
 const fs = require('node:fs'); const cp = require('node:child_process'); const args = process.argv.slice(2);
+if (JSON.stringify(args) === JSON.stringify(['-s','fake-device','shell','pidof','com.bringyour.network'])) process.exit(1);
 if (JSON.stringify(args.slice(0,8)) !== JSON.stringify(['-s','fake-device','shell','-T','run-as','com.bringyour.network','sh','-c'])) process.exit(5);
 const shell = process.platform === 'darwin' ? '/bin/ksh' : '/bin/sh';
 const commandArgs = args.slice(6); commandArgs[0] = shell;

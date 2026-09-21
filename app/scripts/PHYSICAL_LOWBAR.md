@@ -926,8 +926,20 @@ external cleanup. Keep the fixed directory outcomes mode 0600 in the run root,
 outside the leaf under test. Freeze/restore `ARTIFACT_DIR` across executor calls;
 a workload's later `PRIVATE_DIR` must not redirect parser/staging/AM artifacts.
 
-After APK installation, prove the credential destination is absent with the
-metadata-only helper before parser/staging work:
+After the **last** app/test APK install, force-stop the target before
+parser/staging work. An APK replacement delivers `MY_PACKAGE_REPLACED` to
+`StartReceiver`, starting the normal app even if it was stopped before the
+install. This was the observed cause of the rate-zero arm's pre-AM rejection.
+Apply the stop only during fresh setup, before staging or retained AM startup:
+
+```sh
+umask 077
+adb -s "$SERIAL" shell am force-stop com.bringyour.network \
+  >"$ARTIFACT_DIR/$LABEL.target-stop.stdout" \
+  2>"$ARTIFACT_DIR/$LABEL.target-stop.stderr" || exit 2
+```
+
+Then prove the credential destination is absent with the metadata-only helper:
 
 ```sh
 node app/scripts/physical_credential_watch.mjs --preflight \
@@ -942,6 +954,14 @@ the host's quote grouping. That form can execute `sh -c test` without operands
 and falsely report absence. The helper preserves a second, literal quote layer
 and returns only bounded metadata. Its host regression reproduces the false
 absence and confirms the corrected command preserves an existing file.
+The credential staging helper also requires the ordinary-shell `pidof`
+no-match contract before reading credentials, before temporary staging and
+before publication. Live/uncertain target state fails with
+`credential-target-not-proven-stopped` before the next write. A launch during
+temporary staging permits cleanup only of that owned temporary file. Handoff
+rechecks stopped state around ownership verification and preserves the precise
+`...-no-spawn` cause; it no longer labels ownership failures as artifact-open
+failures. None of these guards force-stop a live app or retry a failed arm.
 
 ```sh
 umask 077
