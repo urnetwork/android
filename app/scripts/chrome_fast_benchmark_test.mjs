@@ -51,6 +51,9 @@ function fixture() {
     },
     close: () => calls.push("page-close"),
   };
+  f.browser = browser;
+  f.page = page;
+  f.advance = ms => { elapsed += ms; };
   return f;
 }
 
@@ -74,7 +77,8 @@ test("lBOYKS root: one pending navigation and no display retains diagnostics but
   assert.equal(result.pageEncodedBytes, 0);
   assert.equal(result.completed, false);
   assert.equal(result.valid, false);
-  assert.equal(result.failureReason, "invalid-display");
+  assert.equal(result.failureReason, "deadline-exceeded");
+  assert.equal(result.timeoutPhase, "display-poll");
   assertClosed(f);
 });
 
@@ -84,7 +88,7 @@ test("a transient number cannot make a later empty display complete", async () =
   const result = await runFastBenchmark(f.options, f.deps);
   assert.equal(result.completed, false);
   assert.equal(result.valid, false);
-  assert.equal(result.failureReason, "invalid-display");
+  assert.equal(result.failureReason, "deadline-exceeded");
   assertClosed(f);
 });
 
@@ -92,9 +96,9 @@ test("a number observed before timeout is not a completed measurement without st
   const f = fixture(); f.options.timeoutMs = 2000;
   f.samples = [{ value: "40", units: "Mbps", progress: "running" }, { value: "41", units: "Mbps", progress: "running" }];
   const result = await runFastBenchmark(f.options, f.deps);
-  assert.equal(result.displayValue, "41");
+  assert.equal(result.displayValue, "40");
   assert.equal(result.completed, false);
-  assert.equal(result.failureReason, "incomplete-result");
+  assert.equal(result.failureReason, "deadline-exceeded");
 });
 
 test("positive terminal display without received page workload is invalid, not zero or valid speed", async () => {
@@ -145,12 +149,12 @@ test("malformed values, zero, nonfinite values and missing or unknown units are 
 test("nonterminal class substrings and a response arriving after deadline cannot make success", async () => {
   for (const progress of ["not-hidden", "unstopped", "succeeded-looking"]) {
     const f = fixture(); f.options.timeoutMs = 2000; f.samples[0].progress = progress;
-    assert.equal((await runFastBenchmark(f.options, f.deps)).failureReason, "incomplete-result");
+    assert.equal((await runFastBenchmark(f.options, f.deps)).failureReason, "deadline-exceeded");
   }
   const f = fixture(); f.options.timeoutMs = 1000; f.evaluateDelay = 1;
   const result = await runFastBenchmark(f.options, f.deps);
   assert.equal(result.completed, false);
-  assert.equal(result.failureReason, "incomplete-result");
+  assert.equal(result.failureReason, "deadline-exceeded");
 });
 
 test("network subresource failures remain diagnostic and do not invalidate a completed canonical result", async () => {
@@ -166,10 +170,65 @@ test("navigation failure still closes only the owned target and propagates failu
   assertClosed(f);
 });
 
-test("actual CLI publishes the incomplete aggregate and exits 2 with fake CDP and no network", () => {
+test("whole-run deadline bounds discovery, CDP operations and owned-target cleanup", async (t) => {
+  for (const phase of ["browser-discovery", "browser-open", "target-create", "target-discovery", "page-open",
+    "page-enable", "cache-disable", "cache-clear", "navigation", "display-evaluate", "target-cleanup"]) {
+    await t.test(phase, async () => {
+      const f = fixture();
+      f.options.timeoutMs = 100;
+      f.deps.sleep = async () => f.advance(1);
+      // Completed microtasks cancel these deterministic timers. Only the
+      // intentionally unresolved host/CDP operation consumes the budget.
+      f.deps.setTimer = (callback, ms) => setImmediate(() => { f.advance(ms); callback(); });
+      f.deps.clearTimer = clearImmediate;
+      const held = () => new Promise(() => {});
+      const fetch = f.deps.fetchJson;
+      f.deps.fetchJson = (url, signal) => {
+        assert.equal(signal.aborted, false);
+        return (phase === "browser-discovery" && url.endsWith("/version")) ||
+          (phase === "target-discovery" && url.endsWith("/list")) ? held() : fetch(url);
+      };
+      if (phase === "browser-open") f.browser.open = held;
+      if (phase === "page-open") f.page.open = held;
+      const method = { "target-create": "Target.createTarget", "page-enable": "Network.enable",
+        "cache-disable": "Network.setCacheDisabled", "cache-clear": "Network.clearBrowserCache",
+        navigation: "Page.navigate", "display-evaluate": "Runtime.evaluate", "target-cleanup": "Target.closeTarget" }[phase];
+      for (const session of [f.browser, f.page]) {
+        const send = session.send;
+        session.send = (name, params) => name === method ? held() : send(name, params);
+      }
+      const result = await runFastBenchmark(f.options, f.deps);
+      assert.equal(result.valid, false);
+      assert.equal(result.timedOut, true);
+      assert.equal(result.failureReason, "deadline-exceeded");
+      assert.equal(result.timeoutPhase, phase);
+      assert.ok(result.totalElapsedMs <= 100);
+      if (phase !== "browser-discovery") assert.ok(f.calls.includes("browser-close"));
+      if (phase === "target-cleanup") {
+        assert.equal(result.completed, true, "a completed display cannot hide failed cleanup");
+        assert.equal(result.cleanupComplete, false);
+      }
+    });
+  }
+});
+
+test("setup spends the display budget and a result at the deadline cannot pass", async () => {
+  const f = fixture();
+  f.options.timeoutMs = 1500;
+  f.browser.open = async () => { f.advance(600); };
+  const result = await runFastBenchmark(f.options, f.deps);
+  assert.equal(result.timedOut, true);
+  assert.equal(result.totalElapsedMs, 1500);
+  assert.equal(result.elapsedMs, 900);
+  assert.equal(result.displayValue, "");
+});
+
+for (const mode of ["incomplete", "evaluate-hang", "cleanup-hang", "close-handshake"])
+test(`actual CLI exits with the correct aggregate despite ${mode} and a retained socket handle`, () => {
   // Preload substitutes only host APIs; the production CLI and polling path run
   // unchanged. Any unexpected target/URL fails rather than contacting a device.
   const preload = `
+    const mode = ${JSON.stringify(mode)};
     let now = 0;
     const realTimeout = globalThis.setTimeout;
     globalThis.performance = { now: () => now };
@@ -185,15 +244,21 @@ test("actual CLI publishes the incomplete aggregate and exits 2 with fake CDP an
       constructor(url) {
         super();
         if (url !== "ws://fake/browser" && url !== "ws://fake/page") throw new Error("unexpected fake socket");
+        setInterval(() => {}, 1000); // A close handshake that never releases its host handle.
         queueMicrotask(() => this.dispatchEvent(new Event("open")));
       }
       send(data) {
         const { id, method } = JSON.parse(data);
+        if (mode === "evaluate-hang" && method === "Runtime.evaluate") return;
+        if (mode === "cleanup-hang" && method === "Target.closeTarget") return;
         let result = {};
         if (method === "Target.createTarget") result = { targetId: "owned" };
-        if (method === "Runtime.evaluate") result = { result: { value: { value: "", units: "", progress: "", loaded: "loading" } } };
+        if (method === "Runtime.evaluate") result = { result: { value: mode === "incomplete"
+          ? { value: "", units: "", progress: "", loaded: "loading" }
+          : { value: "40", units: "Mbps", progress: "succeeded", loaded: "complete" } } };
         queueMicrotask(() => {
           if (method === "Page.navigate") this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ method: "Network.requestWillBeSent", params: {} }) }));
+          if (method === "Page.navigate" && mode !== "incomplete") this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ method: "Network.loadingFinished", params: { encodedDataLength: 768 } }) }));
           this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ id, result }) }));
         });
       }
@@ -205,12 +270,14 @@ test("actual CLI publishes the incomplete aggregate and exits 2 with fake CDP an
   { encoding: "utf8", timeout: 5000 });
   assert.equal(child.error, undefined);
   assert.equal(child.signal, null);
-  assert.equal(child.status, 2, child.stderr);
+  const valid = mode === "close-handshake";
+  assert.equal(child.status, valid ? 0 : 2, child.stderr);
   assert.equal(child.stderr, "");
   const result = JSON.parse(child.stdout);
-  assert.equal(result.completed, false);
-  assert.equal(result.valid, false);
+  assert.equal(result.completed, ["cleanup-hang", "close-handshake"].includes(mode));
+  assert.equal(result.valid, valid);
   assert.equal(result.pageRequestCount, 1);
-  assert.equal(result.pageEncodedBytes, 0);
-  assert.equal(result.elapsedMs, 2000);
+  assert.equal(result.pageEncodedBytes, mode === "incomplete" ? 0 : 768);
+  assert.equal(result.totalElapsedMs, valid ? 1000 : 2000);
+  assert.equal(result.timeoutPhase, { incomplete: "display-poll", "evaluate-hang": "display-evaluate", "cleanup-hang": "target-cleanup" }[mode] ?? null);
 });

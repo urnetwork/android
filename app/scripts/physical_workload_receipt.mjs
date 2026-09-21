@@ -35,6 +35,7 @@ function resultEvidence(result, isLive) {
     signal: ["SIGINT", "SIGTERM", "SIGHUP", "SIGKILL", "SIGABRT", "SIGSEGV", "SIGPIPE"].includes(result?.signal)
       ? result.signal : result?.signal ? "other" : null,
     interrupted: typeof result?.interrupted === "boolean" ? result.interrupted : null,
+    timedOut: result?.timedOut === true, joinTimedOut: result?.joinTimedOut === true,
     launchError: ["missing-executable", "permission-denied", "invalid-launch", "other"].includes(result?.launchError) ? result.launchError : null };
 }
 
@@ -230,39 +231,96 @@ export function requireCompletedWorkloads(path, label, serial, dependencies = {}
   return receipt;
 }
 
-export async function runCommand(command, env = process.env) {
+export async function runCommand(command, env = process.env, limits = {}, dependencies = {}) {
   if (!Array.isArray(command) || !command.length || command.some((value) => typeof value !== "string" || !value)) {
     fail("foreground-command-required");
   }
   // A missing script after `node --` is an interactive process, which cannot be
   // a bounded workload owner/child. Normal probes always pass a script or -e.
   if ((command[0] === "node" || command[0].endsWith("/node")) && command.length === 1) fail("foreground-command-required");
+  const timeoutMs = limits.timeoutMs ?? 600_000;
+  const killAfterMs = limits.killAfterMs ?? 1_000;
+  const joinAfterMs = limits.joinAfterMs ?? 5_000;
+  if (![timeoutMs, killAfterMs, joinAfterMs].every(value => Number.isSafeInteger(value) && value > 0 && value <= 2_147_483_647)) {
+    fail("bounded-command-deadline-required");
+  }
   let interrupted = false;
   let launchError = null;
-  const child = spawn(command[0], command.slice(1), { env, stdio: "inherit", detached: true });
+  let timedOut = false;
+  let joinTimedOut = false;
+  const setTimer = dependencies.setTimer ?? setTimeout;
+  const clearTimer = dependencies.clearTimer ?? clearTimeout;
+  const isLive = dependencies.isLive ?? processIsLive;
+  const child = (dependencies.spawn ?? spawn)(command[0], command.slice(1), { env, stdio: "inherit", detached: true });
+  let deadlineTimer;
+  let killTimer;
+  let joinTimer;
+  let groupTimer;
+  let observedClose;
+  let settled = false;
+  let finish;
+  const signalGroup = signal => {
+    if (child.pid) {
+      try { (dependencies.kill ?? process.kill)(-child.pid, signal); } catch { /* retained as unjoined if signalling fails */ }
+    }
+  };
+  const terminate = signal => {
+    signalGroup(signal);
+    if (killTimer) return;
+    // A child can ignore SIGTERM or catch it and exit zero. Both remain an
+    // interrupted/expired attempt, never a successful workload receipt.
+    killTimer = setTimer(() => signalGroup("SIGKILL"), killAfterMs);
+    joinTimer = setTimer(() => {
+      joinTimedOut = true;
+      child.unref();
+      finish(observedClose !== undefined, observedClose?.exitCode ?? child.exitCode, observedClose?.signal ?? child.signalCode);
+    }, killAfterMs + joinAfterMs);
+  };
   const handlers = new Map(["SIGINT", "SIGTERM", "SIGHUP"].map((signal) => [signal, () => {
     interrupted = true;
-    if (child.pid) {
-      try { process.kill(-child.pid, signal); } catch (error) { if (error.code !== "ESRCH") throw error; }
-    }
+    terminate(signal);
   }]));
   for (const [signal, handler] of handlers) process.on(signal, handler);
   try {
     return await new Promise((resolve_) => {
+      finish = (closed, exitCode, signal) => {
+        if (settled) return;
+        settled = true;
+        resolve_({ closed, exitCode, signal, interrupted, timedOut, joinTimedOut, pid: child.pid, launchError });
+      };
+      deadlineTimer = setTimer(() => { timedOut = true; terminate("SIGTERM"); }, timeoutMs);
       child.once("error", error => {
         launchError = error?.code === "ENOENT" ? "missing-executable" : ["EACCES", "EPERM"].includes(error?.code)
           ? "permission-denied" : error?.code === "EINVAL" ? "invalid-launch" : "other";
       });
-      child.once("close", (exitCode, signal) => resolve_({ closed: true, exitCode, signal, interrupted, pid: child.pid, launchError }));
+      child.once("close", (exitCode, signal) => {
+        if (settled) return;
+        observedClose = { exitCode, signal };
+        const joined = () => {
+          if (settled) return;
+          // The group leader can exit on SIGTERM while a descendant ignores
+          // it. Keep escalation armed until that owned group is gone too.
+          let groupLive = false;
+          try { groupLive = child.pid && isLive(-child.pid); } catch { groupLive = true; }
+          if ((timedOut || interrupted) && groupLive) groupTimer = setTimer(joined, 25);
+          else finish(true, exitCode, signal);
+        };
+        joined();
+      });
     });
   } finally {
+    clearTimer(deadlineTimer);
+    clearTimer(killTimer);
+    clearTimer(joinTimer);
+    clearTimer(groupTimer);
     for (const [signal, handler] of handlers) process.off(signal, handler);
   }
 }
 
 function completeResult(result, isLive, requireSuccess = true) {
   return result?.closed === true && (requireSuccess ? result.exitCode === 0 : exitedNormally(result.exitCode)) && result.signal === null &&
-    result.interrupted === false && !result.launchError && pidValid(result.pid) && !isLive(-result.pid);
+    result.interrupted === false && result.timedOut !== true && result.joinTimedOut !== true &&
+    !result.launchError && pidValid(result.pid) && !isLive(-result.pid);
 }
 
 // Read-only post-mortem inspection also covers SIGKILL/executor loss, when no
@@ -341,8 +399,10 @@ export async function ownWorkloads(options, dependencies = {}) {
     stage = "owner-command";
     result = await (dependencies.run ?? runCommand)(script?.command ?? options.command,
       { ...process.env, ...(script ? { PRIVATE_DIR: script.privateDirectory, SERIAL: options.serial,
-        RECEIPT: fileURLToPath(import.meta.url), SCRIPTS: dirname(fileURLToPath(import.meta.url)) } : {}), [OWNER_ENV]: ownerPath });
+        RECEIPT: fileURLToPath(import.meta.url), SCRIPTS: dirname(fileURLToPath(import.meta.url)) } : {}), [OWNER_ENV]: ownerPath },
+      { timeoutMs: options["timeout-ms"] ?? 1_800_000 });
     stage = "owner-join";
+    if (result?.timedOut === true) fail("owner-deadline-exceeded");
     if (!completeResult(result, isLive)) {
       if (completeResult(result, isLive, false)) fail("owner-command-failed");
       fail("owner-not-joined-or-interrupted");
@@ -407,9 +467,11 @@ export async function recordChild(options, dependencies = {}) {
           checked.stderr?.trim()) fail("browser-cleanup-not-verified");
       result = { exitCode: 0, browserStopped: true, browserPackage: "com.android.chrome" };
     } else {
-      const closed = await (dependencies.run ?? runCommand)(options.command);
+      const closed = await (dependencies.run ?? runCommand)(options.command, process.env,
+        { timeoutMs: options["timeout-ms"] ?? 600_000 });
       commandResult = closed;
       stage = "child-join";
+      if (closed?.timedOut === true) fail("child-deadline-exceeded");
       if (!completeResult(closed, isLive, false)) fail("child-not-joined-or-interrupted");
       result = { exitCode: closed.exitCode, processGroup: closed.pid };
     }
@@ -436,20 +498,26 @@ export function parseArgs(argv) {
   const pairs = separator < 0 ? rest : rest.slice(0, separator);
   const options = { mode, command: separator < 0 ? [] : rest.slice(separator + 1) };
   const ownerOptions = ["serial", "label", "output", "children", "collector-pid", "telemetry"];
-  const allowed = { owner: ownerOptions, "owner-script": ownerOptions, "script-preflight": ["label", "output"],
+  const required = { owner: ownerOptions, "owner-script": ownerOptions, "script-preflight": ["label", "output"],
     child: ["name"], cleanup: ["serial"], inspect: ["owner", "output"] }[mode];
-  if (!allowed) fail("owner-child-or-cleanup-required");
+  if (!required) fail("owner-child-or-cleanup-required");
+  const allowed = ["owner", "owner-script", "child"].includes(mode) ? [...required, "timeout-ms"] : required;
   for (let i = 0; i < pairs.length; i += 2) {
     const key = pairs[i]?.slice(2);
     if (!pairs[i]?.startsWith("--") || !allowed.includes(key) || !pairs[i + 1] ||
         pairs[i + 1].startsWith("--") || options[key] !== undefined) fail("invalid-arguments");
     options[key] = pairs[i + 1];
   }
-  if (allowed.some((key) => !options[key]) || (["cleanup", "inspect", "owner-script", "script-preflight"].includes(mode)
+  if (required.some((key) => !options[key]) || (["cleanup", "inspect", "owner-script", "script-preflight"].includes(mode)
     ? options.command.length : !options.command.length)) {
     fail("explicit-owner-child-command-or-cleanup-required");
   }
   if (["owner", "owner-script"].includes(mode)) options.children = options.children.split(",");
+  if (options["timeout-ms"] !== undefined) {
+    const value = Number(options["timeout-ms"]);
+    if (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647) fail("bounded-command-deadline-required");
+    options["timeout-ms"] = value;
+  }
   return options;
 }
 

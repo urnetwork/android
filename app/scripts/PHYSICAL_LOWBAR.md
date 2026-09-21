@@ -78,6 +78,17 @@ not an added minimum speed or worker-byte threshold. Retain unsuccessful runs
 in the failure denominator instead of turning them into zero Mbps, dropping
 them, or substituting a retry.
 
+`--timeout-ms` is a single wall-clock budget covering DevTools discovery,
+WebSocket setup, every CDP request, display polling and owned-target cleanup.
+Cleanup waits at most one second within the remaining budget. A blocked
+`Runtime.evaluate` or `Target.closeTarget` returns `valid=false`,
+`failureReason=deadline-exceeded` and a fixed `timeoutPhase`; even an already
+completed display cannot turn expired cleanup into success. `totalElapsedMs`
+includes setup/cleanup; the existing `elapsedMs` covers navigation through the
+last measurement. The CLI flushes that aggregate and exits without waiting for
+a stalled WebSocket close handshake. No late reply can turn the failed sample
+into a valid speed result.
+
 For a video failure, attach to the already-open page target and prove whether
 the media clock advances:
 
@@ -661,7 +672,7 @@ set -u
 node "$RECEIPT" child --name wiki -- node "$SCRIPTS/chrome_page_benchmark.mjs" \
   --port "$CDP_PORT" --runs 5 https://www.wikipedia.org/ >"$PRIVATE_DIR/wiki.jsonl" 2>"$PRIVATE_DIR/wiki.stderr"
 for n in 1 2 3; do
-  node "$RECEIPT" child --name "fast-$n" -- node "$SCRIPTS/chrome_fast_benchmark.mjs" \
+  node "$RECEIPT" child --name "fast-$n" --timeout-ms 95000 -- node "$SCRIPTS/chrome_fast_benchmark.mjs" \
     --port "$CDP_PORT" --timeout-ms 90000 >"$PRIVATE_DIR/fast-$n.json" 2>"$PRIVATE_DIR/fast-$n.stderr"
 done
 node "$RECEIPT" child --name cnn -- node "$SCRIPTS/chrome_video_probe.mjs" \
@@ -672,6 +683,17 @@ node "$RECEIPT" child --name bloomberg -- node "$SCRIPTS/chrome_video_probe.mjs"
 # This does not stop/restart the VPN or instrumentation.
 node "$RECEIPT" cleanup --serial "$SERIAL" >"$PRIVATE_DIR/chrome-cleanup.stdout" 2>"$PRIVATE_DIR/chrome-cleanup.stderr"
 ```
+
+The receipt's `--timeout-ms 95000` is a separate process deadline for each
+90-second Fast.com child. If the child does not exit, the wrapper sends SIGTERM
+to its owned process group, escalates to SIGKILL after one second, and allows
+at most five further seconds for terminal join. Expiry is a failed receipt
+even if a signal handler exits zero. An unconfirmed join stays failed and
+cannot authorize cleanup/quiet or a retry under the same owner. Other children
+default to ten minutes and the full owner to thirty minutes; both accept an
+explicit `--timeout-ms` before `--` for a tighter workload-specific bound.
+Successful joins retain ordinary nonzero probe results for diagnostics, but
+process deadline failures never become completed workload receipts.
 
 For the video commands above, `--navigate` without `--target-id` creates an
 owned `about:blank` page, attaches the probe before navigating, and closes only

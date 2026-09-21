@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
+import { EventEmitter } from "node:events";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -60,6 +61,15 @@ test("owner predeclares unique ordered children and requires explicit collector 
   assert.deepEqual(parsed.command, ["sh", "workload.sh"]);
   for (const args of [[], ["child", "--name", "pages"], ["cleanup", "--serial", "fake", "--", "true"],
     ["owner", "--label", "cell", "--output", "out", "--children", "pages", "--", "true"]]) assert.throws(() => parseArgs(args));
+});
+
+test("child deadline is explicit, bounded and cannot be confused with the workload's own options", () => {
+  const parsed = parseArgs(["child", "--name", "fast-1", "--timeout-ms", "95000", "--", "node", "fast.mjs", "--timeout-ms", "90000"]);
+  assert.equal(parsed["timeout-ms"], 95_000);
+  assert.deepEqual(parsed.command, ["node", "fast.mjs", "--timeout-ms", "90000"]);
+  for (const invalid of ["0", "-1", "NaN", "1.5", "2147483648"]) {
+    assert.throws(() => parseArgs(["child", "--name", "fast-1", "--timeout-ms", invalid, "--", "true"]), /bounded-command-deadline-required/);
+  }
 });
 
 test("invalid TTY, redirected, background or missing owner rejects before collector/artifacts/child spawn", async (t) => {
@@ -208,6 +218,34 @@ test("normal probe failure is preserved while allowing joined diagnostic memory 
   assert.equal(f.check().childReceipts[0].exitCode, 2);
 });
 
+test("a deadline followed by exit zero retains failed child evidence and cannot qualify quiet", async (t) => {
+  const f = fixture(t);
+  f.childRun = async () => ({ ...closed(), timedOut: true });
+  await assert.rejects(f.run(), /child-deadline-exceeded/);
+  const failed = JSON.parse(readFileSync(join(f.ownerPath, "..", "pages.failed.json")));
+  assert.equal(failed.result.exitCode, 0);
+  assert.equal(failed.result.timedOut, true);
+  assert.equal(failed.reason, "child-deadline-exceeded");
+  assert.equal(existsSync(join(f.ownerPath, "..", "pages.complete.json")), false);
+  assert.equal(existsSync(f.options.output), false);
+  await assert.rejects(f.child("pages"), /child-failure-already-recorded/);
+});
+
+test("owner timeout or an unjoined killed child cannot publish terminal success", async (t) => {
+  const f = fixture(t);
+  f.ownerResult = { ...closed(501), timedOut: true };
+  await assert.rejects(f.run(), /owner-deadline-exceeded/);
+  assert.equal(JSON.parse(readFileSync(`${f.options.output}.failed.json`)).result.timedOut, true);
+  assert.equal(existsSync(f.options.output), false);
+  const g = fixture(t);
+  g.childRun = async () => ({ ...closed(), closed: false, timedOut: true, joinTimedOut: true });
+  await assert.rejects(g.run(), /child-deadline-exceeded/);
+  const failed = JSON.parse(readFileSync(join(g.ownerPath, "..", "pages.failed.json")));
+  assert.equal(failed.result.closed, false);
+  assert.equal(failed.result.joined, false);
+  assert.equal(failed.result.joinTimedOut, true);
+});
+
 test("8vdtZ8 root: malformed cleanup preserves four successful children and explicit private parser/owner failure", async (t) => {
   const f = fixture(t);
   f.options.children = ["wiki", "fast-1", "fast-2", "fast-3"];
@@ -297,6 +335,69 @@ test("missing executable waits for close and preserves only a fixed launch error
   assert.equal(result.launchError, "missing-executable");
   assert.equal(result.pid, undefined);
   assert.doesNotMatch(JSON.stringify(result), /nonexistent-physical/);
+});
+
+test("actual child watchdog escalates ignored SIGTERM and joins the killed process", { timeout: 5000 }, async () => {
+  const started = performance.now();
+  const result = await runCommand([process.execPath, "-e", 'process.on("SIGTERM",()=>{});setInterval(()=>{},1000)'],
+    process.env, { timeoutMs: 500, killAfterMs: 100, joinAfterMs: 1000 });
+  assert.ok(performance.now() - started < 3000);
+  assert.equal(result.timedOut, true);
+  assert.equal(result.closed, true);
+  assert.equal(result.signal, "SIGKILL");
+  assert.equal(result.joinTimedOut, false);
+  assert.throws(() => process.kill(-result.pid, 0), { code: "ESRCH" });
+});
+
+test("actual child cannot mask watchdog timeout by handling SIGTERM with exit zero", { timeout: 5000 }, async () => {
+  const result = await runCommand([process.execPath, "-e", 'process.on("SIGTERM",()=>process.exit(0));setInterval(()=>{},1000)'],
+    process.env, { timeoutMs: 500, killAfterMs: 100, joinAfterMs: 1000 });
+  assert.equal(result.closed, true);
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.signal, null);
+  assert.equal(result.timedOut, true);
+  assert.throws(() => process.kill(-result.pid, 0), { code: "ESRCH" });
+});
+
+test("watchdog remains bounded when close never arrives and does not invent a terminal join", async () => {
+  const timers = new Map(); const signals = [];
+  const child = new EventEmitter(); child.pid = 4242; child.exitCode = null; child.signalCode = null;
+  let unreferenced = false; child.unref = () => { unreferenced = true; };
+  const result = runCommand(["fake-probe"], {}, { timeoutMs: 90, killAfterMs: 10, joinAfterMs: 50 }, {
+    spawn: () => child, kill: (pid, signal) => signals.push([pid, signal]), isLive: () => true,
+    setTimer: (callback, ms) => { timers.set(ms, callback); return ms; }, clearTimer: id => timers.delete(id),
+  });
+  timers.get(90)(); timers.get(10)(); timers.get(60)();
+  const closed = await result;
+  assert.equal(closed.closed, false);
+  assert.equal(closed.joinTimedOut, true);
+  assert.equal(closed.timedOut, true);
+  assert.equal(unreferenced, true);
+  assert.equal(timers.size, 0);
+  assert.deepEqual(signals, [[-4242, "SIGTERM"], [-4242, "SIGKILL"]]);
+  child.emit("close", 0, null);
+  assert.equal(timers.size, 0, "late leader close cannot restart an abandoned group-join loop");
+});
+
+test("leader exit cannot cancel timeout escalation for an owned live descendant", async () => {
+  const timers = new Map(); const signals = [];
+  const child = new EventEmitter(); child.pid = 4242;
+  let groupLive = true;
+  const result = runCommand(["fake-probe"], {}, { timeoutMs: 90, killAfterMs: 10, joinAfterMs: 50 }, {
+    spawn: () => child, kill: (pid, signal) => signals.push([pid, signal]), isLive: () => groupLive,
+    setTimer: (callback, ms) => { timers.set(ms, callback); return ms; }, clearTimer: id => timers.delete(id),
+  });
+  timers.get(90)();
+  child.emit("close", 0, null);
+  assert.equal(timers.has(10), true, "SIGKILL escalation survives leader close");
+  timers.get(10)(); groupLive = false; timers.get(25)();
+  const closed = await result;
+  assert.equal(closed.closed, true);
+  assert.equal(closed.exitCode, 0);
+  assert.equal(closed.timedOut, true);
+  assert.equal(closed.joinTimedOut, false);
+  assert.deepEqual(signals, [[-4242, "SIGTERM"], [-4242, "SIGKILL"]]);
+  assert.equal(timers.size, 0);
 });
 
 test("offline cleanup argument preflight accepts only explicit serial, never touches adb or an owner", () => {
