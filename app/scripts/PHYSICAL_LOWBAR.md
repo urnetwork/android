@@ -821,7 +821,7 @@ the session.
 
 Any workload still live after the quiet boundary is `INVALID_WORKLOAD_OVERLAP`.
 The phase helper refuses missing/unjoined receipts before any adb command and
-requires the same collector live at both boundaries. Never restart traffic
+requires the same collector live throughout the quiet wait and both boundaries. Never restart traffic
 after receipt completion. The final gate checks uninterrupted telemetry from
 owner start through quiet end and the collector still live; it no longer
 certifies only the quiet tail.
@@ -834,26 +834,38 @@ estimate, decides completion. The drain labels records with the current phase;
 explicit status-time boundaries prevent older ring records from counting.
 
 Use the same helper with `--start` for the end boundary. It inherits the exact
-phase and process from the saved start and generates a fresh command ID;
-`snapshot` changes the phase, so do not substitute it. Neither helper call
-connects/disconnects the app, starts traffic, waits the five-minute window, or
-finishes the session. Use one retained host owner for these commands. Failed
-acknowledgment or an existing output file exits 2 without publishing a valid
-new boundary. The fixed acknowledgment timeout is 30 seconds.
+phase and process from the saved start. **Call it immediately after start:**
+it owns the wait and polls read-only status, primitive samples, and the same
+live collector once per second. It will not issue the end command until at
+least 21 in-phase samples span 300,000 ms and the host boundary duration has
+also reached 300,000 ms. Count alone, pre-phase records relabeled by the drain,
+or total session time cannot satisfy this progression. Collector death/gaps,
+changed process/command/role, dropped samples, and interrupted phase fail the
+attempt before any end command. No caller-provided sleep is required.
+
+The sample wait has a fixed 360-second deadline. The fresh end command then
+has a separate 30-second acknowledgment deadline. Before publishing the end
+envelope, the helper rechecks sample coverage against that actual device
+boundary and waits up to 30 seconds for live collector telemetry through the
+host boundary. Retain/resume this exact host process if the executor yields;
+a yield is not completion. `snapshot` changes the phase, so do not substitute
+it. Neither helper call connects/disconnects the app, starts traffic, or
+finishes the session. Failed progression, acknowledgment, collector tail, or
+an existing output exits 2 without publishing a valid new end boundary. The
+final memory/network gate below is still mandatory.
 
 ```sh
 # LABEL is the frozen opaque block label; the helper adds the required prefix.
 QUIET_PHASE="quiet-$LABEL"
 node app/scripts/physical_quiet_phase.mjs --serial "$SERIAL" \
-  --label "$LABEL" --workloads "$PRIVATE_DIR/workloads.json" --output "$PRIVATE_DIR/quiet-start.json"
-# Keep role/collector alive for the full sampled window described above.
-# Only then issue the end boundary; it derives its phase from the start file.
+  --label "$LABEL" --workloads "$PRIVATE_DIR/workloads.json" --output "$PRIVATE_DIR/quiet-start.json" || exit 2
+# This retained call waits for the samples and collector; no manual sleep.
 node app/scripts/physical_quiet_phase.mjs --serial "$SERIAL" \
-  --start "$PRIVATE_DIR/quiet-start.json" --output "$PRIVATE_DIR/quiet-end.json"
-# Allow the still-running collector to emit a sample after the end capture.
+  --start "$PRIVATE_DIR/quiet-start.json" --output "$PRIVATE_DIR/quiet-end.json" || exit 2
+# The acknowledged end now has live collector coverage through its timestamp.
 # Pull the per-sample file; physical-summary.json is not a substitute.
 adb -s "$SERIAL" exec-out run-as com.bringyour.network \
-  cat files/acceptance/physical-memory.ndjson >"$PRIVATE_DIR/physical-memory.ndjson"
+  cat files/acceptance/physical-memory.ndjson >"$PRIVATE_DIR/physical-memory.ndjson" || exit 2
 node app/scripts/physical_quiet_gate.mjs \
   --start "$PRIVATE_DIR/quiet-start.json" --end "$PRIVATE_DIR/quiet-end.json" \
   --memory "$PRIVATE_DIR/physical-memory.ndjson" --telemetry "$TELEMETRY_FILE" \

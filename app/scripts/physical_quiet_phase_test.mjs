@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, w
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { captureQuietPhase, parseArgs } from "./physical_quiet_phase.mjs";
+import { captureQuietPhase, parseArgs, QUIET_PROGRESS_TIMEOUT_MS } from "./physical_quiet_phase.mjs";
 import { evaluateQuietWindow } from "./physical_quiet_gate.mjs";
 
 function fixture(t, base = 1_000_000) {
@@ -16,6 +16,7 @@ function fixture(t, base = 1_000_000) {
   let command;
   let published = false;
   let reads = 0;
+  let collectorLagMs = 0;
   let current = { type: "status", state: "complete", commandId: "traffic-end", phase: "traffic",
     goMemoryProfileRateBytes: 0,
     goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 20 * 1024 * 1024 },
@@ -24,8 +25,9 @@ function fixture(t, base = 1_000_000) {
   const telemetryPath = join(directory, "telemetry.ndjson");
   const updateTelemetry = () => {
     const rows = [{ type: "environment", label: "run-01" }];
-    for (let start = base - 2000; start < base + time; start += 1000) {
-      rows.push({ type: "sample", startTimeUnixMs: start, endTimeUnixMs: Math.min(start + 1000, base + time),
+    const end = base + time - collectorLagMs;
+    for (let start = base - 2000; start < end; start += 1000) {
+      rows.push({ type: "sample", startTimeUnixMs: start, endTimeUnixMs: Math.min(start + 1000, end),
         eligibility: { eligible: true }, telemetryErrors: [] });
     }
     writeFileSync(telemetryPath, rows.map(JSON.stringify).join("\n") + "\n");
@@ -48,13 +50,19 @@ function fixture(t, base = 1_000_000) {
   const value = {
     directory, calls, options: { serial: "fake-device", label: "run-01", workloads: workloadsPath, output: join(directory, "start.json") },
     get current() { return current; }, set current(status) { current = status; published = false; },
+    get collectorLagMs() { return collectorLagMs; }, set collectorLagMs(value) { collectorLagMs = value; },
     poll: undefined,
+    memoryDelayMs: 0,
+    memory: (phase) => Array.from({ length: Math.max(0, Math.floor((time - value.memoryDelayMs) / 15_000)) }, (_, i) => ({
+      type: "sample", phase, elapsedMs: 1000 + (i + 1) * 15_000, samplerDropped: 0,
+      goMemoryProfileRateBytes: 0, goMemoryLimitBytes: 32 * 1024 * 1024, goRuntimeBytes: 20 * 1024 * 1024,
+    })),
     advance(ms) { time += ms; updateTelemetry(); },
     deps: {
       now: () => time, wallNow: () => base + time,
       uuid: () => `token-${++token}`, sleep: async (ms) => { time += ms; updateTelemetry(); },
       adb: (args, input, timeout) => {
-        calls.push({ args, input, timeout });
+        calls.push({ args, input, timeout, time });
         assert.deepEqual(args.slice(0, 5), ["-s", "fake-device", "shell", "run-as", "com.bringyour.network"]);
         assert.ok(timeout > 0 && timeout <= 2000);
         const verb = args[5];
@@ -72,9 +80,13 @@ function fixture(t, base = 1_000_000) {
           return { status: 0, stdout: "" };
         }
         assert.equal(verb, "cat");
+        if (args[6] === "files/acceptance/physical-memory.ndjson") {
+          return { status: 0, stdout: value.memory(current.phase).map(JSON.stringify).join("\n") + "\n" };
+        }
         if (published) {
           const next = { ...current, commandId: command[0], phase: command[2], state: "complete", elapsedMs: 1000 + time };
           current = value.poll?.(next, reads++) ?? next;
+          if (current.commandId === command[0] && current.state === "complete") published = false;
         }
         return { status: 0, stdout: JSON.stringify(current) };
       },
@@ -149,6 +161,128 @@ test("end inherits exact phase/process and uses a fresh command ID; gate accepts
     }))],
   });
   assert.equal(result.eligible, true, JSON.stringify(result));
+});
+
+test("consecutive start/end waits for five minutes of primitive samples and collector coverage", async (t) => {
+  const f = fixture(t);
+  f.memoryDelayMs = 5_000;
+  const start = await captureQuietPhase(f.options, f.deps);
+  f.collectorLagMs = 2_000;
+  const end = await captureQuietPhase({ serial: "fake-device", start: f.options.output,
+    output: join(f.directory, "end.json") }, f.deps);
+  const commands = f.calls.filter((call) => call.args[5] === "tee");
+  assert.equal(commands.length, 2);
+  assert.ok(commands[1].time >= 320_000, "end must wait for sample 21, including the five-second drain delay");
+  assert.ok(end.status.elapsedMs - start.status.elapsedMs >= 300_000);
+  const samples = f.memory(start.status.phase).filter((sample) => sample.elapsedMs <= end.status.elapsedMs);
+  assert.ok(samples.length >= 21);
+  assert.ok(samples.at(-1).elapsedMs - samples[0].elapsedMs >= 300_000);
+  const telemetry = readFileSync(start.workloads.collector.path, "utf8").trim().split("\n").map(JSON.parse);
+  assert.ok(telemetry.at(-1).endTimeUnixMs >= end.hostTimeUnixMs,
+    "end envelope must not become available before the collector covers its acknowledgement");
+  assert.ok(f.deps.now() >= commands[1].time + 2_000, "a fresh but lagging collector must be joined past the end");
+});
+
+test("end never issues on elapsed time alone, including many samples shorter than five minutes", async (t) => {
+  for (const memory of [() => [], (phase) => Array.from({ length: 21 }, (_, i) => ({
+    type: "sample", phase, elapsedMs: 1_000 + i * 14_000, samplerDropped: 0,
+  }))]) {
+    const f = fixture(t);
+    await captureQuietPhase(f.options, f.deps);
+    f.memory = memory;
+    const output = join(f.directory, "end.json");
+    await assert.rejects(captureQuietPhase({ serial: "fake-device", start: f.options.output, output }, f.deps),
+      /quiet-sample-coverage-timeout/);
+    assert.equal(f.deps.now(), QUIET_PROGRESS_TIMEOUT_MS);
+    assert.equal(f.calls.filter((call) => call.args[5] === "tee").length, 1);
+    assert.equal(existsSync(output), false);
+    assert.ok(readdirSync(f.directory).every((name) => !name.includes("pending-")));
+  }
+});
+
+test("invalid or pre-boundary primitive samples cannot unlock the end command", async (t) => {
+  for (const mutate of [
+    (rows) => { rows[3].samplerDropped = 1; },
+    (rows) => { rows[3].phase = "new-traffic"; },
+    (rows) => { rows[3].type = "sample-error"; },
+    (rows) => { rows[3].elapsedMs = rows[2].elapsedMs; },
+    (rows) => { rows.splice(2, 2); },
+    (rows) => { rows.splice(0, 2); },
+  ]) {
+    const f = fixture(t);
+    await captureQuietPhase(f.options, f.deps);
+    f.advance(330_000);
+    const memory = f.memory;
+    f.memory = (phase) => { const rows = memory(phase); mutate(rows); return rows; };
+    const output = join(f.directory, "end.json");
+    await assert.rejects(captureQuietPhase({ serial: "fake-device", start: f.options.output, output }, f.deps), /quiet-/);
+    assert.equal(f.calls.filter((call) => call.args[5] === "tee").length, 1);
+    assert.equal(existsSync(output), false);
+  }
+  const f = fixture(t);
+  f.advance(330_000);
+  await captureQuietPhase(f.options, f.deps);
+  const memory = f.memory;
+  f.memory = (phase) => memory(phase).filter((record) => record.elapsedMs <= 331_000);
+  await assert.rejects(captureQuietPhase({ serial: "fake-device", start: f.options.output,
+    output: join(f.directory, "end.json") }, f.deps), /quiet-sample-coverage-timeout/);
+  assert.equal(f.calls.filter((call) => call.args[5] === "tee").length, 1,
+    "old ring records relabeled quiet do not count toward the window");
+});
+
+test("end monitors the same collector and unchanged session throughout the sample wait", async (t) => {
+  for (const mode of ["dead", "gap", "restart", "new-command", "new-process", "new-phase", "role-change"]) {
+    const f = fixture(t);
+    const start = await captureQuietPhase(f.options, f.deps);
+    const sleep = f.deps.sleep;
+    f.deps.sleep = async (ms) => {
+      await sleep(ms);
+      if (f.deps.now() < 50_000) return;
+      if (mode === "dead") f.deps.workloadIsLive = () => false;
+      else if (mode === "gap" || mode === "restart") {
+        const rows = readFileSync(start.workloads.collector.path, "utf8").trim().split("\n").map(JSON.parse);
+        if (mode === "gap") rows.splice(10, 8);
+        else rows.splice(1, 2);
+        writeFileSync(start.workloads.collector.path, rows.map(JSON.stringify).join("\n") + "\n");
+      } else {
+        const changes = { "new-command": { commandId: "other-command" }, "new-process": { pid: 99 },
+          "new-phase": { phase: "traffic-again" }, "role-change": { connected: false } };
+        f.current = { ...f.current, ...changes[mode] };
+      }
+    };
+    const output = join(f.directory, "end.json");
+    await assert.rejects(captureQuietPhase({ serial: "fake-device", start: f.options.output, output }, f.deps),
+      /live-collector-coverage-required|start-session-or-phase-changed/);
+    assert.equal(f.calls.filter((call) => call.args[5] === "tee").length, 1, mode);
+    assert.equal(existsSync(output), false);
+  }
+});
+
+test("end acknowledgement without collector tail or sampler coverage never publishes an envelope", async (t) => {
+  for (const mode of ["collector-tail", "sampler-tail", "device-clock", "future-samples"]) {
+    const f = fixture(t);
+    const start = await captureQuietPhase(f.options, f.deps);
+    f.advance(330_000);
+    if (mode === "future-samples") {
+      f.advance(-30_000);
+      f.memoryDelayMs = -30_000;
+    }
+    f.poll = (next) => {
+      if (mode === "collector-tail") f.collectorLagMs = 60_000;
+      if (mode === "sampler-tail") return { ...next, elapsedMs: next.elapsedMs + 60_000 };
+      if (mode === "device-clock") return { ...next, elapsedMs: start.status.elapsedMs + 299_999 };
+      return next;
+    };
+    if (mode === "collector-tail") {
+      // The status/command round trip ends between collector samples.
+      f.collectorLagMs = 1_000;
+      f.advance(0);
+    }
+    const output = join(f.directory, "end.json");
+    await assert.rejects(captureQuietPhase({ serial: "fake-device", start: f.options.output, output }, f.deps),
+      /live-collector-coverage-required|quiet-memory-does-not-cover-boundaries|quiet-samples-shorter-than-300-seconds/);
+    assert.equal(existsSync(output), false, mode);
+  }
 });
 
 test("stale complete status never qualifies; timeout is deterministic and publishes nothing", async (t) => {

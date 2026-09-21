@@ -1,18 +1,22 @@
 #!/usr/bin/env node
 
-// One host-owned phase-command/acknowledgment/envelope transaction. This does
-// not connect, disconnect, generate traffic, wait five minutes, or finish a run.
+// Host-owned quiet progression: start a phase, or retain its sample/collector
+// coverage before acknowledging the end. Never changes roles or starts traffic.
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { closeSync, existsSync, linkSync, openSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
-import { requireCompletedWorkloads, requireLiveCollector } from "./physical_workload_receipt.mjs";
+import { evaluateWorkloadCoverage, requireCompletedWorkloads, requireLiveCollector } from "./physical_workload_receipt.mjs";
+import { evaluateQuietSamples, REQUIRED_QUIET_MS } from "./physical_quiet_gate.mjs";
 
 const PACKAGE = "com.bringyour.network";
 const COMMAND_PATH = "files/acceptance/physical-command";
 const STATUS_PATH = "files/acceptance/physical-status";
+const MEMORY_PATH = "files/acceptance/physical-memory.ndjson";
 const TIMEOUT_MS = 30_000;
+export const QUIET_PROGRESS_TIMEOUT_MS = REQUIRED_QUIET_MS + 60_000;
+const PROGRESS_POLL_MS = 1_000;
 const QUIET_PHASE = /^quiet-[A-Za-z0-9._-]+$/;
 
 class BoundaryError extends Error {}
@@ -46,7 +50,8 @@ export async function captureQuietPhase(options, dependencies = {}) {
   const pause = dependencies.sleep ?? sleep;
   const uuid = (dependencies.uuid ?? randomUUID)();
   if (!/^[A-Za-z0-9-]+$/.test(uuid)) fail("invalid-command-token");
-  const deadline = now() + TIMEOUT_MS;
+  let deadline = now() + TIMEOUT_MS;
+  let timeoutReason = "acknowledgment-timeout";
   const commandId = `quiet-${uuid}`;
   let phase;
   let start;
@@ -89,7 +94,7 @@ export async function captureQuietPhase(options, dependencies = {}) {
   }));
   const adb = (args, input) => {
     const remaining = deadline - now();
-    if (remaining <= 0) fail("acknowledgment-timeout");
+    if (remaining <= 0) fail(timeoutReason);
     return invoke(["-s", options.serial, "shell", "run-as", PACKAGE, ...args],
       input, Math.max(1, Math.floor(Math.min(2_000, remaining))));
   };
@@ -97,6 +102,33 @@ export async function captureQuietPhase(options, dependencies = {}) {
     const result = adb(["cat", STATUS_PATH]);
     if (result.status !== 0) return undefined;
     try { return JSON.parse(result.stdout); } catch { return undefined; }
+  };
+  const requireCollector = () => {
+    try { requireLiveCollector(workloads.collector, workloads.label, workloads.startedHostTimeUnixMs,
+      { wallNow, isLive: dependencies.workloadIsLive }); } catch { fail("live-collector-coverage-required"); }
+  };
+  const readRecords = (raw) => {
+    // Both streams append live. An unfinished final line cannot supply proof.
+    try { return raw.slice(0, raw.lastIndexOf("\n") + 1).split(/\r?\n/).filter(Boolean).map(JSON.parse); }
+    catch { fail("quiet-sample-evidence-malformed"); }
+  };
+  const readMemory = () => {
+    const result = adb(["cat", MEMORY_PATH]);
+    if (result.status !== 0 || typeof result.stdout !== "string") fail("quiet-sample-evidence-unavailable");
+    return readRecords(result.stdout);
+  };
+  const requireUnchangedSession = (expected) => {
+    const current = readStatus();
+    if (!validStatus(current) || current.state !== "complete" || current.pid !== expected.pid ||
+        current.commandId !== expected.commandId || current.phase !== expected.phase ||
+        current.elapsedMs !== expected.elapsedMs || ["connected", "tunnelStarted", "provideEnabled"]
+          .some((key) => current[key] !== expected[key])) fail("start-session-or-phase-changed");
+    return current;
+  };
+  const pauseForProgress = async () => {
+    const remaining = deadline - now();
+    if (remaining <= 0) fail(timeoutReason);
+    await pause(Math.min(PROGRESS_POLL_MS, remaining));
   };
   try {
     const initial = readStatus();
@@ -108,6 +140,30 @@ export async function captureQuietPhase(options, dependencies = {}) {
       fail("start-session-or-phase-changed");
     }
     if (initial.commandId === commandId || start?.status.commandId === commandId) fail("fresh-command-id-required");
+    if (start) {
+      // Consecutive start/end calls are safe: the end call owns this wait. A
+      // fixed sleep or elapsed-session duration cannot replace sampler proof.
+      deadline = now() + QUIET_PROGRESS_TIMEOUT_MS;
+      timeoutReason = "quiet-sample-coverage-timeout";
+      for (;;) {
+        requireUnchangedSession(start.status);
+        requireCollector();
+        const progress = evaluateQuietSamples(readMemory(), phase, start.status.elapsedMs);
+        const invalid = progress.reasons.filter((reason) =>
+          reason !== "quiet-samples-shorter-than-300-seconds" &&
+          !(reason === "quiet-memory-does-not-cover-boundaries" && progress.samples.length === 0));
+        if (invalid.length) fail(invalid[0]);
+        requireCollector();
+        if (!progress.reasons.length && wallNow() - start.hostTimeUnixMs >= REQUIRED_QUIET_MS) break;
+        if (wallNow() < start.hostTimeUnixMs) fail("start-session-or-phase-changed");
+        await pauseForProgress();
+      }
+      // Close the final read-only/publish gap before issuing the end command.
+      requireUnchangedSession(start.status);
+      requireCollector();
+      deadline = now() + TIMEOUT_MS;
+      timeoutReason = "acknowledgment-timeout";
+    }
     // adb shell forwards stdin here; exec-out did not reliably forward the
     // command on the physical harness. tee's echo stays private in memory.
     temporaryCommandMayExist = true;
@@ -131,6 +187,26 @@ export async function captureQuietPhase(options, dependencies = {}) {
             if (status.elapsedMs < initial.elapsedMs || ["connected", "tunnelStarted", "provideEnabled"]
               .some((key) => status[key] !== initial[key])) fail("session-role-or-clock-changed");
             const envelope = { hostTimeUnixMs: wallNow(), workloads, status };
+            if (start) {
+              const progress = evaluateQuietSamples(readMemory(), phase, start.status.elapsedMs, status.elapsedMs);
+              if (progress.reasons.length) fail(progress.reasons[0]);
+              if (status.elapsedMs - start.status.elapsedMs < REQUIRED_QUIET_MS ||
+                  envelope.hostTimeUnixMs - start.hostTimeUnixMs < REQUIRED_QUIET_MS) {
+                fail("quiet-boundaries-shorter-than-300-seconds");
+              }
+              // Publishing the envelope also promises host telemetry past its
+              // ack. The caller can now pull memory and immediately run the gate.
+              deadline = now() + TIMEOUT_MS;
+              timeoutReason = "quiet-collector-end-coverage-timeout";
+              for (;;) {
+                requireUnchangedSession(status);
+                requireCollector();
+                const telemetry = readRecords(readFileSync(workloads.collector.path, "utf8"));
+                if (evaluateWorkloadCoverage(telemetry, workloads.startedHostTimeUnixMs,
+                  envelope.hostTimeUnixMs, workloads.label).eligible) break;
+                await pauseForProgress();
+              }
+            }
             writeFileSync(descriptor, `${JSON.stringify(envelope)}\n`);
             closeSync(descriptor);
             descriptor = undefined;

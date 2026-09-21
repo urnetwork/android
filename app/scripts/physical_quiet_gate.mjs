@@ -27,6 +27,34 @@ function roleMatches(status, role) {
     status.provideEnabled === (role === "provider");
 }
 
+// Shared by the live end-boundary runner and the final evidence gate. With no
+// end yet, only the existing quiet samples are evaluated; the acknowledged end
+// supplies the upper bound and trailing-coverage check before publication.
+export function evaluateQuietSamples(memory, phase, startElapsedMs, endElapsedMs = Infinity) {
+  const reasons = new Set();
+  const inWindow = memory.filter((record) => validTime(record.elapsedMs) &&
+    startElapsedMs <= record.elapsedMs && record.elapsedMs <= endElapsedMs);
+  if (inWindow.some((record) => record.type !== "sample")) reasons.add("quiet-sampler-error");
+  const samples = inWindow.filter((record) => record.type === "sample");
+  if (samples.some((record) => record.phase !== phase)) reasons.add("quiet-phase-interrupted");
+  if (samples.some((record) => record.samplerDropped !== 0)) reasons.add("quiet-samples-dropped-or-unknown");
+  const sampleDurationMs = samples.length > 1 ? samples.at(-1).elapsedMs - samples[0].elapsedMs : 0;
+  if (samples.length < 21 || sampleDurationMs < REQUIRED_QUIET_MS) {
+    reasons.add("quiet-samples-shorter-than-300-seconds");
+  }
+  for (let i = 1; i < samples.length; i += 1) {
+    const gap = samples[i].elapsedMs - samples[i - 1].elapsedMs;
+    if (!(gap > 0 && gap <= MAX_MEMORY_GAP_MS)) reasons.add("quiet-memory-timestamps-or-gap-invalid");
+  }
+  // The drain can assign the quiet label to pre-boundary ring records. The
+  // device timestamp filter above prevents them from supplying quiet duration.
+  if (!samples.length || samples[0].elapsedMs - startElapsedMs > MAX_MEMORY_GAP_MS ||
+      (Number.isFinite(endElapsedMs) && endElapsedMs - samples.at(-1)?.elapsedMs > MAX_MEMORY_GAP_MS)) {
+    reasons.add("quiet-memory-does-not-cover-boundaries");
+  }
+  return { samples, sampleDurationMs, reasons: [...reasons] };
+}
+
 // Boundary envelopes come from --capture-status, not host/device clock
 // subtraction. Device elapsed time brackets memory; host time brackets dumpsys.
 export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role, underlay }) {
@@ -86,10 +114,9 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     workloadCoverage = evaluateWorkloadCoverage(telemetry, workloads.startedHostTimeUnixMs, end?.hostTimeUnixMs, workloads.label);
     if (!workloadCoverage.eligible) fail("workload-collector-coverage-incomplete");
   }
-  const inWindow = memory.filter((record) => validTime(record.elapsedMs) &&
-    firstStatus?.elapsedMs <= record.elapsedMs && record.elapsedMs <= lastStatus?.elapsedMs);
-  if (inWindow.some((record) => record.type !== "sample")) fail("quiet-sampler-error");
-  const samples = inWindow.filter((record) => record.type === "sample");
+  const { samples, sampleDurationMs, reasons: sampleReasons } = evaluateQuietSamples(
+    memory, phase, firstStatus?.elapsedMs, lastStatus?.elapsedMs ?? NaN);
+  sampleReasons.forEach(fail);
   // Keep attribution separate from the absolute whole-run gate above. Offline
   // teardown re-evaluates the same boundaries; it is not a second quiet arm.
   const quietPeakGoRuntimeBytes = samples.reduce((peak, record) =>
@@ -98,23 +125,6 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
   const quietGoRuntimeBreachSampleCount = samples.filter((record) =>
     record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
-  if (samples.some((record) => record.phase !== phase)) fail("quiet-phase-interrupted");
-  if (samples.some((record) => record.samplerDropped !== 0)) fail("quiet-samples-dropped-or-unknown");
-  const sampleDurationMs = samples.length > 1
-    ? samples.at(-1).elapsedMs - samples[0].elapsedMs : 0;
-  if (samples.length < 21 || sampleDurationMs < REQUIRED_QUIET_MS) {
-    fail("quiet-samples-shorter-than-300-seconds");
-  }
-  for (let i = 1; i < samples.length; i += 1) {
-    const gap = samples[i].elapsedMs - samples[i - 1].elapsedMs;
-    if (!(gap > 0 && gap <= MAX_MEMORY_GAP_MS)) fail("quiet-memory-timestamps-or-gap-invalid");
-  }
-  // phase is assigned while the primitive ring is drained: older records can
-  // inherit the new label. The explicit status time excludes these old samples.
-  if (!samples.length || samples[0].elapsedMs - firstStatus?.elapsedMs > MAX_MEMORY_GAP_MS ||
-      lastStatus?.elapsedMs - samples.at(-1)?.elapsedMs > MAX_MEMORY_GAP_MS) {
-    fail("quiet-memory-does-not-cover-boundaries");
-  }
 
   const hostSamples = telemetry.filter((record) => record.type === "sample");
   // Include the samples on either side, so an absent collector tail cannot
