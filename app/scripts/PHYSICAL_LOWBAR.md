@@ -47,7 +47,8 @@ Fast.com children (90-second probe, 95-second process watchdog), verified Chrome
 cleanup, the unchanged sampled five-minute quiet helper, live memory gate,
 finish/join, final-memory gate, retained-client/owned-credential cleanup and
 removal of its own Chrome forward. Failed gates preserve that arm and its logs;
-no failed child is retried and no diagnostic profiling is enabled.
+no failed child is retried. The default `--measurement-mode qualification`
+attests profiling rate zero throughout and never enables diagnostic profiling.
 
 Retained process transcripts use `<id>.pty.stdout` and `<id>.pty.stderr` in
 the label directory. The collector creates its own `collector.stdout` and
@@ -79,6 +80,59 @@ cannot be rescued by low observed memory. Host-only regression coverage:
 ```sh
 node --test app/scripts/physical_h1_arm_test.mjs
 ```
+
+### Canonical retained H1 owner-attribution diagnostic
+
+For an observed rate-zero memory failure, use a **separate fresh arm** with
+`--measurement-mode diagnostic`. This is not a qualification override: it
+attests rate 65536 in the native writer, locked consumer/APK assembly, retained
+binary proof and installed live-profile gate. The same 20-MiB device target and
+32-MiB Go soft limit remain in effect. No other rate or custom workload is
+accepted. For example, use the invocation above with a fresh run directory,
+label/build ID and unused port, adding:
+
+```text
+--measurement-mode diagnostic
+```
+
+The fixed diagnostic sequence is:
+
+1. Complete H1 connection and start the retained eligible underlay collector.
+2. At connected idle, capture owner census **before GC**, heap profile (which
+   forces GC), owner census **after GC**, then goroutine stacks. Copy each via
+   the existing receipt-bound private helper. The first census is a capability
+   gate: schema, rate, owner groups, allocator classes and runtime fields must
+   be present before Chrome/public traffic. The paired census must observe a
+   new forced-GC count.
+3. Run the same five Wikipedia loads and three Fast.com children and join the
+   built-in Chrome cleanup. Immediately repeat that ordered capture sequence;
+   no intentional post-cleanup delay is inserted. The boundary receipt records
+   actual cleanup-to-boundary latency, and individual diagnostic receipts retain
+   command timings. Do not interpret the phrase “cleanup+0” as zero ADB latency.
+4. Retain the same connected H1 app and collector for 45 seconds, checking their
+   liveness/identity and unchanged role/command every five seconds and at both
+   ends. Then collect primitive memory, issue finish, join, copy final memory,
+   and perform the same owned-client/credential/forward cleanup.
+
+This short owner-attribution arm deliberately omits the five-minute quiet
+qualification gate. `result.json` identifies `measurementMode:diagnostic`,
+`profileRate:65536`, `SCOPED_H1_DIAGNOSTIC_COMPLETE` (or `FAILED`), and always
+`qualificationEligible:false,memoryQualified:false`. `eligible:true` means
+only that this diagnostic protocol completed. `diagnostic-memory.json` keeps
+the raw maximum and **all** samples above 25,165,824 bytes, including teardown;
+no profiling overhead is subtracted. Profiled website speeds are diagnostic
+observations, not replacements for rate-zero performance baselines.
+
+Profiles, owner censuses and stacks remain mode 0600 directly under the private
+artifact directory, with session-UUID-bound command receipts. Do not print or
+commit their contents. The existing owner/copy helpers reject stale/reused
+identities. A capture failure stops advancement and follows finish/join/cleanup
+without retrying a command or rebuilding inside the arm. The host suite covers
+the shared schedule with deterministic failures, strict helper argument parsing,
+effective rate binding, census/GC validation, 45-second clock simulation,
+exact memory-breach preservation and an actual retained PTY. Extended matched
+idle/post-traffic studies below remain available after this minimal capture;
+only a separate rate-zero arm can qualify the absolute 24-MiB barrier.
 
 `physical_lowbar_capture.mjs` records a timestamped, privacy-safe NDJSON
 telemetry stream beside a real-device workload. It is intended to correlate the

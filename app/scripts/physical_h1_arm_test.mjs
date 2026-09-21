@@ -5,9 +5,12 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { armContext, h1Steps, LIMITS, launchPrivate, orchestrateH1, parseArgs, prepareArm, ptyCommand } from "./physical_h1_arm.mjs";
+import { armContext, h1Steps, h1AssemblyStep, HostArmDriver, LIMITS, launchPrivate, orchestrateH1, parseArgs,
+  prepareArm, ptyCommand, evaluateDiagnosticMemory, validateDiagnosticCensus, retainDiagnosticTail } from "./physical_h1_arm.mjs";
 import { checkCollectorSession } from "./physical_collector_session.mjs";
 import { captureWorkloadScriptPreflight } from "./physical_workload_script.mjs";
+import { parseArgs as parseDiagnosticArgs } from "./physical_diagnostic_command.mjs";
+import { parseArgs as parseCopyArgs } from "./physical_diagnostic_copy.mjs";
 
 const scripts = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scripts, "../../..");
@@ -15,6 +18,7 @@ const args = run => ["run", "--root", root, "--run-dir", run, "--serial", "3B161
   "--build-id", "ios-frozen", "--underlay", "wifi", "--config", "/private/credentials.yml", "--cdp-port", "19322",
   "--gomaxprocs", "10", "--max-workers", "4"];
 const context = () => armContext(parseArgs(args("/private/arm-root"), 14), "frozen-native-owner");
+const diagnosticContext = () => armContext(parseArgs([...args("/private/arm-root"), "--measurement-mode", "diagnostic"], 14), "frozen-native-owner");
 const fixture = t => {
   const dir = mkdtempSync(join(tmpdir(), "h1-arm-test-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
@@ -358,4 +362,179 @@ test("client cleanup also uses the default stopped-app probe before reading its 
   const live = stoppedTargetFixture(t, "live", "cleanupClients");
   assert.deepEqual(live.result, { passed: false, reason: "credential-target-not-proven-stopped" });
   assert.equal(live.calls.length, 1);
+});
+
+test("explicit diagnostic mode binds rate 65536 through native build, APK assembly and effective runtime gate", () => {
+  const c = diagnosticContext(); const plan = h1Steps(c);
+  for (const id of ["native-before", "native-writer"]) {
+    const step = plan.setup.find(step => step.id === id);
+    assert.equal(step.args[step.args.indexOf("--profile-rate") + 1], "65536");
+  }
+  assert.ok(h1AssemblyStep(c).args.includes("-PurnetworkMemoryProfileRateBytes=65536"));
+  assert.ok(h1AssemblyStep(context()).args.includes("-PurnetworkMemoryProfileRateBytes=0"));
+  const gate = plan.preCollector.find(step => step.id === "profile-gate");
+  assert.equal(gate.args[gate.args.indexOf("--mode") + 1], "diagnostic");
+  assert.equal(context()["measurement-mode"], "qualification");
+  for (const value of ["65536", "profiled-qualification", "", "Diagnostic"]) {
+    assert.throws(() => parseArgs([...args("/private/arm-root"), "--measurement-mode", value], 14));
+  }
+  assert.throws(() => parseArgs([...args("/private/arm-root"), "--measurement-mode", "diagnostic", "--measurement-mode", "qualification"], 14));
+});
+
+test("diagnostic descriptors use the actual strict command/copy parsers and private sibling artifacts", () => {
+  const c = diagnosticContext(); const steps = h1Steps(c).traffic;
+  const commands = steps.filter(step => step.kind === "command" && step.args[0].endsWith("physical_diagnostic_command.mjs"));
+  assert.equal(commands.length, 8);
+  for (const step of commands) {
+    const parsed = parseDiagnosticArgs(step.args.slice(1));
+    assert.equal(parsed.owner, c.owner); assert.equal(parsed.serial, c.serial);
+    assert.equal(dirname(parsed.output), dirname(c.owner));
+    const copy = steps.find(candidate => candidate.id === `${step.id}-copy`);
+    const output = parseCopyArgs(copy.args.slice(1));
+    assert.equal(output.receipt, parsed.output); assert.equal(dirname(output.output), dirname(c.owner));
+    assert.ok(!parsed["command-id"].includes(c.label), "session UUID helper owns identity, not an unbounded arm-label concatenation");
+  }
+});
+
+test("diagnostic schedule brackets traffic with pre-GC census, forced-GC heap, post-GC census and stacks then a 45s tail", async () => {
+  const driver = new FakeDriver(); const result = await orchestrateH1(diagnosticContext(), driver);
+  assert.equal(result.eligible, true); assert.equal(result.memoryQualified, false);
+  assert.equal(result.qualificationEligible, false); assert.equal(result.measurementMode, "diagnostic");
+  assert.equal(result.profileRate, 65536); assert.equal(result.classification, "SCOPED_H1_DIAGNOSTIC_COMPLETE");
+  assert.equal(result.cleanupComplete, true);
+  const boundaries = ["connected-idle", "post-traffic"].flatMap(name => [
+    `diagnostic-${name}-boundary`, `diagnostic-${name}-before-gc`, `diagnostic-${name}-before-gc-copy`, `diagnostic-${name}-before-gc-check`,
+    `diagnostic-${name}-heap`, `diagnostic-${name}-heap-copy`, `diagnostic-${name}-after-gc`, `diagnostic-${name}-after-gc-copy`,
+    `diagnostic-${name}-after-gc-check`, `diagnostic-${name}-stacks`, `diagnostic-${name}-stacks-copy`,
+  ]);
+  const expected = ["h1-role", "start:collector", "collector-ready", ...boundaries.slice(0, 11),
+    "chrome-start", "workload", ...boundaries.slice(11), "diagnostic-tail", "memory-live", "finish", "join:instrumentation",
+    "memory-final", "collector-stop", "join:collector", "diagnostic-memory", "clients-cleanup", "credential-finish"];
+  let previous = -1;
+  for (const id of expected) { const at = driver.events.indexOf(id); assert.ok(at > previous, id); previous = at; }
+  for (const id of ["quiet-start", "quiet-end", "memory-live-gate", "memory-teardown-gate"]) assert.ok(!driver.events.includes(id), id);
+  assert.equal(driver.events.filter(id => id === "workload").length, 1);
+});
+
+test("diagnostic capability and capture failures never advance or retry but still join and clean up", async () => {
+  for (const [failure, forbidden] of [["diagnostic-connected-idle-before-gc-check", "chrome-start"],
+    ["diagnostic-connected-idle-after-gc-check", "chrome-start"], ["diagnostic-post-traffic-heap", "diagnostic-tail"],
+    ["diagnostic-tail", "memory-live"]]) {
+    const driver = new FakeDriver(failure); const result = await orchestrateH1(diagnosticContext(), driver);
+    assert.equal(result.eligible, false, failure); assert.equal(result.qualificationEligible, false);
+    assert.equal(result.classification, "SCOPED_H1_DIAGNOSTIC_FAILED");
+    assert.equal(driver.events.includes(forbidden), false, forbidden);
+    assert.equal(driver.events.filter(id => id === failure).length, 1);
+    for (const id of ["finish", "join:instrumentation", "memory-final", "join:collector", "diagnostic-memory", "credential-finish"]) {
+      assert.ok(driver.events.includes(id), `${failure}: ${id}`);
+    }
+  }
+});
+
+const census = () => {
+  const runtime = { runtime_bytes: 26_000_000, heap_object_bytes: 10_000_000, heap_unused_bytes: 5_000_000,
+    heap_free_bytes: 1_000_000, stack_bytes: 3_000_000, gc_cycles: 10, forced_gc_cycles: 0, goroutines: 100 };
+  return { schema: 1, unix_millis: 1000, memory_profile_rate_bytes: 65536, before: { ...runtime }, after: { ...runtime },
+    owners: { network_space_api: {}, client_windows: {}, provider_transfer: {}, dns: {}, process_transfer_pools: {},
+      process_transport_claims: {}, block_actions: 0, block_action_slots: 0 },
+    allocator_size_classes: Array.from({ length: 61 }, (_, index) => ({ size_bytes: index * 8, live_objects: 0 })) };
+};
+
+test("owner census capability preflight requires the actual rate, bounded metrics and complete owner/size-class shape", () => {
+  assert.equal(validateDiagnosticCensus(census()).eligible, true);
+  for (const mutation of [row => { row.schema = 0; }, row => { row.memory_profile_rate_bytes = 0; },
+    row => { delete row.owners.client_windows; }, row => { row.before.heap_unused_bytes = -1; },
+    row => { row.after.runtime_bytes = 0; }, row => { row.allocator_size_classes.pop(); },
+    row => { row.allocator_size_classes[1].live_objects = NaN; }]) {
+    const row = census(); mutation(row);
+    assert.throws(() => validateDiagnosticCensus(row), /diagnostic-owner-census-capability-required/);
+  }
+  const before = census(); const after = census(); after.before.forced_gc_cycles++;
+  assert.equal(validateDiagnosticCensus(after, before).eligible, true);
+  assert.throws(() => validateDiagnosticCensus(before, before), /diagnostic-heap-gc-not-observed/);
+  after.unix_millis--;
+  assert.throws(() => validateDiagnosticCensus(after, before), /diagnostic-heap-gc-not-observed/);
+});
+
+const connectedState = elapsedMs => ({ sessionId: "fixed-session", pid: 1234, commandId: "fixed-stacks", state: "complete",
+  phase: "goroutine-stacks", elapsedMs, connected: true, tunnelStarted: true, provideEnabled: false, transportMode: "h1" });
+
+test("retained diagnostic tail observes both endpoints and cannot shorten the fixed 45 seconds", async () => {
+  let elapsed = 0; const observations = []; const pauses = [];
+  const result = await retainDiagnosticTail({ now: () => elapsed,
+    readState: async () => { observations.push(elapsed); return connectedState(elapsed); },
+    sleep: async ms => { pauses.push(ms); elapsed += ms; } });
+  assert.equal(result.elapsedMs, 45000); assert.equal(result.checks, 10); assert.equal(result.qualificationEligible, false);
+  assert.deepEqual(observations, Array.from({ length: 10 }, (_, index) => index * 5000));
+  assert.deepEqual(pauses, Array(9).fill(5000));
+});
+
+test("retained diagnostic tail rejects replaced sessions, activity/role changes, clock rollback and stalled checks", async () => {
+  for (const patch of [{ pid: 4321 }, { sessionId: "replacement" }, { state: "busy" }, { elapsedMs: -1 },
+    { connected: false }, { tunnelStarted: false }, { provideEnabled: true }, { transportMode: "h3" },
+    { commandId: "other-command" }, { phase: "other-phase" }]) {
+    let elapsed = 0;
+    await assert.rejects(retainDiagnosticTail({ now: () => elapsed,
+      readState: async () => ({ ...connectedState(elapsed), ...(elapsed ? patch : {}) }), sleep: async ms => { elapsed += ms; } }), /diagnostic-/);
+  }
+  for (const jump of [-1, 80000]) {
+    let elapsed = 0;
+    await assert.rejects(retainDiagnosticTail({ now: () => elapsed,
+      readState: async () => connectedState(10), sleep: async () => { elapsed = jump; } }), /diagnostic-tail-deadline/);
+  }
+  await assert.rejects(retainDiagnosticTail({ readState: async () => { throw new Error("collector-exited"); } }), /collector-exited/);
+});
+
+const memorySample = (elapsedMs, bytes = 23 * 1024 * 1024) => ({ type: "sample", elapsedMs, goRuntimeBytes: bytes,
+  goMemoryProfileRateBytes: 65536, goMemoryLimitBytes: 32 * 1024 * 1024, samplerDropped: 0 });
+
+test("diagnostic memory preserves exact raw global/teardown breaches and never confers qualification", () => {
+  const result = evaluateDiagnosticMemory([memorySample(0, 29_405_216), memorySample(15000), memorySample(30000, 25_268_256)]);
+  assert.equal(result.peakGoRuntimeBytes, 29_405_216); assert.equal(result.goRuntimeBreachSampleCount, 2);
+  assert.equal(result.qualificationEligible, false); assert.equal(result.sampleCount, 3);
+  assert.equal(result.goRuntimeLimitBytes, 25_165_824);
+  assert.equal(evaluateDiagnosticMemory([memorySample(0, 1)]).qualificationEligible, false);
+  for (const records of [[], [{ type: "error" }], [memorySample(0), memorySample(0)],
+    [{ ...memorySample(0), samplerDropped: 1 }], [{ ...memorySample(0), goMemoryProfileRateBytes: 0 }],
+    [{ ...memorySample(0), goMemoryLimitBytes: 64 * 1024 * 1024 }], [memorySample(0, 0)]]) {
+    assert.throws(() => evaluateDiagnosticMemory(records), /diagnostic-memory-/);
+  }
+});
+
+test("diagnostic owner checks run through the actual driver before any traffic and reject qualification use", async t => {
+  const dir = fixture(t); const path = join(dir, "census.json");
+  writeFileSync(path, JSON.stringify(census()), { mode: 0o600 });
+  const c = { ...diagnosticContext(), directory: dir, directoryBindings: [], orchestrationSources: [] };
+  const driver = new HostArmDriver(c); const step = { id: "fixture-census-check", kind: "diagnostic-census-check", path };
+  assert.equal((await driver.execute(step)).eligible, true);
+  const qualified = new HostArmDriver({ ...c, "measurement-mode": "qualification" });
+  await assert.rejects(qualified.execute(step), /diagnostic-mode-required/);
+  driver.interrupted = true;
+  await assert.rejects(driver.diagnosticState(), /arm-interrupted/);
+  driver.interrupted = false;
+  await assert.rejects(driver.diagnosticState(), /diagnostic-retained-owner-not-live/);
+});
+
+test("actual retained PTY can complete the canonical diagnostic schedule without becoming qualification", async t => {
+  const dir = fixture(t); const c = { ...diagnosticContext(), directory: dir };
+  const module = new URL("./physical_h1_arm.mjs", import.meta.url).href;
+  const foreground = new URL("./physical_collector_session.mjs", import.meta.url).href;
+  const code = `import assert from 'node:assert/strict'; import {spawnSync} from 'node:child_process';
+import {orchestrateH1,retainDiagnosticTail} from ${JSON.stringify(module)};
+import {requireRetainedForeground} from ${JSON.stringify(foreground)};
+const [group,foreground] = spawnSync('ps',['-o','pgid=,tpgid=','-p',String(process.pid)],{encoding:'utf8'}).stdout.trim().split(/\\s+/).map(Number);
+requireRetainedForeground({inputTTY:process.stdin.isTTY===true,outputTTY:process.stdout.isTTY===true,processGroup:group,foregroundGroup:foreground});
+const events=[]; let elapsed=0;
+const result=await orchestrateH1(${JSON.stringify(c)}, {
+  async execute(step) { events.push(step.id); if(step.id==='diagnostic-tail') await retainDiagnosticTail({now:()=>elapsed,
+    sleep:async ms=>{elapsed+=ms},readState:async()=>({...${JSON.stringify(connectedState(0))},elapsedMs:elapsed})}); },
+  async start(step) {events.push('start:'+step.id);return {id:step.id}}, async join(handle){events.push('join:'+handle.id)}, async stop(){throw Error('unexpected stop')}
+});
+assert.equal(result.eligible,true); assert.equal(result.qualificationEligible,false); assert.equal(result.memoryQualified,false);
+assert.equal(elapsed,45000); assert.ok(events.indexOf('join:instrumentation')<events.indexOf('credential-finish'));
+process.stdout.write('diagnostic-pty-nonqualifier-complete\\n');`;
+  const handle = launchPrivate({ id: "diagnostic-pty", command: process.execPath, args: ["--input-type=module", "-e", code],
+    retained: true, timeoutMs: 5000 }, c, process.stdin.isTTY ? {} : { ptyInput: "ignore" });
+  assert.deepEqual(await handle.done, { exitCode: 0, signal: null, timedOut: false, eligible: true });
+  assert.match(readFileSync(handle.outputPath, "utf8"), /diagnostic-pty-nonqualifier-complete/);
 });

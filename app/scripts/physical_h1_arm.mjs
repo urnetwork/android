@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// One retained host invocation for the scoped H1 iOS-profile qualification.
+// One retained host invocation for scoped H1 qualification or owner attribution.
 // Existing helpers decide eligibility; this module owns ordering and joins.
 // No retries, profile overrides, hidden uninstalls or unknown credential removal.
 import { spawn, spawnSync } from "node:child_process";
@@ -12,10 +12,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 import { PERFORMANCE_SERIALS } from "./physical_apk_pair.mjs";
 import { requireNativeConsumerLock, hashNativeInputFile } from "./physical_native_provenance.mjs";
-import { requireRetainedForeground, checkInstrumentationCommandSession } from "./physical_collector_session.mjs";
+import { requireRetainedForeground, checkInstrumentationCommandSession, checkCollectorSession } from "./physical_collector_session.mjs";
 import { requireCredentialTargetStopped } from "./physical_credential_ownership.mjs";
 import { credentialPayload } from "./physical_credentials.mjs";
 import { requireCredentialParserPreflight } from "./physical_credentials_preflight.mjs";
+import { requireCompletedWorkloads } from "./physical_workload_receipt.mjs";
 
 const SELF = fileURLToPath(import.meta.url);
 const SCRIPTS = dirname(SELF);
@@ -23,6 +24,8 @@ const APP = "com.bringyour.network";
 const PROFILE = "ios-memory-audit-v1";
 const CHILDREN = "wiki,fast-1,fast-2,fast-3";
 const LABEL = /^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$/;
+const DIAGNOSTIC_TAIL_MS = 45_000;
+const GO_RUNTIME_LIMIT_BYTES = 24 * 1024 * 1024;
 export const LIMITS = Object.freeze({ command: 30_000, native: 3_600_000, ready: 180_000,
   role: 160_000, workloads: 950_000, quiet: 425_000, finish: 180_000, stop: 30_000, kill: 5_000 });
 class ArmError extends Error {}
@@ -30,12 +33,13 @@ const fail = reason => { throw new ArmError(reason); };
 const safeReason = error => error instanceof ArmError ? error.message : "h1-arm-operation-failed";
 const quote = text => `'${String(text).replaceAll("'", "'\\''")}'`;
 const delay = ms => new Promise(done => setTimeout(done, ms));
-const privateJson = path => {
+const privateText = path => {
   const stat = lstatSync(path);
   if (!stat.isFile() || stat.isSymbolicLink() || stat.uid !== process.getuid() ||
       (stat.mode & 0o7777) !== 0o600 || stat.size > 2 * 1024 * 1024) fail("private-arm-evidence-required");
-  return JSON.parse(readFileSync(path, "utf8"));
+  return readFileSync(path, "utf8");
 };
+const privateJson = path => JSON.parse(privateText(path));
 const publish = (path, value) => {
   requireArtifactPaths(prepareArtifactDirectory(dirname(path)), [path]);
   writeFileSync(path, `${JSON.stringify(value)}\n`, { flag: "wx", mode: 0o600 });
@@ -47,7 +51,8 @@ export function parseArgs(argv, cpuCount = availableParallelism()) {
     if (argv.length !== 3 || argv[1] !== "--manifest" || !isAbsolute(argv[2])) fail("explicit-consumer-manifest-required");
     return { mode, manifest: argv[2] };
   }
-  const keys = ["root", "run-dir", "serial", "label", "build-id", "underlay", "config", "cdp-port", "gomaxprocs", "max-workers"];
+  const requiredKeys = ["root", "run-dir", "serial", "label", "build-id", "underlay", "config", "cdp-port", "gomaxprocs", "max-workers"];
+  const keys = [...requiredKeys, "measurement-mode"];
   const options = { mode };
   if (!["run", "dry-run"].includes(mode)) fail("run-or-dry-run-required");
   for (let index = 1; index < argv.length; index += 2) {
@@ -56,7 +61,9 @@ export function parseArgs(argv, cpuCount = availableParallelism()) {
         !value || value.startsWith("--") || /[\0\r\n]/.test(value)) fail("explicit-h1-arm-arguments-required");
     options[key] = value;
   }
-  if (keys.some(key => options[key] === undefined)) fail("explicit-h1-arm-arguments-required");
+  if (requiredKeys.some(key => options[key] === undefined)) fail("explicit-h1-arm-arguments-required");
+  options["measurement-mode"] ??= "qualification";
+  armMeasurementMode(options);
   if (!PERFORMANCE_SERIALS.includes(options.serial)) fail("allowlisted-device-required");
   if (!LABEL.test(options.label) || !LABEL.test(options["build-id"])) fail("safe-arm-identifiers-required");
   if (!["wifi", "cellular"].includes(options.underlay)) fail("explicit-underlay-required");
@@ -76,6 +83,22 @@ export function parseArgs(argv, cpuCount = availableParallelism()) {
       options.gomaxprocs > Math.ceil(cpuCount * 0.7) ||
       options["max-workers"] > Math.min(4, options.gomaxprocs)) fail("host-resource-budget-exceeded");
   return options;
+}
+
+function armMeasurementMode(c) {
+  const mode = c["measurement-mode"] ?? "qualification";
+  if (!["qualification", "diagnostic"].includes(mode)) fail("qualification-or-diagnostic-mode-required");
+  return mode;
+}
+
+function armProfileRate(c) { return armMeasurementMode(c) === "diagnostic" ? 65536 : 0; }
+
+export function h1AssemblyStep(c) {
+  return { id: "app-assembly", command: join(c.root, "android/app/gradlew"),
+    args: [":app:assembleGithubDebug", ":app:assembleGithubDebugAndroidTest", "--max-workers", String(c["max-workers"]),
+      `-PurnetworkAcceptanceBuildId=${c["build-id"]}`, `-PurnetworkMemoryProfile=${PROFILE}`,
+      `-PurnetworkMemoryProfileRateBytes=${armProfileRate(c)}`],
+    cwd: join(c.root, "android/app"), timeoutMs: LIMITS.native };
 }
 
 export function armContext(options, buildOwner = `h1-${options.label}-${randomUUID()}`) {
@@ -104,14 +127,30 @@ export function h1Steps(c) {
   const adb = (id, args, extra = {}) => ({ id, kind: "command", command: "adb", args: ["-s", c.serial, ...args], ...extra });
   const gateArgs = memory => ["--start", c.start, "--end", c.end, "--memory", memory,
     "--telemetry", c.telemetry, "--phase", `quiet-${c.label}`, "--role", "client", "--underlay", c.underlay];
+  const diagnostic = armMeasurementMode(c) === "diagnostic";
+  const profileRate = String(armProfileRate(c));
+  const boundary = name => {
+    const readings = [["before-gc", "owner-census", "json"], ["heap", "heap-profile", "pprof"],
+      ["after-gc", "owner-census", "json"], ["stacks", "goroutine-stacks", "txt"]];
+    return [{ id: `diagnostic-${name}-boundary`, kind: "diagnostic-boundary", boundary: name },
+      ...readings.flatMap(([part, verb, extension]) => {
+        const id = `diagnostic-${name}-${part}`;
+        const receipt = a(`${id}.command.json`); const output = a(`${id}.${extension}`);
+        return [node(id, "physical_diagnostic_command.mjs", ["--serial", c.serial, "--owner", c.owner,
+          "--command-id", id, "--verb", verb, "--label", `${name}-${part}`, "--output", receipt], { timeoutMs: 40_000 }),
+        node(`${id}-copy`, "physical_diagnostic_copy.mjs", ["--serial", c.serial, "--receipt", receipt, "--output", output]),
+        ...(verb === "owner-census" ? [{ id: `${id}-check`, kind: "diagnostic-census-check", path: output,
+          ...(part === "after-gc" ? { before: a(`diagnostic-${name}-before-gc.json`) } : {}) }] : [])];
+      })];
+  };
   return {
     setup: [
       node("aapt-resolve", "physical_aapt.mjs", []),
       node("apk-observe", "physical_apk_pair.mjs", ["observe", "--output", c.observed]),
       node("native-before", "physical_native_provenance.mjs", ["capture", "--phase", "before", "--root", c.root,
-        "--build-owner", c.buildOwner, "--build-id", c["build-id"], "--profile-rate", "0", "--output", c.before], { timeoutMs: LIMITS.native }),
+        "--build-owner", c.buildOwner, "--build-id", c["build-id"], "--profile-rate", profileRate, "--output", c.before], { timeoutMs: LIMITS.native }),
       shell("native-writer", "physical_native_writer.sh", ["--root", c.root, "--before", c.before, "--build-id", c["build-id"],
-        "--profile-rate", "0", "--memory-profile", PROFILE, "--max-workers", String(c["max-workers"]), "--receipt", c.writer,
+        "--profile-rate", profileRate, "--memory-profile", PROFILE, "--max-workers", String(c["max-workers"]), "--receipt", c.writer,
         "--stdout", a("writer-child.stdout"), "--stderr", a("writer-child.stderr")], { timeoutMs: LIMITS.native }),
       shell("native-consumer", "physical_native_consumer.sh", ["--root", c.root, "--before", c.before,
         "--after", c.after, "--proof", c.proof, "--writer-receipt", c.writer, "--", process.execPath,
@@ -140,7 +179,7 @@ export function h1Steps(c) {
       { id: "instrumentation-ready", kind: "ready", timeoutMs: LIMITS.ready },
       node("instrumentation-bind", "physical_collector_session.mjs", ["bind-instrumentation-ready", "--owner", c.owner, "--serial", c.serial]),
       node("profile-status", "physical_quiet_gate.mjs", ["--serial", c.serial, "--capture-status", p("ready-profile-status.json")]),
-      node("profile-gate", "physical_memory_profile.mjs", ["--mode", "qualification", "--status", p("ready-profile-status.json")], { stdout: p("memory-profile-gate.json") }),
+      node("profile-gate", "physical_memory_profile.mjs", ["--mode", armMeasurementMode(c), "--status", p("ready-profile-status.json")], { stdout: p("memory-profile-gate.json") }),
       { id: "h1-connect", kind: "device-command", verb: "connect", argument: "h1", commandId: c.connectId },
       node("h1-role", "physical_collector_session.mjs", ["check-role", "--serial", c.serial, "--session-mode", "h1",
         "--connect-command-id", c.connectId, "--instrumentation-owner", c.owner], { timeoutMs: LIMITS.role }),
@@ -153,6 +192,7 @@ export function h1Steps(c) {
     traffic: [
       { id: "collector-published", kind: "owner-file", timeoutMs: 30_000 },
       shell("collector-ready", "physical_host_launch.sh", ["collector-check", "--owner", c.collector, "--timeout-ms", "15000"]),
+      ...(diagnostic ? boundary("connected-idle") : []),
       adb("chrome-stop", ["shell", "am", "force-stop", "com.android.chrome"]),
       adb("chrome-start", ["shell", "am", "start", "-a", "android.intent.action.VIEW", "-d", "about:blank", "com.android.chrome"]),
       adb("chrome-forward", ["forward", "--no-rebind", `tcp:${c["cdp-port"]}`, "localabstract:chrome_devtools_remote"]),
@@ -163,10 +203,12 @@ export function h1Steps(c) {
       shell("workload", "physical_host_launch.sh", ["workload", "--serial", c.serial, "--label", c.label,
         "--collector-pid", "<collector-pid>", "--telemetry", c.telemetry, "--children", CHILDREN,
         "--timeout-ms", "940000", "--output", c.workloads], { retained: true, timeoutMs: LIMITS.workloads }),
-      node("quiet-start", "physical_quiet_phase.mjs", ["--serial", c.serial, "--label", c.label, "--workloads", c.workloads, "--output", c.start]),
-      node("quiet-end", "physical_quiet_phase.mjs", ["--serial", c.serial, "--start", c.start, "--output", c.end], { timeoutMs: LIMITS.quiet }),
+      ...(diagnostic ? [...boundary("post-traffic"), { id: "diagnostic-tail", kind: "diagnostic-tail" }] : [
+        node("quiet-start", "physical_quiet_phase.mjs", ["--serial", c.serial, "--label", c.label, "--workloads", c.workloads, "--output", c.start]),
+        node("quiet-end", "physical_quiet_phase.mjs", ["--serial", c.serial, "--start", c.start, "--output", c.end], { timeoutMs: LIMITS.quiet }),
+      ]),
       adb("memory-live", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-memory.ndjson"], { stdout: c.memory }),
-      node("memory-live-gate", "physical_quiet_gate.mjs", gateArgs(c.memory), { stdout: c.liveGate }),
+      ...(!diagnostic ? [node("memory-live-gate", "physical_quiet_gate.mjs", gateArgs(c.memory), { stdout: c.liveGate })] : []),
     ],
     finish: { id: "finish", kind: "device-command", verb: "finish", argument: "", commandId: c.finishId, timeoutMs: LIMITS.finish },
     afterJoin: [
@@ -174,6 +216,7 @@ export function h1Steps(c) {
       adb("summary-final", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-summary.json"], { stdout: p("physical-summary.json") }),
     ],
     teardown: node("memory-teardown-gate", "physical_quiet_gate.mjs", [...gateArgs(c.finalMemory), "--live-gate", c.liveGate], { stdout: c.finalGate }),
+    diagnosticMemory: { id: "diagnostic-memory", kind: "diagnostic-memory" },
     credentialFinish: node("credential-finish", "physical_credential_ownership.mjs", ["finish", "--ownership", c.credentialOwner,
       "--serial", c.serial, "--label", c.label, "--build-id", c["build-id"], "--instrumentation-owner", c.owner, "--finish-command-id", c.finishId]),
     rollback: node("credential-rollback", "physical_credential_ownership.mjs", ["rollback", "--ownership", c.credentialOwner,
@@ -190,7 +233,9 @@ export function h1Steps(c) {
 // In particular every failure follows this same cleanup path, never a retry.
 export async function orchestrateH1(context, driver) {
   const s = h1Steps(context); const errors = []; const complete = new Set();
+  const diagnostic = armMeasurementMode(context) === "diagnostic";
   let instrumentation; let collector; let instrumentationJoined = false; let liveGate = false;
+  let diagnosticMemory = null;
   const execute = async step => { const result = await driver.execute(step); complete.add(step.id); return result; };
   const cleanup = async operation => { try { return await operation(); } catch (error) { errors.push(safeReason(error)); return null; } };
   try {
@@ -223,6 +268,7 @@ export async function orchestrateH1(context, driver) {
       if (!joined) await cleanup(() => driver.stop(collector));
     }
     if (liveGate && complete.has("memory-final")) await cleanup(() => execute(s.teardown));
+    if (diagnostic && complete.has("memory-final")) diagnosticMemory = await cleanup(() => execute(s.diagnosticMemory));
     if (instrumentationJoined) {
       await cleanup(() => execute(s.clientsCleanup));
       await cleanup(() => execute(s.credentialFinish));
@@ -231,13 +277,90 @@ export async function orchestrateH1(context, driver) {
   }
   let measurements = null;
   if (complete.has("workload")) measurements = await cleanup(() => execute(s.results));
-  return { type: "scoped-h1-arm", schemaVersion: 1, eligible: errors.length === 0,
-    classification: errors.length ? "SCOPED_H1_FAILED" : "SCOPED_H1_COMPLETE", errors,
+  return { type: "scoped-h1-arm", schemaVersion: 2, eligible: errors.length === 0,
+    classification: `SCOPED_H1_${diagnostic ? "DIAGNOSTIC_" : ""}${errors.length ? "FAILED" : "COMPLETE"}`, errors,
+    measurementMode: armMeasurementMode(context), qualificationEligible: !diagnostic && errors.length === 0,
+    profileRate: armProfileRate(context), diagnosticMemory,
     scope: "ios-profile-h1-wikipedia-fast-three", measurements,
     memoryQualified: complete.has("memory-live-gate") && complete.has("memory-teardown-gate"),
     cleanupComplete: instrumentationJoined && complete.has("credential-finish") && complete.has("clients-cleanup") &&
       (!complete.has("chrome-forward") || complete.has("chrome-forward-remove")),
     completedSteps: [...complete] };
+}
+
+// Diagnostic evidence is deliberately not a release gate. Keep every observed
+// byte and breach, including profiling overhead; never subtract it to turn an
+// overshoot into a qualified result.
+export function evaluateDiagnosticMemory(records) {
+  const samples = records.filter(row => row?.type === "sample");
+  if (!samples.length || samples.length !== records.length) fail("diagnostic-memory-samples-required");
+  let previousElapsed = -1;
+  for (const row of samples) {
+    if (!Number.isSafeInteger(row.elapsedMs) || row.elapsedMs < 0 || row.elapsedMs <= previousElapsed ||
+        !Number.isSafeInteger(row.goRuntimeBytes) || row.goRuntimeBytes <= 0 || row.samplerDropped !== 0 ||
+        row.goMemoryProfileRateBytes !== 65536 || row.goMemoryLimitBytes !== 32 * 1024 * 1024) {
+      fail("diagnostic-memory-evidence-invalid");
+    }
+    previousElapsed = row.elapsedMs;
+  }
+  return { type: "diagnostic-memory-observation", schemaVersion: 1, measurementMode: "diagnostic",
+    qualificationEligible: false, profileRate: 65536, sampleCount: samples.length,
+    firstElapsedMs: samples[0].elapsedMs, lastElapsedMs: samples.at(-1).elapsedMs,
+    peakGoRuntimeBytes: Math.max(...samples.map(row => row.goRuntimeBytes)),
+    goRuntimeLimitBytes: GO_RUNTIME_LIMIT_BYTES,
+    goRuntimeBreachSampleCount: samples.filter(row => row.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length };
+}
+
+export function validateDiagnosticCensus(row, before) {
+  const whole = value => Number.isSafeInteger(value) && value >= 0;
+  const runtime = value => value && ["runtime_bytes", "heap_object_bytes", "heap_unused_bytes", "heap_free_bytes",
+    "stack_bytes", "gc_cycles", "forced_gc_cycles", "goroutines"].every(key => whole(value[key])) &&
+    value.runtime_bytes > 0 && value.goroutines > 0;
+  if (row?.schema !== 1 || row.memory_profile_rate_bytes !== 65536 || !whole(row.unix_millis) || row.unix_millis === 0 ||
+      !runtime(row.before) || !runtime(row.after) || !row.owners ||
+      ["network_space_api", "client_windows", "provider_transfer", "dns", "process_transfer_pools", "process_transport_claims"]
+        .some(key => !row.owners[key] || typeof row.owners[key] !== "object") ||
+      !whole(row.owners.block_actions) || !whole(row.owners.block_action_slots) ||
+      !Array.isArray(row.allocator_size_classes) || row.allocator_size_classes.length !== 61 ||
+      row.allocator_size_classes.some(value => !whole(value?.size_bytes) || !whole(value?.live_objects))) {
+    fail("diagnostic-owner-census-capability-required");
+  }
+  if (before) {
+    validateDiagnosticCensus(before);
+    if (row.unix_millis < before.unix_millis || row.before.forced_gc_cycles <= before.after.forced_gc_cycles) {
+      fail("diagnostic-heap-gc-not-observed");
+    }
+  }
+  return { eligible: true, qualificationEligible: false, memoryProfileRateBytes: 65536 };
+}
+
+function requireDiagnosticState(value, previous, fixedCommand = false) {
+  if (!value || typeof value.sessionId !== "string" || !value.sessionId || !Number.isSafeInteger(value.pid) || value.pid <= 0 ||
+      !Number.isSafeInteger(value.elapsedMs) || value.elapsedMs < 0 || value.state !== "complete" ||
+      value.connected !== true || value.tunnelStarted !== true || value.provideEnabled !== false || value.transportMode !== "h1" ||
+      typeof value.commandId !== "string" || !value.commandId || typeof value.phase !== "string" || !value.phase) {
+    fail("diagnostic-connected-h1-role-required");
+  }
+  if (previous && (value.sessionId !== previous.sessionId || value.pid !== previous.pid || value.elapsedMs < previous.elapsedMs ||
+      (fixedCommand && (value.commandId !== previous.commandId || value.phase !== previous.phase)))) {
+    fail("diagnostic-retained-session-changed");
+  }
+}
+
+// The only diagnostic wait is a fixed 45 seconds, with retained app/collector
+// checks at both ends and every five seconds. Clocks and observations can be
+// injected by deterministic tests, but the duration cannot be overridden.
+export async function retainDiagnosticTail({ readState, now = () => performance.now(), sleep = delay }) {
+  const started = now(); let previous; let checks = 0;
+  for (;;) {
+    const current = await readState();
+    requireDiagnosticState(current, previous, true);
+    previous = current; checks++;
+    const elapsedMs = now() - started;
+    if (!Number.isFinite(elapsedMs) || elapsedMs < 0 || elapsedMs > DIAGNOSTIC_TAIL_MS + 30_000) fail("diagnostic-tail-deadline");
+    if (elapsedMs >= DIAGNOSTIC_TAIL_MS) return { type: "diagnostic-tail", elapsedMs, checks, qualificationEligible: false };
+    await sleep(Math.min(5000, DIAGNOSTIC_TAIL_MS - elapsedMs));
+  }
 }
 
 export function ptyCommand(command, args, platform = process.platform) {
@@ -375,7 +498,49 @@ export class HostArmDriver {
     }
     if (step.kind === "clients-cleanup") return this.cleanupClients();
     if (step.kind === "results") return summarizeScopedResults(this.c);
+    if (step.kind.startsWith("diagnostic-")) {
+      if (armMeasurementMode(this.c) !== "diagnostic") fail("diagnostic-mode-required");
+      if (step.kind === "diagnostic-census-check") return validateDiagnosticCensus(privateJson(step.path), step.before ? privateJson(step.before) : undefined);
+      if (step.kind === "diagnostic-boundary") return this.diagnosticBoundary(step);
+      if (step.kind === "diagnostic-tail") {
+        const result = await retainDiagnosticTail({ readState: () => this.diagnosticState() });
+        publish(join(this.c.directory, "diagnostic-tail.json"), result);
+        return result;
+      }
+      if (step.kind === "diagnostic-memory") {
+        const records = privateText(this.c.finalMemory).trim().split("\n").filter(Boolean).map(line => JSON.parse(line));
+        const result = evaluateDiagnosticMemory(records);
+        publish(join(this.c.directory, "diagnostic-memory.json"), result);
+        return result;
+      }
+    }
     fail("unknown-arm-operation");
+  }
+  async diagnosticState() {
+    this.assertInputs();
+    if (this.interrupted) fail("arm-interrupted");
+    if (!this.handles.get("instrumentation")?.live || !this.handles.get("collector")?.live) fail("diagnostic-retained-owner-not-live");
+    const collectorPid = await checkCollectorSession({ owner: this.c.collector, timeoutMs: 5000 });
+    if (collectorPid !== this.collectorPid) fail("diagnostic-collector-changed");
+    const state = checkInstrumentationCommandSession({ serial: this.c.serial, owner: this.c.owner });
+    requireDiagnosticState(state, this.previousDiagnosticState);
+    this.previousDiagnosticState = state;
+    return state;
+  }
+  async diagnosticBoundary(step) {
+    const startedHostTimeUnixMs = Date.now();
+    const state = await this.diagnosticState();
+    let cleanupCompletedHostTimeUnixMs = null;
+    if (step.boundary === "post-traffic") {
+      const receipt = requireCompletedWorkloads(this.c.workloads, this.c.label, this.c.serial);
+      cleanupCompletedHostTimeUnixMs = receipt.childReceipts.at(-1).completedHostTimeUnixMs;
+      if (cleanupCompletedHostTimeUnixMs > startedHostTimeUnixMs) fail("diagnostic-workload-cleanup-order-invalid");
+    } else if (step.boundary !== "connected-idle") fail("diagnostic-boundary-invalid");
+    publish(join(this.c.directory, `${step.id}.json`), { type: "diagnostic-boundary", boundary: step.boundary,
+      qualificationEligible: false, startedHostTimeUnixMs, checkedHostTimeUnixMs: Date.now(),
+      cleanupCompletedHostTimeUnixMs,
+      cleanupToBoundaryMs: cleanupCompletedHostTimeUnixMs === null ? null : startedHostTimeUnixMs - cleanupCompletedHostTimeUnixMs,
+      state });
   }
   async waitReady(step) {
     const deadline = performance.now() + step.timeoutMs;
@@ -499,10 +664,7 @@ async function consume(manifest) {
   const manifestTool = readFileSync(aapt.outputPath, "utf8").trim();
   const previousTool = readFileSync(join(c.directory, "aapt-resolve.stdout"), "utf8").trim();
   if (!isAbsolute(manifestTool) || manifestTool !== previousTool) fail("aapt-context-changed");
-  await driver.command({ id: "app-assembly", command: join(c.root, "android/app/gradlew"),
-    args: [":app:assembleGithubDebug", ":app:assembleGithubDebugAndroidTest", "--max-workers", String(c["max-workers"]),
-      `-PurnetworkAcceptanceBuildId=${c["build-id"]}`, `-PurnetworkMemoryProfile=${PROFILE}`, "-PurnetworkMemoryProfileRateBytes=0"],
-    cwd: join(c.root, "android/app"), timeoutMs: LIMITS.native });
+  await driver.command(h1AssemblyStep(c));
   await driver.command({ id: "apk-select", command: process.execPath, args: [join(SCRIPTS, "physical_apk_pair.mjs"), "select",
     "--observed", c.observed, "--app-metadata", join(c.root, "android/app/app/build/outputs/apk/github/debug/output-metadata.json"),
     "--test-metadata", join(c.root, "android/app/app/build/outputs/apk/androidTest/github/debug/output-metadata.json"),
@@ -538,7 +700,8 @@ async function consume(manifest) {
     stripped = true;
   }
   requireNativeConsumerLock(c.root);
-  publish(join(c.directory, "binary-native-proof.json"), { eligible: true, abi: "arm64-v8a", profileRate: 0,
+  publish(join(c.directory, "binary-native-proof.json"), { eligible: true, abi: "arm64-v8a", profileRate: armProfileRate(c),
+    measurementMode: armMeasurementMode(c),
     aar: hashNativeInputFile(c.aar), app: hashNativeInputFile(c.app), test: hashNativeInputFile(c.test),
     aarNative: hashNativeInputFile(aarNative), apkNative: hashNativeInputFile(apkNative), stripped, stripHash });
 }
@@ -549,7 +712,8 @@ async function main() {
   if (options.mode === "consume") return consume(options.manifest);
   if (options.mode === "dry-run") {
     const c = armContext(options, "dry-run-no-build-owner");
-    process.stdout.write(`${JSON.stringify({ type: "scoped-h1-plan", profile: PROFILE, profileRate: 0, steps: h1Steps(c) }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ type: "scoped-h1-plan", profile: PROFILE, profileRate: armProfileRate(c),
+      measurementMode: armMeasurementMode(c), qualificationEligible: false, assembly: h1AssemblyStep(c), steps: h1Steps(c) }, null, 2)}\n`);
     return;
   }
   const foreground = spawnSync("ps", ["-o", "pgid=,tpgid=", "-p", String(process.pid)], { encoding: "utf8", timeout: 2_000 });
