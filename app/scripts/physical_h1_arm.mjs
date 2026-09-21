@@ -363,6 +363,17 @@ export async function retainDiagnosticTail({ readState, now = () => performance.
   }
 }
 
+export async function retainClientCleanupResult(directory, operation, failureReport) {
+  let result;
+  try { result = await operation(); }
+  catch (error) {
+    publish(join(directory, "clients-cleanup.failed.json"), failureReport(error));
+    fail("retained-client-cleanup-failed");
+  }
+  publish(join(directory, "clients-cleanup.json"), { eligible: true, ...result });
+  return result;
+}
+
 export function ptyCommand(command, args, platform = process.platform) {
   if (platform === "darwin") return { command: "/usr/bin/script", args: ["-q", "/dev/null", command, ...args] };
   if (platform === "linux") return { command: "/usr/bin/script", args: ["-q", "-e", "-f", "-c",
@@ -607,11 +618,9 @@ export class HostArmDriver {
       return result.stdout;
     });
     credentialPayload(credentials);
-    const { cleanupClientFiles } = await import(pathToFileURL(join(c.root, "build/all/acceptance/client-cleanup.mjs")));
-    let result;
-    try { result = await cleanupClientFiles(files, { UR_ACCEPT_USER: credentials[0], UR_ACCEPT_PASS: credentials[1] }); }
-    catch { fail("retained-client-cleanup-failed"); }
-    publish(join(c.directory, "clients-cleanup.json"), { eligible: true, ...result });
+    const { cleanupClientFiles, cleanupFailureReport } = await import(pathToFileURL(join(c.root, "build/all/acceptance/client-cleanup.mjs")));
+    return retainClientCleanupResult(c.directory,
+      () => cleanupClientFiles(files, { UR_ACCEPT_USER: credentials[0], UR_ACCEPT_PASS: credentials[1] }), cleanupFailureReport);
   }
 }
 

@@ -6,7 +6,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { armContext, h1Steps, h1AssemblyStep, HostArmDriver, LIMITS, launchPrivate, orchestrateH1, parseArgs,
-  prepareArm, ptyCommand, evaluateDiagnosticMemory, validateDiagnosticCensus, retainDiagnosticTail } from "./physical_h1_arm.mjs";
+  prepareArm, ptyCommand, evaluateDiagnosticMemory, validateDiagnosticCensus, retainDiagnosticTail,
+  retainClientCleanupResult } from "./physical_h1_arm.mjs";
 import { checkCollectorSession } from "./physical_collector_session.mjs";
 import { captureWorkloadScriptPreflight } from "./physical_workload_script.mjs";
 import { parseArgs as parseDiagnosticArgs } from "./physical_diagnostic_command.mjs";
@@ -537,4 +538,18 @@ process.stdout.write('diagnostic-pty-nonqualifier-complete\\n');`;
     retained: true, timeoutMs: 5000 }, c, process.stdin.isTTY ? {} : { ptyInput: "ignore" });
   assert.deepEqual(await handle.done, { exitCode: 0, signal: null, timedOut: false, eligible: true });
   assert.match(readFileSync(handle.outputPath, "utf8"), /diagnostic-pty-nonqualifier-complete/);
+});
+
+test("cleanup failure publishes the safe private receipt before failing and cannot create success or retry", async t => {
+  const dir = fixture(t); let calls = 0;
+  const report = { type: "retained-client-cleanup", eligible: false, failedGroups: 6,
+    failures: [{ stage: "login", kind: "timeout", status: null, networkCode: null }] };
+  await assert.rejects(retainClientCleanupResult(dir, async () => { calls++; throw new Error("private-network-client"); },
+    () => report), /retained-client-cleanup-failed/);
+  const path = join(dir, "clients-cleanup.failed.json");
+  assert.deepEqual(JSON.parse(readFileSync(path)), report); assert.equal(lstatSync(path).mode & 0o777, 0o600);
+  assert.equal(existsSync(join(dir, "clients-cleanup.json")), false); assert.equal(calls, 1);
+  assert.doesNotMatch(readFileSync(path, "utf8"), /private-network-client/);
+  await assert.rejects(retainClientCleanupResult(dir, async () => { throw new Error("another"); }, () => ({ changed: true })));
+  assert.deepEqual(JSON.parse(readFileSync(path)), report, "prior failure receipt is never overwritten");
 });
