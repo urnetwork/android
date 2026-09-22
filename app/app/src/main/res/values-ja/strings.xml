@@ -4,6 +4,7 @@
     <string name="account">アカウント</string>
     <string name="activity">アクティビティ</string>
     <string name="add">追加</string>
+    <string name="add_a_rule">ルールを追加</string>
     <string name="add_blocked_location">ブロックされた場所を追加</string>
     <string name="add_emoji">絵文字を追加</string>
     <string name="add_referral_code">紹介コードを追加</string>
@@ -300,6 +301,7 @@
     <string name="next">次へ</string>
     <string name="nicely_done">よくできました！</string>
     <string name="no">いいえ</string>
+    <string name="no_apps_found">アプリが見つかりません</string>
     <string name="no_blocked_locations">ブロックされた場所はありません</string>
     <string name="no_locations_found">場所が見つかりません</string>
     <string name="no_locations_found_detail">申し訳ありませんが、%1$sに関連する場所が見つかりませんでした。</string>
@@ -436,6 +438,8 @@
     <string name="rules">ルール</string>
     <string name="save">保存</string>
     <string name="save_logs">ログを保存</string>
+    <string name="saved_as">%1$s として保存されます</string>
+    <string name="search_apps_placeholder">アプリを検索</string>
     <string name="search_placeholder">全てのロケーションを検索</string>
     <string name="secure_your_account">アカウントを保護</string>
     <string name="see_world_content">世界中のコンテンツを\n見る</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">エラーが発生しました。</string>
     <string name="sorry_to_see_you_go">お見送り残念です！</string>
     <string name="split_rule_description">選択したホストはローカルにルーティングされ、トンネルを迂回します。</string>
+    <string name="split_rule_error_bad_name">example.com のようなホスト名を入力してください。</string>
+    <string name="split_rule_error_bad_range">10.0.0.0/8 のような IP 範囲を入力してください。</string>
+    <string name="split_rule_error_bad_wildcard">ワイルドカードの後には名前が必要です。例: *.example.com</string>
+    <string name="split_rule_error_covered">このルールでは %1$s によってすでに対象になっています。</string>
+    <string name="split_rule_error_duplicate">このルールにすでに含まれています。</string>
+    <string name="split_rule_error_not_ascii">名前は ASCII 形式で入力してください。</string>
     <string name="split_rules">分割ルール</string>
     <string name="split_rules_activity_hint">接続中にルーティングのアクティビティがここに表示されます。</string>
     <string name="split_rules_hint">下のトラフィックをタップすると、トンネルを迂回してローカルにルーティングされます。</string>
+    <string name="split_rules_host_hint">上でホストを追加するか、下のトラフィックをタップすると、トンネルを迂回してローカルにルーティングされます。</string>
     <string name="split_rules_info_note">除外は関連するネットワーククラスタ全体に適用されるため、関連するトラフィックもまとめて対象になります。</string>
     <string name="start_earning_join">収益を得始めるには、ネットワークに参加してください</string>
     <string name="stay">とどまる</string>

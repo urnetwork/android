@@ -4,6 +4,7 @@
     <string name="account">Akaunti</string>
     <string name="activity">Shughuli</string>
     <string name="add">Ongeza</string>
+    <string name="add_a_rule">Ongeza sheria</string>
     <string name="add_blocked_location">Ongeza eneo lililofungwa</string>
     <string name="add_emoji">Ongeza emoji</string>
     <string name="add_referral_code">Ongeza msimbo wa rufaa</string>
@@ -300,6 +301,7 @@
     <string name="next">Ifuatayo</string>
     <string name="nicely_done">Umefanya vizuri!</string>
     <string name="no">Hapana</string>
+    <string name="no_apps_found">Hakuna programu zilizopatikana</string>
     <string name="no_blocked_locations">Hakuna maeneo yaliyofungwa</string>
     <string name="no_locations_found">Hakuna maeneo yaliyopatikana</string>
     <string name="no_locations_found_detail">Samahani, hatukuweza kupata maeneo yoyote yanayohusiana na %1$s.</string>
@@ -436,6 +438,8 @@
     <string name="rules">Sheria</string>
     <string name="save">Hifadhi</string>
     <string name="save_logs">Hifadhi logi</string>
+    <string name="saved_as">Imehifadhiwa kama %1$s</string>
+    <string name="search_apps_placeholder">Tafuta programu</string>
     <string name="search_placeholder">Tafuta maeneo yote</string>
     <string name="secure_your_account">Linda akaunti yako</string>
     <string name="see_world_content">Tazama yote\nmaudhui ya dunia</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">Kuna kitu kilienda vibaya.</string>
     <string name="sorry_to_see_you_go">Samahani kuona ukienda!</string>
     <string name="split_rule_description">Vikoa vilivyochaguliwa hupitishwa ndani na kuepuka tuneli.</string>
+    <string name="split_rule_error_bad_name">Weka jina la mwenyeji kama example.com.</string>
+    <string name="split_rule_error_bad_range">Weka safu ya IP kama 10.0.0.0/8.</string>
+    <string name="split_rule_error_bad_wildcard">Alama ya wildcard inahitaji jina baada yake, kama *.example.com.</string>
+    <string name="split_rule_error_covered">Tayari imejumuishwa na %1$s katika sheria hii.</string>
+    <string name="split_rule_error_duplicate">Tayari iko katika sheria hii.</string>
+    <string name="split_rule_error_not_ascii">Tumia muundo wa ASCII wa jina.</string>
     <string name="split_rules">Sheria za mgawanyo</string>
     <string name="split_rules_activity_hint">Shughuli za upitishaji huonekana hapa ukiwa umeunganishwa.</string>
     <string name="split_rules_hint">Gusa trafiki hapa chini ili ipitishwe ndani, ikiepuka tuneli.</string>
+    <string name="split_rules_host_hint">Ongeza mwenyeji hapo juu, au gusa trafiki hapa chini ili ipitishwe ndani, ikiepuka tuneli.</string>
     <string name="split_rules_info_note">Utengaji hutumika kwa kundi zima la mtandao linalohusiana, hivyo trafiki inayohusiana hunaswa pamoja.</string>
     <string name="start_earning_join">Ili kuanza kupata, jiunge na mtandao</string>
     <string name="stay">Baki</string>

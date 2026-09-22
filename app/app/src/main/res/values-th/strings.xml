@@ -4,6 +4,7 @@
     <string name="account">บัญชี</string>
     <string name="activity">กิจกรรม</string>
     <string name="add">เพิ่ม</string>
+    <string name="add_a_rule">เพิ่มกฎ</string>
     <string name="add_blocked_location">เพิ่มตำแหน่งที่ถูกบล็อก</string>
     <string name="add_emoji">เพิ่มอีโมจิ</string>
     <string name="add_referral_code">เพิ่มรหัสแนะนำ</string>
@@ -300,6 +301,7 @@
     <string name="next">ถัดไป</string>
     <string name="nicely_done">เยี่ยมมาก</string>
     <string name="no">ไม่</string>
+    <string name="no_apps_found">ไม่พบแอป</string>
     <string name="no_blocked_locations">ไม่มีตำแหน่งที่ถูกบล็อก</string>
     <string name="no_locations_found">ไม่พบที่อยู่ดังกล่าว</string>
     <string name="no_locations_found_detail">ขออภัยด้วย เราไม่พบที่อยู่ใดๆที่เกี่ยวข้องกับ %1$s เลย</string>
@@ -436,6 +438,8 @@
     <string name="rules">กฎ</string>
     <string name="save">บันทึก</string>
     <string name="save_logs">บันทึกไฟล์บันทึก</string>
+    <string name="saved_as">บันทึกเป็น %1$s</string>
+    <string name="search_apps_placeholder">ค้นหาแอป</string>
     <string name="search_placeholder">ค้นหาทุกประเทศ</string>
     <string name="secure_your_account">ปกป้องบัญชีของคุณ</string>
     <string name="see_world_content">เข้าถึงทุกคอนเทนต์\nจากทั่วทุกมุมโลก</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">มีบางอย่างผิดปกติ</string>
     <string name="sorry_to_see_you_go">ขอบคุณที่เคยเป็นส่วนหนึ่งกับเรา เราเสียดายที่ต้องลาจากกัน</string>
     <string name="split_rule_description">โฮสต์ที่เลือกจะถูกส่งผ่านภายในเครื่องและไม่ผ่านอุโมงค์</string>
+    <string name="split_rule_error_bad_name">กรอกชื่อโฮสต์ เช่น example.com</string>
+    <string name="split_rule_error_bad_range">กรอกช่วง IP เช่น 10.0.0.0/8</string>
+    <string name="split_rule_error_bad_wildcard">ไวลด์การ์ดต้องมีชื่อตามหลัง เช่น *.example.com</string>
+    <string name="split_rule_error_covered">ครอบคลุมโดย %1$s ในกฎนี้อยู่แล้ว</string>
+    <string name="split_rule_error_duplicate">มีอยู่ในกฎนี้แล้ว</string>
+    <string name="split_rule_error_not_ascii">ใช้ชื่อในรูปแบบ ASCII</string>
     <string name="split_rules">กฎแยกเส้นทาง</string>
     <string name="split_rules_activity_hint">กิจกรรมการกำหนดเส้นทางจะแสดงที่นี่ขณะเชื่อมต่อ</string>
     <string name="split_rules_hint">แตะทราฟฟิกด้านล่างเพื่อส่งผ่านภายในเครื่องโดยไม่ผ่านอุโมงค์</string>
+    <string name="split_rules_host_hint">เพิ่มโฮสต์ด้านบน หรือแตะทราฟฟิกด้านล่างเพื่อส่งผ่านภายในเครื่องโดยไม่ผ่านอุโมงค์</string>
     <string name="split_rules_info_note">การยกเว้นจะมีผลกับคลัสเตอร์เครือข่ายที่เกี่ยวข้องกันทั้งกลุ่ม ทราฟฟิกที่เกี่ยวข้องจึงถูกยกเว้นไปพร้อมกัน</string>
     <string name="start_earning_join">เพื่อเริ่มสร้างรายได้ เข้าร่วมกับระบบเน็ตเวิร์ค</string>
     <string name="stay">อยู่ต่อ</string>

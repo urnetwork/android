@@ -4,6 +4,7 @@
     <string name="account">Account</string>
     <string name="activity">Activiteit</string>
     <string name="add">Toevoegen</string>
+    <string name="add_a_rule">Regel toevoegen</string>
     <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
     <string name="add_emoji">Emoji toevoegen</string>
     <string name="add_referral_code">Referentiecode toevoegen</string>
@@ -300,6 +301,7 @@
     <string name="next">Volgende</string>
     <string name="nicely_done">Goed gedaan</string>
     <string name="no">Nee</string>
+    <string name="no_apps_found">Geen apps gevonden</string>
     <string name="no_blocked_locations">Geen geblokkeerde locaties</string>
     <string name="no_locations_found">Geen locaties gevonden</string>
     <string name="no_locations_found_detail">Helaas, we hebben geen locaties gevonden gerelateerd aan %1$s.</string>
@@ -436,6 +438,8 @@
     <string name="rules">Regels</string>
     <string name="save">Opslaan</string>
     <string name="save_logs">Logs opslaan</string>
+    <string name="saved_as">Opgeslagen als %1$s</string>
+    <string name="search_apps_placeholder">Zoek apps</string>
     <string name="search_placeholder">Zoek naar alle locaties</string>
     <string name="secure_your_account">Beveilig je account</string>
     <string name="see_world_content">Bekijk alle\ninhoud van de wereld</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">Er is iets misgegaan.</string>
     <string name="sorry_to_see_you_go">Het spijt ons dat je weggaat!</string>
     <string name="split_rule_description">Geselecteerde hosts worden lokaal gerouteerd en omzeilen de tunnel.</string>
+    <string name="split_rule_error_bad_name">Voer een hostnaam in zoals example.com.</string>
+    <string name="split_rule_error_bad_range">Voer een IP-bereik in zoals 10.0.0.0/8.</string>
+    <string name="split_rule_error_bad_wildcard">Een jokerteken heeft een naam erachter nodig, zoals *.example.com.</string>
+    <string name="split_rule_error_covered">Al gedekt door %1$s in deze regel.</string>
+    <string name="split_rule_error_duplicate">Staat al in deze regel.</string>
+    <string name="split_rule_error_not_ascii">Gebruik de ASCII-vorm van de naam.</string>
     <string name="split_rules">Splitsregels</string>
     <string name="split_rules_activity_hint">Routeringsactiviteit verschijnt hier terwijl je verbonden bent.</string>
     <string name="split_rules_hint">Tik hieronder op verkeer om het lokaal te routeren, buiten de tunnel om.</string>
+    <string name="split_rules_host_hint">Voeg hierboven een host toe, of tik hieronder op verkeer om het lokaal te routeren, buiten de tunnel om.</string>
     <string name="split_rules_info_note">Uitsluitingen gelden voor het hele samenhangende netwerkcluster, zodat gerelateerd verkeer samen wordt meegenomen.</string>
     <string name="start_earning_join">Om te beginnen met verdienen, sluit je aan bij ons netwerk</string>
     <string name="stay">Blijven</string>

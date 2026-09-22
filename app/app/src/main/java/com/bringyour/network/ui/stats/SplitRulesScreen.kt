@@ -242,7 +242,7 @@ fun SplitRulesScreen(
                 if (rules.isEmpty()) {
                     item(key = "rules-empty") {
                         Text(
-                            stringResource(id = R.string.split_rules_hint),
+                            stringResource(id = R.string.split_rules_host_hint),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextFaint,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
