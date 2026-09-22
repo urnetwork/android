@@ -4,6 +4,7 @@
     <string name="account">Účet</string>
     <string name="activity">Aktivita</string>
     <string name="add">Přidat</string>
+    <string name="add_a_rule">Přidat pravidlo</string>
     <string name="add_blocked_location">Přidat blokovanou lokalitu</string>
     <string name="add_emoji">Přidat emoji</string>
     <string name="add_referral_code">Přidání doporučujícího kódu</string>
@@ -300,6 +301,7 @@
     <string name="next">Další</string>
     <string name="nicely_done">Dobře udělané</string>
     <string name="no">Ne</string>
+    <string name="no_apps_found">Nebyly nalezeny žádné aplikace</string>
     <string name="no_blocked_locations">Žádné blokované lokality</string>
     <string name="no_locations_found">Nebyly nalezeny žádné lokality</string>
     <string name="no_locations_found_detail">Je nám líto, ale nenašli jsme žádná místa související s %1$s.</string>
@@ -436,6 +438,8 @@
     <string name="rules">Pravidla</string>
     <string name="save">Uložit</string>
     <string name="save_logs">Uložit protokoly</string>
+    <string name="saved_as">Uloženo jako %1$s</string>
+    <string name="search_apps_placeholder">Hledat aplikace</string>
     <string name="search_placeholder">Hledat všechna místa</string>
     <string name="secure_your_account">Zabezpečte svůj účet</string>
     <string name="see_world_content">Zobrazit veškerý\nkontent světa</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">Něco se pokazilo.</string>
     <string name="sorry_to_see_you_go">Je nám líto, že odcházíte!</string>
     <string name="split_rule_description">Vybraní hostitelé jsou směrováni lokálně a obcházejí tunel.</string>
+    <string name="split_rule_error_bad_name">Zadejte název hostitele, například example.com.</string>
+    <string name="split_rule_error_bad_range">Zadejte rozsah IP adres, například 10.0.0.0/8.</string>
+    <string name="split_rule_error_bad_wildcard">Za zástupným znakem musí následovat název, například *.example.com.</string>
+    <string name="split_rule_error_covered">V tomto pravidle již pokryto položkou %1$s.</string>
+    <string name="split_rule_error_duplicate">V tomto pravidle již je.</string>
+    <string name="split_rule_error_not_ascii">Použijte ASCII podobu názvu.</string>
     <string name="split_rules">Pravidla rozdělení</string>
     <string name="split_rules_activity_hint">Aktivita směrování se zde zobrazí po připojení.</string>
     <string name="split_rules_hint">Klepnutím na provoz níže jej nasměrujete lokálně, mimo tunel.</string>
+    <string name="split_rules_host_hint">Přidejte hostitele výše, nebo klepnutím na provoz níže jej nasměrujte lokálně, mimo tunel.</string>
     <string name="split_rules_info_note">Výjimky platí pro celý propojený síťový cluster, takže související provoz je zachycen společně.</string>
     <string name="start_earning_join">Chcete-li začít vydělávat, připojte se k síti</string>
     <string name="stay">Zůstat</string>

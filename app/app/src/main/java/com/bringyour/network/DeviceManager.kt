@@ -2,7 +2,9 @@ package com.bringyour.network
 
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
+import com.bringyour.sdk.BlockActionOverrideList
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.DnsResolverSettings
 import com.bringyour.sdk.LocalState
 import com.bringyour.sdk.NetworkSpace
 import com.bringyour.sdk.PerformanceProfile
@@ -68,7 +70,8 @@ internal fun <T> configureCreatedDevice(
 
 @Singleton
 class DeviceManager @Inject constructor(
-    private val jwtManager: JwtManager
+    private val jwtManager: JwtManager,
+    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider,
 ) {
 
     companion object {
@@ -118,8 +121,10 @@ class DeviceManager @Inject constructor(
         return deviceChanges.add(listener)
     }
 
-    val networkSpace get() = device?.networkSpace
-    val asyncLocalState get() = device?.networkSpace?.asyncLocalState
+    val networkSpace get() = synchronized(deviceLock) {
+        device?.networkSpace ?: networkSpaceManagerProvider.getNetworkSpace()
+    }
+    val asyncLocalState get() = networkSpace?.asyncLocalState
 
     var routeLocal: Boolean
         get() = synchronized(deviceLock) { device?.routeLocal ?: true }
@@ -179,6 +184,25 @@ class DeviceManager @Inject constructor(
             device?.vpnInterfaceWhileOffline = it
         }
 
+    var blockerEnabled: Boolean
+        get() = synchronized(deviceLock) {
+            SplitRulePersistencePolicy.resolveEffectiveBlocker(
+                liveBlocker = device?.blockerEnabled,
+                storedBlocker = asyncLocalState?.localState?.blockerEnabled,
+            )
+        }
+        set(it) = synchronized(deviceLock) {
+            val plan = SplitRulePersistencePolicy.planWrite(isDeviceConnected = device != null)
+            if (plan.applyLive) {
+                device?.blockerEnabled = it
+            }
+            if (plan.persistToStorage) {
+                asyncLocalState?.localState?.let { localState ->
+                    runCatching { localState.blockerEnabled = it }
+                }
+            }
+        }
+
     var performanceProfile: PerformanceProfile?
         get() = synchronized(deviceLock) {
             device?.performanceProfile ?: asyncLocalState?.localState?.performanceProfile
@@ -202,6 +226,94 @@ class DeviceManager @Inject constructor(
                 liveDevice?.performanceProfile = it
             }
         }
+
+    /**
+     * The effective overrides: the live device's when there is a device (an
+     * empty list is an answer, not a reason to fall back), else the persisted
+     * list (signed out, or before the device is created)
+     */
+    val blockActionOverrides: BlockActionOverrideList?
+        get() = synchronized(deviceLock) {
+            SplitRulePersistencePolicy.resolveEffective(
+                livePresent = device != null,
+                live = device?.blockActionOverrides,
+                stored = asyncLocalState?.localState?.blockActionOverrides,
+            )
+        }
+
+    /**
+     * Applies an overrides edit to exactly one place. A live device persists
+     * its own overrides on the serial local state queue, so a second,
+     * synchronous write from here races that queue: a read-modify-write over
+     * a file the queue has not flushed yet duplicates or resurrects rules.
+     * Without a device the persisted list is edited directly. Holding
+     * [deviceLock] serializes an edit with [initDevice] handing the persisted
+     * list to a new device, so an edit made while connecting is not lost.
+     *
+     * @return false when there was nowhere to apply the edit
+     */
+    fun editBlockActionOverrides(
+        live: (DeviceLocal) -> Unit,
+        persisted: (BlockActionOverrideList?) -> BlockActionOverrideList?,
+    ): Boolean {
+        synchronized(deviceLock) {
+            val plan = SplitRulePersistencePolicy.planWrite(isDeviceConnected = device != null)
+            when {
+                plan.applyLive -> {
+                    val liveDevice = device ?: return false
+                    live(liveDevice)
+                    return true
+                }
+                else -> {
+                    val localState = asyncLocalState?.localState ?: return false
+                    val next = persisted(localState.blockActionOverrides) ?: return true
+                    return runCatching { localState.blockActionOverrides = next }.isSuccess
+                }
+            }
+        }
+    }
+
+    /**
+     * The effective dns resolver settings: the live device's, else the
+     * persisted settings. The device reports none while its dns upgrade mux is
+     * disabled, and then the persisted settings show through
+     */
+    val dnsResolverSettings: DnsResolverSettings?
+        get() = synchronized(deviceLock) {
+            SplitRulePersistencePolicy.resolveEffective(
+                livePresent = device?.dnsResolverSettings != null,
+                live = device?.dnsResolverSettings,
+                stored = asyncLocalState?.localState?.dnsResolverSettings,
+            )
+        }
+
+    /**
+     * Applies dns resolver settings to exactly one place; see
+     * [editBlockActionOverrides]. The device persists the settings only when
+     * it accepts them, and with its dns upgrade mux disabled it accepts none,
+     * so in that case they are persisted here for the next device.
+     *
+     * @return false when there was nowhere to apply the settings
+     */
+    fun applyDnsResolverSettings(settings: DnsResolverSettings): Boolean {
+        synchronized(deviceLock) {
+            val plan = SplitRulePersistencePolicy.planWrite(isDeviceConnected = device != null)
+            when {
+                plan.applyLive -> {
+                    val liveDevice = device ?: return false
+                    liveDevice.dnsResolverSettings = settings
+                    if (liveDevice.dnsResolverSettings != null) {
+                        return true
+                    }
+                    // device declined (e.g. dns upgrade mux disabled) — fall
+                    // through to persist for the next device
+                }
+                else -> {}
+            }
+            val localState = asyncLocalState?.localState ?: return false
+            return runCatching { localState.dnsResolverSettings = settings }.isSuccess
+        }
+    }
 
     fun initDevice(
         networkSpace: NetworkSpace?,
@@ -314,6 +426,17 @@ class DeviceManager @Inject constructor(
                     newDevice.provideNetworkMode = ProvideNetworkMode.toString(provideNetworkMode)
                     newDevice.canPromptIntroFunnel = canPromptIntroFunnel
                     newDevice.performanceProfile = performanceProfile
+                    newDevice.blockerEnabled = localState.blockerEnabled
+                    // read under the lock, not with the other snapshots above:
+                    // an edit made without a device (editBlockActionOverrides,
+                    // applyDnsResolverSettings) can land while the device is
+                    // being created, and a stale snapshot applied here would
+                    // be persisted by the device over that edit. Re-applying
+                    // through the setters also dedupes by override id and
+                    // installs the resolver ignore hosts, which the sdk's
+                    // creation-time load does not
+                    localState.blockActionOverrides?.let { newDevice.blockActionOverrides = it }
+                    localState.dnsResolverSettings?.let { newDevice.dnsResolverSettings = it }
 
                     addLocalStateChangeSubscriptionsLocked(localState, newDevice)
 
@@ -451,6 +574,9 @@ class DeviceManager @Inject constructor(
                 }
             }
         })
+        // block action overrides and dns resolver settings are deliberately
+        // absent: the device persists both on its own serial local state queue,
+        // and a synchronous write from a change listener races that queue
     }
 
     fun clearDevice() {

@@ -4,6 +4,7 @@
     <string name="account">帐户</string>
     <string name="activity">活动</string>
     <string name="add">添加</string>
+    <string name="add_a_rule">添加规则</string>
     <string name="add_blocked_location">添加被屏蔽的位置</string>
     <string name="add_emoji">添加表情</string>
     <string name="add_referral_code">添加推荐码</string>
@@ -300,6 +301,7 @@
     <string name="next">下一步</string>
     <string name="nicely_done">做得好!</string>
     <string name="no">否</string>
+    <string name="no_apps_found">未找到应用</string>
     <string name="no_blocked_locations">没有被屏蔽的位置</string>
     <string name="no_locations_found">未找到任何位置</string>
     <string name="no_locations_found_detail">抱歉，我们找不到与 %1$s 相关的任何位置。</string>
@@ -439,6 +441,8 @@
     <string name="rules">规则</string>
     <string name="save">保存</string>
     <string name="save_logs">保存日志</string>
+    <string name="saved_as">已保存为 %1$s</string>
+    <string name="search_apps_placeholder">搜索应用</string>
     <string name="search_placeholder">搜索所有地点</string>
     <string name="secure_your_account">保护你的帐户</string>
     <string name="see_world_content">查看所有\n世界内容</string>
@@ -471,9 +475,16 @@
     <string name="something_went_wrong">出了些问题。</string>
     <string name="sorry_to_see_you_go">我们很遗憾看到你离开！</string>
     <string name="split_rule_description">选中的主机将走本地路由，绕过隧道。</string>
+    <string name="split_rule_error_bad_name">输入主机名，例如 example.com。</string>
+    <string name="split_rule_error_bad_range">输入 IP 范围，例如 10.0.0.0/8。</string>
+    <string name="split_rule_error_bad_wildcard">通配符后面需要跟一个名称，例如 *.example.com。</string>
+    <string name="split_rule_error_covered">此规则中的 %1$s 已涵盖该项。</string>
+    <string name="split_rule_error_duplicate">此规则中已存在。</string>
+    <string name="split_rule_error_not_ascii">请使用名称的 ASCII 形式。</string>
     <string name="split_rules">分流规则</string>
     <string name="split_rules_activity_hint">连接后，路由活动会显示在这里。</string>
     <string name="split_rules_hint">点击下方流量，将其改走本地路由，绕过隧道。</string>
+    <string name="split_rules_host_hint">在上方添加主机，或点击下方流量，将其改走本地路由，绕过隧道。</string>
     <string name="split_rules_info_note">排除会应用到整个关联网络集群，因此相关流量会被一并排除。</string>
     <string name="start_earning_join">要开始赚取收入，请加入网络</string>
     <string name="stay">留下</string>

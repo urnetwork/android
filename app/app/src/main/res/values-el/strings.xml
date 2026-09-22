@@ -4,6 +4,7 @@
     <string name="account">Λογαριασμός</string>
     <string name="activity">Δραστηριότητα</string>
     <string name="add">Προσθήκη</string>
+    <string name="add_a_rule">Προσθήκη κανόνα</string>
     <string name="add_blocked_location">Προσθήκη αποκλεισμένης τοποθεσίας</string>
     <string name="add_emoji">Προσθήκη emoji</string>
     <string name="add_referral_code">Προσθήκη κωδικού παραπομπής</string>
@@ -300,6 +301,7 @@
     <string name="next">Επόμενο</string>
     <string name="nicely_done">Μπράβο!</string>
     <string name="no">Όχι</string>
+    <string name="no_apps_found">Δεν βρέθηκαν εφαρμογές</string>
     <string name="no_blocked_locations">Δεν υπάρχουν αποκλεισμένες τοποθεσίες</string>
     <string name="no_locations_found">Δεν βρέθηκαν τοποθεσίες</string>
     <string name="no_locations_found_detail">Λυπούμαστε, δεν μπορέσαμε να βρούμε τοποθεσίες που σχετίζονται με %1$s.</string>
@@ -436,6 +438,8 @@
     <string name="rules">Κανόνες</string>
     <string name="save">Αποθήκευση</string>
     <string name="save_logs">Αποθήκευση αρχείων καταγραφής</string>
+    <string name="saved_as">Αποθηκεύεται ως %1$s</string>
+    <string name="search_apps_placeholder">Αναζήτηση εφαρμογών</string>
     <string name="search_placeholder">Αναζήτηση σε όλες τις τοποθεσίες</string>
     <string name="secure_your_account">Ασφαλίστε τον λογαριασμό σας</string>
     <string name="see_world_content">Δείτε όλο\nτο περιεχόμενο\nτου κόσμου</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
     <string name="sorry_to_see_you_go">Λυπούμαστε που φεύγετε!</string>
     <string name="split_rule_description">Οι επιλεγμένοι hosts δρομολογούνται τοπικά και παρακάμπτουν το τούνελ.</string>
+    <string name="split_rule_error_bad_name">Εισαγάγετε ένα όνομα κεντρικού υπολογιστή όπως example.com.</string>
+    <string name="split_rule_error_bad_range">Εισαγάγετε ένα εύρος IP όπως 10.0.0.0/8.</string>
+    <string name="split_rule_error_bad_wildcard">Ο χαρακτήρας μπαλαντέρ χρειάζεται ένα όνομα μετά από αυτόν, όπως *.example.com.</string>
+    <string name="split_rule_error_covered">Καλύπτεται ήδη από το %1$s σε αυτόν τον κανόνα.</string>
+    <string name="split_rule_error_duplicate">Υπάρχει ήδη σε αυτόν τον κανόνα.</string>
+    <string name="split_rule_error_not_ascii">Χρησιμοποιήστε τη μορφή ASCII του ονόματος.</string>
     <string name="split_rules">Κανόνες διαχωρισμού</string>
     <string name="split_rules_activity_hint">Η δραστηριότητα δρομολόγησης εμφανίζεται εδώ όταν είστε συνδεδεμένοι.</string>
     <string name="split_rules_hint">Πατήστε την κίνηση παρακάτω για να δρομολογηθεί τοπικά, παρακάμπτοντας το τούνελ.</string>
+    <string name="split_rules_host_hint">Προσθέστε έναν κεντρικό υπολογιστή παραπάνω ή πατήστε την κίνηση παρακάτω για να δρομολογηθεί τοπικά, παρακάμπτοντας το τούνελ.</string>
     <string name="split_rules_info_note">Οι εξαιρέσεις ισχύουν για ολόκληρη τη συσχετισμένη ομάδα δικτύων, ώστε η σχετική κίνηση να καλύπτεται μαζί.</string>
     <string name="start_earning_join">Για να ξεκινήσετε να κερδίζετε, γίνετε μέλος του δικτύου</string>
     <string name="stay">Παραμονή</string>

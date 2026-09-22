@@ -281,6 +281,16 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         )
     }
 
+    val clearingLogs = developerViewModel.clearingLogs
+
+    DeveloperAction(
+        label = stringResource(id = if (clearingLogs) R.string.dev_clearing_logs else R.string.dev_clear_logs),
+        enabled = !exporting && !clearingLogs,
+    ) {
+        developerViewModel.clearLogs(context.filesDir)
+    }
+
+
     var showPicker by remember { mutableStateOf(false) }
 
     DeveloperAction(

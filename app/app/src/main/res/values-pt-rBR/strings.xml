@@ -4,6 +4,7 @@
     <string name="account">Conta</string>
     <string name="activity">Atividade</string>
     <string name="add">Adicionar</string>
+    <string name="add_a_rule">Adicionar uma regra</string>
     <string name="add_blocked_location">Adicionar localização bloqueada</string>
     <string name="add_emoji">Adicionar emoji</string>
     <string name="add_referral_code">Adicionar código de indicação</string>
@@ -300,6 +301,7 @@
     <string name="next">Próximo</string>
     <string name="nicely_done">Muito bem!</string>
     <string name="no">Não</string>
+    <string name="no_apps_found">Nenhum app encontrado</string>
     <string name="no_blocked_locations">Nenhuma localização bloqueada</string>
     <string name="no_locations_found">Nenhum local encontrado</string>
     <string name="no_locations_found_detail">Desculpe, não conseguimos encontrar nenhum local relacionado a %1$s.</string>
@@ -436,6 +438,8 @@
     <string name="rules">Regras</string>
     <string name="save">Salvar</string>
     <string name="save_logs">Salvar logs</string>
+    <string name="saved_as">Salvo como %1$s</string>
+    <string name="search_apps_placeholder">Buscar apps</string>
     <string name="search_placeholder">Pesquisar todos os locais</string>
     <string name="secure_your_account">Proteja sua conta</string>
     <string name="see_world_content">Ver todo o\nconteúdo do mundo</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">Algo deu errado.</string>
     <string name="sorry_to_see_you_go">Lamentamos ver você partir!</string>
     <string name="split_rule_description">Os hosts selecionados são roteados localmente e contornam o túnel.</string>
+    <string name="split_rule_error_bad_name">Insira um nome de host como example.com.</string>
+    <string name="split_rule_error_bad_range">Insira um intervalo de IP como 10.0.0.0/8.</string>
+    <string name="split_rule_error_bad_wildcard">Um curinga precisa de um nome depois dele, como *.example.com.</string>
+    <string name="split_rule_error_covered">Já coberto por %1$s nesta regra.</string>
+    <string name="split_rule_error_duplicate">Já está nesta regra.</string>
+    <string name="split_rule_error_not_ascii">Use a forma ASCII do nome.</string>
     <string name="split_rules">Regras de divisão</string>
     <string name="split_rules_activity_hint">A atividade de roteamento aparece aqui enquanto você estiver conectado.</string>
     <string name="split_rules_hint">Toque no tráfego abaixo para roteá-lo localmente, contornando o túnel.</string>
+    <string name="split_rules_host_hint">Adicione um host acima ou toque no tráfego abaixo para roteá-lo localmente, contornando o túnel.</string>
     <string name="split_rules_info_note">As exclusões se aplicam a todo o cluster de rede coassociado, para que o tráfego relacionado seja capturado em conjunto.</string>
     <string name="start_earning_join">Para começar a ganhar, entre na rede</string>
     <string name="stay">Ficar</string>

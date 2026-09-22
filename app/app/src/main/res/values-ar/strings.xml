@@ -4,6 +4,7 @@
     <string name="account">الحساب</string>
     <string name="activity">النشاط</string>
     <string name="add">إضافة</string>
+    <string name="add_a_rule">إضافة قاعدة</string>
     <string name="add_blocked_location">إضافة موقع محجوب</string>
     <string name="add_emoji">إضافة إيموجي</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
@@ -300,6 +301,7 @@
     <string name="next">التالي</string>
     <string name="nicely_done">أحسنت</string>
     <string name="no">لا</string>
+    <string name="no_apps_found">لم يتم العثور على تطبيقات</string>
     <string name="no_blocked_locations">لا توجد مواقع محجوبة</string>
     <string name="no_locations_found">لم يتم العثور على مواقع</string>
     <string name="no_locations_found_detail">عذرًا، تعذر علينا العثور على أي مواقع ذات صلة بـ %1$s.</string>
@@ -439,6 +441,8 @@
     <string name="rules">القواعد</string>
     <string name="save">حفظ</string>
     <string name="save_logs">حفظ السجلات</string>
+    <string name="saved_as">يُحفظ كـ %1$s</string>
+    <string name="search_apps_placeholder">البحث في التطبيقات</string>
     <string name="search_placeholder">البحث في جميع المواقع</string>
     <string name="secure_your_account">أمّن حسابك</string>
     <string name="see_world_content">شاهد كل\nمحتوى\nالعالم</string>
@@ -471,9 +475,16 @@
     <string name="something_went_wrong">حدث خطأ ما.</string>
     <string name="sorry_to_see_you_go">نحن آسفون لرؤيتك تذهب!</string>
     <string name="split_rule_description">يتم توجيه المضيفين المحددين محليًا لتجاوز النفق.</string>
+    <string name="split_rule_error_bad_name">أدخل اسم مضيف مثل example.com.</string>
+    <string name="split_rule_error_bad_range">أدخل نطاق IP مثل 10.0.0.0/8.</string>
+    <string name="split_rule_error_bad_wildcard">يحتاج حرف البدل إلى اسم بعده، مثل *.example.com.</string>
+    <string name="split_rule_error_covered">مشمول بالفعل ضمن %1$s في هذه القاعدة.</string>
+    <string name="split_rule_error_duplicate">موجود بالفعل في هذه القاعدة.</string>
+    <string name="split_rule_error_not_ascii">استخدم صيغة ASCII للاسم.</string>
     <string name="split_rules">قواعد التقسيم</string>
     <string name="split_rules_activity_hint">يظهر نشاط التوجيه هنا أثناء الاتصال.</string>
     <string name="split_rules_hint">انقر على حركة المرور أدناه لتوجيهها محليًا وتجاوز النفق.</string>
+    <string name="split_rules_host_hint">أضف مضيفًا أعلاه، أو انقر على حركة المرور أدناه لتوجيهها محليًا وتجاوز النفق.</string>
     <string name="split_rules_info_note">تنطبق الاستثناءات على مجموعة الشبكة المرتبطة بالكامل، لذا يتم استثناء حركة المرور ذات الصلة معًا.</string>
     <string name="start_earning_join">للبدء في الربح، انضم إلى الشبكة</string>
     <string name="stay">البقاء</string>

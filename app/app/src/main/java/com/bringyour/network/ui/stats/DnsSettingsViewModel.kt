@@ -21,48 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * Editable snapshot of the device dns resolver settings
- */
-data class DnsSettingsUi(
-    val enableRemoteDoh: Boolean = false,
-    val enableLocalDoh: Boolean = false,
-    val enableRemoteDns: Boolean = false,
-    val enableLocalDns: Boolean = false,
-    val enableFallback: Boolean = false,
-    val remoteDohUrlsIpv4: List<String> = listOf(),
-    val remoteDohUrlsIpv6: List<String> = listOf(),
-    val localDohUrlsIpv4: List<String> = listOf(),
-    val localDohUrlsIpv6: List<String> = listOf(),
-    val remoteDnsIpv4: List<String> = listOf(),
-    val remoteDnsIpv6: List<String> = listOf(),
-    val localDnsIpv4: List<String> = listOf(),
-    val localDnsIpv6: List<String> = listOf(),
-) {
-    /**
-     * summary states shown in the connect sheet
-     */
-    val dohEnabled: Boolean
-        get() = enableRemoteDoh || enableLocalDoh
-    val unencryptedDnsEnabled: Boolean
-        get() = enableRemoteDns || enableLocalDns
-    val localDnsEnabled: Boolean
-        get() = enableLocalDoh || enableLocalDns
-    val localDnsFallbackEnabled: Boolean
-        get() = enableFallback
-}
 
-/**
- * A well known regional dns server suggestion
- */
-data class RegionalDnsSuggestionUi(
-    val countryCode: String,
-    val name: String,
-    val ipv4: String,
-) {
-    val id: String
-        get() = "$countryCode-$ipv4"
-}
 
 /**
  * Publishes the device dns resolver settings and applies edits
@@ -145,13 +104,21 @@ class DnsSettingsViewModel @Inject constructor(
     }
 
     init {
+        val initialSettings = deviceManager.device?.dnsResolverSettings
+            ?: deviceManager.asyncLocalState?.localState?.dnsResolverSettings
+        if (initialSettings != null) {
+            settings = toUi(initialSettings)
+        }
+
         processLifecycle.addObserver(this)
         subscriptionOwner.setForeground(
             processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         )
         removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
             viewModelScope.launch {
-                settings = null
+                val currentSettings = device?.dnsResolverSettings
+                    ?: deviceManager.asyncLocalState?.localState?.dnsResolverSettings
+                settings = currentSettings?.let { toUi(it) }
                 reported = device == null
                 subscriptionOwner.setDevice(device)
             }
@@ -205,30 +172,16 @@ class DnsSettingsViewModel @Inject constructor(
 
     private fun update(device: DeviceLocal) {
         val sdkSettings = device.dnsResolverSettings
+            ?: deviceManager.asyncLocalState?.localState?.dnsResolverSettings
         reported = true
         settings = if (sdkSettings != null) {
-            DnsSettingsUi(
-                enableRemoteDoh = sdkSettings.enableRemoteDoh,
-                enableLocalDoh = sdkSettings.enableLocalDoh,
-                enableRemoteDns = sdkSettings.enableRemoteDns,
-                enableLocalDns = sdkSettings.enableLocalDns,
-                enableFallback = sdkSettings.enableFallback,
-                remoteDohUrlsIpv4 = sdkStringListToList(sdkSettings.remoteDohUrlsIpv4),
-                remoteDohUrlsIpv6 = sdkStringListToList(sdkSettings.remoteDohUrlsIpv6),
-                localDohUrlsIpv4 = sdkStringListToList(sdkSettings.localDohUrlsIpv4),
-                localDohUrlsIpv6 = sdkStringListToList(sdkSettings.localDohUrlsIpv6),
-                remoteDnsIpv4 = sdkStringListToList(sdkSettings.remoteDnsIpv4),
-                remoteDnsIpv6 = sdkStringListToList(sdkSettings.remoteDnsIpv6),
-                localDnsIpv4 = sdkStringListToList(sdkSettings.localDnsIpv4),
-                localDnsIpv6 = sdkStringListToList(sdkSettings.localDnsIpv6),
-            )
+            toUi(sdkSettings)
         } else {
             null
         }
     }
 
     fun apply(newSettings: DnsSettingsUi) {
-        val device = deviceManager.device ?: return
         val sdkSettings = DnsResolverSettings()
         sdkSettings.enableRemoteDoh = newSettings.enableRemoteDoh
         sdkSettings.enableLocalDoh = newSettings.enableLocalDoh
@@ -243,8 +196,13 @@ class DnsSettingsViewModel @Inject constructor(
         sdkSettings.remoteDnsIpv6 = listToSdkStringList(newSettings.remoteDnsIpv6)
         sdkSettings.localDnsIpv4 = listToSdkStringList(newSettings.localDnsIpv4)
         sdkSettings.localDnsIpv6 = listToSdkStringList(newSettings.localDnsIpv6)
-        device.dnsResolverSettings = sdkSettings
-        update(device)
+
+        // one write, to the device or to the persisted settings; see
+        // DeviceManager.applyDnsResolverSettings. When nothing took the
+        // settings, keep showing what is actually in force
+        if (deviceManager.applyDnsResolverSettings(sdkSettings)) {
+            settings = toUi(deviceManager.dnsResolverSettings ?: sdkSettings)
+        }
     }
 
     override fun onCleared() {

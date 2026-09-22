@@ -4,6 +4,7 @@
     <string name="account">खाता</string>
     <string name="activity">गतिविधि</string>
     <string name="add">जोड़ें</string>
+    <string name="add_a_rule">नियम जोड़ें</string>
     <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
     <string name="add_emoji">इमोजी जोड़ें</string>
     <string name="add_referral_code">रेफरल कोड जोड़ें</string>
@@ -300,6 +301,7 @@
     <string name="next">अगला</string>
     <string name="nicely_done">शाबाश!</string>
     <string name="no">नहीं</string>
+    <string name="no_apps_found">कोई ऐप नहीं मिला</string>
     <string name="no_blocked_locations">कोई अवरुद्ध स्थान नहीं</string>
     <string name="no_locations_found">कोई स्थान नहीं मिला</string>
     <string name="no_locations_found_detail">क्षमा करें, हमें %1$s से संबंधित कोई स्थान नहीं मिला.</string>
@@ -436,6 +438,8 @@
     <string name="rules">नियम</string>
     <string name="save">सहेजें</string>
     <string name="save_logs">लॉग सहेजें</string>
+    <string name="saved_as">%1$s के रूप में सहेजा जाएगा</string>
+    <string name="search_apps_placeholder">ऐप्स खोजें</string>
     <string name="search_placeholder">सभी स्थानों पर खोजें</string>
     <string name="secure_your_account">अपना खाता सुरक्षित करें</string>
     <string name="see_world_content">दुनिया की सभी\nसामग्री देखें</string>
@@ -466,9 +470,16 @@
     <string name="something_went_wrong">कुछ गलत हो गया।</string>
     <string name="sorry_to_see_you_go">हमें आपको जाते हुए देखकर दुख हो रहा है!</string>
     <string name="split_rule_description">चयनित होस्ट स्थानीय रूप से रूट होते हैं और टनल को बायपास करते हैं।</string>
+    <string name="split_rule_error_bad_name">example.com जैसा होस्ट नाम दर्ज करें।</string>
+    <string name="split_rule_error_bad_range">10.0.0.0/8 जैसी IP रेंज दर्ज करें।</string>
+    <string name="split_rule_error_bad_wildcard">वाइल्डकार्ड के बाद एक नाम होना चाहिए, जैसे *.example.com।</string>
+    <string name="split_rule_error_covered">इस नियम में %1$s द्वारा पहले से कवर है।</string>
+    <string name="split_rule_error_duplicate">इस नियम में पहले से मौजूद है।</string>
+    <string name="split_rule_error_not_ascii">नाम का ASCII रूप उपयोग करें।</string>
     <string name="split_rules">स्प्लिट नियम</string>
     <string name="split_rules_activity_hint">कनेक्ट होने पर रूटिंग गतिविधि यहाँ दिखाई देगी।</string>
     <string name="split_rules_hint">नीचे किसी ट्रैफ़िक पर टैप करें ताकि वह टनल को बायपास कर स्थानीय रूप से रूट हो।</string>
+    <string name="split_rules_host_hint">ऊपर एक होस्ट जोड़ें, या नीचे किसी ट्रैफ़िक पर टैप करें ताकि वह टनल को बायपास कर स्थानीय रूप से रूट हो।</string>
     <string name="split_rules_info_note">अपवाद पूरे संबद्ध नेटवर्क क्लस्टर पर लागू होते हैं, इसलिए संबंधित ट्रैफ़िक एक साथ शामिल हो जाता है।</string>
     <string name="start_earning_join">कमाई शुरू करने के लिए, नेटवर्क से जुड़ें</string>
     <string name="stay">यहीं रहें</string>
