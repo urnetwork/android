@@ -17,14 +17,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,6 +55,9 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +68,9 @@ import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.utils.SplitRuleHostError
+import com.bringyour.network.utils.SplitRuleHostInput
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
@@ -215,6 +224,19 @@ fun SplitRulesScreen(
                  */
                 item(key = "rules-header") {
                     SectionHeader(stringResource(id = R.string.rules))
+                }
+
+                item(key = "add-rule-action") {
+                    AddRuleRow(
+                        enabled = blockActionsViewModel.canCreateRule,
+                        onClick = {
+                            editorTarget = RuleEditorTarget(
+                                candidates = emptyList(),
+                                selected = emptySet(),
+                                ruleId = null,
+                            )
+                        }
+                    )
                 }
 
                 if (rules.isEmpty()) {
@@ -614,7 +636,26 @@ private fun SplitRuleEditor(
 ) {
 
     var selected by remember { mutableStateOf(target.selected) }
+    var addedHosts by remember { mutableStateOf<List<String>>(emptyList()) }
+    var newHost by remember { mutableStateOf(TextFieldValue("")) }
     val isEditing = target.ruleId != null
+
+    val editableCandidates = remember(addedHosts, target.candidates) {
+        addedHosts + target.candidates
+    }
+
+    val validation = remember(newHost.text, editableCandidates) {
+        SplitRuleHostInput.validate(newHost.text, existing = editableCandidates)
+    }
+
+    val addTypedHost = {
+        val host = validation.normalized
+        if (host != null) {
+            addedHosts = listOf(host) + addedHosts
+            selected = selected + host
+            newHost = TextFieldValue("")
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -638,11 +679,62 @@ private fun SplitRuleEditor(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                URTextInput(
+                    value = newHost,
+                    onValueChange = { newHost = it },
+                    onDone = { addTypedHost() },
+                    placeholder = stringResource(id = R.string.split_rule_host_placeholder),
+                    label = null,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Uri,
+                        imeAction = ImeAction.Done,
+                        autoCorrectEnabled = false,
+                    ),
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = stringResource(id = R.string.add),
+                tint = if (validation.isAccepted) Green else TextFaint,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(enabled = validation.isAccepted) {
+                        addTypedHost()
+                    }
+            )
+        }
+
+        if (validation.error != null) {
+            Text(
+                splitRuleHostErrorMessage(validation.error),
+                style = MaterialTheme.typography.bodySmall,
+                color = Red,
+                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+            )
+        } else if (validation.note != null) {
+            Text(
+                stringResource(id = R.string.saved_as, validation.note),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         LazyColumn(
             modifier = Modifier.weight(1f, fill = false)
         ) {
             itemsIndexed(
-                target.candidates,
+                editableCandidates,
                 key = { index, host ->
                     indexedLazyListKey("rule-candidate", index, host)
                 }
@@ -678,14 +770,17 @@ private fun SplitRuleEditor(
 
         URButton(
             onClick = {
-                val hosts = target.candidates.filter { selected.contains(it) }
+                // a valid host still in the field is part of the rule: saving
+                // without tapping + must not silently drop it
+                val hosts = listOfNotNull(validation.normalized) +
+                    editableCandidates.filter { selected.contains(it) }
                 if (isEditing) {
                     onUpdate(target.ruleId!!, hosts)
                 } else {
                     onCreate(hosts)
                 }
             },
-            enabled = isEditing || selected.isNotEmpty()
+            enabled = isEditing || selected.isNotEmpty() || validation.isAccepted
         ) { buttonTextStyle ->
             Text(
                 stringResource(id = if (isEditing) R.string.update else R.string.create),
@@ -710,5 +805,44 @@ private fun SplitRuleEditor(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+    }
+}
+
+@Composable
+private fun AddRuleRow(
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = enabled) { onClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Add,
+            contentDescription = stringResource(id = R.string.add_a_rule),
+            tint = if (enabled) Green else TextFaint,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = stringResource(id = R.string.add_a_rule),
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (enabled) Green else TextFaint
+        )
+    }
+}
+
+@Composable
+private fun splitRuleHostErrorMessage(error: SplitRuleHostError): String {
+    return when (error) {
+        SplitRuleHostError.NotAscii -> stringResource(R.string.split_rule_error_not_ascii)
+        SplitRuleHostError.BadName -> stringResource(R.string.split_rule_error_bad_name)
+        SplitRuleHostError.BadWildcard -> stringResource(R.string.split_rule_error_bad_wildcard)
+        SplitRuleHostError.BadRange -> stringResource(R.string.split_rule_error_bad_range)
+        SplitRuleHostError.Duplicate -> stringResource(R.string.split_rule_error_duplicate)
+        is SplitRuleHostError.Covered -> stringResource(R.string.split_rule_error_covered, error.by)
     }
 }

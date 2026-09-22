@@ -78,3 +78,43 @@ fun migrateLegacyLogFiles(filesDir: File, processLogDir: File): Int {
     }
     return moved
 }
+
+/**
+ * Deletes only diagnostics log files.
+ *
+ * Scoped strictly to [logRootDir] (`<filesDir>/logs`) and legacy glog-named files
+ * (`urnetwork.host.user.log.<SEVERITY>.<time>.<pid>`). Never touches local state databases,
+ * preferences, or other non-log application files.
+ *
+ * Recreates the active process log directory so subsequent log writes succeed.
+ * Returns the count of deleted log files.
+ */
+fun clearDiagnosticsLogs(filesDir: File): Int {
+    var deletedCount = 0
+    val logRoot = logRootDir(filesDir)
+    if (logRoot.exists()) {
+        val files = logRoot.walkBottomUp().toList()
+        for (file in files) {
+            if (file.isFile) {
+                if (file.delete()) {
+                    deletedCount++
+                }
+            } else if (file != logRoot) {
+                file.delete()
+            }
+        }
+    }
+    // Clean any legacy glog files directly in filesDir (strictly matching isGlogFileName)
+    filesDir.listFiles()?.filter { it.isFile && isGlogFileName(it.name) }?.forEach { file ->
+        if (file.delete()) {
+            deletedCount++
+        }
+    }
+    // Re-create process log directory so glog can continue writing
+    val appLogDir = File(logRoot, APP_LOG_PROCESS_NAME)
+    if (!appLogDir.exists()) {
+        appLogDir.mkdirs()
+    }
+    return deletedCount
+}
+

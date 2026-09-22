@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.network.APP_LOG_PROCESS_NAME
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.clearDiagnosticsLogs
 import com.bringyour.network.R
 import com.bringyour.network.utils.formatByteCountCompact
 import com.bringyour.sdk.Exit
@@ -147,6 +148,10 @@ class DeveloperViewModel @Inject constructor(
 
     /** True while the inventory/availability snapshot is being read. */
     var refreshingDiagnostics by mutableStateOf(false)
+        private set
+
+    /** True while clearing diagnostics logs. */
+    var clearingLogs by mutableStateOf(false)
         private set
 
     /**
@@ -397,6 +402,27 @@ class DeveloperViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Clears only diagnostics logs off the main thread, leaving all application
+     * settings, databases, and preferences intact.
+     */
+    fun clearLogs(filesDir: File) {
+        if (clearingLogs) {
+            return
+        }
+        clearingLogs = true
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    clearDiagnosticsLogs(filesDir)
+                }
+                refreshDiagnostics()
+            } finally {
+                clearingLogs = false
+            }
+        }
+    }
+
     private fun readLogInventory(): List<LogRow> {
         val list = Sdk.logInventory()
         return (0 until list.len()).map { i ->
@@ -443,8 +469,7 @@ class DeveloperViewModel @Inject constructor(
      * extension), the network space sets this process AND records the choice
      * for the next launch, and the process-global setter is the last resort
      * that at least puts the choice in force for this session. Signed out
-     * there is no device and therefore -- see DeviceManager.networkSpace,
-     * which is `device?.networkSpace` -- no space through the device either,
+     * there is no device and therefore no space through the device either,
      * which is why the space is fetched from the provider.
      *
      * Read back from the sdk rather than assumed: it clamps out-of-range

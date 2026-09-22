@@ -87,4 +87,36 @@ class DiagnosticsLogLocationTest {
         // no destination directory is created for nothing
         assertFalse(processLogDir().exists())
     }
+
+    @Test
+    fun clearDiagnosticsLogsOnlyDeletesLogsAndPreservesStateFiles() {
+        val stateDb = File(filesDir, "localstate.db")
+        stateDb.writeText("important user settings and split rules")
+        val prefs = File(filesDir, "shared_prefs.xml")
+        prefs.writeText("user preferences")
+
+        val logDir = processLogDir()
+        logDir.mkdirs()
+        val appLog = File(logDir, "urnetwork.host.user.log.INFO.20260101-000000.1234")
+        appLog.writeText("log line")
+
+        val legacyLog = File(filesDir, "urnetwork.host.user.log.ERROR.20260101-000000.5678")
+        legacyLog.writeText("legacy log line")
+
+        val deleted = clearDiagnosticsLogs(filesDir)
+        assertEquals(2, deleted)
+
+        // Settings and non-log files MUST remain untouched
+        assertTrue("localstate.db must be preserved", stateDb.exists())
+        assertEquals("important user settings and split rules", stateDb.readText())
+        assertTrue("shared_prefs must be preserved", prefs.exists())
+
+        // Logs deleted
+        assertFalse(appLog.exists())
+        assertFalse(legacyLog.exists())
+
+        // Directory structure ready for new writes
+        assertTrue(logDir.exists())
+    }
 }
+

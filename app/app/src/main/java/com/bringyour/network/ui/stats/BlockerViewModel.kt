@@ -41,13 +41,14 @@ class BlockerViewModel @Inject constructor(
         private set
 
     init {
+        blockerEnabled = deviceManager.blockerEnabled
         processLifecycle.addObserver(this)
         subscriptionOwner.setForeground(
             processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         )
         removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
             viewModelScope.launch {
-                blockerEnabled = false
+                blockerEnabled = deviceManager.blockerEnabled
                 subscriptionOwner.setDevice(device)
             }
         }
@@ -82,10 +83,8 @@ class BlockerViewModel @Inject constructor(
     }
 
     val setBlockerEnabled: (Boolean) -> Unit = { enabled ->
-        deviceManager.device?.let { device ->
-            device.blockerEnabled = enabled
-            blockerEnabled = enabled
-        }
+        deviceManager.blockerEnabled = enabled
+        blockerEnabled = enabled
     }
 
     override fun onCleared() {
