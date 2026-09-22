@@ -123,6 +123,7 @@
     <string name="default_wallet">По умолчанию</string>
     <string name="delete">Удалить</string>
     <string name="delete_account">Удалить аккаунт</string>
+    <string name="delete_account_type_network_name">Введите %1$s для подтверждения.</string>
     <string name="device">Устройство</string>
     <string name="device_discoverable">Это устройство доступно для обнаружения</string>
     <string name="device_discoverable_as">Это устройство доступно для обнаружения как %1$s</string>

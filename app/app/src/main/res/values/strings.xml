@@ -157,6 +157,7 @@
     <string name="default_wallet">Default</string>
     <string name="delete">Delete</string>
     <string name="delete_account">Delete Account</string>
+    <string name="delete_account_type_network_name">Type %1$s to confirm.</string>
     <string name="dev_affinity_performance">Performance-aware affinity</string>
     <string name="dev_affinity_performance_detail">Weight new TLS races by each provider\'s peak acknowledged-byte rate relative to its advertised bandwidth. With hard affinity enabled, low measured donors yield to the race. Existing connections and explicit pins stay fixed</string>
     <string name="dev_affinity_sticky">Sticky site affinity</string>

@@ -123,6 +123,7 @@
     <string name="default_wallet">Výchozí</string>
     <string name="delete">Odstranit</string>
     <string name="delete_account">Odstranit účet</string>
+    <string name="delete_account_type_network_name">Pro potvrzení napište %1$s.</string>
     <string name="device">Zařízení</string>
     <string name="device_discoverable">Toto zařízení je viditelné pro ostatní</string>
     <string name="device_discoverable_as">Toto zařízení je viditelné jako %1$s</string>

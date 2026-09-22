@@ -123,6 +123,7 @@
     <string name="default_wallet">Chaguo msingi</string>
     <string name="delete">Futa</string>
     <string name="delete_account">Futa akaunti</string>
+    <string name="delete_account_type_network_name">Andika %1$s ili kuthibitisha.</string>
     <string name="device">Kifaa</string>
     <string name="device_discoverable">Kifaa hiki kinaweza kupatikana</string>
     <string name="device_discoverable_as">Kifaa hiki kinaweza kupatikana kama %1$s</string>

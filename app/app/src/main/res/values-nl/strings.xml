@@ -123,6 +123,7 @@
     <string name="default_wallet">Standaard</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_account">Verwijder Account</string>
+    <string name="delete_account_type_network_name">Typ %1$s om te bevestigen.</string>
     <string name="device">Apparaat</string>
     <string name="device_discoverable">Dit apparaat is vindbaar</string>
     <string name="device_discoverable_as">Dit apparaat is vindbaar als %1$s</string>

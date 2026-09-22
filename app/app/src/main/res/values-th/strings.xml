@@ -123,6 +123,7 @@
     <string name="default_wallet">ค่าเริ่มต้น</string>
     <string name="delete">ลบ</string>
     <string name="delete_account">ลบบัญชี</string>
+    <string name="delete_account_type_network_name">พิมพ์ %1$s เพื่อยืนยัน</string>
     <string name="device">อุปกรณ์</string>
     <string name="device_discoverable">อุปกรณ์นี้สามารถถูกค้นพบได้</string>
     <string name="device_discoverable_as">อุปกรณ์นี้สามารถถูกค้นพบในชื่อ %1$s</string>
