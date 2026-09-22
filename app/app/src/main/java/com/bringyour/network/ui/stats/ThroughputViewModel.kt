@@ -73,6 +73,7 @@ enum class ThroughputRoute {
  */
 data class TransportShareUi(
     val transportType: TransportTypeUi,
+    val h1PlusActive: Boolean = false,
     val egressBytes: Long = 0,
     val ingressBytes: Long = 0,
     val egressPackets: Long = 0,
@@ -161,6 +162,7 @@ data class TransportDistributionUi(
                     shares.add(
                         TransportShareUi(
                             transportType = transportType,
+                            h1PlusActive = transportType == TransportTypeUi.H1 && share.h1PlusConnectionCount > 0,
                             egressBytes = share.egressByteCount,
                             ingressBytes = share.ingressByteCount,
                             egressPackets = share.egressPacketCount,

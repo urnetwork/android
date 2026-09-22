@@ -11,6 +11,20 @@ import org.junit.Test
  */
 class TransportDistributionBarTest {
 
+    @Test
+    fun h1LabelFollowsNegotiatedCarrierAndFallback() {
+        val plain = TransportShareUi(TransportTypeUi.H1, enabled = true)
+        val upgraded = plain.copy(h1PlusActive = true)
+        assertEquals("H1", plain.transportType.productLabel(plain.h1PlusActive))
+        assertEquals("H1+", upgraded.transportType.productLabel(upgraded.h1PlusActive))
+        assertTrue(plain != upgraded) // publishing/dedup must not hide the label change
+        assertEquals(plain.transportType, upgraded.transportType)
+        val fallback = upgraded.copy(h1PlusActive = false)
+        assertEquals("H1", fallback.transportType.productLabel(fallback.h1PlusActive))
+        assertEquals(plain, fallback)
+        assertEquals("H3", TransportTypeUi.H3.productLabel(true))
+    }
+
     private val epsilon = 1e-4f
 
     @Test

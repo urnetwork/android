@@ -85,9 +85,12 @@ enum class TransportTypeUi(
      * not localized; the queued bucket is a plain word and is.
      */
     @Composable
-    fun label(): String {
-        return literalName ?: stringResource(id = labelRes ?: R.string.transport_queued)
+    fun label(h1PlusActive: Boolean = false): String {
+        return productLabel(h1PlusActive) ?: stringResource(id = labelRes ?: R.string.transport_queued)
     }
+
+    fun productLabel(h1PlusActive: Boolean = false): String? =
+        if (this == H1 && h1PlusActive) "H1+" else literalName
 
     val isSelectable: Boolean
         get() = selectable.contains(this)

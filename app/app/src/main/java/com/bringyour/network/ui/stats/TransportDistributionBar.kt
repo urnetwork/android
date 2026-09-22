@@ -317,7 +317,7 @@ private fun LegendItem(
         )
         Spacer(modifier = Modifier.width(5.dp))
         Text(
-            share.transportType.label(),
+            share.transportType.label(share.h1PlusActive),
             style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium),
             color = Color.White
         )
@@ -369,7 +369,7 @@ private fun UnusedRow(shares: List<TransportShareUi>) {
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        share.transportType.label(),
+                        share.transportType.label(share.h1PlusActive),
                         style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium),
                         color = TextFaint
                     )
