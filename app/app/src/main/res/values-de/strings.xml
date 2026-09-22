@@ -124,6 +124,7 @@
     <string name="default_wallet">Standard</string>
     <string name="delete">Löschen</string>
     <string name="delete_account">Konto löschen</string>
+    <string name="delete_account_type_network_name">Gib zur Bestätigung %1$s ein.</string>
     <string name="device">Gerät</string>
     <string name="device_discoverable">Dieses Gerät ist auffindbar</string>
     <string name="device_discoverable_as">Dieses Gerät ist auffindbar als %1$s</string>

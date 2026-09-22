@@ -124,6 +124,7 @@
     <string name="default_wallet">Padrão</string>
     <string name="delete">Excluir</string>
     <string name="delete_account">Excluir conta</string>
+    <string name="delete_account_type_network_name">Digite %1$s para confirmar.</string>
     <string name="device">Dispositivo</string>
     <string name="device_discoverable">Este dispositivo é detectável</string>
     <string name="device_discoverable_as">Este dispositivo é detectável como %1$s</string>

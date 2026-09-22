@@ -124,6 +124,7 @@
     <string name="default_wallet">Προεπιλογή</string>
     <string name="delete">Διαγραφή</string>
     <string name="delete_account">Διαγραφή λογαριασμού</string>
+    <string name="delete_account_type_network_name">Πληκτρολογήστε %1$s για επιβεβαίωση.</string>
     <string name="device">Συσκευή</string>
     <string name="device_discoverable">Αυτή η συσκευή είναι ανιχνεύσιμη</string>
     <string name="device_discoverable_as">Αυτή η συσκευή είναι ανιχνεύσιμη ως %1$s</string>

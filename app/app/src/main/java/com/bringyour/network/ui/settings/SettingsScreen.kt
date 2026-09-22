@@ -86,6 +86,9 @@ import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.components.URLinkText
 import com.bringyour.network.ui.components.URSwitch
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.components.URTextInput
@@ -300,6 +303,7 @@ fun SettingsScreen(
             editingDeviceName = TextFieldValue(settingsViewModel.deviceName)
             isPresentingRenameDevice = true
         },
+        networkName = networkUser?.networkName,
         showDeleteAccountDialog = showDeleteAccountDialog,
         setShowDeleteAccountDialog = settingsViewModel.setShowDeleteAccountDialog,
         deleteAccount = settingsViewModel.deleteAccount,
@@ -536,6 +540,7 @@ private fun SettingsScreen(
     deviceName: String = "",
     deviceSpec: String = "",
     onEditDeviceName: () -> Unit = {},
+    networkName: String? = null,
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
     showDeleteAccountDialog: Boolean,
     deleteAccount: (onSuccess: () -> Unit, onFailure: (Exception?) -> Unit) -> Unit,
@@ -1468,6 +1473,12 @@ private fun SettingsScreen(
         }
 
         if (showDeleteAccountDialog) {
+            // scoped to the dialog: closing it discards the entry, so the
+            // next open starts empty rather than pre-confirmed
+            var deleteConfirmText by remember { mutableStateOf(TextFieldValue("")) }
+            val requiresTypedName = DeleteAccountConfirmation.requiresTypedName(networkName)
+            val deleteConfirmed = DeleteAccountConfirmation.confirms(networkName, deleteConfirmText.text)
+
             BasicAlertDialog(
                 onDismissRequest = {
                     setShowDeleteAccountDialog(false)
@@ -1510,9 +1521,58 @@ private fun SettingsScreen(
                             )
                         }
 
+                        if (requiresTypedName) {
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Row {
+                                Text(
+                                    stringResource(
+                                        id = R.string.delete_account_type_network_name,
+                                        networkName ?: ""
+                                    ),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            URTextInput(
+                                value = deleteConfirmText,
+                                onValueChange = { deleteConfirmText = it },
+                                label = null,
+                                placeholder = networkName ?: "",
+                                // network names are lowercase identifiers;
+                                // an auto-capitalised or auto-corrected
+                                // entry would never match
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.None,
+                                    autoCorrectEnabled = false,
+                                    imeAction = ImeAction.Done
+                                ),
+                                enabled = !isDeletingAccount,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Row {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            URButton(
+                                onClick = {
+                                    setShowDeleteAccountDialog(false)
+                                },
+                                style = ButtonStyle.OUTLINE,
+                                modifier = Modifier.weight(1f)
+                            ) { buttonTextStyle ->
+                                Text(
+                                    stringResource(id = R.string.cancel),
+                                    style = buttonTextStyle
+                                )
+                            }
+
                             URButton(
                                 onClick = {
 
@@ -1536,8 +1596,9 @@ private fun SettingsScreen(
                                     )
                                 },
                                 style = ButtonStyle.WARNING,
-                                enabled = !isDeletingAccount,
-                                isProcessing = isDeletingAccount
+                                enabled = deleteConfirmed && !isDeletingAccount,
+                                isProcessing = isDeletingAccount,
+                                modifier = Modifier.weight(1f)
                             ) { buttonTextStyle ->
                                 Text(
                                     stringResource(id = R.string.delete_account),
@@ -1784,6 +1845,7 @@ private fun SettingsScreenDeleteAccountDialogPreview() {
             toggleAllowProductUpdates = {},
             provideControlMode = ProvideControlMode.AUTO,
             setProvideControlMode = {},
+            networkName = "ur_network",
             showDeleteAccountDialog = true,
             setShowDeleteAccountDialog = {},
             deleteAccount = { onSuccess, onFailure -> },

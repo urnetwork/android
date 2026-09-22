@@ -124,6 +124,7 @@
     <string name="default_wallet">الافتراضي</string>
     <string name="delete">حذف</string>
     <string name="delete_account">حذف الحساب</string>
+    <string name="delete_account_type_network_name">اكتب %1$s للتأكيد.</string>
     <string name="device">الجهاز</string>
     <string name="device_discoverable">هذا الجهاز قابل للاكتشاف</string>
     <string name="device_discoverable_as">هذا الجهاز قابل للاكتشاف باسم %1$s</string>

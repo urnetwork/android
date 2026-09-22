@@ -124,6 +124,7 @@
     <string name="default_wallet">Domyślny</string>
     <string name="delete">Usuń</string>
     <string name="delete_account">Usuń konto</string>
+    <string name="delete_account_type_network_name">Wpisz %1$s, aby potwierdzić.</string>
     <string name="device">Urządzenie</string>
     <string name="device_discoverable">To urządzenie jest wykrywalne</string>
     <string name="device_discoverable_as">To urządzenie jest wykrywalne jako %1$s</string>

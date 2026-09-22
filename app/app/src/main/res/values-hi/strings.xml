@@ -124,6 +124,7 @@
     <string name="default_wallet">डिफ़ॉल्ट</string>
     <string name="delete">डिलीट करें</string>
     <string name="delete_account">अकाउंट डिलीट करें</string>
+    <string name="delete_account_type_network_name">पुष्टि करने के लिए %1$s टाइप करें।</string>
     <string name="device">डिवाइस</string>
     <string name="device_discoverable">यह डिवाइस खोजा जा सकता है</string>
     <string name="device_discoverable_as">यह डिवाइस %1$s के रूप में खोजा जा सकता है</string>
