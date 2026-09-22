@@ -33,7 +33,7 @@ import com.bringyour.network.ui.theme.Yellow
 
 /**
  * The extender panel of the connect drawer (EXTENDER.md K4), under the IP
- * family histogram: one hollow ring per extender carrying a live connection
+ * family status row: one hollow ring per extender carrying a live connection
  * right now, the active-of-reserve count, and the gossip network's state with
  * the rate of records and revocations it applied in the trailing minute.
  * Tapping does nothing yet.
@@ -45,8 +45,7 @@ import com.bringyour.network.ui.theme.Yellow
 private val RING_SIZE = 12.dp
 private val RING_SPACING = 4.dp
 private val STATUS_DOT_SIZE = 8.dp
-// the fixed width of the row labels, so both rows share one left edge as the
-// histogram's rows above do
+// the fixed width of the row labels, so both rows share one left edge
 private val LABEL_WIDTH = 108.dp
 
 /** One known extender as the panel reads it, from the sdk's `ExtenderInfo`. */
@@ -141,7 +140,7 @@ fun ExtenderPanel(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        // title, styled like the histogram's and the transport bar's
+        // title, styled like the transport bar's
         Text(
             stringResource(id = R.string.extenders),
             style = labelStyle,

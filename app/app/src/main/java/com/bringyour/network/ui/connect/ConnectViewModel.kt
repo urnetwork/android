@@ -78,9 +78,9 @@ constructor(
     var providerGridPoints by mutableStateOf<Map<Id, ProviderGridPoint>>(mapOf())
         private set
 
-    // the same providers as plain data for the connect drawer's IP version
-    // histogram (the sdk category and whether the provider is added), derived
-    // with the grid so the two views always describe one snapshot
+    // the same providers as plain data for the connect drawer's IP family
+    // status row (the sdk state and category), derived with the grid so the
+    // two views always describe one snapshot
     var ipFamilyPoints by mutableStateOf<List<IpFamilyPoint>>(listOf())
         private set
 
@@ -322,7 +322,7 @@ constructor(
             signature.append(newWindowCurrentSize).append(';')
             // the family is in the signature: a local downgrade changes a
             // provider's category without changing its state or position, and
-            // the histogram must follow it. the extender colors are in it for
+            // the status row must follow it. the extender colors are in it for
             // the same reason: a transport migration changes the rings on a
             // dot that has not otherwise moved (K2)
             newProviderGridPoints.values
@@ -350,10 +350,8 @@ constructor(
 
         val newIpFamilyPoints = newProviderGridPoints.values.map { point ->
             IpFamilyPoint(
-                clientId = point.clientId.idStr,
+                state = point.state,
                 ipFamily = point.ipFamily,
-                added = ProviderPointState.fromString(point.state) == ProviderPointState.ADDED,
-                extenderColorHexes = point.extenderColorHexes,
             )
         }
 

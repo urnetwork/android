@@ -72,11 +72,10 @@ fun ConnectStatsSections(
     blockActionsViewModel: BlockActionsViewModel,
     dnsSettingsViewModel: DnsSettingsViewModel,
     blockerViewModel: BlockerViewModel,
-    // the window's providers by IP version and the connect widget's live
-    // grid width, for the histogram under the transport bar
+    // the window's providers with their state and IP version, for the
+    // family status row under the transport bar
     ipFamilyPoints: List<IpFamilyPoint> = listOf(),
-    gridWidth: Int? = null,
-    // the device's extender network, for the panel under the histogram
+    // the device's extender network, for the panel under the status row
     extenderStatusViewModel: ExtenderStatusViewModel = hiltViewModel(),
 ) {
 
@@ -115,13 +114,11 @@ fun ConnectStatsSections(
         Spacer(modifier = Modifier.height(12.dp))
 
         /**
-         * The window's providers by the IP version they carry, one dot per
-         * provider at the connect widget's dot size, under the transports.
+         * The window's providers by the IP version they carry: Dualstack,
+         * IPv4 and IPv6 columns, each with its connected and connecting
+         * counts, under the transports.
          */
-        IpFamilyHistogram(
-            points = ipFamilyPoints,
-            gridWidth = gridWidth,
-        )
+        IpFamilyStatusRow(points = ipFamilyPoints)
 
         Spacer(modifier = Modifier.height(12.dp))
 

@@ -9,8 +9,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
-import com.bringyour.network.ui.stats.IpFamilyRowKind
-import com.bringyour.network.ui.stats.labelResId
+import com.bringyour.network.ui.stats.IpFamilyColumn
+import com.bringyour.network.ui.stats.tagResId
 import com.bringyour.network.ui.theme.MainBorderBase
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -387,7 +387,7 @@ private fun ProviderDot(color: Color, selected: Boolean) {
 
 /**
  * The IP versions a provider carries, as a small muted tag: "both", "v4" or
- * "v6" from the sdk's label, localized like the histogram rows.
+ * "v6" from the sdk's label, the short form of the status row's columns.
  */
 @Composable
 private fun IpFamilyTag(row: ProviderLocationRow) {
@@ -404,7 +404,7 @@ private fun IpFamilyTag(row: ProviderLocationRow) {
 
 /** The label resource for a row's IP family tag; legacy and unknown read as v4. */
 fun ipFamilyTagResId(row: ProviderLocationRow): Int =
-    IpFamilyRowKind.fromLabel(row.ipFamilyLabel).labelResId()
+    IpFamilyColumn.fromLabel(row.ipFamilyLabel).tagResId()
 
 /** "City, Region, Country" — omitting whichever parts the server does not know. */
 fun placeLabel(row: ProviderLocationRow): String =

@@ -16,8 +16,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  * neighbor — the filled dot shrinks inward by 4 dp per ring instead. At most
  * three rings are drawn; four or more collapse into a dashed third ring.
  *
- * The connect widget and the drawer's IP family histogram both draw through
- * here, so the two views stay identical at their own dot sizes.
+ * The connect widget draws through here at its own dot size.
  */
 
 // K2's stroke and gap. A ring therefore costs 4 dp of dot radius.

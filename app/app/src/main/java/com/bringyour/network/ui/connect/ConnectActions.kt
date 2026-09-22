@@ -99,10 +99,9 @@ fun ConnectActions(
     blockActionsViewModel: BlockActionsViewModel,
     dnsSettingsViewModel: DnsSettingsViewModel,
     blockerViewModel: BlockerViewModel,
-    // the window's providers by IP version, and the connect widget's live
-    // grid width, for the histogram under the transport bar
+    // the window's providers with their state and IP version, for the
+    // family status row under the transport bar
     ipFamilyPoints: List<IpFamilyPoint>,
-    gridWidth: Int?,
     // opens the referral flow from the usage bar referral row
     onReferralClick: () -> Unit,
     // Reports the local integer Y offset of the fold marker placed right after
@@ -413,7 +412,6 @@ fun ConnectActions(
             dnsSettingsViewModel = dnsSettingsViewModel,
             blockerViewModel = blockerViewModel,
             ipFamilyPoints = ipFamilyPoints,
-            gridWidth = gridWidth,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

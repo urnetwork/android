@@ -439,8 +439,9 @@
     <string name="invalid_solana_address">That is not a valid Solana address.</string>
     <string name="invalid_ss58_address">That is not a valid Bittensor address.</string>
     <string name="ip_address">IP address</string>
-    <string name="ip_families">IP versions</string>
     <string name="ip_family_both">Both</string>
+    <string name="ip_family_disconnected">disconnected</string>
+    <string name="ip_family_dualstack">Dualstack</string>
     <string name="ip_family_v4">v4</string>
     <string name="ip_family_v6">v6</string>
     <string name="ipv4">IPv4</string>
@@ -946,6 +947,14 @@
     <plurals name="ip_count">
         <item quantity="one">%1$d IP</item>
         <item quantity="other">%1$d IPs</item>
+    </plurals>
+    <plurals name="ip_family_connected_count">
+        <item quantity="one">%1$d connected</item>
+        <item quantity="other">%1$d connected</item>
+    </plurals>
+    <plurals name="ip_family_connecting_count">
+        <item quantity="one">%1$d connecting</item>
+        <item quantity="other">%1$d connecting</item>
     </plurals>
     <plurals name="network_peer_count">
         <item quantity="one">You have %1$d other device online</item>

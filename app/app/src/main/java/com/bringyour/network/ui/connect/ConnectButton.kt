@@ -244,8 +244,7 @@ private fun ConnectingButtonContent(
 }
 
 // The provider grid canvas side: slightly smaller than the widget so points
-// don't rub against the mask edges. Shared with the connect drawer's IP
-// version histogram, whose dots must be the size of the widget's points.
+// don't rub against the mask edges.
 val CONNECT_GRID_CANVAS_SIZE = 248.dp
 // the gap between adjacent points, in pixels
 const val CONNECT_GRID_POINT_PADDING_PX = 1f
