@@ -45,6 +45,13 @@ instrumentation exit before an ownership-checked force-stop. The host records
 misreported as an app crash merely because later cleanup stopped the process.
 Missing terminal receipts still fail the arm and require a fresh run.
 
+Reusing the peer emulator requires both exact live-child ownership and a fresh
+bounded boot, shipping API/ABI, interactive-state, and network readiness pass
+before package or credential changes. Ownership alone never qualifies a peer
+whose previous readiness failed. Every pass retains its own
+`peer-emulator/readiness-attempt.*/` receipts; the top-level `readiness.txt` and
+`interactive.txt` show the latest attempt without erasing earlier failures.
+
 The deterministic interruption, ownership, terminal-receipt, and teardown
 controls run without devices or network access:
 

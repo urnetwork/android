@@ -1272,34 +1272,53 @@ write_target_diagnostic() {
 }
 
 boot_peer_emulator() {
-  local port=""
+  local port="" readiness_attempt readiness_status=1
   if [ -n "$peer_serial" ] || [ -n "$peer_emulator_pid" ]; then
-    if runner_owns_peer_emulator; then
-      return 0
+    if ! runner_owns_peer_emulator; then
+      echo "existing peer emulator no longer proves ownership by this acceptance invocation" >&2
+      return 1
     fi
-    echo "existing peer emulator no longer proves ownership by this acceptance invocation" >&2
-    return 1
+  else
+    port="$(available_emulator_console_port 5556 5584 || true)"
+    if [ -z "$port" ]; then
+      echo "no free Android emulator console port for peer-to-peer acceptance" >&2
+      return 1
+    fi
+    peer_serial="emulator-$port"
+    peer_emulator_owner_token="peer-${timestamp}-$$-$RANDOM"
+    peer_args=(-avd "$avd_name" -read-only -gpu host -port "$port" -no-snapshot -no-boot-anim -netdelay none -netspeed full)
+    [ "$headless" -eq 1 ] && peer_args+=(-no-window)
+    mkdir -p "$artifacts/peer-emulator" || return 1
+    run_android_acceptance_shared_avd_emulator \
+      "$emulator" "$artifacts/peer-emulator/emulator.log" \
+      "$peer_emulator_owner_token" "${peer_args[@]}" &
+    peer_emulator_pid=$!
   fi
-  port="$(available_emulator_console_port 5556 5584 || true)"
-  if [ -z "$port" ]; then
-    echo "no free Android emulator console port for peer-to-peer acceptance" >&2
-    return 1
-  fi
-  peer_serial="emulator-$port"
-  peer_emulator_owner_token="peer-${timestamp}-$$-$RANDOM"
-  peer_args=(-avd "$avd_name" -read-only -gpu host -port "$port" -no-snapshot -no-boot-anim -netdelay none -netspeed full)
-  [ "$headless" -eq 1 ] && peer_args+=(-no-window)
-  mkdir -p "$artifacts/peer-emulator"
-  run_android_acceptance_shared_avd_emulator \
-    "$emulator" "$artifacts/peer-emulator/emulator.log" \
-    "$peer_emulator_owner_token" "${peer_args[@]}" &
-  peer_emulator_pid=$!
-  if ! ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$peer_emulator_owner_token" \
+
+  # A live owned child may never have completed readiness, or may have lost
+  # API/network access since the last flavor. Re-run the bounded preparation
+  # before any package/credential mutation on every reuse. Keep each attempt
+  # so recovery cannot overwrite the first failure's diagnostic evidence.
+  mkdir -p "$artifacts/peer-emulator" || return 1
+  readiness_attempt="$(mktemp -d "$artifacts/peer-emulator/readiness-attempt.XXXXXX")" || return 1
+  : >"$readiness_attempt/readiness.txt" || return 1
+  : >"$readiness_attempt/interactive.txt" || return 1
+  if ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$peer_emulator_owner_token" \
       android_acceptance_prepare_owned_emulator \
       "$adb" "$peer_serial" "$avd_name" "$peer_emulator_pid" \
-      "$run_dir/peer-device" "$artifacts/peer-emulator/readiness.txt" \
-      "$artifacts/peer-emulator/interactive.txt"; then
-    echo "peer Android emulator did not become ready; see $artifacts/peer-emulator/readiness.txt" >&2
+      "$run_dir/peer-device" "$readiness_attempt/readiness.txt" \
+      "$readiness_attempt/interactive.txt"; then
+    if [ -f "$readiness_attempt/readiness.txt" ] && \
+       [ ! -L "$readiness_attempt/readiness.txt" ] && \
+       [ "$(cat "$readiness_attempt/readiness.txt")" = status=ready ]; then
+      readiness_status=0
+    fi
+  fi
+  printf 'exit_status=%s\n' "$readiness_status" >"$readiness_attempt/result.txt" || return 1
+  cp "$readiness_attempt/readiness.txt" "$artifacts/peer-emulator/readiness.txt" || return 1
+  cp "$readiness_attempt/interactive.txt" "$artifacts/peer-emulator/interactive.txt" || return 1
+  if [ "$readiness_status" -ne 0 ]; then
+    echo "peer Android emulator did not become ready; see $readiness_attempt/readiness.txt" >&2
     return 1
   fi
 }

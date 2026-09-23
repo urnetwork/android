@@ -9,10 +9,154 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-p2p.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
 
-for helper in collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
+for helper in boot_peer_emulator run_android_peer_to_peer collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
   # Only named production function definitions are loaded, never runner startup.
   # shellcheck disable=SC2294
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
+done
+
+# Ownership is necessary but is not evidence of completed readiness. Model the
+# retained MAIN failure: initial API discovery fails, then a later flavor tries
+# to reuse the same live peer. Neither stale failure nor stale success may
+# replace a fresh boot/API/ABI/interactive/network preparation pass.
+(
+  artifacts="$fixture/peer-readiness"
+  run_dir="$fixture/peer-readiness-state"
+  adb=never-contact-adb
+  serial=emulator-5554
+  avd_name=urnetwork-acceptance
+  peer_serial=emulator-5556
+  peer_emulator_pid=424242
+  peer_emulator_owner_token=peer-fixture-owner
+  ownership_valid=1
+  ownership_checks=0
+  readiness_checks=0
+  app_mutations=0
+  readiness_state=api-unavailable
+  mkdir -p "$artifacts/peer-emulator" "$run_dir"
+  printf 'status=api-unavailable\n' >"$artifacts/peer-emulator/readiness.txt"
+  runner_owns_peer_emulator() {
+    ownership_checks=$((ownership_checks + 1))
+    [ "$ownership_valid" = 1 ] && [ -n "$peer_serial" ] && [ -n "$peer_emulator_pid" ]
+  }
+  available_emulator_console_port() { fail "reused peer attempted to reserve a new port"; }
+  run_android_acceptance_shared_avd_emulator() { fail "reused peer attempted a new emulator launch"; }
+  android_acceptance_prepare_owned_emulator() {
+    [ "$#" = 7 ] || fail "peer preparation changed its bounded default contract"
+    [ "$1:$2:$3:$4" = "never-contact-adb:emulator-5556:urnetwork-acceptance:424242" ] || \
+      fail "peer preparation lost its exact device/child identity"
+    [ "$ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN" = peer-fixture-owner ] || \
+      fail "peer preparation lost the live instance ownership token"
+    [ "$5" = "$run_dir/peer-device" ] || fail "peer network cleanup state changed owner"
+    readiness_checks=$((readiness_checks + 1))
+    [ "$readiness_state" != missing-receipt ] || return 0
+    printf 'status=%s\n' "$readiness_state" >"$6"
+    printf 'result=%s\n' "$readiness_state" >"$7"
+    [ "$readiness_state" = ready ]
+  }
+  # Load the production P2P caller too: preparation failure must stop before
+  # package removal, install, credential staging or instrumentation.
+  uninstall_acceptance_packages() { app_mutations=$((app_mutations + 1)); return 1; }
+  cleanup_physical_sessions() { return 1; }
+  android_acceptance_install_cell_apks() { fail "failed readiness reached APK installation"; }
+  install_private_file_on() { fail "failed readiness reached credential staging"; }
+  : >"$fixture/readiness-app.apk"
+  : >"$fixture/readiness-test.apk"
+  result=0
+  run_android_peer_to_peer \
+    "$artifacts/failed-cell" "$fixture/readiness-app.apk" "$fixture/readiness-test.apk" client-build \
+    "$fixture/readiness-app.apk" "$fixture/readiness-test.apk" provider-build device-002 || result=$?
+  [ "$result:$readiness_checks:$app_mutations" = 1:1:0 ] || \
+    fail "owned peer with stale api-unavailable readiness bypassed preparation before app mutation"
+
+  readiness_state=ready
+  boot_peer_emulator || fail "same owned peer could not recover for the next flavor"
+  [ "$readiness_checks" = 2 ] || fail "recovered peer did not repeat readiness"
+  [ "$(cat "$artifacts/peer-emulator/readiness.txt")" = status=ready ] || \
+    fail "recovered peer did not publish current readiness"
+  boot_peer_emulator || fail "healthy peer reuse was rejected"
+  [ "$readiness_checks" = 3 ] || fail "successful prior readiness bypassed reuse validation"
+
+  readiness_state=api-unavailable
+  if boot_peer_emulator; then fail "stale ready receipt allowed a newly unavailable peer"; fi
+  [ "$readiness_checks" = 4 ] || fail "new readiness failure was not sampled"
+  receipt_count="$(find "$artifacts/peer-emulator" -type f -path '*/readiness-attempt.*/readiness.txt' | wc -l | tr -d ' ')"
+  [ "$receipt_count" = 4 ] || fail "peer readiness attempts were not retained separately"
+  failed_receipt_count="$(find "$artifacts/peer-emulator" -type f -path '*/readiness-attempt.*/readiness.txt' \
+    -exec grep -l '^status=api-unavailable$' {} \; | wc -l | tr -d ' ')"
+  [ "$failed_receipt_count" = 2 ] || fail "later readiness erased original API failure evidence"
+
+  ownership_valid=0
+  if boot_peer_emulator; then fail "unowned existing peer was accepted"; fi
+  [ "$readiness_checks:$app_mutations" = 4:0 ] || fail "unowned peer was prepared or mutated"
+  ownership_valid=1
+  peer_emulator_pid=''
+  if boot_peer_emulator; then fail "partial peer identity was accepted"; fi
+  [ "$readiness_checks:$app_mutations" = 4:0 ] || fail "incomplete identity reached preparation or app mutation"
+  [ "$ownership_checks" = 6 ] || fail "peer reuse skipped exact ownership verification"
+  peer_serial=''
+  peer_emulator_pid=424242
+  if boot_peer_emulator; then fail "orphaned peer PID was accepted"; fi
+  [ "$readiness_checks:$app_mutations" = 4:0 ] || fail "orphaned peer PID reached preparation or app mutation"
+  peer_serial=emulator-5556
+  readiness_state=missing-receipt
+  if boot_peer_emulator; then fail "zero preparation exit without a current readiness receipt passed"; fi
+  [ "$readiness_checks:$ownership_checks:$app_mutations" = 5:8:0 ] || \
+    fail "missing current readiness receipt did not fail closed"
+  [ ! -s "$artifacts/peer-emulator/readiness.txt" ] || \
+    fail "missing current receipt published stale readiness"
+) || fail "peer-emulator readiness reuse gate"
+
+# The same preparation boundary must still handle a newly launched exact
+# child. This launcher is an immediately exiting shell child, never an AVD.
+for readiness_state in ready api-unavailable; do
+  (
+    artifacts="$fixture/peer-fresh-$readiness_state"
+    run_dir="$fixture/peer-fresh-state-$readiness_state"
+    peer_serial=''
+    peer_emulator_pid=''
+    peer_emulator_owner_token=''
+    timestamp=fixture-time
+    headless=1
+    emulator=never-contact-emulator
+    adb=never-contact-adb
+    avd_name=urnetwork-acceptance
+    readiness_checks=0
+    available_emulator_console_port() {
+      [ "$1:$2" = 5556:5584 ] || fail "fresh peer port range changed"
+      printf '5556\n'
+    }
+    runner_owns_peer_emulator() { fail "fresh peer was classified as a reused child"; }
+    run_android_acceptance_shared_avd_emulator() {
+      [ "$1" = never-contact-emulator ] || fail "fresh peer selected a real emulator"
+      [ "$2" = "$artifacts/peer-emulator/emulator.log" ] || fail "fresh peer lost launch diagnostics"
+      case "$3" in peer-fixture-time-*) ;; *) fail "fresh peer lacks its unique ownership token" ;; esac
+      shift 3
+      [ "$*" = '-avd urnetwork-acceptance -read-only -gpu host -port 5556 -no-snapshot -no-boot-anim -netdelay none -netspeed full -no-window' ] || \
+        fail "fresh peer launch changed its read-only/headless/host-renderer contract"
+      printf 'launched\n' >"$artifacts/launch.txt"
+    }
+    android_acceptance_prepare_owned_emulator() {
+      [ "$1:$2:$3:$4" = "never-contact-adb:emulator-5556:urnetwork-acceptance:$peer_emulator_pid" ] || \
+        fail "fresh peer preparation lost the exact launched child"
+      [ -n "$peer_emulator_pid" ] && [ "$ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN" = "$peer_emulator_owner_token" ] || \
+        fail "fresh peer preparation lacks its PID/token pair"
+      readiness_checks=$((readiness_checks + 1))
+      printf 'status=%s\n' "$readiness_state" >"$6"
+      printf 'result=%s\n' "$readiness_state" >"$7"
+      [ "$readiness_state" = ready ]
+    }
+    result=0
+    boot_peer_emulator || result=$?
+    wait "$peer_emulator_pid" || fail "fake peer launcher failed"
+    [ "$(cat "$artifacts/launch.txt")" = launched ] || fail "fresh peer did not launch"
+    [ "$peer_serial:$readiness_checks" = emulator-5556:1 ] || fail "fresh peer did not prepare exactly once"
+    if [ "$readiness_state" = ready ]; then
+      [ "$result" = 0 ] || fail "ready fresh peer rejected"
+    else
+      [ "$result" = 1 ] || fail "unready fresh peer accepted"
+    fi
+  ) || fail "fresh peer readiness control: $readiness_state"
 done
 
 (
