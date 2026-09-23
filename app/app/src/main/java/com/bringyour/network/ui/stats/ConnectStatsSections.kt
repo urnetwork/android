@@ -3,6 +3,7 @@ package com.bringyour.network.ui.stats
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -31,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
@@ -116,20 +118,27 @@ fun ConnectStatsSections(
         /**
          * The window's providers by the IP version they carry: Dualstack,
          * IPv4 and IPv6 columns, each with its connected and connecting
-         * counts, under the transports.
+         * counts, under the transports. Tapping it does nothing.
          */
-        IpFamilyStatusRow(points = ipFamilyPoints)
+        IpFamilyStatusRow(
+            points = ipFamilyPoints,
+            modifier = Modifier.blocksCardTap(),
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         /**
          * The extenders carrying this client right now, the usable reserve
          * behind them and the gossip network's state, under the families.
-         * Nothing to show until a space runs an extender network.
+         * Nothing to show until a space runs an extender network. Tapping it
+         * does nothing.
          */
         val extenderPanel = extenderStatusViewModel.panel
         if (extenderPanel.present) {
-            ExtenderPanel(panel = extenderPanel)
+            ExtenderPanel(
+                panel = extenderPanel,
+                modifier = Modifier.blocksCardTap(),
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
         }
@@ -629,3 +638,11 @@ private fun StatsCard(
         content()
     }
 }
+
+/**
+ * Keeps a tap on an informational panel inside a stats card from opening the
+ * card's details. The panel sees the pointer before the card's clickable, like
+ * the transport bar, and consumes the tap without doing anything with it.
+ */
+private fun Modifier.blocksCardTap(): Modifier =
+    pointerInput(Unit) { detectTapGestures(onTap = {}) }
