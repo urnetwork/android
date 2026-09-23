@@ -715,7 +715,7 @@ fun LoginInitialActions(
 
             if (!loginError.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
-                URInlineErrorText(loginError)
+                URInlineErrorText(loginError, Modifier.testTag("acceptance.password.discovery-error"))
             }
 
             Spacer(modifier = Modifier.height(16.dp))

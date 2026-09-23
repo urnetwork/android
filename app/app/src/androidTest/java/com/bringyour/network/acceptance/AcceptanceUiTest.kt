@@ -31,6 +31,53 @@ class AcceptanceUiTest {
     val compose = createComposeRule()
 
     @Test
+    fun passwordDiscoveryErrorFailsBeforeTimeoutWithFinitePreTeardownEvidence() {
+        compose.setContent {
+            Text("User form", Modifier.testTag(PASSWORD_LOGIN_USER_TAG))
+            Text("Private server response", Modifier.testTag(PASSWORD_LOGIN_DISCOVERY_ERROR_TAG))
+        }
+
+        val failure = runCatching {
+            ComposePasswordLoginUi(compose).waitForTag(PASSWORD_LOGIN_INPUT_TAG, 1_000)
+        }.exceptionOrNull() as PasswordLoginFailureException
+        assertEquals(PasswordLoginStage.DISCOVERY, failure.stage)
+        assertEquals(PasswordLoginFailure.DISCOVERY_FAILED, failure.failure)
+        assertEquals(PasswordLoginDiscoveryEvidence(true, false, true), failure.evidence)
+        assertFalse(failure.toString().contains("Private server response"))
+        assertEquals(null, failure.cause)
+    }
+
+    @Test
+    fun passwordDiscoveryPendingTimesOutWithoutInventingATerminalApiError() {
+        compose.setContent { Text("User form", Modifier.testTag(PASSWORD_LOGIN_USER_TAG)) }
+
+        val failure = runCatching {
+            ComposePasswordLoginUi(compose).waitForTag(PASSWORD_LOGIN_INPUT_TAG, 100)
+        }.exceptionOrNull() as PasswordLoginFailureException
+        assertEquals(PasswordLoginFailure.DISCOVERY_TIMEOUT, failure.failure)
+        assertEquals(PasswordLoginDiscoveryEvidence(true, false, false), failure.evidence)
+    }
+
+    @Test
+    fun passwordDiscoveryProceedsOnlyOnThePasswordFormWithoutAnError() {
+        compose.setContent { Text("Password form", Modifier.testTag(PASSWORD_LOGIN_INPUT_TAG)) }
+        ComposePasswordLoginUi(compose).waitForTag(PASSWORD_LOGIN_INPUT_TAG, 1_000)
+    }
+
+    @Test
+    fun passwordDiscoveryFailsClosedIfAnErrorAndPasswordFormCoexist() {
+        compose.setContent {
+            Text("Password form", Modifier.testTag(PASSWORD_LOGIN_INPUT_TAG))
+            Text("Error", Modifier.testTag(PASSWORD_LOGIN_DISCOVERY_ERROR_TAG))
+        }
+        val failure = runCatching {
+            ComposePasswordLoginUi(compose).waitForTag(PASSWORD_LOGIN_INPUT_TAG, 1_000)
+        }.exceptionOrNull() as PasswordLoginFailureException
+        assertEquals(PasswordLoginFailure.DISCOVERY_FAILED, failure.failure)
+        assertEquals(PasswordLoginDiscoveryEvidence(false, true, true), failure.evidence)
+    }
+
+    @Test
     fun actionWaitsForEnablingRecomposition() {
         val enabled = mutableStateOf(false)
         var clickCount = 0

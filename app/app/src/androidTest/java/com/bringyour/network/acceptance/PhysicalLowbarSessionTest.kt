@@ -760,6 +760,21 @@ class PhysicalLowbarSessionTest {
                 extra.put("stage", startupFailure.stage.wireValue)
                 extra.put("failure", startupFailure.failure.wireValue)
             }
+            error is PasswordLoginFailureException -> {
+                // LoggedOut is expected until password authentication starts;
+                // it is not evidence that logout caused a discovery/UI error.
+                extra.put("stage", error.stage.wireValue)
+                extra.put("failure", error.failure.wireValue)
+                error.evidence?.let { evidence ->
+                    extra.put(
+                        "loginUiBeforeTeardown",
+                        JSONObject()
+                            .put("userFormVisible", evidence.userFormVisible)
+                            .put("passwordFormVisible", evidence.passwordFormVisible)
+                            .put("discoveryErrorVisible", evidence.errorVisible),
+                    )
+                }
+            }
             startupState is LoginStartupState.Pending -> {
                 extra.put("stage", startupState.stage.wireValue)
                 extra.put("failure", "startup-timeout")

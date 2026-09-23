@@ -1,6 +1,7 @@
 package com.bringyour.network.acceptance
 
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -13,6 +14,10 @@ internal class ComposePasswordLoginUi(
     private val compose: ComposeTestRule,
 ) : PasswordLoginUi {
     override fun waitForTag(tag: String, timeoutMillis: Long) {
+        if (tag == PASSWORD_LOGIN_INPUT_TAG) {
+            waitForPasswordDiscovery(timeoutMillis)
+            return
+        }
         try {
             compose.waitUntil(timeoutMillis) {
                 compose.onAllNodesWithTag(tag, useUnmergedTree = true)
@@ -23,6 +28,44 @@ internal class ComposePasswordLoginUi(
             throw AssertionError(
                 "Timed out waiting for UI tag $tag after ${timeoutMillis / 1_000}s",
                 error,
+            )
+        }
+    }
+
+    private fun hasTag(tag: String): Boolean =
+        compose.onAllNodesWithTag(tag, useUnmergedTree = true)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .isNotEmpty()
+
+    /** Observe terminal errors while the app is still alive, not after cleanup. */
+    private fun waitForPasswordDiscovery(timeoutMillis: Long) {
+        var evidence: PasswordLoginDiscoveryEvidence? = null
+        var result = PasswordLoginDiscoveryState.PENDING
+        try {
+            compose.waitUntil(timeoutMillis) {
+                val observed = PasswordLoginDiscoveryEvidence(
+                    userFormVisible = hasTag(PASSWORD_LOGIN_USER_TAG),
+                    passwordFormVisible = hasTag(PASSWORD_LOGIN_INPUT_TAG),
+                    errorVisible = hasTag(PASSWORD_LOGIN_DISCOVERY_ERROR_TAG),
+                )
+                evidence = observed
+                result = passwordLoginDiscoveryState(observed)
+                result != PasswordLoginDiscoveryState.PENDING
+            }
+        } catch (error: Throwable) {
+            throw PasswordLoginFailureException(
+                PasswordLoginStage.DISCOVERY,
+                if (error is ComposeTimeoutException) PasswordLoginFailure.DISCOVERY_TIMEOUT
+                else PasswordLoginFailure.DISCOVERY_OBSERVATION_FAILED,
+                evidence,
+                error,
+            )
+        }
+        if (result == PasswordLoginDiscoveryState.FAILED) {
+            throw PasswordLoginFailureException(
+                PasswordLoginStage.DISCOVERY,
+                PasswordLoginFailure.DISCOVERY_FAILED,
+                evidence,
             )
         }
     }

@@ -64,6 +64,48 @@ test("classifies exact bounded login failure as terminal", () => {
   }, "0", "ready"), "terminal-error");
 });
 
+test("classifies finite pre-password UI failures without inventing logout or success", () => {
+  const cases = [
+    ["auth-user-form", "ui-action-failed"],
+    ["auth-discovery", "ui-action-failed"],
+    ["auth-discovery", "auth-discovery-failed"],
+    ["auth-discovery", "auth-discovery-timeout"],
+    ["auth-discovery", "auth-discovery-observation-failed"],
+    ["auth-password-submit", "ui-action-failed"],
+  ];
+  for (const [stage, failure] of cases) {
+    const status = {
+      commandId: "0",
+      state: "error",
+      extra: {
+        stage,
+        failure,
+        loginUiBeforeTeardown: {
+          userFormVisible: true,
+          passwordFormVisible: false,
+          discoveryErrorVisible: failure === "auth-discovery-failed",
+        },
+      },
+    };
+    assert.equal(classifyStatus(status, "0", "ready"), "terminal-error", `${stage}/${failure}`);
+    assert.equal(evaluateStatus(status, "0", "ready"), false);
+    assert.equal(classifyStatus(status, "new", "ready"), "pending");
+  }
+});
+
+test("rejects invalid UI stage/failure combinations and raw discovery errors", () => {
+  for (const [stage, failure] of [
+    ["logout", "auth-discovery-failed"],
+    ["auth-password-submit", "auth-discovery-timeout"],
+    ["auth-discovery", "auth-logout"],
+    ["auth-discovery", "server said private account text"],
+    ["auth-discovery", undefined],
+  ]) {
+    assert.equal(classifyStatus({ commandId: "0", state: "error", extra: { stage, failure } },
+      "0", "ready"), "invalid-terminal", `${stage}/${failure}`);
+  }
+});
+
 test("does not confuse stale or unbounded errors with the requested command", () => {
   assert.equal(classifyStatus({
     commandId: "old",

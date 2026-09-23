@@ -64,6 +64,21 @@ const loginFailures = new Set([
   "cleanup-ledger-persistence-failed",
 ]);
 
+// Initial-form discovery happens before LoginStartupState leaves LoggedOut.
+// Keep its vocabulary finite and disallow cross-stage misclassification. UI
+// evidence is presence-only; no server text or credential values are printed.
+const loginUiFailuresByStage = new Map([
+  ["auth-user-form", new Set(["ui-action-failed"])],
+  ["auth-discovery", new Set([
+    "ui-action-failed",
+    "auth-discovery-failed",
+    "auth-discovery-timeout",
+    "auth-discovery-observation-failed",
+  ])],
+  ["auth-password-submit", new Set(["ui-action-failed"])],
+]);
+const loginUiFailures = new Set([...loginUiFailuresByStage.values()].flatMap((failures) => [...failures]));
+
 export function classifyStatus(status, commandId, state, proof = "none") {
   if (evaluateStatus(status, commandId, state, proof)) return "expected";
   if (status === null || typeof status !== "object" || status.commandId !== commandId) {
@@ -72,6 +87,9 @@ export function classifyStatus(status, commandId, state, proof = "none") {
   if (status.state !== "error") return "pending";
   const stage = status.extra?.stage;
   const failure = status.extra?.failure;
+  if (loginUiFailuresByStage.has(stage) || loginUiFailures.has(failure)) {
+    return loginUiFailuresByStage.get(stage)?.has(failure) ? "terminal-error" : "invalid-terminal";
+  }
   if ((stage !== undefined && !loginStages.has(stage)) ||
       (failure !== undefined && !loginFailures.has(failure))) {
     return "invalid-terminal";

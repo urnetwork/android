@@ -98,6 +98,23 @@ grep -Fq 'throwLoginStartupTimeout(' <<<"$physical_timeout_source" || \
 grep -Fq 'Sdk.writeGoroutineStacks(startupGoroutinesFile.absolutePath)' \
   <<<"$physical_timeout_source" || \
   fail "physical login timeout does not synchronously request Go stacks"
+# All shipping initial forms must expose the same error-presence contract. The
+# physical login driver records only its presence, never server/user text.
+for login_flavor in google ungoogle solana_dapp ethos_dapp; do
+  grep -Fq 'URInlineErrorText(loginError, Modifier.testTag("acceptance.password.discovery-error"))' \
+    "$here/app/app/src/$login_flavor/java/com/bringyour/network/ui/login/LoginInitial.kt" || \
+    fail "$login_flavor does not expose terminal password-discovery errors"
+done
+physical_failure_source="$(sed -n \
+  '/private fun failureStatus(/,/private fun stopClient/p' \
+  "$here/app/app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt")"
+discovery_failure_line="$(grep -n 'error is PasswordLoginFailureException' <<<"$physical_failure_source" | cut -d: -f1)"
+logged_out_failure_line="$(grep -n 'startupState is LoginStartupState.LoggedOut' <<<"$physical_failure_source" | cut -d: -f1)"
+[ -n "$discovery_failure_line" ] && [ -n "$logged_out_failure_line" ] && \
+  [ "$discovery_failure_line" -lt "$logged_out_failure_line" ] || \
+  fail "expected pre-password LoggedOut masks a finite discovery failure"
+grep -Fq '"loginUiBeforeTeardown"' <<<"$physical_failure_source" || \
+  fail "physical login lost bounded UI evidence from before instrumentation teardown"
 grep -Fq 'main-startup-goroutines.txt' "$here/test-main.sh" || \
   fail "main acceptance collection does not retain optional Pending startup evidence"
 main_timeout_source="$(sed -n \
