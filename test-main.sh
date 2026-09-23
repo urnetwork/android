@@ -1097,7 +1097,7 @@ record_p2p_failure() {
   local out="$1" role="$2" reason="$3" classification=infrastructure log_role
   case "$role" in client|provider|pair) ;; *) return 2 ;; esac
   case "$reason" in
-    artifact-collection|ownership-unavailable|instrumentation-stream-lost|finish-command-failed|finish-ack-failed|child-exit-failed|cleanup-ownership-failed) ;;
+    artifact-collection|ownership-unavailable|instrumentation-stream-lost|finish-command-failed|finish-ack-failed|child-exit-failed|cleanup-ownership-failed|peer-readiness-failed) ;;
     natural-exit-timeout) classification=timeout ;;
     workflow-failed) classification=peer-to-peer ;;
     *) return 2 ;;
@@ -1273,6 +1273,9 @@ write_target_diagnostic() {
 
 boot_peer_emulator() {
   local port="" readiness_attempt readiness_status=1
+  # Only this invocation's attempt can be attached to a failed cell. Early
+  # ownership/launch failure must not attach a previous flavor's ready receipt.
+  peer_readiness_attempt_dir=""
   if [ -n "$peer_serial" ] || [ -n "$peer_emulator_pid" ]; then
     if ! runner_owns_peer_emulator; then
       echo "existing peer emulator no longer proves ownership by this acceptance invocation" >&2
@@ -1301,6 +1304,7 @@ boot_peer_emulator() {
   # so recovery cannot overwrite the first failure's diagnostic evidence.
   mkdir -p "$artifacts/peer-emulator" || return 1
   readiness_attempt="$(mktemp -d "$artifacts/peer-emulator/readiness-attempt.XXXXXX")" || return 1
+  peer_readiness_attempt_dir="$readiness_attempt"
   : >"$readiness_attempt/readiness.txt" || return 1
   : >"$readiness_attempt/interactive.txt" || return 1
   if ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$peer_emulator_owner_token" \
@@ -1321,6 +1325,27 @@ boot_peer_emulator() {
     echo "peer Android emulator did not become ready; see $readiness_attempt/readiness.txt" >&2
     return 1
   fi
+}
+
+# A boot failure precedes both instrumentation streams, so there is no client
+# log to summarize. Retain its finite cause and only the exact small host-owned
+# readiness receipts in the failed P2P cell, not a mutable shared alias.
+retain_peer_readiness_failure() {
+  local out="$1" attempt_dir="${peer_readiness_attempt_dir:-}" diagnostic size
+  mkdir -p "$out/provider-readiness" || return 1
+  record_p2p_failure "$out" provider peer-readiness-failed || return 1
+  if [ -z "$attempt_dir" ]; then
+    printf 'status=preparation-not-started\n' >"$out/provider-readiness/readiness.txt"
+    return
+  fi
+  case "$attempt_dir" in "$artifacts/peer-emulator/readiness-attempt."*) ;; *) return 1 ;; esac
+  [ -d "$attempt_dir" ] && [ ! -L "$attempt_dir" ] || return 1
+  for diagnostic in readiness.txt interactive.txt result.txt; do
+    [ -f "$attempt_dir/$diagnostic" ] && [ ! -L "$attempt_dir/$diagnostic" ] || return 1
+    size="$(wc -c <"$attempt_dir/$diagnostic" | tr -d ' ')" || return 1
+    [ "$size" -le 4096 ] || return 1
+    cp "$attempt_dir/$diagnostic" "$out/provider-readiness/$diagnostic" || return 1
+  done
 }
 
 wait_physical_status() {
@@ -1415,6 +1440,7 @@ run_android_peer_to_peer() {
     return 1
   fi
   if ! boot_peer_emulator; then
+    retain_peer_readiness_failure "$out" || p2p_cleanup_failed=1
     return 1
   fi
 
@@ -1626,8 +1652,11 @@ record_target_failure() {
 
 uninstall_acceptance_packages() {
   local target_serial="$1" log_dir="$2" uninstall_status=0 package_name package_label
-  authorize_selected_device "$target_serial" || return 1
   mkdir -p "$log_dir" || return 2
+  if ! authorize_selected_device "$target_serial"; then
+    printf 'status=ownership-unavailable\n' >"$log_dir/cleanup-status.txt" || return 2
+    return 1
+  fi
   for package_name in com.bringyour.network com.bringyour.network.test; do
     package_label="${package_name##*.}"
     if ! android_acceptance_uninstall_package \
@@ -1637,7 +1666,35 @@ uninstall_acceptance_packages() {
       uninstall_status=1
     fi
   done
+  if [ "$uninstall_status" -eq 0 ]; then
+    printf 'status=complete\n' >"$log_dir/cleanup-status.txt" || return 2
+  else
+    printf 'status=package-removal-unverified\n' >"$log_dir/cleanup-status.txt" || return 2
+  fi
   return "$uninstall_status"
+}
+
+# Preserve whether instrumentation had already failed before package cleanup.
+# A later infrastructure failure must explain an otherwise successful test,
+# but must never replace an earlier app crash/assertion as the primary cause.
+record_acceptance_cleanup_failure() {
+  local out="$1" preceding_status="$2" reason=cleanup-result-unavailable status_file size
+  [[ "$preceding_status" =~ ^(0|[1-9][0-9]{0,2})$ ]] && \
+    [ "$preceding_status" -le 255 ] || return 2
+  [ ! -L "$out/cleanup-failure.json" ] || return 1
+  [ ! -e "$out/cleanup-failure.json" ] || return 0
+  status_file="$out/post-acceptance-cleanup/cleanup-status.txt"
+  if [ -f "$status_file" ] && [ ! -L "$status_file" ]; then
+    size="$(wc -c <"$status_file" | tr -d ' ')" || return 1
+    if [ "$size" -le 128 ]; then
+      case "$(cat "$status_file")" in
+        status=ownership-unavailable) reason=ownership-unavailable ;;
+        status=package-removal-unverified) reason=package-removal-unverified ;;
+      esac
+    fi
+  fi
+  printf '{"schemaVersion":1,"phase":"post-acceptance-cleanup","reason":"%s","classification":"infrastructure","precedingTestExitCode":%s}\n' \
+    "$reason" "$preceding_status" >"$out/cleanup-failure.json"
 }
 
 overall=0
@@ -2024,6 +2081,7 @@ for target in $build_targets; do
         com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
     fi
     if ! uninstall_acceptance_packages "$serial" "$out/post-acceptance-cleanup"; then
+      record_acceptance_cleanup_failure "$out" "$test_status" || overall=1
       echo "could not clean acceptance packages from $serial" >&2
       test_status=1
       [ "$run_peer_to_peer" -eq 0 ] || p2p_status=1

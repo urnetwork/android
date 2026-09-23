@@ -3768,4 +3768,5 @@ grep -Fq 'android_acceptance_wait_for_runner_owned_emulator' "$runner_source" ||
   fail "fallback, early peer, and normal peer cleanup do not join exact children"
 
 bash "$here/test-main-p2p.test.sh"
+bash "$here/test-main-reporting.test.sh"
 echo "android/test-main.sh runner tests passed"

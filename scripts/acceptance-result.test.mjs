@@ -153,3 +153,86 @@ test("failure provenance is bounded, finite and cannot publish extra raw fields"
   fixture.write("p2p-first-failure.json", " ".repeat(4097));
   assert.throws(() => fixture.result(), /invalid P2P failure provenance file/);
 });
+
+test("successful instrumentation plus failed package cleanup reports infrastructure cause", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.environment.UR_ACCEPT_RESULT_PHASE = "instrumentation";
+  fixture.environment.UR_ACCEPT_RESULT_LOG = path.join(fixture.directory, "instrumentation.log");
+  fixture.write("instrumentation.log", "OK (2 tests)\nINSTRUMENTATION_CODE: -1\n");
+  fixture.write("cleanup-failure.json", JSON.stringify({
+    schemaVersion: 1, phase: "post-acceptance-cleanup", reason: "ownership-unavailable",
+    classification: "infrastructure", precedingTestExitCode: 0,
+  }));
+  const result = fixture.result();
+  assert.equal(result.status, "failed");
+  assert.equal(result.failure.classification, "infrastructure");
+  assert.equal(result.failure.signature, "Acceptance cleanup failed: ownership-unavailable");
+  assert.equal(result.failure.originalCause.precedingTestExitCode, 0);
+  assert.ok(result.artifacts.some((artifact) => artifact.path === "cleanup-failure.json"));
+  assert.ok(result.artifacts.some((artifact) => artifact.path === "instrumentation.log"));
+});
+
+test("cleanup failure remains secondary to an already failed app test", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.environment.UR_ACCEPT_RESULT_PHASE = "instrumentation";
+  fixture.environment.UR_ACCEPT_RESULT_LOG = path.join(fixture.directory, "instrumentation.log");
+  fixture.write("instrumentation.log", "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n");
+  fixture.write("cleanup-failure.json", JSON.stringify({
+    schemaVersion: 1, phase: "post-acceptance-cleanup", reason: "package-removal-unverified",
+    classification: "infrastructure", precedingTestExitCode: 1,
+  }));
+  const result = fixture.result();
+  assert.equal(result.failure.classification, "crash");
+  assert.match(result.failure.signature, /Process crashed/);
+  assert.equal(result.failure.originalCause, undefined);
+  assert.equal(result.failure.cleanupFailure.reason, "package-removal-unverified");
+});
+
+test("early peer preparation failure has a finite cause and cell-local readiness artifact", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.write("p2p-first-failure.json", JSON.stringify({
+    schemaVersion: 1, role: "provider", reason: "peer-readiness-failed", classification: "infrastructure",
+  }));
+  fs.mkdirSync(path.join(fixture.directory, "provider-readiness"));
+  fixture.write("provider-readiness/readiness.txt", "status=api-unavailable\n");
+  const result = fixture.result();
+  assert.equal(result.status, "failed");
+  assert.equal(result.failure.classification, "infrastructure");
+  assert.equal(result.failure.signature, "P2P provider failed: peer-readiness-failed");
+  assert.ok(result.artifacts.some((artifact) => artifact.path === "provider-readiness/readiness.txt"));
+});
+
+test("cleanup provenance is bounded, finite and scoped to the failed instrumentation cell", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.environment.UR_ACCEPT_RESULT_PHASE = "instrumentation";
+  const valid = {
+    schemaVersion: 1, phase: "post-acceptance-cleanup", reason: "ownership-unavailable",
+    classification: "infrastructure", precedingTestExitCode: 0,
+  };
+  fixture.write("cleanup-failure.json", JSON.stringify({ ...valid, secret: "never-publish" }));
+  assert.doesNotMatch(JSON.stringify(fixture.result()), /never-publish/);
+  for (const invalid of [
+    null, [], { ...valid, schemaVersion: 2 }, { ...valid, phase: "foreign" },
+    { ...valid, reason: "unbounded-device-message" }, { ...valid, classification: "crash" },
+    { ...valid, precedingTestExitCode: -1 }, { ...valid, precedingTestExitCode: 256 },
+    { ...valid, precedingTestExitCode: "0" },
+  ]) {
+    fixture.write("cleanup-failure.json", JSON.stringify(invalid));
+    assert.throws(() => fixture.result(), /invalid acceptance cleanup provenance/);
+  }
+  fixture.write("cleanup-failure.json", " ".repeat(4097));
+  assert.throws(() => fixture.result(), /invalid acceptance cleanup provenance file/);
+  fs.unlinkSync(path.join(fixture.directory, "cleanup-failure.json"));
+  fixture.write("elsewhere.json", JSON.stringify(valid));
+  fs.symlinkSync(path.join(fixture.directory, "elsewhere.json"), path.join(fixture.directory, "cleanup-failure.json"));
+  assert.throws(() => fixture.result(), /invalid acceptance cleanup provenance file/);
+  fs.unlinkSync(path.join(fixture.directory, "elsewhere.json"));
+  assert.throws(() => fixture.result(), /invalid acceptance cleanup provenance file/);
+  // A failed P2P event in a nested cell must not consume the parent's cleanup
+  // cause, and a passing event never publishes stale failure details.
+  fixture.environment.UR_ACCEPT_RESULT_PHASE = "peer-to-peer";
+  assert.equal(fixture.result().failure.originalCause, undefined);
+  fixture.environment.UR_ACCEPT_RESULT_PHASE = "instrumentation";
+  fixture.environment.UR_ACCEPT_RESULT_STATUS = "passed";
+  assert.equal(fixture.result().failure, null);
+});

@@ -9,7 +9,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-p2p.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
 
-for helper in boot_peer_emulator run_android_peer_to_peer collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
+for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
   # Only named production function definitions are loaded, never runner startup.
   # shellcheck disable=SC2294
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
@@ -68,6 +68,12 @@ done
     "$fixture/readiness-app.apk" "$fixture/readiness-test.apk" provider-build device-002 || result=$?
   [ "$result:$readiness_checks:$app_mutations" = 1:1:0 ] || \
     fail "owned peer with stale api-unavailable readiness bypassed preparation before app mutation"
+  [ -f "$artifacts/failed-cell/provider-readiness/readiness.txt" ] || \
+    fail "early peer preparation failure did not retain a cell-local readiness artifact"
+  [ "$(cat "$artifacts/failed-cell/provider-readiness/readiness.txt")" = status=api-unavailable ] || \
+    fail "failed cell did not retain its exact preparation failure"
+  grep -Fq '"reason":"peer-readiness-failed"' "$artifacts/failed-cell/p2p-first-failure.json" || \
+    fail "early peer preparation failure did not retain finite infrastructure provenance"
 
   readiness_state=ready
   boot_peer_emulator || fail "same owned peer could not recover for the next flavor"
@@ -157,6 +163,52 @@ for readiness_state in ready api-unavailable; do
       [ "$result" = 1 ] || fail "unready fresh peer accepted"
     fi
   ) || fail "fresh peer readiness control: $readiness_state"
+done
+
+# A peer that loses ownership before preparation must not attach the previous
+# flavor's successful receipt. This executes the caller's early-return path.
+(
+  artifacts="$fixture/peer-lost-before-preparation"
+  run_dir="$fixture/peer-lost-before-preparation-state"
+  peer_serial=emulator-5556
+  peer_emulator_pid=424242
+  peer_readiness_attempt_dir="$artifacts/peer-emulator/readiness-attempt.stale"
+  mkdir -p "$peer_readiness_attempt_dir"
+  printf 'status=ready\n' >"$peer_readiness_attempt_dir/readiness.txt"
+  runner_owns_peer_emulator() { return 1; }
+  android_acceptance_prepare_owned_emulator() { fail "unowned peer reached preparation"; }
+  uninstall_acceptance_packages() { fail "unowned peer reached package mutation"; }
+  if run_android_peer_to_peer \
+      "$artifacts/failed-cell" "$fixture/readiness-app.apk" "$fixture/readiness-test.apk" client-build \
+      "$fixture/readiness-app.apk" "$fixture/readiness-test.apk" provider-build device-002; then
+    fail "unowned peer cell passed"
+  fi
+  [ -z "$peer_readiness_attempt_dir" ] || fail "unowned peer retained a stale attempt pointer"
+  [ "$(cat "$artifacts/failed-cell/provider-readiness/readiness.txt")" = status=preparation-not-started ] || \
+    fail "unowned peer borrowed a prior flavor's ready receipt"
+) || fail "early ownership failure provenance"
+
+for invalid_receipt in oversized symlink foreign; do
+  (
+    artifacts="$fixture/peer-invalid-$invalid_receipt"
+    peer_readiness_attempt_dir="$artifacts/peer-emulator/readiness-attempt.fixture"
+    mkdir -p "$peer_readiness_attempt_dir"
+    printf 'status=api-unavailable\n' >"$peer_readiness_attempt_dir/readiness.txt"
+    printf 'result=unknown\n' >"$peer_readiness_attempt_dir/interactive.txt"
+    printf 'exit_status=1\n' >"$peer_readiness_attempt_dir/result.txt"
+    case "$invalid_receipt" in
+      oversized) printf '%4097s' x >"$peer_readiness_attempt_dir/readiness.txt" ;;
+      symlink)
+        mv "$peer_readiness_attempt_dir/readiness.txt" "$peer_readiness_attempt_dir/real.txt"
+        ln -s real.txt "$peer_readiness_attempt_dir/readiness.txt" ;;
+      foreign) peer_readiness_attempt_dir="$fixture" ;;
+    esac
+    if retain_peer_readiness_failure "$artifacts/failed-cell"; then
+      fail "invalid peer readiness receipt was copied: $invalid_receipt"
+    fi
+    [ -f "$artifacts/failed-cell/p2p-first-failure.json" ] || fail "invalid diagnostic erased finite failure cause"
+    [ ! -e "$artifacts/failed-cell/provider-readiness/readiness.txt" ] || fail "invalid readiness content was published"
+  ) || fail "bounded cell-local readiness control: $invalid_receipt"
 done
 
 (

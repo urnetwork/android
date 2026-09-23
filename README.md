@@ -51,12 +51,22 @@ before package or credential changes. Ownership alone never qualifies a peer
 whose previous readiness failed. Every pass retains its own
 `peer-emulator/readiness-attempt.*/` receipts; the top-level `readiness.txt` and
 `interactive.txt` show the latest attempt without erasing earlier failures.
+An early peer-boot failure also retains its finite infrastructure cause and the
+current small readiness receipts in the failed cell's `provider-readiness/`
+directory; a previous flavor's successful receipt is never reused as evidence.
+
+Package cleanup records a finite ownership/removal status even if ADB ownership
+is lost before uninstall can begin. If instrumentation had succeeded,
+`cleanup-failure.json` makes that infrastructure failure the primary result
+cause; if the app test had already failed, cleanup stays a separate secondary
+failure. Neither diagnostic changes a failed cell into a pass.
 
 The deterministic interruption, ownership, terminal-receipt, and teardown
 controls run without devices or network access:
 
 ```bash
 GOMAXPROCS=2 bash test-main-p2p.test.sh
+GOMAXPROCS=2 bash test-main-reporting.test.sh
 GOMAXPROCS=2 bash test-main.test.sh
 ```
 

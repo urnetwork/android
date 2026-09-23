@@ -150,6 +150,7 @@ function p2pFirstFailure(artifactRoot, phase) {
     ["finish-ack-failed", "infrastructure"],
     ["child-exit-failed", "infrastructure"],
     ["cleanup-ownership-failed", "infrastructure"],
+    ["peer-readiness-failed", "infrastructure"],
     ["natural-exit-timeout", "timeout"],
     ["workflow-failed", "peer-to-peer"],
   ]);
@@ -164,6 +165,34 @@ function p2pFirstFailure(artifactRoot, phase) {
   return { schemaVersion: 1, role: value.role, reason: value.reason, classification: value.classification };
 }
 
+function acceptanceCleanupFailure(artifactRoot, phase) {
+  if (phase !== "instrumentation") return null;
+  const filename = path.join(artifactRoot, "cleanup-failure.json");
+  let info;
+  try {
+    info = fs.lstatSync(filename);
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+  if (!info.isFile() || info.isSymbolicLink() || info.size > 4096) {
+    throw new Error("invalid acceptance cleanup provenance file");
+  }
+  const value = JSON.parse(fs.readFileSync(filename, "utf8"));
+  if (!value || typeof value !== "object" || Array.isArray(value) ||
+      value.schemaVersion !== 1 || value.phase !== "post-acceptance-cleanup" ||
+      !["ownership-unavailable", "package-removal-unverified", "cleanup-result-unavailable"].includes(value.reason) ||
+      value.classification !== "infrastructure" ||
+      !Number.isInteger(value.precedingTestExitCode) ||
+      value.precedingTestExitCode < 0 || value.precedingTestExitCode > 255) {
+    throw new Error("invalid acceptance cleanup provenance");
+  }
+  return {
+    schemaVersion: 1, phase: value.phase, reason: value.reason,
+    classification: value.classification, precedingTestExitCode: value.precedingTestExitCode,
+  };
+}
+
 export function buildResult({ outputPath, environment = process.env }) {
   const status = environment.UR_ACCEPT_RESULT_STATUS;
   const phase = environment.UR_ACCEPT_RESULT_PHASE;
@@ -175,7 +204,9 @@ export function buildResult({ outputPath, environment = process.env }) {
   }
 
   const artifactRoot = environment.UR_ACCEPT_RESULT_ARTIFACT_ROOT ?? path.dirname(outputPath);
-  const firstFailure = status === "failed" ? p2pFirstFailure(artifactRoot, phase) : null;
+  const cleanupFailure = status === "failed" ? acceptanceCleanupFailure(artifactRoot, phase) : null;
+  const firstFailure = status === "failed" ?
+    p2pFirstFailure(artifactRoot, phase) ?? (cleanupFailure?.precedingTestExitCode === 0 ? cleanupFailure : null) : null;
   const logPath = firstFailure?.reason === "instrumentation-failed" ?
     path.join(artifactRoot, `${firstFailure.role}-instrumentation.log`) :
     environment.UR_ACCEPT_RESULT_LOG ?? "";
@@ -196,12 +227,15 @@ export function buildResult({ outputPath, environment = process.env }) {
 
   const classification = status === "failed" ?
     firstFailure?.classification ?? classifyFailure(phase, log) : null;
-  const summaryLog = firstFailure && firstFailure.reason !== "instrumentation-failed" ?
-    `P2P ${firstFailure.role} failed: ${firstFailure.reason}` : log;
+  const summaryLog = firstFailure?.phase === "post-acceptance-cleanup" ?
+    `Acceptance cleanup failed: ${firstFailure.reason}` :
+    firstFailure && firstFailure.reason !== "instrumentation-failed" ?
+      `P2P ${firstFailure.role} failed: ${firstFailure.reason}` : log;
   const failure = status === "failed" ? {
     classification,
     ...summarizeLog(summaryLog),
     ...(firstFailure ? { originalCause: firstFailure } : {}),
+    ...(cleanupFailure && cleanupFailure !== firstFailure ? { cleanupFailure } : {}),
   } : null;
 
   return {
