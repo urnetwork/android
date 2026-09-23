@@ -24,6 +24,59 @@ android_acceptance_session_running() {
   [ -z "${1:-}" ] || kill -0 "$1" 2>/dev/null
 }
 
+# `adb am instrument` can exit without a nonzero host status after losing its
+# transport. Absence of a failure line is not proof that the one retained P2P
+# test completed. Require one ordered start, test success, and terminal runner
+# success, with no failure or second terminal result anywhere in the stream.
+android_acceptance_verify_p2p_instrumentation() {
+  local transcript="$1"
+  [ -f "$transcript" ] && [ ! -L "$transcript" ] && [ -s "$transcript" ] || return 1
+  LC_ALL=C awk '
+    { sub(/\r$/, "") }
+    /FAILURES!!!|INSTRUMENTATION_FAILED|FATAL EXCEPTION|Process crashed|shortMsg=|AssertionError/ { invalid = 1 }
+    /^INSTRUMENTATION_STATUS: class=/ {
+      if ($0 != "INSTRUMENTATION_STATUS: class=com.bringyour.network.acceptance.PhysicalLowbarSessionTest") invalid = 1
+      classes++
+    }
+    /^INSTRUMENTATION_STATUS: test=/ {
+      if ($0 != "INSTRUMENTATION_STATUS: test=physicalLowbarSession") invalid = 1
+      tests++
+    }
+    /^INSTRUMENTATION_STATUS: (current|numtests)=/ {
+      if ($0 !~ /=1$/) invalid = 1
+    }
+    /^INSTRUMENTATION_STATUS_CODE:/ {
+      if ($0 == "INSTRUMENTATION_STATUS_CODE: 1" && !started && !completed) started = NR
+      else if ($0 == "INSTRUMENTATION_STATUS_CODE: 0" && started && !completed) completed = NR
+      else invalid = 1
+    }
+    /^OK \(/ {
+      if ($0 != "OK (1 test)" || !completed || ok) invalid = 1
+      ok = NR
+    }
+    /^INSTRUMENTATION_CODE:/ {
+      if ($0 != "INSTRUMENTATION_CODE: -1" || !ok || terminal) invalid = 1
+      terminal = NR
+    }
+    /[^[:space:]]/ { last = NR }
+    END { exit invalid || classes != 2 || tests != 2 || !started || !completed || !ok || !terminal || terminal != last }
+  ' "$transcript"
+}
+
+# Poll only the retained host child; never reconnect/restart ADB or touch a
+# device here. The caller decides how to stop an authorized app after this
+# bounded natural-exit grace. A final receipt can precede the process exit.
+android_acceptance_wait_for_session_exit() {
+  local session_pid="$1" polls="$2" poll
+  case "$session_pid" in ''|0*|*[!0-9]*) return 2 ;; esac
+  case "$polls" in ''|0*|*[!0-9]*) return 2 ;; esac
+  for ((poll=0; poll<polls; poll++)); do
+    if ! android_acceptance_session_running "$session_pid"; then return 0; fi
+    sleep 0.2
+  done
+  ! android_acceptance_session_running "$session_pid"
+}
+
 # A successful full UI cell must leave one screenshot at every workflow
 # boundary. Instrumentation's exit status alone is not enough evidence: Android
 # can report a completed runner even when screenshot capture or the host-side

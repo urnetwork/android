@@ -31,6 +31,28 @@ writes compact events to `tests/__acceptance__/<run>/results.ndjson`; failed
 events include a redacted log excerpt, a failure classification, a suggested
 debugging-model tier, and an index of the complete on-disk artifacts.
 
+P2P acceptance requires positive terminal success from both retained
+instrumentation streams: the expected single test, `OK (1 test)`, and
+`INSTRUMENTATION_CODE: -1`. An app's `finish/complete` status is not a substitute
+for a lost ADB instrumentation stream. Artifact collection retries only
+transport/ownership unavailability, at most three times with a fresh exact-device
+ownership check; each attempt and its stderr remain in the artifact directory.
+Logcat snapshots retain the most recent 12,000 lines; app Go logs are also kept.
+
+Each started session gets a bounded graceful finish and 30 seconds for natural
+instrumentation exit before an ownership-checked force-stop. The host records
+`p2p-first-failure.json` before forced cleanup, so an ADB interruption cannot be
+misreported as an app crash merely because later cleanup stopped the process.
+Missing terminal receipts still fail the arm and require a fresh run.
+
+The deterministic interruption, ownership, terminal-receipt, and teardown
+controls run without devices or network access:
+
+```bash
+GOMAXPROCS=2 bash test-main-p2p.test.sh
+GOMAXPROCS=2 bash test-main.test.sh
+```
+
 To take a screencap
 
 ```

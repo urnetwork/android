@@ -127,6 +127,43 @@ function artifactIndex(root, outputPath) {
   return artifacts;
 }
 
+// Host-authored, finite first-failure provenance is written before any forced
+// P2P cleanup. A disconnected ADB stream may later print "Process crashed"
+// because the host stopped the app; that must not replace the original cause.
+function p2pFirstFailure(artifactRoot, phase) {
+  if (phase !== "peer-to-peer") return null;
+  const filename = path.join(artifactRoot, "p2p-first-failure.json");
+  if (!fs.existsSync(filename)) return null;
+  const info = fs.lstatSync(filename);
+  if (!info.isFile() || info.isSymbolicLink() || info.size > 4096) {
+    throw new Error("invalid P2P failure provenance file");
+  }
+  const value = JSON.parse(fs.readFileSync(filename, "utf8"));
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("invalid P2P failure provenance");
+  }
+  const reasons = new Map([
+    ["artifact-collection", "infrastructure"],
+    ["ownership-unavailable", "infrastructure"],
+    ["instrumentation-stream-lost", "infrastructure"],
+    ["finish-command-failed", "infrastructure"],
+    ["finish-ack-failed", "infrastructure"],
+    ["child-exit-failed", "infrastructure"],
+    ["cleanup-ownership-failed", "infrastructure"],
+    ["natural-exit-timeout", "timeout"],
+    ["workflow-failed", "peer-to-peer"],
+  ]);
+  const instrumentationFailure = value.reason === "instrumentation-failed" &&
+    ["client", "provider"].includes(value.role) &&
+    ["crash", "instrumentation"].includes(value.classification);
+  if (value.schemaVersion !== 1 || !["client", "provider", "pair"].includes(value.role) ||
+      (!instrumentationFailure && reasons.get(value.reason) !== value.classification) ||
+      typeof value.classification !== "string") {
+    throw new Error("invalid P2P failure provenance");
+  }
+  return { schemaVersion: 1, role: value.role, reason: value.reason, classification: value.classification };
+}
+
 export function buildResult({ outputPath, environment = process.env }) {
   const status = environment.UR_ACCEPT_RESULT_STATUS;
   const phase = environment.UR_ACCEPT_RESULT_PHASE;
@@ -138,7 +175,10 @@ export function buildResult({ outputPath, environment = process.env }) {
   }
 
   const artifactRoot = environment.UR_ACCEPT_RESULT_ARTIFACT_ROOT ?? path.dirname(outputPath);
-  const logPath = environment.UR_ACCEPT_RESULT_LOG ?? "";
+  const firstFailure = status === "failed" ? p2pFirstFailure(artifactRoot, phase) : null;
+  const logPath = firstFailure?.reason === "instrumentation-failed" ?
+    path.join(artifactRoot, `${firstFailure.role}-instrumentation.log`) :
+    environment.UR_ACCEPT_RESULT_LOG ?? "";
   let log = "";
   if (logPath && fs.existsSync(logPath)) {
     // A bounded read keeps a pathological log from becoming a summarizer
@@ -154,10 +194,14 @@ export function buildResult({ outputPath, environment = process.env }) {
     }
   }
 
-  const classification = status === "failed" ? classifyFailure(phase, log) : null;
+  const classification = status === "failed" ?
+    firstFailure?.classification ?? classifyFailure(phase, log) : null;
+  const summaryLog = firstFailure && firstFailure.reason !== "instrumentation-failed" ?
+    `P2P ${firstFailure.role} failed: ${firstFailure.reason}` : log;
   const failure = status === "failed" ? {
     classification,
-    ...summarizeLog(log),
+    ...summarizeLog(summaryLog),
+    ...(firstFailure ? { originalCause: firstFailure } : {}),
   } : null;
 
   return {

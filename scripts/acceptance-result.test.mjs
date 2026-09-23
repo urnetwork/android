@@ -60,3 +60,96 @@ test("builds a compact result with an artifact index", () => {
   assert.deepEqual(result.artifacts.map((artifact) => artifact.path), ["final.png", "instrumentation.log"]);
   fs.rmSync(directory, { recursive: true, force: true });
 });
+
+function p2pFixture(t) {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "urnetwork-p2p-result."));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const environment = {
+    UR_ACCEPT_RESULT_TARGET: "play",
+    UR_ACCEPT_RESULT_PHASE: "peer-to-peer",
+    UR_ACCEPT_RESULT_STATUS: "failed",
+    UR_ACCEPT_RESULT_EXIT_CODE: "1",
+    UR_ACCEPT_RESULT_ARTIFACT_ROOT: directory,
+    UR_ACCEPT_RESULT_LOG: path.join(directory, "client-instrumentation.log"),
+  };
+  return {
+    directory,
+    environment,
+    write(name, contents) { fs.writeFileSync(path.join(directory, name), contents); },
+    result() { return buildResult({ outputPath: path.join(directory, "result.json"), environment }); },
+  };
+}
+
+test("retains ADB infrastructure cause instead of a later cleanup-induced client crash", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.write("p2p-first-failure.json", JSON.stringify({
+    schemaVersion: 1, role: "provider", reason: "artifact-collection", classification: "infrastructure",
+  }));
+  fixture.write("client-instrumentation.log", "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n");
+  fixture.write("provider-instrumentation.log", "INSTRUMENTATION_STATUS_CODE: 1\n");
+  const result = fixture.result();
+  assert.equal(result.status, "failed");
+  assert.equal(result.failure.classification, "infrastructure");
+  assert.equal(result.failure.signature, "P2P provider failed: artifact-collection");
+  assert.equal(result.failure.originalCause.role, "provider");
+  assert.equal(result.recommendedModelTier, "strong");
+  assert.ok(result.artifacts.some((artifact) => artifact.path === "client-instrumentation.log"));
+  assert.ok(result.artifacts.some((artifact) => artifact.path === "provider-instrumentation.log"));
+});
+
+test("lost instrumentation terminal receipt stays failed despite a recovered app finish", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.write("p2p-first-failure.json", JSON.stringify({
+    schemaVersion: 1, role: "provider", reason: "instrumentation-stream-lost", classification: "infrastructure",
+  }));
+  fixture.write("provider-instrumentation.log", "INSTRUMENTATION_STATUS_CODE: 1\n");
+  fixture.write("provider-status.json", JSON.stringify({ commandId: "provider-finish", state: "complete" }));
+  const result = fixture.result();
+  assert.equal(result.failure.classification, "infrastructure");
+  assert.match(result.failure.signature, /instrumentation-stream-lost/);
+});
+
+test("genuine provider crash uses provider evidence instead of the client log", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.write("p2p-first-failure.json", JSON.stringify({
+    schemaVersion: 1, role: "provider", reason: "instrumentation-failed", classification: "crash",
+  }));
+  fixture.write("client-instrumentation.log", "OK (1 test)\nINSTRUMENTATION_CODE: -1\n");
+  fixture.write("provider-instrumentation.log", "FATAL EXCEPTION: main\ntoken=not-published\n");
+  const result = fixture.result();
+  assert.equal(result.failure.classification, "crash");
+  assert.equal(result.failure.signature, "FATAL EXCEPTION: main");
+  assert.equal(result.failure.excerpt[1].text, "token=[REDACTED]");
+});
+
+test("a deadline remains the first cause after bounded forced termination", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.write("p2p-first-failure.json", JSON.stringify({
+    schemaVersion: 1, role: "client", reason: "natural-exit-timeout", classification: "timeout",
+  }));
+  fixture.write("client-instrumentation.log", "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n");
+  const result = fixture.result();
+  assert.equal(result.failure.classification, "timeout");
+  assert.match(result.failure.signature, /natural-exit-timeout/);
+});
+
+test("failure provenance is bounded, finite and cannot publish extra raw fields", (t) => {
+  const fixture = p2pFixture(t);
+  fixture.write("p2p-first-failure.json", JSON.stringify({
+    schemaVersion: 1, role: "provider", reason: "artifact-collection", classification: "infrastructure",
+    password: "never-publish", rawLog: "never-publish",
+  }));
+  assert.doesNotMatch(JSON.stringify(fixture.result()), /never-publish/);
+  for (const invalid of [
+    null,
+    { schemaVersion: 2, role: "client", reason: "artifact-collection", classification: "infrastructure" },
+    { schemaVersion: 1, role: "../foreign", reason: "instrumentation-failed", classification: "crash" },
+    { schemaVersion: 1, role: "client", reason: "unbounded-server-message", classification: "infrastructure" },
+    { schemaVersion: 1, role: "client", reason: "artifact-collection", classification: "crash" },
+  ]) {
+    fixture.write("p2p-first-failure.json", JSON.stringify(invalid));
+    assert.throws(() => fixture.result(), /invalid P2P failure provenance/);
+  }
+  fixture.write("p2p-first-failure.json", " ".repeat(4097));
+  assert.throws(() => fixture.result(), /invalid P2P failure provenance file/);
+});
