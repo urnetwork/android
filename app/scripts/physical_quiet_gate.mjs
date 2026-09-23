@@ -21,10 +21,15 @@ function validTime(value) {
 
 function roleMatches(status, role) {
   if (role === "client") {
-    return status.connected === true && status.tunnelStarted === true;
+    return status.connected === true && status.tunnelStarted === true && status.provideEnabled === false;
   }
-  return status.connected === false && status.tunnelStarted === false &&
-    status.provideEnabled === (role === "provider");
+  // Android keeps the provider service running (tunnelStarted) without a
+  // client VPN. The independent network evidence below still requires no VPN.
+  if (role === "provider") {
+    return status.connected === false && status.tunnelStarted === true && status.provideEnabled === true;
+  }
+  return role === "direct" && status.connected === false && status.tunnelStarted === false &&
+    status.provideEnabled === false;
 }
 
 // Shared by the live end-boundary runner and the final evidence gate. With no

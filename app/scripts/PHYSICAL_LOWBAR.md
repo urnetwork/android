@@ -74,7 +74,7 @@ fake ADB executable, rather than only accepting a fake schedule step.
 Every runtime sample, including teardown, must remain at or below 24 MiB.
 An arm's successful memory result is not a full campaign verdict or statistical
 baseline promotion; retain its Fast.com 40-Mbit/s goal result separately and
-follow RUN-PERF's paired sampling requirements. A failed setup/owner/quiet gate
+follow TEST-PERF's paired sampling requirements. A failed setup/owner/quiet gate
 cannot be rescued by low observed memory. Host-only regression coverage:
 
 ```sh
@@ -448,7 +448,7 @@ retention, and an upgrade between initial observation and installation.
 
 Use `physical_native_provenance.mjs` for the source-input half of this gate;
 manual revision lists are insufficient. Follow the exact before-build,
-after-build and verify/check commands in `tests/RUN-PERF.md` (native provenance).
+after-build and verify/check commands in `tests/TEST-PERF.md` (native provenance).
 Before the explicit SDK build, freeze `URNETWORK_ANDROID_SDK_BUILD_OWNER`,
 `ACCEPTANCE_BUILD_ID`, `NATIVE_PROFILE_RATE` (0 normally; 65536 only for approved
 owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
@@ -456,7 +456,7 @@ owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
 `NATIVE_WRITER_RECEIPT` paths. Capture `before`, then launch
 `physical_native_writer.sh` with explicit build ID, rate,
 `--memory-profile ios-memory-audit-v1`, bounded `--max-workers`, and private
-receipt/stdout/stderr paths using RUN-PERF's exact standalone retained call.
+receipt/stdout/stderr paths using TEST-PERF's exact standalone retained call.
 The Bash entry point supervises the fixed `:app:buildSdkAcceptance` task and
 atomically writes its own terminal receipt after child outcome/join. Do not
 assign an outer-shell `status` or manually write the receipt: zsh reserves that
@@ -464,7 +464,7 @@ name, which caused `terra_proof_arm` to lose its writer evidence. Failed or
 interrupted writer receipts never authorize consumption; absent terminal
 evidence is incomplete setup. Raw child logs and receipt remain private 0600.
 The default executor is zsh, including commands **before** `exec bash`.
-Restore a saved arm using RUN-PERF's exact `NATIVE-CONTEXT` scalar-read block
+Restore a saved arm using TEST-PERF's exact `NATIVE-CONTEXT` scalar-read block
 before **each** retained writer and consumer call. Its private `arm-identifiers`
 record has exactly `LABEL\nBUILD_ID\n`. Freeze/restore the explicit profile rate,
 worker limit and tool environment too. Never use `readarray`, `mapfile`, arrays,
@@ -481,7 +481,7 @@ holds the lock through command join and APK/AAR retention/linkage. Do not
 assemble first and manually remember after/verify later (the CXAusf failure).
 The consumer command must not rebuild the SDK, install, stage credentials or
 perform any device work. Use the exact retained/private-log invocation in
-RUN-PERF; the wrapper forwards argv without eval and preserves the caller cwd.
+TEST-PERF; the wrapper forwards argv without eval and preserves the caller cwd.
 Missing/stale source evidence, missing after/proof, or invalid/lost lock ownership
 fails with a fixed `…-no-consumer-spawn` reason; never continue or reuse partial
 artifacts. The consumer also rejects missing/nonzero/altered writer receipts;
@@ -638,9 +638,38 @@ After the profile gate, use this prerequisite block in a normal retained/joined
 executor call. `SESSION_MODE` is exactly `h1` or `direct`. For H1, freeze a fresh
 safe `CONNECT_ID` (for example `h1-` plus a UUID) and retain its exact value for
 the collector call. The instrumentation command stream must have one owner and
-be idle before publication. The existing `connect` verb uses best-available
-exit selection: a completed H1 command proves carrier policy/tunnel, **not** US
-egress; retain the separate location/egress evidence required by the campaign.
+be idle before publication. The `connect` verb selects the explicit US country
+location (never best-available) and requires every current routing-eligible
+provider to publish US geography before completing. `countryCode` is read from
+those live providers, not copied from the requested location. Unknown or mixed
+geography fails the US gate. A separate-UID egress warmup establishes fresh
+packet evidence before workload timing; `selectedCarrier` is the sorted `+`
+joined set of carriers with byte progress since this connection began, not the
+requested mode or Auto preference. Mixed carriers stay explicit. Exact-peer
+status similarly requires the current target and all live provider IDs to
+match; the host still validates that ID against its private peer pin.
+
+Retained physical instrumentation explicitly opts its newly created SDK device
+into transfer counters, then calls the read-only diagnostic export every five
+seconds. `physical-diagnostics.ndjson` retains complete `state`, `memory`,
+`memory_device_transport`, and `memory_device_transfer` batches sharing one
+`unix_millis`; SDK root/child carrier values reuse one atomic hierarchy read.
+Do not reconstruct the budget graph in Kotlin or substitute the older primitive
+ring sample's timestamp. Export failure produces a sampler error and invalidates
+qualification. The opt-in is restored at teardown; normal apps install no
+diagnostic counters, collector, or ticker. The existing 15-second primitive
+sampler remains independently drained and the absolute iOS 24 MiB gate is unchanged.
+
+Provider quiet means connected=false, provideEnabled=true, tunnelStarted=true:
+Android keeps that service running without establishing a client VPN. The
+independent underlay collector must still prove **no VPN**, and this role never
+qualifies connected-client quiet evidence.
+
+Host pilot (Go 1.26.7, Apple M4 Pro, GOMAXPROCS=2; three 500 ms repetitions):
+disabled diagnostic setup was 3.293–3.297 ns, 0 B and 0 allocations; an explicit
+idle-device joined export was 11.05–11.17 µs, about 15.93 KB and 20 allocations.
+This is an instrumentation-cost measurement, not physical performance evidence;
+only acceptance invokes the allocating export, once per five-second interval.
 
 ```sh
 umask 077
@@ -904,7 +933,7 @@ exec bash /Users/builder/urnetwork/android/app/scripts/physical_host_launch.sh w
 Use `owner-script` for physical arms: it derives `traffic-workload.sh` as the
 exact direct child of the frozen label directory instead of accepting a second
 handwritten path. For this layout `PRIVATE_DIR` must end in `LABEL` and the
-output must be `PRIVATE_DIR/workloads.json`. It also supports RUN-PERF's
+output must be `PRIVATE_DIR/workloads.json`. It also supports TEST-PERF's
 `private/LABEL.workloads.json` output, deriving `private/LABEL/traffic-workload.sh`.
 The private directory and its parent must already be owned mode 0700; the body
 must be an owned regular file, not a symlink or group/other-writable file.
@@ -1282,7 +1311,7 @@ instrumentation session and disables rollback. It retains the marker and
 credentials for normal login and joined-session cleanup.
 
 After sending `finish` with an empty argument, join the retained supervisor
-and run the [normal-session credential cleanup](../../../tests/RUN-PERF.md#owned-credentials-after-normal-session-completion)
+and run the [normal-session credential cleanup](../../../tests/TEST-PERF.md#owned-credentials-after-normal-session-completion)
 with the original ownership, instrumentation-owner and exact finish-command
 ID. The helper requires matching ready/terminal evidence, uninterrupted exit
 0, joined host processes, the original credential/marker proof, and a matching
@@ -1300,7 +1329,7 @@ The stale unmarked `diag9` credential predates this proof and **cannot be
 adopted or automatically deleted**. Request explicit user approval for that
 exact stopped-session file removal, or ask the user to clear app data.
 Never recursively clear acceptance storage or guess ownership from a recycled
-inode. Full contract: [prospective rollback](../../../tests/RUN-PERF.md#prospective-credential-setup-rollback).
+inode. Full contract: [prospective rollback](../../../tests/TEST-PERF.md#prospective-credential-setup-rollback).
 
 Diagnostics distinguish `steps.create` (exclusive open), `steps.copy`,
 `steps.inspect` (final structural/hash inspection), and `steps.publish` (whole

@@ -17,7 +17,7 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
     status: { type: "status", state: "complete", phase, pid: 42, commandId,
       goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 20 * 1024 * 1024 },
-      elapsedMs, connected: role === "client", tunnelStarted: role === "client",
+      elapsedMs, connected: role === "client", tunnelStarted: role !== "direct",
       provideEnabled: role === "provider" },
   });
   return {
@@ -175,6 +175,20 @@ test("Direct and provider quiet gates never claim connected client qualification
   assert.equal(client.connectedClientEvidence, true);
   const input = evidence("direct"); input.role = "client";
   rejects(input, "quiet-role-not-preserved");
+});
+
+test("provider quiet preserves its running service without claiming a client VPN", () => {
+  assert.equal(evaluateQuietWindow(evidence("provider")).eligible, true);
+  for (const role of ["client", "provider", "direct"]) {
+    const input = evidence(role);
+    if (role === "client") input.end.status.provideEnabled = true;
+    else if (role === "provider") input.end.status.tunnelStarted = false;
+    else input.end.status.tunnelStarted = true;
+    rejects(input, "quiet-role-not-preserved");
+  }
+  const provider = evidence("provider");
+  provider.telemetry[150].network.activeNetwork.transports = ["VPN"];
+  rejects(provider, "quiet-network-ineligible");
 });
 
 test("disconnection or underlay change anywhere in the quiet telemetry fails", () => {

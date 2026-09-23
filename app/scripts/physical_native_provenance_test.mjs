@@ -436,12 +436,28 @@ test("writer rejects missing explicit profile, stale before inputs and existing 
 // Execute the actual documented commands, not a test-only approximation. The
 // fake native build and real kernel consumer lock remain inside this fixture.
 function documentedNativeBlock(marker) {
-  const doc = readFileSync(new URL("../../../tests/RUN-PERF.md", import.meta.url), "utf8");
+  const doc = readFileSync(new URL("../../../tests/TEST-PERF.md", import.meta.url), "utf8");
   const blocks = [...doc.matchAll(/```sh\n([\s\S]*?)```/g)].map(match => match[1]);
   const selected = blocks.filter(block => block.startsWith(marker));
   assert.equal(selected.length, 1, `exactly one documented ${marker} block`);
   return selected[0];
 }
+
+test("physical documentation links the current PERF contract and existing cleanup anchors", () => {
+  const doc = readFileSync(new URL("./PHYSICAL_LOWBAR.md", import.meta.url), "utf8");
+  const contract = readFileSync(new URL("../../../tests/TEST-PERF.md", import.meta.url), "utf8");
+  assert.doesNotMatch(doc, /RUN-PERF(?:\.md|'s|;)/);
+  for (const [anchor, title] of [
+    ["owned-credentials-after-normal-session-completion", "Owned credentials after normal session completion"],
+    ["prospective-credential-setup-rollback", "Prospective credential setup rollback"],
+  ]) {
+    assert.ok(doc.includes(`../../../tests/TEST-PERF.md#${anchor}`), `current ${anchor} link`);
+    assert.ok(contract.includes(`#### ${title}\n`), `current ${anchor} heading`);
+  }
+  for (const marker of ["# NATIVE-CONTEXT:", "# WRITER executor call:", "# CONSUMER executor call:"]) {
+    assert.ok(documentedNativeBlock(marker).startsWith(marker));
+  }
+});
 
 function documentedWriterFixture(t) {
   const f = writerFixture(t, "native zsh contract-");

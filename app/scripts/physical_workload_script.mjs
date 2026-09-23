@@ -20,7 +20,7 @@ function workloadDirectory(options) {
   if (!LABEL.test(options.label ?? "") || !isAbsolute(options.output ?? "")) fail("workload-label-and-absolute-output-required");
   const output = resolve(options.output);
   const parent = dirname(output);
-  // LOWBAR keeps output within LABEL/, RUN-PERF keeps LABEL.workloads.json
+  // LOWBAR keeps output within LABEL/, TEST-PERF keeps LABEL.workloads.json
   // beside LABEL/. Both derive the same unique direct-child script location.
   if (basename(output) === "workloads.json") {
     if (basename(parent) !== options.label) fail("workload-output-parent-label-mismatch");

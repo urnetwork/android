@@ -60,12 +60,14 @@ class PhysicalLowbarSessionTest {
     private val commandFile = File(acceptanceDir, "physical-command")
     private val statusFile = File(acceptanceDir, "physical-status")
     private val samplesFile = File(acceptanceDir, "physical-memory.ndjson")
+    private val diagnosticsFile = File(acceptanceDir, "physical-diagnostics.ndjson")
     private val summaryFile = File(acceptanceDir, "physical-summary.json")
     private val activeClientFile = File(acceptanceDir, "physical-active-client-id")
     private val activeClientLedger = ActiveClientLedger(File(acceptanceDir, "active-client-ids"))
     private val expectedPeerFile = File(acceptanceDir, "physical-expected-peer-id")
     private val startupGoroutinesFile = File(acceptanceDir, "physical-startup-goroutines.txt")
     private var credentialDiagnostics = false
+    private var carrierBaseline = emptyMap<String, PhysicalCarrierBytes>()
 
     @Volatile
     private var phase = "startup"
@@ -238,6 +240,24 @@ class PhysicalLowbarSessionTest {
         return result.put("transports", transports)
     }
 
+    private fun carrierBytes(device: DeviceLocal): Map<String, PhysicalCarrierBytes> = buildMap {
+        device.packetStats?.transportStats?.let { transports ->
+            for (i in 0 until transports.len()) {
+                val entry = transports.get(i) ?: continue
+                val stats = entry.stats ?: continue
+                put(entry.transportType, PhysicalCarrierBytes(stats.remoteEgressByteCount, stats.remoteIngressByteCount))
+            }
+        }
+    }
+
+    private fun liveProviders(device: DeviceLocal): List<PhysicalProviderEvidence> = buildList {
+        val providers = device.connectedProviderLocations
+        for (i in 0 until providers.len()) {
+            val provider = providers.get(i) ?: continue
+            add(PhysicalProviderEvidence(provider.clientId?.idStr.orEmpty(), provider.countryCode, provider.hasLocation))
+        }
+    }
+
     private fun snapshot(application: MainApplication, startElapsedMs: Long): JSONObject {
         val sdk = Sdk.getMemoryStats()
         val javaRuntime = Runtime.getRuntime()
@@ -311,6 +331,7 @@ class PhysicalLowbarSessionTest {
             .put("threadCount", File("/proc/self/task").list()?.size ?: -1)
             .put("fdCount", File("/proc/self/fd").list()?.size ?: -1)
         if (device != null) {
+            val providers = liveProviders(device)
             val tracked = device.memoryUsed()
             val reliability = device.reliabilityMetrics
             result
@@ -318,6 +339,12 @@ class PhysicalLowbarSessionTest {
                 .put("tunnelStarted", device.tunnelStarted)
                 .put("provideEnabled", device.provideEnabled)
                 .put("provideMode", device.provideMode)
+                .put("countryCode", if (device.connectEnabled) physicalLiveCountry(providers) else "")
+                .put("selectedPeerId", physicalSelectedPeer(
+                    device.connectLocation?.connectLocationId?.clientId?.idStr, providers, device.connectEnabled,
+                ))
+                .put("selectedCarrier", physicalSelectedCarriers(carrierBaseline, carrierBytes(device), device.connectEnabled))
+                .put("carrierEvidence", "packet-byte-delta-since-connect")
                 .put("trackedMemory", JSONObject()
                     .put("targetBytes", tracked.targetByteCount)
                     .put("dnsBytes", tracked.dnsByteCount)
@@ -642,44 +669,50 @@ class PhysicalLowbarSessionTest {
         summary: SampleSummary,
     ) = thread(name = "physical-lowbar-memory", isDaemon = true) {
         FileOutputStream(samplesFile, false).bufferedWriter().use { writer ->
-            var nextSample = SystemClock.elapsedRealtime()
-            while (!stopped.get()) {
-                val records = runCatching {
-                    val device = checkNotNull(application.device)
-                    val batch = JSONObject(device.takeMemorySamplesJson())
-                    val schema = batch.optInt("schema")
-                    val dropped = batch.optLong("dropped")
-                    val samples = batch.getJSONArray("samples")
-                    buildList {
-                        for (i in 0 until samples.length()) {
-                            add(
-                                primitiveSample(
-                                    samples.getJSONObject(i),
-                                    startUnixMs,
-                                    schema,
-                                    if (i == 0) dropped else 0,
-                                ),
-                            )
+            FileOutputStream(diagnosticsFile, false).bufferedWriter().use { diagnostics ->
+                var nextSample = SystemClock.elapsedRealtime()
+                while (!stopped.get()) {
+                    val records = runCatching {
+                        val device = checkNotNull(application.device)
+                        // One SDK batch owns its timestamp and atomic root/child
+                        // snapshots. Never reconstruct its budget graph in Kotlin.
+                        diagnostics.append(device.transferDiagnosticSnapshotJson())
+                        diagnostics.flush()
+                        val batch = JSONObject(device.takeMemorySamplesJson())
+                        val schema = batch.optInt("schema")
+                        val dropped = batch.optLong("dropped")
+                        val samples = batch.getJSONArray("samples")
+                        buildList {
+                            for (i in 0 until samples.length()) {
+                                add(
+                                    primitiveSample(
+                                        samples.getJSONObject(i),
+                                        startUnixMs,
+                                        schema,
+                                        if (i == 0) dropped else 0,
+                                    ),
+                                )
+                            }
                         }
+                    }.getOrElse { error ->
+                        listOf(
+                            JSONObject()
+                                .put("type", "sample-error")
+                                .put("elapsedMs", SystemClock.elapsedRealtime() - startElapsedMs)
+                                .put("timeUnixMs", System.currentTimeMillis())
+                                .put("phase", phase)
+                                .put("errorType", error.javaClass.simpleName),
+                        )
                     }
-                }.getOrElse { error ->
-                    listOf(
-                        JSONObject()
-                            .put("type", "sample-error")
-                            .put("elapsedMs", SystemClock.elapsedRealtime() - startElapsedMs)
-                            .put("timeUnixMs", System.currentTimeMillis())
-                            .put("phase", phase)
-                            .put("errorType", error.javaClass.simpleName),
-                    )
+                    for (record in records) {
+                        if (record.optString("type") == "sample") summary.observe(record)
+                        writer.append(record.toString()).append('\n')
+                    }
+                    if (records.isNotEmpty()) writer.flush()
+                    nextSample += SAMPLE_INTERVAL_MILLIS
+                    val sleepMillis = nextSample - SystemClock.elapsedRealtime()
+                    if (sleepMillis > 0) SystemClock.sleep(sleepMillis)
                 }
-                for (record in records) {
-                    if (record.optString("type") == "sample") summary.observe(record)
-                    writer.append(record.toString()).append('\n')
-                }
-                if (records.isNotEmpty()) writer.flush()
-                nextSample += SAMPLE_INTERVAL_MILLIS
-                val sleepMillis = nextSample - SystemClock.elapsedRealtime()
-                if (sleepMillis > 0) SystemClock.sleep(sleepMillis)
             }
         }
     }
@@ -778,10 +811,36 @@ class PhysicalLowbarSessionTest {
         stopClient(connectVc, device)
         stopProvider(application, device)
         configureClientMode(device, mode)
-        connectVc.connectBestAvailable()
+        carrierBaseline = carrierBytes(device)
+        val locationsVc = device.openLocationsViewController()
+        try {
+            locationsVc.start()
+            var selected: ConnectLocation? = null
+            waitFor("explicit United States country pool", CONNECT_TIMEOUT_MILLIS) {
+                val countries = locationsVc.filteredLocations?.countries ?: return@waitFor false
+                val locations = (0 until countries.len()).mapNotNull { countries.get(it) }
+                val index = physicalUsCountryIndex(locations.map {
+                    PhysicalCountryCandidate(it.countryCode, it.connectLocationId?.locationId?.idStr,
+                        it.locationType == Sdk.LocationTypeCountry, it.connectLocationId?.bestAvailable == true)
+                }) ?: return@waitFor false
+                selected = locations[index]
+                true
+            }
+            connectVc.connect(checkNotNull(selected))
+        } finally {
+            locationsVc.stop()
+            device.closeLocationsViewController(locationsVc)
+        }
         uiDevice.clickVerifiedVpnConsentIfPresent()
         waitFor("public VPN connection", CONNECT_TIMEOUT_MILLIS) {
             connectVc.connected && device.connectEnabled && device.tunnelStarted
+        }
+        // A small separate-UID warmup proves actual carrier bytes. Auto policy
+        // and a requested US location are not evidence of the live route.
+        peerEgressProbeWithTrafficProof(device)
+        waitFor("live US provider and carrier evidence", CONNECT_TIMEOUT_MILLIS) {
+            physicalLiveCountry(liveProviders(device)) == "US" &&
+                physicalSelectedCarriers(carrierBaseline, carrierBytes(device), device.connectEnabled).isNotEmpty()
         }
     }
 
@@ -843,6 +902,7 @@ class PhysicalLowbarSessionTest {
         stopClient(connectVc, device)
         stopProvider(application, device)
         if (mode.isNotEmpty()) configureClientMode(device, mode)
+        carrierBaseline = carrierBytes(device)
         waitFor("connectable same-network peer", PEER_TIMEOUT_MILLIS) {
             peerLocation(peerVc, networkPeer) != null
         }
@@ -850,6 +910,12 @@ class PhysicalLowbarSessionTest {
         uiDevice.clickVerifiedVpnConsentIfPresent()
         waitFor("same-network peer VPN connection", CONNECT_TIMEOUT_MILLIS) {
             connectVc.connected && device.connectEnabled && device.tunnelStarted
+        }
+        peerEgressProbeWithTrafficProof(device)
+        waitFor("live exact peer and carrier evidence", CONNECT_TIMEOUT_MILLIS) {
+            physicalSelectedPeer(device.connectLocation?.connectLocationId?.clientId?.idStr,
+                liveProviders(device), device.connectEnabled).isNotEmpty() &&
+                physicalSelectedCarriers(carrierBaseline, carrierBytes(device), device.connectEnabled).isNotEmpty()
         }
     }
 
@@ -1021,6 +1087,7 @@ class PhysicalLowbarSessionTest {
         commandFile.delete()
         statusFile.delete()
         samplesFile.delete()
+        diagnosticsFile.delete()
         summaryFile.delete()
         startupGoroutinesFile.delete()
 
@@ -1040,6 +1107,7 @@ class PhysicalLowbarSessionTest {
         var peerVc: PeerViewController? = null
         var sampler: Thread? = null
         var activeCommandId = "0"
+        val previousDiagnosticOptIn = Sdk.setTransferDiagnosticSnapshotsEnabled(true)
 
         try {
             withPhysicalCredentialCheckpoints(
@@ -1087,6 +1155,9 @@ class PhysicalLowbarSessionTest {
                 .onFailure(error::addSuppressed)
             throw error
         } finally {
+            // This process-wide opt-in affects only future constructions; the
+            // retained device's counters remain valid through its teardown.
+            Sdk.setTransferDiagnosticSnapshotsEnabled(previousDiagnosticOptIn)
             removeAllocationListener()
             stopped.set(true)
             sampler?.join(5_000)

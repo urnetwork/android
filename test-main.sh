@@ -9,14 +9,14 @@
 # log out.
 #
 # Targets: github, play, solana_dapp, and the ungoogled github source transform
-# shipped by F-Droid. GitHub and F-Droid run on every eligible supported-ARM
-# device, Play requires Google Play services, and Solana requires Seeker or
-# Saga hardware. All share one application id, so each compatible device/target
+# shipped by F-Droid. GitHub, Play and F-Droid run on the owned acceptance AVD;
+# Solana runs only on the explicitly authorized physical Saga/Seeker serial.
+# Play requires Google Play services. All share one application id, so each device/target
 # cell starts from a clean install while securely restoring the same
 # recoverable account fixture.
 #
 # Usage:
-#   ./test-main.sh                         all targets on every eligible device
+#   ./test-main.sh                         owned AVD plus authorized physical Solana lane
 #   ./test-main.sh --profile=smoke         github only; no peer-to-peer phase
 #   ./test-main.sh --profile=flavor --flavor=play
 #                                          selected flavor(s); no peer-to-peer phase
@@ -166,6 +166,12 @@ for target in $targets; do
   esac
 done
 targets="${unique_targets# }"
+canonical_solana_serial=""
+if [ "$execution_mode" = canonical ]; then
+  case " $targets " in
+    *" solana_dapp "*) canonical_solana_serial="$(android_acceptance_canonical_solana_serial)" ;;
+  esac
+fi
 build_targets="$targets"
 if [ "$smoke_only" -ne 1 ] && [ "$run_peer_to_peer" -eq 1 ]; then
   case " $targets " in
@@ -289,6 +295,7 @@ captured_device_serials="$run_dir/captured-device-serials"
 device_serials="$run_dir/device-serials"
 excluded_devices="$artifacts/excluded-devices.tsv"
 device_records="$run_dir/device-records"
+device_cleanup_records="$run_dir/device-cleanup-records"
 device_inventory="$artifacts/devices.tsv"
 device_capabilities="$run_dir/device-capabilities"
 device_plan="$artifacts/device-flavor-plan.tsv"
@@ -362,6 +369,7 @@ cleanup() {
     wait "$session_pid" 2>/dev/null || true
   done
   if [ -n "$private_staging_serial" ] && [ -n "$private_staging" ]; then
+    authorize_selected_device "$private_staging_serial" || staging_owned=0
     if [ "$private_staging_serial" = "$started_emulator_serial" ] && \
        [ -n "$emulator_pid" ]; then
       android_acceptance_runner_owns_emulator \
@@ -385,13 +393,20 @@ cleanup() {
 
   mkdir -p "$artifacts/cleanup-clients"
   if [ -f "$device_records" ]; then
+    local_device_count="$(wc -l <"$device_records" | tr -d ' ')"
+  fi
+  if [ -f "$device_cleanup_records" ]; then
     while IFS=$'\t' read -r device_id target_serial extra <&3; do
       [ -n "$device_id" ] && [ -n "$target_serial" ] && [ -z "${extra:-}" ] || continue
-      local_device_count=$((local_device_count + 1))
       serial="$target_serial"
       device_cleanup="$artifacts/cleanup-clients/$device_id"
       state_file="$run_dir/devices/$device_id/animation-scales"
       mkdir -p "$device_cleanup"
+      if ! authorize_selected_device "$serial"; then
+        echo "[android acceptance] refused cleanup after selected-device authorization was lost" >&2
+        exit_status=1
+        continue
+      fi
       if [ "$started_emulator" -eq 1 ] && \
          [ "$serial" = "$started_emulator_serial" ] && \
          ! android_acceptance_runner_owns_emulator \
@@ -436,7 +451,7 @@ cleanup() {
         echo "[android acceptance] selected device $serial is unreachable during cleanup" >&2
         exit_status=1
       fi
-    done 3<"$device_records"
+    done 3<"$device_cleanup_records"
   fi
 
   if [ -n "$peer_serial" ]; then
@@ -621,12 +636,39 @@ available_emulator_console_port() {
 
 capture_device_fleet() {
   local raw="$run_dir/adb-devices.raw" selected_output="$device_serials"
+  local required_serials="$started_emulator_serial"
   if [ "$execution_mode" = diagnostic ]; then
     selected_output="$captured_device_serials"
+    required_serials="$diagnostic_device"
+  elif [ -n "$canonical_solana_serial" ]; then
+    required_serials="${required_serials:+$required_serials$'\n'}$canonical_solana_serial"
   fi
   timeout 15 "$adb" devices -l >"$raw" || return 1
   android_acceptance_select_adb_devices \
-    "$raw" "$selected_output" "$excluded_devices" "${reserved_device_serials[@]}"
+    "$raw" "$selected_output" "$excluded_devices" "$required_serials" \
+    "${reserved_device_serials[@]}"
+}
+
+# Enumeration alone never grants mutation or cleanup authority. Recheck the
+# owned emulator identity or exact authorized physical lane at each boundary.
+authorize_selected_device() {
+  local target_serial="$1" reserved
+  for reserved in "${reserved_device_serials[@]}"; do
+    [ "$target_serial" != "$reserved" ] || return 1
+  done
+  if [ -n "$started_emulator_serial" ] && [ "$target_serial" = "$started_emulator_serial" ]; then
+    android_acceptance_runner_owns_emulator \
+      "$adb" "$target_serial" "$avd_name" "$emulator_pid" "$emulator_owner_token"
+  elif [ -n "$peer_serial" ] && [ "$target_serial" = "$peer_serial" ]; then
+    runner_owns_peer_emulator
+  elif [ "$execution_mode" = canonical ] && [ -n "$canonical_solana_serial" ] && \
+       [ "$target_serial" = "$canonical_solana_serial" ]; then
+    android_acceptance_validate_canonical_solana_device "$adb" "$target_serial"
+  elif [ "$execution_mode" = diagnostic ] && [ "$target_serial" = "$diagnostic_device" ]; then
+    android_acceptance_adb_device_ready "$adb" "$target_serial"
+  else
+    return 1
+  fi
 }
 
 # Dispatch a runner-started fallback only to the credential-free ownership
@@ -651,6 +693,7 @@ prepare_selected_device() {
   local diagnostic_device_id="$4"
   local diagnostic_file="${status_file%.txt}-interactive.txt"
 
+  authorize_selected_device "$target_serial" || return 1
   if runner_started_fallback_emulator "$target_serial"; then
     ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$emulator_owner_token" \
       android_acceptance_prepare_owned_emulator \
@@ -667,6 +710,7 @@ selected_device_interactive() {
   local target_serial="$1" diagnostic_device_id="$2" role="$3"
   local diagnostic_file="$4"
 
+  authorize_selected_device "$target_serial" || return 1
   if runner_started_fallback_emulator "$target_serial"; then
     ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$emulator_owner_token" \
       android_acceptance_runner_owned_emulator_interactive \
@@ -685,6 +729,7 @@ run_after_selected_device_interactive() {
   shift 5
 
   [ "$#" -gt 0 ] || return 2
+  authorize_selected_device "$target_serial" || return 1
   if runner_started_fallback_emulator "$target_serial"; then
     renderer_evidence="$artifacts/emulator.log"
     ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$emulator_owner_token" \
@@ -728,8 +773,12 @@ if [ "$execution_mode" = diagnostic ]; then
     die "requested diagnostic device is not an eligible member of the captured fleet"
   cp "$captured_device_serials" "$artifacts/diagnostic-captured-device-serials.txt"
   chmod 600 "$artifacts/diagnostic-captured-device-serials.txt"
-elif [ ! -s "$device_serials" ]; then
-  echo "[android acceptance] no eligible attached device; starting fallback AVD $avd_name"
+else
+  if [ -n "$canonical_solana_serial" ]; then
+    android_acceptance_validate_canonical_solana_device "$adb" "$canonical_solana_serial" || \
+      die "required physical Solana device failed read-only identity/capability validation"
+  fi
+  echo "[android acceptance] starting owned acceptance AVD $avd_name; unrelated devices remain untouched"
   port="$(available_emulator_console_port 5554 5584)" || \
     die "no free Android emulator console port for fallback acceptance AVD"
   started_emulator_serial="emulator-$port"
@@ -763,6 +812,10 @@ while IFS=$'\t' read -r device_id target_serial extra <&3; do
   device_state_dir="$run_dir/devices/$device_id"
   mkdir -p "$device_state_dir"
   readiness_file="$artifacts/device-readiness/$device_id.txt"
+  authorize_selected_device "$serial" || die "selected device $serial lost mutation authorization"
+  # A failed read-only identity check must not enroll a phone for package
+  # removal in EXIT cleanup. Record immediately before the first mutation.
+  printf '%s\t%s\n' "$device_id" "$serial" >>"$device_cleanup_records"
   if ! prepare_selected_device \
       "$serial" "$device_state_dir" "$readiness_file" "$readiness_diagnostic_id"; then
     readiness_status="$(sed -n 's/^status=//p' "$readiness_file" 2>/dev/null || true)"
@@ -799,9 +852,13 @@ done 3<"$device_records"
 chmod 600 "$device_inventory" "$device_capabilities" "$excluded_devices"
 
 # The target list is validated above and intentionally expanded into arguments.
+canonical_plan_args=()
+if [ "$execution_mode" = canonical ]; then
+  canonical_plan_args=(--canonical-devices "$started_emulator_serial" "$canonical_solana_serial")
+fi
 # shellcheck disable=SC2086
 android_acceptance_write_device_flavor_plan \
-  "$device_capabilities" "$device_plan" "$device_skips" $targets || \
+  "$device_capabilities" "$device_plan" "$device_skips" ${canonical_plan_args[@]+"${canonical_plan_args[@]}"} $targets || \
   die "could not create the Android device/flavor execution plan"
 # shellcheck disable=SC2086
 android_acceptance_require_target_coverage "$device_plan" $targets || \
@@ -832,7 +889,7 @@ if [ -s "$device_skips" ]; then
   echo "[android acceptance] incompatible device/flavor cells were skipped; see $device_skips"
 fi
 if [ -s "$excluded_devices" ]; then
-  echo "[android acceptance] reserved performance devices were excluded; see $excluded_devices"
+  echo "[android acceptance] reserved and unrelated devices were excluded; see $excluded_devices"
 fi
 
 if [ "$smoke_only" -ne 1 ]; then
@@ -914,6 +971,7 @@ install_private_file_on() {
     credentials|guest-secret-key|tests.json|physical-command|physical-expected-peer-id) ;;
     *) echo "refusing unsafe acceptance destination: $destination" >&2; return 1 ;;
   esac
+  authorize_selected_device "$target_serial" || return 1
 
   # adb push cannot write directly into the app sandbox. Always remove the
   # temporary copy, including when run-as or chmod fails partway through.
@@ -1421,6 +1479,7 @@ record_target_failure() {
 
 uninstall_acceptance_packages() {
   local target_serial="$1" log_dir="$2" uninstall_status=0 package_name package_label
+  authorize_selected_device "$target_serial" || return 1
   mkdir -p "$log_dir" || return 2
   for package_name in com.bringyour.network com.bringyour.network.test; do
     package_label="${package_name##*.}"
@@ -1572,8 +1631,8 @@ for target in $build_targets; do
 
     echo
     echo "[android acceptance] ════════ $target on $serial ($device_id) ════════"
-    if ! android_acceptance_adb_device_ready "$adb" "$serial"; then
-      echo "selected Android device $serial is no longer available" >&2
+    if ! authorize_selected_device "$serial"; then
+      echo "selected Android device $serial is no longer available or authorized" >&2
       write_target_diagnostic "$out" "selected Android device became unavailable"
       record_acceptance_result \
         "$out" "$target" device failed 1 \

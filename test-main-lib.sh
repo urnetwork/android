@@ -1847,17 +1847,72 @@ android_acceptance_is_solana_device() {
   return 1
 }
 
-# Resolve one immutable acceptance fleet from `adb devices -l`. Reserved
-# performance devices are recorded but never selected, even if they are the
-# only attached hardware. Every other visible adb target must be fully
-# authorized and online: silently dropping an offline/unauthorized device
-# would let a fleet run claim coverage it never exercised.
+# This physical phone was explicitly authorized for canonical Solana shipping
+# acceptance. Discovering another compatible phone does not authorize it.
+# Changing the physical lane requires a new explicit authorization and a tracked
+# update here; environment variables cannot broaden the mutation scope.
+android_acceptance_canonical_solana_serial() {
+  printf 'O1N1XT172304047\n'
+}
+
+# Read-only identity/capability proof, before unlocking, changing settings,
+# installing, or cleaning up packages. Do not substitute a ready foreign phone
+# or an emulator whose model was configured to look like Solana hardware.
+android_acceptance_validate_canonical_solana_device() {
+  local adb="$1" serial="$2" actual qemu boot_qemu api abis value property
+  local -a identity=()
+
+  [ "$serial" = "$(android_acceptance_canonical_solana_serial)" ] || {
+    echo "physical Solana device is outside canonical acceptance authorization" >&2
+    return 1
+  }
+  android_acceptance_adb_device_ready "$adb" "$serial" || return 1
+  actual="$(timeout 15 "$adb" -s "$serial" get-serialno </dev/null | tr -d '\r\n')" || return 1
+  [ "$actual" = "$serial" ] || return 1
+  qemu="$(timeout 15 "$adb" -s "$serial" shell getprop ro.kernel.qemu </dev/null | tr -d '\r\n')" || return 1
+  boot_qemu="$(timeout 15 "$adb" -s "$serial" shell getprop ro.boot.qemu </dev/null | tr -d '\r\n')" || return 1
+  case "$qemu:$boot_qemu" in :|0:|:0|0:0) ;; *) return 1 ;; esac
+  for property in ro.product.manufacturer ro.product.brand ro.product.model ro.product.name ro.product.device; do
+    value="$(timeout 15 "$adb" -s "$serial" shell getprop "$property" </dev/null | tr -d '\r\n')" || return 1
+    identity+=("$value")
+  done
+  android_acceptance_is_solana_device "${identity[@]}" || {
+    echo "authorized physical device is not Saga or Seeker hardware" >&2
+    return 1
+  }
+  api="$(timeout 15 "$adb" -s "$serial" shell getprop ro.build.version.sdk </dev/null | tr -d '\r\n')" || return 1
+  case "$api" in ''|*[!0-9]*) return 1 ;; esac
+  [ "$api" -ge 26 ] || return 1
+  abis="$(timeout 15 "$adb" -s "$serial" shell getprop ro.product.cpu.abilist </dev/null | tr -d '\r\n')" || return 1
+  android_acceptance_device_has_shipping_abi "$abis"
+}
+
+# Resolve explicit serials from `adb devices -l`. The fourth argument is an
+# exact newline-delimited required set: canonical acceptance supplies its
+# owned AVD and the authorized physical Solana lane when that flavor is needed;
+# diagnostics supply one explicit serial. An empty selection only inventories
+# devices before owned targets start. Unrelated devices, including unauthorized
+# or offline ones, cannot block this lane or become accidental fallback targets.
+# Reserved performance devices remain excluded even if explicitly requested.
 android_acceptance_select_adb_devices() {
-  local raw_file="$1" selected_file="$2" excluded_file="$3"
-  shift 3
+  local raw_file="$1" selected_file="$2" excluded_file="$3" required_serials="$4"
+  shift 4
   local selected_tmp="${selected_file}.tmp.$$"
   local excluded_tmp="${excluded_file}.tmp.$$"
-  local line serial state reserved candidate
+  local line serial state reserved candidate required matched
+  local -a required_set=()
+
+  while IFS= read -r required; do
+    [ -n "$required" ] || continue
+    case "$required" in *[!A-Za-z0-9._:-]*) return 1 ;; esac
+    for candidate in ${required_set[@]+"${required_set[@]}"} "$@"; do
+      if [ "$required" = "$candidate" ]; then
+        echo "duplicate or reserved required adb serial: $required" >&2
+        return 1
+      fi
+    done
+    required_set+=("$required")
+  done <<<"$required_serials"
 
   : >"$selected_tmp" || return 1
   : >"$excluded_tmp" || { rm -f "$selected_tmp"; return 1; }
@@ -1890,8 +1945,16 @@ android_acceptance_select_adb_devices() {
       printf '%s\t%s\treserved-for-performance\n' "$serial" "$state" >>"$excluded_tmp"
       continue
     fi
+    matched=0
+    for required in ${required_set[@]+"${required_set[@]}"}; do
+      [ "$serial" != "$required" ] || matched=1
+    done
+    if [ "$matched" -eq 0 ]; then
+      printf '%s\t%s\toutside-acceptance-selection\n' "$serial" "$state" >>"$excluded_tmp"
+      continue
+    fi
     if [ "$state" != device ]; then
-      echo "adb device $serial is $state; every non-reserved attached device must be authorized and online" >&2
+      echo "required adb device $serial is $state; the selected target must be authorized and online" >&2
       rm -f "$selected_tmp" "$excluded_tmp"
       return 1
     fi
@@ -1902,6 +1965,13 @@ android_acceptance_select_adb_devices() {
     fi
     printf '%s\n' "$serial" >>"$selected_tmp"
   done <"$raw_file"
+  for required in ${required_set[@]+"${required_set[@]}"}; do
+    if ! grep -Fqx -- "$required" "$selected_tmp"; then
+      echo "required adb device $required is absent or reserved for performance" >&2
+      rm -f "$selected_tmp" "$excluded_tmp"
+      return 1
+    fi
+  done
 
   LC_ALL=C sort "$selected_tmp" >"${selected_tmp}.sorted" || {
     rm -f "$selected_tmp" "$selected_tmp.sorted" "$excluded_tmp"
@@ -2063,11 +2133,33 @@ android_acceptance_write_device_records() {
 # cell. Target-major order builds each APK once, then runs it sequentially on
 # compatible devices. Capability rows are:
 #   device-id<TAB>serial<TAB>play-services(0|1)<TAB>solana-device(0|1)<TAB>api
+# Canonical mode additionally assigns the general flavors to the owned AVD
+# and solana_dapp exclusively to the authorized physical phone. Diagnostics
+# keep their separately authorized single-device capability plan.
 android_acceptance_write_device_flavor_plan() {
   local capabilities_file="$1" plan_file="$2" skipped_file="$3"
   shift 3
   local temporary="${plan_file}.tmp.$$" skipped_temporary="${skipped_file}.tmp.$$"
   local target device_id serial play_services solana_device android_api extra reason
+  local canonical=0 owned_avd='' solana_serial=''
+
+  if [ "${1:-}" = --canonical-devices ]; then
+    [ "$#" -ge 3 ] || return 2
+    canonical=1
+    owned_avd="$2"
+    solana_serial="$3"
+    shift 3
+    case "$owned_avd" in emulator-*) ;; *) return 1 ;; esac
+    case "${owned_avd#emulator-}" in ''|*[!0-9]*) return 1 ;; esac
+    [ -z "$solana_serial" ] || \
+      [ "$solana_serial" = "$(android_acceptance_canonical_solana_serial)" ] || return 1
+    # Capability inventory is immutable and exact, not a second broad selector.
+    awk -F '\t' -v avd="$owned_avd" -v solana="$solana_serial" '
+      NF != 5 || ($2 != avd && (solana == "" || $2 != solana)) { failed = 1 }
+      { if (++seen[$2] != 1) failed = 1 }
+      END { exit failed || seen[avd] != 1 || (solana != "" && seen[solana] != 1) }
+    ' "$capabilities_file" || return 1
+  fi
 
   : >"$temporary" || return 1
   : >"$skipped_temporary" || { rm -f "$temporary"; return 1; }
@@ -2089,7 +2181,11 @@ android_acceptance_write_device_flavor_plan() {
         return 1
       }
       reason=""
-      if [ "$target" = play ] && [ "$play_services" -ne 1 ]; then
+      if [ "$canonical" -eq 1 ] && [ "$target" = solana_dapp ] && [ "$serial" != "$solana_serial" ]; then
+        reason="requires-authorized-physical-solana"
+      elif [ "$canonical" -eq 1 ] && [ "$target" != solana_dapp ] && [ "$serial" != "$owned_avd" ]; then
+        reason="reserved-for-canonical-solana-flavor"
+      elif [ "$target" = play ] && [ "$play_services" -ne 1 ]; then
         reason="requires-google-play-services"
       elif [ "$target" = solana_dapp ] && [ "$solana_device" -ne 1 ]; then
         reason="requires-solana-seeker-or-saga"

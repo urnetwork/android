@@ -67,6 +67,22 @@ test("app command acknowledgment contract includes the exact nonempty argument i
   }
 });
 
+test("physical evidence is wired to explicit US, live routes, and the opt-in atomic SDK collector", () => {
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /connectBestAvailable\(/);
+  assert.match(source, /physicalUsCountryIndex\(locations\.map/);
+  assert.match(source, /device\.connectedProviderLocations/);
+  assert.match(source, /"countryCode", if \(device\.connectEnabled\) physicalLiveCountry\(providers\)/);
+  assert.match(source, /"selectedPeerId", physicalSelectedPeer\(/);
+  assert.match(source, /"selectedCarrier", physicalSelectedCarriers\(carrierBaseline, carrierBytes\(device\)/);
+  assert.match(source, /File\(acceptanceDir, "physical-diagnostics\.ndjson"\)/);
+  assert.match(source, /diagnostics\.append\(device\.transferDiagnosticSnapshotJson\(\)\)/);
+  assert.ok(source.indexOf("Sdk.setTransferDiagnosticSnapshotsEnabled(true)") < source.indexOf("withPhysicalCredentialCheckpoints("));
+  assert.match(source, /finally \{[\s\S]*?Sdk\.setTransferDiagnosticSnapshotsEnabled\(previousDiagnosticOptIn\)/);
+  assert.doesNotMatch(source, /put\("(?:transport_budget_|device_transport_budget_|transfer_root_)/,
+    "the SDK owns the atomic budget graph; Kotlin must not fabricate another copy");
+});
+
 for (const [verb, label] of [
   ["owner-census", "preflight"],
   ["heap-profile", "idle-before-gc"],
