@@ -120,13 +120,32 @@ test("quiet uses the original full sampled helper and each Fast.com child retain
 
 test("serial, root scope, labels, port and CPU limits fail closed before any invocation", () => {
   const mutate = (key, value) => { const result = args("/private/arm-root"); result[result.indexOf(key) + 1] = value; return result; };
-  for (const [key, value] of [["--serial", "arbitrary-device"], ["--root", "/"], ["--run-dir", "/Users"],
+  for (const [key, value] of [["--serial", "arbitrary-device"], ["--root", "/"], ["--run-dir", dirname(root)],
     ["--run-dir", `${root}/artifacts`], ["--run-dir", "/private/../tmp/test"], ["--label", "../other-arm"],
     ["--build-id", "x;echo secret"], ["--cdp-port", "0"], ["--underlay", "auto"], ["--max-workers", "5"], ["--gomaxprocs", "11"]]) {
     assert.throws(() => parseArgs(mutate(key, value), 14), undefined, `${key} ${value}`);
   }
   assert.throws(() => parseArgs([...args("/private/arm-root"), "--profile-rate", "65536"], 14));
   assert.throws(() => parseArgs([...args("/private/arm-root"), "--label", "second"], 14));
+});
+
+test("run directory containment follows the chosen workspace rather than a host home prefix", () => {
+  // parseArgs is host-only: synthetic roots make both relationships explicit
+  // even when this test itself runs from a /Users or temporary checkout.
+  for (const workspace of ["/Users/fixture/workspace", "/tmp/fixture/workspace"]) {
+    const forRun = run => {
+      const argv = args(run);
+      argv[argv.indexOf("--root") + 1] = workspace;
+      return argv;
+    };
+    for (const run of [workspace, join(workspace, "artifacts"), dirname(workspace), "/"]) {
+      assert.throws(() => parseArgs(forRun(run), 14), /private-run-outside-workspace-required/);
+    }
+    const sibling = join(dirname(workspace), "run");
+    assert.equal(parseArgs(forRun(sibling), 14)["run-dir"], sibling);
+    const unrelated = workspace.startsWith("/Users/") ? "/tmp" : "/Users";
+    assert.equal(parseArgs(forRun(unrelated), 14)["run-dir"], unrelated);
+  }
 });
 
 test("prepare owns fresh private leaves and its exact workload passes the existing script preflight", t => {
