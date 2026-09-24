@@ -1025,6 +1025,78 @@ collect_smoke_artifacts() {
   timeout 30 "$adb" -s "$serial" exec-out uiautomator dump /dev/tty >"$out/ui.xml" 2>/dev/null || true
 }
 
+read_acceptance_completion_record() {
+  local target_serial="$1" out="$2" expected_build="$3" expected_repeat="$4"
+  local attempt attempt_dir ownership_status read_status capture_status captured_result outcome
+  local -a read_statuses
+  # Fresh private receipts cannot overwrite an earlier read, including a
+  # partial failed attempt. Never print unexpected app bytes to the runner log.
+  mkdir -m 700 "$out" || return 1
+  for attempt in 1 2 3; do
+    attempt_dir="$out/attempt-$attempt"
+    mkdir -m 700 "$attempt_dir" || return 1
+    if authorize_selected_device "$target_serial" \
+        >"$attempt_dir/ownership.stdout" 2>"$attempt_dir/ownership.stderr"; then
+      ownership_status=0
+    else
+      ownership_status=$?
+    fi
+    printf '%s\n' "$ownership_status" >"$attempt_dir/ownership-status.txt" || return 1
+    if [ "$ownership_status" -ne 0 ]; then
+      printf 'ownership-unavailable\n' >"$attempt_dir/verification.txt" || return 1
+      printf '%s\tnot-run\tnot-run\townership-unavailable\n' "$attempt" \
+        >>"$out/completion-attempts.tsv" || return 1
+      return 1
+    fi
+
+    # Drain stdout while retaining only its first 4 KiB. Closing the pipe at
+    # the cap would replace the producer's true exit status with SIGPIPE.
+    if timeout 30 "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
+        cat files/acceptance/result 2>"$attempt_dir/read.stderr" | \
+        node "$here/test-main-completion-record.mjs" \
+          "$attempt_dir" "$expected_build" "$expected_repeat" \
+          2>"$attempt_dir/capture.stderr"; then
+      read_statuses=("${PIPESTATUS[@]}")
+    else
+      read_statuses=("${PIPESTATUS[@]}")
+    fi
+    read_status="${read_statuses[0]}"
+    capture_status="${read_statuses[1]}"
+    printf '%s\n' "$read_status" >"$attempt_dir/read-status.txt" || return 1
+    printf '%s\n' "$capture_status" >"$attempt_dir/capture-status.txt" || return 1
+    captured_result=''
+    if [ "$capture_status" -eq 0 ] && [ -f "$attempt_dir/capture-result.txt" ]; then
+      IFS= read -r captured_result <"$attempt_dir/capture-result.txt" || return 1
+    fi
+    case "$captured_result" in
+      match|mismatch|oversize) ;;
+      *) captured_result=invalid ;;
+    esac
+    if [ "$capture_status" -ne 0 ] || [ "$captured_result" = invalid ]; then
+      outcome=capture-failed
+    elif [ "$captured_result" = oversize ]; then
+      outcome=record-oversize
+    elif [ "$read_status" -eq 124 ]; then
+      outcome=read-timeout
+    elif [ "$read_status" -ne 0 ]; then
+      outcome=read-failed
+    elif [ "$captured_result" = match ]; then
+      outcome=success
+    else
+      outcome=record-mismatch
+    fi
+    printf '%s\n' "$outcome" >"$attempt_dir/verification.txt" || return 1
+    printf '%s\t%s\t%s\t%s\n' "$attempt" "$read_status" "$capture_status" "$outcome" \
+      >>"$out/completion-attempts.tsv" || return 1
+    [ "$outcome" != success ] || return 0
+    # Only an explicit timeout is transient here. Missing/wrong app output,
+    # other ADB exits, local capture errors and lost ownership stay terminal.
+    [ "$outcome" = read-timeout ] && [ "$attempt" -lt 3 ] || return 1
+    sleep 1
+  done
+  return 1
+}
+
 # One bounded ADB read. Preserve the command's exact exit code and stderr,
 # separately from app-output validation or local archive extraction failures.
 # In particular, timeout can return 124 with partial stdout and empty stderr.
@@ -2096,11 +2168,8 @@ for target in $build_targets; do
       test_status=1
       fixture_missing=1
     fi
-    result_text="$(timeout 30 "$adb" -s "$serial" exec-out run-as com.bringyour.network cat files/acceptance/result 2>/dev/null | tr -d '\r' || true)"
-    result_build="$(printf '%s\n' "$result_text" | sed -n '1p')"
-    result_repeat="$(printf '%s\n' "$result_text" | sed -n '2p')"
-    if [ "$result_build" != "$build_id" ] || [ "$result_repeat" != "$repeat_count" ]; then
-      echo "instrumentation did not write the expected completion record for $target on $serial" >&2
+    if ! read_acceptance_completion_record "$serial" "$out/completion" "$build_id" "$repeat_count"; then
+      echo "completion record read or verification failed for $target on $serial (see completion receipts)" >&2
       test_status=1
     fi
     if grep -Eq 'FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed|shortMsg=' "$out/instrumentation.log"; then
