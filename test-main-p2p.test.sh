@@ -336,7 +336,7 @@ done
 
 mkdir -p "$fixture/logs"
 printf 'bounded app log\n' >"$fixture/logs/app.log"
-for mode in recovered persistent unrelated-error invalid-status invalid-png ownership-lost ownership-lost-after-read; do
+for mode in recovered persistent unrelated-error invalid-status invalid-png ownership-lost ownership-lost-after-read diagnostics-recovered diagnostics-error diagnostics-empty startup; do
   (
     out="$fixture/collection-$mode"
     adb=fake_adb
@@ -371,7 +371,29 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
         'shell dumpsys activity activities') printf 'activity fixture\n' ;;
         'shell ps -A') printf 'process fixture\n' ;;
         'exec-out run-as com.bringyour.network cat files/acceptance/physical-status')
-          if [ "$mode" = invalid-status ]; then printf '{'; else printf '{"state":"complete","commandId":"provider-proof","extra":{}}\n'; fi ;;
+          if [ "$mode" = invalid-status ]; then
+            printf '{'
+          elif [ "$mode" = startup ]; then
+            printf '{"phase":"startup","state":"error","commandId":"0","extra":{"stage":"auth-discovery","failure":"auth-discovery-failed"}}\n'
+          else
+            printf '{"phase":"provider-proof","state":"complete","commandId":"provider-proof","extra":{}}\n'
+          fi ;;
+        'exec-out run-as com.bringyour.network cat files/acceptance/physical-memory.ndjson')
+          [ "$mode" != startup ] || fail "startup failure requested a sampler that never started"
+          printf '{"type":"sample","timeUnixMs":1790229593000,"phase":"probe"}\n' ;;
+        'exec-out run-as com.bringyour.network cat files/acceptance/physical-diagnostics.ndjson')
+          [ "$mode" != startup ] || fail "startup failure requested diagnostics that never started"
+          if [ "$mode" = diagnostics-error ]; then
+            printf 'diagnostic read failed\n' >&2
+            return 1
+          elif [ "$mode" = diagnostics-empty ]; then
+            return 0
+          elif [ "$mode" = diagnostics-recovered ] && [ "$attempt" = 1 ]; then
+            printf '{"part":"state","partial":'
+            printf 'adb: device offline\n' >&2
+            return 1
+          fi
+          printf '{"part":"state","unix_millis":1790229593000,"p2p":{"FastReadMessageCount":6}}\n' ;;
         'exec-out run-as com.bringyour.network cat files/acceptance/physical-startup-goroutines.txt') return 1 ;;
         'exec-out run-as com.bringyour.network tar -C files/logs -cf - .') command tar -C "$fixture/logs" -cf - . ;;
         *) fail "collector attempted a mutation or unexpected read: $*" ;;
@@ -380,6 +402,12 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
     result=0
     collect_physical_artifacts emulator-5556 "$out" || result=$?
     case "$mode" in
+      diagnostics-recovered)
+        [ "$result" = 0 ] && [ "$ownership_checks" = 2 ] || fail "diagnostic transport loss did not retry with the same owner"
+        grep -Fq '"partial":' "$out/attempt-1/physical-diagnostics.ndjson" || fail "partial diagnostic evidence was erased"
+        grep -Fq 'adb: device offline' "$out/attempt-1/collection.stderr" || fail "diagnostic transport failure was hidden" ;;
+      startup)
+        [ "$result" = 0 ] && [ "$ownership_checks" = 1 ] || fail "pre-sampler startup evidence required absent diagnostics" ;;
       recovered)
         [ "$result" = 0 ] && [ "$ownership_checks" = 2 ] || fail "same-owner recovery did not complete bounded retry"
         grep -Fq 'partial retained log' "$out/attempt-1/logcat.txt" || fail "first attempt was overwritten"
@@ -395,6 +423,15 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
         [ "$(wc -l <"$fixture/reads-$mode" | tr -d ' ')" = 1 ] || fail "collector read after losing ownership" ;;
       *) [ "$result" != 0 ] && [ "$ownership_checks" = 1 ] || fail "non-transport failure was retried or accepted: $mode" ;;
     esac
+    if [ "$result" = 0 ] && [ "$mode" != startup ]; then
+      grep -Fq '"type":"sample"' "$out/physical-memory.ndjson" || fail "physical memory timeline was not retained"
+      grep -Fq '"FastReadMessageCount":6' "$out/physical-diagnostics.ndjson" || fail "transfer boundary counters were not retained"
+      node -e 'const fs=require("node:fs"); for (const path of process.argv.slice(1)) if (fs.statSync(path).mode & 0o077) process.exit(1)' \
+        "$out/physical-memory.ndjson" "$out/physical-diagnostics.ndjson" || fail "physical diagnostic artifacts are not private"
+    fi
+    if [ "$mode" = diagnostics-error ] || [ "$mode" = diagnostics-empty ]; then
+      [ -s "$out/collection.stderr" ] || fail "diagnostic collection failure has no retained cause"
+    fi
   ) || fail "artifact collector control $mode"
 done
 

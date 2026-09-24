@@ -1028,7 +1028,7 @@ collect_smoke_artifacts() {
 # One read-only attempt. Keep stderr and partial files: an ADB transport loss
 # is evidence, not an app crash. Each retry gets a separate directory.
 collect_physical_artifacts_once() {
-  local target_serial="$1" out="$2"
+  local target_serial="$1" out="$2" sampler_started diagnostic
   mkdir -p "$out/glog" || return 1
   timeout 30 "$adb" -s "$target_serial" logcat -d -t 12000 \
     >"$out/logcat.txt" 2>"$out/collection.stderr" || return 1
@@ -1051,10 +1051,26 @@ collect_physical_artifacts_once() {
     tar -C files/logs -cf - . 2>>"$out/collection.stderr" | \
     tar -xf - -C "$out/glog" 2>>"$out/collection.stderr" || return 1
   [ "$(od -An -tx1 -N8 "$out/foreground.png" | tr -d '[:space:]')" = 89504e470d0a1a0a ] || return 1
-  node -e 'const fs=require("node:fs"); const value=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (!value || typeof value!=="object" || Array.isArray(value)) process.exit(1)' \
-    "$out/status.json" 2>>"$out/collection.stderr" || return 1
+  sampler_started="$(node -e 'const fs=require("node:fs"); const value=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (!value || typeof value!=="object" || Array.isArray(value)) process.exit(1); process.stdout.write(value.phase === "startup" ? "0" : "1")' \
+    "$out/status.json" 2>>"$out/collection.stderr")" || return 1
   android_acceptance_verify_physical_startup_evidence \
-    "$out/status.json" "$out/physical-startup-goroutines.txt"
+    "$out/status.json" "$out/physical-startup-goroutines.txt" || return 1
+  # The session already samples both timelines. Preserve their exact bytes
+  # before teardown: the last command status can predate the failing traffic.
+  # A startup failure occurs before the sampler exists. Every later phase
+  # requires both files; missing/read failures must remain collection failures.
+  if [ "$sampler_started" = 1 ]; then
+    for diagnostic in physical-memory.ndjson physical-diagnostics.ndjson; do
+      timeout 30 "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
+        cat "files/acceptance/$diagnostic" >"$out/$diagnostic" \
+        2>>"$out/collection.stderr" || return 1
+      if [ ! -s "$out/$diagnostic" ]; then
+        printf 'required physical diagnostic is empty: %s\n' "$diagnostic" >>"$out/collection.stderr"
+        return 1
+      fi
+      chmod 600 "$out/$diagnostic" || return 1
+    done
+  fi
 }
 
 collect_physical_artifacts() {
