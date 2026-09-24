@@ -9,7 +9,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-p2p.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
 
-for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
+for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
   # Only named production function definitions are loaded, never runner startup.
   # shellcheck disable=SC2294
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
@@ -336,7 +336,8 @@ done
 
 mkdir -p "$fixture/logs"
 printf 'bounded app log\n' >"$fixture/logs/app.log"
-for mode in recovered persistent unrelated-error invalid-status invalid-png ownership-lost ownership-lost-after-read diagnostics-recovered diagnostics-error diagnostics-empty startup; do
+printf '%032768d' 0 >"$fixture/timeout-partial-logcat"
+for mode in recovered persistent unrelated-error invalid-status invalid-png ownership-lost ownership-lost-after-read diagnostics-recovered diagnostics-error diagnostics-empty startup timeout-recovered timeout-persistent timeout-ownership-lost-after-read exit-125 exit-137 exit-143 exit-7 invalid-status-after-transport-warning glog-timeout-recovered; do
   (
     out="$fixture/collection-$mode"
     adb=fake_adb
@@ -348,7 +349,7 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
       [ "$1" = emulator-5556 ] || fail "collector selected another serial"
       ownership_checks=$((ownership_checks + 1))
       if [ "$mode" = ownership-lost ] || \
-         { [ "$mode" = ownership-lost-after-read ] && [ "$ownership_checks" -gt 1 ]; }; then return 1; fi
+         { { [ "$mode" = ownership-lost-after-read ] || [ "$mode" = timeout-ownership-lost-after-read ]; } && [ "$ownership_checks" -gt 1 ]; }; then return 1; fi
     }
     fake_adb() {
       [ "$1:$2" = '-s:emulator-5556' ] || fail "collector contacted another device"
@@ -356,6 +357,18 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
       printf '%s\n' "$*" >>"$fixture/reads-$mode"
       case "$*" in
         'logcat -d -t 12000')
+          if [ "$mode" = timeout-persistent ] || \
+             { [ "$attempt" = 1 ] && { [ "$mode" = timeout-recovered ] || [ "$mode" = timeout-ownership-lost-after-read ]; }; }; then
+            # Exact shape of the retained GitHub failure: 32768 partial bytes,
+            # empty stderr, and an explicit timeout exit. Size alone is not a
+            # timeout signal; the exit controls below emit identical bytes.
+            printf '%032768d' 0
+            return 124
+          fi
+          case "$mode" in exit-*) printf '%032768d' 0; return "${mode#exit-}" ;; esac
+          if [ "$mode" = invalid-status-after-transport-warning ]; then
+            printf 'adb: device offline (old warning on successful read)\n' >&2
+          fi
           if [ "$mode" = persistent ] || \
              { [ "$attempt" = 1 ] && { [ "$mode" = recovered ] || [ "$mode" = ownership-lost-after-read ]; }; }; then
             printf 'partial retained log\n'
@@ -371,7 +384,7 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
         'shell dumpsys activity activities') printf 'activity fixture\n' ;;
         'shell ps -A') printf 'process fixture\n' ;;
         'exec-out run-as com.bringyour.network cat files/acceptance/physical-status')
-          if [ "$mode" = invalid-status ]; then
+          if [ "$mode" = invalid-status ] || [ "$mode" = invalid-status-after-transport-warning ]; then
             printf '{'
           elif [ "$mode" = startup ]; then
             printf '{"phase":"startup","state":"error","commandId":"0","extra":{"stage":"auth-discovery","failure":"auth-discovery-failed"}}\n'
@@ -395,13 +408,44 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
           fi
           printf '{"part":"state","unix_millis":1790229593000,"p2p":{"FastReadMessageCount":6}}\n' ;;
         'exec-out run-as com.bringyour.network cat files/acceptance/physical-startup-goroutines.txt') return 1 ;;
-        'exec-out run-as com.bringyour.network tar -C files/logs -cf - .') command tar -C "$fixture/logs" -cf - . ;;
+        'exec-out run-as com.bringyour.network tar -C files/logs -cf - .')
+          if [ "$mode" = glog-timeout-recovered ] && [ "$attempt" = 1 ]; then
+            printf 'partial archive'
+            return 124
+          fi
+          command tar -C "$fixture/logs" -cf - . ;;
         *) fail "collector attempted a mutation or unexpected read: $*" ;;
       esac
     }
     result=0
     collect_physical_artifacts emulator-5556 "$out" || result=$?
     case "$mode" in
+      timeout-recovered)
+        [ "$result" = 0 ] && [ "$ownership_checks" = 2 ] || fail "explicit timeout with empty stderr did not retry under the same owner"
+        [ "$(wc -c <"$out/attempt-1/logcat.txt" | tr -d ' ')" = 32768 ] || fail "timeout partial logcat bytes changed"
+        cmp -s "$fixture/timeout-partial-logcat" "$out/attempt-1/logcat.txt" || fail "timeout changed first-attempt bytes"
+        [ ! -s "$out/attempt-1/collection.stderr" ] || fail "timeout fabricated an ADB error message"
+        grep -Eq '^logcat[[:space:]]124$' "$out/attempt-1/collection-commands.tsv" || fail "timeout exit status was lost"
+        grep -Eq '^1[[:space:]]124$' "$out/collection-attempts.tsv" || fail "attempt receipt flattened timeout status"
+        grep -Fq 'complete retained log' "$out/logcat.txt" || fail "recovered timeout did not publish the successful attempt" ;;
+      timeout-persistent)
+        [ "$result" != 0 ] && [ "$ownership_checks" = 3 ] || fail "timeout escaped the three-attempt bound"
+        [ "$(wc -l <"$fixture/reads-$mode" | tr -d ' ')" = 3 ] || fail "timeout continued past failing logcat"
+        for failed_attempt in 1 2 3; do
+          [ "$(wc -c <"$out/attempt-$failed_attempt/logcat.txt" | tr -d ' ')" = 32768 ] || fail "persistent timeout lost partial bytes"
+          cmp -s "$fixture/timeout-partial-logcat" "$out/attempt-$failed_attempt/logcat.txt" || fail "persistent timeout changed partial bytes"
+          grep -Eq '^logcat[[:space:]]124$' "$out/attempt-$failed_attempt/collection-commands.tsv" || fail "persistent timeout lost exact status"
+        done ;;
+      glog-timeout-recovered)
+        [ "$result" = 0 ] && [ "$ownership_checks" = 2 ] || fail "archive extraction hid the ADB timeout"
+        grep -Eq '^glog[[:space:]]124$' "$out/attempt-1/collection-commands.tsv" || fail "ADB side of pipeline lost its exact timeout"
+        [ -s "$out/glog/app.log" ] || fail "archive timeout did not recover complete logs" ;;
+      timeout-ownership-lost-after-read)
+        [ "$result" != 0 ] && [ "$ownership_checks" = 3 ] || fail "timeout allowed changed ownership"
+        [ "$(wc -l <"$fixture/reads-$mode" | tr -d ' ')" = 1 ] || fail "timeout retried an unowned device" ;;
+      exit-*)
+        [ "$result" != 0 ] && [ "$ownership_checks" = 1 ] || fail "non-timeout exit was retried: $mode"
+        grep -Eq "^logcat[[:space:]]${mode#exit-}$" "$out/attempt-1/collection-commands.tsv" || fail "non-timeout exit status was flattened" ;;
       diagnostics-recovered)
         [ "$result" = 0 ] && [ "$ownership_checks" = 2 ] || fail "diagnostic transport loss did not retry with the same owner"
         grep -Fq '"partial":' "$out/attempt-1/physical-diagnostics.ndjson" || fail "partial diagnostic evidence was erased"
@@ -431,6 +475,13 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
     fi
     if [ "$mode" = diagnostics-error ] || [ "$mode" = diagnostics-empty ]; then
       [ -s "$out/collection.stderr" ] || fail "diagnostic collection failure has no retained cause"
+    fi
+    if [ "$mode" = timeout-recovered ]; then
+      if collect_physical_artifacts emulator-5556 "$out" 2>/dev/null; then
+        fail "second collection silently reused existing attempt evidence"
+      fi
+      cmp -s "$fixture/timeout-partial-logcat" "$out/attempt-1/logcat.txt" || fail "second collection overwrote the original partial log"
+      [ "$ownership_checks" = 2 ] || fail "second collection reached a device read before preserving prior evidence"
     fi
   ) || fail "artifact collector control $mode"
 done

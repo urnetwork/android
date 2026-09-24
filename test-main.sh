@@ -1025,21 +1025,45 @@ collect_smoke_artifacts() {
   timeout 30 "$adb" -s "$serial" exec-out uiautomator dump /dev/tty >"$out/ui.xml" 2>/dev/null || true
 }
 
+# One bounded ADB read. Preserve the command's exact exit code and stderr,
+# separately from app-output validation or local archive extraction failures.
+# In particular, timeout can return 124 with partial stdout and empty stderr.
+collect_physical_adb_read() {
+  local out="$1" step="$2" command_status=0
+  shift 2
+  case "$step" in
+    logcat|screencap|activity|processes|status|glog|physical-memory.ndjson|physical-diagnostics.ndjson) ;;
+    *) return 2 ;;
+  esac
+  if timeout 30 "$@" 2>"$out/read-$step.stderr"; then
+    command_status=0
+  else
+    command_status=$?
+  fi
+  cat "$out/read-$step.stderr" >>"$out/collection.stderr" || return 1
+  printf '%s\t%s\n' "$step" "$command_status" >>"$out/collection-commands.tsv" || return 1
+  if [ "$command_status" -ne 0 ]; then
+    printf '%s\t%s\n' "$step" "$command_status" >"$out/collection-failed-command.tsv" || return 1
+  fi
+  return "$command_status"
+}
+
 # One read-only attempt. Keep stderr and partial files: an ADB transport loss
 # is evidence, not an app crash. Each retry gets a separate directory.
 collect_physical_artifacts_once() {
   local target_serial="$1" out="$2" sampler_started diagnostic
   mkdir -p "$out/glog" || return 1
-  timeout 30 "$adb" -s "$target_serial" logcat -d -t 12000 \
-    >"$out/logcat.txt" 2>"$out/collection.stderr" || return 1
-  timeout 30 "$adb" -s "$target_serial" exec-out screencap -p \
-    >"$out/foreground.png" 2>>"$out/collection.stderr" || return 1
-  timeout 30 "$adb" -s "$target_serial" shell dumpsys activity activities \
-    >"$out/activity.txt" 2>>"$out/collection.stderr" || return 1
-  timeout 30 "$adb" -s "$target_serial" shell ps -A \
-    >"$out/processes.txt" 2>>"$out/collection.stderr" || return 1
-  timeout 30 "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
-    cat files/acceptance/physical-status >"$out/status.json" 2>>"$out/collection.stderr" || return 1
+  : >"$out/collection.stderr" || return 1
+  collect_physical_adb_read "$out" logcat "$adb" -s "$target_serial" logcat -d -t 12000 \
+    >"$out/logcat.txt" || return "$?"
+  collect_physical_adb_read "$out" screencap "$adb" -s "$target_serial" exec-out screencap -p \
+    >"$out/foreground.png" || return "$?"
+  collect_physical_adb_read "$out" activity "$adb" -s "$target_serial" shell dumpsys activity activities \
+    >"$out/activity.txt" || return "$?"
+  collect_physical_adb_read "$out" processes "$adb" -s "$target_serial" shell ps -A \
+    >"$out/processes.txt" || return "$?"
+  collect_physical_adb_read "$out" status "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
+    cat files/acceptance/physical-status >"$out/status.json" || return "$?"
   if ! timeout 30 "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
       cat files/acceptance/physical-startup-goroutines.txt \
       >"$out/physical-startup-goroutines.txt" 2>/dev/null; then
@@ -1047,9 +1071,9 @@ collect_physical_artifacts_once() {
   elif ! android_acceptance_has_goroutine_stacks "$out/physical-startup-goroutines.txt"; then
     rm -f "$out/physical-startup-goroutines.txt"
   fi
-  timeout 30 "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
-    tar -C files/logs -cf - . 2>>"$out/collection.stderr" | \
-    tar -xf - -C "$out/glog" 2>>"$out/collection.stderr" || return 1
+  collect_physical_adb_read "$out" glog "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
+    tar -C files/logs -cf - . | \
+    tar -xf - -C "$out/glog" 2>>"$out/collection.stderr" || return "$?"
   [ "$(od -An -tx1 -N8 "$out/foreground.png" | tr -d '[:space:]')" = 89504e470d0a1a0a ] || return 1
   sampler_started="$(node -e 'const fs=require("node:fs"); const value=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (!value || typeof value!=="object" || Array.isArray(value)) process.exit(1); process.stdout.write(value.phase === "startup" ? "0" : "1")' \
     "$out/status.json" 2>>"$out/collection.stderr")" || return 1
@@ -1061,9 +1085,9 @@ collect_physical_artifacts_once() {
   # requires both files; missing/read failures must remain collection failures.
   if [ "$sampler_started" = 1 ]; then
     for diagnostic in physical-memory.ndjson physical-diagnostics.ndjson; do
-      timeout 30 "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
+      collect_physical_adb_read "$out" "$diagnostic" "$adb" -s "$target_serial" exec-out run-as com.bringyour.network \
         cat "files/acceptance/$diagnostic" >"$out/$diagnostic" \
-        2>>"$out/collection.stderr" || return 1
+        || return "$?"
       if [ ! -s "$out/$diagnostic" ]; then
         printf 'required physical diagnostic is empty: %s\n' "$diagnostic" >>"$out/collection.stderr"
         return 1
@@ -1075,16 +1099,23 @@ collect_physical_artifacts_once() {
 
 collect_physical_artifacts() {
   local target_serial="$1" out="$2" attempt attempt_dir collection_status=1
+  local ownership_unavailable failure_step failure_status
   mkdir -p "$out" || return 1
   for attempt in 1 2 3; do
     attempt_dir="$out/attempt-$attempt"
-    mkdir -p "$attempt_dir" || return 1
+    # A second collector invocation must not erase the original attempt bytes.
+    mkdir "$attempt_dir" || return 1
+    collection_status=1
+    ownership_unavailable=0
     # A serial is not ownership. Reprove the same selected phone or exact
     # runner-owned emulator before every attempt; never search for a substitute.
     if ! authorize_selected_device "$target_serial"; then
+      ownership_unavailable=1
       printf 'selected-device ownership unavailable\n' >"$attempt_dir/collection.stderr"
     elif collect_physical_artifacts_once "$target_serial" "$attempt_dir"; then
       collection_status=0
+    else
+      collection_status=$?
     fi
     # Preserve the familiar top-level paths as the latest attempt, alongside
     # every original attempt. A recovered read cannot repair a lost retained
@@ -1093,12 +1124,22 @@ collect_physical_artifacts() {
     printf '%s\t%s\n' "$attempt" "$collection_status" >>"$out/collection-attempts.tsv"
     [ "$collection_status" -ne 0 ] || return 0
     [ "$attempt" -lt 3 ] || break
-    # Only transport/ownership unavailability is retryable. Invalid app output,
-    # missing required evidence and local I/O failures remain failures.
-    if ! LC_ALL=C grep -Eiq \
-        'selected-device ownership unavailable|device offline|device .*not found|error: closed|protocol fault|connection reset|connection terminated|transport.*(closed|error)' \
-        "$attempt_dir/collection.stderr"; then
-      break
+    # Only an explicit ADB timeout, a failed ADB read with a transport error,
+    # or ownership unavailability is retryable. Never classify validation from
+    # arbitrary app output or from an earlier successful command's warning.
+    if [ "$ownership_unavailable" -eq 0 ]; then
+      failure_step=""; failure_status=""
+      [ -f "$attempt_dir/collection-failed-command.tsv" ] || break
+      IFS=$'\t' read -r failure_step failure_status <"$attempt_dir/collection-failed-command.tsv" || break
+      case "$failure_step" in
+        logcat|screencap|activity|processes|status|glog|physical-memory.ndjson|physical-diagnostics.ndjson) ;;
+        *) break ;;
+      esac
+      if [ "$failure_status" != 124 ] && ! LC_ALL=C grep -Eiq \
+          'device offline|device .*not found|error: closed|protocol fault|connection reset|connection terminated|transport.*(closed|error)' \
+          "$attempt_dir/read-$failure_step.stderr"; then
+        break
+      fi
     fi
     sleep 1
   done
