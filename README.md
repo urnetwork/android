@@ -45,6 +45,20 @@ instrumentation exit before an ownership-checked force-stop. The host records
 misreported as an app crash merely because later cleanup stopped the process.
 Missing terminal receipts still fail the arm and require a fresh run.
 
+Each P2P host join retains `<role>-instrumentation-exit.json` with its exact
+shell wait status and join time (which is not the child's exit time). Owned-AVD
+diagnostics additionally retain `guest-observation/<role>/before-workflow/` and,
+on failed artifact collection or a lost/failed instrumentation child, one
+best-effort `after-break/` observation. Both use the frozen launch PID, AVD and
+instance token and a fresh ownership check. Each guest read has a 10-second
+timeout with a one-second forced-exit grace and retains at most 64 KiB of
+combined stdout/stderr: boot ID, uptime,
+adbd PID and the last 256 log records filtered to explicit OS tags. Ownership
+checks retain their existing three 15-second command limits. Every attempt
+records its owner, host interval, exact read/capture statuses and truncation;
+unavailable, invalid or partial evidence must not be treated as a complete
+snapshot. These observations neither retry a workflow nor repair its verdict.
+
 Reusing the peer emulator requires both exact live-child ownership and a fresh
 bounded boot, shipping API/ABI, interactive-state, and network readiness pass
 before package or credential changes. Ownership alone never qualifies a peer
@@ -66,6 +80,7 @@ controls run without devices or network access:
 
 ```bash
 GOMAXPROCS=2 bash test-main-p2p.test.sh
+GOMAXPROCS=2 bash test-main-observation.test.sh
 GOMAXPROCS=2 bash test-main-reporting.test.sh
 GOMAXPROCS=2 bash test-main.test.sh
 ```

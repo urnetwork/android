@@ -309,6 +309,8 @@ peer_emulator_pid=""
 peer_emulator_owner_token=""
 provider_session_pid=""
 client_session_pid=""
+provider_session_out=""
+client_session_out=""
 p2p_cleanup_failed=0
 fdroid_tree=""
 private_staging=""
@@ -382,14 +384,23 @@ cleanup() {
   exit_status=$?
   local package_label staging_owned=1
   local peer_cleanup_grace=0 fallback_cleanup_grace=0
+  local session_role session_out session_status
   local_device_count=0
   local_pair_count=0
-  for session_pid in "$provider_session_pid" "$client_session_pid"; do
+  for session_role in provider client; do
+    if [ "$session_role" = provider ]; then
+      session_pid="$provider_session_pid"; session_out="$provider_session_out"
+    else
+      session_pid="$client_session_pid"; session_out="$client_session_out"
+    fi
     [ -n "$session_pid" ] || continue
     if kill -0 "$session_pid" 2>/dev/null; then
       kill -TERM "$session_pid" 2>/dev/null || true
     fi
-    wait "$session_pid" 2>/dev/null || true
+    session_status=0
+    wait "$session_pid" 2>/dev/null || session_status=$?
+    [ -z "$session_out" ] || android_acceptance_record_session_exit \
+      "$session_out" "$session_role" "$session_pid" "$session_status" trap || true
   done
   if [ -n "$private_staging_serial" ] && [ -n "$private_staging" ]; then
     authorize_selected_device "$private_staging_serial" || staging_owned=0
@@ -1133,6 +1144,78 @@ read_acceptance_completion_record() {
   return 1
 }
 
+# Diagnostic-only observation. The caller freezes both launch identities before
+# the workflow; never derive ownership from a recovered serial or a new child.
+# Each role gets one baseline and at most one best-effort post-break attempt.
+# Failure here cannot repair or replace the original workflow/read verdict.
+observe_p2p_owned_guest() {
+  local target_serial="$1" phase="$2" trigger="$3" role owner_pid owner_token out
+  local ownership_status=0 started_at ended_at read_status capture_status
+  local -a read_statuses=()
+  [ -n "${p2p_observation_out:-}" ] || return 0
+  case "$phase:$trigger" in
+    before-workflow:baseline|after-break:artifact-read|after-break:instrumentation-stream-lost|after-break:child-exit-failed) ;;
+    *) return 2 ;;
+  esac
+  case "$target_serial" in emulator-*)
+    case "${target_serial#emulator-}" in ''|*[!0-9]*) return 2 ;; esac ;;
+    *) return 2 ;;
+  esac
+  if [ "$target_serial" = "$p2p_observation_client_serial" ]; then
+    role=client; owner_pid="$p2p_observation_client_pid"; owner_token="$p2p_observation_client_token"
+  elif [ "$target_serial" = "$p2p_observation_provider_serial" ]; then
+    role=provider; owner_pid="$p2p_observation_provider_pid"; owner_token="$p2p_observation_provider_token"
+  else
+    return 2
+  fi
+  case "$owner_pid" in ''|0*|*[!0-9]*) return 2 ;; esac
+  case "$owner_token" in ''|*[!A-Za-z0-9._:-]*) return 2 ;; esac
+  case "$p2p_observation_avd" in ''|*$'\t'*|*$'\r'*|*$'\n'*) return 2 ;; esac
+  out="$p2p_observation_out/$role/$phase"
+  # An unavailable first observation is retained too; no silent later retry.
+  [ ! -e "$out" ] && [ ! -L "$out" ] || return 0
+  (umask 077; mkdir -p "$p2p_observation_out/$role" && mkdir "$out") || return 1
+  started_at="$(node -p 'new Date().toISOString()')" || return 1
+  printf '%s\t%s\t%s\t%s\n' "$target_serial" "$p2p_observation_avd" "$owner_pid" "$owner_token" \
+    >"$out/owner.tsv" || return 1
+  printf '%s\n' "$started_at" >"$out/started-at.txt" || return 1
+  printf '%s\n' "$trigger" >"$out/trigger.txt" || return 1
+  android_acceptance_runner_owns_emulator \
+    "$adb" "$target_serial" "$p2p_observation_avd" "$owner_pid" "$owner_token" \
+    >/dev/null 2>&1 || ownership_status=$?
+  printf '%s\n' "$ownership_status" >"$out/ownership-status.txt" || return 1
+  if [ "$ownership_status" -ne 0 ]; then
+    printf 'ownership-unavailable\n' >"$out/observation-status.txt" || return 1
+    node -p 'new Date().toISOString()' >"$out/ended-at.txt" || return 1
+    return 1
+  fi
+  # One shell stream, no app commands, unfiltered dump or workflow retry. The
+  # guest's epoch timestamps can be joined to the host interval and uptime.
+  # Merged stdout/stderr stays private; both command and capture exits survive.
+  if timeout -k 1 10 "$adb" -s "$target_serial" shell '
+    printf "boot_id="; cat /proc/sys/kernel/random/boot_id || exit $?
+    printf "uptime="; cat /proc/uptime || exit $?
+    printf "adbd_pid="; pidof adbd || exit $?
+    printf "os_log_begin\n"
+    logcat -b main -b system -b crash -d -t 256 -v epoch adbd:V init:V lmkd:V lowmemorykiller:V logd:V tombstoned:V crash_dump32:V crash_dump64:V "*:S"
+  ' </dev/null 2>&1 | node "$here/test-main-guest-observation.mjs" "$out" \
+      2>"$out/capture.stderr"; then
+    read_statuses=("${PIPESTATUS[@]}")
+  else
+    read_statuses=("${PIPESTATUS[@]}")
+  fi
+  read_status="${read_statuses[0]}"; capture_status="${read_statuses[1]}"
+  printf '%s\n' "$read_status" >"$out/read-status.txt" || return 1
+  printf '%s\n' "$capture_status" >"$out/capture-status.txt" || return 1
+  ended_at="$(node -p 'new Date().toISOString()')" || return 1
+  printf '%s\n' "$ended_at" >"$out/ended-at.txt" || return 1
+  if [ "$read_status:$capture_status" != 0:0 ]; then
+    printf 'read-or-capture-failed\n' >"$out/observation-status.txt" || return 1
+    return 1
+  fi
+  printf 'captured\n' >"$out/observation-status.txt"
+}
+
 # One bounded ADB read. Preserve the command's exact exit code and stderr,
 # separately from app-output validation or local archive extraction failures.
 # In particular, timeout can return 124 with partial stdout and empty stderr.
@@ -1296,6 +1379,7 @@ finish_physical_session() {
     if ! android_acceptance_verify_p2p_instrumentation "$out/$role-instrumentation.log"; then
       record_p2p_failure "$out" "$role" instrumentation-stream-lost || p2p_cleanup_failed=1
       finish_status=1
+      observe_p2p_owned_guest "$target_serial" after-break instrumentation-stream-lost || true
     fi
     # The app can outlive a disconnected `am instrument -w` host process.
     # Its bounded finish command must not fail immediately on that dead PID.
@@ -1334,13 +1418,20 @@ finish_physical_session() {
     fi
   fi
   wait "$session_pid" || child_status=$?
+  if ! android_acceptance_record_session_exit "$out" "$role" "$session_pid" "$child_status" finish; then
+    record_p2p_failure "$out" "$role" artifact-collection || true
+    p2p_cleanup_failed=1
+    finish_status=1
+  fi
   if [ "$child_status" -ne 0 ]; then
     record_p2p_failure "$out" "$role" child-exit-failed || p2p_cleanup_failed=1
     finish_status=1
+    observe_p2p_owned_guest "$target_serial" after-break child-exit-failed || true
   fi
   if ! android_acceptance_verify_p2p_instrumentation "$out/$role-instrumentation.log"; then
     record_p2p_failure "$out" "$role" instrumentation-stream-lost || p2p_cleanup_failed=1
     finish_status=1
+    observe_p2p_owned_guest "$target_serial" after-break instrumentation-stream-lost || true
   fi
   return "$finish_status"
 }
@@ -1596,6 +1687,9 @@ run_android_peer_to_peer() {
   local client_diagnostic_id="$8"
   local provider_id_file="$run_dir/provider-client-id" session_status=0
   local provider_started=0 client_started=0 target_serial iteration app_apk instrumentation_apk install_role
+  local p2p_observation_out="" p2p_observation_avd=""
+  local p2p_observation_client_serial="" p2p_observation_client_pid="" p2p_observation_client_token=""
+  local p2p_observation_provider_serial="" p2p_observation_provider_pid="" p2p_observation_provider_token=""
   p2p_cleanup_failed=0
   mkdir -p "$out"
   if [ ! -f "$client_app_apk" ] || [ ! -f "$client_instrumentation_apk" ] || \
@@ -1607,6 +1701,16 @@ run_android_peer_to_peer() {
   if ! boot_peer_emulator; then
     retain_peer_readiness_failure "$out" || p2p_cleanup_failed=1
     return 1
+  fi
+  if [ "${execution_mode:-}" = diagnostic ] && [ "${diagnostic_owned_avd:-0}" -eq 1 ]; then
+    p2p_observation_out="$out/guest-observation"
+    p2p_observation_avd="$avd_name"
+    p2p_observation_client_serial="$serial"
+    p2p_observation_client_pid="$emulator_pid"
+    p2p_observation_client_token="$emulator_owner_token"
+    p2p_observation_provider_serial="$peer_serial"
+    p2p_observation_provider_pid="$peer_emulator_pid"
+    p2p_observation_provider_token="$peer_emulator_owner_token"
   fi
 
   for target_serial in "$serial" "$peer_serial"; do
@@ -1643,6 +1747,8 @@ run_android_peer_to_peer() {
   done
 
   if [ "$session_status" -eq 0 ]; then
+    observe_p2p_owned_guest "$serial" before-workflow baseline || true
+    observe_p2p_owned_guest "$peer_serial" before-workflow baseline || true
     if ! ANDROID_ACCEPTANCE_EMULATOR_OWNER_TOKEN="$peer_emulator_owner_token" \
         android_acceptance_runner_owned_emulator_interactive \
         "$adb" "$peer_serial" "$avd_name" "$peer_emulator_pid" \
@@ -1655,6 +1761,7 @@ run_android_peer_to_peer() {
       echo "Android peer provider failed its final preflight; see $out/provider-preflight.txt" >&2
       session_status=1
     else
+      provider_session_out="$out"
       "$adb" -s "$peer_serial" shell am instrument -w -r \
         -e class com.bringyour.network.acceptance.PhysicalLowbarSessionTest \
         -e acceptanceBuildId "$provider_build_id" \
@@ -1680,6 +1787,7 @@ run_android_peer_to_peer() {
       echo "Android peer client failed its final preflight; see $out/client-preflight.txt" >&2
       session_status=1
     else
+      client_session_out="$out"
       "$adb" -s "$serial" shell am instrument -w -r \
         -e class com.bringyour.network.acceptance.PhysicalLowbarSessionTest \
         -e acceptanceBuildId "$client_build_id" \
@@ -1737,17 +1845,25 @@ run_android_peer_to_peer() {
     if ! collect_physical_artifacts "$serial" "$out/client-before-teardown"; then
       record_p2p_failure "$out" client artifact-collection || p2p_cleanup_failed=1
       session_status=1
+      [ ! -f "$out/client-before-teardown/collection-failed-command.tsv" ] || \
+        observe_p2p_owned_guest "$serial" after-break artifact-read || true
     fi
     if ! collect_physical_artifacts "$peer_serial" "$out/provider-before-teardown"; then
       record_p2p_failure "$out" provider artifact-collection || p2p_cleanup_failed=1
       session_status=1
+      [ ! -f "$out/provider-before-teardown/collection-failed-command.tsv" ] || \
+        observe_p2p_owned_guest "$peer_serial" after-break artifact-read || true
     fi
   else
     record_p2p_failure "$out" pair workflow-failed || p2p_cleanup_failed=1
-    [ "$client_started" -ne 1 ] || \
-      collect_physical_artifacts "$serial" "$out/client-before-teardown" || true
-    [ "$provider_started" -ne 1 ] || \
-      collect_physical_artifacts "$peer_serial" "$out/provider-before-teardown" || true
+    if [ "$client_started" -eq 1 ] && ! collect_physical_artifacts "$serial" "$out/client-before-teardown"; then
+      [ ! -f "$out/client-before-teardown/collection-failed-command.tsv" ] || \
+        observe_p2p_owned_guest "$serial" after-break artifact-read || true
+    fi
+    if [ "$provider_started" -eq 1 ] && ! collect_physical_artifacts "$peer_serial" "$out/provider-before-teardown"; then
+      [ ! -f "$out/provider-before-teardown/collection-failed-command.tsv" ] || \
+        observe_p2p_owned_guest "$peer_serial" after-break artifact-read || true
+    fi
   fi
 
   # A diagnostic failure must not immediately kill successful instrumentation.
@@ -1756,10 +1872,12 @@ run_android_peer_to_peer() {
   if [ "$client_started" -eq 1 ]; then
     finish_physical_session "$serial" client "$client_session_pid" "$out" || session_status=1
     client_session_pid=""
+    client_session_out=""
   fi
   if [ "$provider_started" -eq 1 ]; then
     finish_physical_session "$peer_serial" provider "$provider_session_pid" "$out" || session_status=1
     provider_session_pid=""
+    provider_session_out=""
   fi
   if [ "$client_started" -ne 1 ] || [ "$provider_started" -ne 1 ]; then
     session_status=1

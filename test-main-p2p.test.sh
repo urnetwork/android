@@ -9,7 +9,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-p2p.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
 
-for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
+for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
   # Only named production function definitions are loaded, never runner startup.
   # shellcheck disable=SC2294
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
@@ -326,6 +326,8 @@ for child_result in 0 7 255; do
     actual_child=$!
     result=0
     finish_physical_session emulator-5554 client "$actual_child" "$out" || result=$?
+    node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1])); if(r.childPid!==Number(process.argv[2])||r.waitExitCode!==Number(process.argv[3])||r.joinedBy!=="finish"||!Number.isFinite(Date.parse(r.joinedAt))) process.exit(1)' \
+      "$out/client-instrumentation-exit.json" "$actual_child" "$child_result" || fail "exact real-child wait status not retained"
     if [ "$child_result" = 0 ]; then
       [ "$result" = 0 ] || fail "real child natural exit rejected"
     else
@@ -598,6 +600,8 @@ for mode in natural artifact-error lost-stream transport-255-lost-client genuine
     }
     result=0
     finish_physical_session "$target" "$role" 424242 "$out" || result=$?
+    node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1])); if(r.childPid!==424242||r.waitExitCode!==Number(process.argv[2])) process.exit(1)' \
+      "$out/$role-instrumentation-exit.json" "$child_code" || fail "teardown flattened the exact wait status"
     [ "$joined" = 1 ] || fail "retained session was not independently joined"
     if [ "$mode" = identity-loss ]; then
       [ "$sent" = 0 ] || fail "finish command mutated a target after identity loss"

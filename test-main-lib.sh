@@ -24,6 +24,19 @@ android_acceptance_session_running() {
   [ -z "${1:-}" ] || kill -0 "$1" 2>/dev/null
 }
 
+# This is the shell's exact wait result, not an inferred app/ADB exit or the
+# time the child actually exited. Keep it even when terminal text is missing.
+android_acceptance_record_session_exit() {
+  local out="$1" role="$2" child_pid="$3" child_status="$4" joined_by="$5" joined_at
+  case "$role:$joined_by" in client:finish|provider:finish|client:trap|provider:trap) ;; *) return 2 ;; esac
+  case "$child_pid" in ''|0*|*[!0-9]*) return 2 ;; esac
+  [[ "$child_status" =~ ^(0|[1-9][0-9]{0,2})$ ]] && [ "$child_status" -le 255 ] || return 2
+  joined_at="$(node -p 'new Date().toISOString()')" || return 1
+  (umask 077; set -C
+    printf '{"schemaVersion":1,"childPid":%s,"waitExitCode":%s,"joinedAt":"%s","joinedBy":"%s"}\n' \
+      "$child_pid" "$child_status" "$joined_at" "$joined_by" >"$out/$role-instrumentation-exit.json")
+}
+
 # `adb am instrument` can exit without a nonzero host status after losing its
 # transport. Absence of a failure line is not proof that the one retained P2P
 # test completed. Require one ordered start, test success, and terminal runner
