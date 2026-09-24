@@ -130,6 +130,41 @@ for cohort in empty mixed; do
   done
 done
 
+# Exercise the real guest-to-child proof as well as the orchestration above.
+# A live PID, exact port and matching AVD name cannot substitute for its token.
+(
+  captured="$test_dir/proof-captured" selected="$test_dir/proof-selected"
+  printf 'emulator-5610\n' >"$captured"
+  fake_owner_token=test-token fake_owner_avd=test-owned-avd fake_owner_state=device
+  timeout() { shift; "$@"; }
+  fake_owner_adb() {
+    [ "$1:$2" = '-s:emulator-5610' ] || return 91
+    shift 2
+    case "$*" in
+      get-state) printf '%s\n' "$fake_owner_state" ;;
+      'emu avd id') printf '%s\nOK\n' "$fake_owner_token" ;;
+      'emu avd name') printf '%s\nOK\n' "$fake_owner_avd" ;;
+      *) fail "ownership proof attempted a mutation: $*" ;;
+    esac
+  }
+  prove_owned_selection() {
+    android_acceptance_select_owned_avd_diagnostic_device \
+      "$captured" "$selected" fake_owner_adb emulator-5610 test-owned-avd "$1" test-token
+  }
+  prove_owned_selection "$$" || fail "exact owned guest was rejected"
+  for bad_proof in token avd offline missing-token dead-child; do
+    fake_owner_token=test-token fake_owner_avd=test-owned-avd fake_owner_state=device fake_owner_pid=$$
+    case "$bad_proof" in
+      token) fake_owner_token=foreign ;;
+      avd) fake_owner_avd=foreign ;;
+      offline) fake_owner_state=offline ;;
+      missing-token) fake_owner_token='' ;;
+      dead-child) (exit 0) & fake_owner_pid=$!; wait "$fake_owner_pid" ;;
+    esac
+    if prove_owned_selection "$fake_owner_pid"; then fail "owned selector accepted $bad_proof"; fi
+  done
+)
+
 # The shared production mutation gate must not fall through to physical ADB
 # readiness when ownership is lost, even though the diagnostic serial matches.
 (
@@ -146,15 +181,90 @@ done
   if authorize_selected_device emulator-5610; then fail "lost launch identity retained mutation authority"; fi
 )
 
+# Run the actual diagnostic case body with mocked P2P and cleanup endpoints.
+# It must continue before canonical signup code, and its receipt must describe
+# a new owned AVD invocation, not permission to borrow this temporary serial.
+cell_source="$(awk '
+  /echo "\[android acceptance\] peer-to-peer diagnostic:/ { selected = 1 }
+  selected { print }
+  selected && /^      continue$/ { exit }
+' "$here/test-main.sh")"
+[ -n "$cell_source" ] || fail "production diagnostic case boundary not found"
+(
+  original_here="$here"
+  here="$test_dir/cell-runner"
+  mkdir -p "$here/tests/__acceptance__/build/github" "$here/tests/__acceptance__/build/fdroid"
+  printf 'provider-build\n' >"$here/tests/__acceptance__/build/github/build-id"
+  printf 'provider-build\n' >"$here/tests/__acceptance__/build/fdroid/build-id"
+  diagnostic_selector=--diagnostic-owned-avd diagnostic_case=peer-to-peer
+  serial=emulator-5610 device_id=device-001-emulator-5610 diagnostic_device_id=device-001
+  target_apk=client-app test_apk=client-test build_id=client-build input_fingerprint=inputs
+  overall=0
+  run_android_peer_to_peer() {
+    [ "$#" = 8 ] && [ "$1" = "$out/peer-to-peer" ] && \
+      [ "$2:$3:$4:$7:$8" = 'client-app:client-test:client-build:provider-build:device-001' ] || \
+      fail "diagnostic changed the P2P case arguments"
+    [ "$5:$6" = "$provider_cache/app.apk:$provider_cache/test.apk" ] || \
+      fail "diagnostic changed the exact provider APK pair"
+    [ "$cell_outcome" != p2p-failed ]
+  }
+  uninstall_acceptance_packages() {
+    [ "$1:$2" = "emulator-5610:$out/post-diagnostic-cleanup" ] || \
+      fail "diagnostic cleaned a different device"
+    [ "$cell_outcome" != cleanup-failed ]
+  }
+  record_acceptance_result() {
+    [ "$6" = "./test-main.sh --diagnostic-owned-avd --diagnostic-case=peer-to-peer --flavor=$target" ] || \
+      fail "diagnostic receipt advertises borrowing a temporary emulator"
+    [ "${10}" = com.bringyour.network.acceptance.PhysicalLowbarSessionTest ] || \
+      fail "diagnostic changed the product test scope"
+  }
+  record_device_cases() {
+    [ "$1:$2:$3:$6" = "$device_id:$serial:$target:peer-to-peer" ] || \
+      fail "diagnostic recorded a different device/flavor/case"
+    if [ "$cell_outcome" = passed ]; then
+      [ "$4" = PASS ] || fail "passing diagnostic case lost its result"
+    else
+      [ "$4" = FAIL ] || fail "failed P2P/cleanup masqueraded as diagnostic success"
+    fi
+  }
+  for target in play fdroid; do
+    for cell_outcome in passed p2p-failed cleanup-failed; do
+      out="$test_dir/cell-$target-$cell_outcome"
+      # shellcheck disable=SC2294
+      eval "$cell_source" >"$test_dir/cell.log" 2>&1
+      fail "diagnostic fell through to canonical signup"
+    done
+  done
+  [ "$overall" = 1 ] || fail "failed diagnostics did not fail overall result"
+  # Keep this extraction independent from the temporary fixture tree.
+  [ -f "$original_here/test-main.sh" ] || fail "production runner disappeared"
+)
+
 # Honest result and fixture boundaries are unchanged. No instant-account
 # creation/deletion can be reached through the diagnostic case branch.
 if android_acceptance_manages_account_fixture diagnostic 0; then fail "diagnostic owns account fixture"; fi
 android_acceptance_manages_account_fixture canonical 0 || fail "canonical fixture lifecycle changed"
-receipt_source="$(sed -n '/^  printf.*%s.*%s/,/diagnostic-request.tsv/p' "$here/test-main.sh")"
-grep -Fq 'final_proof forbidden' <<<"$receipt_source" || fail "diagnostic can claim final proof"
-grep -Fq 'fixture unmanaged' <<<"$receipt_source" || fail "diagnostic receipt claims fixture ownership"
-grep -Fq 'device_origin' <<<"$receipt_source" || fail "diagnostic receipt omits target provenance"
-grep -Fq -- '--diagnostic-owned-avd' "$here/test-main.sh" || fail "owned replay selector not retained"
+receipt_source="$(awk '
+  /^    mode diagnostic-only/ { selected = 1; print previous }
+  selected { print }
+  selected && /^  echo "\[android acceptance\] DIAGNOSTIC ONLY:/ { exit }
+  { previous = $0 }
+' "$here/test-main.sh")"
+[ -n "$receipt_source" ] || fail "production diagnostic receipt not found"
+(
+  artifacts="$test_dir/receipt"
+  mkdir -p "$artifacts"
+  diagnostic_device=emulator-5610 diagnostic_case=peer-to-peer selected_flavor_value=play
+  for diagnostic_device_origin in runner-owned-avd attached-physical; do
+    # shellcheck disable=SC2294
+    eval "$receipt_source" >"$test_dir/receipt.log"
+    expected_receipt=$'mode\tdiagnostic-only\nfinal_proof\tforbidden\ndevice\temulator-5610\ndevice_origin\t'
+    expected_receipt+="$diagnostic_device_origin"$'\nflavor\tplay\ncase\tpeer-to-peer\nbuild\tfresh-paired-apks\nfixture\tunmanaged'
+    [ "$(cat "$artifacts/diagnostic-request.tsv")" = "$expected_receipt" ] || \
+      fail "diagnostic receipt weakened final-proof, fixture, or target-origin boundary"
+  done
+)
 cleanup_source="$(sed -n '/^cleanup()/,/^record_smoke_result()/p' "$here/test-main.sh")"
 # shellcheck disable=SC2016
 grep -Fq '[ "$started_emulator" -eq 1 ] && [ "$keep_emulator" -ne 1 ]' <<<"$cleanup_source" || \

@@ -29,6 +29,9 @@
 #   ./test-main.sh --keep-fixture          retain the recoverable account for another app
 #   ./test-main.sh --diagnostic-device=<serial> --diagnostic-case=peer-to-peer --flavor=github
 #                                             one diagnostic P2P cell; never final proof
+#   ./test-main.sh --diagnostic-owned-avd --diagnostic-case=peer-to-peer --flavor=play
+#                                             fresh owned AVD, P2P only, no account signup;
+#                                             never final proof; mandatory cleanup
 #
 # Environment:
 #   UR_ACCEPT_VAULT=<path>                 alternate tests.yml fixture vault
@@ -71,6 +74,8 @@ main_test_scope="com.bringyour.network.acceptance.EgressProbeRequestTest,com.bri
 # unrelated auth failures.
 usdc_test_scope="com.bringyour.network.acceptance.SolanaPayQuoteAcceptanceTest"
 diagnostic_device=""
+diagnostic_owned_avd=0
+diagnostic_device_origin=attached-physical
 diagnostic_case=""
 diagnostic_device_seen=0
 diagnostic_case_seen=0
@@ -92,11 +97,20 @@ for arg in "$@"; do
     --profile=*) profile="${arg#*=}" ;;
     --diagnostic-device=*)
       [ "$diagnostic_device_seen" -eq 0 ] || {
-        echo "--diagnostic-device may be supplied only once" >&2
+        echo "select exactly one --diagnostic-device or --diagnostic-owned-avd" >&2
         exit 2
       }
       diagnostic_device_seen=1
       diagnostic_device="${arg#*=}"
+      ;;
+    --diagnostic-owned-avd)
+      [ "$diagnostic_device_seen" -eq 0 ] || {
+        echo "select exactly one --diagnostic-device or --diagnostic-owned-avd" >&2
+        exit 2
+      }
+      diagnostic_device_seen=1
+      diagnostic_owned_avd=1
+      diagnostic_device_origin=runner-owned-avd
       ;;
     --diagnostic-case=*)
       [ "$diagnostic_case_seen" -eq 0 ] || {
@@ -145,12 +159,21 @@ if [ "$execution_mode" = diagnostic ]; then
     echo "diagnostic peer-to-peer requires --profile=full" >&2
     exit 2
   }
-  android_acceptance_validate_diagnostic_request \
-    "$diagnostic_device" "$diagnostic_case" \
-    "$flavor_selector_count" "$selected_flavor_value" \
-    "$repeat_count" "$skip_build" "$smoke_only" \
-    "$keep_emulator" "$keep_fixture" "$result_matrix" \
-    "${reserved_device_serials[@]}" || exit $?
+  if [ "$diagnostic_owned_avd" -eq 1 ]; then
+    android_acceptance_validate_owned_avd_diagnostic_request \
+      "$diagnostic_case" "$flavor_selector_count" "$selected_flavor_value" \
+      "$repeat_count" "$skip_build" "$smoke_only" \
+      "$keep_emulator" "$keep_fixture" "$result_matrix" || exit $?
+    diagnostic_selector=--diagnostic-owned-avd
+  else
+    android_acceptance_validate_diagnostic_request \
+      "$diagnostic_device" "$diagnostic_case" \
+      "$flavor_selector_count" "$selected_flavor_value" \
+      "$repeat_count" "$skip_build" "$smoke_only" \
+      "$keep_emulator" "$keep_fixture" "$result_matrix" \
+      "${reserved_device_serials[@]}" || exit $?
+    diagnostic_selector="--diagnostic-device=$diagnostic_device"
+  fi
 fi
 acceptance_timeout_seconds=$((900 + repeat_count * 900))
 
@@ -664,7 +687,8 @@ authorize_selected_device() {
   elif [ "$execution_mode" = canonical ] && [ -n "$canonical_solana_serial" ] && \
        [ "$target_serial" = "$canonical_solana_serial" ]; then
     android_acceptance_validate_canonical_solana_device "$adb" "$target_serial"
-  elif [ "$execution_mode" = diagnostic ] && [ "$target_serial" = "$diagnostic_device" ]; then
+  elif [ "$execution_mode" = diagnostic ] && [ "${diagnostic_owned_avd:-0}" -eq 0 ] && \
+       [ "$target_serial" = "$diagnostic_device" ]; then
     android_acceptance_adb_device_ready "$adb" "$target_serial"
   else
     return 1
@@ -766,13 +790,11 @@ run_after_android_preflight() {
 }
 
 capture_device_fleet || die "could not enumerate the attached Android device fleet"
-if [ "$execution_mode" = diagnostic ]; then
+if [ "$execution_mode" = diagnostic ] && [ "$diagnostic_owned_avd" -eq 0 ]; then
   android_acceptance_select_diagnostic_device \
     "$captured_device_serials" "$device_serials" "$diagnostic_device" \
     "${reserved_device_serials[@]}" || \
     die "requested diagnostic device is not an eligible member of the captured fleet"
-  cp "$captured_device_serials" "$artifacts/diagnostic-captured-device-serials.txt"
-  chmod 600 "$artifacts/diagnostic-captured-device-serials.txt"
 else
   if [ -n "$canonical_solana_serial" ]; then
     android_acceptance_validate_canonical_solana_device "$adb" "$canonical_solana_serial" || \
@@ -794,7 +816,20 @@ else
     "$adb" "$started_emulator_serial" "$avd_name" "$emulator_pid" \
     "$emulator_owner_token" 120 || \
     die "fallback Android emulator did not prove runner ownership"
+  if [ "$execution_mode" = diagnostic ]; then
+    diagnostic_device="$started_emulator_serial"
+  fi
   capture_device_fleet || die "could not capture the Android fleet after starting the fallback AVD"
+  if [ "$execution_mode" = diagnostic ]; then
+    android_acceptance_select_owned_avd_diagnostic_device \
+      "$captured_device_serials" "$device_serials" "$adb" "$started_emulator_serial" \
+      "$avd_name" "$emulator_pid" "$emulator_owner_token" || \
+      die "diagnostic AVD lost exact runner ownership or inventory identity"
+  fi
+fi
+if [ "$execution_mode" = diagnostic ]; then
+  cp "$captured_device_serials" "$artifacts/diagnostic-captured-device-serials.txt"
+  chmod 600 "$artifacts/diagnostic-captured-device-serials.txt"
 fi
 [ -s "$device_serials" ] || die "no eligible Android device is attached"
 android_acceptance_write_device_records "$device_serials" "$device_records" || \
@@ -877,6 +912,7 @@ if [ "$execution_mode" = diagnostic ]; then
     mode diagnostic-only \
     final_proof forbidden \
     device "$diagnostic_device" \
+    device_origin "$diagnostic_device_origin" \
     flavor "$selected_flavor_value" \
     case "$diagnostic_case" \
     build fresh-paired-apks \
@@ -2004,7 +2040,7 @@ for target in $build_targets; do
       if [ "$p2p_status" -eq 0 ]; then
         record_acceptance_result \
           "$out/peer-to-peer" "$target" peer-to-peer passed 0 \
-          "./test-main.sh --diagnostic-device=$serial --diagnostic-case=peer-to-peer --flavor=$target" \
+          "./test-main.sh $diagnostic_selector --diagnostic-case=peer-to-peer --flavor=$target" \
           "$build_id" "$input_fingerprint" "$out/peer-to-peer/client-instrumentation.log" \
           com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
         record_device_cases "$device_id" "$serial" "$target" PASS \
@@ -2012,7 +2048,7 @@ for target in $build_targets; do
       else
         record_acceptance_result \
           "$out/peer-to-peer" "$target" peer-to-peer failed 1 \
-          "./test-main.sh --diagnostic-device=$serial --diagnostic-case=peer-to-peer --flavor=$target" \
+          "./test-main.sh $diagnostic_selector --diagnostic-case=peer-to-peer --flavor=$target" \
           "$build_id" "$input_fingerprint" "$out/peer-to-peer/client-instrumentation.log" \
           com.bringyour.network.acceptance.PhysicalLowbarSessionTest || overall=1
         record_device_cases "$device_id" "$serial" "$target" FAIL \

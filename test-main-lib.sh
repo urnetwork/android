@@ -2048,13 +2048,13 @@ android_acceptance_execution_mode() {
     0:0) printf 'canonical\n' ;;
     1:1) printf 'diagnostic\n' ;;
     *)
-      echo "--diagnostic-device and --diagnostic-case must be supplied together" >&2
+      echo "one diagnostic target (--diagnostic-device or --diagnostic-owned-avd) and --diagnostic-case must be supplied together" >&2
       return 2
       ;;
   esac
 }
 
-# A focused P2P invocation is intentionally one fresh build, one physical
+# A focused P2P invocation is intentionally one fresh build, one selected
 # device, one flavor, and one case. Three confirmations must therefore be
 # three independent invocations with independent cleanup boundaries. A
 # diagnostic may never emit the result file consumed by final proof.
@@ -2077,6 +2077,26 @@ android_acceptance_validate_diagnostic_request() {
       return 2
     fi
   done
+  android_acceptance_validate_diagnostic_settings \
+    "$requested_case" "$flavor_count" "$flavor" "$repeat_count" \
+    "$skip_build" "$smoke_only" "$keep_emulator" "$keep_fixture" "$result_matrix"
+}
+
+# An owned AVD is a separate target kind, never an exception permitting a
+# caller-supplied emulator serial. Solana remains a physical-only lane.
+android_acceptance_validate_owned_avd_diagnostic_request() {
+  case "$3" in
+    github|play|fdroid) ;;
+    *) echo "owned-AVD diagnostics require github, play, or fdroid" >&2; return 2 ;;
+  esac
+  android_acceptance_validate_diagnostic_settings "$@"
+}
+
+android_acceptance_validate_diagnostic_settings() {
+  local requested_case="$1" flavor_count="$2" flavor="$3" repeat_count="$4"
+  local skip_build="$5" smoke_only="$6" keep_emulator="$7" keep_fixture="$8"
+  local result_matrix="$9"
+
   if [ "$requested_case" != peer-to-peer ]; then
     echo "--diagnostic-case supports only peer-to-peer" >&2
     return 2
@@ -2124,7 +2144,7 @@ android_acceptance_validate_diagnostic_request() {
 android_acceptance_select_diagnostic_device() {
   local captured_file="$1" output_file="$2" requested_serial="$3"
   shift 3
-  local reserved matches temporary="${output_file}.tmp.$$"
+  local reserved
 
   case "$requested_serial" in
     ''|emulator-*|*[!A-Za-z0-9._:-]*)
@@ -2138,6 +2158,26 @@ android_acceptance_select_diagnostic_device() {
       return 2
     fi
   done
+  android_acceptance_select_captured_diagnostic_device \
+    "$captured_file" "$output_file" "$requested_serial"
+}
+
+# Prove the exact live child/guest identity again after startup and inventory
+# capture. Merely finding an emulator serial in ADB never authorizes reuse.
+android_acceptance_select_owned_avd_diagnostic_device() {
+  local captured_file="$1" output_file="$2" adb="$3" requested_serial="$4"
+  local expected_avd="$5" owner_pid="$6" owner_token="$7"
+
+  android_acceptance_runner_owns_emulator \
+    "$adb" "$requested_serial" "$expected_avd" "$owner_pid" "$owner_token" || return 1
+  android_acceptance_select_captured_diagnostic_device \
+    "$captured_file" "$output_file" "$requested_serial"
+}
+
+android_acceptance_select_captured_diagnostic_device() {
+  local captured_file="$1" output_file="$2" requested_serial="$3"
+  local matches temporary="${output_file}.tmp.$$"
+
   [ -f "$captured_file" ] || return 1
   matches="$(awk -v serial="$requested_serial" '$0 == serial { count++ } END { print count + 0 }' "$captured_file")" || \
     return 1

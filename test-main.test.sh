@@ -813,6 +813,21 @@ env -u URNETWORK_NETWORK_TEST_LOCK_HELD \
 [ "$android_gate_diagnostic_status" -eq 75 ] || \
   fail "a direct Android diagnostic did not reject live shared ownership with status 75"
 
+android_gate_owned_diagnostic_status=0
+env -u URNETWORK_NETWORK_TEST_LOCK_HELD \
+  -u URNETWORK_NETWORK_TEST_LOCK_ROLE \
+  -u URNETWORK_NETWORK_TEST_LOCK_SCOPE \
+  PATH="$network_gate_fake_bin:$PATH" \
+  ANDROID_GATE_NODE_MARKER="$network_gate_node_marker" \
+  URNETWORK_ROOT="$here/.." \
+  URNETWORK_NETWORK_TESTING=1 \
+  URNETWORK_NETWORK_TEST_LOCK_PATH="$network_gate_lock" \
+  "$here/test-main.sh" --headless --flavor=play \
+    --diagnostic-owned-avd --diagnostic-case=peer-to-peer \
+    >"$network_gate_dir/owned-diagnostic.log" 2>&1 || android_gate_owned_diagnostic_status=$?
+[ "$android_gate_owned_diagnostic_status" -eq 75 ] || \
+  fail "an owned-AVD diagnostic did not reject live shared ownership before startup"
+
 android_gate_full_status=0
 env -u URNETWORK_NETWORK_TEST_LOCK_HELD \
   -u URNETWORK_NETWORK_TEST_LOCK_ROLE \
@@ -3787,4 +3802,5 @@ grep -Fq 'android_acceptance_wait_for_runner_owned_emulator' "$runner_source" ||
 bash "$here/test-main-p2p.test.sh"
 bash "$here/test-main-completion.test.sh"
 bash "$here/test-main-reporting.test.sh"
+bash "$here/test-main-diagnostic-avd.test.sh"
 echo "android/test-main.sh runner tests passed"
