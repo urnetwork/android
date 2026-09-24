@@ -308,7 +308,7 @@ done
 
 # Also exercise real shell child/wait semantics, without a device. Both a
 # clean exit and a nonzero exit publish identical positive terminal text.
-for child_result in 0 7; do
+for child_result in 0 7 255; do
   (
     out="$fixture/real-child-$child_result"
     mkdir -p "$out"
@@ -337,7 +337,7 @@ done
 mkdir -p "$fixture/logs"
 printf 'bounded app log\n' >"$fixture/logs/app.log"
 printf '%032768d' 0 >"$fixture/timeout-partial-logcat"
-for mode in recovered persistent unrelated-error invalid-status invalid-png ownership-lost ownership-lost-after-read diagnostics-recovered diagnostics-error diagnostics-empty startup timeout-recovered timeout-persistent timeout-ownership-lost-after-read exit-125 exit-137 exit-143 exit-7 invalid-status-after-transport-warning glog-timeout-recovered; do
+for mode in recovered persistent unrelated-error invalid-status invalid-png ownership-lost ownership-lost-after-read diagnostics-recovered diagnostics-error diagnostics-empty startup timeout-recovered timeout-persistent timeout-ownership-lost-after-read exit-125 exit-137 exit-143 exit-7 exit-255 invalid-status-after-transport-warning glog-timeout-recovered; do
   (
     out="$fixture/collection-$mode"
     adb=fake_adb
@@ -365,7 +365,14 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
             printf '%032768d' 0
             return 124
           fi
-          case "$mode" in exit-*) printf '%032768d' 0; return "${mode#exit-}" ;; esac
+          case "$mode" in
+            # F-Droid diagnostic 20260924-063941: the host daemon independently
+            # recorded a transport read failure during this 73728-byte partial
+            # read. The exit alone must not fabricate transport provenance or
+            # silently enable a retry; its instrumentation stream was lost too.
+            exit-255) printf '%073728d' 0; return 255 ;;
+            exit-*) printf '%032768d' 0; return "${mode#exit-}" ;;
+          esac
           if [ "$mode" = invalid-status-after-transport-warning ]; then
             printf 'adb: device offline (old warning on successful read)\n' >&2
           fi
@@ -445,7 +452,15 @@ for mode in recovered persistent unrelated-error invalid-status invalid-png owne
         [ "$(wc -l <"$fixture/reads-$mode" | tr -d ' ')" = 1 ] || fail "timeout retried an unowned device" ;;
       exit-*)
         [ "$result" != 0 ] && [ "$ownership_checks" = 1 ] || fail "non-timeout exit was retried: $mode"
-        grep -Eq "^logcat[[:space:]]${mode#exit-}$" "$out/attempt-1/collection-commands.tsv" || fail "non-timeout exit status was flattened" ;;
+        grep -Eq "^logcat[[:space:]]${mode#exit-}$" "$out/attempt-1/collection-commands.tsv" || fail "non-timeout exit status was flattened"
+        if [ "$mode" = exit-255 ]; then
+          [ "$(wc -c <"$out/attempt-1/logcat.txt" | tr -d ' ')" = 73728 ] || fail "disconnect discarded partial stdout"
+          cmp -s "$out/attempt-1/logcat.txt" "$out/logcat.txt" || fail "disconnect changed retained original bytes"
+          [ ! -s "$out/attempt-1/read-logcat.stderr" ] && [ ! -s "$out/collection.stderr" ] || fail "exit255 fabricated a stderr transport signature"
+          [ "$(wc -l <"$fixture/reads-$mode" | tr -d ' ')" = 1 ] || fail "exit255 continued to device reads"
+          [ ! -e "$out/attempt-2" ] || fail "unclassified exit255 was retried"
+          grep -Eq '^1[[:space:]]255$' "$out/collection-attempts.tsv" || fail "disconnect attempt receipt lost exit255"
+        fi ;;
       diagnostics-recovered)
         [ "$result" = 0 ] && [ "$ownership_checks" = 2 ] || fail "diagnostic transport loss did not retry with the same owner"
         grep -Fq '"partial":' "$out/attempt-1/physical-diagnostics.ndjson" || fail "partial diagnostic evidence was erased"
@@ -488,7 +503,7 @@ done
 
 # Model child liveness with a virtual tick counter. The actual production grace
 # helper polls it; no sleeps, processes, ADB or connected devices are required.
-for mode in natural artifact-error lost-stream genuine-crash timeout identity-loss identity-loss-at-force child-exit-failed provenance-write-failed finish-command-failed finish-ack-failed stuck-host; do
+for mode in natural artifact-error lost-stream transport-255-lost-client genuine-crash timeout identity-loss identity-loss-at-force child-exit-failed provenance-write-failed finish-command-failed finish-ack-failed stuck-host; do
   (
     out="$fixture/finish-$mode"
     mkdir -p "$out"
@@ -505,6 +520,7 @@ for mode in natural artifact-error lost-stream genuine-crash timeout identity-lo
     target=emulator-5554
     role=client
     if [ "$mode" = lost-stream ] || [ "$mode" = provenance-write-failed ]; then role=provider; target=emulator-5556; alive=0; fi
+    if [ "$mode" = transport-255-lost-client ]; then alive=0; child_code=255; fi
     if [ "$mode" = provenance-write-failed ]; then record_p2p_failure() { return 1; }; fi
     if [ "$mode" = genuine-crash ]; then alive=0; child_code=1; fi
     if [ "$mode" = child-exit-failed ]; then child_code=1; fi
@@ -513,6 +529,11 @@ for mode in natural artifact-error lost-stream genuine-crash timeout identity-lo
       printf 'INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n' >>"$out/$role-instrumentation.log"
     elif [ "$mode" = artifact-error ]; then
       record_p2p_failure "$out" provider artifact-collection
+    elif [ "$mode" = transport-255-lost-client ]; then
+      # Even if later ADB ownership, finish acknowledgement and the other role
+      # recover, the original missing client terminal remains a hard failure.
+      success_transcript >"$out/provider-instrumentation.log"
+      record_p2p_failure "$out" client artifact-collection
     fi
     android_acceptance_session_running() { [ "$1" = 424242 ] || fail "wrong child PID"; [ "$alive" = 1 ]; }
     sleep() {
@@ -531,7 +552,8 @@ for mode in natural artifact-error lost-stream genuine-crash timeout identity-lo
     }
     wait_physical_status() {
       [ "$1:$2:$3:$4:$5" = "$target:$role-finish:complete:none:120" ] || fail "wrong finish receipt request"
-      if [ "$mode" = lost-stream ] || [ "$mode" = genuine-crash ] || [ "$mode" = provenance-write-failed ]; then
+      if [ "$mode" = lost-stream ] || [ "$mode" = transport-255-lost-client ] || \
+         [ "$mode" = genuine-crash ] || [ "$mode" = provenance-write-failed ]; then
         [ -z "$6" ] || fail "dead host PID incorrectly bounded recovered app finish"
       else
         [ "$6" = 424242 ] || fail "live host child is not supervised"
@@ -592,6 +614,11 @@ for mode in natural artifact-error lost-stream genuine-crash timeout identity-lo
       lost-stream)
         [ "$result" != 0 ] && [ "$forced" = 0 ] || fail "lost provider stream was hidden by recovered finish"
         grep -Fq '"classification":"infrastructure"' "$out/p2p-first-failure.json" || fail "lost stream was not infrastructure failure" ;;
+      transport-255-lost-client)
+        [ "$result:$forced:$ticks:$sent" = 1:0:0:1 ] || fail "recovered finish or provider success repaired the lost client terminal"
+        grep -Fq '"role":"client","reason":"artifact-collection","classification":"infrastructure"' "$out/p2p-first-failure.json" || \
+          fail "transport break was relabeled as app crash/timeout or its first failure was erased"
+        if android_acceptance_verify_p2p_instrumentation "$out/client-instrumentation.log"; then fail "start-only client stream became success"; fi ;;
       genuine-crash)
         [ "$result" != 0 ] && [ "$forced" = 0 ] || fail "pre-existing crash was accepted or re-killed"
         grep -Fq '"classification":"crash"' "$out/p2p-first-failure.json" || fail "real crash was hidden" ;;
