@@ -73,24 +73,11 @@ class PhysicalLowbarSessionTest {
     private var phase = "startup"
 
     private fun waitFor(
-        description: String,
+        stage: PhysicalWaitStage,
         timeoutMillis: Long = UI_TIMEOUT_MILLIS,
         condition: () -> Boolean,
     ) {
-        val deadline = SystemClock.elapsedRealtime() + timeoutMillis
-        var lastError: Throwable? = null
-        while (SystemClock.elapsedRealtime() < deadline) {
-            try {
-                if (condition()) return
-            } catch (error: Throwable) {
-                lastError = error
-            }
-            SystemClock.sleep(100)
-        }
-        throw AssertionError(
-            "Timed out waiting for $description after ${timeoutMillis / 1_000}s",
-            lastError,
-        )
+        waitForPhysicalCondition(stage, timeoutMillis, SystemClock::elapsedRealtime, SystemClock::sleep, condition)
     }
 
     private fun launchLoggedOutApp(application: MainApplication) {
@@ -181,7 +168,7 @@ class PhysicalLowbarSessionTest {
         val beforeIngressPackets = before?.remoteIngressPacketCount ?: 0
         val beforeIngressBytes = before?.remoteIngressByteCount ?: 0
         val address = peerEgressProbe()
-        waitFor("bidirectional peer traffic counters", EGRESS_TIMEOUT_MILLIS) {
+        waitFor(PhysicalWaitStage.PEER_TRAFFIC_COUNTERS, EGRESS_TIMEOUT_MILLIS) {
             val after = device.packetStats ?: return@waitFor false
             after.remoteEgressPacketCount > beforeEgressPackets &&
                 after.remoteEgressByteCount > beforeEgressBytes &&
@@ -746,12 +733,16 @@ class PhysicalLowbarSessionTest {
         error: Throwable,
     ) {
         val extra = JSONObject().put("errorType", error.javaClass.simpleName)
+        val waitFailure = physicalWaitFailureEvidence(error)
         val startupState = application.loginStartupState.value
         val startupFailure = when (error) {
             is LoginStartupFailureException -> error.state
             else -> startupState as? LoginStartupState.Failed
         }
         when {
+            waitFailure != null -> {
+                waitFailure.forEach { (key, value) -> extra.put(key, value) }
+            }
             error is CleanupLedgerFailureException -> {
                 extra.put("stage", "client-allocation")
                 extra.put("failure", "cleanup-ledger-persistence-failed")
@@ -790,7 +781,7 @@ class PhysicalLowbarSessionTest {
     private fun stopClient(connectVc: ConnectViewController, device: DeviceLocal) {
         if (device.connectEnabled || connectVc.connected) {
             connectVc.disconnect()
-            waitFor("client disconnect", CONNECT_TIMEOUT_MILLIS) {
+            waitFor(PhysicalWaitStage.CLIENT_DISCONNECT, CONNECT_TIMEOUT_MILLIS) {
                 !device.connectEnabled && !connectVc.connected
             }
         }
@@ -800,7 +791,7 @@ class PhysicalLowbarSessionTest {
         if (device.provideEnabled || device.provideMode != Sdk.ProvideModeNone) {
             application.deviceManager.provideControlMode = ProvideControlMode.NEVER
             device.providePaused = true
-            waitFor("provider stop", CONNECT_TIMEOUT_MILLIS) {
+            waitFor(PhysicalWaitStage.PROVIDER_STOP, CONNECT_TIMEOUT_MILLIS) {
                 !device.provideEnabled && device.provideMode == Sdk.ProvideModeNone
             }
         }
@@ -814,7 +805,7 @@ class PhysicalLowbarSessionTest {
             Sdk.defaultTransportSettings(),
             mode,
         )
-        waitFor("transport policy $mode") { device.transportSettings?.mode == mode }
+        waitFor(PhysicalWaitStage.TRANSPORT_POLICY) { device.transportSettings?.mode == mode }
     }
 
     private fun connectPublic(
@@ -831,7 +822,7 @@ class PhysicalLowbarSessionTest {
         try {
             locationsVc.start()
             var selected: ConnectLocation? = null
-            waitFor("explicit United States country pool", CONNECT_TIMEOUT_MILLIS) {
+            waitFor(PhysicalWaitStage.US_COUNTRY_POOL, CONNECT_TIMEOUT_MILLIS) {
                 val countries = locationsVc.filteredLocations?.countries ?: return@waitFor false
                 val locations = (0 until countries.len()).mapNotNull { countries.get(it) }
                 val index = physicalUsCountryIndex(locations.map {
@@ -847,13 +838,13 @@ class PhysicalLowbarSessionTest {
             device.closeLocationsViewController(locationsVc)
         }
         uiDevice.clickVerifiedVpnConsentIfPresent()
-        waitFor("public VPN connection", CONNECT_TIMEOUT_MILLIS) {
+        waitFor(PhysicalWaitStage.PUBLIC_VPN_CONNECTION, CONNECT_TIMEOUT_MILLIS) {
             connectVc.connected && device.connectEnabled && device.tunnelStarted
         }
         // A small separate-UID warmup proves actual carrier bytes. Auto policy
         // and a requested US location are not evidence of the live route.
         peerEgressProbeWithTrafficProof(device)
-        waitFor("live US provider and carrier evidence", CONNECT_TIMEOUT_MILLIS) {
+        waitFor(PhysicalWaitStage.US_PROVIDER_CARRIER_EVIDENCE, CONNECT_TIMEOUT_MILLIS) {
             physicalLiveCountry(liveProviders(device)) == "US" &&
                 physicalSelectedCarriers(carrierBaseline, carrierBytes(device), device.connectEnabled).isNotEmpty()
         }
@@ -869,7 +860,7 @@ class PhysicalLowbarSessionTest {
         application.deviceManager.provideControlMode = ProvideControlMode.NETWORK
         device.providePaused = false
         uiDevice.clickVerifiedVpnConsentIfPresent()
-        waitFor("same-network provider", CONNECT_TIMEOUT_MILLIS) {
+        waitFor(PhysicalWaitStage.SAME_NETWORK_PROVIDER, CONNECT_TIMEOUT_MILLIS) {
             device.provideEnabled &&
                 device.provideMode == Sdk.ProvideModeNetwork &&
                 device.tunnelStarted
@@ -918,16 +909,16 @@ class PhysicalLowbarSessionTest {
         stopProvider(application, device)
         if (mode.isNotEmpty()) configureClientMode(device, mode)
         carrierBaseline = carrierBytes(device)
-        waitFor("connectable same-network peer", PEER_TIMEOUT_MILLIS) {
+        waitFor(PhysicalWaitStage.CONNECTABLE_PEER, PEER_TIMEOUT_MILLIS) {
             peerLocation(peerVc, networkPeer) != null
         }
         connectVc.connect(checkNotNull(peerLocation(peerVc, networkPeer)))
         uiDevice.clickVerifiedVpnConsentIfPresent()
-        waitFor("same-network peer VPN connection", CONNECT_TIMEOUT_MILLIS) {
+        waitFor(PhysicalWaitStage.PEER_VPN_CONNECTION, CONNECT_TIMEOUT_MILLIS) {
             connectVc.connected && device.connectEnabled && device.tunnelStarted
         }
         peerEgressProbeWithTrafficProof(device)
-        waitFor("live exact peer and carrier evidence", CONNECT_TIMEOUT_MILLIS) {
+        waitFor(PhysicalWaitStage.PEER_CARRIER_EVIDENCE, CONNECT_TIMEOUT_MILLIS) {
             physicalSelectedPeer(device.connectLocation?.connectLocationId?.clientId?.idStr,
                 liveProviders(device), device.connectEnabled).isNotEmpty() &&
                 physicalSelectedCarriers(carrierBaseline, carrierBytes(device), device.connectEnabled).isNotEmpty()
@@ -988,7 +979,7 @@ class PhysicalLowbarSessionTest {
                 return false
             }
             "provider-proof" -> waitFor(
-                "bidirectional provider traffic counters",
+                PhysicalWaitStage.PROVIDER_TRAFFIC_COUNTERS,
                 EGRESS_TIMEOUT_MILLIS,
             ) {
                 val stats = device.providerPacketStats ?: return@waitFor false

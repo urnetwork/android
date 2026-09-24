@@ -459,6 +459,54 @@ test("VaUc1l: live retained AM owner and target PID pass with no test-package PI
     ["pidof", "com.bringyour.network"]]);
 });
 
+test("UJrG1j: H1 command rejection retains its bounded wait stage", async () => {
+  const stages = ["peer-traffic-counters", "client-disconnect", "provider-stop", "transport-policy",
+    "us-country-pool", "public-vpn-connection", "us-provider-carrier-evidence", "same-network-provider",
+    "connectable-peer", "peer-vpn-connection", "peer-carrier-evidence", "provider-traffic-counters"];
+  for (const stage of stages) {
+    await assert.rejects(checkSessionRole(h1Role, { adb: roleAdb([{ ...connectedStatus,
+      state: "error", extra: { errorType: "PhysicalWaitTimeout", stage, failure: "wait-timeout",
+        message: "private-error-message", cause: "private-cause", password: "private-password" },
+    }]) }), error => {
+      const lines = formatSessionFailure(error).trim().split("\n");
+      assert.equal(lines[0], "collector session failed: h1-connect-command-rejected");
+      assert.equal(lines.length, 2, "retain safe failure evidence in the already captured stderr");
+      assert.deepEqual(JSON.parse(lines[1]), { type: "physical-command-failure", schema: 1,
+        phase: "connect-h1", outcome: "wait-timeout", stage });
+      assert.doesNotMatch(lines[1], /private|1234|fake-device|h1-fresh|PhysicalWaitTimeout/);
+      return true;
+    });
+  }
+});
+
+test("H1 command failure evidence never copies unclassified errors or arbitrary stage text", async () => {
+  for (const extra of [undefined, null, {}, { errorType: "AssertionError" },
+    { stage: "private-password", failure: "wait-timeout" },
+    { stage: "public-vpn-connection", failure: "private-error-message" },
+    { stage: ["public-vpn-connection"], failure: "wait-timeout" },
+    { stage: "public-vpn-connection", failure: ["wait-timeout"] },
+    { stage: "constructor", failure: "wait-timeout" }]) {
+    await assert.rejects(checkSessionRole(h1Role, { adb: roleAdb([{ ...connectedStatus, state: "error", extra }]) }), error => {
+      const lines = formatSessionFailure(error).trim().split("\n");
+      assert.equal(lines[0], "collector session failed: h1-connect-command-rejected");
+      assert.equal(lines.length, 2);
+      assert.deepEqual(JSON.parse(lines[1]), { type: "physical-command-failure", schema: 1,
+        phase: "connect-h1", outcome: "unclassified", stage: null });
+      return true;
+    });
+  }
+});
+
+test("H1 wait evidence cannot override successful role checks or a mismatched command phase", async () => {
+  const extra = { stage: "public-vpn-connection", failure: "wait-timeout" };
+  assert.equal((await checkSessionRole(h1Role, { adb: roleAdb([{ ...connectedStatus, extra }]) })).connected, true);
+  await assert.rejects(checkSessionRole(h1Role, { adb: roleAdb([{ ...connectedStatus,
+    phase: "private-phase", state: "error", extra }]) }), error => {
+    assert.equal(formatSessionFailure(error), "collector session failed: h1-connect-command-rejected\n");
+    return true;
+  });
+});
+
 test("retained supervisor and adb child are each required before and after target status reads", async () => {
   for (const [deadPid, reason] of [[process.pid, /supervisor-not-live/], [hostPid, /adb-not-live/]]) {
     for (const exitAfterRead of [false, true]) {

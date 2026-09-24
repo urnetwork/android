@@ -16,14 +16,28 @@ import { nativeProvenanceReason, requireVerifiedNativeInputs } from "./physical_
 import { credentialOwnershipReason, handoffCredentialOwnership, rollbackCredentialSetup } from "./physical_credential_ownership.mjs";
 
 class SessionError extends Error {
-  constructor(reason, statusRead) { super(reason); this.statusRead = statusRead; }
+  constructor(reason, statusRead, commandFailure) {
+    super(reason); this.statusRead = statusRead; this.commandFailure = commandFailure;
+  }
 }
-const fail = (reason, statusRead) => { throw new SessionError(reason, statusRead); };
+const fail = (reason, statusRead, commandFailure) => { throw new SessionError(reason, statusRead, commandFailure); };
 export const statusReadFailureMetadata = error => error instanceof SessionError ? error.statusRead : undefined;
 export function formatSessionFailure(error) {
   const metadata = statusReadFailureMetadata(error);
   return `collector session failed: ${error instanceof SessionError ? error.message : "evidence-unavailable"}\n` +
-    (metadata ? `${JSON.stringify(metadata)}\n` : "");
+    (metadata ? `${JSON.stringify(metadata)}\n` : "") +
+    (error instanceof SessionError && error.commandFailure ? `${JSON.stringify(error.commandFailure)}\n` : "");
+}
+// Match the finite PhysicalWaitStage vocabulary; never copy an exception's
+// message, cause, type, command ID, or arbitrary app-provided stage into logs.
+const physicalWaitStages = new Set(["peer-traffic-counters", "client-disconnect", "provider-stop", "transport-policy",
+  "us-country-pool", "public-vpn-connection", "us-provider-carrier-evidence", "same-network-provider",
+  "connectable-peer", "peer-vpn-connection", "peer-carrier-evidence", "provider-traffic-counters"]);
+function h1CommandFailure(status) {
+  const stage = status.extra?.failure === "wait-timeout" && physicalWaitStages.has(status.extra?.stage)
+    ? status.extra.stage : null;
+  return { type: "physical-command-failure", schema: 1, phase: "connect-h1",
+    outcome: stage ? "wait-timeout" : "unclassified", stage };
 }
 const pidValid = (pid) => Number.isInteger(pid) && pid > 0;
 const captureScript = fileURLToPath(new URL("./physical_lowbar_capture.mjs", import.meta.url));
@@ -256,7 +270,8 @@ export async function checkSessionRole(options, dependencies = {}, wait = true) 
     if (options["session-mode"] === "h1") {
       if (![initial.commandId, options["connect-command-id"]].includes(status.commandId)) fail("concurrent-command-observed");
       if (status.commandId === options["connect-command-id"]) {
-        if (status.phase !== "connect-h1" || status.state === "error") fail("h1-connect-command-rejected");
+        if (status.phase !== "connect-h1") fail("h1-connect-command-rejected");
+        if (status.state === "error") fail("h1-connect-command-rejected", undefined, h1CommandFailure(status));
         if (status.state === "complete") {
           if (status.transportMode !== "h1" || status.connected !== true || status.tunnelStarted !== true ||
               status.provideEnabled !== false) fail("completed-h1-tunnel-required");

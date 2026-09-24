@@ -359,6 +359,19 @@ after the retained owner exits is a readiness failure, not an empty successful
 session. On that failure, preserve the owner exit output and remove the private
 credential and command files before a persistent-owner retry.
 
+On a command wait timeout, status `extra` retains `failure=wait-timeout` and a
+finite `stage` from `PhysicalWaitStage`, rather than the exception message or
+its cause. For public H1 connection the stages are `client-disconnect`,
+`provider-stop`, `transport-policy`, `us-country-pool`, `public-vpn-connection`,
+`peer-traffic-counters`, and `us-provider-carrier-evidence`. The role checker
+also retains this bounded classification in its captured stderr as
+`type=physical-command-failure`; legacy or unknown errors remain `unclassified`.
+An `AssertionError` and an approximately 120-second elapsed time alone do not
+identify which wait failed. Preserve the failed arm and rerun after rebuilding
+both APKs to obtain the stage; do not infer a network fix from that timing.
+These diagnostics use the existing Kotlin instrumentation/unit-test and Node
+platform-helper test surfaces, the platform exception to RUN-MAIN's Go rule.
+
 Native provenance is a separate pre-traffic gate. A fresh acceptance build ID
 only proves the app/test wrapper; `assembleGithubDebug` does not rebuild the
 native SDK dependency. Freeze SDK/Connect/replacement-module revisions and
