@@ -653,9 +653,12 @@ safe `CONNECT_ID` (for example `h1-` plus a UUID) and retain its exact value for
 the collector call. The instrumentation command stream must have one owner and
 be idle before publication. The `connect` verb selects the explicit US country
 location (never best-available) and requires every current routing-eligible
-provider to publish US geography before completing. `countryCode` is read from
-those live providers, not copied from the requested location. Unknown or mixed
-geography fails the US gate. A separate-UID egress warmup establishes fresh
+provider to publish US geography before completing. The API stores country codes
+in lowercase and the SDK preserves them, so both selection and live evidence
+normalize ASCII two-letter code casing (`us` becomes `US`). Blank, malformed,
+or ambiguous country evidence still fails. `countryCode` is read from those live
+providers, not copied from the requested location. Unknown or mixed geography
+fails the US gate. A separate-UID egress warmup establishes fresh
 packet evidence before workload timing; `selectedCarrier` is the sorted `+`
 joined set of carriers with byte progress since this connection began, not the
 requested mode or Auto preference. Mixed carriers stay explicit. Exact-peer

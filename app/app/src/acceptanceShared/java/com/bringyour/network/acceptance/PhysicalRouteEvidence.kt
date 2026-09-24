@@ -1,5 +1,14 @@
 package com.bringyour.network.acceptance
 
+import java.util.Locale
+
+// The API stores country codes in lowercase; SDK location objects preserve it.
+// Accept ASCII ISO-code casing only, without trimming or Unicode case folding.
+private fun physicalCountryCode(countryCode: String): String {
+    if (countryCode.length != 2 || countryCode.any { it !in 'a'..'z' && it !in 'A'..'Z' }) return ""
+    return countryCode.uppercase(Locale.ROOT)
+}
+
 /** Test-side evidence only: requested policy is never a substitute for live routing. */
 internal data class PhysicalCountryCandidate(
     val countryCode: String,
@@ -11,15 +20,17 @@ internal data class PhysicalCountryCandidate(
 internal fun physicalUsCountryIndex(candidates: List<PhysicalCountryCandidate>): Int? =
     candidates.indices.filter {
         val candidate = candidates[it]
-        candidate.countryCode == "US" && !candidate.locationId.isNullOrBlank() &&
+        physicalCountryCode(candidate.countryCode) == "US" && !candidate.locationId.isNullOrBlank() &&
             candidate.isCountry && !candidate.bestAvailable
     }.singleOrNull()
 
 internal data class PhysicalProviderEvidence(val clientId: String, val countryCode: String, val hasLocation: Boolean)
 
 internal fun physicalLiveCountry(providers: List<PhysicalProviderEvidence>): String {
-    if (providers.isEmpty() || providers.any { !it.hasLocation || it.countryCode.isBlank() }) return ""
-    return providers.map { it.countryCode }.distinct().singleOrNull().orEmpty()
+    if (providers.isEmpty() || providers.any { !it.hasLocation }) return ""
+    val countries = providers.map { physicalCountryCode(it.countryCode) }
+    if (countries.any { it.isEmpty() }) return ""
+    return countries.distinct().singleOrNull().orEmpty()
 }
 
 internal data class PhysicalCarrierBytes(val egress: Long, val ingress: Long)

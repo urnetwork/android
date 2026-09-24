@@ -18,12 +18,48 @@ class PhysicalRouteEvidenceTest {
     }
 
     @Test
+    fun `public selection accepts the lowercase country code emitted by the API`() {
+        for (countryCode in listOf("us", "Us", "uS", "US")) {
+            assertEquals(1, physicalUsCountryIndex(listOf(
+                us.copy(countryCode = "ca"), us.copy(countryCode = countryCode))))
+        }
+        // Case differences never turn an ambiguous pool into a unique choice.
+        assertNull(physicalUsCountryIndex(listOf(us, us.copy(countryCode = "us"))))
+        for (candidate in listOf(us.copy(countryCode = "us", bestAvailable = true),
+            us.copy(countryCode = "us", locationId = " "),
+            us.copy(countryCode = "us", isCountry = false))) {
+            assertNull(physicalUsCountryIndex(listOf(candidate)))
+        }
+    }
+
+    @Test
+    fun `country evidence rejects malformed codes and Unicode case lookalikes`() {
+        for (countryCode in listOf("", " ", " US", "us ", "usa", "u\u017f", "\uff35\uff33", "u1")) {
+            assertNull(physicalUsCountryIndex(listOf(us.copy(countryCode = countryCode))))
+            assertEquals("", physicalLiveCountry(listOf(
+                PhysicalProviderEvidence("provider", countryCode, true))))
+        }
+    }
+
+    @Test
     fun `live country cannot be copied from a requested location or a partial provider set`() {
         val live = PhysicalProviderEvidence("provider", "US", true)
         assertEquals("US", physicalLiveCountry(listOf(live, live.copy(clientId = "second"))))
         for (providers in listOf(emptyList(), listOf(live.copy(hasLocation = false)),
             listOf(live, live.copy(countryCode = "CA")), listOf(live.copy(countryCode = "")))) {
             assertEquals("", physicalLiveCountry(providers))
+        }
+    }
+
+    @Test
+    fun `live provider evidence normalizes API country codes before the US gate`() {
+        val live = PhysicalProviderEvidence("provider", "us", true)
+        assertEquals("US", physicalLiveCountry(listOf(live)))
+        assertEquals("US", physicalLiveCountry(listOf(live, live.copy(clientId = "second", countryCode = "US"))))
+        assertEquals("CA", physicalLiveCountry(listOf(live.copy(countryCode = "ca"))))
+        for (provider in listOf(live.copy(countryCode = "ca"), live.copy(countryCode = ""),
+            live.copy(countryCode = "u\u017f"), live.copy(hasLocation = false))) {
+            assertEquals("", physicalLiveCountry(listOf(live, provider)))
         }
     }
 
