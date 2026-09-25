@@ -221,6 +221,11 @@
     <string name="learn_more">เรียนรู้เพิ่มเติม</string>
     <string name="learn_more_about_multiplier">เรียนรู้เพิ่มเติมเกี่ยวกับตัวคูณ</string>
     <string name="learn_more_protocol_page">เรียนรู้เพิ่มเติมที่หน้าข้อมูลโปรโตคอล</string>
+    <string name="licenses">สัญญาอนุญาต</string>
+    <string name="licenses_data_header">แหล่งที่มาของข้อมูล</string>
+    <string name="licenses_intro">URnetwork สร้างขึ้นด้วยซอฟต์แวร์โอเพนซอร์สและข้อมูลด้านล่าง แต่ละรายการแสดงสัญญาอนุญาตและประกาศที่จำเป็น</string>
+    <string name="licenses_project_page">หน้าโครงการ</string>
+    <string name="licenses_software_header">ซอฟต์แวร์โอเพนซอร์ส</string>
     <string name="loading">กำลังโหลด...</string>
     <string name="local">ภายในเครื่อง</string>
     <string name="local_dns">DNS ภายในเครื่อง</string>

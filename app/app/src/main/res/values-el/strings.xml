@@ -221,6 +221,11 @@
     <string name="learn_more">Μάθετε περισσότερα</string>
     <string name="learn_more_about_multiplier">Μάθετε περισσότερα σχετικά με τον πολλαπλασιαστή</string>
     <string name="learn_more_protocol_page">Μάθετε περισσότερα στη σελίδα του πρωτοκόλλου</string>
+    <string name="licenses">Άδειες</string>
+    <string name="licenses_data_header">Αναφορές δεδομένων</string>
+    <string name="licenses_intro">Το URnetwork είναι κατασκευασμένο με το λογισμικό ανοιχτού κώδικα και τα δεδομένα παρακάτω. Κάθε καταχώριση εμφανίζει την άδειά της και όποια ειδοποίηση απαιτεί.</string>
+    <string name="licenses_project_page">Σελίδα έργου</string>
+    <string name="licenses_software_header">Λογισμικό ανοιχτού κώδικα</string>
     <string name="loading">Φόρτωση...</string>
     <string name="local">Τοπικό</string>
     <string name="local_dns">Τοπικό DNS</string>

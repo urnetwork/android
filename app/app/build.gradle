@@ -605,7 +605,11 @@ dependencies {
 
 // solana saga
 dependencies {
-    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0")
+    implementation("com.solanamobile:mobile-wallet-adapter-clientlib-ktx:2.1.0") {
+        // 2.1.0 publishes its test library as a runtime dependency, which would
+        // ship junit, hamcrest and androidx.test in the app
+        exclude group: "androidx.test.ext", module: "junit-ktx"
+    }
     implementation("com.solanamobile:web3-solana:0.3.1")
     implementation("com.solanamobile:rpc-core:0.2.11")
     implementation("io.github.funkatronics:multimult:0.2.6")

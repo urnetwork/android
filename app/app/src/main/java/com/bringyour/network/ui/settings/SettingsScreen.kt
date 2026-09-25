@@ -1376,6 +1376,30 @@ private fun SettingsScreen(
                 }
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /**
+             * Licenses
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.Licenses)
+                    }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.licenses),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = stringResource(id = R.string.licenses),
+                )
+            }
+
             // The Seeker/Saga data multiplier is promoted only on the Solana Mobile flavor.
             if (BuildConfig.BRINGYOUR_BUNDLE_STORE == "solana_dapp") {
 

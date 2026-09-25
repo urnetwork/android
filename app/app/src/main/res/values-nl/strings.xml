@@ -221,6 +221,11 @@
     <string name="learn_more">Meer informatie</string>
     <string name="learn_more_about_multiplier">Meer informatie over de vermenigvuldiger</string>
     <string name="learn_more_protocol_page">Meer informatie op de protocolpagina</string>
+    <string name="licenses">Licenties</string>
+    <string name="licenses_data_header">Gegevensbronnen</string>
+    <string name="licenses_intro">URnetwork is gebouwd met de onderstaande opensourcesoftware en gegevens. Bij elk item staan de licentie en eventuele verplichte vermeldingen.</string>
+    <string name="licenses_project_page">Projectpagina</string>
+    <string name="licenses_software_header">Opensourcesoftware</string>
     <string name="loading">Laden...</string>
     <string name="local">Lokaal</string>
     <string name="local_dns">Lokale DNS</string>

@@ -221,6 +221,11 @@
     <string name="learn_more">Подробнее</string>
     <string name="learn_more_about_multiplier">Узнать больше о множителе</string>
     <string name="learn_more_protocol_page">Подробнее на странице протокола</string>
+    <string name="licenses">Лицензии</string>
+    <string name="licenses_data_header">Источники данных</string>
+    <string name="licenses_intro">URnetwork создан с использованием перечисленного ниже программного обеспечения с открытым исходным кодом и данных. Для каждой записи указаны её лицензия и обязательные уведомления.</string>
+    <string name="licenses_project_page">Страница проекта</string>
+    <string name="licenses_software_header">ПО с открытым исходным кодом</string>
     <string name="loading">Загрузка...</string>
     <string name="local">Локально</string>
     <string name="local_dns">Локальный DNS</string>

@@ -7,7 +7,9 @@
 #      (../localizations/keys). The pipeline regenerates before every build,
 #      so a string that exists only in strings.xml but not in the store
 #      disappears there — running this locally reproduces that failure mode.
-#   2. run the pipeline's host gradle build (Play + Solana store flavors), plus
+#   2. check that every Maven runtime dependency is in the SDK's license list
+#      (sdk/license.yml, shown under Account -> Settings -> Licenses)
+#   3. run the pipeline's host gradle build (Play + Solana store flavors), plus
 #      a compile check of the github flavor (its APK is built by
 #      build/all/build-fdroid.sh in the F-Droid buildserver container).
 #
@@ -39,6 +41,12 @@ if [ "${BUILD_SDK:-}" ]; then
     echo "== rebuild the android sdk aar from the local sdk/connect/glog trees"
     (cd "$here/app" && ./gradlew goclientBuild)
 fi
+
+echo "== license drift check (gradle runtime classpaths vs sdk/license.yml)"
+# Account -> Settings -> Licenses shows the list the SDK embeds; fail when a
+# Maven dependency is missing from it (regenerate with `go run ./licenses` in
+# the sdk repo). Runs gradle itself, so it stays out of the gradle build.
+go -C "$root/sdk" run ./licenses -check android
 
 echo "== gradle build (pipeline host flavors + github compile check)"
 (cd "$here/app" &&

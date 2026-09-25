@@ -221,6 +221,11 @@
     <string name="learn_more">और जानें</string>
     <string name="learn_more_about_multiplier">गुणक के बारे में और जानें</string>
     <string name="learn_more_protocol_page">प्रोटोकॉल पेज पर और जानें</string>
+    <string name="licenses">लाइसेंस</string>
+    <string name="licenses_data_header">डेटा श्रेय</string>
+    <string name="licenses_intro">URnetwork नीचे दिए गए ओपन सोर्स सॉफ़्टवेयर और डेटा से बना है। हर प्रविष्टि अपना लाइसेंस और ज़रूरी सूचना दिखाती है।</string>
+    <string name="licenses_project_page">प्रोजेक्ट पेज</string>
+    <string name="licenses_software_header">ओपन सोर्स सॉफ़्टवेयर</string>
     <string name="loading">लोड हो रहा है...</string>
     <string name="local">स्थानीय</string>
     <string name="local_dns">स्थानीय DNS</string>

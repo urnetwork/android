@@ -221,6 +221,11 @@
     <string name="learn_more">En savoir plus</string>
     <string name="learn_more_about_multiplier">En savoir plus sur le multiplicateur</string>
     <string name="learn_more_protocol_page">En savoir plus sur la page du protocole</string>
+    <string name="licenses">Licences</string>
+    <string name="licenses_data_header">Attributions des données</string>
+    <string name="licenses_intro">URnetwork est conçu avec les logiciels open source et les données ci-dessous. Chaque entrée indique sa licence et toute mention qu\'elle exige.</string>
+    <string name="licenses_project_page">Page du projet</string>
+    <string name="licenses_software_header">Logiciels open source</string>
     <string name="loading">Chargement...</string>
     <string name="local">Local</string>
     <string name="local_dns">DNS local</string>

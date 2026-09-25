@@ -221,6 +221,11 @@
     <string name="learn_more">Zjistit více</string>
     <string name="learn_more_about_multiplier">Další informace o násobiteli</string>
     <string name="learn_more_protocol_page">Další informace najdete na stránce protokolu</string>
+    <string name="licenses">Licence</string>
+    <string name="licenses_data_header">Zdroje dat</string>
+    <string name="licenses_intro">URnetwork je postaven na níže uvedeném open source softwaru a datech. U každé položky je uvedena její licence a případná povinná upozornění.</string>
+    <string name="licenses_project_page">Stránka projektu</string>
+    <string name="licenses_software_header">Open source software</string>
     <string name="loading">Načítání...</string>
     <string name="local">Lokálně</string>
     <string name="local_dns">Místní DNS</string>

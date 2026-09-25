@@ -221,6 +221,11 @@
     <string name="learn_more">Pata maelezo zaidi</string>
     <string name="learn_more_about_multiplier">Jifunze zaidi kuhusu kizidishi</string>
     <string name="learn_more_protocol_page">Jifunze zaidi kwenye ukurasa wa itifaki</string>
+    <string name="licenses">Leseni</string>
+    <string name="licenses_data_header">Vyanzo vya data</string>
+    <string name="licenses_intro">URnetwork imejengwa kwa programu huria na data zilizo hapa chini. Kila kipengee kinaonyesha leseni yake na ilani yoyote inayohitajika.</string>
+    <string name="licenses_project_page">Ukurasa wa mradi</string>
+    <string name="licenses_software_header">Programu huria</string>
     <string name="loading">Inapakia...</string>
     <string name="local">Ndani</string>
     <string name="local_dns">DNS ya ndani</string>

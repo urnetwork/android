@@ -221,6 +221,11 @@
     <string name="learn_more">詳しく見る</string>
     <string name="learn_more_about_multiplier">倍率について詳しく見る</string>
     <string name="learn_more_protocol_page">プロトコルページでさらに詳しく</string>
+    <string name="licenses">ライセンス</string>
+    <string name="licenses_data_header">データの出典</string>
+    <string name="licenses_intro">URnetwork は以下のオープンソースソフトウェアとデータを使用しています。各項目にはそのライセンスと必要な告知が表示されます。</string>
+    <string name="licenses_project_page">プロジェクトページ</string>
+    <string name="licenses_software_header">オープンソースソフトウェア</string>
     <string name="loading">読み込み中...</string>
     <string name="local">ローカル</string>
     <string name="local_dns">ローカルDNS</string>

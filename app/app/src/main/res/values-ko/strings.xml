@@ -221,6 +221,11 @@
     <string name="learn_more">자세히 알아보기</string>
     <string name="learn_more_about_multiplier">배수에 대해 자세히 알아보기</string>
     <string name="learn_more_protocol_page">프로토콜 페이지에서 자세히 알아보기</string>
+    <string name="licenses">라이선스</string>
+    <string name="licenses_data_header">데이터 출처</string>
+    <string name="licenses_intro">URnetwork는 아래의 오픈 소스 소프트웨어와 데이터로 만들어졌습니다. 각 항목에는 해당 라이선스와 필요한 고지가 표시됩니다.</string>
+    <string name="licenses_project_page">프로젝트 페이지</string>
+    <string name="licenses_software_header">오픈 소스 소프트웨어</string>
     <string name="loading">로딩 중...</string>
     <string name="local">로컬</string>
     <string name="local_dns">로컬 DNS</string>

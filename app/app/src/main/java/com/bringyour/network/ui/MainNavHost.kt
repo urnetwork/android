@@ -88,6 +88,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.settings.DeveloperScreen
+import com.bringyour.network.ui.settings.LicenseDetailScreen
+import com.bringyour.network.ui.settings.LicensesScreen
 import com.bringyour.network.ui.account.ExtendersScreen
 import com.bringyour.network.ui.account.ImportExtendersScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
@@ -1378,6 +1380,25 @@ fun MainNavContent(
                 popExitTransition = NavigationAnimations.popExitTransition()
             ) {
                 DeveloperScreen(navController = navController)
+            }
+
+            composable<Route.Licenses>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                LicensesScreen(navController = navController)
+            }
+
+            composable<Route.LicenseDetail>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) { backStackEntry ->
+                val route: Route.LicenseDetail = backStackEntry.toRoute()
+                LicenseDetailScreen(navController = navController, index = route.index)
             }
 
             composable<Route.BlockedRegions>(
