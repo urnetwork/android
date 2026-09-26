@@ -477,7 +477,7 @@ fun AccountScreenContent(
         // the extender settings of this network space, and the share and
         // import of an extender list (EXTENDER.md K6, K7)
         URNavListItem(
-            iconResourceId = R.drawable.main_nav_globe,
+            iconResourceId = R.drawable.nav_list_item_extenders,
             text = stringResource(id = R.string.extenders),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {

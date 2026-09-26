@@ -1,0 +1,19 @@
+<!-- Extenders: the filled dot inside a hollow ring, the same figure the
+     connect canvas draws for a provider reached through an extender
+     (EXTENDER.md K2/K3). Sized and stroked like the other nav_list_item icons. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:pathData="M12,4.5C16.142,4.5 19.5,7.858 19.5,12C19.5,16.142 16.142,19.5 12,19.5C7.858,19.5 4.5,16.142 4.5,12C4.5,7.858 7.858,4.5 12,4.5Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.5"
+      android:fillColor="#00000000"
+      android:strokeColor="#989898"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M12,8.25C14.071,8.25 15.75,9.929 15.75,12C15.75,14.071 14.071,15.75 12,15.75C9.929,15.75 8.25,14.071 8.25,12C8.25,9.929 9.929,8.25 12,8.25Z"
+      android:fillColor="#989898"/>
+</vector>
