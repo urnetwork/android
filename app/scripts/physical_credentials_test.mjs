@@ -65,8 +65,10 @@ exec '${join(bin, "stat-real")}' "$@"
     const command = [...args.slice(6)];
     command[0] = HOST_SHELL;
     command[command.length - 1] = shellQuote(f.shellPrelude ?? "") + command.at(-1);
+    // Match the production adb deadline so host contention does not invent a
+    // staging timeout that the real credential transaction would tolerate.
     return spawnSync(HOST_SHELL, ["-c", hostFdPaths(command.join(" "))],
-      { cwd: app, input, encoding: "utf8", timeout: 3000, env });
+      { cwd: app, input, encoding: "utf8", timeout: 10_000, env });
   };
   f.deps = { uuid: () => "fixture-token", reader: (key, schema) => {
     keys.push(key);
@@ -631,6 +633,55 @@ test("exact run-as protocol verifies structure/digest and exclusively publishes 
   assert.equal(statSync(f.options.output).mode & 0o777, 0o600);
   assert.deepEqual(JSON.parse(readFileSync(f.options.output, "utf8")), report);
   assertNoSecrets(report);
+});
+
+test("slow stdin staging within the production adb deadline still publishes private credentials", (t) => {
+  const f = fixture(t);
+  // Delay only the stdin copy beyond the former three-second fixture limit;
+  // publication copies from a filename and must not receive the same delay.
+  f.shellPrelude = `cat() {
+  if [ "$#" -eq 0 ]; then command sleep 4; fi
+  command cat "$@"
+}
+`;
+  const report = stagePhysicalCredentials(f.options, f.deps);
+  assert.equal(report.eligible, true, JSON.stringify(report));
+  assert.equal(report.stageDiagnostic.reason, "staging-complete");
+  for (const step of ["stage", "publish", "cleanup"]) {
+    assert.deepEqual(report.steps[step], { outcome: "ok", exitCode: 0 });
+  }
+  assert.deepEqual(f.calls.map((call) => call.hasInput), [true, false, false]);
+  const file = join(f.app, "files/acceptance/credentials");
+  const payload = Buffer.from(`${USER}\n${PASSWORD}`);
+  assert.deepEqual(readFileSync(file), payload);
+  assert.equal(statSync(file).mode & 0o777, 0o600);
+  assert.equal(existsSync(`${file}.pending-fixture-token`), false);
+  assert.deepEqual(JSON.parse(readFileSync(f.options.output, "utf8")), report);
+  assertPrivateOutcomesOnly(report);
+  assert.equal(JSON.stringify(report).includes(createHash("sha256").update(payload).digest("hex")), false);
+});
+
+test("a staging timeout cannot publish even when captured output contains a complete terminal marker", (t) => {
+  const f = fixture(t); const original = f.adb;
+  f.adb = (...args) => {
+    const result = original(...args);
+    return args[1] === undefined ? result : { ...result, status: null, signal: "SIGTERM",
+      error: { code: "ETIMEDOUT", message: PASSWORD } };
+  };
+  const report = stagePhysicalCredentials(f.options, f.deps);
+  assert.equal(report.eligible, false);
+  assert.equal(report.reason, "device-staging-failed");
+  assert.equal(report.stageDiagnostic.reason, "staging-timeout");
+  assert.equal(report.stageDiagnostic.marker, "invalid");
+  assert.deepEqual(report.steps.stage, { outcome: "unavailable", exitCode: null });
+  assert.deepEqual(report.steps.publish, { outcome: "not-run", exitCode: null });
+  assert.deepEqual(report.steps.cleanup, { outcome: "ok", exitCode: 0 });
+  assert.deepEqual(f.calls.map((call) => call.hasInput), [true, false]);
+  const file = join(f.app, "files/acceptance/credentials");
+  assert.equal(existsSync(file), false);
+  assert.equal(existsSync(`${file}.pending-fixture-token`), false);
+  assert.deepEqual(JSON.parse(readFileSync(f.options.output, "utf8")), report);
+  assertPrivateOutcomesOnly(report);
 });
 
 test("denied sandbox hardlinks do not prevent exclusive credential or sentinel publication", (t) => {
