@@ -25,6 +25,420 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 
 public final class EgressProbeClientTest {
+    @Test(timeout = 5_000)
+    public void deadlineRetainsNumericResponseWaitBeforeCancellation() throws Exception {
+        String[] endpoints = {"https://first.invalid/", "https://second.invalid/"};
+        CountDownLatch entered = new CountDownLatch(2);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(2);
+        IOException error = assertThrows(IOException.class, () ->
+            EgressProbeClient.queryPublicIp(endpoints, endpoint ->
+                blockingConnection(endpoint, entered, release, exited, () -> { }), 1_000)
+        );
+        assertEquals("both attempts must have reached response I/O", 0, entered.getCount());
+        assertTrue("all canceled workers must join", exited.await(1, TimeUnit.SECONDS));
+        assertTrue(error.getMessage().startsWith("egress query deadline exceeded after 1000ms: "));
+        String marker = "; probe_phase_v1=";
+        int markerAt = error.getMessage().indexOf(marker);
+        assertTrue("missing finite request-phase evidence", markerAt >= 0);
+        String suffix = error.getMessage().substring(markerAt + marker.length());
+        assertTrue("response_wait must stay unknown-status/zero-bytes at the deadline", suffix.matches(
+            "1,2,[0-9]+,[0-9]+,[0-9]+,-1,0\\|2,2,[0-9]+,[0-9]+,[0-9]+,-1,0"));
+        assertTrue("original deadline cause must survive", error.getCause() instanceof java.util.concurrent.TimeoutException);
+    }
+
+    @Test(timeout = 5_000)
+    public void everyBlockingBoundaryRetainsItsPhaseBeforeCancelAndLateCompletion() throws Exception {
+        // OPEN, combined RESPONSE_WAIT, BODY_OPEN, BODY_READ, BODY_CLOSE,
+        // DISCONNECT. No additional connect(), DNS or TLS calls are made.
+        for (int phase : new int[] {1, 2, 3, 4, 5, 7}) {
+            try (BoundaryAttempt fixture = new BoundaryAttempt(phase)) {
+                fixture.start();
+                assertTrue("missing boundary " + phase, fixture.entered.await(1, TimeUnit.SECONDS));
+                String frozen = fixture.attempt.freezeDiagnostic();
+                long[] row = diagnosticRow("1," + frozen);
+                assertEquals(phase, row[1]);
+                assertEquals(phase <= 2 ? -1 : 200, row[5]);
+                assertEquals(phase <= 3 ? 0 : phase == 4 ? 4 : fixture.body.length, row[6]);
+                if (phase == 1) {
+                    assertEquals("unreturned factory is not I/O progress", -1, row[4]);
+                }
+                fixture.attempt.cancel();
+                fixture.release.countDown();
+                fixture.join();
+                assertEquals("late completion rewrote phase " + phase, frozen,
+                    fixture.attempt.freezeDiagnostic());
+                assertTrue("owned connection not disconnected", fixture.disconnects.get() > 0);
+                assertEquals("opening after cancel must not start I/O", phase == 1 ? 0 : 1,
+                    fixture.responseCalls.get());
+            }
+        }
+    }
+
+    @Test
+    public void notStartedAndCompletedAreFiniteDistinctStates() throws Exception {
+        EgressProbeClient.Attempt unopened = new EgressProbeClient.Attempt(
+            "https://unused.invalid/", endpoint -> { throw new AssertionError("unexpected open"); },
+            new java.util.concurrent.ConcurrentHashMap<>());
+        long[] empty = diagnosticRow("1," + unopened.freezeDiagnostic());
+        assertEquals(0, empty[1]);
+        assertEquals(-1, empty[4]);
+        assertEquals(-1, empty[5]);
+        assertEquals(0, empty[6]);
+
+        EgressProbeClient.Attempt complete = new EgressProbeClient.Attempt(
+            "https://complete.invalid/", endpoint -> responseConnection(endpoint, 200, "203.0.113.9\n"),
+            new java.util.concurrent.ConcurrentHashMap<>());
+        assertEquals("203.0.113.9", complete.call());
+        long[] done = diagnosticRow("1," + complete.freezeDiagnostic());
+        assertEquals(8, done[1]);
+        assertEquals(200, done[5]);
+        assertEquals(12, done[6]);
+    }
+
+    @Test
+    public void originalEndpointFailureFreezesBeforeDisconnectAndKeepsCause() throws Exception {
+        IOException original = new IOException("synthetic private failure text");
+        AtomicReference<EgressProbeClient.Attempt> owner = new AtomicReference<>();
+        AtomicReference<String> duringDisconnect = new AtomicReference<>();
+        EgressProbeClient.Attempt attempt = new EgressProbeClient.Attempt(
+            "https://failure.invalid/", endpoint -> new HttpURLConnection(new URL(endpoint)) {
+                @Override public int getResponseCode() throws IOException { throw original; }
+                @Override public void disconnect() {
+                    duringDisconnect.set(owner.get().freezeDiagnostic());
+                }
+                @Override public boolean usingProxy() { return false; }
+                @Override public void connect() { throw new AssertionError("extra connect"); }
+            }, new java.util.concurrent.ConcurrentHashMap<>());
+        owner.set(attempt);
+        IOException actual = assertThrows(IOException.class, attempt::call);
+        assertTrue("original exception was replaced", actual == original);
+        long[] row = diagnosticRow("1," + duringDisconnect.get());
+        assertEquals("failure must retain response_wait rather than cleanup", 2, row[1]);
+        assertEquals(-1, row[5]);
+        assertEquals(duringDisconnect.get(), attempt.freezeDiagnostic());
+
+        IOException combined = assertThrows(IOException.class, () ->
+            EgressProbeClient.queryPublicIp(new String[] {"https://failed-open.invalid/"}, endpoint -> {
+                throw original;
+            }));
+        assertTrue(combined.getMessage().startsWith("all egress endpoints failed: "));
+        assertTrue("last endpoint cause changed", combined.getCause() == original);
+        assertEquals(1, diagnosticRows(combined)[0][1]);
+    }
+
+    @Test
+    public void statusValidationAndByteCapDoNotExposeEndpointBodyOrErrorText() {
+        String endpoint = "https://private.invalid/path?synthetic=secret";
+        String privateBody = "synthetic-response-not-an-address";
+        IOException invalid = assertThrows(IOException.class, () ->
+            EgressProbeClient.queryPublicIp(new String[] {endpoint}, value ->
+                responseConnection(value, 200, privateBody)));
+        long[] invalidRow = diagnosticRows(invalid)[0];
+        assertEquals(6, invalidRow[1]);
+        assertEquals(200, invalidRow[5]);
+        assertEquals(privateBody.length(), invalidRow[6]);
+        String suffix = diagnosticSuffix(invalid);
+        assertFalse(suffix.contains(endpoint));
+        assertFalse(suffix.contains(privateBody));
+        assertFalse(suffix.contains("invalid address response"));
+
+        for (int statusCode : new int[] {404, -1, 700}) {
+            IOException rejected = assertThrows(IOException.class, () ->
+                EgressProbeClient.queryPublicIp(new String[] {endpoint}, value ->
+                    responseConnection(value, statusCode, privateBody)));
+            long[] row = diagnosticRows(rejected)[0];
+            assertEquals(2, row[1]);
+            assertEquals(statusCode == 404 ? 404 : -1, row[5]);
+            assertEquals(0, row[6]);
+        }
+
+        IOException oversized = assertThrows(IOException.class, () ->
+            EgressProbeClient.queryPublicIp(new String[] {endpoint}, value ->
+                responseConnection(value, 200, "x".repeat(257))));
+        long[] capped = diagnosticRows(oversized)[0];
+        assertEquals(4, capped[1]);
+        assertEquals(256, capped[6]);
+        assertTrue(oversized.getMessage().contains("response exceeds 256 bytes"));
+    }
+
+    @Test(timeout = 5_000)
+    public void cancellationReturningLateHeadersCannotRewriteDeadlineSnapshot() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(1);
+        AtomicBoolean disconnected = new AtomicBoolean();
+        AtomicBoolean bodyEntered = new AtomicBoolean();
+        IOException error = assertThrows(IOException.class, () ->
+            EgressProbeClient.queryPublicIp(new String[] {"https://late-headers.invalid/"}, endpoint ->
+                slowCancellationConnection(endpoint, entered, exited, disconnected, bodyEntered, 0), 1_000));
+        assertEquals(0, entered.getCount());
+        assertTrue(exited.await(1, TimeUnit.SECONDS));
+        assertTrue(disconnected.get());
+        assertFalse("cancelled response entered a new blocking body phase", bodyEntered.get());
+        long[] row = diagnosticRows(error)[0];
+        assertEquals(2, row[1]);
+        assertEquals("late 200 must not overwrite unknown at deadline", -1, row[5]);
+        assertEquals(0, row[6]);
+    }
+
+    @Test
+    public void bodyCloseFailureRetainsClosePhaseAndOriginalCause() {
+        IOException original = new IOException("synthetic stream close failure");
+        IOException error = assertThrows(IOException.class, () ->
+            EgressProbeClient.queryPublicIp(new String[] {"https://close.invalid/"}, endpoint ->
+                new HttpURLConnection(new URL(endpoint)) {
+                    @Override public int getResponseCode() { return 200; }
+                    @Override public InputStream getInputStream() {
+                        return new ByteArrayInputStream("203.0.113.9\n".getBytes(StandardCharsets.UTF_8)) {
+                            @Override public void close() throws IOException { throw original; }
+                        };
+                    }
+                    @Override public void disconnect() { }
+                    @Override public boolean usingProxy() { return false; }
+                    @Override public void connect() { throw new AssertionError("extra connect"); }
+                }));
+        assertTrue(error.getCause() == original);
+        long[] row = diagnosticRows(error)[0];
+        assertEquals(5, row[1]);
+        assertEquals(200, row[5]);
+        assertEquals(12, row[6]);
+    }
+
+    @Test(timeout = 5_000)
+    public void lateFactoryFailureCannotRewriteFrozenOpeningState() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        IOException original = new IOException("synthetic late private error");
+        AtomicReference<Throwable> actual = new AtomicReference<>();
+        EgressProbeClient.Attempt attempt = new EgressProbeClient.Attempt(
+            "https://late-failure.invalid/", endpoint -> {
+                entered.countDown();
+                release.await();
+                throw original;
+            }, new java.util.concurrent.ConcurrentHashMap<>());
+        Thread worker = new Thread(() -> {
+            try { attempt.call(); } catch (Throwable error) { actual.set(error); }
+        }, "acceptance-egress-test-late-failure");
+        worker.setDaemon(true);
+        worker.start();
+        try {
+            assertTrue(entered.await(1, TimeUnit.SECONDS));
+            String frozen = attempt.freezeDiagnostic();
+            attempt.cancel();
+            release.countDown();
+            worker.join(1_000);
+            assertFalse(worker.isAlive());
+            assertTrue(actual.get() == original);
+            assertEquals(frozen, attempt.freezeDiagnostic());
+            assertEquals(1, diagnosticRow("1," + frozen)[1]);
+        } finally {
+            release.countDown();
+            worker.interrupt();
+            worker.join(1_000);
+            assertFalse("late factory worker not joined", worker.isAlive());
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void snapshotRaceHasOneWinnerAndCannotMixBeforeAndAfterStates() throws Exception {
+        for (int iteration = 0; iteration < 20; iteration += 1) {
+            try (BoundaryAttempt fixture = new BoundaryAttempt(2)) {
+                fixture.start();
+                assertTrue(fixture.entered.await(1, TimeUnit.SECONDS));
+                CountDownLatch start = new CountDownLatch(1);
+                AtomicReference<String> concurrent = new AtomicReference<>();
+                Thread reader = new Thread(() -> {
+                    try {
+                        start.await();
+                        concurrent.set(fixture.attempt.freezeDiagnostic());
+                    } catch (InterruptedException error) {
+                        Thread.currentThread().interrupt();
+                    }
+                }, "acceptance-egress-test-snapshot");
+                reader.start();
+                try {
+                    start.countDown();
+                    fixture.release.countDown();
+                    String local = fixture.attempt.freezeDiagnostic();
+                    reader.join(1_000);
+                    assertFalse("snapshot reader did not join", reader.isAlive());
+                    fixture.join();
+                    assertEquals(local, concurrent.get());
+                    assertEquals(local, fixture.attempt.freezeDiagnostic());
+                    diagnosticRow("1," + local);
+                } finally {
+                    start.countDown();
+                    reader.interrupt();
+                    reader.join(1_000);
+                }
+            }
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void exactDefaultTargetsRemainTwoParallelAttemptsWithFirstValidWinner() throws Exception {
+        java.lang.reflect.Field field = EgressProbeClient.class.getDeclaredField("ENDPOINTS");
+        field.setAccessible(true);
+        String[] endpoints = ((String[]) field.get(null)).clone();
+        assertEquals(List.of("https://checkip.amazonaws.com/", "https://api.ipify.org/"), List.of(endpoints));
+        String[] constants = {"CONNECT_TIMEOUT_MILLIS", "READ_TIMEOUT_MILLIS", "QUERY_TIMEOUT_MILLIS",
+            "WORKER_SHUTDOWN_TIMEOUT_MILLIS", "MAX_RESPONSE_BYTES"};
+        int[] expected = {10_000, 10_000, 20_000, 20_000, 256};
+        for (int i = 0; i < constants.length; i += 1) {
+            java.lang.reflect.Field constant = EgressProbeClient.class.getDeclaredField(constants[i]);
+            constant.setAccessible(true);
+            assertEquals(constants[i], expected[i], constant.getInt(null));
+        }
+        CountDownLatch entered = new CountDownLatch(2);
+        CountDownLatch releaseLoser = new CountDownLatch(1);
+        AtomicInteger opens = new AtomicInteger();
+        AtomicInteger responseCalls = new AtomicInteger();
+        AtomicInteger explicitConnectCalls = new AtomicInteger();
+        String result = EgressProbeClient.queryPublicIp(endpoints, endpoint -> {
+            opens.incrementAndGet();
+            return new HttpURLConnection(new URL(endpoint)) {
+                @Override public int getResponseCode() throws IOException {
+                    responseCalls.incrementAndGet();
+                    entered.countDown();
+                    try {
+                        if (!entered.await(1, TimeUnit.SECONDS)) {
+                            throw new AssertionError("attempts were not parallel");
+                        }
+                        if (endpoint.equals(endpoints[0])) { releaseLoser.await(); }
+                    } catch (InterruptedException error) {
+                        Thread.currentThread().interrupt();
+                        throw new IOException("canceled loser", error);
+                    }
+                    assertEquals(10_000, getConnectTimeout());
+                    assertEquals(10_000, getReadTimeout());
+                    assertFalse(getInstanceFollowRedirects());
+                    return 200;
+                }
+                @Override public InputStream getInputStream() {
+                    return new ByteArrayInputStream("203.0.113.9\n".getBytes(StandardCharsets.UTF_8));
+                }
+                @Override public void disconnect() { releaseLoser.countDown(); }
+                @Override public boolean usingProxy() { return false; }
+                @Override public void connect() {
+                    explicitConnectCalls.incrementAndGet();
+                    throw new AssertionError("extra connect");
+                }
+            };
+        });
+        assertEquals("203.0.113.9", result);
+        assertEquals(2, opens.get());
+        assertEquals(2, responseCalls.get());
+        assertEquals(0, explicitConnectCalls.get());
+    }
+
+    private static String diagnosticSuffix(IOException error) {
+        String marker = "; probe_phase_v1=";
+        int at = error.getMessage().indexOf(marker);
+        assertTrue("missing finite diagnostic", at >= 0);
+        return error.getMessage().substring(at + marker.length());
+    }
+
+    private static long[][] diagnosticRows(IOException error) {
+        String[] rows = diagnosticSuffix(error).split("\\|", -1);
+        long[][] values = new long[rows.length][];
+        for (int i = 0; i < rows.length; i += 1) {
+            values[i] = diagnosticRow(rows[i]);
+            assertEquals(i + 1, values[i][0]);
+        }
+        return values;
+    }
+
+    private static long[] diagnosticRow(String row) {
+        assertTrue("diagnostic must contain seven bounded numeric fields only", row.matches(
+            "[1-9][0-9]*,[0-8],[0-9]+,[0-9]+,(-1|[0-9]+),(-1|[1-5][0-9]{2}),[0-9]+"));
+        String[] fields = row.split(",", -1);
+        long[] values = new long[fields.length];
+        for (int i = 0; i < values.length; i += 1) { values[i] = Long.parseLong(fields[i]); }
+        assertTrue(values[3] <= values[2]);
+        assertTrue(values[4] <= values[2]);
+        assertTrue(values[6] <= 256);
+        return values;
+    }
+
+    /** Fake-only barriers; close releases and joins even after an assertion failure. */
+    private static final class BoundaryAttempt implements AutoCloseable {
+        final byte[] body = "203.0.113.9\n".getBytes(StandardCharsets.UTF_8);
+        final CountDownLatch entered = new CountDownLatch(1);
+        final CountDownLatch release = new CountDownLatch(1);
+        final AtomicInteger disconnects = new AtomicInteger();
+        final AtomicInteger responseCalls = new AtomicInteger();
+        final AtomicReference<Throwable> workerError = new AtomicReference<>();
+        final EgressProbeClient.Attempt attempt;
+        final Thread worker;
+        final int heldPhase;
+
+        BoundaryAttempt(int heldPhase) {
+            this.heldPhase = heldPhase;
+            attempt = new EgressProbeClient.Attempt("https://boundary.invalid/", endpoint -> {
+                hold(1);
+                return new HttpURLConnection(new URL(endpoint)) {
+                    @Override public int getResponseCode() throws IOException {
+                        responseCalls.incrementAndGet();
+                        hold(2);
+                        return 200;
+                    }
+                    @Override public InputStream getInputStream() throws IOException {
+                        hold(3);
+                        return new ByteArrayInputStream(body) {
+                            private int calls;
+                            @Override public synchronized int read(byte[] target, int offset, int length) {
+                                if (heldPhase == 4 && calls++ == 1) { holdUnchecked(4); }
+                                return super.read(target, offset, heldPhase == 4 ? Math.min(4, length) : length);
+                            }
+                            @Override public void close() throws IOException { hold(5); }
+                        };
+                    }
+                    @Override public void disconnect() {
+                        if (disconnects.incrementAndGet() == 1 && heldPhase == 7) {
+                            holdUnchecked(7);
+                        } else {
+                            release.countDown();
+                        }
+                    }
+                    @Override public boolean usingProxy() { return false; }
+                    @Override public void connect() { throw new AssertionError("extra connect"); }
+                };
+            }, new java.util.concurrent.ConcurrentHashMap<>());
+            worker = new Thread(() -> {
+                try { attempt.call(); } catch (Throwable error) { workerError.set(error); }
+            }, "acceptance-egress-test-boundary");
+            worker.setDaemon(true);
+        }
+
+        void start() { worker.start(); }
+
+        private void hold(int phase) throws IOException {
+            if (phase != heldPhase) { return; }
+            entered.countDown();
+            try { release.await(); } catch (InterruptedException error) {
+                Thread.currentThread().interrupt();
+                throw new IOException("fake boundary interrupted", error);
+            }
+        }
+
+        private void holdUnchecked(int phase) {
+            try { hold(phase); } catch (IOException error) { throw new IllegalStateException(error); }
+        }
+
+        void join() throws InterruptedException {
+            worker.join(1_000);
+            assertFalse("boundary worker did not join", worker.isAlive());
+            assertFalse("unexpected fixture error: " + workerError.get(), workerError.get() instanceof Error);
+        }
+
+        @Override public void close() throws InterruptedException {
+            release.countDown();
+            attempt.cancel();
+            worker.interrupt();
+            join();
+        }
+    }
+
     @Test
     public void defaultQueryAndCleanupBoundsFitBinderDeadline() {
         // Connect and read can be sequential before cancellation. The client
@@ -183,6 +597,11 @@ public final class EgressProbeClientTest {
             );
             assertTrue(error.getMessage().contains("workers did not stop after cancellation"));
             assertTrue("stuck worker was not asked to disconnect", stuckDisconnected.get());
+            long[][] rows = diagnosticRows(error);
+            assertEquals("cleanup-only failure retains loser's response wait", 2, rows[0][1]);
+            assertEquals(-1, rows[0][5]);
+            assertEquals("winner stays complete in the pre-cancel snapshot", 8, rows[1][1]);
+            assertEquals(200, rows[1][5]);
         } finally {
             releaseStuck.countDown();
         }

@@ -5,11 +5,14 @@ set -euo pipefail
 umask 077
 here="$(cd "$(dirname "$0")" && pwd)"
 source "$here/test-main-lib.sh"
+# New regression logic is Go; it invokes only extracted platform-shell owners
+# with fake commands and never sources runner startup or contacts a device.
+(cd "$here" && GOWORK=off go test -p=1 -count=1 -timeout=60s test-main-cleanup-receipt_test.go)
 fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-p2p.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
 
-for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
+for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure record_p2p_cleanup_failure p2p_cleanup_operation finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
   # Only named production function definitions are loaded, never runner startup.
   # shellcheck disable=SC2294
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
@@ -226,11 +229,11 @@ done
     marker_deletes=$((marker_deletes + 1))
   }
   if retain_physical_cleanup_ownership emulator-5556 provider "$fixture" 2; then fail "lost device identity supplied cleanup client IDs"; fi
-  if clear_physical_cleanup_ownership emulator-5556; then fail "lost device identity allowed private marker deletion"; fi
+  if clear_physical_cleanup_ownership emulator-5556 "$fixture" provider; then fail "lost device identity allowed private marker deletion"; fi
   [ "$ledger_reads:$marker_deletes" = 0:0 ] || fail "unowned device was read or mutated during ledger cleanup"
   identity_valid=1
   retain_physical_cleanup_ownership emulator-5556 provider "$fixture" 2 || fail "owned device ledgers not retained"
-  clear_physical_cleanup_ownership emulator-5556 || fail "owned private markers not cleared"
+  clear_physical_cleanup_ownership emulator-5556 "$fixture" provider || fail "owned private markers not cleared"
   [ "$ledger_reads:$marker_deletes" = 2:1 ] || fail "owned cleanup was not exact"
 ) || fail "P2P client-ownership cleanup identity gate"
 

@@ -1147,14 +1147,22 @@ read_acceptance_completion_record() {
 # Diagnostic-only observation. The caller freezes both launch identities before
 # the workflow; never derive ownership from a recovered serial or a new child.
 # Each role gets one baseline and at most one best-effort post-break attempt.
+# An explicit owned-AVD diagnostic may also capture one recovery identity after
+# the existing finish authorization. This never retries an unavailable guard.
 # Failure here cannot repair or replace the original workflow/read verdict.
 observe_p2p_owned_guest() {
   local target_serial="$1" phase="$2" trigger="$3" role owner_pid owner_token out
-  local ownership_status=0 started_at ended_at read_status capture_status
+  local ownership_status=0 ownership_stage=unreported started_at ended_at read_status capture_status
+  local recovery=0 prior_status prior_guard_status prior
   local -a read_statuses=()
   [ -n "${p2p_observation_out:-}" ] || return 0
   case "$phase:$trigger" in
     before-workflow:baseline|after-break:artifact-read|after-break:instrumentation-stream-lost|after-break:child-exit-failed) ;;
+    after-recovery:finish-authorized)
+      [ "${URNETWORK_ANDROID_P2P_RECOVERY_OBSERVATION:-}" = 1 ] && \
+        [ "${execution_mode:-}" = diagnostic ] && [ "${diagnostic_owned_avd:-0}" = 1 ] || return 0
+      [ "${android_acceptance_emulator_ownership_stage:-}" = verified ] || return 0
+      recovery=1 ;;
     *) return 2 ;;
   esac
   case "$target_serial" in emulator-*)
@@ -1171,6 +1179,24 @@ observe_p2p_owned_guest() {
   case "$owner_pid" in ''|0*|*[!0-9]*) return 2 ;; esac
   case "$owner_token" in ''|*[!A-Za-z0-9._:-]*) return 2 ;; esac
   case "$p2p_observation_avd" in ''|*$'\t'*|*$'\r'*|*$'\n'*) return 2 ;; esac
+  if [ "$recovery" -eq 1 ]; then
+    # Synchronous local comparisons bind the just-completed finish guard to
+    # the original role/serial/PID/token/AVD. No new device/owner query occurs.
+    [ "${4:-}" = "$role" ] && [ "${avd_name:-}" = "$p2p_observation_avd" ] || return 0
+    if [ "$role" = client ]; then
+      [ "$target_serial" = "${started_emulator_serial:-}" ] && \
+        [ "$owner_pid" = "${emulator_pid:-}" ] && [ "$owner_token" = "${emulator_owner_token:-}" ] || return 0
+    else
+      [ "$target_serial" = "${peer_serial:-}" ] && \
+        [ "$owner_pid" = "${peer_emulator_pid:-}" ] && [ "$owner_token" = "${peer_emulator_owner_token:-}" ] || return 0
+    fi
+    prior="$p2p_observation_out/$role/after-break"
+    [ -f "$prior/observation-status.txt" ] && [ ! -L "$prior/observation-status.txt" ] && \
+      [ -f "$prior/ownership-status.txt" ] && [ ! -L "$prior/ownership-status.txt" ] || return 0
+    IFS= read -r prior_status <"$prior/observation-status.txt" || return 0
+    IFS= read -r prior_guard_status <"$prior/ownership-status.txt" || return 0
+    [ "$prior_status:$prior_guard_status" = ownership-unavailable:1 ] || return 0
+  fi
   out="$p2p_observation_out/$role/$phase"
   # An unavailable first observation is retained too; no silent later retry.
   [ ! -e "$out" ] && [ ! -L "$out" ] || return 0
@@ -1180,15 +1206,43 @@ observe_p2p_owned_guest() {
     >"$out/owner.tsv" || return 1
   printf '%s\n' "$started_at" >"$out/started-at.txt" || return 1
   printf '%s\n' "$trigger" >"$out/trigger.txt" || return 1
-  android_acceptance_runner_owns_emulator \
-    "$adb" "$target_serial" "$p2p_observation_avd" "$owner_pid" "$owner_token" \
-    >/dev/null 2>&1 || ownership_status=$?
+  if [ "$recovery" -eq 1 ]; then
+    printf 'finish-authorization\n' >"$out/ownership-source.txt" || return 1
+  else
+    android_acceptance_emulator_ownership_stage=unreported
+    android_acceptance_runner_owns_emulator \
+      "$adb" "$target_serial" "$p2p_observation_avd" "$owner_pid" "$owner_token" \
+      >/dev/null 2>&1 || ownership_status=$?
+  fi
   printf '%s\n' "$ownership_status" >"$out/ownership-status.txt" || return 1
+  # Only the fixed check/status pairs enter retained diagnostics. Overrides
+  # or missing instrumentation cannot leak raw output or a stale prior stage.
+  case "$ownership_status:${android_acceptance_emulator_ownership_stage:-unreported}" in
+    0:verified|1:process-before|1:device-ready|1:instance-id-read|1:instance-id-empty|1:avd-name-read|1:avd-name-empty|1:process-after|2:serial-validation|2:avd-validation|2:pid-validation|2:token-validation|2:token-length|3:instance-id-match|3:avd-name-match)
+      ownership_stage="$android_acceptance_emulator_ownership_stage" ;;
+  esac
+  (umask 077; set -C; printf '%s\n' "$ownership_stage" >"$out/ownership-stage.txt") || return 1
   if [ "$ownership_status" -ne 0 ]; then
     printf 'ownership-unavailable\n' >"$out/observation-status.txt" || return 1
     node -p 'new Date().toISOString()' >"$out/ended-at.txt" || return 1
     return 1
   fi
+  # Recovery reads only the existing identity header, with no OS log payload
+  # or raw stderr. The unchanged capture helper retains at most 64 KiB and
+  # requires a valid identity; numeric command and capture exits stay separate.
+  if [ "$recovery" -eq 1 ]; then
+    if timeout -k 1 10 "$adb" -s "$target_serial" shell '
+    printf "boot_id="; cat /proc/sys/kernel/random/boot_id || exit $?
+    printf "uptime="; cat /proc/uptime || exit $?
+    printf "adbd_pid="; pidof adbd || exit $?
+    printf "os_log_begin\n"
+  ' </dev/null 2>/dev/null | node "$here/test-main-guest-observation.mjs" "$out" \
+        2>"$out/capture.stderr"; then
+      read_statuses=("${PIPESTATUS[@]}")
+    else
+      read_statuses=("${PIPESTATUS[@]}")
+    fi
+  else
   # One shell stream, no app commands, unfiltered dump or workflow retry. The
   # guest's epoch timestamps can be joined to the host interval and uptime.
   # Merged stdout/stderr stays private; both command and capture exits survive.
@@ -1203,6 +1257,7 @@ observe_p2p_owned_guest() {
     read_statuses=("${PIPESTATUS[@]}")
   else
     read_statuses=("${PIPESTATUS[@]}")
+  fi
   fi
   read_status="${read_statuses[0]}"; capture_status="${read_statuses[1]}"
   printf '%s\n' "$read_status" >"$out/read-status.txt" || return 1
@@ -1366,6 +1421,59 @@ record_p2p_failure() {
     "$role" "$reason" "$classification" >"$out/p2p-first-failure.json"
 }
 
+# The immutable first cause describes the workflow failure, not every later
+# cleanup obligation. Retain fixed operation/role/status metadata separately,
+# before successful API cleanup removes the private client-marker aliases.
+# No command arguments, raw output, client IDs, credentials or owner tokens are
+# admitted here. A failed receipt cannot turn a failed operation into success.
+record_p2p_cleanup_failure() {
+  local out="$1" role="$2" operation="$3" command_status="$4"
+  local receipt="$out/p2p-cleanup-failures.ndjson" count=0 size
+  case "$role" in client|provider|pair) ;; *) return 2 ;; esac
+  case "$operation" in
+    finish-instrumentation-before|finish-authorization|finish-command|finish-ack|finish-natural-exit|force-stop-authorization|force-stop-command|finish-term-exit|finish-receipt|finish-child-exit|finish-instrumentation-after|retain-authorization|retain-active-ledger|retain-reauthorization|retain-client-id|release-clients|clear-authorization|clear-markers) ;;
+    *) return 2 ;;
+  esac
+  case "$command_status" in ''|*[!0-9]*) return 2 ;; esac
+  [ "${#command_status}" -le 3 ] || return 2
+  command_status=$((10#$command_status))
+  [ "$command_status" -ge 1 ] && [ "$command_status" -le 255 ] || return 2
+  [ ! -L "$receipt" ] || return 1
+  if [ -e "$receipt" ]; then
+    [ -f "$receipt" ] || return 1
+    size="$(wc -c <"$receipt")" || return 1
+    [ "$size" -le 8192 ] || return 1
+    count="$(awk 'END { print NR+0 }' "$receipt")" || return 1
+  else
+    (umask 077; : >"$receipt") || return 1
+  fi
+  if [ "$count" -ge 32 ]; then
+    [ ! -L "$out/p2p-cleanup-failures.truncated" ] || return 1
+    [ ! -e "$out/p2p-cleanup-failures.truncated" ] || [ -f "$out/p2p-cleanup-failures.truncated" ] || return 1
+    (umask 077; printf 'true\n' >"$out/p2p-cleanup-failures.truncated") || return 1
+    chmod 600 "$out/p2p-cleanup-failures.truncated" || return 1
+    return 0
+  fi
+  chmod 600 "$receipt" || return 1
+  printf '{"schemaVersion":1,"role":"%s","operation":"%s","exitCode":%s}\n' \
+    "$role" "$operation" "$command_status" >>"$receipt"
+}
+
+# Existing platform-shell ownership functions stay in their original caller.
+# This wrapper records only a failed result and returns its exact status; it
+# adds no retries, authorization changes, device calls or policy decisions.
+p2p_cleanup_operation() {
+  local out="$1" role="$2" operation="$3" command_status=0
+  shift 3
+  if "$@"; then
+    return 0
+  else
+    command_status=$?
+  fi
+  record_p2p_cleanup_failure "$out" "$role" "$operation" "$command_status" || p2p_cleanup_failed=1
+  return "$command_status"
+}
+
 # Finish is an application receipt, not an instrumentation result. Give its
 # finally/logout path the existing 30-second natural-exit grace even if a
 # diagnostic read failed. Stop an app only after that deadline and a fresh
@@ -1376,7 +1484,8 @@ finish_physical_session() {
   case "$role" in client|provider) ;; *) return 2 ;; esac
   case "$session_pid" in ''|0*|*[!0-9]*) return 2 ;; esac
   if ! android_acceptance_session_running "$session_pid"; then
-    if ! android_acceptance_verify_p2p_instrumentation "$out/$role-instrumentation.log"; then
+    if ! p2p_cleanup_operation "$out" "$role" finish-instrumentation-before \
+        android_acceptance_verify_p2p_instrumentation "$out/$role-instrumentation.log"; then
       record_p2p_failure "$out" "$role" instrumentation-stream-lost || p2p_cleanup_failed=1
       finish_status=1
       observe_p2p_owned_guest "$target_serial" after-break instrumentation-stream-lost || true
@@ -1385,26 +1494,37 @@ finish_physical_session() {
     # Its bounded finish command must not fail immediately on that dead PID.
     wait_pid=""
   fi
-  if ! authorize_selected_device "$target_serial"; then
+  # The optional recovery read may only consume this invocation's successful
+  # finish proof. Reset even when a different authorization branch is selected.
+  android_acceptance_emulator_ownership_stage=unreported
+  if ! p2p_cleanup_operation "$out" "$role" finish-authorization \
+      authorize_selected_device "$target_serial"; then
     record_p2p_failure "$out" "$role" ownership-unavailable || p2p_cleanup_failed=1
     p2p_cleanup_failed=1
     finish_status=1
-  elif ! send_physical_command "$target_serial" "$role-finish|finish|"; then
+  elif ! {
+    observe_p2p_owned_guest "$target_serial" after-recovery finish-authorized "$role" || true
+    p2p_cleanup_operation "$out" "$role" finish-command \
+      send_physical_command "$target_serial" "$role-finish|finish|"
+  }; then
     record_p2p_failure "$out" "$role" finish-command-failed || p2p_cleanup_failed=1
     finish_status=1
-  elif ! wait_physical_status "$target_serial" "$role-finish" complete none 120 "$wait_pid"; then
+  elif ! p2p_cleanup_operation "$out" "$role" finish-ack \
+      wait_physical_status "$target_serial" "$role-finish" complete none 120 "$wait_pid"; then
     record_p2p_failure "$out" "$role" finish-ack-failed || p2p_cleanup_failed=1
     finish_status=1
   fi
 
-  if ! android_acceptance_wait_for_session_exit "$session_pid" 150; then
+  if ! p2p_cleanup_operation "$out" "$role" finish-natural-exit \
+      android_acceptance_wait_for_session_exit "$session_pid" 150; then
     record_p2p_failure "$out" "$role" natural-exit-timeout || p2p_cleanup_failed=1
     finish_status=1
     collect_physical_artifacts "$target_serial" "$out/$role-before-force-stop" || true
     # Collection can itself take time; ownership must be checked after it,
     # immediately before the mutation, not merely before the grace period.
-    if authorize_selected_device "$target_serial"; then
-      timeout 30 "$adb" -s "$target_serial" shell am force-stop com.bringyour.network \
+    if p2p_cleanup_operation "$out" "$role" force-stop-authorization authorize_selected_device "$target_serial"; then
+      p2p_cleanup_operation "$out" "$role" force-stop-command \
+        timeout 30 "$adb" -s "$target_serial" shell am force-stop com.bringyour.network \
         >"$out/$role-force-stop.log" 2>&1 || true
     else
       p2p_cleanup_failed=1
@@ -1412,23 +1532,27 @@ finish_physical_session() {
     fi
     if android_acceptance_session_running "$session_pid"; then
       kill -TERM "$session_pid" 2>/dev/null || true
-      if ! android_acceptance_wait_for_session_exit "$session_pid" 25; then
+      if ! p2p_cleanup_operation "$out" "$role" finish-term-exit \
+          android_acceptance_wait_for_session_exit "$session_pid" 25; then
         kill -KILL "$session_pid" 2>/dev/null || true
       fi
     fi
   fi
   wait "$session_pid" || child_status=$?
-  if ! android_acceptance_record_session_exit "$out" "$role" "$session_pid" "$child_status" finish; then
+  if ! p2p_cleanup_operation "$out" "$role" finish-receipt \
+      android_acceptance_record_session_exit "$out" "$role" "$session_pid" "$child_status" finish; then
     record_p2p_failure "$out" "$role" artifact-collection || true
     p2p_cleanup_failed=1
     finish_status=1
   fi
   if [ "$child_status" -ne 0 ]; then
+    record_p2p_cleanup_failure "$out" "$role" finish-child-exit "$child_status" || p2p_cleanup_failed=1
     record_p2p_failure "$out" "$role" child-exit-failed || p2p_cleanup_failed=1
     finish_status=1
     observe_p2p_owned_guest "$target_serial" after-break child-exit-failed || true
   fi
-  if ! android_acceptance_verify_p2p_instrumentation "$out/$role-instrumentation.log"; then
+  if ! p2p_cleanup_operation "$out" "$role" finish-instrumentation-after \
+      android_acceptance_verify_p2p_instrumentation "$out/$role-instrumentation.log"; then
     record_p2p_failure "$out" "$role" instrumentation-stream-lost || p2p_cleanup_failed=1
     finish_status=1
     observe_p2p_owned_guest "$target_serial" after-break instrumentation-stream-lost || true
@@ -1440,19 +1564,19 @@ finish_physical_session() {
 # destructive API cleanup, nor receive removal of its private ownership files.
 retain_physical_cleanup_ownership() {
   local target_serial="$1" role="$2" out="$3" marker="$4"
-  authorize_selected_device "$target_serial" || return 1
-  pull_android_acceptance_active_clients \
+  p2p_cleanup_operation "$out" "$role" retain-authorization authorize_selected_device "$target_serial" || return 1
+  p2p_cleanup_operation "$out" "$role" retain-active-ledger pull_android_acceptance_active_clients \
     "$adb" "$target_serial" "$run_dir" "$out/$role-ownership" || return 1
-  authorize_selected_device "$target_serial" || return 1
-  pull_android_acceptance_private_client_id \
+  p2p_cleanup_operation "$out" "$role" retain-reauthorization authorize_selected_device "$target_serial" || return 1
+  p2p_cleanup_operation "$out" "$role" retain-client-id pull_android_acceptance_private_client_id \
     "$adb" "$target_serial" com.bringyour.network files/acceptance/physical-active-client-id \
     "$out/active-client-id-$marker"
 }
 
 clear_physical_cleanup_ownership() {
-  local target_serial="$1"
-  authorize_selected_device "$target_serial" || return 1
-  timeout 30 "$adb" -s "$target_serial" shell run-as com.bringyour.network \
+  local target_serial="$1" out="$2" role="$3"
+  p2p_cleanup_operation "$out" "$role" clear-authorization authorize_selected_device "$target_serial" || return 1
+  p2p_cleanup_operation "$out" "$role" clear-markers timeout 30 "$adb" -s "$target_serial" shell run-as com.bringyour.network \
     rm -f files/acceptance/physical-active-client-id \
     files/acceptance/active-client-ids >/dev/null 2>&1
 }
@@ -1466,13 +1590,13 @@ cleanup_physical_sessions() {
   retain_physical_cleanup_ownership "$provider_serial" provider "$out" 2 || {
     cleanup_status=1; ownership_status=1
   }
-  if ! release_active_clients "$out"; then
+  if ! p2p_cleanup_operation "$out" pair release-clients release_active_clients "$out"; then
     cleanup_status=1
   elif [ "$ownership_status" -eq 0 ]; then
     # Do not erase a device ledger after a failed/incomplete pull: EXIT cleanup
     # must still be able to recover IDs not retained by this attempt.
-    clear_physical_cleanup_ownership "$client_serial" || cleanup_status=1
-    clear_physical_cleanup_ownership "$provider_serial" || cleanup_status=1
+    clear_physical_cleanup_ownership "$client_serial" "$out" client || cleanup_status=1
+    clear_physical_cleanup_ownership "$provider_serial" "$out" provider || cleanup_status=1
   fi
   if [ "$cleanup_status" -ne 0 ]; then
     p2p_cleanup_failed=1
@@ -2374,7 +2498,7 @@ for target in $build_targets; do
         "$build_id" "$input_fingerprint" "$out/instrumentation.log" || overall=1
       record_device_cases "$device_id" "$serial" "$target" PASS "instrumentation and cleanup completed" \
         email phone instant password data-plane
-      echo "[android acceptance] $target accepted on $serial"
+      echo "[android acceptance] $target auth/data-plane instrumentation passed on $serial (other case results reported separately)"
     else
       record_acceptance_result \
         "$out" "$target" instrumentation failed "$test_status" \

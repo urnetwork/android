@@ -389,31 +389,48 @@ android_acceptance_runner_owns_emulator() {
   local adb="$1" serial="$2" expected_avd="$3" owner_pid="$4"
   local owner_token="$5" actual_owner actual_avd
 
+  # Diagnostic metadata only. Reset on every call and retain the exact failed
+  # existing check; never expose values or change its authority/return status.
+  android_acceptance_emulator_ownership_stage=serial-validation
   case "$serial" in
     emulator-*)
       case "${serial#emulator-}" in ''|*[!0-9]*) return 2 ;; esac
       ;;
     *) return 2 ;;
   esac
+  android_acceptance_emulator_ownership_stage=avd-validation
   case "$expected_avd" in ''|*$'\r'*|*$'\n'*) return 2 ;; esac
+  android_acceptance_emulator_ownership_stage=pid-validation
   case "$owner_pid" in ''|*[!0-9]*|0) return 2 ;; esac
+  android_acceptance_emulator_ownership_stage=token-validation
   case "$owner_token" in ''|*[!A-Za-z0-9._:-]*) return 2 ;; esac
+  android_acceptance_emulator_ownership_stage=token-length
   [ "${#owner_token}" -le 92 ] || return 2
+  android_acceptance_emulator_ownership_stage=process-before
   kill -0 "$owner_pid" 2>/dev/null || return 1
+  android_acceptance_emulator_ownership_stage=device-ready
   android_acceptance_adb_device_ready "$adb" "$serial" || return 1
+  android_acceptance_emulator_ownership_stage=instance-id-read
   actual_owner="$(timeout 15 "$adb" -s "$serial" emu avd id \
     </dev/null 2>/dev/null)" || return 1
   actual_owner="${actual_owner%%$'\n'*}"
   actual_owner="${actual_owner%$'\r'}"
+  android_acceptance_emulator_ownership_stage=instance-id-empty
   [ -n "$actual_owner" ] || return 1
+  android_acceptance_emulator_ownership_stage=instance-id-match
   [ "$actual_owner" = "$owner_token" ] || return 3
+  android_acceptance_emulator_ownership_stage=avd-name-read
   actual_avd="$(timeout 15 "$adb" -s "$serial" emu avd name \
     </dev/null 2>/dev/null)" || return 1
   actual_avd="${actual_avd%%$'\n'*}"
   actual_avd="${actual_avd%$'\r'}"
+  android_acceptance_emulator_ownership_stage=avd-name-empty
   [ -n "$actual_avd" ] || return 1
+  android_acceptance_emulator_ownership_stage=avd-name-match
   [ "$actual_avd" = "$expected_avd" ] || return 3
-  kill -0 "$owner_pid" 2>/dev/null
+  android_acceptance_emulator_ownership_stage=process-after
+  kill -0 "$owner_pid" 2>/dev/null || return "$?"
+  android_acceptance_emulator_ownership_stage=verified
 }
 
 # ADB exposes a newly launched emulator transport before every console query is

@@ -7,7 +7,7 @@ source "$here/test-main-lib.sh"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-observation.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
-for helper in observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure finish_physical_session run_android_peer_to_peer; do
+for helper in observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure record_p2p_cleanup_failure p2p_cleanup_operation finish_physical_session run_android_peer_to_peer; do
   # Load definitions only; runner startup must never execute in this test.
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
 done

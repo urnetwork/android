@@ -675,7 +675,14 @@ private fun NetworkCreateForm(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            URInlineErrorText(createNetworkError)
+            URInlineErrorText(
+                createNetworkError,
+                if (signupFormErrorIsTerminal(!createNetworkError.isNullOrEmpty(), isInProgress)) {
+                    Modifier.testTag(ACCEPTANCE_CREATE_NETWORK_ERROR_TAG)
+                } else {
+                    Modifier
+                },
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
