@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -516,6 +517,18 @@ fun ConnectActions(
     }
 }
 
+/**
+ * Shortens [label] to "abcd…1234" when it is the client id [clientId]
+ * (the first four and last four characters). Other labels are returned as is.
+ */
+internal fun shortClientIdLabel(label: String, clientId: String?): String {
+    if (clientId.isNullOrEmpty() || !label.trim().equals(clientId, ignoreCase = true)) {
+        return label
+    }
+    val id = label.trim()
+    return if (id.length <= 12) id else "${id.take(4)}…${id.takeLast(4)}"
+}
+
 @Composable
 fun OpenProviderListButton(
     selectedLocation: ConnectLocation?,
@@ -530,6 +543,10 @@ fun OpenProviderListButton(
         selectedLocation == null || selectedLocation.connectLocationId.bestAvailable ->
             stringResource(id = R.string.best_available_provider)
         else -> selectedLocation.name
+    }.let { label ->
+        // a client id label (a direct client connection, or a peer without a device name)
+        // is shortened to "abcd…1234" so it does not crowd the Change button
+        shortClientIdLabel(label, selectedLocation?.connectLocationId?.clientId?.idStr)
     }
 
     val iconTint = if (selectedLocation == null || selectedLocation.connectLocationId.bestAvailable) {
@@ -555,6 +572,8 @@ fun OpenProviderListButton(
     ) {
 
         Row(
+            // take only the remaining width so the Change button is never squeezed
+            modifier = Modifier.weight(1f, fill = false),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -572,7 +591,9 @@ fun OpenProviderListButton(
                 Text(
                     text,
                     color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 if (selectedLocation != null) {
