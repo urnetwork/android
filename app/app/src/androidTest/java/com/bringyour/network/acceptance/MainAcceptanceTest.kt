@@ -32,6 +32,7 @@ import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.PostLoginUiAction
 import com.bringyour.network.ui.nextPostLoginUiAction
 import com.bringyour.network.ui.performTransientUiActionIfPresent
+import com.bringyour.network.ui.login.ACCEPTANCE_CREATE_NETWORK_ERROR_TAG
 import com.bringyour.network.ui.login.ACCEPTANCE_INSTANT_ERROR_TAG
 import com.bringyour.sdk.Sdk
 import java.io.File
@@ -212,16 +213,29 @@ class MainAcceptanceTest {
         )
     }
 
-    private fun waitForMain() {
+    private fun waitForMain(passwordSignup: Boolean = false) {
         // Post-login surfaces are asynchronous and can appear in sequence. A
         // one-shot scan can observe the gap between them and then wait forever
         // for navigation hidden below the next surface. Keep advancing until
         // navigation is present with no dismissable surface above it.
-        val deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(AUTH_TIMEOUT_MILLIS)
-        while (true) {
-            val action = postLoginUiAction()
-            if (action == null && tagExists("acceptance.nav.connect")) break
-            if (System.nanoTime() >= deadlineNanos) {
+        waitForMainUi(object : MainUiWaitDriver {
+            override fun nowNanos(): Long = System.nanoTime()
+
+            override fun observe(): MainUiWaitEvidence {
+                val action = postLoginUiAction()
+                return MainUiWaitEvidence(
+                    action = action,
+                    mainNavigationPresent = action == null && tagExists("acceptance.nav.connect"),
+                    signupFormErrorPresent = passwordSignup && tagExists(ACCEPTANCE_CREATE_NETWORK_ERROR_TAG),
+                )
+            }
+
+            override fun dismiss(action: PostLoginUiAction) = dismissPostLoginUiAction(action)
+            override fun waitForIdle() = compose.waitForIdle()
+            override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) =
+                compose.waitUntil(timeoutMillis, condition)
+
+            override fun timeout(): Nothing {
                 val state = (context.applicationContext as MainApplication).loginStartupState.value
                 throwLoginStartupTimeout(
                     state,
@@ -232,21 +246,7 @@ class MainAcceptanceTest {
                     Sdk.writeGoroutineStacks(startupGoroutinesFile.absolutePath)
                 }
             }
-
-            if (action != null) dismissPostLoginUiAction(action)
-            compose.waitForIdle()
-
-            val remainingMillis = TimeUnit.NANOSECONDS
-                .toMillis(deadlineNanos - System.nanoTime())
-                .coerceIn(1, 1_000)
-            runCatching {
-                compose.waitUntil(remainingMillis) {
-                    val currentAction = postLoginUiAction()
-                    (currentAction == null && tagExists("acceptance.nav.connect")) ||
-                        currentAction != action
-                }
-            }
-        }
+        }, AUTH_TIMEOUT_MILLIS)
         clickTag("acceptance.nav.connect")
         waitForTag("acceptance.connect", AUTH_TIMEOUT_MILLIS)
     }
@@ -401,8 +401,10 @@ class MainAcceptanceTest {
         replaceTagText("acceptance.create.network", networkName)
         replaceTagText("acceptance.create.password", inputs.password)
         clickTag("acceptance.create.terms")
-        compose.performEnabledSemanticsClick("acceptance.create.submit", AUTH_TIMEOUT_MILLIS)
-        waitForMain()
+        submitPasswordSignupAndWait(
+            submit = { compose.performEnabledSemanticsClick("acceptance.create.submit", AUTH_TIMEOUT_MILLIS) },
+            waitForMain = { waitForMain(passwordSignup = true) },
+        )
         val createdNetwork = currentNetworkId()
         capture("$iteration-$method-signup")
 

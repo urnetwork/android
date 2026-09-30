@@ -68,6 +68,8 @@ class PhysicalLowbarSessionTest {
     private val startupGoroutinesFile = File(acceptanceDir, "physical-startup-goroutines.txt")
     private var credentialDiagnostics = false
     private var carrierBaseline = emptyMap<String, PhysicalCarrierBytes>()
+    private val peerTimingEvidence = PhysicalPeerTimingEvidence()
+    private var commandStartedAtMillis = 0L
 
     @Volatile
     private var phase = "startup"
@@ -721,8 +723,20 @@ class PhysicalLowbarSessionTest {
         }
             .put("type", "status")
             .put("commandId", id)
+            .put("commandSequence", peerTimingEvidence.commandSequence)
             .put("state", state)
             .put("extra", extra)
+        val timingStatus = peerTimingEvidence.snapshot(
+            SystemClock.elapsedRealtime(),
+            when (state) { "complete" -> true; "error" -> false; else -> null },
+        )
+        timingStatus.current?.let { value.put("peerConnectTiming", JSONObject(it)) }
+        timingStatus.lastConnect?.let {
+            value.put("lastPeerConnect", JSONObject()
+                .put("commandSequence", it.commandSequence)
+                .put("successful", it.successful)
+                .put("timing", it.timing?.let { timing -> JSONObject(timing) } ?: JSONObject.NULL))
+        }
         writePrivate(statusFile, "${value}\n")
     }
 
@@ -912,12 +926,32 @@ class PhysicalLowbarSessionTest {
         waitFor(PhysicalWaitStage.CONNECTABLE_PEER, PEER_TIMEOUT_MILLIS) {
             peerLocation(peerVc, networkPeer) != null
         }
-        connectVc.connect(checkNotNull(peerLocation(peerVc, networkPeer)))
-        uiDevice.clickVerifiedVpnConsentIfPresent()
-        waitFor(PhysicalWaitStage.PEER_VPN_CONNECTION, CONNECT_TIMEOUT_MILLIS) {
-            connectVc.connected && device.connectEnabled && device.tunnelStarted
-        }
-        peerEgressProbeWithTrafficProof(device)
+        val selectedPeer = checkNotNull(peerLocation(peerVc, networkPeer))
+        val expectedPeerId = checkNotNull(selectedPeer.connectLocationId?.clientId?.idStr)
+        val timing = PhysicalPeerConnectTiming(
+            SystemClock.elapsedRealtime(), CONNECT_TIMEOUT_MILLIS, commandStartedAtMillis,
+        )
+        peerTimingEvidence.startConnect(timing)
+        runPhysicalPeerEgress(
+            expectedPeerId = expectedPeerId,
+            timing = timing,
+            nowMillis = SystemClock::elapsedRealtime,
+            sleepMillis = SystemClock::sleep,
+            prepareConnection = {
+                connectVc.connect(selectedPeer)
+                uiDevice.clickVerifiedVpnConsentIfPresent()
+            },
+            routeState = {
+                PhysicalPeerRouteState(
+                    controllerConnected = connectVc.connected,
+                    connectEnabled = device.connectEnabled,
+                    tunnelStarted = device.tunnelStarted,
+                    requestedPeerId = device.connectLocation?.connectLocationId?.clientId?.idStr,
+                    providers = liveProviders(device),
+                )
+            },
+            egressProof = { peerEgressProbeWithTrafficProof(device) },
+        )
         waitFor(PhysicalWaitStage.PEER_CARRIER_EVIDENCE, CONNECT_TIMEOUT_MILLIS) {
             physicalSelectedPeer(device.connectLocation?.connectLocationId?.clientId?.idStr,
                 liveProviders(device), device.connectEnabled).isNotEmpty() &&
@@ -933,6 +967,8 @@ class PhysicalLowbarSessionTest {
         peerVc: PeerViewController,
         startElapsedMs: Long,
     ): Boolean {
+        peerTimingEvidence.beginCommand()
+        commandStartedAtMillis = SystemClock.elapsedRealtime()
         val parts = command.trim().split('|', limit = 3)
         require(parts.size >= 2) { "invalid physical command" }
         val id = parts[0]
@@ -940,6 +976,9 @@ class PhysicalLowbarSessionTest {
         val argument = parts.getOrElse(2) { "" }
         require(id.matches(Regex("[A-Za-z0-9._-]+"))) { "invalid physical command ID" }
         require(argument.matches(Regex("[A-Za-z0-9._-]*"))) { "invalid physical command argument" }
+        if (verb == "peer-connect" || verb == "peer-platform-connect") {
+            peerTimingEvidence.beginPeerConnect()
+        }
         phase = when (verb) {
             "phase" -> argument.ifEmpty { "idle" }
             else -> "$verb${if (argument.isEmpty()) "" else "-$argument"}"

@@ -53,6 +53,17 @@ final class EgressProbeClient {
 
     /** Owns one endpoint connection across cancellation and late publication. */
     static final class Attempt implements Callable<String> {
+        // Diagnostic-only numeric phases. RESPONSE_WAIT deliberately combines
+        // platform DNS, connect, TLS and response headers; no extra I/O probes.
+        private static final int OPEN = 1;
+        private static final int RESPONSE_WAIT = 2;
+        private static final int BODY_OPEN = 3;
+        private static final int BODY_READ = 4;
+        private static final int BODY_CLOSE = 5;
+        private static final int VALIDATE = 6;
+        private static final int DISCONNECT = 7;
+        private static final int COMPLETE = 8;
+
         private final String endpoint;
         private final ConnectionFactory connectionFactory;
         private final Map<String, String> failures;
@@ -60,6 +71,14 @@ final class EgressProbeClient {
 
         private boolean canceled;
         private HttpURLConnection connection;
+        private final long diagnosticStartNanos = System.nanoTime();
+        private int phase;
+        private long phaseStartNanos = diagnosticStartNanos;
+        private long progressNanos;
+        private boolean progressed;
+        private int httpStatus = -1;
+        private int acceptedBytes;
+        private String frozenDiagnostic;
 
         Attempt(
             String endpoint,
@@ -81,7 +100,9 @@ final class EgressProbeClient {
                     }
                 }
 
+                phase(OPEN);
                 openedConnection = connectionFactory.open(endpoint);
+                progress();
                 boolean cancelOpenedConnection;
                 synchronized (stateLock) {
                     cancelOpenedConnection = canceled;
@@ -93,8 +114,12 @@ final class EgressProbeClient {
                     openedConnection.disconnect();
                     throw new IOException("egress endpoint attempt canceled during open");
                 }
-                return queryEndpoint(openedConnection, this);
+                String address = queryEndpoint(openedConnection, this);
+                phase(COMPLETE);
+                progress();
+                return address;
             } catch (Exception error) {
+                freezeDiagnostic();
                 failures.put(endpoint, failureDetail(error));
                 throw error;
             } finally {
@@ -128,6 +153,57 @@ final class EgressProbeClient {
                 if (canceled) {
                     throw new IOException("egress endpoint attempt canceled");
                 }
+            }
+        }
+
+        private void phase(int next) {
+            synchronized (stateLock) {
+                if (frozenDiagnostic == null) {
+                    phase = next;
+                    phaseStartNanos = System.nanoTime();
+                }
+            }
+        }
+
+        private void progress() {
+            synchronized (stateLock) {
+                if (frozenDiagnostic == null) {
+                    progressed = true;
+                    progressNanos = System.nanoTime();
+                }
+            }
+        }
+
+        private void responseReceived(int status) {
+            synchronized (stateLock) {
+                if (frozenDiagnostic == null) {
+                    httpStatus = 100 <= status && status <= 599 ? status : -1;
+                    progress();
+                }
+            }
+        }
+
+        private void bodyReceived(int bytes) {
+            synchronized (stateLock) {
+                if (frozenDiagnostic == null) {
+                    acceptedBytes = Math.max(0, Math.min(MAX_RESPONSE_BYTES, bytes));
+                    progress();
+                }
+            }
+        }
+
+        // The first failure/deadline owns this immutable snapshot. Subsequent
+        // cancellation, late publication and disconnect cannot relabel it.
+        String freezeDiagnostic() {
+            synchronized (stateLock) {
+                if (frozenDiagnostic == null) {
+                    long now = System.nanoTime();
+                    frozenDiagnostic = phase + "," + elapsedMillis(diagnosticStartNanos, now)
+                        + "," + elapsedMillis(phaseStartNanos, now)
+                        + "," + (progressed ? elapsedMillis(diagnosticStartNanos, progressNanos) : -1)
+                        + "," + httpStatus + "," + acceptedBytes;
+                }
+                return frozenDiagnostic;
             }
         }
     }
@@ -234,24 +310,34 @@ final class EgressProbeClient {
                 }
             }
             if (address == null) {
-                if (failures.size() == endpoints.length) {
+                // Preserve the original outcome/text decision before doing
+                // diagnostic work; later worker activity cannot reclassify it.
+                boolean allFailed = failures.size() == endpoints.length;
+                String details = formatFailures(endpoints, failures);
+                String diagnostic = formatPhaseDiagnostics(attempts);
+                if (allFailed) {
                     queryFailure = new IOException(
-                        "all egress endpoints failed: " + formatFailures(endpoints, failures),
+                        "all egress endpoints failed: " + details + diagnostic,
                         lastEndpointFailure
                     );
                 } else {
                     queryFailure = new IOException(
                         "egress query deadline exceeded after " + timeoutMillis + "ms: "
-                            + formatFailures(endpoints, failures),
+                            + details + diagnostic,
                         new TimeoutException("egress query deadline exceeded")
                     );
                 }
             }
         } catch (InterruptedException error) {
             Thread.currentThread().interrupt();
-            queryFailure = new IOException("egress query interrupted", error);
+            queryFailure = new IOException("egress query interrupted" + formatPhaseDiagnostics(attempts), error);
         }
 
+        // Even a winning query may later fail to join a loser. Capture its
+        // decision boundary before cancellation performs any disconnects.
+        for (Attempt attempt : attempts) {
+            attempt.freezeDiagnostic();
+        }
         // Mark every owner canceled before interrupting its Future. A connection
         // published after this point observes canceled under the same lock and
         // disconnects itself instead of escaping both cleanup snapshots.
@@ -270,7 +356,9 @@ final class EgressProbeClient {
             attempt.cancel();
         }
         if (!stopped) {
-            IOException cleanupFailure = new IOException("egress probe workers did not stop after cancellation");
+            IOException cleanupFailure = new IOException(
+                "egress probe workers did not stop after cancellation" + formatPhaseDiagnostics(attempts)
+            );
             if (queryFailure != null) {
                 cleanupFailure.addSuppressed(queryFailure);
             }
@@ -314,7 +402,9 @@ final class EgressProbeClient {
         connection.setInstanceFollowRedirects(false);
         try {
             attempt.checkCanceled();
+            attempt.phase(Attempt.RESPONSE_WAIT);
             int statusCode = connection.getResponseCode();
+            attempt.responseReceived(statusCode);
             // Cancellation may have landed while connecting or reading the
             // response headers. Never enter the next blocking phase after it.
             attempt.checkCanceled();
@@ -322,32 +412,74 @@ final class EgressProbeClient {
                 throw new IllegalStateException("HTTP " + statusCode);
             }
             ByteArrayOutputStream response = new ByteArrayOutputStream();
+            attempt.phase(Attempt.BODY_OPEN);
             try (InputStream input = connection.getInputStream()) {
-                byte[] buffer = new byte[64];
-                int count;
-                while (true) {
-                    attempt.checkCanceled();
-                    count = input.read(buffer);
-                    attempt.checkCanceled();
-                    if (count == -1) {
-                        break;
+                attempt.progress();
+                try {
+                    byte[] buffer = new byte[64];
+                    int count;
+                    while (true) {
+                        attempt.checkCanceled();
+                        attempt.phase(Attempt.BODY_READ);
+                        count = input.read(buffer);
+                        attempt.checkCanceled();
+                        if (count == -1) {
+                            attempt.bodyReceived(response.size());
+                            break;
+                        }
+                        if (MAX_RESPONSE_BYTES < response.size() + count) {
+                            attempt.progress();
+                            throw new IllegalStateException(
+                                "address response exceeds " + MAX_RESPONSE_BYTES + " bytes"
+                            );
+                        }
+                        response.write(buffer, 0, count);
+                        attempt.bodyReceived(response.size());
                     }
-                    if (MAX_RESPONSE_BYTES < response.size() + count) {
-                        throw new IllegalStateException(
-                            "address response exceeds " + MAX_RESPONSE_BYTES + " bytes"
-                        );
-                    }
-                    response.write(buffer, 0, count);
+                } catch (Exception error) {
+                    attempt.freezeDiagnostic();
+                    throw error;
+                } finally {
+                    attempt.phase(Attempt.BODY_CLOSE);
                 }
             }
+            attempt.progress();
+            attempt.phase(Attempt.VALIDATE);
             String address = new String(response.toByteArray(), StandardCharsets.UTF_8).trim();
             if (!isIpAddress(address)) {
                 throw new IllegalStateException("invalid address response");
             }
             return address;
+        } catch (Exception error) {
+            attempt.freezeDiagnostic();
+            throw error;
         } finally {
-            connection.disconnect();
+            attempt.phase(Attempt.DISCONNECT);
+            try {
+                connection.disconnect();
+            } catch (RuntimeException error) {
+                attempt.freezeDiagnostic();
+                throw error;
+            }
         }
+    }
+
+    private static long elapsedMillis(long start, long end) {
+        return Math.max(0, TimeUnit.NANOSECONDS.toMillis(end - start));
+    }
+
+    private static String formatPhaseDiagnostics(List<Attempt> attempts) {
+        // Rows: endpoint ordinal, phase, elapsed ms, phase elapsed ms,
+        // last completed-boundary ms (-1 unknown), HTTP status (-1 unknown),
+        // accepted body bytes. Only fixed labels and bounded numeric state.
+        StringBuilder result = new StringBuilder("; probe_phase_v1=");
+        for (int i = 0; i < attempts.size(); i += 1) {
+            if (i != 0) {
+                result.append('|');
+            }
+            result.append(i + 1).append(',').append(attempts.get(i).freezeDiagnostic());
+        }
+        return result.toString();
     }
 
     private static String failureDetail(Exception error) {
