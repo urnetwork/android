@@ -253,6 +253,7 @@ class PhysicalLowbarSessionTest {
         val device = application.device
         val result = JSONObject()
             .put("type", "sample")
+            .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
             .put("pid", Process.myPid())
             .put("elapsedMs", SystemClock.elapsedRealtime() - startElapsedMs)
             .put("timeUnixMs", System.currentTimeMillis())
@@ -411,6 +412,7 @@ class PhysicalLowbarSessionTest {
         dropped: Long,
     ): JSONObject = JSONObject()
         .put("type", "sample")
+        .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
         .put("samplerSchema", schema)
         .put("samplerDropped", dropped)
         .put("elapsedMs", maxOf(0L, sample.optLong("unix_millis") - startUnixMs))

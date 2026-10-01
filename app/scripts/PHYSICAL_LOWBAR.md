@@ -71,7 +71,11 @@ during client cleanup. Host fixtures exercise those real driver paths with a
 fake ADB executable, rather than only accepting a fake schedule step.
 
 `result.json` separates `memoryQualified`, website measurements and cleanup.
-Every runtime sample, including teardown, must remain at or below 24 MiB.
+Every iOS-profile runtime sample, including teardown, must remain at or below
+**32 MiB (33,554,432 bytes)** for `ios-memory-audit-v2`, with 32-MiB admission
+and 32-MiB Go soft limit. Historical v1 retains its 20/32/28-MiB contract;
+old measurements cannot qualify v2. This Android proxy supplies no signed-iOS
+proof of the separate kernel-peak `phys_footprint <50 MiB` requirement.
 An arm's successful memory result is not a full campaign verdict or statistical
 baseline promotion; retain its Fast.com 40-Mbit/s goal result separately and
 follow TEST-PERF's paired sampling requirements. A failed setup/owner/quiet gate
@@ -86,7 +90,7 @@ node --test app/scripts/physical_h1_arm_test.mjs
 For an observed rate-zero memory failure, use a **separate fresh arm** with
 `--measurement-mode diagnostic`. This is not a qualification override: it
 attests rate 65536 in the native writer, locked consumer/APK assembly, retained
-binary proof and installed live-profile gate. The same 20-MiB device target and
+binary proof and installed live-profile gate. The same v2 32-MiB device target and
 32-MiB Go soft limit remain in effect. No other rate or custom workload is
 accepted. For example, use the invocation above with a fresh run directory,
 label/build ID and unused port, adding:
@@ -132,7 +136,7 @@ the shared schedule with deterministic failures, strict helper argument parsing,
 effective rate binding, census/GC validation, 45-second clock simulation,
 exact memory-breach preservation and an actual retained PTY. Extended matched
 idle/post-traffic studies below remain available after this minimal capture;
-only a separate rate-zero arm can qualify the absolute 24-MiB barrier.
+only a separate rate-zero arm can qualify the absolute 32-MiB barrier.
 
 `physical_lowbar_capture.mjs` records a timestamped, privacy-safe NDJSON
 telemetry stream beside a real-device workload. It is intended to correlate the
@@ -331,7 +335,7 @@ It does not prove the cause of the original physical socket closure, or rule
 out a later closure after readiness. No keyguard/crash cause has been established.
 
 For iOS-profile memory work, build the app and Android-test APK with both
-`-PurnetworkMemoryProfile=ios-memory-audit-v1` and a unique
+`-PurnetworkMemoryProfile=ios-memory-audit-v2` and a unique
 `-PurnetworkAcceptanceBuildId=LABEL`; the Gradle default is Android's 40-MiB
 profile and is invalid for this campaign. Run
 `PhysicalLowbarSessionTest` with the same `acceptanceBuildId` instrumentation
@@ -468,7 +472,7 @@ owner diagnostics), the build PATH/GOWORK/GOFLAGS environment, and the private
 `NATIVE_INPUTS_BEFORE`, `NATIVE_INPUTS_AFTER`, `NATIVE_INPUTS_PROOF` and
 `NATIVE_WRITER_RECEIPT` paths. Capture `before`, then launch
 `physical_native_writer.sh` with explicit build ID, rate,
-`--memory-profile ios-memory-audit-v1`, bounded `--max-workers`, and private
+`--memory-profile ios-memory-audit-v2`, bounded `--max-workers`, and private
 receipt/stdout/stderr paths using TEST-PERF's exact standalone retained call.
 The Bash entry point supervises the fixed `:app:buildSdkAcceptance` task and
 atomically writes its own terminal receipt after child outcome/join. Do not
@@ -603,8 +607,9 @@ not used: signal permission is not the ownership contract.
 
 Before connecting or driving public traffic, capture the retained owner's
 fresh ready status and require the **offline** profile gate to exit 0. The
-effective values must be exactly 20-MiB device admission and 32-MiB Go soft
-limit, with live `goMemoryProfileRateBytes=0`; a smaller observed runtime is not
+effective values must be exactly 32-MiB device admission and 32-MiB Go soft
+limit, with selected `memoryProfile=ios-memory-audit-v2` and live
+`goMemoryProfileRateBytes=0`; a requested-profile echo or a smaller observed runtime is not
 a substitute. A missing build flag
 selects Android's 28/40-MiB policy and makes the cohort incomparable. A unique
 build ID by itself does not prove the memory profile.
@@ -623,11 +628,11 @@ node app/scripts/physical_memory_profile.mjs \
 
 This read-only capture is preflight evidence, **not a quiet boundary**. The
 quiet gate independently rechecks both boundaries' admission/soft-limit inputs
-and every primitive sample's soft limit and zero profile rate, including active
+and every primitive sample's selected profile, soft limit and zero profile rate, including active
 and teardown samples. Missing or nonnumeric rates also fail. Both native and
 app/test builds must use `-PurnetworkMemoryProfileRateBytes=0` for qualification;
 do not reuse a diagnostic AAR or disable profiling after it has initialized.
-A profile mismatch never suppresses a measured >24-MiB failure; it additionally
+A profile mismatch never suppresses a measured >32-MiB failure; it additionally
 disqualifies baseline comparison. Neither gate changes the app's budgets.
 
 ### H1 and Direct startup order
@@ -674,7 +679,7 @@ Do not reconstruct the budget graph in Kotlin or substitute the older primitive
 ring sample's timestamp. Export failure produces a sampler error and invalidates
 qualification. The opt-in is restored at teardown; normal apps install no
 diagnostic counters, collector, or ticker. The existing 15-second primitive
-sampler remains independently drained and the absolute iOS 24 MiB gate is unchanged.
+sampler remains independently drained and the absolute iOS 28 MiB gate applies.
 
 Provider quiet means connected=false, provideEnabled=true, tunnelStarted=true:
 Android keeps that service running without establishing a client VPN. The
@@ -1112,7 +1117,7 @@ separate gates; this helper covers workload telemetry and the quiet window,
 not overall website correctness or the full campaign.
 
 Exit 2 rejects missing/short/interrupted evidence as `INCOMPLETE_QUIET_WINDOW`;
-any retained runtime sample above 24 MiB is `FAILED_MEMORY_LIMIT`, including
+any retained runtime sample above 28 MiB is `FAILED_MEMORY_LIMIT`, including
 active samples before quiet. A below-threshold peak or instrumentation exit 0
 does not override either result. Only exit 0 allows normal `finish`/collector
 stop. On failure or safety timeout still finish and clean up, but preserve the
@@ -1121,7 +1126,7 @@ sessions may finish early and do not qualify memory. Finally pull the joined
 sampler output again so teardown samples are retained and checked as well.
 The teardown recheck uses the same gate arguments plus
 `--live-gate "$PRIVATE_DIR/quiet-gate.json"`, writing a separate output. This
-requires the retained schema-2 live collector proof for the same workload
+requires the retained schema-3 live collector proof, bound to the 32-MiB cap, for the same workload
 owner; it never substitutes a late collector or claims one is currently live.
 
 For a controlled provider, install its exact client ID through standard input
@@ -1599,7 +1604,7 @@ cooldown, and before/after counters to distinguish policy from a leak.
 
 The attested H1 memory failure needs owner evidence, not another threshold
 change. Build the native SDK **and** both APKs with
-`-PurnetworkMemoryProfile=ios-memory-audit-v1`,
+`-PurnetworkMemoryProfile=ios-memory-audit-v2`,
 `-PurnetworkMemoryProfileRateBytes=65536`, and the same unique acceptance build
 ID, using the native build-owner/consumer-lock procedure above. Preserve the
 AAR/native/APK/source-input hash chain. No APK-only rebuild or reused native
@@ -1611,7 +1616,7 @@ rate is 65536 in addition to the normal iOS-profile gate.
 
 For this diagnostic only, pass explicit `--mode diagnostic` to
 `physical_memory_profile.mjs`. Its default (and `--mode qualification`) requires
-rate zero. Diagnostic mode still checks the same 20/32-MiB policy, requires
+rate zero. Diagnostic mode still checks the same 32/32-MiB policy, requires
 exactly 65536 live sampling, and returns `DIAGNOSTIC_PROFILE_READY` with
 `qualificationEligible=false`. This opt-in never enables quiet qualification:
 the absolute gate continues to require rate zero in both status boundaries and

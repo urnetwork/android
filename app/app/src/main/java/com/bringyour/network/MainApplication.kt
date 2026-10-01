@@ -75,19 +75,31 @@ class MainApplication : Application() {
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
         const val CLIENT_EVENT_LOGOUT_DRAIN_MILLIS = 1500L
-        // Android retains its normal larger profile. Only a debug audit APK
-        // explicitly selects the iOS extension's 20/32-MiB admission/GC inputs.
-        const val IOS_MEMORY_AUDIT_PROFILE = "ios-memory-audit-v1"
+        // Admission scales with the effective process allowance. The debug
+        // iOS surrogate mirrors the extension's 32/32-MiB target/soft limit;
+        // v1 remains an explicit historical 20/32-MiB comparison profile.
+        const val IOS_MEMORY_AUDIT_PROFILE = "ios-memory-audit-v2"
+        const val LEGACY_IOS_MEMORY_AUDIT_PROFILE = "ios-memory-audit-v1"
         val MEMORY_PROFILE_NAME: String
-            get() = if (BuildConfig.DEBUG && BuildConfig.URNETWORK_MEMORY_PROFILE == IOS_MEMORY_AUDIT_PROFILE) {
-                IOS_MEMORY_AUDIT_PROFILE
+            get() = if (BuildConfig.DEBUG && (BuildConfig.URNETWORK_MEMORY_PROFILE == IOS_MEMORY_AUDIT_PROFILE ||
+                BuildConfig.URNETWORK_MEMORY_PROFILE == LEGACY_IOS_MEMORY_AUDIT_PROFILE)) {
+                BuildConfig.URNETWORK_MEMORY_PROFILE
             } else {
                 "android"
             }
         internal fun processMemoryLimitMib(profile: String): Long =
-            if (profile == IOS_MEMORY_AUDIT_PROFILE) 32L else 40L
+            if (profile == IOS_MEMORY_AUDIT_PROFILE || profile == LEGACY_IOS_MEMORY_AUDIT_PROFILE) 32L else 64L
+        internal fun effectiveProcessMemoryLimitMib(profile: String, memoryClassMib: Int?): Long {
+            val maxMemoryMib = memoryClassMib?.takeIf { it > 0 }?.toLong() ?: 32L
+            return min((3 * maxMemoryMib) / 4, processMemoryLimitMib(profile))
+        }
         val SDK_PROCESS_MEMORY_LIMIT_MIB: Long
             get() = processMemoryLimitMib(MEMORY_PROFILE_NAME)
+        // Published before NetworkSpace/DeviceLocal construction. Keep the
+        // fallback conservative if a consumer reads it before onCreate.
+        @Volatile
+        var SDK_EFFECTIVE_PROCESS_MEMORY_LIMIT_MIB: Long = effectiveProcessMemoryLimitMib(MEMORY_PROFILE_NAME, null)
+            private set
         // Stable platform capability id since API 30. The framework exposes it
         // to system code only, but public hasCapability(Int) reports it to VPN
         // apps as part of ordinary NetworkCapabilities callbacks.
@@ -653,10 +665,11 @@ class MainApplication : Application() {
         }
 
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
-        val maxMemoryMib = activityManager?.memoryClass?.toLong() ?: 32
-        // Bound emergency GC pacing independently of device admission targets.
-        val sdkMemoryMib = min((3 * maxMemoryMib) / 4, SDK_PROCESS_MEMORY_LIMIT_MIB)
+        // Publish the applied limit so DeviceLocal uses the full allowance
+        // without exceeding the memory-class clamp on smaller devices.
+        val sdkMemoryMib = effectiveProcessMemoryLimitMib(MEMORY_PROFILE_NAME, activityManager?.memoryClass)
         Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
+        SDK_EFFECTIVE_PROCESS_MEMORY_LIMIT_MIB = sdkMemoryMib
 
         // Nothing removes location test providers when a process dies — not a
         // crash, not force-stop, not uninstall. Start the controller here (not

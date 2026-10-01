@@ -72,8 +72,11 @@ rm -rf "$workflow_dir"
 grep -Fq 'gradle_worker_args=(--max-workers "$android_parallelism")' "$here/test-main.sh" || \
   fail "positive GOMAXPROCS is not mapped to Gradle workers"
 # shellcheck disable=SC2016
-[ "$(grep -Fc '"${gradle_worker_args[@]}"' "$here/test-main.sh")" -eq 2 ] || \
-  fail "both Android Gradle invocations do not consume the worker override"
+[ "$(grep -Fc '${gradle_worker_args[@]+"${gradle_worker_args[@]}"}' "$here/test-main.sh")" -eq 2 ] || \
+  fail "both Android Gradle invocations do not safely consume the optional worker override"
+# Exercise the exact production vectors on /bin/bash (macOS Bash 3.2) as well
+# as the selected Bash, including absent overrides and unrelated shell errors.
+go -C "$here" test test-main-gradle-workers_test.go -count=1
 # shellcheck disable=SC2016
 if grep -Eq 'emulator_core_args|(^|[[:space:]])-cores([=[:space:]]|$)' \
     "$here/test-main.sh"; then
@@ -118,7 +121,7 @@ grep -Fq '"loginUiBeforeTeardown"' <<<"$physical_failure_source" || \
 grep -Fq 'main-startup-goroutines.txt' "$here/test-main.sh" || \
   fail "main acceptance collection does not retain optional Pending startup evidence"
 main_timeout_source="$(sed -n \
-  '/private fun waitForMain()/,/private fun createInstantAccount()/p' \
+  '/private fun waitForMain(/,/private fun createInstantAccount()/p' \
   "$here/app/app/src/androidTest/java/com/bringyour/network/acceptance/MainAcceptanceTest.kt")"
 grep -Fq 'throwLoginStartupTimeout(' <<<"$main_timeout_source" || \
   fail "main login does not route its Pending timeout through the evidence boundary"

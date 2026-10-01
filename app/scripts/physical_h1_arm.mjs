@@ -17,15 +17,15 @@ import { requireCredentialTargetStopped } from "./physical_credential_ownership.
 import { credentialPayload } from "./physical_credentials.mjs";
 import { requireCredentialParserPreflight } from "./physical_credentials_preflight.mjs";
 import { requireCompletedWorkloads } from "./physical_workload_receipt.mjs";
+import { GO_RUNTIME_LIMIT_BYTES, MEMORY_AUDIT_PROFILE } from "./physical_memory_profile.mjs";
 
 const SELF = fileURLToPath(import.meta.url);
 const SCRIPTS = dirname(SELF);
 const APP = "com.bringyour.network";
-const PROFILE = "ios-memory-audit-v1";
+const PROFILE = MEMORY_AUDIT_PROFILE;
 const CHILDREN = "wiki,fast-1,fast-2,fast-3";
 const LABEL = /^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$/;
 const DIAGNOSTIC_TAIL_MS = 45_000;
-const GO_RUNTIME_LIMIT_BYTES = 24 * 1024 * 1024;
 export const LIMITS = Object.freeze({ command: 30_000, native: 3_600_000, ready: 180_000,
   role: 160_000, workloads: 950_000, quiet: 425_000, finish: 180_000, stop: 30_000, kill: 5_000 });
 class ArmError extends Error {}
@@ -298,12 +298,13 @@ export function evaluateDiagnosticMemory(records) {
   for (const row of samples) {
     if (!Number.isSafeInteger(row.elapsedMs) || row.elapsedMs < 0 || row.elapsedMs <= previousElapsed ||
         !Number.isSafeInteger(row.goRuntimeBytes) || row.goRuntimeBytes <= 0 || row.samplerDropped !== 0 ||
-        row.goMemoryProfileRateBytes !== 65536 || row.goMemoryLimitBytes !== 32 * 1024 * 1024) {
+        row.memoryProfile !== PROFILE || row.goMemoryProfileRateBytes !== 65536 ||
+        row.goMemoryLimitBytes !== 32 * 1024 * 1024) {
       fail("diagnostic-memory-evidence-invalid");
     }
     previousElapsed = row.elapsedMs;
   }
-  return { type: "diagnostic-memory-observation", schemaVersion: 1, measurementMode: "diagnostic",
+  return { type: "diagnostic-memory-observation", schemaVersion: 2, measurementMode: "diagnostic", memoryProfile: PROFILE,
     qualificationEligible: false, profileRate: 65536, sampleCount: samples.length,
     firstElapsedMs: samples[0].elapsedMs, lastElapsedMs: samples.at(-1).elapsedMs,
     peakGoRuntimeBytes: Math.max(...samples.map(row => row.goRuntimeBytes)),

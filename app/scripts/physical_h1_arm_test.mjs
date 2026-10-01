@@ -506,13 +506,24 @@ test("retained diagnostic tail rejects replaced sessions, activity/role changes,
 });
 
 const memorySample = (elapsedMs, bytes = 23 * 1024 * 1024) => ({ type: "sample", elapsedMs, goRuntimeBytes: bytes,
+  memoryProfile: "ios-memory-audit-v2",
   goMemoryProfileRateBytes: 65536, goMemoryLimitBytes: 32 * 1024 * 1024, samplerDropped: 0 });
 
+test("diagnostic v2 iOS memory reports the same 32 MiB cap but never qualifies", () => {
+  const result = evaluateDiagnosticMemory([memorySample(0, 33_554_432), memorySample(15000, 33_554_433)]);
+  assert.equal(result.goRuntimeLimitBytes, 33_554_432);
+  assert.equal(result.goRuntimeBreachSampleCount, 1);
+  assert.equal(result.qualificationEligible, false);
+  for (const memoryProfile of [undefined, null, "android", "private-canary"]) {
+    assert.throws(() => evaluateDiagnosticMemory([{ ...memorySample(0), memoryProfile }]), /diagnostic-memory-evidence-invalid/);
+  }
+});
+
 test("diagnostic memory preserves exact raw global/teardown breaches and never confers qualification", () => {
-  const result = evaluateDiagnosticMemory([memorySample(0, 29_405_216), memorySample(15000), memorySample(30000, 25_268_256)]);
-  assert.equal(result.peakGoRuntimeBytes, 29_405_216); assert.equal(result.goRuntimeBreachSampleCount, 2);
+  const result = evaluateDiagnosticMemory([memorySample(0, 34_405_216), memorySample(15000), memorySample(30000, 25_268_256)]);
+  assert.equal(result.peakGoRuntimeBytes, 34_405_216); assert.equal(result.goRuntimeBreachSampleCount, 1);
   assert.equal(result.qualificationEligible, false); assert.equal(result.sampleCount, 3);
-  assert.equal(result.goRuntimeLimitBytes, 25_165_824);
+  assert.equal(result.goRuntimeLimitBytes, 33_554_432);
   assert.equal(evaluateDiagnosticMemory([memorySample(0, 1)]).qualificationEligible, false);
   for (const records of [[], [{ type: "error" }], [memorySample(0), memorySample(0)],
     [{ ...memorySample(0), samplerDropped: 1 }], [{ ...memorySample(0), goMemoryProfileRateBytes: 0 }],

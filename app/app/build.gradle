@@ -48,8 +48,8 @@ if (!(urnetworkMemoryProfileRateBytes ==~ /[0-9]+/)) {
 // Explicit acceptance-only profile; production defaults keep Android's budget.
 def urnetworkMemoryProfile =
         (project.findProperty('urnetworkMemoryProfile') ?: 'android').toString()
-if (!(urnetworkMemoryProfile in ['android', 'ios-memory-audit-v1'])) {
-    throw new GradleException('urnetworkMemoryProfile must be android or ios-memory-audit-v1')
+if (!(urnetworkMemoryProfile in ['android', 'ios-memory-audit-v1', 'ios-memory-audit-v2'])) {
+    throw new GradleException('urnetworkMemoryProfile must be android, ios-memory-audit-v1 or ios-memory-audit-v2')
 }
 
 ext.signingSecret = { key ->

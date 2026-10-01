@@ -81,13 +81,21 @@ class DeviceManager @Inject constructor(
         // Sdk.setMemoryLimit (MainApplication) separately sizes the shared
         // message pools, carrier root, and Go soft limit.
         //
-        // Ordinary Android keeps 28 MiB. The explicit debug iOS proxy follows
-        // apple/app/extension/TunnelMemoryBounds.swift: 20 MiB admission, with
-        // the separate observed runtime constrained to a hard 24-MiB cap.
-        internal fun deviceMemoryTargetByteCount(profile: String): Long =
-            (if (profile == MainApplication.IOS_MEMORY_AUDIT_PROFILE) 20L else 28L) * 1024 * 1024
+        // Use the full selected allowance. The process soft limit is not a
+        // total-process footprint guarantee: pools/runtime/native memory are
+        // observed separately by MEMSTEADY and the physical iOS gate.
+        internal fun deviceMemoryTargetByteCount(profile: String): Long = when (profile) {
+            MainApplication.IOS_MEMORY_AUDIT_PROFILE -> 32L
+            MainApplication.LEGACY_IOS_MEMORY_AUDIT_PROFILE -> 20L
+            else -> 64L
+        } * 1024 * 1024
+        internal fun effectiveDeviceMemoryTargetByteCount(profile: String, processLimitMib: Long): Long =
+            minOf(deviceMemoryTargetByteCount(profile), processLimitMib * 1024 * 1024)
         val DEVICE_MEMORY_TARGET_BYTE_COUNT: Long
-            get() = deviceMemoryTargetByteCount(MainApplication.MEMORY_PROFILE_NAME)
+            get() = effectiveDeviceMemoryTargetByteCount(
+                MainApplication.MEMORY_PROFILE_NAME,
+                MainApplication.SDK_EFFECTIVE_PROCESS_MEMORY_LIMIT_MIB,
+            )
     }
 
     private val deviceLock = Any()

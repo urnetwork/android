@@ -5,21 +5,49 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { DEVICE_MEMORY_TARGET_BYTES, DIAGNOSTIC_PROFILE_RATE_BYTES, evaluateMemoryProfile,
-  GO_MEMORY_LIMIT_BYTES, parseMemoryProfileArgs } from "./physical_memory_profile.mjs";
+  GO_MEMORY_LIMIT_BYTES, MEMORY_AUDIT_PROFILES, parseMemoryProfileArgs } from "./physical_memory_profile.mjs";
 
 const ready = () => ({ type: "status", state: "ready", pid: 42,
+  memoryProfile: "ios-memory-audit-v2",
   goMemoryProfileRateBytes: 0,
   goMemoryLimitBytes: GO_MEMORY_LIMIT_BYTES, trackedMemory: { targetBytes: DEVICE_MEMORY_TARGET_BYTES } });
 
-test("effective 20/32MiB inputs are required, independently of the 24MiB measured-runtime barrier", () => {
-  assert.equal(DEVICE_MEMORY_TARGET_BYTES, 20 * 1024 * 1024);
+test("selected iOS profile must be observed, not inferred from 32/32 inputs or echoed request", () => {
+  for (const memoryProfile of [undefined, null, "", "android", "ios-memory-audit-v1", "private-canary", true]) {
+    const result = evaluateMemoryProfile({ ...ready(), memoryProfile, requiredProfile: "ios-memory-audit-v2" });
+    assert.equal(result.eligible, false);
+    assert.equal(result.classification, "INVALID_MEMORY_PROFILE");
+    assert.ok(result.reasons.includes("selected-memory-profile-not-ios"));
+    assert.equal(JSON.stringify(result).includes("private-canary"), false);
+  }
+  const result = evaluateMemoryProfile(ready());
+  assert.equal(result.observedProfile, "ios-memory-audit-v2");
+  assert.equal(result.requiredGoRuntimeLimitBytes, 33_554_432);
+  assert.equal(result.requiredDeviceTargetBytes, 32 * 1024 * 1024);
+  assert.equal(result.requiredGoMemoryLimitBytes, 32 * 1024 * 1024);
+});
+
+test("effective 32/32MiB inputs are required, independently of the 32MiB measured-runtime barrier", () => {
+  assert.equal(DEVICE_MEMORY_TARGET_BYTES, 32 * 1024 * 1024);
   assert.equal(GO_MEMORY_LIMIT_BYTES, 32 * 1024 * 1024);
   assert.equal(evaluateMemoryProfile(ready()).eligible, true);
   assert.equal(evaluateMemoryProfile(ready()).qualificationEligible, true);
   assert.equal(evaluateMemoryProfile({ hostTimeUnixMs: 100, status: ready() }).eligible, true);
 });
 
-test("paZ8U8 root regression: a 20/32-MiB diagnostic runtime cannot start a rate-zero qualification", () => {
+test("v1 remains 20/32/28 and requires an explicit historical profile selection", () => {
+  assert.deepEqual(MEMORY_AUDIT_PROFILES["ios-memory-audit-v1"], { deviceTargetBytes: 20 * 1024 * 1024,
+    goMemoryLimitBytes: 32 * 1024 * 1024, goRuntimeLimitBytes: 28 * 1024 * 1024 });
+  const legacy = { ...ready(), memoryProfile: "ios-memory-audit-v1", trackedMemory: { targetBytes: 20 * 1024 * 1024 } };
+  assert.equal(evaluateMemoryProfile(legacy).eligible, false);
+  const explicit = evaluateMemoryProfile(legacy, { profile: "ios-memory-audit-v1" });
+  assert.equal(explicit.eligible, true);
+  assert.equal(explicit.requiredGoRuntimeLimitBytes, 28 * 1024 * 1024);
+  assert.equal(evaluateMemoryProfile(ready(), { profile: "ios-memory-audit-v1" }).eligible, false);
+  assert.equal(evaluateMemoryProfile(ready(), { profile: "private-canary" }).eligible, false);
+});
+
+test("paZ8U8 root regression: a 32/32-MiB diagnostic runtime cannot start a rate-zero qualification", () => {
   const status = { ...ready(), goMemoryProfileRateBytes: 65_536, goRuntimeBytes: 15_030_536 };
   const result = evaluateMemoryProfile(status);
   assert.equal(result.eligible, false);
@@ -53,9 +81,10 @@ test("a missing or coerced profile rate is not evidence that profiling is disabl
 });
 
 test("qualification is the CLI default and diagnostic intent cannot be inferred from a status", () => {
-  assert.deepEqual(parseMemoryProfileArgs(["--status", "private.json"]), { status: "private.json", mode: "qualification" });
+  assert.deepEqual(parseMemoryProfileArgs(["--status", "private.json"]), { status: "private.json", mode: "qualification", profile: "ios-memory-audit-v2" });
   assert.deepEqual(parseMemoryProfileArgs(["--mode", "diagnostic", "--status", "private.json"]),
-    { status: "private.json", mode: "diagnostic" });
+    { status: "private.json", mode: "diagnostic", profile: "ios-memory-audit-v2" });
+  assert.equal(parseMemoryProfileArgs(["--status", "private.json", "--profile", "ios-memory-audit-v1"]).profile, "ios-memory-audit-v1");
   for (const args of [[], ["--mode", "diagnostic"], ["--status", "x", "--mode", "other"],
     ["--status", "x", "--mode", "diagnostic", "--mode", "qualification"], ["--status", "x", "--status", "y"],
     ["--status", "x", "--rate", "0"]]) assert.throws(() => parseMemoryProfileArgs(args));
@@ -63,14 +92,14 @@ test("qualification is the CLI default and diagnostic intent cannot be inferred 
 
 test("lY1fH2 root regression: omitted Gradle audit flag selects 28/40MiB and must fail before traffic", () => {
   const status = ready();
-  status.trackedMemory.targetBytes = 29_360_128;
+  status.trackedMemory.targetBytes = 28 * 1024 * 1024;
   status.goMemoryLimitBytes = 41_943_040;
   // Even a currently small runtime cannot make the wrong policy comparable.
   status.goRuntimeBytes = 13_271_056;
   const result = evaluateMemoryProfile(status);
   assert.equal(result.eligible, false);
   assert.equal(result.classification, "INVALID_MEMORY_PROFILE");
-  assert.deepEqual(result.reasons, ["device-memory-target-not-20-mib", "go-memory-limit-not-32-mib"]);
+  assert.deepEqual(result.reasons, ["device-memory-target-mismatch", "go-memory-limit-not-32-mib"]);
 });
 
 test("missing, string-coerced, partial, stricter, or non-ready evidence never silently defaults", () => {

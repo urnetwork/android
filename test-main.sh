@@ -249,6 +249,8 @@ config_reader="$root/tests/read-tests-config.sh"
 [ -x "$config_reader" ] || die "test config reader is missing: $config_reader"
 UR_ACCEPT_VAULT="$vault" "$config_reader" --ready validate
 android_unlock_code="$(UR_ACCEPT_VAULT="$vault" "$config_reader" get android.unlock_code)"
+# Bash 3.2 treats an empty array as unset under nounset. The guarded command
+# expansions below preserve zero optional arguments without disabling set -u.
 gradle_worker_args=()
 if android_parallelism="$(android_acceptance_positive_parallelism "${GOMAXPROCS:-}")"; then
   gradle_worker_args=(--max-workers "$android_parallelism")
@@ -625,7 +627,7 @@ if [ "$skip_build" -ne 1 ]; then
       GOBIN="$tools_dir/go-bin" \
       PATH="$tools_dir/go-bin:$PATH" \
       URNETWORK_ANDROID_SDK_BUILD_OWNER="$sdk_build_owner" \
-      timeout 3600 ./gradlew :app:buildSdkAcceptance "${gradle_worker_args[@]}"
+      timeout 3600 ./gradlew :app:buildSdkAcceptance ${gradle_worker_args[@]+"${gradle_worker_args[@]}"}
   ) 2>&1 | tee "$artifacts/sdk-build.log"
 fi
 
@@ -2133,7 +2135,7 @@ for target in $build_targets; do
         ":app:assemble${flavor}Debug" \
         ":app:assemble${flavor}DebugAndroidTest" \
         -PurnetworkAcceptanceBuildId="$build_id" \
-        "${gradle_worker_args[@]}"
+        ${gradle_worker_args[@]+"${gradle_worker_args[@]}"}
     ) 2>&1 | tee "$build_out/build.log"
     build_status=${PIPESTATUS[0]}
     set -e

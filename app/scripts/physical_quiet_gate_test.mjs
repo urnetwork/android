@@ -15,14 +15,16 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
     hostTimeUnixMs: base + elapsedMs,
     workloads,
     status: { type: "status", state: "complete", phase, pid: 42, commandId,
+      memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0,
-      goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 20 * 1024 * 1024 },
+      goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 32 * 1024 * 1024 },
       elapsedMs, connected: role === "client", tunnelStarted: role !== "direct",
       provideEnabled: role === "provider" },
   });
   return {
     role, phase, underlay: "wifi", start: status(0, "quiet-start"), end: status(durationMs, "quiet-end"),
     memory: Array.from({ length: 21 }, (_, i) => ({ type: "sample", phase,
+      memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024,
       elapsedMs: durationMs * i / 20, samplerDropped: 0, goRuntimeBytes: 20 * 1024 * 1024 })),
@@ -42,6 +44,41 @@ function rejects(input, reason) {
   return result;
 }
 
+test("32 MiB is the exact iOS absolute cap in every phase, independently of steady percentiles", () => {
+  assert.equal(GO_RUNTIME_LIMIT_BYTES, 33_554_432);
+  for (const phase of ["baseline", "active", "drain", "transition", "quiet", "finish"]) {
+    const input = evidence();
+    const row = phase === "quiet" ? input.memory[10] :
+      { ...input.memory[0], phase, elapsedMs: phase === "finish" ? REQUIRED_QUIET_MS + 1 : -1 };
+    if (phase !== "quiet") input.memory.push(row);
+    row.goRuntimeBytes = 33_554_432;
+    const exact = evaluateQuietWindow(input);
+    assert.equal(exact.eligible, true, `${phase}: ${JSON.stringify(exact)}`);
+    assert.equal(exact.goRuntimeLimitBytes, 33_554_432);
+    row.goRuntimeBytes += 1;
+    const breached = rejects(input, "go-runtime-above-32-mib");
+    assert.equal(breached.classification, "FAILED_MEMORY_LIMIT");
+    assert.equal(breached.goRuntimeBreachSampleCount, 1);
+    assert.equal(breached.quietGoRuntimeBreachSampleCount, phase === "quiet" ? 1 : 0);
+  }
+});
+
+test("explicit selected iOS profile is required at boundaries and every primitive sample", () => {
+  for (const memoryProfile of [undefined, null, "android", "private-canary"]) {
+    for (const phase of ["start", "end", "baseline", "active", "drain", "transition", "quiet", "finish"]) {
+      const input = evidence();
+      if (phase === "start" || phase === "end") input[phase].status.memoryProfile = memoryProfile;
+      else if (phase === "quiet") input.memory[10].memoryProfile = memoryProfile;
+      else input.memory.push({ ...input.memory[0], phase, memoryProfile,
+        elapsedMs: phase === "finish" ? REQUIRED_QUIET_MS + 1 : -1 });
+      const result = evaluateQuietWindow(input);
+      assert.equal(result.classification, "INVALID_MEMORY_PROFILE", `${phase}: ${JSON.stringify(result)}`);
+      assert.equal(result.eligible, false);
+      assert.equal(JSON.stringify(result).includes("private-canary"), false);
+    }
+  }
+});
+
 test("five minutes is a fixed floor, not sample count or rounded elapsed time", () => {
   assert.equal(REQUIRED_QUIET_MS, 300_000);
   rejects(evidence("client", 299_999), "quiet-samples-shorter-than-300-seconds");
@@ -59,7 +96,10 @@ test("paZ8U8: profiling overhead cannot pass as release memory, even with valid 
   // Bucket accounting is explanatory only. Never subtract it from the gate.
   input.memory[10].goRuntimeBytes = 25_442_584;
   input.memory[10].goProfilingBucketBytes = 1_850_363;
-  const breached = rejects(input, "go-runtime-above-24-mib");
+  assert.equal(evaluateQuietWindow(input).classification, "INVALID_RATE_ZERO",
+    "the historical 24-MiB breach is below today's cap but remains a diagnostic-profile rejection");
+  input.memory[10].goRuntimeBytes = 33_554_433;
+  const breached = rejects(input, "go-runtime-above-32-mib");
   assert.equal(breached.classification, "FAILED_MEMORY_LIMIT");
   assert.equal(breached.goRuntimeBreachSampleCount, 1);
   assert.ok(breached.reasons.includes("sampler-memory-profile-rate-not-zero"));
@@ -94,6 +134,8 @@ test("lY1fH2 regression: correct quiet duration/network never qualifies the larg
   const result = rejects(input, "ios-memory-audit-profile-mismatch");
   assert.equal(result.classification, "INVALID_MEMORY_PROFILE");
   input.memory[10].goRuntimeBytes = 26_492_960;
+  assert.equal(evaluateQuietWindow(input).classification, "INVALID_MEMORY_PROFILE");
+  input.memory[10].goRuntimeBytes = 33_554_433;
   assert.equal(rejects(input, "ios-memory-audit-profile-mismatch").classification, "FAILED_MEMORY_LIMIT",
     "profile invalidation must not hide the real absolute memory violation");
 });
@@ -243,30 +285,38 @@ test("dropped, duplicate, erroneous and interrupted primitive samples fail", () 
   }
 });
 
-test("24MiB is absolute, including an active sample outside the quiet window", () => {
+test("32MiB is absolute, including an active sample outside the quiet window", () => {
   const input = evidence();
   input.memory[10].goRuntimeBytes = GO_RUNTIME_LIMIT_BYTES;
   assert.equal(evaluateQuietWindow(input).eligible, true);
   input.memory.unshift({ type: "sample", elapsedMs: -1, phase: "traffic",
     goRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 1 });
-  assert.equal(rejects(input, "go-runtime-above-24-mib").classification, "FAILED_MEMORY_LIMIT");
+  assert.equal(rejects(input, "go-runtime-above-32-mib").classification, "FAILED_MEMORY_LIMIT");
 });
 
-test("kqVGmc: global burst peak must fail without being mislabeled as a quiet-window breach", () => {
+test("historical burst values remain visible; a new global breach is not a quiet-window breach", () => {
   const input = evidence();
   input.memory.forEach((sample) => { sample.goRuntimeBytes = 22_904_864; });
   input.memory[1].goRuntimeBytes = 24_723_488;
   for (const [index, bytes] of [25_509_920, 26_050_592, 26_353_696].entries()) {
     input.memory.unshift({ type: "sample", elapsedMs: -15_000 * (index + 1), phase: "traffic",
+      memoryProfile: "ios-memory-audit-v2",
       goMemoryLimitBytes: 32 * 1024 * 1024, goMemoryProfileRateBytes: 0, goRuntimeBytes: bytes });
   }
+  // These former 24-MiB test values are below the newly authorized cap.
+  // This fixture includes current profile proof; it does not requalify old artifacts.
+  const historical = evaluateQuietWindow(input);
+  assert.equal(historical.eligible, true);
+  assert.equal(historical.peakGoRuntimeBytes, 26_353_696);
+  assert.equal(historical.goRuntimeBreachSampleCount, 0);
+  input.memory.unshift({ ...input.memory[0], elapsedMs: -60_000, goRuntimeBytes: 33_554_433 });
   const first = evaluateQuietWindow(input);
   assert.equal(first.classification, "FAILED_MEMORY_LIMIT");
   assert.equal(first.eligible, false);
-  assert.deepEqual(first.reasons, ["go-runtime-above-24-mib"]);
-  assert.equal(first.peakGoRuntimeBytes, 26_353_696);
+  assert.deepEqual(first.reasons, ["go-runtime-above-32-mib"]);
+  assert.equal(first.peakGoRuntimeBytes, 33_554_433);
   assert.equal(first.quietPeakGoRuntimeBytes, 24_723_488);
-  assert.equal(first.goRuntimeBreachSampleCount, 3);
+  assert.equal(first.goRuntimeBreachSampleCount, 1);
   assert.equal(first.quietGoRuntimeBreachSampleCount, 0);
   // A later offline/teardown evaluation remains the same interval and global
   // failure, even if all appended samples have settled below the cap.
@@ -344,6 +394,12 @@ test("CLI rejects missing evidence safely and accepts valid offline evidence wit
     result = offline();
     assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout).evaluationMode, "offline-teardown");
+    const currentProof = JSON.parse(readFileSync(liveGate));
+    for (const mutation of [{ schemaVersion: 2 }, { goRuntimeLimitBytes: 25_165_824 }]) {
+      writeFileSync(liveGate, JSON.stringify({ ...currentProof, ...mutation }));
+      assert.equal(offline().status, 2, "old or mismatched gate proof must not be requalified");
+    }
+    writeFileSync(liveGate, JSON.stringify(currentProof));
     const memoryPath = join(directory, "memory.json");
     const originalMemory = readFileSync(memoryPath, "utf8");
     writeFileSync(memoryPath, originalMemory + JSON.stringify({ type: "sample", phase: "finish", elapsedMs: 400_000,

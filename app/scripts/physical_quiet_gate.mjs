@@ -6,11 +6,12 @@ import { spawnSync } from "node:child_process";
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { evaluateEligibility } from "./physical_lowbar_capture.mjs";
-import { evaluateMemoryProfile, GO_MEMORY_LIMIT_BYTES, QUALIFICATION_PROFILE_RATE_BYTES } from "./physical_memory_profile.mjs";
+import { evaluateMemoryProfile, GO_MEMORY_LIMIT_BYTES, GO_RUNTIME_LIMIT_BYTES, MEMORY_AUDIT_PROFILE,
+  QUALIFICATION_PROFILE_RATE_BYTES } from "./physical_memory_profile.mjs";
 import { evaluateWorkloadCoverage, requireLiveCollector } from "./physical_workload_receipt.mjs";
 
 export const REQUIRED_QUIET_MS = 300_000;
-export const GO_RUNTIME_LIMIT_BYTES = 24 * 1024 * 1024;
+export { GO_RUNTIME_LIMIT_BYTES } from "./physical_memory_profile.mjs";
 const MAX_MEMORY_GAP_MS = 30_000;
 const MAX_TELEMETRY_GAP_MS = 5_000;
 const ROLES = ["direct", "client", "provider"];
@@ -97,6 +98,7 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   const allSamples = memory.filter((record) => record.type === "sample");
   let peakGoRuntimeBytes = 0;
   for (const record of allSamples) {
+    if (record.memoryProfile !== MEMORY_AUDIT_PROFILE) fail("sampler-memory-profile-not-ios");
     if (record.goMemoryLimitBytes !== GO_MEMORY_LIMIT_BYTES) fail("sampler-go-memory-limit-not-32-mib");
     if (record.goMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES) {
       fail("sampler-memory-profile-rate-not-zero");
@@ -107,7 +109,7 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
       peakGoRuntimeBytes = Math.max(peakGoRuntimeBytes, record.goRuntimeBytes);
     }
   }
-  if (peakGoRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) fail("go-runtime-above-24-mib");
+  if (peakGoRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) fail("go-runtime-above-32-mib");
   const workloads = start?.workloads;
   let workloadCoverage = { eligible: false, sampleCount: 0 };
   if (!workloads?.ownerId || workloads.ownerId !== end?.workloads?.ownerId ||
@@ -159,12 +161,13 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   }
   return {
     type: "quiet-window-gate",
-    schemaVersion: 2,
+    schemaVersion: 3,
     eligible: reasons.size === 0,
-    classification: reasons.has("go-runtime-above-24-mib") ? "FAILED_MEMORY_LIMIT" :
+    classification: reasons.has("go-runtime-above-32-mib") ? "FAILED_MEMORY_LIMIT" :
       reasons.has("ios-memory-profile-rate-not-zero") || reasons.has("sampler-memory-profile-rate-not-zero") ?
         "INVALID_RATE_ZERO" :
-      reasons.has("ios-memory-audit-profile-mismatch") || reasons.has("sampler-go-memory-limit-not-32-mib") ?
+      reasons.has("ios-memory-audit-profile-mismatch") || reasons.has("sampler-memory-profile-not-ios") ||
+        reasons.has("sampler-go-memory-limit-not-32-mib") ?
         "INVALID_MEMORY_PROFILE" :
       reasons.has("workload-collector-evidence-required") || reasons.has("workload-collector-coverage-incomplete") ?
         "INCOMPLETE_ACTIVE_COVERAGE" :
@@ -183,6 +186,7 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     goRuntimeBreachSampleCount,
     quietGoRuntimeBreachSampleCount,
     goRuntimeLimitBytes: GO_RUNTIME_LIMIT_BYTES,
+    memoryProfile: MEMORY_AUDIT_PROFILE,
     requiredGoMemoryProfileRateBytes: QUALIFICATION_PROFILE_RATE_BYTES,
     reasons: [...reasons],
   };
@@ -245,7 +249,8 @@ function main() {
     if (realpathSync(options.telemetry) !== realpathSync(workloads.collector.path)) throw new Error();
     if (options["live-gate"]) {
       const proof = JSON.parse(readFileSync(options["live-gate"], "utf8"));
-      if (proof.type !== "quiet-window-gate" || proof.schemaVersion !== 2 || proof.evaluationMode !== "live" ||
+      if (proof.type !== "quiet-window-gate" || proof.schemaVersion !== 3 || proof.evaluationMode !== "live" ||
+          proof.goRuntimeLimitBytes !== GO_RUNTIME_LIMIT_BYTES ||
           proof.collectorLiveAtGate !== true || proof.workloadOwnerId !== workloads.ownerId ||
           !validTime(proof.hostTimeUnixMs) || proof.hostTimeUnixMs < end.hostTimeUnixMs) throw new Error();
       result.liveGateHostTimeUnixMs = proof.hostTimeUnixMs;

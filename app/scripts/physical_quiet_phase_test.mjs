@@ -18,8 +18,9 @@ function fixture(t, base = 1_000_000) {
   let reads = 0;
   let collectorLagMs = 0;
   let current = { type: "status", state: "complete", commandId: "traffic-end", phase: "traffic",
+    memoryProfile: "ios-memory-audit-v2",
     goMemoryProfileRateBytes: 0,
-    goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 20 * 1024 * 1024 },
+    goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 32 * 1024 * 1024 },
     pid: 17, elapsedMs: 1000, connected: true, tunnelStarted: true, provideEnabled: false };
   const calls = [];
   const telemetryPath = join(directory, "telemetry.ndjson");
@@ -55,6 +56,7 @@ function fixture(t, base = 1_000_000) {
     memoryDelayMs: 0,
     memory: (phase) => Array.from({ length: Math.max(0, Math.floor((time - value.memoryDelayMs) / 15_000)) }, (_, i) => ({
       type: "sample", phase, elapsedMs: 1000 + (i + 1) * 15_000, samplerDropped: 0,
+      memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0, goMemoryLimitBytes: 32 * 1024 * 1024, goRuntimeBytes: 20 * 1024 * 1024,
     })),
     advance(ms) { time += ms; updateTelemetry(); },
@@ -151,6 +153,7 @@ test("end inherits exact phase/process and uses a fresh command ID; gate accepts
   assert.notEqual(end.status.commandId, start.status.commandId);
   const result = evaluateQuietWindow({ start, end, phase: start.status.phase, role: "client", underlay: "wifi",
     memory: Array.from({ length: 21 }, (_, i) => ({ type: "sample", phase: start.status.phase,
+      memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024,
       elapsedMs: start.status.elapsedMs + (i + 1) * 15000, samplerDropped: 0, goRuntimeBytes: 20 * 1024 * 1024 })),
